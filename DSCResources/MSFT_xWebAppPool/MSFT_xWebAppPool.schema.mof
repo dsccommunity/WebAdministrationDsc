@@ -1,0 +1,11 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("xWebAppPool")]
+class MSFT_xWebAppPool : OMI_BaseResource
+{
+    [Key, Description("Name of the Web Application Pool")] String Name;
+    [Write, Description("Web Application Pool Present/Absent"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Write, Description("State of Web Application Pool"), ValueMap{"Started","Stopped"}, Values{"Started","Stopped"}] String State;
+};
+
+
+
