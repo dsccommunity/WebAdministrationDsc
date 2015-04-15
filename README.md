@@ -1,6 +1,6 @@
-{{AppVeyor build status badge for master branch}}
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
-#{{ModuleName}}
+# xWebAdministration
 
 {{Description}}
 
