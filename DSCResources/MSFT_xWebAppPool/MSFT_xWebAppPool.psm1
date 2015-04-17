@@ -131,3 +131,4 @@ function ExecuteRequiredState([string] $Name, [string] $State)
 
 Export-ModuleMember -Function *-TargetResource
 
+
