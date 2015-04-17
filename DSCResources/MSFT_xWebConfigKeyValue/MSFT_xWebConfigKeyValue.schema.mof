@@ -5,7 +5,7 @@ class MSFT_xWebConfigKeyValue : OMI_BaseResource
     [Key, Description("Path to website location(IIS or WebAdministration format)")] String WebsitePath;
     [Key, Description("Config Section to be update"), ValueMap{"AppSettings"}, Values{"AppSettings"}] String ConfigSection;
     [Write, ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
-    [Required, Description("Key for AppSettings")] String Key;
+    [Key, Description("Key for AppSettings")] String Key;
     [Write, Description("Value for AppSettings")] String Value;
     [Write, Description("If the given key value pair is for attribute, default is element")] Boolean IsAttribute;
 };
