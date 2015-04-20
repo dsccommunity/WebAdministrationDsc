@@ -19,7 +19,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **SiteName**: The name of the Site to register the module for. 
 If empty, the resource will register the module with all of IIS. 
 * **ModuleType**: The type of the module. 
-Eurrently, only FastCgiModule is supported. 
+Currently, only FastCgiModule is supported. 
 * **Ensure**: Ensures that the module is **Present** or **Absent**. 
 
 ### xWebAppPool
