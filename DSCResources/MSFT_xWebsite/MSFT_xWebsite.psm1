@@ -137,7 +137,7 @@ function Set-TargetResource
         {
             Throw "Please ensure that WebAdministration module is installed."
         }
-        $website = get-website $Name
+        $website = Get-Website | Where-Object {$_.Name -eq $name}
 
         if($website -ne $null)
         {
@@ -324,7 +324,7 @@ function Set-TargetResource
     { 
         try
         {
-            $website = get-website $Name
+            $website = Get-Website | Where-Object {$_.Name -eq $name}
             if($website -ne $null)
             {
                 Remove-website -name $Name
