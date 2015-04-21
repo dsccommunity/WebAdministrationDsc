@@ -87,7 +87,7 @@ function Get-TargetResource
 }
 
 
-# The Set-TargetResource cmdlet is used to create, delete or configuure a website on the target machine. 
+# The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine. 
 function Set-TargetResource 
 {
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -267,7 +267,7 @@ function Set-TargetResource
 
             if($UpdateNotRequired)
             {
-                Write-Verbose("Website $Name already exists and properties do not need to be udpated.");
+                Write-Verbose("Website $Name already exists and properties do not need to be updated.");
             }
             
 
@@ -276,7 +276,16 @@ function Set-TargetResource
         {
             try
             {
-                $Website = New-Website @psboundparameters
+                $Websites = Get-Website
+                if ($Websites -eq $null)
+                {
+                    # We do not have any sites this will cause an exception in 2008R2 if we don't specify an ID
+                    $Website = New-Website @psboundparameters -ID 1
+                }
+                else
+                {
+                    $Website = New-Website @psboundparameters
+                }
                 $Result = Stop-Website $Website.name -ErrorAction Stop
             
                 #Clear default bindings if new bindings defined and are different
@@ -433,7 +442,7 @@ function Test-TargetResource
                 if(ValidateWebsiteBindings -Name $Name -BindingInfo $BindingInfo)
                 {
                     $DesiredConfigurationMatch = $false
-                    Write-Verbose("Bindings for website $Name do not mach the desired state.");
+                    Write-Verbose("Bindings for website $Name do not match the desired state.");
                     break
                 }
 
@@ -452,7 +461,7 @@ function Test-TargetResource
                     if(-not ($allDefaultPage  -icontains $page))
                     {   
                         $DesiredConfigurationMatch = $false
-            Write-Verbose("Default Page for website $Name do not mach the desired state.");
+            Write-Verbose("Default Page for website $Name do not match the desired state.");
             $allDefaultPagesPresent = $false  
             break
                     }
