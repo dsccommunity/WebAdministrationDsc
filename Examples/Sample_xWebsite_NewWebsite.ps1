@@ -9,6 +9,11 @@ configuration Sample_xWebsite_NewWebsite
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String]$WebSiteName,
+        
+        # Name of the app pool
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$AppPoolName,
 
         # Source Path for Website content
         [Parameter(Mandatory)]
