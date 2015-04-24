@@ -63,6 +63,10 @@ Currently, only FastCgiModule is supported.
 
 ## Versions
 
+### 1.4.0.0
+
+Changed Key property in MSFT_xWebConfigKeyValue to be a Key, instead of Required. This allows multiple keys to be configured within the same web.config file.
+
 ### 1.3.2.4
 
 * Fixed the confusion with mismatched versions and xWebDeploy resources
