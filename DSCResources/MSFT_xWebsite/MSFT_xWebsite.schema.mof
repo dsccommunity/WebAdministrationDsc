@@ -1,26 +1,35 @@
-[ClassVersion("1.0.0")] 
+[ClassVersion("1.0.1")] 
 Class MSFT_xWebBindingInformation
 {
-    [write]UInt16 Port;
-    [Write,ValueMap{"http", "https"},Values{"http", "https"}] string Protocol;
-    [write]String IPAddress;
-    [write]String HostName;
-    [write]String CertificateThumbprint;
-    [write,ValueMap{"Personal", "WebHosting"},Values{"Personal", "WebHosting"}] string CertificateStoreName;
+    [write,Description("Port the website should listen on")]UInt16 Port;
+    [Write,Description("Is it http or https"), ValueMap{"http", "https"},Values{"http", "https"}] string Protocol;
+    [write,Description("What IP should the website listen on leave blank for any IP")]String IPAddress;
+    [write,Description("What hostname should the website respond to, leave blank for any name")]String HostName;
+    [write,Description("Thumbprint of the cert when using https")]String CertificateThumbprint;
+    [write,Description("Cert store, needed when giving Thumbprint normally the My option"),ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] string CertificateStoreName;
 };
 
+[ClassVersion("1.0.0")]
+Class MSFT_xWebConfigProp
+{
+    [write,Description("Specifies the IIS configuration section or an XPath query that returns a configuration element.")]String Filter;
+    [write,Description("Specifies the configuration path in the format machine/webroot/apphost")]String PSPath;
+    [write,Description("The name of the configuration property to change.")]String Name;
+    [write,Description("The value of the configuration setting to change.")]String Value;
+    [write,Description("The location of the configuration setting.  e.g. name of website")]String Location;
+};
 
-[ClassVersion("2.0.0"), FriendlyName("xWebsite")] 
+[ClassVersion("2.0.1"), FriendlyName("xWebsite")] 
 class MSFT_xWebsite : OMI_BaseResource
 {
-  [Key] string Name;
-  [write] string PhysicalPath;
-  [write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
-  [write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] string State;
+  [Key, Description("Name of the website")] string Name;
+  [required, Description("Path on file system that the website should point to")] string PhysicalPath;
+  [write, Description("Should the website be present or absent"), ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
+  [write, Description("Should the website be started or stopped"), ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] string State;
   [write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Hashtable containing binding information (Port, Protocol, IPAddress, HostName, CertificateThumbPrint, CertificateStore)")] string BindingInfo[];
-  [write] string ApplicationPool;
+  [write, EmbeddedInstance("MSFT_xWebConfigProp"), Description("Hashtable containing Web Configuration Properties (Filter, PSPath, Name, Location, Value)")] string webConfigProp[];
+  [write, Description("What app pool should the site use")] string ApplicationPool;
   [read] string Id;
-  [write, Description("The default pages for the website")] String DefaultPage[];
 }; 
 
 
