@@ -63,6 +63,13 @@ Currently, only FastCgiModule is supported.
 
 ## Versions
 
+### 1.5.0.0
+
+* xWebsite:
+    - Fix issue with Get-Website when there are multiple sites.
+    - Fix issue when trying to add a new website when no websites currently exist.
+    - Fix typos.
+
 ### 1.4.0.0
 
 Changed Key property in MSFT_xWebConfigKeyValue to be a Key, instead of Required. This allows multiple keys to be configured within the same web.config file.
