@@ -28,6 +28,12 @@ Import-Module $PSScriptRoot\..\DSCResources\MSFT_xWebsite\MSFT_xWebsite.psm1
 if (-Not (Test-Path $testsitePhyicalPath)){
                 New-Item $testsitePhyicalPath -ItemType Directory
             }
+
+New-Website -Name "Did it work" -PhysicalPath $testsitePhyicalPath -Force -Verbose
+
+if (-Not (Test-Path $testsitePhyicalPath)){
+                New-Item $testsitePhyicalPath -ItemType Directory
+            }
             Import-PfxCertificate -FilePath $PSScriptRoot\webhosting.pfx -CertStoreLocation Cert:\LocalMachine\WebHosting
             $testSite = @{
                         "Name" = "TestWebSite";
