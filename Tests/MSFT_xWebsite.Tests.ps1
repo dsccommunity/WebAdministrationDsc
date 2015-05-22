@@ -5,13 +5,6 @@
 [CmdletBinding()]
 param()
 
-<# 
-.summary
-    Test suite for MSFT_xWebsite.psm1
-#>
-[CmdletBinding()]
-param()
-
 $global:WebsiteCertificateTest=$true
 
 
