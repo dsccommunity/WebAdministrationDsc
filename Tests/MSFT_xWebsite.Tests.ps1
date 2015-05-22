@@ -6,7 +6,7 @@
 param()
 
 $global:WebsiteCertificateTest=$true
-Import-Module $PSScriptRoot\..\DSCResources\MSFT_xWebsite\MSFT_xWebsite.psm1
+
 
 $ErrorActionPreference = 'stop'
 Set-StrictMode -Version latest
@@ -19,8 +19,11 @@ $testsitePhyicalPath = "C:\inetpub\test"
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
 {
-    Add-WindowsFeature Web-Server,Web-WebServer,Web-Mgmt-Tools,Web-Mgmt-Console,Web-Scripting-Tools,Web-Mgmt-Service -verbose -logPath .\featureInstall.log
+    Add-WindowsFeature Web-Server,Web-WebServer,Web-Mgmt-Tools,Web-Mgmt-Console,Web-Scripting-Tools,Web-Mgmt-Service -verbose -logPath ".\featureInstall.log"
 }
+
+Import-Module WebAdministration
+Import-Module $PSScriptRoot\..\DSCResources\MSFT_xWebsite\MSFT_xWebsite.psm1
 
 function Suite.BeforeAll {
     # Remove any leftovers from previous test runs
@@ -29,6 +32,7 @@ function Suite.BeforeAll {
 
 function Suite.AfterAll {
     Remove-Module MSFT_xWebsite
+    Remove-Module WebAdministration
     $global:WebsiteCertificateTest=$null
     $personalCertPath = (Join-Path Cert:\LocalMachine\Personal\ -ChildPath $personalCert.Thumbprint)
     $webhostCertPath = (Join-Path Cert:\LocalMachine\WebHosting\ -ChildPath $personalCert.Thumbprint)
@@ -71,7 +75,7 @@ try
                                             CertificateStoreName = "WebHosting"} -ClientOnly);
                         "DefaultPage" = "index.htm"
                         }
-            Set-TargetResource @testSite -Debug
+            Set-TargetResource @testSite
 
             Test-TargetResource @testSite | Should Be "True"
         }
