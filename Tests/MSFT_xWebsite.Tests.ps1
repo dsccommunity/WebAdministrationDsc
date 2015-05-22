@@ -19,7 +19,7 @@ $testsitePhyicalPath = "C:\inetpub\test"
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
 {
-    Add-WindowsFeature Web-Server,Web-WebServer,Web-Mgmt-Console,Web-Scripting-Tools,Web-Mgmt-Service -verbose
+    Add-WindowsFeature Web-Server,Web-WebServer,Web-Mgmt-Tools,Web-Mgmt-Console,Web-Scripting-Tools,Web-Mgmt-Service -verbose -logPath .\featureInstall.log
 }
 
 function Suite.BeforeAll {
