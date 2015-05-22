@@ -1,8 +1,6 @@
 ﻿<# 
 .summary
-    Test suite for MSFT_xDhcpServerOption.psm1
-    These tests require RSAT on client.
-    On 8.1 it's found here: http://www.microsoft.com/en-us/download/confirmation.aspx?id=39296&6B49FDFB-8E5B-4B07-BC31-15695C5A2143=1
+    Test suite for MSFT_xWebsite.psm1
 #>
 [CmdletBinding()]
 param()
@@ -21,7 +19,7 @@ $testsitePhyicalPath = "C:\inetpub\test"
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
 {
-    Add-WindowsFeature Web-Server -verbose
+    Add-WindowsFeature Web-Server,Web-WebServer,Web-Mgmt-Console,Web-Scripting-Tools,Web-Mgmt-Service -verbose
 }
 
 function Suite.BeforeAll {
@@ -46,7 +44,9 @@ try
 {
     Describe 'Validate-ResourceProperties' {
         AfterEach {
-            Remove-Website -Name "TestWebSite"
+            if (Test-Path IIS:\Sites\TestWebSite){
+                Remove-Website -Name "TestWebSite"
+            }
             if (Test-Path $testsitePhyicalPath) {
                 Remove-Item $testsitePhyicalPath
             }
