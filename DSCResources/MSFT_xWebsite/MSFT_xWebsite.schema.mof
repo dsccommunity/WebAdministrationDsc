@@ -6,7 +6,7 @@ Class MSFT_xWebBindingInformation
     [write]String IPAddress;
     [write]String HostName;
     [write]String CertificateThumbprint;
-    [write,ValueMap{"Personal", "WebHosting"},Values{"Personal", "WebHosting"}] string CertificateStoreName;
+    [write,ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] string CertificateStoreName;
 };
 
 
