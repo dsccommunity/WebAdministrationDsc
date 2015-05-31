@@ -1,34 +1,33 @@
 ######################################################################################
-# DSC Resource for IIS Server level MIME Type mappings
+# DSC Resource for IIS Server level Web Site Defaults
+# ApplicationHost.config: system.applicationHost/sites/siteDefaults
 ######################################################################################
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
 NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-AddingType=Adding MIMEType '{0}' for extension '{1}'
-RemovingType=Removing MIMEType '{0}' for extension '{1}'
-TypeExists=MIMEType '{0}' for extension '{1}' already exist
-TypeNotPresent=MIMEType '{0}' for extension '{1}' is not present as requested
-TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
+SettingValue=Changing default value '{0}' to '{1}'
 '@
 }
 
 ######################################################################################
 # The Get-TargetResource cmdlet.
-# This function will get the Mime type for a file extension
+# This function will get all supported site default values
 ######################################################################################
 function Get-TargetResource
 {
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
 	param
-	(		
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$Extension,
-
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-        [String]$MimeType
+	(
+        [Parameter(Mandatory)]
+        [string]$Scope,
+        [string]$LogFormat,
+        [string]$LogDirectory,
+        [string]$TraceLogDirectory,
+        [string]$DefaultApplicationPool,
+        [string]$AllowSubDirConfig
 	)
 	
     # Check if WebAdministration module is present for IIS cmdlets
@@ -36,110 +35,105 @@ function Get-TargetResource
 
     $getTargetResourceResult = $null;
 
-    $mt = GetMapping $Extension $MimeType 
-
-    if ($mt -eq $null)
-    {
-        $ensureResult = "Absent";
-    }
-    else
-    {
-        $ensureResult = "Present"
-        $getTargetResourceResult = @{Extension = $mt.fileExtension
-                                    MimeType = $mt.mimeType}
-    }
-    
+    $getTargetResourceResult = @{LogFormat = (GetValue "logFile" "logFormat")
+                                    TraceLogDirectory = ""
+                                    DefaultApplicationPool = ""
+                                    AllowSubDirConfig = ""
+                                    Scope = "Machine"
+                                    LogDirectory = ""}    
 	return $getTargetResourceResult
 }
 
 ######################################################################################
 # The Set-TargetResource cmdlet.
-# This function will add or remove a MIME type mapping
+# This function will change a default setting if not already set
 ######################################################################################
 function Set-TargetResource
 {
 	param
 	(	
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
-        	
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$Extension,
-
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-        [String]$MimeType
+        [Parameter(Mandatory)]
+        [string]$Scope,
+        [string]$LogFormat,
+        [string]$LogDirectory,
+        [string]$TraceLogDirectory,
+        [string]$DefaultApplicationPool,
+        [string]$AllowSubDirConfig
     )
 
         CheckIISPoshModule
 
-        [string]$psPathRoot = "MACHINE/WEBROOT/APPHOST"
-        [string]$sectionNode = "system.webServer/staticContent"
-
-        $mt = GetMapping $Extension $MimeType 
-
-        if ($mt -eq $null -and $Ensure -eq "Present")
-        {
-            # add the MimeType            
-            Add-WebConfigurationProperty -pspath $psPathRoot  -filter $sectionNode -name "." -value @{fileExtension="$Extension";mimeType="$MimeType"}
-            Write-Verbose($LocalizedData.AddingType -f $MimeType,$Extension);
-        }
-        elseif ($mt -ne $null -and $Ensure -eq "Absent")
-        {
-            # remove the MimeType                      
-            Remove-WebConfigurationProperty -pspath $psPathRoot -filter $sectionNode -name "." -AtElement @{fileExtension="$Extension"}
-            Write-Verbose($LocalizedData.RemovingType -f $MimeType,$Extension);
-        }
+        SetValue "logFile" "logFormat" $LogFormat
 }
 
 ######################################################################################
 # The Test-TargetResource cmdlet.
-# This will test if the given MIME type mapping has the desired state, Present or Absent
+# This will test whether all given values are already set in the current configuration
 ######################################################################################
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
 	param
 	(	
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
-	
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$Extension,
-
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-        [String]$MimeType
+        [Parameter(Mandatory)]
+        [string]$Scope,
+        [string]$LogFormat,
+        [string]$LogDirectory,
+        [string]$TraceLogDirectory,
+        [string]$DefaultApplicationPool,
+        [string]$AllowSubDirConfig
 	)
 
     [bool]$DesiredConfigurationMatch = $true;
-	
+
     CheckIISPoshModule
 
-    $mt = GetMapping $Extension $MimeType 
-
-    if (($mt -eq $null -and $Ensure -eq "Present") -or ($mt -ne $null -and $Ensure -eq "Absent"))
-    {
-        $DesiredConfigurationMatch = $false;
-    }
-    elseif ($mt -ne $null -and $Ensure -eq "Present")
-    {
-        # Already there 
-        Write-Verbose($LocalizedData.TypeExists -f $MimeType,$Extension);
-    }
-    elseif ($mt -eq $null -and $Ensure -eq "Absent")
-    {
-        # TypeNotPresent
-        Write-Verbose($LocalizedData.TypeNotPresent -f $MimeType,$Extension);
-    }
-    else
-    {
-        Write-Verbose($LocalizedData.TypeStatusUnknown -f $MimeType,$Extension);
-    }
+    $DesiredConfigurationMatch = CheckValue "logFile" "logFormat" $LogFormat
+    if (!($DesiredConfigurationMatch)) { return false }
     
 	return $DesiredConfigurationMatch
+}
+
+Function CheckValue([sting]$path,[string]$name,[string]$newValue)
+{
+    [bool]$DesiredConfigurationMatch = $true;
+    if ($newValue -ne $null)
+    {
+        $existingValue = GetValue $path $name
+        if ($existingValue -ne $newValue)
+        {
+            $DesiredConfigurationMatch = $false
+        }
+        else
+        {
+            # Write-Verbose "OK"
+        }
+    }
+
+    return $DesiredConfigurationMatch
+}
+
+Function SetValue([sting]$path,[string]$name,[string]$newValue)
+{
+    if ($newValue -ne $null)
+    {
+        $existingValue = GetValue $path $name
+        if ($existingValue -ne $newValue)
+        {
+            Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/siteDefaults/$path" -name $name -value "$newValue"
+            $relPath = $path + "/" + $name
+            WWrite-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
+        }
+        else
+        {
+            # Write-Verbose "OK"
+        }
+    }
+}
+
+Function GetValue([sting]$path,[string]$name)
+{
+    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/siteDefaults/$path" -name $name
 }
 
 Function CheckIISPoshModule
@@ -149,12 +143,6 @@ Function CheckIISPoshModule
     {
         Throw $LocalizedData.NoWebAdministrationModule
     }
-}
-
-Function GetMapping([string]$extension,[string]$type)
-{
-    [string]$filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $extension + "' and @mimeType='" + $type + "']"
-    return Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .
 }
 
 #  FUNCTIONS TO BE EXPORTED 
