@@ -60,8 +60,22 @@ Currently, only FastCgiModule is supported.
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
 * **KeyValuePair**: Key value pair for AppSettings (ItemCollection format). 
 
+### xIisFeatureDelegation
+* **SectionName**: relative path of the section to delegate such as **security/authentication**
+* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
+
+### xIisMimeTypeMapping
+* **Extension**: The file extension to map such as **.html**
+* **MimeType**: The MIME type to map that extension to such as **text/html**
+* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
 
 ## Versions
+
+### 1.6.0.0
+
+New resources for server level settings:
+
+**xIisFeatureDelegation, xIisMimeTypeMapping**
 
 ### 1.5.0.0
 

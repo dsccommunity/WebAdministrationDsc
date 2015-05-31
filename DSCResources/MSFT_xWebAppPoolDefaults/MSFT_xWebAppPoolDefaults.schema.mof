@@ -1,0 +1,6 @@
+[ClassVersion("1.0.0"), FriendlyName("xWebAppPoolDefaults")] 
+class MSFT_xWebAppPoolDefaults : OMI_BaseResource
+{
+  [write] string Extension;
+  [write] string MimeType;
+};

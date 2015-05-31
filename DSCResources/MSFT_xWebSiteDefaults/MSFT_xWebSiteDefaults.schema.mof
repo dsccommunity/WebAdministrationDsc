@@ -1,0 +1,9 @@
+[ClassVersion("1.0.0"), FriendlyName("xWebSiteDefaults")] 
+class MSFT_xWebSiteDefaults : OMI_BaseResource
+{
+  [write] string LogFormat;
+  [write] string LogDirectory;
+  [write] string TraceLogDirectory;
+  [write] string DefaultApplicationPool;
+  [write] string AllowSubDirConfig;
+};
