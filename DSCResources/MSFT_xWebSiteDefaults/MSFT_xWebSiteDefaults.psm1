@@ -8,6 +8,7 @@ data LocalizedData
     ConvertFrom-StringData @'
 NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
 SettingValue=Changing default value '{0}' to '{1}'
+ValueOk=Default value '{0}' is already '{1}'
 '@
 }
 
@@ -22,12 +23,12 @@ function Get-TargetResource
 	param
 	(
         [Parameter(Mandatory)]
-        [string]$Scope,
-        [string]$LogFormat,
-        [string]$LogDirectory,
-        [string]$TraceLogDirectory,
-        [string]$DefaultApplicationPool,
-        [string]$AllowSubDirConfig
+        [string]$ApplyTo
+#        [string]$LogFormat,
+#        [string]$LogDirectory,
+#        [string]$TraceLogDirectory,
+#        [string]$DefaultApplicationPool,
+#        [string]$AllowSubDirConfig
 	)
 	
     # Check if WebAdministration module is present for IIS cmdlets
@@ -35,12 +36,12 @@ function Get-TargetResource
 
     $getTargetResourceResult = $null;
 
-    $getTargetResourceResult = @{LogFormat = (GetValue "logFile" "logFormat")
-                                    TraceLogDirectory = ""
-                                    DefaultApplicationPool = ""
-                                    AllowSubDirConfig = ""
-                                    Scope = "Machine"
-                                    LogDirectory = ""}    
+    $getTargetResourceResult = @{LogFormat = (GetValue "siteDefaults/logFile" "logFormat")
+                                    TraceLogDirectory = ( GetValue "siteDefaults/traceFailedRequestsLogging" "directory")
+                                    DefaultApplicationPool = (GetValue "applicationDefaults" "applicationPool")
+                                    AllowSubDirConfig = (GetValue "virtualDirectoryDefaults" "allowSubDirConfig")
+                                    ApplyTo = "Machine"
+                                    LogDirectory = (GetValue "siteDefaults/logFile" "directory")}    
 	return $getTargetResourceResult
 }
 
@@ -53,7 +54,7 @@ function Set-TargetResource
 	param
 	(	
         [Parameter(Mandatory)]
-        [string]$Scope,
+        [string]$ApplyTo,
         [string]$LogFormat,
         [string]$LogDirectory,
         [string]$TraceLogDirectory,
@@ -63,7 +64,11 @@ function Set-TargetResource
 
         CheckIISPoshModule
 
-        SetValue "logFile" "logFormat" $LogFormat
+        SetValue "siteDefaults/logFile" "logFormat" $LogFormat
+        SetValue "siteDefaults/logFile" "directory" $LogDirectory
+        SetValue "siteDefaults/traceFailedRequestsLogging" "directory" $TraceLogDirectory
+        SetValue "applicationDefaults" "applicationPool" $DefaultApplicationPool
+        SetValue "virtualDirectoryDefaults" "allowSubDirConfig" $AllowSubDirConfig
 }
 
 ######################################################################################
@@ -76,7 +81,7 @@ function Test-TargetResource
 	param
 	(	
         [Parameter(Mandatory)]
-        [string]$Scope,
+        [string]$ApplyTo,
         [string]$LogFormat,
         [string]$LogDirectory,
         [string]$TraceLogDirectory,
@@ -88,52 +93,68 @@ function Test-TargetResource
 
     CheckIISPoshModule
 
-    $DesiredConfigurationMatch = CheckValue "logFile" "logFormat" $LogFormat
-    if (!($DesiredConfigurationMatch)) { return false }
+    $DesiredConfigurationMatch = CheckValue "virtualDirectoryDefaults" "allowSubDirConfig" $AllowSubDirConfig
+    if (!($DesiredConfigurationMatch)) { return $false }
+
+    $DesiredConfigurationMatch = CheckValue "siteDefaults/logFile" "logFormat" $LogFormat
+    if (!($DesiredConfigurationMatch)) { return $false }
+
+    $DesiredConfigurationMatch = CheckValue "siteDefaults/logFile" "directory" $LogDirectory
+    if (!($DesiredConfigurationMatch)) { return $false }
+
+    $DesiredConfigurationMatch = CheckValue "siteDefaults/traceFailedRequestsLogging" "directory" $TraceLogDirectory
+    if (!($DesiredConfigurationMatch)) { return $false }
+
+    $DesiredConfigurationMatch = CheckValue "applicationDefaults" "applicationPool" $DefaultApplicationPool
+    if (!($DesiredConfigurationMatch)) { return $false }
     
 	return $DesiredConfigurationMatch
 }
 
-Function CheckValue([sting]$path,[string]$name,[string]$newValue)
+Function CheckValue([string]$path,[string]$name,[string]$newValue)
 {
-    [bool]$DesiredConfigurationMatch = $true;
-    if ($newValue -ne $null)
+    if (!$newValue)
     {
-        $existingValue = GetValue $path $name
-        if ($existingValue -ne $newValue)
-        {
-            $DesiredConfigurationMatch = $false
-        }
-        else
-        {
-            # Write-Verbose "OK"
-        }
+        # if no new value was specified, we assume this value is okay.        
+        return $true
     }
 
+
+    [bool]$DesiredConfigurationMatch = $true;
+
+    $existingValue = GetValue $path $name
+    if ($existingValue -ne $newValue)
+    {
+        $DesiredConfigurationMatch = $false
+    }
+    else
+    {
+        $relPath = $path + "/" + $name
+        Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
+    }
+    
     return $DesiredConfigurationMatch
 }
 
-Function SetValue([sting]$path,[string]$name,[string]$newValue)
+# some internal helper function to do the actual work:
+
+Function SetValue([string]$path,[string]$name,[string]$newValue)
 {
-    if ($newValue -ne $null)
+    if ($newValue)
     {
         $existingValue = GetValue $path $name
         if ($existingValue -ne $newValue)
         {
-            Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/siteDefaults/$path" -name $name -value "$newValue"
+            Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/$path" -name $name -value "$newValue"
             $relPath = $path + "/" + $name
-            WWrite-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
-        }
-        else
-        {
-            # Write-Verbose "OK"
+            Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
         }
     }
 }
 
-Function GetValue([sting]$path,[string]$name)
+Function GetValue([string]$path,[string]$name)
 {
-    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/siteDefaults/$path" -name $name
+    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/$path" -name $name
 }
 
 Function CheckIISPoshModule

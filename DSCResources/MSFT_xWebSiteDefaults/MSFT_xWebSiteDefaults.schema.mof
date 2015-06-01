@@ -1,7 +1,7 @@
 [ClassVersion("1.0.0"), FriendlyName("xWebSiteDefaults")] 
 class MSFT_xWebSiteDefaults : OMI_BaseResource
 {
-  [key] string Scope;
+  [key] string ApplyTo;
   [write] string LogFormat;
   [write] string LogDirectory;
   [write] string TraceLogDirectory;
