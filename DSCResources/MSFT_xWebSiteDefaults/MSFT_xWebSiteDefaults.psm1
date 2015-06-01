@@ -1,6 +1,10 @@
 ######################################################################################
 # DSC Resource for IIS Server level Web Site Defaults
 # ApplicationHost.config: system.applicationHost/sites/siteDefaults
+#
+# only a limited number of settings are supported at this time
+# We try to cover the most common use cases
+# We have a single parameter for each setting
 ######################################################################################
 data LocalizedData
 {
@@ -23,12 +27,8 @@ function Get-TargetResource
 	param
 	(
         [Parameter(Mandatory)]
+        [ValidateSet("Machine")]
         [string]$ApplyTo
-#        [string]$LogFormat,
-#        [string]$LogDirectory,
-#        [string]$TraceLogDirectory,
-#        [string]$DefaultApplicationPool,
-#        [string]$AllowSubDirConfig
 	)
 	
     # Check if WebAdministration module is present for IIS cmdlets
@@ -53,12 +53,15 @@ function Set-TargetResource
 {
 	param
 	(	
-        [Parameter(Mandatory)]
+        [ValidateSet("Machine")]
+        [parameter(Mandatory = $true)]
         [string]$ApplyTo,
+        [ValidateSet("W3C","IIS","NCSA","Custom")]
         [string]$LogFormat,
         [string]$LogDirectory,
         [string]$TraceLogDirectory,
         [string]$DefaultApplicationPool,
+        [ValidateSet("true","false")]
         [string]$AllowSubDirConfig
     )
 
@@ -80,12 +83,15 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
 	param
 	(	
-        [Parameter(Mandatory)]
+        [ValidateSet("Machine")]
+        [parameter(Mandatory = $true)]
         [string]$ApplyTo,
+        [ValidateSet("W3C","IIS","NCSA","Custom")]
         [string]$LogFormat,
         [string]$LogDirectory,
         [string]$TraceLogDirectory,
         [string]$DefaultApplicationPool,
+        [ValidateSet("true","false")]
         [string]$AllowSubDirConfig
 	)
 

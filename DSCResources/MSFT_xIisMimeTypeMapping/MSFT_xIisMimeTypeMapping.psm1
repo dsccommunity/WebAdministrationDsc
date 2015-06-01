@@ -20,6 +20,7 @@ TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
 ######################################################################################
 function Get-TargetResource
 {
+    [OutputType([Hashtable])]
 	param
 	(		
 		[Parameter(Mandatory)]
@@ -28,7 +29,11 @@ function Get-TargetResource
 
 		[Parameter(Mandatory)]
 		[ValidateNotNullOrEmpty()]
-        [String]$MimeType
+        [String]$MimeType,
+
+        [ValidateSet("Present", "Absent")]
+        [Parameter(Mandatory)]
+        [string]$Ensure
 	)
 	
     # Check if WebAdministration module is present for IIS cmdlets
@@ -61,6 +66,7 @@ function Set-TargetResource
 	param
 	(	
         [ValidateSet("Present", "Absent")]
+        [Parameter(Mandatory)]
         [string]$Ensure = "Present",
         	
 		[Parameter(Mandatory)]
@@ -102,6 +108,7 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
 	param
 	(	
+		[Parameter(Mandatory)]
         [ValidateSet("Present", "Absent")]
         [string]$Ensure = "Present",
 	

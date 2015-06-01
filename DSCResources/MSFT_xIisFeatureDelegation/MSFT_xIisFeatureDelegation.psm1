@@ -8,6 +8,8 @@ data LocalizedData
     ConvertFrom-StringData @'
 NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
 UnableToGetConfig=Unable to get configuration data for '{0}'
+ConfigNotFound=No configuration data found for '{0}'
+ChangedMessage=Changed overrideMode for '{0}' to {1}
 '@
 }
 
@@ -76,16 +78,12 @@ function Set-TargetResource
     if ($oMode -eq "Allow" -and $OverrideMode -eq "Deny")
     {
          Set-webconfiguration -Location "" -Filter "/system.webServer/$SectionName" -PSPath "machine/webroot/apphost" -metadata overrideMode -value Deny
-         Write-Verbose("Changed overrideMode for $SectionName to Deny");
+         Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName,"Deny")
     }
     elseif ($oMode -eq "Deny" -and $OverrideMode -eq "Allow")
     {
          Set-webconfiguration -Location "" -Filter "/system.webServer/$SectionName" -PSPath "machine/webroot/apphost" -metadata overrideMode -value Allow
-         Write-Verbose("Changed overrideMode for $SectionName to Allow");
-    }
-    else
-    {
-        Write-Verbose("What's going on here? - $oMode");
+         Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName,"Allow")
     }
 }
 
@@ -123,11 +121,10 @@ function Test-TargetResource
     }
     else
     {
-        Write-Verbose("No configuration data found for $SectionName");
+        Write-Verbose($($LocalizedData.ConfigNotFound) -f $SectionName)
         $DesiredConfigurationMatch = $false;
     }
-    
-    
+        
 	return $DesiredConfigurationMatch
 }
 

@@ -3,5 +3,5 @@ class MSFT_xIisMimeTypeMapping : OMI_BaseResource
 {
   [Key] string Extension;
   [Key] string MimeType;
-  [write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
+  [Required,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
 };
