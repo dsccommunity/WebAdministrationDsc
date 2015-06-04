@@ -34,7 +34,7 @@ Describe "xIISServerDefaults" {
         # before doing our changes, create a backup of the current config        
         Backup-WebConfiguration -Name $tempName
 
-        It 'Changing ManagedRuntimeVersion ' -skip -test {
+        It 'Changing ManagedRuntimeVersion ' -test {
         {
             # get the current value 
             [string]$originalValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter -name managedRuntimeVersion)
@@ -74,7 +74,7 @@ Describe "xIISServerDefaults" {
         }
 
         
-        It 'Invalid ManagedRuntimeVersion ' -skip -test  {
+        It 'Invalid ManagedRuntimeVersion ' -test  {
         {
             configuration InvalidManagedRuntimeVersion
             {
@@ -91,7 +91,7 @@ Describe "xIISServerDefaults" {
             Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait -ErrorAction Stop} | should throw
         }
 
-        It 'Changing IdentityType' -skip -test  {
+        It 'Changing IdentityType' -test  {
         {
 
             # get the current value 
@@ -125,7 +125,7 @@ Describe "xIISServerDefaults" {
         }
 
         
-        It 'Changing LogFormat' -skip -test {
+        It 'Changing LogFormat' -test {
         {
 
             # get the current value 
@@ -159,7 +159,7 @@ Describe "xIISServerDefaults" {
             $changedValue | should be $env:PesterALogFormat 
         }
 
-        It 'Changing Default AppPool' -skip -test {
+        It 'Changing Default AppPool' -test {
         {
 
             # get the current value 
@@ -185,7 +185,7 @@ Describe "xIISServerDefaults" {
             $changedValue | should be $env:PesterDefaultPool 
         } 
         
-        It 'Changing Default virtualDirectoryDefaults' -skip -test {
+        It 'Changing Default virtualDirectoryDefaults' -test {
         {
 
             # get the current value 
@@ -308,14 +308,62 @@ Describe "xIISServerDefaults" {
             Start-DscConfiguration -Path $env:temp\$($tempName)_RemoveMimeType2 -Wait -ErrorAction Stop} | should not throw
         }
         
-        It 'Allow Feature Delegation'  -skip -test {
-        
-        }  
-            
-        It 'Deny Feature Delegation' -skip -test {
-        
-        }
+       
+                    
+        # Allow Feature Delegation
 
+        # for this test we are using the anonymous Authentication feature, which is installed by default, but has Feature Delegation set to denied by default
+        if ((Get-WindowsOptionalFeature –Online | Where {$_.FeatureName -eq "IIS-Security" -and $_.State -eq "Enabled"}).Count -eq 1)
+        {
+            if ((get-webconfiguration /system.webserver/security/authentication/anonymousAuthentication iis:\).OverrideModeEffective -eq 'Deny')
+            {
+                It 'Allow Feature Delegation' -test {
+                {
+                    configuration AllowDelegation
+                    {
+                        Import-DscResource -ModuleName xWebAdministration
+
+                        xIisFeatureDelegation AllowDelegation
+                        {
+                            SectionName = "security/authentication/anonymousAuthentication"
+                            OverrideMode = "Allow"
+                        }
+                    }
+                        
+                    AllowDelegation -OutputPath $env:temp\$($tempName)_AllowDelegation
+                    Start-DscConfiguration -Path $env:temp\$($tempName)_AllowDelegation -Wait -ErrorAction Stop } | should not throw
+
+                    (get-webconfiguration /system.webserver/security/authentication/anonymousAuthentication iis:\).OverrideModeEffective  | Should be 'Allow'
+                } 
+            }
+        }        
+            
+        It 'Deny Feature Delegation' -test {
+        {
+            # this test doesn't really test the resource if it defaultDocument is already Deny (not the default)
+            # well it doesn't test the Set Method, but does test the Test method
+            # What if the default document module is not installed?
+
+            configuration DenyDelegation
+            {
+                Import-DscResource -ModuleName xWebAdministration
+
+                xIisFeatureDelegation DenyDelegation
+                {
+                    SectionName = "defaultDocument"
+                    OverrideMode = "Deny"
+                }
+            }
+
+            DenyDelegation -OutputPath $env:temp\$($tempName)_DenyDelegation
+            Start-DscConfiguration -Path $env:temp\$($tempName)_DenyDelegation -Wait -ErrorAction Stop
+            # now lets try to add a new default document on site level, this should fail
+            # get the first site, it doesn't matter it should fail.
+            $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
+            Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -value @{value='pesterpage.cgi'} 
+            # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.           
+            Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -AtElement @{value='pesterpage.cgi'} } | should throw 
+        }
     }
     finally
     {
