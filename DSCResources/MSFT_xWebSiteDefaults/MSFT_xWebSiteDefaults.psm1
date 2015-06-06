@@ -22,15 +22,15 @@ ValueOk=Default value '{0}' is already '{1}'
 ######################################################################################
 function Get-TargetResource
 {
-	[CmdletBinding()]
-	[OutputType([System.Collections.Hashtable])]
-	param
-	(
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param
+    (
         [Parameter(Mandatory)]
         [ValidateSet("Machine")]
         [string]$ApplyTo
-	)
-	
+    )
+    
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
 
@@ -42,7 +42,7 @@ function Get-TargetResource
                                     AllowSubDirConfig = (GetValue "virtualDirectoryDefaults" "allowSubDirConfig")
                                     ApplyTo = "Machine"
                                     LogDirectory = (GetValue "siteDefaults/logFile" "directory")}    
-	return $getTargetResourceResult
+    return $getTargetResourceResult
 }
 
 ######################################################################################
@@ -51,8 +51,8 @@ function Get-TargetResource
 ######################################################################################
 function Set-TargetResource
 {
-	param
-	(	
+    param
+    (    
         [ValidateSet("Machine")]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
@@ -81,8 +81,8 @@ function Set-TargetResource
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
-	param
-	(	
+    param
+    (    
         [ValidateSet("Machine")]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
@@ -93,7 +93,7 @@ function Test-TargetResource
         [string]$DefaultApplicationPool,
         [ValidateSet("true","false")]
         [string]$AllowSubDirConfig
-	)
+    )
 
     [bool]$DesiredConfigurationMatch = $true;
 
@@ -114,7 +114,7 @@ function Test-TargetResource
     $DesiredConfigurationMatch = CheckValue "applicationDefaults" "applicationPool" $DefaultApplicationPool
     if (!($DesiredConfigurationMatch)) { return $false }
     
-	return $DesiredConfigurationMatch
+    return $DesiredConfigurationMatch
 }
 
 Function CheckValue([string]$path,[string]$name,[string]$newValue)

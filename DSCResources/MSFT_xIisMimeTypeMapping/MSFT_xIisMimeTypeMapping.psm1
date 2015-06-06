@@ -21,21 +21,21 @@ TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
-	param
-	(		
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$Extension,
+    param
+    (        
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Extension,
 
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [String]$MimeType,
 
         [ValidateSet("Present", "Absent")]
         [Parameter(Mandatory)]
         [string]$Ensure
-	)
-	
+    )
+    
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
 
@@ -54,7 +54,7 @@ function Get-TargetResource
                                     MimeType = $mt.mimeType}
     }
     
-	return $getTargetResourceResult
+    return $getTargetResourceResult
 }
 
 ######################################################################################
@@ -63,18 +63,18 @@ function Get-TargetResource
 ######################################################################################
 function Set-TargetResource
 {
-	param
-	(	
+    param
+    (    
         [ValidateSet("Present", "Absent")]
         [Parameter(Mandatory)]
         [string]$Ensure = "Present",
-        	
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$Extension,
+            
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Extension,
 
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [String]$MimeType
     )
 
@@ -106,23 +106,23 @@ function Set-TargetResource
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
-	param
-	(	
-		[Parameter(Mandatory)]
+    param
+    (    
+        [Parameter(Mandatory)]
         [ValidateSet("Present", "Absent")]
         [string]$Ensure = "Present",
-	
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$Extension,
+    
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Extension,
 
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [String]$MimeType
-	)
+    )
 
     [bool]$DesiredConfigurationMatch = $true;
-	
+    
     CheckIISPoshModule
 
     $mt = GetMapping $Extension $MimeType 
@@ -146,7 +146,7 @@ function Test-TargetResource
         Write-Verbose($LocalizedData.TypeStatusUnknown -f $MimeType,$Extension);
     }
     
-	return $DesiredConfigurationMatch
+    return $DesiredConfigurationMatch
 }
 
 Function CheckIISPoshModule

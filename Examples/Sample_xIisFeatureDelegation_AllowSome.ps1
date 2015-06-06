@@ -19,28 +19,21 @@ configuration Sample_IISFeatureDelegation
         }
 
         # Allow Write access to some section that normally don't have it.
-        cFeatureDelegation serverRuntime 
+        xIisFeatureDelegation serverRuntime 
         {
             SectionName      = "serverRuntime"
             OverrideMode   = "Allow"
         }
-        cFeatureDelegation anonymousAuthentication 
+        xIisFeatureDelegation anonymousAuthentication 
         {
             SectionName      = "security/authentication/anonymousAuthentication"
             OverrideMode   = "Allow"
         }    
         
-        cFeatureDelegation ipSecurity 
+        xIisFeatureDelegation ipSecurity 
         {
             SectionName      = "security/ipSecurity"
             OverrideMode   = "Allow"
-        }       
-        
-        # "httpErrors"
-        # "security/access"
-        # "security/authentication/windowsAuthentication"
-        # "security/authentication/anonymousAuthentication"
-        # "security/ipSecurity"
-        # "serverRuntime"
+        }              
     }
 }

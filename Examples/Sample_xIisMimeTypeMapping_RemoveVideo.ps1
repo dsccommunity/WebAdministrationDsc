@@ -19,7 +19,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
         }
 
         # Remove a bunch of Video Mime Type mappings
-        cMimeTypeMapping Mp2 
+        xIisMimeTypeMapping Mp2 
         {
             Ensure      = "Absent"
             Extension   = ".mp2"
@@ -27,7 +27,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
             DependsOn   = "[WindowsFeature]IIS"
         }
 
-        cMimeTypeMapping Mp4 
+        xIisMimeTypeMapping Mp4 
         {
             Ensure      = "Absent"
             Extension   = ".mp4"
@@ -35,7 +35,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
             DependsOn   = "[WindowsFeature]IIS"
         }
 
-        cMimeTypeMapping Mpeg 
+        xIisMimeTypeMapping Mpeg 
         {
             Ensure      = "Absent"
             Extension   = ".mpeg"
@@ -44,7 +44,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
         }
 
         # we only allow the mpg Video extension on our server
-        cMimeTypeMapping Mpg 
+        xIisMimeTypeMapping Mpg 
         {
             Ensure      = "Present"
             Extension   = ".mpg"

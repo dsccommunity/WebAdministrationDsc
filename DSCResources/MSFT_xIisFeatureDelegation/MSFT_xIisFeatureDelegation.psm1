@@ -20,18 +20,18 @@ ChangedMessage=Changed overrideMode for '{0}' to {1}
 function Get-TargetResource
 {
   [OutputType([Hashtable])]
-	param
-	(		
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$SectionName,
+    param
+    (        
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$SectionName,
 
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [ValidateSet("Allow", "Deny")]
         [String]$OverrideMode
-	)
-	
+    )
+    
     CheckIISPoshModule
 
     $getTargetResourceResult = $null;
@@ -50,7 +50,7 @@ function Get-TargetResource
     }
 
     
-	return $getTargetResourceResult
+    return $getTargetResourceResult
 }
 
 ######################################################################################
@@ -59,14 +59,14 @@ function Get-TargetResource
 ######################################################################################
 function Set-TargetResource
 {
-	param
-	(	
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$SectionName,
+    param
+    (    
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$SectionName,
 
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [ValidateSet("Allow", "Deny")]
         [String]$OverrideMode
     )
@@ -94,17 +94,17 @@ function Set-TargetResource
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
-	param
-	(	
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[String]$SectionName,
+    param
+    (    
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$SectionName,
 
-		[Parameter(Mandatory)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [ValidateSet("Allow", "Deny")]
         [String]$OverrideMode
-	)
+    )
 
     CheckIISPoshModule
 
@@ -125,7 +125,7 @@ function Test-TargetResource
         $DesiredConfigurationMatch = $false;
     }
         
-	return $DesiredConfigurationMatch
+    return $DesiredConfigurationMatch
 }
 
 Function CheckIISPoshModule
