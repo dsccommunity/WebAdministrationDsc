@@ -30,11 +30,8 @@ function Get-TargetResource
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
 
-    $getTargetResourceResult = $null;
-
-    $getTargetResourceResult = @{ManagedRuntimeVersion = (GetValue "" "managedRuntimeVersion")
-                                    IdentityType = ( GetValue "processModel" "identityType")}    
-    return $getTargetResourceResult
+    return @{ManagedRuntimeVersion = (GetValue -Path "" -Name "managedRuntimeVersion")
+                                    IdentityType = ( GetValue -Path "processModel" -Name "identityType")}
 }
 
 
@@ -46,7 +43,7 @@ function Set-TargetResource
         [ValidateSet("Machine")]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
-        # in the future there will be another CLR version to allow 
+        # in the future there will be another CLR version to be allowed 
         [ValidateSet("","v2.0","v4.0")]
         [string]$ManagedRuntimeVersion,
         # TODO: we currently don't allow a custom identity
@@ -56,8 +53,8 @@ function Set-TargetResource
 
         CheckIISPoshModule
 
-        SetValue "" "managedRuntimeVersion" $ManagedRuntimeVersion
-        SetValue "processModel" "identityType" $IdentityType
+        SetValue -Path "" -Name "managedRuntimeVersion" -NewValue $ManagedRuntimeVersion
+        SetValue -Path "processModel" -Name "identityType" -NewValue $IdentityType
 }
 
 
@@ -76,63 +73,69 @@ function Test-TargetResource
         [string]$IdentityType
     )
 
-    [bool]$DesiredConfigurationMatch = $true;
-
     CheckIISPoshModule
 
-    $DesiredConfigurationMatch = CheckValue "" "managedRuntimeVersion" $ManagedRuntimeVersion
-    if (!($DesiredConfigurationMatch)) { return $false }
+    if (!(CheckValue -Path "" -Name "managedRuntimeVersion" -NewValue $ManagedRuntimeVersion)) 
+    { 
+        return $false
+    }
 
-    $DesiredConfigurationMatch = CheckValue "processModel" "identityType" $IdentityType
-    if (!($DesiredConfigurationMatch)) { return $false }
+    if (!(CheckValue -Path "processModel" -Name "identityType" -NewValue $IdentityType)) 
+    { 
+        return $false 
+    }
     
-    return $DesiredConfigurationMatch
+    return $true
 }
+
+######################################################################################
+# Helper Functions
+######################################################################################
 
 Function CheckValue([string]$path,[string]$name,[string]$newValue)
 {
+
     if (!$newValue)
     {
         # if no new value was specified, we assume this value is okay.        
         return $true
     }
 
-
-    [bool]$DesiredConfigurationMatch = $true;
-
-    $existingValue = GetValue $path $name
+    $existingValue = GetValue -Path $path -Name $name
     if ($existingValue -ne $newValue)
     {
-        $DesiredConfigurationMatch = $false
+        return $false
     }
     else
     {
         $relPath = $path + "/" + $name
         Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
-    }
-    
-    return $DesiredConfigurationMatch
+        return $true
+    }   
 }
 
 # some internal helper function to do the actual work:
 
 Function SetValue([string]$path,[string]$name,[string]$newValue)
 {
-    if ($newValue)
+    # if the variable doesn't exist, the user doesn't want to change this value
+    if (!$newValue)
     {
-        $existingValue = GetValue $path $name
-        if ($existingValue -ne $newValue)
-        {
-            if ($path -ne "")
-            {
-                $path = "/" + $path
-            }
-
-            Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name -value "$newValue"
-            $relPath = $path + "/" + $name
-            Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
-        }
+        return
     }
+
+    $existingValue = GetValue -Path $path -Name $name
+    if ($existingValue -ne $newValue)
+    {
+        if ($path -ne "")
+        {
+            $path = "/" + $path
+        }
+
+        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name -value "$newValue"
+        $relPath = $path + "/" + $name
+        Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
+    }    
 }
 
 Function GetValue([string]$path,[string]$name)
@@ -142,7 +145,7 @@ Function GetValue([string]$path,[string]$name)
         $path = "/" + $path
     }
 
-    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name
+    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name
 }
 
 Function CheckIISPoshModule

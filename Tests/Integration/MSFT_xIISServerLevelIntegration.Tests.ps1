@@ -99,11 +99,11 @@ Describe "xIISServerDefaults" {
 
             if ($originalValue -eq "ApplicationPoolIdentity")
             {
-                $env:PesterApplicationPoolIdentity =  "LocalService"
+                $env:PesterApplicationPoolIdentity = "LocalService"
             }
             else
             {
-                $env:PesterApplicationPoolIdentity =  "ApplicationPoolIdentity"
+                $env:PesterApplicationPoolIdentity = "ApplicationPoolIdentity"
             }
 
             configuration AppPoolIdentityType

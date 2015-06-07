@@ -39,22 +39,24 @@ function Get-TargetResource
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
 
-    $getTargetResourceResult = $null;
-
-    $mt = GetMapping $Extension $MimeType 
+    $mt = GetMapping -extension $Extension -type $MimeType 
 
     if ($mt -eq $null)
     {
-        $ensureResult = "Absent";
+        return @{
+            Ensure = 'Absent'
+            Extension = $null
+            MimeType = $null
+        }
     }
     else
     {
-        $ensureResult = "Present"
-        $getTargetResourceResult = @{Extension = $mt.fileExtension
-                                    MimeType = $mt.mimeType}
+        return @{
+            Ensure = 'Present'
+            Extension = $mt.fileExtension
+            MimeType = $mt.mimeType
+        }
     }
-    
-    return $getTargetResourceResult
 }
 
 ######################################################################################
@@ -83,7 +85,7 @@ function Set-TargetResource
         [string]$psPathRoot = "MACHINE/WEBROOT/APPHOST"
         [string]$sectionNode = "system.webServer/staticContent"
 
-        $mt = GetMapping $Extension $MimeType 
+        $mt = GetMapping -extension $Extension -type $MimeType 
 
         if ($mt -eq $null -and $Ensure -eq "Present")
         {
@@ -125,7 +127,7 @@ function Test-TargetResource
     
     CheckIISPoshModule
 
-    $mt = GetMapping $Extension $MimeType 
+    $mt = GetMapping -extension $Extension -type $MimeType 
 
     if (($mt -eq $null -and $Ensure -eq "Present") -or ($mt -ne $null -and $Ensure -eq "Absent"))
     {
@@ -143,6 +145,7 @@ function Test-TargetResource
     }
     else
     {
+        $DesiredConfigurationMatch = $false;
         Write-Verbose($LocalizedData.TypeStatusUnknown -f $MimeType,$Extension);
     }
     

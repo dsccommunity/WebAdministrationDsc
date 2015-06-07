@@ -34,15 +34,12 @@ function Get-TargetResource
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
 
-    $getTargetResourceResult = $null;
-
-    $getTargetResourceResult = @{LogFormat = (GetValue "siteDefaults/logFile" "logFormat")
+    return @{LogFormat = (GetValue "siteDefaults/logFile" "logFormat")
                                     TraceLogDirectory = ( GetValue "siteDefaults/traceFailedRequestsLogging" "directory")
                                     DefaultApplicationPool = (GetValue "applicationDefaults" "applicationPool")
                                     AllowSubDirConfig = (GetValue "virtualDirectoryDefaults" "allowSubDirConfig")
                                     ApplyTo = "Machine"
                                     LogDirectory = (GetValue "siteDefaults/logFile" "directory")}    
-    return $getTargetResourceResult
 }
 
 ######################################################################################
@@ -95,27 +92,42 @@ function Test-TargetResource
         [string]$AllowSubDirConfig
     )
 
-    [bool]$DesiredConfigurationMatch = $true;
-
     CheckIISPoshModule
 
-    $DesiredConfigurationMatch = CheckValue "virtualDirectoryDefaults" "allowSubDirConfig" $AllowSubDirConfig
-    if (!($DesiredConfigurationMatch)) { return $false }
+    # check for the various given settings:
 
-    $DesiredConfigurationMatch = CheckValue "siteDefaults/logFile" "logFormat" $LogFormat
-    if (!($DesiredConfigurationMatch)) { return $false }
+    if (!(CheckValue -path "virtualDirectoryDefaults" -name "allowSubDirConfig" -newValue $AllowSubDirConfig)) 
+    { 
+        return $false 
+    }
 
-    $DesiredConfigurationMatch = CheckValue "siteDefaults/logFile" "directory" $LogDirectory
-    if (!($DesiredConfigurationMatch)) { return $false }
+    if (!(CheckValue -path "siteDefaults/logFile" -name "logFormat" -newValue $LogFormat)) 
+    { 
+        return $false 
+    }
 
-    $DesiredConfigurationMatch = CheckValue "siteDefaults/traceFailedRequestsLogging" "directory" $TraceLogDirectory
-    if (!($DesiredConfigurationMatch)) { return $false }
+    if (!(CheckValue -path "siteDefaults/logFile" -name "directory" -newValue $LogDirectory)) 
+    { 
+        return $false 
+    }
 
-    $DesiredConfigurationMatch = CheckValue "applicationDefaults" "applicationPool" $DefaultApplicationPool
-    if (!($DesiredConfigurationMatch)) { return $false }
-    
-    return $DesiredConfigurationMatch
+    if (!(CheckValue -path "siteDefaults/traceFailedRequestsLogging" -name "directory" -newValue $TraceLogDirectory)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -path "applicationDefaults" -name "applicationPool" -newValue $DefaultApplicationPool)) 
+    { 
+        return $false 
+    }
+
+    # at this point all settings are ok and our desired state is met.
+    return $true
 }
+
+######################################################################################
+# Helper Functions
+######################################################################################
 
 Function CheckValue([string]$path,[string]$name,[string]$newValue)
 {
@@ -125,37 +137,37 @@ Function CheckValue([string]$path,[string]$name,[string]$newValue)
         return $true
     }
 
-
-    [bool]$DesiredConfigurationMatch = $true;
-
-    $existingValue = GetValue $path $name
+    $existingValue = GetValue -Path $path -Name $name
     if ($existingValue -ne $newValue)
     {
-        $DesiredConfigurationMatch = $false
+        return $false
     }
     else
     {
         $relPath = $path + "/" + $name
         Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
-    }
-    
-    return $DesiredConfigurationMatch
+        return $true
+    }   
 }
 
 # some internal helper function to do the actual work:
 
 Function SetValue([string]$path,[string]$name,[string]$newValue)
 {
-    if ($newValue)
+    # if the variable doesn't exist, the user doesn't want to change this value
+    if (!$newValue)
     {
-        $existingValue = GetValue $path $name
-        if ($existingValue -ne $newValue)
-        {
-            Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/$path" -name $name -value "$newValue"
-            $relPath = $path + "/" + $name
-            Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
-        }
+        return
     }
+
+    # get the existing value to compare
+    $existingValue = GetValue -Path $path -Name $name
+    if ($existingValue -ne $newValue)
+    {
+        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/$path" -name $name -value "$newValue"
+        $relPath = $path + "/" + $name
+        Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
+    }    
 }
 
 Function GetValue([string]$path,[string]$name)

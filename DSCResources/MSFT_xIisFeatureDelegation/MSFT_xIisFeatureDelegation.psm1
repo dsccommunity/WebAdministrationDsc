@@ -34,20 +34,27 @@ function Get-TargetResource
     
     CheckIISPoshModule
 
-    $getTargetResourceResult = $null;
-
-    [string]$oMode = GetOverrideMode $SectionName
+    [string]$oMode = GetOverrideMode -section $SectionName
 
     if ($oMode -eq $null)
     {
         $ensureResult = "Absent";
     }
     else
-    {
-        $ensureResult = "Present"
-        $getTargetResourceResult = @{SectionName = $SectionName
-                                    OverrideMode = $oMode}
+    {        
+        if ($oMode -eq $OverrideMode)
+        {
+            $ensureResult = "Present"
+        }
+        else
+        {
+            $ensureResult = "Absent";
+        }
     }
+
+    # in case the section has not been found, $oMode will be $null
+    $getTargetResourceResult = @{SectionName = $SectionName
+                                OverrideMode = $oMode}
 
     
     return $getTargetResourceResult
@@ -72,7 +79,7 @@ function Set-TargetResource
     )
 
     CheckIISPoshModule
-    [string]$oMode = GetOverrideMode $SectionName
+    [string]$oMode = GetOverrideMode -section $SectionName
 
 
     if ($oMode -eq "Allow" -and $OverrideMode -eq "Deny")
@@ -108,21 +115,20 @@ function Test-TargetResource
 
     CheckIISPoshModule
 
-    [bool]$DesiredConfigurationMatch = $true;
-    [string]$oMode = GetOverrideMode $SectionName
+    $DesiredConfigurationMatch = $false;
+    [string]$oMode = GetOverrideMode -section $SectionName
 
     if ($oMode -eq $OverrideMode)
     {
+        # this is the only case where we have our desired state
         $DesiredConfigurationMatch = $true;
     }
     elseif ($oMode -ne $null -and $OverrideMode -ne $oMode)
     {
-        $DesiredConfigurationMatch = $false;
     }
     else
     {
         Write-Verbose($($LocalizedData.ConfigNotFound) -f $SectionName)
-        $DesiredConfigurationMatch = $false;
     }
         
     return $DesiredConfigurationMatch
@@ -148,6 +154,8 @@ Function GetOverrideMode([string]$section)
     [string]$oMode = ((get-webconfiguration -Location "" -Filter /system.webServer/$section -metadata).Metadata).effectiveOverrideMode
 
     # check for a single value.
+    # if $oMode is anything but Allow or Deny, we have a problem with our get-webconfiguration call
+    # or the ApplicationHost.config file is corrupted, I think its worth stopping here.
     if ($oMode -notmatch "^(Allow|Deny)$")
     {
         Throw $errorMessage
