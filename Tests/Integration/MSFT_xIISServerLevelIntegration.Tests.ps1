@@ -13,10 +13,10 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 [string]$tempName = "xWebAppPoolDefaultTests_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
 # Import should happen automatically, but doesn't when using AppVeyor
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebAppPoolDefaults\MSFT_xWebAppPoolDefaults.psm1")
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebSiteDefaults\MSFT_xWebSiteDefaults.psm1")
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xIisFeatureDelegation\MSFT_xIisFeatureDelegation.psm1")
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xIisMimeTypeMapping\MSFT_xIisMimeTypeMapping.psm1")
+Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xWebAppPoolDefaults\MSFT_xWebAppPoolDefaults.psm1")
+Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xWebSiteDefaults\MSFT_xWebSiteDefaults.psm1")
+Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xIisFeatureDelegation\MSFT_xIisFeatureDelegation.psm1")
+Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xIisMimeTypeMapping\MSFT_xIisMimeTypeMapping.psm1")
 
 # some constants
 [string]$constPsPath = 'MACHINE/WEBROOT/APPHOST'
@@ -33,6 +33,22 @@ Describe "xIISServerDefaults" {
 
     try
     {
+        It 'Checking resource: xWebSiteDefaults' -test {
+            (get-dscresource -name xWebSiteDefaults).count | should be 1
+        }
+        It 'Checking resource: xWebAppPoolDefaults' -test {
+        
+            (get-dscresource -name xWebAppPoolDefaults).count | should be 1
+        }
+        It 'Checking resource: xIisFeatureDelegation' -test {
+        
+            (get-dscresource -name xIisFeatureDelegation).count | should be 1
+        }
+        It 'Checking resource: xIisMimeTypeMapping' -test {
+        
+            (get-dscresource -name xIisMimeTypeMapping).count | should be 1
+        }
+
         # before doing our changes, create a backup of the current config        
         Backup-WebConfiguration -Name $tempName
 
