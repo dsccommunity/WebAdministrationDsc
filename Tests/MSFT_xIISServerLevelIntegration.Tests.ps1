@@ -70,6 +70,7 @@ Describe "xIISServerDefaults" {
             }
 
             # define the configuration
+            [System.Environment]::SetEnvironmentVariable('PSModulePath',$env:PSModulePath,[System.EnvironmentVariableTarget]::Machine)
             configuration ManagedRuntimeVersion
             {
                 Import-DscResource -ModuleName xWebAdministration
