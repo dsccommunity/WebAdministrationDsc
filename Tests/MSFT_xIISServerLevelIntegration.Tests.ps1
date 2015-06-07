@@ -13,10 +13,10 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 [string]$tempName = "xWebAppPoolDefaultTests_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
 # Import should happen automatically, but doesn't when using AppVeyor
-Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xWebAppPoolDefaults\MSFT_xWebAppPoolDefaults.psm1")
-Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xWebSiteDefaults\MSFT_xWebSiteDefaults.psm1")
-Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xIisFeatureDelegation\MSFT_xIisFeatureDelegation.psm1")
-Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\MSFT_xIisMimeTypeMapping\MSFT_xIisMimeTypeMapping.psm1")
+Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebAppPoolDefaults\MSFT_xWebAppPoolDefaults.psm1")
+Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebSiteDefaults\MSFT_xWebSiteDefaults.psm1")
+Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xIisFeatureDelegation\MSFT_xIisFeatureDelegation.psm1")
+Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xIisMimeTypeMapping\MSFT_xIisMimeTypeMapping.psm1")
 
 # some constants
 [string]$constPsPath = 'MACHINE/WEBROOT/APPHOST'
@@ -376,7 +376,7 @@ Describe "xIISServerDefaults" {
             DenyDelegation -OutputPath $env:temp\$($tempName)_DenyDelegation
             Start-DscConfiguration -Path $env:temp\$($tempName)_DenyDelegation -Wait -ErrorAction Stop
             # now lets try to add a new default document on site level, this should fail
-            # get the first site, it doesn't matter it should fail.
+            # get the first site, it doesn't matter which one, it should fail.
             $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
             Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -value @{value='pesterpage.cgi'} 
             # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.           
