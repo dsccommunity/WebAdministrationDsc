@@ -70,6 +70,7 @@ Describe "xIISServerDefaults" {
             }
 
             # define the configuration
+            # we need to set the PSModulePath once more to get this to work in AppVevor to find our resources
             [System.Environment]::SetEnvironmentVariable('PSModulePath',$env:PSModulePath,[System.EnvironmentVariableTarget]::Machine)
             configuration ManagedRuntimeVersion
             {
@@ -85,7 +86,7 @@ Describe "xIISServerDefaults" {
             # execute the configuration into a temp location
             ManagedRuntimeVersion -OutputPath $env:temp\$($tempName)_ManagedRuntimeVersion
             # run the configuration, it should not throw any errors
-            Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
             # get the configured value again
             $changedValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter -name managedRuntimeVersion).Value
             # compare it to the one we just tried to set.
@@ -107,7 +108,7 @@ Describe "xIISServerDefaults" {
             }
 
             InvalidManagedRuntimeVersion -OutputPath $env:temp\$($tempName)_InvalidManagedRuntimeVersion
-            Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait -ErrorAction Stop -Force}  | should throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait  -Verbose -ErrorAction Stop -Force}  | should throw
         }
 
         It 'Changing IdentityType' -test  {
@@ -137,7 +138,7 @@ Describe "xIISServerDefaults" {
             }
 
             AppPoolIdentityType -OutputPath $env:temp\$($tempName)_AppPoolIdentityType
-            Start-DscConfiguration -Path $env:temp\$($tempName)_AppPoolIdentityType -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_AppPoolIdentityType -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
             $changedValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter/processModel -name identityType)
 
             $changedValue | should be $env:PesterApplicationPoolIdentity 
@@ -172,7 +173,7 @@ Describe "xIISServerDefaults" {
             }
 
             LogFormat -OutputPath $env:temp\$($tempName)_LogFormat
-            Start-DscConfiguration -Path $env:temp\$($tempName)_LogFormat -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_LogFormat -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
             $changedValue = GetSiteValue "logFile" "logFormat"
 
             $changedValue | should be $env:PesterALogFormat 
@@ -199,7 +200,7 @@ Describe "xIISServerDefaults" {
             }
 
             DefaultPool -OutputPath $env:temp\$($tempName)_LogFormat
-            Start-DscConfiguration -Path $env:temp\$($tempName)_LogFormat -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_LogFormat -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
             $changedValue = GetSiteValue "applicationDefaults" "applicationPool"
             $changedValue | should be $env:PesterDefaultPool 
         } 
@@ -233,7 +234,7 @@ Describe "xIISServerDefaults" {
             }
 
             virtualDirectoryDefaults -OutputPath $env:temp\$($tempName)_LogFormat
-            Start-DscConfiguration -Path $env:temp\$($tempName)_LogFormat -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_LogFormat -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
             $changedValue = GetSiteValue "virtualDirectoryDefaults" "allowSubDirConfig"
             $changedValue | should be $env:PesterVirtualDirectoryDefaults 
         }    
@@ -253,7 +254,7 @@ Describe "xIISServerDefaults" {
             }
 
             AddMimeType -OutputPath $env:temp\$($tempName)_AddMimeType
-            Start-DscConfiguration -Path $env:temp\$($tempName)_AddMimeType -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_AddMimeType -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
 
             [string]$filter = "system.webServer/staticContent/mimeMap[@fileExtension='.PesterDummy' and @mimeType='text/plain']"
             ((Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 1        
@@ -278,7 +279,7 @@ Describe "xIISServerDefaults" {
             }
 
             AddMimeType2 -OutputPath $env:temp\$($tempName)_AddMimeType2
-            Start-DscConfiguration -Path $env:temp\$($tempName)_AddMimeType2 -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_AddMimeType2 -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
 
             [string]$filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension2 + "' and @mimeType='" + "$env:PesterMimeType2" + "']"
             ((Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 1      
@@ -303,7 +304,7 @@ Describe "xIISServerDefaults" {
             }
 
             RemoveMimeType -OutputPath $env:temp\$($tempName)_RemoveMimeType
-            Start-DscConfiguration -Path $env:temp\$($tempName)_RemoveMimeType -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_RemoveMimeType -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
 
             [string]$filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension + "' and @mimeType='" + "$env:PesterMimeType" + "']"
             ((Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 0
@@ -324,7 +325,7 @@ Describe "xIISServerDefaults" {
             }
 
             RemoveMimeType2 -OutputPath $env:temp\$($tempName)_RemoveMimeType2
-            Start-DscConfiguration -Path $env:temp\$($tempName)_RemoveMimeType2 -Wait -ErrorAction Stop -Force}  | should not throw
+            Start-DscConfiguration -Path $env:temp\$($tempName)_RemoveMimeType2 -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
         }
         
        
@@ -350,7 +351,7 @@ Describe "xIISServerDefaults" {
                     }
                         
                     AllowDelegation -OutputPath $env:temp\$($tempName)_AllowDelegation
-                    Start-DscConfiguration -Path $env:temp\$($tempName)_AllowDelegation -Wait -ErrorAction Stop } | should not throw
+                    Start-DscConfiguration -Path $env:temp\$($tempName)_AllowDelegation -Wait -Verbose -ErrorAction Stop } | should not throw
 
                     (get-webconfiguration /system.webserver/security/authentication/anonymousAuthentication iis:\).OverrideModeEffective  | Should be 'Allow'
                 } 
@@ -375,7 +376,7 @@ Describe "xIISServerDefaults" {
             }
 
             DenyDelegation -OutputPath $env:temp\$($tempName)_DenyDelegation
-            Start-DscConfiguration -Path $env:temp\$($tempName)_DenyDelegation -Wait -ErrorAction Stop
+            Start-DscConfiguration -Path $env:temp\$($tempName)_DenyDelegation -Wait -Verbose -ErrorAction Stop
             # now lets try to add a new default document on site level, this should fail
             # get the first site, it doesn't matter which one, it should fail.
             $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
