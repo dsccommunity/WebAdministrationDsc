@@ -54,7 +54,8 @@ function Get-TargetResource
 
     # in case the section has not been found, $oMode will be $null
     $getTargetResourceResult = @{SectionName = $SectionName
-                                OverrideMode = $oMode}
+                                OverrideMode = $oMode
+                                      Ensure = $ensureResult}
 
     
     return $getTargetResourceResult
@@ -125,6 +126,7 @@ function Test-TargetResource
     }
     elseif ($oMode -ne $null -and $OverrideMode -ne $oMode)
     {
+        # configuration not matched, $DesiredConfigurationMatch if already $false
     }
     else
     {
