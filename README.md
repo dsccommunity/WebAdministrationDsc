@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
+﻿[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
 # xWebAdministration
 
@@ -62,6 +62,10 @@ Currently, only FastCgiModule is supported.
 
 
 ## Versions
+
+### 1.6.0.0
+
+* Fixed bug in xWebsite resource regarding incorrect name of personal certificate store. 
 
 ### 1.5.0.0
 
