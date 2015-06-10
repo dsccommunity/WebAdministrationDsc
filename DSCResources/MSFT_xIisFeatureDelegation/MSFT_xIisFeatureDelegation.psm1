@@ -141,12 +141,12 @@ Function CheckIISPoshModule
 Function GetOverrideMode([string]$section)
 {
     $errorMessage = $($LocalizedData.UnableToGetConfig) -f $section
-    if ((get-webconfiguration -Location "" -Filter /system.webServer/$section).count -eq 0)
+    if ((Get-WebConfiguration -Location "" -Filter /system.webServer/$section).count -eq 0)
     {        
         Throw $errorMessage;
     }
 
-    [string]$oMode = ((get-webconfiguration -Location "" -Filter /system.webServer/$section -metadata).Metadata).effectiveOverrideMode
+    [string]$oMode = ((Get-WebConfiguration -Location "" -Filter /system.webServer/$section -metadata).Metadata).effectiveOverrideMode
 
     # check for a single value.
     # if $oMode is anything but Allow or Deny, we have a problem with our get-webconfiguration call
