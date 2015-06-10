@@ -8,7 +8,6 @@ data LocalizedData
     ConvertFrom-StringData @'
 NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
 UnableToGetConfig=Unable to get configuration data for '{0}'
-ConfigNotFound=No configuration data found for '{0}'
 ChangedMessage=Changed overrideMode for '{0}' to {1}
 '@
 }
@@ -116,24 +115,18 @@ function Test-TargetResource
 
     CheckIISPoshModule
 
-    $DesiredConfigurationMatch = $false;
     [string]$oMode = GetOverrideMode -section $SectionName
 
     if ($oMode -eq $OverrideMode)
     {
-        # this is the only case where we have our desired state
-        $DesiredConfigurationMatch = $true;
-    }
-    elseif ($oMode -ne $null -and $OverrideMode -ne $oMode)
-    {
-        # configuration not matched, $DesiredConfigurationMatch if already $false
+        # in this case we have our desired state
+        return $true
     }
     else
     {
-        Write-Verbose($($LocalizedData.ConfigNotFound) -f $SectionName)
-    }
-        
-    return $DesiredConfigurationMatch
+        # state doesn't match or doesn't exist
+        return $false
+    }       
 }
 
 Function CheckIISPoshModule
