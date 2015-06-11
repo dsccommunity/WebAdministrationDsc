@@ -60,35 +60,12 @@ Currently, only FastCgiModule is supported.
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
 * **KeyValuePair**: Key value pair for AppSettings (ItemCollection format). 
 
-### xIisFeatureDelegation
-* **SectionName**: relative path of the section to delegate such as **security/authentication**
-* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
-
-### xIisMimeTypeMapping
-* **Extension**: The file extension to map such as **.html**
-* **MimeType**: The MIME type to map that extension to such as **text/html**
-* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
-
-### xWebAppPoolDefaults
-* **ApplyTo**: Required Key value, always **Machine**
-* **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
-* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService |LocalSystem | NetworkService}
-
-### xWebSiteDefaults
-* **ApplyTo**: Required Key value, always **Machine**
-* **LogFormat**: {W3C | IIS | NCSA | Custom}
-* **LogDirectory**: Parent directory for IIS logs.
-* **TraceLogDirectory**: Parent directory for failed request trace logs.
-* **DefaultApplicationPool**: AppPool to use when creating new applications.
-* **AllowSubDirConfig**: Specifies whether IIS looks for Web.config files in lower content directories.
 
 ## Versions
 
 ### 1.6.0.0
 
-New resources for server level settings:
-
-**xIisFeatureDelegation, xIisMimeTypeMapping, xWebAppPoolDefaults, xWebSiteDefaults**
+* Fixed bug in xWebsite resource regarding incorrect name of personal certificate store. 
 
 ### 1.5.0.0
 
