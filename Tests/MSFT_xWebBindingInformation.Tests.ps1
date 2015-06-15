@@ -30,6 +30,7 @@ Describe "MSFT_xWebBindingInformation" {
             {
                 Name = 'foobar'
                 Ensure = 'absent'
+                PhysicalPath = "$env:temp\foo"
             }
         }
 
