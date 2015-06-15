@@ -16,7 +16,7 @@ Describe "MSFT_xWebBindingInformation" {
         $resources.count | should be 1
     }
 
-    It 'Should compile and run without throwing (But does not currently forcing pass)' -test {
+    It 'Should compile and run without throwing' -test {
         {
         # Force Cim Classes to register
         # Update the system environment path so that LCM will load the module
