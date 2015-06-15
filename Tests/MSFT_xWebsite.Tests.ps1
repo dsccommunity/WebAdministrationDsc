@@ -17,12 +17,12 @@ Describe 'Schema Validation MSFT_xWebsite' {
     It 'should pass Test-xDscResource' {
         $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebsite'
         $result = Test-xDscResource $path
-        $result | Should Be $false # should be true bug in Test-xDscResource
+        $result | Should Be $true
     }
 
     It 'should pass Test-xDscResource' {
         $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebsite\MSFT_xWebsite.schema.mof'
         $result = Test-xDscSchema $path
-        $result | Should Be $false # should be true bug in Test-xDscResource
+        $result | Should Be $true
     }
 }
