@@ -35,7 +35,7 @@ Describe "MSFT_xWebBindingInformation" {
         }
 
         foo -OutputPath $env:temp\foo
-        Start-DscConfiguration -Path $env:temp\foo -Wait -Verbose -ErrorAction Stop} | should throw # This really should not throw, needs fix
+        Start-DscConfiguration -Path $env:temp\foo -Wait -Verbose -ErrorAction Stop} | should not throw
     }
     
     # Directly interacting with Cim classes is not supported by PowerShell DSC
