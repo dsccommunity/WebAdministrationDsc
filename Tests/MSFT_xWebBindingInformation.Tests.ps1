@@ -16,7 +16,7 @@ Describe "MSFT_xWebBindingInformation" {
         $resources.count | should be 1
     }
 
-    It 'Should compile and run without throwing (But does not currently forcing pass)' -test {
+    It 'Should compile and run without throwing' -test {
         {
         # Force Cim Classes to register
         # Update the system environment path so that LCM will load the module
@@ -30,11 +30,12 @@ Describe "MSFT_xWebBindingInformation" {
             {
                 Name = 'foobar'
                 Ensure = 'absent'
+                PhysicalPath = "$env:temp\foo"
             }
         }
 
         foo -OutputPath $env:temp\foo
-        Start-DscConfiguration -Path $env:temp\foo -Wait -Verbose -ErrorAction Stop} | should throw # This really should not throw, needs fix
+        Start-DscConfiguration -Path $env:temp\foo -Wait -Verbose -ErrorAction Stop} | should not throw
     }
     
     # Directly interacting with Cim classes is not supported by PowerShell DSC
