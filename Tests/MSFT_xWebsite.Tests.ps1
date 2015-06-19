@@ -367,17 +367,6 @@ InModuleScope MSFT_xWebsite {
             DefaultPage = 'index.htm'
         }
 
-        $MockSite2 = @{
-            Ensure          = 'Present'
-            Name            = 'MockName2'
-            PhysicalPath    = 'C:\NonExistant2'
-            ID              = 1
-            State           = 'Stopped'
-            ApplicationPool = 'MockPool2'
-            DefaultPage     = 'index.htm'
-            BindingInfo     =  $MockBinding
-        }
-
         $BindingObject = @{
             Port                  = 80
             Protocol              = 'http'
@@ -393,6 +382,18 @@ InModuleScope MSFT_xWebsite {
             IPAddress = $BindingObject.IPaddress
             HostName  = $BindingObject.Hostname
         } -ClientOnly
+
+
+        $MockSite2 = @{
+            Ensure          = 'Present'
+            Name            = 'MockName2'
+            PhysicalPath    = 'C:\NonExistant2'
+            ID              = 1
+            State           = 'Stopped'
+            ApplicationPool = 'MockPool2'
+            DefaultPage     = 'index.htm'
+            BindingInfo     =  $MockBinding
+        }
 
         Context 'Everything needs to be updated and application is started' {
             Mock Get-Website {
