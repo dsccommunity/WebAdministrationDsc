@@ -58,7 +58,7 @@ function Get-TargetResource
 
         $CimBindings = foreach ($binding in $Bindings)
         {
-            $BindingObject = get-WebBindingObject -BindingInfo $binding
+            $BindingObject = Get-WebBindingObject -BindingInfo $binding
             New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                 Port                  = [System.UInt16]$BindingObject.Port
                 Protocol              = $BindingObject.Protocol
@@ -175,7 +175,7 @@ function Set-TargetResource
                 {
                     $UpdateNotRequired = $false
                     #Update Bindings
-                    Update-Bindings -Name $Name -BindingInfo $BindingInfo -ErrorAction Stop
+                    Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo -ErrorAction Stop
 
                     Write-Verbose -Message ("Bindings for website $Name have been updated.")
                 }
@@ -207,7 +207,7 @@ function Set-TargetResource
 
                     foreach($site in $existingSites)
                     {
-                        $siteInfo = Get-TargetResource -Name $site.name
+                        $siteInfo = Get-TargetResource -Name $site.Name -PhysicalPath $site.PhysicalPath
 
                         foreach ($binding in $BindingInfo)
                         {
@@ -299,7 +299,7 @@ function Set-TargetResource
                 {
                     if(Test-WebsiteBindings -Name $Name -BindingInfo $BindingInfo)
                     {
-                        Update-BindingsInfo $BindingInfo
+                        Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
                     }
                 }
 
@@ -586,12 +586,12 @@ function Test-WebsiteBindings
         }
     }
 
-    #Assume bindingsNeedUpdating
+    # Assume bindings do not need updating
     $BindingNeedsUpdating = $false
 
-    $ActualBindings = Get-Website | Where-Object -FilterScript { $_.Name -eq $Name } | Get-WebBinding
+    $ActualBindings = Get-WebBinding -Name $Name
 
-    #Format Binding information: Split BindingInfo into individual Properties (IPAddress:Port:HostName)
+    # Format Binding information: Split BindingInfo into individual Properties (IPAddress:Port:HostName)
     $ActualBindingObjects = @()
 
     foreach ($ActualBinding in $ActualBindings)
@@ -651,10 +651,8 @@ function Test-WebsiteBindings
                 }
                 else
                 {
-                    {
-                        $BindingNeedsUpdating = $true
-                        break
-                    }
+                    $BindingNeedsUpdating = $true
+                    break
                 }
             }
         }
@@ -682,7 +680,7 @@ function Update-WebsiteBinding
 {
     param
     (
-        [pasrameter(Mandatory = $true)]
+        [parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Name,
@@ -740,9 +738,9 @@ function Update-WebsiteBinding
         }
         catch
         {
-            $errrId = 'WebsiteBindingUpdateFailure'
+            $errorId = 'WebsiteBindingUpdateFailure'
             $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $errorMessage = $($LocalizedData.WebsiteUpdateFailureError) -f ${Name}
+            $errorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f ${Name}
             $errorMessage += $_.Exception.Message
             $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
             $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
@@ -754,7 +752,7 @@ function Update-WebsiteBinding
         {
             if($CertificateThumbprint -ne $null)
             {
-                $NewWebbinding = Get-WebBinding -name $Name -Port $Port
+                $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
                 $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
             }
         }
@@ -815,13 +813,13 @@ function Update-DefaultPages
         [string[]] $DefaultPage
     )
 
-    $allDefaultPage = @(Get-WebConfiguration //defaultDocument/files/*  -PSPath (Join-Path -Path 'IIS:\sites\' -ChildPath $Name) |ForEach-Object -Process {
-            Write-Output -InputObject $_.value
+    $allDefaultPage = @(Get-WebConfiguration //defaultDocument/files/* -PSPath (Join-Path -Path 'IIS:\sites\' -ChildPath $Name) | ForEach-Object -Process {
+        Write-Output -InputObject $_.value
     })
 
-    foreach($page in $DefaultPage )
+    foreach($page in $DefaultPage)
     {
-        if(-not ($allDefaultPage  -icontains $page))
+        if(-not ($allDefaultPage -icontains $page))
         {
             Write-Verbose -Message ("Deafult page for website $Name has been updated to $page")
             Add-WebConfiguration //defaultDocument/files -PSPath (Join-Path -Path 'IIS:\sites\' -ChildPath $Name) -Value @{
