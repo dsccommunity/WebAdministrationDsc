@@ -7,7 +7,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
     )
 
     # Import the module that defines custom resources
-    Import-DscResource -Module cWebAdministration
+    Import-DscResource -Module xWebAdministration
 
     Node $NodeName
     {
