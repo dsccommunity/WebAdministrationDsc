@@ -1,4 +1,4 @@
-configuration Sample_RemoveVideoMimeTypeMappings
+configuration Sample_RemoveSome32BitHandlers
 {
     param
     (
@@ -33,6 +33,18 @@ configuration Sample_RemoveVideoMimeTypeMappings
         xIisHandler cshtml_ISAPI_4_0_32bit
         {
             Name = "cshtml-ISAPI-4.0_32bit"
+            Ensure = "Absent"
+        }
+
+        xIisHandler vbhtm_ISAPI_4_0_32bit
+        {
+            Name = "vbhtm-ISAPI-4.0_32bit"
+            Ensure = "Absent"
+        }
+
+        xIisHandler vbhtml_ISAPI_4_0_32bit
+        {
+            Name = "vbhtml-ISAPI-4.0_32bit"
             Ensure = "Absent"
         }
 

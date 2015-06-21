@@ -377,6 +377,79 @@ Describe "xIISServerDefaults" {
             # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.           
             Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -AtElement @{value='pesterpage.cgi'} } | should throw 
         }
+
+        # Handler Tests
+
+        It 'Remove a handler' -test {
+        {
+            # TRACEVerbHandler is usually there, remove it
+
+            configuration RemoveHandler
+            {
+                Import-DscResource -ModuleName xWebAdministration
+
+                xIisHandler TRACEVerbHandler
+                {
+                    Name = "TRACEVerbHandler"
+                    Ensure = "Absent"
+                }
+            }
+
+            RemoveHandler -OutputPath $env:temp\$($tempName)_RemoveHandler
+            Start-DscConfiguration -Path $env:temp\$($tempName)_RemoveHandler -Wait -Verbose -ErrorAction Stop}  | should not throw           
+
+            [string]$filter = "system.webServer/handlers/Add[@Name='TRACEVerbHandler']"
+            ((Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 0
+
+        }
+
+        It 'Add a handler' -test {
+        {
+            # webDav is normally not there, and even if the WebDav feature is not installed\
+            # we can add a handler for it.
+
+            configuration AddHandler
+            {
+                Import-DscResource -ModuleName xWebAdministration
+
+                xIisHandler WebDAV
+                {
+                    Name = "WebDAV"
+                    Ensure = "Present"
+                }
+            }
+
+            AddHandler -OutputPath $env:temp\$($tempName)_AddHandler
+            Start-DscConfiguration -Path $env:temp\$($tempName)_AddHandler -Wait -Verbose -ErrorAction Stop}  | should not throw           
+
+            [string]$filter = "system.webServer/handlers/Add[@Name='WebDAV']"
+            ((Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 1
+
+        }
+
+        It 'StaticFile handler' -test {
+        {
+            # StaticFile is usually there, have it present shouldn't change anything.
+
+            configuration StaticFileHandler
+            {
+                Import-DscResource -ModuleName xWebAdministration
+
+                xIisHandler StaticFile
+                {
+                    Name = "StaticFile"
+                    Ensure = "Present"
+                }
+            }
+
+            StaticFileHandler -OutputPath $env:temp\$($tempName)_StaticFileHandler
+            Start-DscConfiguration -Path $env:temp\$($tempName)_StaticFileHandler -Wait -Verbose -ErrorAction Stop}  | should not throw           
+
+            [string]$filter = "system.webServer/handlers/Add[@Name='StaticFile']"
+            ((Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 1
+
+        }
+
     }
     finally
     {
