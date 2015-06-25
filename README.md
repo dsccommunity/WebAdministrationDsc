@@ -94,7 +94,7 @@ Currently, only FastCgiModule is supported.
 
 ## Versions
 
-### 1.7.0.0
+### Unreleased
 
 * Added five new server level resources: xIisFeatureDelegation, xIisMimeTypeMapping, xIIsHandler, xWebAppPoolDefaults and xWebSiteDefaults
 
