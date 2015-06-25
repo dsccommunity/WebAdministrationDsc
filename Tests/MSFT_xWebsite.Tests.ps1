@@ -49,7 +49,7 @@ InModuleScope MSFT_xWebsite {
                 Mock Get-Module -ModuleName $ModuleName { return $null }
                 {
                     Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath
-                } | Should Throw
+                } | Should Throw 'Please ensure that WebAdministration module is installed.'
             }
         }
 
@@ -246,7 +246,7 @@ InModuleScope MSFT_xWebsite {
                 Mock Get-Module -ModuleName $ModuleName  { return $null }
                 {
                     Get-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath
-                } | Should Throw
+                } | Should Throw 'Please ensure that WebAdministration module is installed.'
             }
         }
 
