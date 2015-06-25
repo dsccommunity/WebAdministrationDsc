@@ -85,7 +85,7 @@ function Get-TargetResource
     }
 
     # Add all Website properties to the hash table
-    return $getTargetResourceResult = @{
+    return @{
         Name            = $Website.Name
         Ensure          = $ensureResult
         PhysicalPath    = $Website.physicalPath

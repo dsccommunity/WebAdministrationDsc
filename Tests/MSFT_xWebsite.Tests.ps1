@@ -245,7 +245,7 @@ InModuleScope MSFT_xWebsite {
             It 'should throw an error if WebAdministration is not installed' {
                 Mock Get-Module -ModuleName $ModuleName  { return $null }
                 {
-                    Get-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath
+                    Get-TargetResource -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath
                 } | Should Throw 'Please ensure that WebAdministration module is installed.'
             }
         }
