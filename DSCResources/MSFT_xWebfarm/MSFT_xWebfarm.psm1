@@ -3,6 +3,7 @@ data LocalizedData
 }
 
 $_xWebfarm_DefaultLoadBalancingAlgorithm = "WeightedRoundRobin"
+$_xWebfarm_DefaultLoadBalancingAlgorithm = "WeightedRoundRobin"
 
 # The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
 # It gives the Website info of the requested role/feature on the target machine.  
@@ -13,14 +14,16 @@ function Get-TargetResource
     (   
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$Name
+        [string]$Name,
+                
+        [string]$ConfigPath
     )
 
     $resource = @{
         Ensures = "Absent"
     }
     
-    $webFarm = Get-WebsiteFarm -Name $Name
+    $webFarm = Get-WebsiteFarm -Name $Name -ConfigPath $ConfigPath
     if($webFarm -ne $null){
         $resource.Ensures = "Present"
         $resource.Enabled = [System.Boolean]::Parse($webFarm.enabled)
@@ -83,9 +86,11 @@ function Test-TargetResource
 {
     [OutputType([System.Boolean])]
     param 
-    (       
+    (     
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]  
         [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
+        [string]$Ensures = "Present",
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -93,30 +98,29 @@ function Test-TargetResource
                 
         [bool]$Enabled = $true,
 
-        [string]$ConfigPath = "C:\Windows\System32\inetsrv\config\applicationHost.config"
+        [string]$ConfigPath
     )
     
-    Write-Verbose "Searching for webfarm: $Name"
-
-    $found = $false    
-    $applicationHostConfig =[xml](gc $ConfigPath)
-    $measure = $applicationHostConfig.configuration.webFarms.webFarm | ? name -eq $Name | measure-object
-
-    Write-Verbose ("Webfarms found: " + $measure.Count)
-
-    if($measure.Count -gt 1){
-        Write-Error "More than one webfarm found! The config must be corrupted"
-    }elseif($measure.Count -eq 0){
-
-        $webfarmElement = ($applicationHostConfig.configuration.webFarms.webFarm | ? name -eq $Name)[0]
-        if($webfarmElement.enabled -ne $Enabled){
-            Write-Verbose "Webfarms is [$($webfarmElement.enabled)] but is requested to be [$Enabled]."
+    $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
+    
+    if($resource.Ensures.ToLower() -eq "absent"){
+        if($Ensures.ToLower() -eq "absent"){
+            return $true
+        }else{
             return $false
         }
 
-    }
+    }elseif($resource.Ensures.ToLower() -eq "present"){
+        if($Ensures.ToLower() -eq "absent"){
+            return $false
+        }
 
-    $measure.Count -gt 0     
+        if($resource.Enabled -ne $Enabled){
+            return $false
+        }          
+    }    
+
+    $true
 }
 
 function Get-WebsiteFarm{
@@ -125,10 +129,11 @@ function Get-WebsiteFarm{
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [string]$Name,
-                
-        [ValidateNotNullOrEmpty()]
+        
         [string]$ConfigPath = "%windir%/system32/inetsrv/config/applicationhost.config"
     )
+
+    $ConfigPath = ($ConfigPath, "%windir%/system32/inetsrv/config/applicationhost.config" -ne $null)[0]
 
     Write-Verbose "Searching for webfarm: $Name"
 
