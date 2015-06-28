@@ -25,14 +25,36 @@ function Get-TargetResource
         $resource.Ensures = "Present"
         $resource.Enabled = [System.Boolean]::Parse($webFarm.enabled)
 
+        #dows this farm have the specific request routing element
         if($webFarm.applicationRequestRouting -ne $null){
             $resource.LoadBalancing = @{
                 Algorithm = $webFarm.applicationRequestRouting.loadBalancing.algorithm
             }
+
+            if([System.String]::IsNullOrEmpty($resource.LoadBalancing.Algorithm)){
+                $resource.LoadBalancing.Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
+            }
+
+            if($webFarm.applicationRequestRouting.loadBalancing.algorithm.ToLower() -eq "weightedroundrobin"){
+                $resource.Servers = ($webFarm.server | % {@{Name=$_.address;Weigth=($_.applicationRequestRouting.weight, 100 -ne $null)[0]}})
+            }else{
+                $resource.Servers = ($webFarm.server | % {@{Name=$_.address}})
+            }
+
+            if($webFarm.applicationRequestRouting.loadBalancing -ne $null){
+                if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable -ne $null){
+                    if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable.ToLower() -eq "query_string"){
+                        $resource.LoadBalancing.QueryString = $webFarm.applicationRequestRouting.loadBalancing.queryStringNames.Split(",")                
+                    }else{
+                        $resource.LoadBalancing.ServerVariable = $webFarm.applicationRequestRouting.loadBalancing.hashServerVariable
+                    }
+                }
+            }
         }else{
             $resource.LoadBalancing = @{
-                Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
+                Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm                
             }
+            $resource.Servers = ($webFarm.server | % {@{Name=$_.address;Weigth=($_.applicationRequestRouting.weight, 100 -ne $null)[0]}})
         }
     }
 

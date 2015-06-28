@@ -5,22 +5,45 @@ Import-Module "$sut" -Force
 $fakeapphost1 = [xml]'<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <webFarms>
-        <webFarm name="SOMEFARMTHATEXISTS" enabled="true">
-            <applicationRequestRouting>
-                <loadBalancing algorithm="RequestHash" hashServerVariable="QUERY_STRING" queryStringNames="q1" />
-            </applicationRequestRouting>
+        <webFarm name="SOMEFARMTHATEXISTS" enabled="true">           
         </webFarm>
         <webFarm name="SOMEDISABLEDFARM" enabled="false">            
         </webFarm>
-        <webFarm name="SOMEFARMWITHOUTBALANCING" enabled="false">            
+        <webFarm name="SOMEFARMWITHOUTBALANCING" enabled="false">  
+            <server address="fqdn1" enabled="true">                
+            </server>
+            <server address="fqdn2" enabled="true">                
+            </server>          
         </webFarm>
-        <webFarm name="SOMEFARMWITHWeightedRoundRobin" enabled="false">            
-        </webFarm>
-        <webFarm name="SOMEFARMWITHRequestHash" enabled="false">            
+        <webFarm name="SOMEFARMWITHWeightedRoundRobin" enabled="false"> 
+            <server address="fqdn1" enabled="true">                
+            </server>
+            <server address="fqdn2" enabled="true">                
+            </server>
+            <server address="fqdn3" enabled="true">                
+            </server>     
             <applicationRequestRouting>
-                <loadBalancing algorithm="RequestHash" />
+                <loadBalancing algorithm="WeightedRoundRobin" />
+            </applicationRequestRouting>      
+        </webFarm>
+        <webFarm name="SOMEFARMWITHRequestHashQueryString" enabled="false">   
+            <server address="fqdn1" enabled="true">                
+            </server>
+            <server address="fqdn2" enabled="true">                
+            </server>           
+             <applicationRequestRouting>
+                <loadBalancing algorithm="RequestHash" hashServerVariable="QUERY_STRING" queryStringNames="q1,q2" />
             </applicationRequestRouting>
         </webFarm>
+        <webFarm name="SOMEFARMWITHRequestHashServerVariable" enabled="false">   
+            <server address="fqdn1" enabled="true">                
+            </server>
+            <server address="fqdn2" enabled="true">                
+            </server>          
+             <applicationRequestRouting>
+                <loadBalancing algorithm="RequestHash" hashServerVariable="x" />
+            </applicationRequestRouting> 
+        </webFarm>        
     </webFarms>
 </configuration>'
 
@@ -49,15 +72,53 @@ Describe "MSFT_xWebfarm" {
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHOUTBALANCING"
         $webFarm.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
+        $webFarm.LoadBalancing.QueryString | Should Be $null        
+        $webFarm.LoadBalancing.ServerVariable | Should Be $null
+        $webFarm.Servers.Length | Should Be 2
+        $webFarm.Servers[0].Name | Should Be "fqdn1"
+        $webFarm.Servers[0].Weigth | Should Be 100
+        $webFarm.Servers[1].Name | Should Be "fqdn2"
+        $webFarm.Servers[1].Weigth | Should Be 100 
     }  
     It "must return the specific load balancing algorithm when present [WeightedRoundRobin]" {
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
         $webFarm.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
+        $webFarm.LoadBalancing.QueryString | Should Be $null
+        $webFarm.LoadBalancing.ServerVariable | Should Be $null
+        $webFarm.Servers.Length | Should Be 3
+        $webFarm.Servers[0].Name | Should Be "fqdn1"
+        $webFarm.Servers[0].Weigth | Should Be 100
+        $webFarm.Servers[1].Name | Should Be "fqdn2"
+        $webFarm.Servers[1].Weigth | Should Be 100
+        $webFarm.Servers[2].Name | Should Be "fqdn3"
+        $webFarm.Servers[2].Weigth | Should Be 100
     }   
     It "must return the specific load balancing algorithm when present [RequestHash]" {
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHash"
+        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
         $webFarm.LoadBalancing.Algorithm | Should Be "RequestHash"
+    }   
+    It "must return the specific load balancing algorithm when present [RequestHash] with QueryString" {
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $webFarm.LoadBalancing.QueryString.Length | Should Be 2
+        $webFarm.LoadBalancing.QueryString[0] | Should Be "q1"
+        $webFarm.LoadBalancing.QueryString[1] | Should Be "q2"
+        $webFarm.Servers.Length | Should Be 2
+        $webFarm.Servers[0].Name | Should Be "fqdn1"
+        $webFarm.Servers[0].Weigth | Should Be $null
+        $webFarm.Servers[1].Name | Should Be "fqdn2"
+        $webFarm.Servers[1].Weigth | Should Be $null 
+    }  
+    It "must return the specific load balancing algorithm when present [RequestHash] with Server Variable" {
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
+        $webFarm.LoadBalancing.ServerVariable | Should Be "x"
+        $webFarm.Servers.Length | Should Be 2
+        $webFarm.Servers[0].Name | Should Be "fqdn1"
+        $webFarm.Servers[0].Weigth | Should Be $null
+        $webFarm.Servers[1].Name | Should Be "fqdn2"
+        $webFarm.Servers[1].Weigth | Should Be $null
     }   
 }
