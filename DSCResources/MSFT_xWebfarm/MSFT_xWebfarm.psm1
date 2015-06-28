@@ -13,7 +13,18 @@ function Get-TargetResource
         [ValidateNotNullOrEmpty()]
         [string]$Name
     )
-    @{}
+
+    $resource = @{
+        Ensures = "Absent"
+    }
+    
+    $webFarm = Get-WebsiteFarm -Name $Name
+    if($webFarm -ne $null){
+        $resource.Ensures = "Present"
+        $resource.Enabled = [System.Boolean]::Parse($webFarm.enabled)
+    }
+
+    $resource 
 }
 
 
@@ -72,6 +83,41 @@ function Test-TargetResource
     }
 
     $measure.Count -gt 0     
+}
+
+function Get-WebsiteFarm{
+    param 
+    (       
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+                
+        [ValidateNotNullOrEmpty()]
+        [string]$ConfigPath = "%windir%/system32/inetsrv/config/applicationhost.config"
+    )
+
+    Write-Verbose "Searching for webfarm: $Name"
+
+    $ConfigPath = [System.Environment]::ExpandEnvironmentVariables($ConfigPath)
+
+    $found = $false    
+    $applicationHostConfig = GetApplicationHostConfig $ConfigPath
+    $farms = $applicationHostConfig.configuration.webFarms.webFarm | ? name -eq $Name
+    $measure = $farms | measure-object
+
+    Write-Verbose ("Webfarms found: " + $measure.Count)
+
+    if($measure.Count -gt 1){
+        Write-Error "More than one webfarm found! The config must be corrupted"
+    }elseif($measure.Count -eq 0){
+        $null
+    }else{
+        $farms
+    }
+}
+
+function GetApplicationHostConfig($path){
+    [xml](gc $path)
 }
 
 #endregion
