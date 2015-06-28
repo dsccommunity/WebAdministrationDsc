@@ -2,6 +2,8 @@ data LocalizedData
 {   
 }
 
+$_xWebfarm_DefaultLoadBalancingAlgorithm = "WeightedRoundRobin"
+
 # The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
 # It gives the Website info of the requested role/feature on the target machine.  
 function Get-TargetResource 
@@ -22,6 +24,16 @@ function Get-TargetResource
     if($webFarm -ne $null){
         $resource.Ensures = "Present"
         $resource.Enabled = [System.Boolean]::Parse($webFarm.enabled)
+
+        if($webFarm.applicationRequestRouting -ne $null){
+            $resource.LoadBalancing = @{
+                Algorithm = $webFarm.applicationRequestRouting.loadBalancing.algorithm
+            }
+        }else{
+            $resource.LoadBalancing = @{
+                Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
+            }
+        }
     }
 
     $resource 
