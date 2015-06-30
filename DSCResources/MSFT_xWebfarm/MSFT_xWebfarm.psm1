@@ -3,7 +3,6 @@ data LocalizedData
 }
 
 $_xWebfarm_DefaultLoadBalancingAlgorithm = "WeightedRoundRobin"
-$_xWebfarm_DefaultLoadBalancingAlgorithm = "WeightedRoundRobin"
 
 # The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
 # It gives the Website info of the requested role/feature on the target machine.  
@@ -26,7 +25,12 @@ function Get-TargetResource
     $webFarm = Get-WebsiteFarm -Name $Name -ConfigPath $ConfigPath
     if($webFarm -ne $null){
         $resource.Ensures = "Present"
-        $resource.Enabled = [System.Boolean]::Parse($webFarm.enabled)
+
+        if([System.String]::IsNullOrEmpty($webFarm.enabled)){
+            $resource.Enabled = $false
+        }else{
+            $resource.Enabled = [System.Boolean]::Parse($webFarm.enabled)
+        }
 
         #dows this farm have the specific request routing element
         if($webFarm.applicationRequestRouting -ne $null){
@@ -72,12 +76,38 @@ function Set-TargetResource
     param 
     (       
         [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
+        [string]$Ensures = "Present",
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$Name
-    ) 
+        [string]$Name,
+
+        [bool]$Enabled = $true,
+
+        [string]$ConfigPath
+    )
+
+    if([System.String]::IsNullOrEmpty($ConfigPath)){
+        $ConfigPath = "%windir%/system32/inetsrv/config/applicationhost.config"
+    }
+    
+    $config = GetApplicationHostConfig $ConfigPath
+    $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
+
+    if(($Ensures.ToLower() -eq "present") -and ($resource.Ensures.ToLower() -eq "absent")){
+        $webFarmElement = $config.CreateElement("webFarm")
+        $webFarmElement.SetAttribute("name", $Name)        
+        $config.configuration.webFarms.AppendChild($webFarmElement)
+    }
+
+    $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
+    
+    if (($Ensures.ToLower() -eq "present") -and ($resource.Ensures.ToLower() -eq "present")){
+        $webFarm = Get-WebsiteFarm -Name $Name -ConfigPath $ConfigPath
+        $webFarm.SetAttribute("enabled", $Enabled)
+    }
+
+    SetApplicationHostConfig $ConfigPath $config
 }
 
 
@@ -130,7 +160,7 @@ function Get-WebsiteFarm{
         [ValidateNotNullOrEmpty()]
         [string]$Name,
         
-        [string]$ConfigPath = "%windir%/system32/inetsrv/config/applicationhost.config"
+        [string]$ConfigPath
     )
 
     $ConfigPath = ($ConfigPath, "%windir%/system32/inetsrv/config/applicationhost.config" -ne $null)[0]
@@ -157,6 +187,11 @@ function Get-WebsiteFarm{
 
 function GetApplicationHostConfig($path){
     [xml](gc $path)
+}
+
+function SetApplicationHostConfig{
+    param([string]$path, [xml]$xml)
+    $xml.Save($path)
 }
 
 #endregion

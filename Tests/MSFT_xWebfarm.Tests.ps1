@@ -2,80 +2,90 @@
 $sut = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "..\DSCResources\MSFT_xWebfarm\MSFT_xWebfarm.psm1"
 Import-Module "$sut" -Force
 
-$fakeapphost1 = [xml]'<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <webFarms>
-        <webFarm name="SOMEFARMTHATEXISTS" enabled="true">           
-        </webFarm>
-        <webFarm name="SOMEDISABLEDFARM" enabled="false">            
-        </webFarm>
-        <webFarm name="SOMEFARMWITHOUTBALANCING" enabled="false">  
-            <server address="fqdn1" enabled="true">                
-            </server>
-            <server address="fqdn2" enabled="true">                
-            </server>          
-        </webFarm>
-        <webFarm name="SOMEFARMWITHWeightedRoundRobin" enabled="false"> 
-            <server address="fqdn1" enabled="true">                
-            </server>
-            <server address="fqdn2" enabled="true">                
-            </server>
-            <server address="fqdn3" enabled="true">
-                <applicationRequestRouting weight="150" />
-            </server>     
-            <applicationRequestRouting>
-                <loadBalancing algorithm="WeightedRoundRobin" />
-            </applicationRequestRouting>      
-        </webFarm>
-        <webFarm name="SOMEFARMWITHRequestHashQueryString" enabled="false">   
-            <server address="fqdn1" enabled="true">                
-            </server>
-            <server address="fqdn2" enabled="true">
-                <!-- Must be ignored because it is not in roud robin -->
-                <applicationRequestRouting weight="150" />            
-            </server>           
-             <applicationRequestRouting>
-                <loadBalancing algorithm="RequestHash" hashServerVariable="QUERY_STRING" queryStringNames="q1,q2" />
-            </applicationRequestRouting>
-        </webFarm>
-        <webFarm name="SOMEFARMWITHRequestHashServerVariable" enabled="false">   
-            <server address="fqdn1" enabled="true">                
-            </server>
-            <server address="fqdn2" enabled="true">
-                <!-- Must be ignored because it is not in roud robin -->
-                <applicationRequestRouting weight="150" />               
-            </server>          
-             <applicationRequestRouting>
-                <loadBalancing algorithm="RequestHash" hashServerVariable="x" />
-            </applicationRequestRouting> 
-        </webFarm>        
-    </webFarms>
-</configuration>'
+$global:fakeapphost1 = ""
+
+function ResetAppHost
+{
+    $global:fakeapphost1 = [xml]'<?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <webFarms>
+            <webFarm name="SOMEFARMTHATEXISTS" enabled="true">           
+            </webFarm>
+            <webFarm name="SOMEDISABLEDFARM" enabled="false">            
+            </webFarm>
+            <webFarm name="SOMEFARMWITHOUTBALANCING" enabled="false">  
+                <server address="fqdn1" enabled="true">                
+                </server>
+                <server address="fqdn2" enabled="true">                
+                </server>          
+            </webFarm>
+            <webFarm name="SOMEFARMWITHWeightedRoundRobin" enabled="false"> 
+                <server address="fqdn1" enabled="true">                
+                </server>
+                <server address="fqdn2" enabled="true">                
+                </server>
+                <server address="fqdn3" enabled="true">
+                    <applicationRequestRouting weight="150" />
+                </server>     
+                <applicationRequestRouting>
+                    <loadBalancing algorithm="WeightedRoundRobin" />
+                </applicationRequestRouting>      
+            </webFarm>
+            <webFarm name="SOMEFARMWITHRequestHashQueryString" enabled="false">   
+                <server address="fqdn1" enabled="true">                
+                </server>
+                <server address="fqdn2" enabled="true">
+                    <!-- Must be ignored because it is not in roud robin -->
+                    <applicationRequestRouting weight="150" />            
+                </server>           
+                 <applicationRequestRouting>
+                    <loadBalancing algorithm="RequestHash" hashServerVariable="QUERY_STRING" queryStringNames="q1,q2" />
+                </applicationRequestRouting>
+            </webFarm>
+            <webFarm name="SOMEFARMWITHRequestHashServerVariable" enabled="false">   
+                <server address="fqdn1" enabled="true">                
+                </server>
+                <server address="fqdn2" enabled="true">
+                    <!-- Must be ignored because it is not in roud robin -->
+                    <applicationRequestRouting weight="150" />               
+                </server>          
+                 <applicationRequestRouting>
+                    <loadBalancing algorithm="RequestHash" hashServerVariable="x" />
+                </applicationRequestRouting> 
+            </webFarm>        
+        </webFarms>
+    </configuration>'
+}
 
 Describe "MSFT_xWebfarm.Get-TargetResource" {
     It "must return Ensures Absent if the webfarm does not exists" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
         $webFarm.Ensures | Should Be "Absent"
     }
     It "must return Ensures Present if webfarm exists" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
         $webFarm.Ensures | Should Be "Present"
     }
 
     It "must return Enabled True if webfarm is enabled" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
         $webFarm.Enabled | Should Be $true
     }
     It "must return Enabled False if webfarm is disabled" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEDISABLEDFARM"
         $webFarm.Enabled | Should Be $false
     }
 
     It "must return the default load balancing algorithm when the specific is not present" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHOUTBALANCING"
         $webFarm.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
@@ -88,6 +98,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         $webFarm.Servers[1].Weigth | Should Be 100 
     }  
     It "must return the specific load balancing algorithm when present [WeightedRoundRobin]" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
         $webFarm.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
@@ -102,11 +113,13 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         $webFarm.Servers[2].Weigth | Should Be 150
     }   
     It "must return the specific load balancing algorithm when present [RequestHash]" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
         $webFarm.LoadBalancing.Algorithm | Should Be "RequestHash"
     }   
     It "must return the specific load balancing algorithm when present [RequestHash] with QueryString" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
         $webFarm.LoadBalancing.QueryString.Length | Should Be 2
@@ -119,6 +132,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         $webFarm.Servers[1].Weigth | Should Be $null 
     }  
     It "must return the specific load balancing algorithm when present [RequestHash] with Server Variable" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
         $webFarm.LoadBalancing.ServerVariable | Should Be "x"
@@ -132,28 +146,121 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
 
 Describe "MSFT_xWebfarm.Test-TargetResource"{
     It "must return true if requested Absent and resource is Absent" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $result = Test-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensures Absent
         $result | Should Be $true
     }
     It "must return false if requested Absent and resource is Present" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Absent
         $result | Should Be $false
     }
     It "must return false if requested Present and resource is Absent" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $result = Test-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensures Present
         $result | Should Be $false
-    }    
+    }   
+     
     It "must return false if requested Enabled=true and resource is Enabled=false" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $result = Test-TargetResource -Name "SOMEDISABLEDFARM" -Ensures Present -Enabled $true
         $result | Should Be $false
     }
     It "must return true if requested Enabled=true and resource is Enabled=true" {
+        ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present -Enabled $true
         $result | Should Be $true
     }
+    It "must return true if requested Enabled=false and resource is Enabled=false" {
+        ResetAppHost
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+        $result = Test-TargetResource -Name "SOMEDISABLEDFARM" -Ensures Present -Enabled $false
+        $result | Should Be $true
+    }
+    It "must return false if requested Enabled=false and resource is Enabled=true" {
+        ResetAppHost
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+        $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present -Enabled $false
+        $result | Should Be $false
+    }
 }
+
+Describe "MSFT_xWebfarm.Set-TargetResource"{
+    It "must Create the webfarm if requested Present and resource is Absent [Enabled=true]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARM1" -Ensures Present
+
+        $result = Get-TargetResource -Name "SOMEFARM1"
+        $result.Ensures | Should Be "Present"
+        $result.Enabled | Should Be $true
+    }
+    It "must Create the webfarm if requested Present and resource is Absent [Enabled=false]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARM1" -Ensures Present -Enabled $false
+
+        $result = Get-TargetResource -Name "SOMEFARM1"
+        $result.Ensures | Should Be "Present"
+        $result.Enabled | Should Be $false
+    }
+    It "must configure webfarm if requested Present and resource is Present Requested[Enabled=true] Resource[Enabled=true]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present
+
+        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result.Ensures | Should Be "Present"
+        $result.Enabled | Should Be $true
+    }
+    It "must configure webfarm if requested Present and resource is Present Requested[Enabled=false] Resource[Enabled=true]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present -Enabled $false
+
+        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result.Ensures | Should Be "Present"
+        $result.Enabled | Should Be $false
+    }
+}
+
+$modulePath = Split-Path $sut -Parent -Resolve
+$modulePath = Join-Path $modulePath "..\.." -Resolve
+$userPath = Join-Path $PSHOME "Modules" -Resolve
+$userPathDest = Join-Path $userPath  "xWebAdministration"
+if($env:PSModulePath.Contains($userPath) -eq $false){
+    $env:PSModulePath += ";" + $userPath
+}
+
+Push-Location
+cd $modulePath
+Remove-Item $userPathDest -Force -Recurse -ErrorAction SilentlyContinue
+Copy-Item -Path $modulePath  -Filter * -Destination $userPathDest –Recurse
+Pop-Location
+
+Configuration Webfarm1
+{
+    Import-DscResource -Module xWebAdministration
+    
+    xWebfarm Farm1
+    {
+        Ensure = "Present"
+        Name = "Farm1"        
+    }
+}
+
+Webfarm1 -OutputPath ($modulePath + "\test\mof")
+Start-DscConfiguration -Path ($modulePath + "\test\mof") -Wait
