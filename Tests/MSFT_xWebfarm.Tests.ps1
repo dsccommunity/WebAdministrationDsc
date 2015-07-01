@@ -58,17 +58,17 @@ function ResetAppHost
 }
 
 Describe "MSFT_xWebfarm.Get-TargetResource" {
-    It "must return Ensures Absent if the webfarm does not exists" {
+    It "must return Ensure Absent if the webfarm does not exists" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
-        $webFarm.Ensures | Should Be "Absent"
+        $webFarm.Ensure | Should Be "Absent"
     }
-    It "must return Ensures Present if webfarm exists" {
+    It "must return Ensure Present if webfarm exists" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
-        $webFarm.Ensures | Should Be "Present"
+        $webFarm.Ensure | Should Be "Present"
     }
 
     It "must return Enabled True if webfarm is enabled" {
@@ -148,44 +148,44 @@ Describe "MSFT_xWebfarm.Test-TargetResource"{
     It "must return true if requested Absent and resource is Absent" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $result = Test-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensures Absent
+        $result = Test-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensure Absent
         $result | Should Be $true
     }
     It "must return false if requested Absent and resource is Present" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Absent
+        $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Absent
         $result | Should Be $false
     }
     It "must return false if requested Present and resource is Absent" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $result = Test-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensures Present
+        $result = Test-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensure Present
         $result | Should Be $false
     }   
      
     It "must return false if requested Enabled=true and resource is Enabled=false" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $result = Test-TargetResource -Name "SOMEDISABLEDFARM" -Ensures Present -Enabled $true
+        $result = Test-TargetResource -Name "SOMEDISABLEDFARM" -Ensure Present -Enabled $true
         $result | Should Be $false
     }
     It "must return true if requested Enabled=true and resource is Enabled=true" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present -Enabled $true
+        $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $true
         $result | Should Be $true
     }
     It "must return true if requested Enabled=false and resource is Enabled=false" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $result = Test-TargetResource -Name "SOMEDISABLEDFARM" -Ensures Present -Enabled $false
+        $result = Test-TargetResource -Name "SOMEDISABLEDFARM" -Ensure Present -Enabled $false
         $result | Should Be $true
     }
     It "must return false if requested Enabled=false and resource is Enabled=true" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present -Enabled $false
+        $result = Test-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $false
         $result | Should Be $false
     }
 }
@@ -196,10 +196,10 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARM1" -Ensures Present
+        Set-TargetResource -Name "SOMEFARM1" -Ensure Present
 
         $result = Get-TargetResource -Name "SOMEFARM1"
-        $result.Ensures | Should Be "Present"
+        $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
     }
     It "must Create the webfarm if requested Present and resource is Absent [Enabled=false]" {
@@ -207,10 +207,10 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARM1" -Ensures Present -Enabled $false
+        Set-TargetResource -Name "SOMEFARM1" -Ensure Present -Enabled $false
 
         $result = Get-TargetResource -Name "SOMEFARM1"
-        $result.Ensures | Should Be "Present"
+        $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
     }
     It "must configure webfarm if requested Present and resource is Present Requested[Enabled=true] Resource[Enabled=true]" {
@@ -218,10 +218,10 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present
 
         $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
-        $result.Ensures | Should Be "Present"
+        $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
     }
     It "must configure webfarm if requested Present and resource is Present Requested[Enabled=false] Resource[Enabled=true]" {
@@ -229,38 +229,10 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensures Present -Enabled $false
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $false
 
         $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
-        $result.Ensures | Should Be "Present"
+        $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
     }
 }
-
-$modulePath = Split-Path $sut -Parent -Resolve
-$modulePath = Join-Path $modulePath "..\.." -Resolve
-$userPath = Join-Path $PSHOME "Modules" -Resolve
-$userPathDest = Join-Path $userPath  "xWebAdministration"
-if($env:PSModulePath.Contains($userPath) -eq $false){
-    $env:PSModulePath += ";" + $userPath
-}
-
-Push-Location
-cd $modulePath
-Remove-Item $userPathDest -Force -Recurse -ErrorAction SilentlyContinue
-Copy-Item -Path $modulePath  -Filter * -Destination $userPathDest –Recurse
-Pop-Location
-
-Configuration Webfarm1
-{
-    Import-DscResource -Module xWebAdministration
-    
-    xWebfarm Farm1
-    {
-        Ensure = "Present"
-        Name = "Farm1"        
-    }
-}
-
-Webfarm1 -OutputPath ($modulePath + "\test\mof")
-Start-DscConfiguration -Path ($modulePath + "\test\mof") -Wait

@@ -19,12 +19,13 @@ function Get-TargetResource
     )
 
     $resource = @{
-        Ensures = "Absent"
+        Ensure = "Absent"
     }
     
     $webFarm = Get-WebsiteFarm -Name $Name -ConfigPath $ConfigPath
+
     if($webFarm -ne $null){
-        $resource.Ensures = "Present"
+        $resource.Ensure = "Present"
 
         if([System.String]::IsNullOrEmpty($webFarm.enabled)){
             $resource.Enabled = $false
@@ -76,7 +77,7 @@ function Set-TargetResource
     param 
     (       
         [ValidateSet("Present", "Absent")]
-        [string]$Ensures = "Present",
+        [string]$Ensure = "Present",
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -87,25 +88,42 @@ function Set-TargetResource
         [string]$ConfigPath
     )
 
-    if([System.String]::IsNullOrEmpty($ConfigPath)){
-        $ConfigPath = "%windir%/system32/inetsrv/config/applicationhost.config"
-    }
+    Write-Verbose "xWebfarm/Set-TargetResource"
+    Write-Verbose "Ensure: $Ensure"
+    Write-Verbose "Name: $Name"
+    Write-Verbose "Enabled: $Enabled"
+    Write-Verbose "ConfigPath: $ConfigPath"
+
+    Write-Verbose "Get current config"
     
     $config = GetApplicationHostConfig $ConfigPath
+
+    Write-Verbose "Get current webfarm state"
+
     $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
 
-    if(($Ensures.ToLower() -eq "present") -and ($resource.Ensures.ToLower() -eq "absent")){
+    if(($Ensure.ToLower() -eq "present") -and ($resource.Ensure.ToLower() -eq "absent")){
+        Write-Verbose "Webfarm does not exists. Creating one."
+
         $webFarmElement = $config.CreateElement("webFarm")
         $webFarmElement.SetAttribute("name", $Name)        
         $config.configuration.webFarms.AppendChild($webFarmElement)
-    }
 
-    $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
+        Write-Verbose "Refresh webfarm state"
+
+        $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
+    }else{
+        Write-Verbose "Webfarm exists. Just configuring it."
+    }
     
-    if (($Ensures.ToLower() -eq "present") -and ($resource.Ensures.ToLower() -eq "present")){
+    if (($Ensure.ToLower() -eq "present") -and ($resource.Ensure.ToLower() -eq "present")){
         $webFarm = Get-WebsiteFarm -Name $Name -ConfigPath $ConfigPath
+
+        Write-Verbose "Configuring enabled state"
         $webFarm.SetAttribute("enabled", $Enabled)
     }
+
+    Write-Verbose "Finished configuration. Saving the config."
 
     SetApplicationHostConfig $ConfigPath $config
 }
@@ -120,7 +138,7 @@ function Test-TargetResource
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]  
         [ValidateSet("Present", "Absent")]
-        [string]$Ensures = "Present",
+        [string]$Ensure = "Present",
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -133,15 +151,15 @@ function Test-TargetResource
     
     $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
     
-    if($resource.Ensures.ToLower() -eq "absent"){
-        if($Ensures.ToLower() -eq "absent"){
+    if($resource.Ensure.ToLower() -eq "absent"){
+        if($Ensure.ToLower() -eq "absent"){
             return $true
         }else{
             return $false
         }
 
-    }elseif($resource.Ensures.ToLower() -eq "present"){
-        if($Ensures.ToLower() -eq "absent"){
+    }elseif($resource.Ensure.ToLower() -eq "present"){
+        if($Ensure.ToLower() -eq "absent"){
             return $false
         }
 
@@ -162,12 +180,8 @@ function Get-WebsiteFarm{
         
         [string]$ConfigPath
     )
-
-    $ConfigPath = ($ConfigPath, "%windir%/system32/inetsrv/config/applicationhost.config" -ne $null)[0]
-
+        
     Write-Verbose "Searching for webfarm: $Name"
-
-    $ConfigPath = [System.Environment]::ExpandEnvironmentVariables($ConfigPath)
 
     $found = $false    
     $applicationHostConfig = GetApplicationHostConfig $ConfigPath
@@ -185,13 +199,27 @@ function Get-WebsiteFarm{
     }
 }
 
-function GetApplicationHostConfig($path){
-    [xml](gc $path)
+function GetApplicationHostConfig($ConfigPath){
+    
+    if([System.String]::IsNullOrEmpty($ConfigPath)){
+        $ConfigPath = [System.Environment]::ExpandEnvironmentVariables("%windir%/system32/inetsrv/config/applicationhost.config")
+    }
+
+    Write-Verbose "GetApplicationHostConfig $ConfigPath"
+
+    [xml](gc $ConfigPath)
 }
 
 function SetApplicationHostConfig{
-    param([string]$path, [xml]$xml)
-    $xml.Save($path)
+    param([string]$ConfigPath, [xml]$xml)
+
+    if([System.String]::IsNullOrEmpty($ConfigPath)){
+        $ConfigPath = [System.Environment]::ExpandEnvironmentVariables("%windir%/system32/inetsrv/config/applicationhost.config")
+    }
+
+    Write-Verbose "SetApplicationHostConfig $ConfigPath"
+
+    $xml.Save($ConfigPath)
 }
 
 #endregion
