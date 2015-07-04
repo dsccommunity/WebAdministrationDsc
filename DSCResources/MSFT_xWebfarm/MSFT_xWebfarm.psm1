@@ -149,6 +149,10 @@ function Test-TargetResource
     Write-Verbose "xWebfarm/Test-TargetResource"
     Write-Verbose "Name: $Name"
     Write-Verbose "ConfigPath: $ConfigPath"
+
+    if([System.String]::IsNullOrEmpty($Algorithm)){
+        $Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
+    }
     
     $config = GetApplicationHostConfig $ConfigPath
     $webFarm = GetWebsiteFarm $Name $config
@@ -171,7 +175,11 @@ function Test-TargetResource
 
         if($resource.Enabled -ne $Enabled){
             return $false
-        }          
+        }
+
+        if($Algorithm -ne $resource.Algorithm){
+            return $false
+        }
     }    
 
     $true
@@ -217,36 +225,25 @@ function GetTargetResourceFromConfigElement($webFarm){
 
         #dows this farm have the specific request routing element
         if($webFarm.applicationRequestRouting -ne $null){
-            $resource.LoadBalancing = @{
-                Algorithm = $webFarm.applicationRequestRouting.loadBalancing.algorithm
-            }
+            $resource.Algorithm = $webFarm.applicationRequestRouting.loadBalancing.algorithm
             
-            if([System.String]::IsNullOrEmpty($resource.LoadBalancing.Algorithm)){
-                $resource.LoadBalancing.Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
-            }
-
-            if($webFarm.applicationRequestRouting.loadBalancing.algorithm -eq "weightedroundrobin"){
-                $resource.Servers = ($webFarm.server | % {@{Name=$_.address;Weigth=($_.applicationRequestRouting.weight, 100 -ne $null)[0]}})
-            }else{
-                $resource.Servers = ($webFarm.server | % {@{Name=$_.address}})
+            if([System.String]::IsNullOrEmpty($resource.Algorithm)){
+                $resource.Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
             }
 
             if($webFarm.applicationRequestRouting.loadBalancing -ne $null){
                 if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable -ne $null){
                     if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable -eq "query_string"){
-                        $resource.LoadBalancing.Algorithm = "QueryString"
-                        $resource.LoadBalancing.QueryString = $webFarm.applicationRequestRouting.loadBalancing.queryStringNames.Split(",")                
+                        $resource.Algorithm = "QueryString"
+                        $resource.QueryString = $webFarm.applicationRequestRouting.loadBalancing.queryStringNames.Split(",")                
                     }else{
-                        $resource.LoadBalancing.Algorithm = "ServerVariable"
-                        $resource.LoadBalancing.ServerVariable = $webFarm.applicationRequestRouting.loadBalancing.hashServerVariable
+                        $resource.Algorithm = "ServerVariable"
+                        $resource.ServerVariable = $webFarm.applicationRequestRouting.loadBalancing.hashServerVariable.Split(",")
                     }
                 }
             }
         }else{
-            $resource.LoadBalancing = @{
-                Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm                
-            }
-            $resource.Servers = ($webFarm.server | % {@{Name=$_.address;Weigth=($_.applicationRequestRouting.weight, 100 -ne $null)[0]}})
+            $resource.Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm            
         }
     }
 
