@@ -3,6 +3,7 @@ data LocalizedData
 }
 
 $_xWebfarm_DefaultLoadBalancingAlgorithm = "WeightedRoundRobin"
+$_xWebfarm_DefaultApplicationHostConfig = "%windir%\system32\inetsrv\config\applicationhost.config"
 
 # The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
 # It gives the Website info of the requested role/feature on the target machine.  
@@ -16,13 +17,162 @@ function Get-TargetResource
         [string]$Name,
                 
         [string]$ConfigPath
+    )        
+
+    Write-Verbose "xWebfarm/Get-TargetResource"
+    Write-Verbose "Name: $Name"    
+    Write-Verbose "ConfigPath: $ConfigPath"
+    
+    $config = GetApplicationHostConfig $ConfigPath
+    $webFarm = GetWebsiteFarm $Name $config
+    GetTargetResourceFromConfigElement $webFarm    
+}
+
+
+# The Set-TargetResource cmdlet is used to create, delete or configuure a website on the target machine. 
+function Set-TargetResource 
+{
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param 
+    (       
+        [ValidateSet("Present", "Absent")]
+        [string]$Ensure = "Present",
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+
+        [bool]$Enabled = $true,
+
+        [string]$ConfigPath
     )
 
+    Write-Verbose "xWebfarm/Set-TargetResource"
+    Write-Verbose "Ensure: $Ensure"
+    Write-Verbose "Name: $Name"
+    Write-Verbose "Enabled: $Enabled"
+    Write-Verbose "ConfigPath: $ConfigPath"
+    
+    Write-Verbose "Get current webfarm state"
+
+    $config = GetApplicationHostConfig $ConfigPath
+    $webFarm = GetWebsiteFarm $Name $config
+    $resource = GetTargetResourceFromConfigElement $webFarm
+
+    Write-Verbose "Webfarm presence. From [$($resource.Ensure )] to [$Ensure]"
+
+    if(($Ensure -eq "present") -and ($resource.Ensure -eq "absent")){
+        $webFarmElement = $config.CreateElement("webFarm")
+        $webFarmElement.SetAttribute("name", $Name)        
+        $config.configuration.webFarms.AppendChild($webFarmElement)
+
+        Write-Verbose "Webfarm created: Name = $Name"
+        
+        $resource = GetTargetResourceFromConfigElement $webFarmElement
+        $webFarm = GetWebsiteFarm $Name $config
+    }elseif(($Ensure -eq "absent") -and ($resource.Ensure -eq "present")){
+        $webFarmElement = $config.configuration.webFarms.webFarm | ? Name -eq $Name
+        $config.configuration.webFarms.RemoveChild($webFarmElement)
+
+        Write-Verbose "Webfarm deleted: Name = $Name"
+
+        $resource = GetTargetResourceFromConfigElement $null
+        $webFarm = $null
+    }
+    else {
+    }
+    
+    if (($Ensure -eq "present") -and ($resource.Ensure -eq "present")){
+        Write-Verbose "Webfarm configured: Enabled from [$($resource.Enabled)] to [$Enabled]"
+        $webFarm.SetAttribute("enabled", $Enabled)
+    }
+
+    if($config -ne $null){
+        Write-Verbose "Finished configuration. Saving the config."
+        SetApplicationHostConfig $ConfigPath $config
+    }
+}
+
+
+# The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
+function Test-TargetResource 
+{
+    [OutputType([System.Boolean])]
+    param 
+    (     
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]  
+        [ValidateSet("Present", "Absent")]
+        [string]$Ensure = "Present",
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,       
+                
+        [bool]$Enabled = $true,
+
+        [string]$ConfigPath
+    )
+
+    Write-Verbose "xWebfarm/Test-TargetResource"
+    Write-Verbose "Name: $Name"
+    Write-Verbose "ConfigPath: $ConfigPath"
+    
+    $config = GetApplicationHostConfig $ConfigPath
+    $webFarm = GetWebsiteFarm $Name $config
+    $resource = GetTargetResourceFromConfigElement $webFarm
+    
+    Write-Verbose "Testing Ensures: Requested [$Ensure] Resource [$($resource.Ensure)]"
+    if($resource.Ensure -eq "absent"){
+        if($Ensure -eq "absent"){            
+            return $true
+        }else{
+            return $false
+        }
+
+    }elseif($resource.Ensure -eq "present"){
+        if($Ensure -eq "absent"){
+            return $false
+        }
+
+        Write-Verbose "Testing Enabled: Requested [$Enabled] Resource [$($resource.Enabled)]"
+
+        if($resource.Enabled -ne $Enabled){
+            return $false
+        }          
+    }    
+
+    $true
+}
+
+function GetWebsiteFarm{
+    param 
+    (       
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [xml]$Config
+    )
+
+    $found = $false        
+    $farms = $Config.configuration.webFarms.webFarm | ? name -eq $Name
+    $measure = $farms | measure-object
+    
+    if($measure.Count -gt 1){
+        Write-Error "More than one webfarm found! The config must be corrupted"
+    }elseif($measure.Count -eq 0){
+        $null
+    }else{
+        $farms
+    }
+}
+
+function GetTargetResourceFromConfigElement($webFarm){
     $resource = @{
         Ensure = "Absent"
     }
-    
-    $webFarm = Get-WebsiteFarm -Name $Name -ConfigPath $ConfigPath
 
     if($webFarm -ne $null){
         $resource.Ensure = "Present"
@@ -69,140 +219,10 @@ function Get-TargetResource
     $resource 
 }
 
-
-# The Set-TargetResource cmdlet is used to create, delete or configuure a website on the target machine. 
-function Set-TargetResource 
-{
-    [CmdletBinding(SupportsShouldProcess=$true)]
-    param 
-    (       
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
-
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Name,
-
-        [bool]$Enabled = $true,
-
-        [string]$ConfigPath
-    )
-
-    Write-Verbose "xWebfarm/Set-TargetResource"
-    Write-Verbose "Ensure: $Ensure"
-    Write-Verbose "Name: $Name"
-    Write-Verbose "Enabled: $Enabled"
-    Write-Verbose "ConfigPath: $ConfigPath"
-
-    Write-Verbose "Get current config"
-    
-    $config = GetApplicationHostConfig $ConfigPath
-
-    Write-Verbose "Get current webfarm state"
-
-    $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
-
-    if(($Ensure.ToLower() -eq "present") -and ($resource.Ensure.ToLower() -eq "absent")){
-        Write-Verbose "Webfarm does not exists. Creating one."
-
-        $webFarmElement = $config.CreateElement("webFarm")
-        $webFarmElement.SetAttribute("name", $Name)        
-        $config.configuration.webFarms.AppendChild($webFarmElement)
-
-        Write-Verbose "Refresh webfarm state"
-
-        $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
-    }else{
-        Write-Verbose "Webfarm exists. Just configuring it."
-    }
-    
-    if (($Ensure.ToLower() -eq "present") -and ($resource.Ensure.ToLower() -eq "present")){
-        $webFarm = Get-WebsiteFarm -Name $Name -ConfigPath $ConfigPath
-
-        Write-Verbose "Configuring enabled state"
-        $webFarm.SetAttribute("enabled", $Enabled)
-    }
-
-    Write-Verbose "Finished configuration. Saving the config."
-
-    SetApplicationHostConfig $ConfigPath $config
-}
-
-
-# The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
-function Test-TargetResource 
-{
-    [OutputType([System.Boolean])]
-    param 
-    (     
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]  
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
-
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Name,       
-                
-        [bool]$Enabled = $true,
-
-        [string]$ConfigPath
-    )
-    
-    $resource = Get-TargetResource -Name $Name -ConfigPath $ConfigPath
-    
-    if($resource.Ensure.ToLower() -eq "absent"){
-        if($Ensure.ToLower() -eq "absent"){
-            return $true
-        }else{
-            return $false
-        }
-
-    }elseif($resource.Ensure.ToLower() -eq "present"){
-        if($Ensure.ToLower() -eq "absent"){
-            return $false
-        }
-
-        if($resource.Enabled -ne $Enabled){
-            return $false
-        }          
-    }    
-
-    $true
-}
-
-function Get-WebsiteFarm{
-    param 
-    (       
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Name,
-        
-        [string]$ConfigPath
-    )
-        
-    Write-Verbose "Searching for webfarm: $Name"
-
-    $found = $false    
-    $applicationHostConfig = GetApplicationHostConfig $ConfigPath
-    $farms = $applicationHostConfig.configuration.webFarms.webFarm | ? name -eq $Name
-    $measure = $farms | measure-object
-
-    Write-Verbose ("Webfarms found: " + $measure.Count)
-
-    if($measure.Count -gt 1){
-        Write-Error "More than one webfarm found! The config must be corrupted"
-    }elseif($measure.Count -eq 0){
-        $null
-    }else{
-        $farms
-    }
-}
-
 function GetApplicationHostConfig($ConfigPath){
     
     if([System.String]::IsNullOrEmpty($ConfigPath)){
-        $ConfigPath = [System.Environment]::ExpandEnvironmentVariables("%windir%/system32/inetsrv/config/applicationhost.config")
+        $ConfigPath = [System.Environment]::ExpandEnvironmentVariables($_xWebfarm_DefaultApplicationHostConfig)
     }
 
     Write-Verbose "GetApplicationHostConfig $ConfigPath"
@@ -214,7 +234,7 @@ function SetApplicationHostConfig{
     param([string]$ConfigPath, [xml]$xml)
 
     if([System.String]::IsNullOrEmpty($ConfigPath)){
-        $ConfigPath = [System.Environment]::ExpandEnvironmentVariables("%windir%/system32/inetsrv/config/applicationhost.config")
+        $ConfigPath = [System.Environment]::ExpandEnvironmentVariables($_xWebfarm_DefaultApplicationHostConfig)
     }
 
     Write-Verbose "SetApplicationHostConfig $ConfigPath"

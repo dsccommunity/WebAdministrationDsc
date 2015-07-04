@@ -213,6 +213,26 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
     }
+    It "must do nothing if requested Absent and resource is Absent" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensure Absent
+
+        $result = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
+        $result.Ensure | Should Be "Absent"        
+    }
+    It "must delete the webfarm if requested Absent and resource is Present" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Absent
+
+        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result.Ensure | Should Be "Absent"        
+    }
     It "must configure webfarm if requested Present and resource is Present Requested[Enabled=true] Resource[Enabled=true]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
@@ -234,5 +254,16 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
+    }
+    It "must configure webfarm if requested Present and resource is Present Requested[Enabled=true] Resource[Enabled=false]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEDISABLEDFARM" -Ensure Present -Enabled $true
+
+        $result = Get-TargetResource -Name "SOMEDISABLEDFARM"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $true
     }
 }
