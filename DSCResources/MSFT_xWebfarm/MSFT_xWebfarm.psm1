@@ -44,6 +44,10 @@ function Set-TargetResource
 
         [bool]$Enabled = $true,
 
+        [string]$Algorithm,
+        [string]$QueryString,
+        [string]$ServerVariable,
+
         [string]$ConfigPath
     )
 
@@ -51,6 +55,9 @@ function Set-TargetResource
     Write-Verbose "Ensure: $Ensure"
     Write-Verbose "Name: $Name"
     Write-Verbose "Enabled: $Enabled"
+    Write-Verbose "Algorithm: $Algorithm"
+    Write-Verbose "Algorithm: $QueryString"
+    Write-Verbose "Algorithm: $ServerVariable"
     Write-Verbose "ConfigPath: $ConfigPath"
     
     Write-Verbose "Get current webfarm state"
@@ -85,6 +92,27 @@ function Set-TargetResource
     if (($Ensure -eq "present") -and ($resource.Ensure -eq "present")){
         Write-Verbose "Webfarm configured: Enabled from [$($resource.Enabled)] to [$Enabled]"
         $webFarm.SetAttribute("enabled", $Enabled)
+                
+        if($LoadBalancing -eq $null){
+            Write-Verbose "Webfarm configured: LoadBalancing from [$($resource.LoadBalancing|ConvertTo-Json -Compress)] to []"
+            if($webFarm.applicationRequestRouting -ne $null){
+                $webFarm.RemoveChild($webFarm.applicationRequestRouting)
+            }
+        }else{
+            Write-Verbose "Webfarm configured: LoadBalancing from [$($resource.LoadBalancing|ConvertTo-Json -Compress)] to [$($LoadBalancing|ConvertTo-Json -Compress)]"
+            if($LoadBalancing.Algorithm -ne $resource.LoadBalancing.Algorithm){
+                $webFarm.applicationRequestRouting.loadBalancing.algorithm = $LoadBalancing.Algorithm
+            }
+
+            if($LoadBalancing.Algorithm -eq "querystring"){
+                $webFarm.applicationRequestRouting.loadBalancing.algorithm = "RequestHash"
+                $webFarm.applicationRequestRouting.loadBalancing.SetAttribute("hashServerVariable", "query_string")
+                $webFarm.applicationRequestRouting.loadBalancing.SetAttribute("queryStringNames", [System.String]::Join(",", $LoadBalancing.QueryString))
+            }elseif($LoadBalancing.Algorithm -eq "servervariable"){
+                $webFarm.applicationRequestRouting.loadBalancing.algorithm = "RequestHash"
+                $webFarm.applicationRequestRouting.loadBalancing.SetAttribute("hashServerVariable", $LoadBalancing.ServerVariable)
+            }
+        }
     }
 
     if($config -ne $null){
@@ -110,6 +138,10 @@ function Test-TargetResource
         [string]$Name,       
                 
         [bool]$Enabled = $true,
+
+        [string]$Algorithm,
+        [string]$QueryString,
+        [string]$ServerVariable,
 
         [string]$ConfigPath
     )
@@ -188,12 +220,12 @@ function GetTargetResourceFromConfigElement($webFarm){
             $resource.LoadBalancing = @{
                 Algorithm = $webFarm.applicationRequestRouting.loadBalancing.algorithm
             }
-
+            
             if([System.String]::IsNullOrEmpty($resource.LoadBalancing.Algorithm)){
                 $resource.LoadBalancing.Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
             }
 
-            if($webFarm.applicationRequestRouting.loadBalancing.algorithm.ToLower() -eq "weightedroundrobin"){
+            if($webFarm.applicationRequestRouting.loadBalancing.algorithm -eq "weightedroundrobin"){
                 $resource.Servers = ($webFarm.server | % {@{Name=$_.address;Weigth=($_.applicationRequestRouting.weight, 100 -ne $null)[0]}})
             }else{
                 $resource.Servers = ($webFarm.server | % {@{Name=$_.address}})
@@ -201,9 +233,11 @@ function GetTargetResourceFromConfigElement($webFarm){
 
             if($webFarm.applicationRequestRouting.loadBalancing -ne $null){
                 if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable -ne $null){
-                    if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable.ToLower() -eq "query_string"){
+                    if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable -eq "query_string"){
+                        $resource.LoadBalancing.Algorithm = "QueryString"
                         $resource.LoadBalancing.QueryString = $webFarm.applicationRequestRouting.loadBalancing.queryStringNames.Split(",")                
                     }else{
+                        $resource.LoadBalancing.Algorithm = "ServerVariable"
                         $resource.LoadBalancing.ServerVariable = $webFarm.applicationRequestRouting.loadBalancing.hashServerVariable
                     }
                 }

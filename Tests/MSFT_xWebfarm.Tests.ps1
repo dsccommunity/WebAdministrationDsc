@@ -31,6 +31,11 @@ function ResetAppHost
                     <loadBalancing algorithm="WeightedRoundRobin" />
                 </applicationRequestRouting>      
             </webFarm>
+            <webFarm name="SOMEFARMWITHRequestHash" enabled="false"> 
+                 <applicationRequestRouting>
+                    <loadBalancing algorithm="RequestHash"/>
+                </applicationRequestRouting> 
+            </webFarm>
             <webFarm name="SOMEFARMWITHRequestHashQueryString" enabled="false">   
                 <server address="fqdn1" enabled="true">                
                 </server>
@@ -115,13 +120,16 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
     It "must return the specific load balancing algorithm when present [RequestHash]" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHash"
         $webFarm.LoadBalancing.Algorithm | Should Be "RequestHash"
+        $webFarm.LoadBalancing.QueryString | Should Be $null
+        $webFarm.LoadBalancing.ServerVariable | Should Be $null
     }   
-    It "must return the specific load balancing algorithm when present [RequestHash] with QueryString" {
+    It "must return the specific load balancing algorithm when present [RequestHash-QueryString]" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $webFarm.LoadBalancing.Algorithm | Should Be "QueryString"
         $webFarm.LoadBalancing.QueryString.Length | Should Be 2
         $webFarm.LoadBalancing.QueryString[0] | Should Be "q1"
         $webFarm.LoadBalancing.QueryString[1] | Should Be "q2"
@@ -131,10 +139,11 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         $webFarm.Servers[1].Name | Should Be "fqdn2"
         $webFarm.Servers[1].Weigth | Should Be $null 
     }  
-    It "must return the specific load balancing algorithm when present [RequestHash] with Server Variable" {
+    It "must return the specific load balancing algorithm when present [RequestHash-ServerVariable]" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
         $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
+        $webFarm.LoadBalancing.Algorithm | Should Be "ServerVariable"
         $webFarm.LoadBalancing.ServerVariable | Should Be "x"
         $webFarm.Servers.Length | Should Be 2
         $webFarm.Servers[0].Name | Should Be "fqdn1"
@@ -213,6 +222,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
     }
+
     It "must do nothing if requested Absent and resource is Absent" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
@@ -223,6 +233,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
         $result.Ensure | Should Be "Absent"        
     }
+
     It "must delete the webfarm if requested Absent and resource is Present" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
@@ -233,6 +244,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Absent"        
     }
+
     It "must configure webfarm if requested Present and resource is Present Requested[Enabled=true] Resource[Enabled=true]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
@@ -266,4 +278,66 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
     }
+
+    It "must configure webfarm Requested=[LoadBalancing.Algorithm=WeightedRoundRobin] Resource[default] " {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="WeightedRoundRobin"}
+
+        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $true
+        $result.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
+        $result.LoadBalancing.QueryString | Should Be $null
+        $result.LoadBalancing.ServerVariable | Should Be $null
+    }
+    It "must configure webfarm Requested=[LoadBalancing.Algorithm=WeightedRoundRobin] Resource[LoadBalancing.Algorithm=WeightedRoundRobin] " {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="WeightedRoundRobin"}
+
+        $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $true
+        $result.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
+        $result.LoadBalancing.QueryString | Should Be $null
+        $result.LoadBalancing.ServerVariable | Should Be $null
+    }    
+   
+    It "must configure webfarm Requested=[LoadBalancing.Algorithm=QueryString] Resource[LoadBalancing.Algorithm=WeightedRoundRobin] " {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="QueryString"; QueryString = "q1","q2"}
+
+        $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $true
+        $result.LoadBalancing.Algorithm | Should Be "QueryString"
+        $result.LoadBalancing.QueryString | Should Not BeNullOrEmpty
+        $result.LoadBalancing.QueryString.Length | Should Be 2
+        $result.LoadBalancing.QueryString[0] | Should Be "q1"
+        $result.LoadBalancing.QueryString[1] | Should Be "q2"
+        $result.LoadBalancing.ServerVariable | Should Be $null
+    }
+
+    It "must configure webfarm Requested=[LoadBalancing.Algorithm=ServerVariable] Resource[LoadBalancing.Algorithm=WeightedRoundRobin] " {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="ServerVariable"; ServerVariable = "x"}
+
+        $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $true
+        $result.LoadBalancing.Algorithm | Should Be "ServerVariable"
+        $result.LoadBalancing.ServerVariable | Should Be "x"
+        $result.LoadBalancing.QueryString | Should BeNullOrEmpty    
+    }        
 }
