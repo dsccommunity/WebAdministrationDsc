@@ -56,8 +56,8 @@ function Set-TargetResource
     Write-Verbose "Name: $Name"
     Write-Verbose "Enabled: $Enabled"
     Write-Verbose "Algorithm: $Algorithm"
-    Write-Verbose "Algorithm: $QueryString"
-    Write-Verbose "Algorithm: $ServerVariable"
+    Write-Verbose "QueryString: $QueryString"
+    Write-Verbose "ServerVariable: $ServerVariable"
     Write-Verbose "ConfigPath: $ConfigPath"
     
     Write-Verbose "Get current webfarm state"
@@ -93,24 +93,39 @@ function Set-TargetResource
         Write-Verbose "Webfarm configured: Enabled from [$($resource.Enabled)] to [$Enabled]"
         $webFarm.SetAttribute("enabled", $Enabled)
                 
-        if($LoadBalancing -eq $null){
-            Write-Verbose "Webfarm configured: LoadBalancing from [$($resource.LoadBalancing|ConvertTo-Json -Compress)] to []"
+        if($Algorithm -eq $null){
+            Write-Verbose "Webfarm configured: LoadBalancing from [$($resource.Algorithm)] to []"
             if($webFarm.applicationRequestRouting -ne $null){
                 $webFarm.RemoveChild($webFarm.applicationRequestRouting)
             }
         }else{
-            Write-Verbose "Webfarm configured: LoadBalancing from [$($resource.LoadBalancing|ConvertTo-Json -Compress)] to [$($LoadBalancing|ConvertTo-Json -Compress)]"
-            if($LoadBalancing.Algorithm -ne $resource.LoadBalancing.Algorithm){
-                $webFarm.applicationRequestRouting.loadBalancing.algorithm = $LoadBalancing.Algorithm
+            Write-Verbose "Webfarm configured: LoadBalancing from [$($resource.Algorithm)] to [$Algorithm]"
+
+            $applicationRequestRoutingElement = $webFarm.applicationRequestRouting
+            $loadBalancingElement = $webFarm.applicationRequestRouting.loadBalancing
+
+            if($webFarm.applicationRequestRouting -eq $null){
+                $applicationRequestRoutingElement = $config.CreateElement("applicationRequestRouting")
+                $webFarm.AppendChild($applicationRequestRoutingElement)
             }
 
-            if($LoadBalancing.Algorithm -eq "querystring"){
-                $webFarm.applicationRequestRouting.loadBalancing.algorithm = "RequestHash"
-                $webFarm.applicationRequestRouting.loadBalancing.SetAttribute("hashServerVariable", "query_string")
-                $webFarm.applicationRequestRouting.loadBalancing.SetAttribute("queryStringNames", [System.String]::Join(",", $LoadBalancing.QueryString))
-            }elseif($LoadBalancing.Algorithm -eq "servervariable"){
-                $webFarm.applicationRequestRouting.loadBalancing.algorithm = "RequestHash"
-                $webFarm.applicationRequestRouting.loadBalancing.SetAttribute("hashServerVariable", $LoadBalancing.ServerVariable)
+            if($webFarm.applicationRequestRouting.loadBalancing -eq $null){
+                $loadBalancingElement = $config.CreateElement("loadBalancing")
+                $applicationRequestRoutingElement.AppendChild($loadBalancingElement)
+            }
+
+
+            if($Algorithm -ne $resource.Algorithm){
+                $loadBalancingElement.SetAttribute("algorithm", $Algorithm)
+            }
+
+            if($Algorithm -eq "querystring"){
+                $loadBalancingElement.SetAttribute("algorithm", "RequestHash")
+                $loadBalancingElement.SetAttribute("hashServerVariable", "query_string")
+                $loadBalancingElement.SetAttribute("queryStringNames", [System.String]::Join(",", $QueryString))
+            }elseif($Algorithm -eq "servervariable"){
+                $loadBalancingElement.SetAttribute("algorithm", "RequestHash")
+                $loadBalancingElement.SetAttribute("hashServerVariable", $ServerVariable)
             }
         }
     }
@@ -179,6 +194,22 @@ function Test-TargetResource
 
         if($Algorithm -ne $resource.Algorithm){
             return $false
+        }
+
+        if($Algorithm -eq "querystring"){
+            if([System.String]::IsNullOrEmpty($QueryString) -eq $false){
+                $queryStringList1 = [System.String]::Join(",", ($QueryString.Split(",") | sort))
+                $queryStringList2 = [System.String]::Join(",", ($resource.QueryString | sort))
+            
+                return $queryStringList1 -eq $queryStringList2
+            }
+        }elseif($Algorithm -eq "servervariable"){
+            if([System.String]::IsNullOrEmpty($ServerVariable) -eq $false){
+                $serverVariableList1 = [System.String]::Join(",", ($ServerVariable.Split(",") | sort))
+                $serverVariableList2 = [System.String]::Join(",", ($resource.ServerVariable | sort))
+            
+                return $serverVariableList1 -eq $serverVariableList2
+            }
         }
     }    
 

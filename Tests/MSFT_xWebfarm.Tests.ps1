@@ -419,13 +419,29 @@ Describe "MSFT_xWebfarm.Test-TargetResource"{
 
         $result | Should Be $false
     }
-    It "is true  when Request[Algorithm=QueryString] and Resource[Algorithm=QueryString]" {
+    It "is true  when Request[Algorithm=QueryString,QueryString=null] and Resource[Algorithm=QueryString,QueryString=q1,q2]" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
         $result = Test-TargetResource -Name "SOMEFARMWITHRequestHashQueryString" -Ensure Present -Enabled $false -Algorithm QueryString
 
         $result | Should Be $true
+    }
+    It "is true  when Request[Algorithm=QueryString,QueryString=q1,q2] and Resource[Algorithm=QueryString,QueryString=q1,q2]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+
+        $result = Test-TargetResource -Name "SOMEFARMWITHRequestHashQueryString" -Ensure Present -Enabled $false -Algorithm QueryString -QueryString "q1,q2"
+
+        $result | Should Be $true
+    }
+    It "is false  when Request[Algorithm=QueryString,QueryString=x1] and Resource[Algorithm=QueryString,QueryString=q1,q2]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+
+        $result = Test-TargetResource -Name "SOMEFARMWITHRequestHashQueryString" -Ensure Present -Enabled $false -Algorithm QueryString -QueryString "x1"
+
+        $result | Should Be $false
     }
     It "is false when Request[Algorithm=QueryString] and Resource[Algorithm=RequestHash]" {
         ResetAppHost
@@ -519,7 +535,7 @@ Describe "MSFT_xWebfarm.Test-TargetResource"{
 
         $result | Should Be $false
     }
-    It "is true  when Request[Algorithm=ServerVariable] and Resource[Algorithm=ServerVariable]" {
+    It "is true  when Request[Algorithm=ServerVariable,ServerVariable=null] and Resource[Algorithm=ServerVariable,ServerVariable=x1,x2]" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
@@ -527,33 +543,26 @@ Describe "MSFT_xWebfarm.Test-TargetResource"{
 
         $result | Should Be $true
     }
+    It "is true  when Request[Algorithm=ServerVariable,ServerVariable=x1,x2] and Resource[Algorithm=ServerVariable,ServerVariable=x1,x2]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+
+        $result = Test-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable" -Ensure Present -Enabled $false -Algorithm ServerVariable -ServerVariable "x1,x2"
+
+        $result | Should Be $true
+    }
+    It "is false  when Request[Algorithm=ServerVariable,ServerVariable=a] and Resource[Algorithm=ServerVariable,ServerVariable=x1,x2]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
+
+        $result = Test-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable" -Ensure Present -Enabled $false -Algorithm ServerVariable -ServerVariable a
+
+        $result | Should Be $false
+    }
 }
 
 Describe "MSFT_xWebfarm.Set-TargetResource"{
-    It "must Create the webfarm if requested Present and resource is Absent [Enabled=true]" {
-        ResetAppHost
-        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
-        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
-        
-        Set-TargetResource -Name "SOMEFARM1" -Ensure Present
-
-        $result = Get-TargetResource -Name "SOMEFARM1"
-        $result.Ensure | Should Be "Present"
-        $result.Enabled | Should Be $true
-    }
-    It "must Create the webfarm if requested Present and resource is Absent [Enabled=false]" {
-        ResetAppHost
-        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
-        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
-        
-        Set-TargetResource -Name "SOMEFARM1" -Ensure Present -Enabled $false
-
-        $result = Get-TargetResource -Name "SOMEFARM1"
-        $result.Ensure | Should Be "Present"
-        $result.Enabled | Should Be $false
-    }
-
-    It "must do nothing if requested Absent and resource is Absent" {
+    It "must do nothing if Request[Ensure=Absent] and Resource[Ensure=Absent]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
@@ -563,8 +572,17 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
         $result.Ensure | Should Be "Absent"        
     }
+    It "must Create the webfarm if Request[Ensure=Present] and Resource[Ensure=Absent]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARM1" -Ensure Present
 
-    It "must delete the webfarm if requested Absent and resource is Present" {
+        $result = Get-TargetResource -Name "SOMEFARM1"
+        $result.Ensure | Should Be "Present"        
+    }    
+    It "must delete the webfarm if Request[Ensure=Absent] and Resource[Ensure=Present]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
@@ -575,18 +593,49 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result.Ensure | Should Be "Absent"        
     }
 
-    It "must configure webfarm if requested Present and resource is Present Requested[Enabled=true] Resource[Enabled=true]" {
+    It "must Enable the webfarm if Request[Ensure=Present,Enabled=null] and Resource[Ensure=Absent]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present
+        Set-TargetResource -Name "SOMEFARM1" -Ensure Present
+
+        $result = Get-TargetResource -Name "SOMEFARM1"        
+        $result.Enabled | Should Be $true
+    }
+    It "must Enable the webfarm if Request[Ensure=Present,Enabled=true] and Resource[Ensure=Absent]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARM1" -Ensure Present -Enabled $true
+
+        $result = Get-TargetResource -Name "SOMEFARM1"        
+        $result.Enabled | Should Be $true
+    }
+    It "must Disable the webfarm if Request[Ensure=Present,Enabled=false] and Resource[Ensure=Absent]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARM1" -Ensure Present -Enabled $false
+
+        $result = Get-TargetResource -Name "SOMEFARM1"        
+        $result.Enabled | Should Be $false
+    }
+
+    It "must configure webfarm if Request[Ensure=Present,Enabled=true] and Resource[Ensure=Present,Enabled=true]" {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $true
 
         $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
     }
-    It "must configure webfarm if requested Present and resource is Present Requested[Enabled=false] Resource[Enabled=true]" {
+    It "must configure webfarm if Request[Ensure=Present,Enabled=false] and Resource[Ensure=Present,Enabled=true]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
@@ -597,7 +646,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
     }
-    It "must configure webfarm if requested Present and resource is Present Requested[Enabled=true] Resource[Enabled=false]" {
+    It "must configure webfarm if Request[Ensure=Present,Enabled=true] and Resource[Ensure=Present,Enabled=false]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
@@ -608,66 +657,108 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
     }
-
-    It "must configure webfarm Requested=[LoadBalancing.Algorithm=WeightedRoundRobin] Resource[default] " {
+    It "must configure webfarm if Request[Ensure=Present,Enabled=false] and Resource[Ensure=Present,Enabled=false]" {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="WeightedRoundRobin"}
+        Set-TargetResource -Name "SOMEDISABLEDFARM" -Ensure Present -Enabled $false
+
+        $result = Get-TargetResource -Name "SOMEDISABLEDFARM"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $false
+    }
+
+    It "must configure webfarm Requested=[Ensure=Present,Algorithm=WeightedRoundRobin] Resource[Ensure=Present,Algofithm=<default>] " {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $true -Algorithm "WeightedRoundRobin"
 
         $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
-        $result.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
-        $result.LoadBalancing.QueryString | Should Be $null
-        $result.LoadBalancing.ServerVariable | Should Be $null
+        $result.Algorithm | Should Be "WeightedRoundRobin"
+        $result.QueryString | Should Be $null
+        $result.ServerVariable | Should Be $null
     }
-    It "must configure webfarm Requested=[LoadBalancing.Algorithm=WeightedRoundRobin] Resource[LoadBalancing.Algorithm=WeightedRoundRobin] " {
+    It "must configure webfarm Requested=[Ensure=Present,Algorithm=WeightedRoundRobin] Resource[Ensure=Present,Algorithm=WeightedRoundRobin] " {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="WeightedRoundRobin"}
+        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -Algorithm "WeightedRoundRobin"
 
         $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
-        $result.LoadBalancing.Algorithm | Should Be "WeightedRoundRobin"
-        $result.LoadBalancing.QueryString | Should Be $null
-        $result.LoadBalancing.ServerVariable | Should Be $null
+        $result.Algorithm | Should Be "WeightedRoundRobin"
+        $result.QueryString | Should Be $null
+        $result.ServerVariable | Should Be $null
     }    
    
-    It "must configure webfarm Requested=[LoadBalancing.Algorithm=QueryString] Resource[LoadBalancing.Algorithm=WeightedRoundRobin] " {
+    It "must configure webfarm Requested=[Ensure=Present,Algorithm=QueryString] Resource[Ensure=Present,Algorithm=WeightedRoundRobin] " {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="QueryString"; QueryString = "q1","q2"}
+        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -Algorithm "QueryString" -QueryString "q1,q2"
 
         $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
-        $result.LoadBalancing.Algorithm | Should Be "QueryString"
-        $result.LoadBalancing.QueryString | Should Not BeNullOrEmpty
-        $result.LoadBalancing.QueryString.Length | Should Be 2
-        $result.LoadBalancing.QueryString[0] | Should Be "q1"
-        $result.LoadBalancing.QueryString[1] | Should Be "q2"
-        $result.LoadBalancing.ServerVariable | Should Be $null
+        $result.Algorithm | Should Be "QueryString"
+        $result.QueryString | Should Not BeNullOrEmpty
+        $result.QueryString.Length | Should Be 2
+        $result.QueryString[0] | Should Be "q1"
+        $result.QueryString[1] | Should Be "q2"
+        $result.ServerVariable | Should Be $null
+    }
+    It "must configure webfarm Requested=[Ensure=Present,Algorithm=QueryString,QueryString=x1,x2] Resource[Ensure=Present,Algorithm=QueryString,QueryString=q1,q2] " {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMWITHRequestHashQueryString" -Ensure Present -Enabled $true -Algorithm "QueryString" -QueryString "x1,x2"
+
+        $result = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $true
+        $result.Algorithm | Should Be "QueryString"
+        $result.QueryString | Should Not BeNullOrEmpty
+        $result.QueryString.Length | Should Be 2
+        $result.QueryString[0] | Should Be "x1"
+        $result.QueryString[1] | Should Be "x2"
+        $result.ServerVariable | Should Be $null
     }
 
-    It "must configure webfarm Requested=[LoadBalancing.Algorithm=ServerVariable] Resource[LoadBalancing.Algorithm=WeightedRoundRobin] " {
+    It "must configure webfarm Requested=[LoadBalancing.Algorithm=ServerVariable] Resource[Ensure=Present,Algorithm=WeightedRoundRobin] " {
         ResetAppHost
         Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
         Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
         
-        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -LoadBalancing @{Algorithm="ServerVariable"; ServerVariable = "x"}
+        Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -Algorithm "ServerVariable" -ServerVariable "x"
 
         $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
-        $result.LoadBalancing.Algorithm | Should Be "ServerVariable"
-        $result.LoadBalancing.ServerVariable | Should Be "x"
-        $result.LoadBalancing.QueryString | Should BeNullOrEmpty    
+        $result.Algorithm | Should Be "ServerVariable"
+        $result.ServerVariable | Should Be "x"
+        $result.QueryString | Should BeNullOrEmpty    
+    }  
+    It "must configure webfarm Requested=[LoadBalancing.Algorithm=ServerVariable,ServerVariable=a] Resource[Ensure=Present,Algorithm=ServerVariable,ServerVariable=x] " {
+        ResetAppHost
+        Mock GetApplicationHostConfig {return $fakeapphost1} -ModuleName MSFT_xWebfarm
+        Mock SetApplicationHostConfig {param([string]$path,[xml]$xml)} -ModuleName MSFT_xWebfarm
+        
+        Set-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable" -Ensure Present -Enabled $true -Algorithm "ServerVariable" -ServerVariable "a"
+
+        $result = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
+        $result.Ensure | Should Be "Present"
+        $result.Enabled | Should Be $true
+        $result.Algorithm | Should Be "ServerVariable"
+        $result.ServerVariable | Should Be "a"
+        $result.QueryString | Should BeNullOrEmpty    
     }        
 }
