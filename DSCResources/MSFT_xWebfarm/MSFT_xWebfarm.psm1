@@ -111,21 +111,29 @@ function Set-TargetResource
 
             if($webFarm.applicationRequestRouting.loadBalancing -eq $null){
                 $loadBalancingElement = $config.CreateElement("loadBalancing")
+                $loadBalancingElement.SetAttribute("algorithm", $_xWebfarm_DefaultLoadBalancingAlgorithm)
                 $applicationRequestRoutingElement.AppendChild($loadBalancingElement)
             }
 
-
-            if($Algorithm -ne $resource.Algorithm){
-                $loadBalancingElement.SetAttribute("algorithm", $Algorithm)
+            if($Algorithm -eq "weightedroundrobin"){
+                $loadBalancingElement.SetAttribute("algorithm", "WeightedRoundRobin")
+                $loadBalancingElement.RemoveAttribute("hashServerVariable")
+                $loadBalancingElement.RemoveAttribute("queryStringNames")
             }
-
-            if($Algorithm -eq "querystring"){
+            elseif($Algorithm -eq "querystring"){
                 $loadBalancingElement.SetAttribute("algorithm", "RequestHash")
                 $loadBalancingElement.SetAttribute("hashServerVariable", "query_string")
                 $loadBalancingElement.SetAttribute("queryStringNames", [System.String]::Join(",", $QueryString))
-            }elseif($Algorithm -eq "servervariable"){
+            }
+            elseif($Algorithm -eq "servervariable"){
                 $loadBalancingElement.SetAttribute("algorithm", "RequestHash")
                 $loadBalancingElement.SetAttribute("hashServerVariable", $ServerVariable)
+                $loadBalancingElement.RemoveAttribute("queryStringNames")
+            }
+            elseif($Algorithm -eq "requesthash"){
+                $loadBalancingElement.SetAttribute("algorithm", "RequestHash")
+                $loadBalancingElement.RemoveAttribute("hashServerVariable")
+                $loadBalancingElement.RemoveAttribute("queryStringNames")
             }
         }
     }

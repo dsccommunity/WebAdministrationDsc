@@ -42,6 +42,7 @@ Start-DscConfiguration -Path ($modulePath + "\test\mof") -Wait -Force
 Write-Host "Verify and Continue"
 Read-Host
 
+
 Webfarm1 -Ensure "Present" -Name "Farm1" -Enabled $true -Algorithm "QueryString" -QueryString "q1,q2" -OutputPath ($modulePath + "\test\mof")
 Start-DscConfiguration -Path ($modulePath + "\test\mof") -Wait -Force
 Write-Host "Verify and Continue"
