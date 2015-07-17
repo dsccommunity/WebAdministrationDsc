@@ -86,16 +86,16 @@ function Set-TargetResource
         }
         else
         {
-            if ($webApplication.physicalPath -ne $PhysicalPath)
-            {
-                Write-Verbose "Updating physical path for Web application $Name."
-                Set-ItemProperty -Path IIS:Sites\$Website\$Name -Name physicalPath -Value $PhysicalPath
-            }
-            if ($webApplication.applicationPool -ne $ApplicationPool)
-            {
-                Write-Verbose "Updating physical path for Web application $Name."
-                Set-ItemProperty -Path IIS:Sites\$Website\$Name -Name applicationPool -Value $WebAppPool 
-            }
+			if ($webApplication.physicalPath -ne $PhysicalPath)
+			{
+			    Write-Verbose "Updating physical path for Web application $Name."
+				Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" -Name physicalPath -Value $PhysicalPath -PSPath $webApplication.PSPath
+			}
+			if ($webApplication.applicationPool -ne $WebAppPool)
+			{
+			    Write-Verbose "Updating application pool for Web application $Name."
+				Set-WebConfigurationProperty -Filter $webApplication.ItemXPath -Name applicationPool -Value $WebAppPool -PSPath $webApplication.PSPath
+			}
         }
     }
 
