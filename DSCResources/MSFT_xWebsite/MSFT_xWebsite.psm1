@@ -66,6 +66,7 @@ function Get-TargetResource
                 HostName              = $BindingObject.Hostname
                 CertificateThumbprint = $BindingObject.CertificateThumbprint
                 CertificateStoreName  = $BindingObject.CertificateStoreName
+                SSLFlags              = $BindingObject.SSLFlags
             } -ClientOnly
         }
 
@@ -88,10 +89,10 @@ function Get-TargetResource
     return @{
         Name            = $Website.Name
         Ensure          = $ensureResult
-        PhysicalPath    = $Website.physicalPath
-        State           = $Website.state
-        ID              = $Website.id
-        ApplicationPool = $Website.applicationPool
+        PhysicalPath    = $Website.PhysicalPath
+        State           = $Website.State
+        ID              = $Website.ID
+        ApplicationPool = $Website.ApplicationPool
         BindingInfo     = $CimBindings
         DefaultPage     = $allDefaultPage
     }
@@ -648,6 +649,12 @@ function Test-WebsiteBindings
                         $BindingNeedsUpdating = $true
                         break
                     }
+
+                    if([string]$ActualBinding.SSLFlags -ne [string]$binding.CimInstanceProperties['SSLFlags'].Value)
+                    {
+                        $BindingNeedsUpdating = $true
+                        break
+                    }
                 }
                 else
                 {
@@ -701,6 +708,7 @@ function Update-WebsiteBinding
         $HostHeader = $binding.CimInstanceProperties['HostName'].Value
         $CertificateThumbprint = $binding.CimInstanceProperties['CertificateThumbprint'].Value
         $CertificateStoreName = $binding.CimInstanceProperties['CertificateStoreName'].Value
+        $SSLFlags = $binding.CimInstanceProperties['SSLFlags'].Value
 
         $bindingParams = @{}
         $bindingParams.Add('-Name', $Name)
@@ -730,6 +738,11 @@ function Update-WebsiteBinding
         if($HostHeader -ne $null)
         {
             $bindingParams.Add('-HostHeader', $HostHeader)
+        }
+
+        if(-not [string]::IsNullOrEmpty($SSLFlags))
+        {
+            $bindingParams.Add('-SSLFlags', $SSLFlags)
         }
 
         try
@@ -798,8 +811,9 @@ function Get-WebBindingObject
         IPAddress             = $IPAddress
         Port                  = $Port
         HostName              = $HostName
-        CertificateThumbprint = $BindingInfo.CertificateHash
+        CertificateThumbprint = $BindingInfo.CertificateThumbprint
         CertificateStoreName  = $BindingInfo.CertificateStoreName
+        sslFlags              = $BindingInfo.sslFlags
     }
 }
 
