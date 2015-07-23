@@ -590,7 +590,9 @@ function Test-WebsiteBindings
     # Assume bindings do not need updating
     $BindingNeedsUpdating = $false
 
+    Write-Verbose "Getting Web Binding: $name"
     $ActualBindings = Get-WebBinding -Name $Name
+    Write-Verbose "ActualBindings $($ActualBindings.ToString())"
 
     # Format Binding information: Split BindingInfo into individual Properties (IPAddress:Port:HostName)
     $ActualBindingObjects = @()
@@ -644,7 +646,7 @@ function Test-WebsiteBindings
                         break
                     }
 
-                    if([string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
+                    if(-not [string]::IsNullOrWhiteSpace([string]$ActualBinding.CertificateThumbprint) -and [string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
                     {
                         $BindingNeedsUpdating = $true
                         break
@@ -740,7 +742,7 @@ function Update-WebsiteBinding
             $bindingParams.Add('-HostHeader', $HostHeader)
         }
 
-        if(-not [string]::IsNullOrEmpty($SSLFlags))
+        if(-not [string]::IsNullOrWhiteSpace($SSLFlags))
         {
             $bindingParams.Add('-SSLFlags', $SSLFlags)
         }
@@ -763,7 +765,7 @@ function Update-WebsiteBinding
 
         try
         {
-            if($CertificateThumbprint -ne $null)
+            if ( -not [string]::IsNullOrWhiteSpace($CertificateThumbprint) )
             {
                 $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
                 $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
@@ -806,12 +808,12 @@ function Get-WebBindingObject
         $HostName = $SplitProps.item(2)
     }
 
-    return $WebBindingObject = New-Object -TypeName PSObject -Property @{
+    return New-Object -TypeName PSObject -Property @{
         Protocol              = $BindingInfo.protocol
         IPAddress             = $IPAddress
         Port                  = $Port
         HostName              = $HostName
-        CertificateThumbprint = $BindingInfo.CertificateThumbprint
+        CertificateThumbprint = $BindingInfo.CertificateHash
         CertificateStoreName  = $BindingInfo.CertificateStoreName
         sslFlags              = $BindingInfo.sslFlags
     }
