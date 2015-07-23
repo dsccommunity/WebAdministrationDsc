@@ -296,7 +296,7 @@ InModuleScope MSFT_xWebsite {
                 bindingInformation = '127.0.0.1:443:MockHostName'
                 protocol           = 'https'
                 SslFlags           = 1
-                CertificateThumbprint = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+                CertificateHash = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
                 CertificateStoreName  = 'My'
             }
 
@@ -356,7 +356,7 @@ InModuleScope MSFT_xWebsite {
                 $result.BindingInfo.Protocol              | Should Be $BindingInfo.Protocol
                 $result.BindingInfo.IPAddress             | Should Be $BindingObject.IPAddress
                 $result.BindingInfo.HostName              | Should Be $BindingObject.HostName
-                $result.BindingInfo.CertificateThumbprint | Should Be $BindingInfo.CertificateThumbprint
+                $result.BindingInfo.CertificateThumbprint | Should Be $BindingInfo.Certificatehash
                 $result.BindingInfo.CertificateStoreName  | Should Be $BindingInfo.CertificateStoreName
                 $result.BindingInfo.SSLFlags              | Should Be $BindingInfo.SSLFlags
             }
@@ -703,7 +703,7 @@ InModuleScope MSFT_xWebsite {
             $BindingInfo = [PSCustomObject] @{
                 bindingInformation     = '127.0.0.1:443:MockHostName'
                 protocol               = 'https'
-                CertificateThumbprint  = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+                CertificateHash  = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
                 CertificateStoreName   = 'My'
                 SSLFlags               = '1'
             }
@@ -743,7 +743,7 @@ InModuleScope MSFT_xWebsite {
             $BindingInfo = [PSCustomObject] @{
                 bindingInformation    = '[0:0:0:0:0:0:0:1]:443:MockHostName'
                 protocol              = 'https'
-                CertificateThumbprint = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+                CertificateHash = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
                 CertificateStoreName  = 'My'
                 SSLFlags              = '1'
             }
@@ -877,6 +877,7 @@ InModuleScope MSFT_xWebsite {
             Protocol  = $BindingObject.Protocol
             IPAddress = $BindingObject.IPaddress
             HostName  = $BindingObject.Hostname
+            SSLFlags  = $BindingObject.SSLFlags
         } -ClientOnly
 
         Context 'Confirm-PortIPHostisUnique returns false' {
@@ -989,6 +990,7 @@ InModuleScope MSFT_xWebsite {
                 HostName              = 'MockHostName'
                 CertificateThumbprint = ''
                 CertificateStoreName  = ''
+                SSLFlags              = 0
             }
 
             $mockBindingIP = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -1063,8 +1065,8 @@ InModuleScope MSFT_xWebsite {
                 Protocol              = 'http'
                 IPAddress             = '127.0.0.1'
                 HostName              = 'MockHostName'
-                CertificateThumbprint = ''
-                CertificateStoreName  = 'DDDDD'
+                CertificateThumbprint = '1234560215616'
+                CertificateStoreName  = 'WebHosting'
             }
 
             Mock Confirm-PortIPHostisUnique {return $true}
@@ -1077,6 +1079,27 @@ InModuleScope MSFT_xWebsite {
             }
         }
 
+        Context 'CertificateStoreName is incorrect and no thumbrpint is specified' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = 'WebHosting'
+                SSLFlags = 0
+            }
+
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
+
+            It 'should return false' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $false
+            }
+        }
+
         Context 'SSLFlags is incorrect' {
             $badBindingObject = @{
                 Port                  = 80
@@ -1085,7 +1108,7 @@ InModuleScope MSFT_xWebsite {
                 HostName              = 'MockHostName'
                 CertificateThumbprint = ''
                 CertificateStoreName  = ''
-                SSLFlags              = 0
+                SSLFlags              = 1
             }
 
             Mock Confirm-PortIPHostisUnique {return $true}
@@ -1106,6 +1129,7 @@ InModuleScope MSFT_xWebsite {
                 HostName              = 'MockHostName'
                 CertificateThumbprint = ''
                 CertificateStoreName  = ''
+                SSLFlags              = 0
             }
 
             Mock Confirm-PortIPHostisUnique {return $true}
