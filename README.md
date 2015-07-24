@@ -63,6 +63,19 @@ Currently, only FastCgiModule is supported.
 
 ## Versions
 
+### Unreleased
+
+
+### 1.7.0.0
+
+* Added following resources:
+	* xIisHandler
+	* xIisFeatureDelegation
+	* xIisMimeTypeMapping
+	* xWebAppPoolDefaults
+	* xWebSiteDefaults
+* Modified xWebsite schema to make PhysicalPath required
+
 ### 1.6.0.0
 
 * Fixed bug in xWebsite resource regarding incorrect name of personal certificate store. 
