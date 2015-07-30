@@ -66,6 +66,7 @@ function Get-TargetResource
                 HostName              = $BindingObject.Hostname
                 CertificateThumbprint = $BindingObject.CertificateThumbprint
                 CertificateStoreName  = $BindingObject.CertificateStoreName
+                SSLFlags              = $BindingObject.SSLFlags
             } -ClientOnly
         }
 
@@ -88,10 +89,10 @@ function Get-TargetResource
     return @{
         Name            = $Website.Name
         Ensure          = $ensureResult
-        PhysicalPath    = $Website.physicalPath
-        State           = $Website.state
-        ID              = $Website.id
-        ApplicationPool = $Website.applicationPool
+        PhysicalPath    = $Website.PhysicalPath
+        State           = $Website.State
+        ID              = $Website.ID
+        ApplicationPool = $Website.ApplicationPool
         BindingInfo     = $CimBindings
         DefaultPage     = $allDefaultPage
     }
@@ -589,7 +590,9 @@ function Test-WebsiteBindings
     # Assume bindings do not need updating
     $BindingNeedsUpdating = $false
 
+    Write-Verbose "Getting Web Binding: $name"
     $ActualBindings = Get-WebBinding -Name $Name
+    Write-Verbose "ActualBindings $($ActualBindings.ToString())"
 
     # Format Binding information: Split BindingInfo into individual Properties (IPAddress:Port:HostName)
     $ActualBindingObjects = @()
@@ -643,7 +646,13 @@ function Test-WebsiteBindings
                         break
                     }
 
-                    if([string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
+                    if(-not [string]::IsNullOrWhiteSpace([string]$ActualBinding.CertificateThumbprint) -and [string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
+                    {
+                        $BindingNeedsUpdating = $true
+                        break
+                    }
+
+                    if([string]$ActualBinding.SSLFlags -ne [string]$binding.CimInstanceProperties['SSLFlags'].Value)
                     {
                         $BindingNeedsUpdating = $true
                         break
@@ -701,6 +710,7 @@ function Update-WebsiteBinding
         $HostHeader = $binding.CimInstanceProperties['HostName'].Value
         $CertificateThumbprint = $binding.CimInstanceProperties['CertificateThumbprint'].Value
         $CertificateStoreName = $binding.CimInstanceProperties['CertificateStoreName'].Value
+        $SSLFlags = $binding.CimInstanceProperties['SSLFlags'].Value
 
         $bindingParams = @{}
         $bindingParams.Add('-Name', $Name)
@@ -732,6 +742,11 @@ function Update-WebsiteBinding
             $bindingParams.Add('-HostHeader', $HostHeader)
         }
 
+        if(-not [string]::IsNullOrWhiteSpace($SSLFlags))
+        {
+            $bindingParams.Add('-SSLFlags', $SSLFlags)
+        }
+
         try
         {
             New-WebBinding @bindingParams -ErrorAction Stop
@@ -750,7 +765,7 @@ function Update-WebsiteBinding
 
         try
         {
-            if($CertificateThumbprint -ne $null)
+            if ( -not [string]::IsNullOrWhiteSpace($CertificateThumbprint) )
             {
                 $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
                 $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
@@ -793,13 +808,14 @@ function Get-WebBindingObject
         $HostName = $SplitProps.item(2)
     }
 
-    return $WebBindingObject = New-Object -TypeName PSObject -Property @{
+    return New-Object -TypeName PSObject -Property @{
         Protocol              = $BindingInfo.protocol
         IPAddress             = $IPAddress
         Port                  = $Port
         HostName              = $HostName
         CertificateThumbprint = $BindingInfo.CertificateHash
         CertificateStoreName  = $BindingInfo.CertificateStoreName
+        sslFlags              = $BindingInfo.sslFlags
     }
 }
 
