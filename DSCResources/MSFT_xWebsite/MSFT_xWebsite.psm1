@@ -620,7 +620,7 @@ function Test-WebsiteBindings
                 {
                     if([string]$ActualBinding.Protocol -ne [string]$binding.CimInstanceProperties['Protocol'].Value)
                     {
-                        # Write-Log "Protocol is Incorrect"
+                        Write-Log "Protocol is Incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
@@ -634,7 +634,7 @@ function Test-WebsiteBindings
                         }
                         else
                         {
-                            # Write-Log "IP Address Incorrect"
+                            Write-Log "IP Address Incorrect" -File
                             $BindingNeedsUpdating = $true
                             break
                         }
@@ -642,37 +642,37 @@ function Test-WebsiteBindings
 
                     if([string]$ActualBinding.HostName -ne [string]$binding.CimInstanceProperties['HostName'].Value)
                     {
-                        # Write-Log "HostName is incorrect"
+                        Write-Log "HostName is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
                     if([string]$ActualBinding.CertificateThumbprint -ne [string]$binding.CimInstanceProperties['CertificateThumbprint'].Value)
                     {
-                        # Write-Log "CertificateThumbprint is incorrect"
-                        # Write-Log "Actual Binding: $($ActualBinding.CertificateThumbprint )"
-                        # Write-Log "Binding Value: $($binding.CimInstanceProperties['CertificateThumbprint'].Value)"
+                        Write-Log "CertificateThumbprint is incorrect" -File
+                        Write-Log "Actual Binding: $($ActualBinding.CertificateThumbprint )" -File
+                        Write-Log "Binding Value: $($binding.CimInstanceProperties['CertificateThumbprint'].Value)" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
                     if(-not [string]::IsNullOrWhiteSpace([string]$ActualBinding.CertificateThumbprint) -and [string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
                     {
-                        # Write-Log "Thumbprint is incorrect"
+                        Write-Log "Thumbprint is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
                     if(-not [string]::IsNullOrWhiteSpace([string]$binding.CimInstanceProperties['SSLFlags'].Value) -and [string]$ActualBinding.SSLFlags -ne [string]$binding.CimInstanceProperties['SSLFlags'].Value)
                     {
-                        # Write-Log "SSLFlags is incorrect"
+                        Write-Log "SSLFlags is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
                 }
                 else
                 {
-                    # Write-Log "No bindings returned"
+                    Write-Log "No bindings returned" -File
                     $BindingNeedsUpdating = $true
                     break
                 }
