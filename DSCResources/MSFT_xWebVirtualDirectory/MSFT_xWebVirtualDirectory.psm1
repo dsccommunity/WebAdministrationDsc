@@ -21,9 +21,9 @@ function Get-TargetResource
         $PhysicalPath
     )
 
-    CheckDependencies
+    Test-Dependancies
 
-    $virtualDirectory = GetWebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
+    $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
 
     $PhysicalPath = ""
     $Ensure = "Absent"
@@ -71,11 +71,11 @@ function Set-TargetResource
         $Ensure = "Present"
     )
 
-    CheckDependencies
+    Test-Dependancies
 
     if ($Ensure -eq "Present")
     {
-        $virtualDirectory = GetWebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
+        $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
         if ($virtualDirectory.count -eq 0)
         {
             Write-Verbose "Creating new Web Virtual Directory $Name."
@@ -122,14 +122,14 @@ function Test-TargetResource
         $Ensure = "Present"
     )
 
-    CheckDependencies
+    Test-Dependancies
 
     Write-Verbose "Checking the virtual directories for the website."
-    $virtualDirectory = GetWebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
+    $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
 
-    if ($virtualDirectory.count -eq 1 -and $Ensure -eq "Present")
+    if ($virtualDirectory.Count -eq 1 -and $Ensure -eq "Present")
     {
-        if ($virtualDirectory.physicalPath -eq $PhysicalPath)
+        if ($virtualDirectory.PhysicalPath -eq $PhysicalPath)
         {
             Write-Verbose "Web virtual directory is in required state"
             return $true
@@ -150,7 +150,7 @@ function Test-TargetResource
     return $false
 }
 
-function CheckDependencies
+function Test-Dependancies
 {
     Write-Verbose "Checking whether WebAdministration is there in the machine or not."
     # Check if WebAdministration module is present for IIS cmdlets
@@ -160,7 +160,7 @@ function CheckDependencies
     }
 }
 
-function GetWebVirtualDirectoryInternal
+function Get-WebVirtualDirectoryInternal
 {
     param
     (
@@ -177,16 +177,15 @@ function GetWebVirtualDirectoryInternal
         $Application
     )
 
-    If ((CheckApplicationExists -Site $Site -Application $Application) -ne $true)
+    if ((Test-ApplicationExists -Site $Site -Application $Application) -ne $true)
     {
-        $compositeVirtualDirectoryName = GetCompositeVirtualDirectoryName -Name $Name -Application $Application 
-        return Get-WebVirtualDirectory -site $Site -Name $compositeVirtualDirectoryName
+        return Get-WebVirtualDirectory -Site $Site -Name $(Get-CompositeName -Name $Name -Application $Application)
     }
 
-    return Get-WebVirtualDirectory -site $Site -Application $Application -Name $Name
+    return Get-WebVirtualDirectory -Site $Site -Application $Application -Name $Name
 }
 
-function CheckApplicationExists
+function Test-ApplicationExists
 {
     param
     (
@@ -198,9 +197,10 @@ function CheckApplicationExists
         [System.String]
         $Application
     )
+
     $WebApplication = Get-WebApplication -Site $Site -Name $Application
 
-    if ($WebApplication.count -eq 1)
+    if ($WebApplication.Count -eq 1)
     {
         return $true
     }
@@ -210,7 +210,7 @@ function CheckApplicationExists
     return $false
 }
 
-function GetCompositeVirtualDirectoryName
+function Get-CompositeName
 {
     param
     (
