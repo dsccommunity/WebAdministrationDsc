@@ -153,7 +153,7 @@ InModuleScope MSFT_xWebVirtualDirectory {
             }
         }
 
-        Context 'Ensure = Present and virtual directoy exists' {
+        Context 'Ensure = Present and virtual directory exists' {
             It 'should call Set-ItemProperty' {
                 $mockSite = @{
                     Name = 'SomeName'
