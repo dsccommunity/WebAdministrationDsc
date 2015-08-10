@@ -30,7 +30,7 @@ if (Get-Module MSFT_xWebVirtualDirectory)
     Remove-Module MSFT_xWebVirtualDirectory
 }
 
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebVirtualDirectory\MSFT_xWebVirtualDirectory.psm1")
+Import-Module (Join-Path $here -ChildPath '..\DSCResources\MSFT_xWebVirtualDirectory\MSFT_xWebVirtualDirectory.psm1')
 
 InModuleScope MSFT_xWebVirtualDirectory {
     Describe 'Test-TargetResource' {

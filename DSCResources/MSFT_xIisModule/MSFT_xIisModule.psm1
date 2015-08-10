@@ -43,11 +43,11 @@ function Get-IisSitePath
 
     if(-not $SiteName)
     {
-        return "IIS:\"
+        return 'IIS:\'
     }
     else
     {
-        return Join-Path "IIS:\sites\" $SiteName
+        return Join-Path 'IIS:\sites\' $SiteName
     }
 }
 
@@ -65,7 +65,7 @@ function Get-IisHandler
     )
 
     Trace-Message "Getting Handler for $Name in Site $SiteName"
-    return get-webconfiguration -Filter "System.WebServer/handlers/*" -PSPath (Get-IisSitePath -SiteName $SiteName) | ?{$_.Name -ieq $Name}
+    return get-webconfiguration -Filter 'System.WebServer/handlers/*' -PSPath (Get-IisSitePath -SiteName $SiteName) | ?{$_.Name -ieq $Name}
 }
 
 # Remove an IIS Handler
@@ -115,16 +115,16 @@ function Get-TargetResource
         [System.String[]]
         $Verb,
 
-        [ValidateSet("FastCgiModule")]
+        [ValidateSet('FastCgiModule')]
         [System.String]
-        $ModuleType = "FastCgiModule",
+        $ModuleType = 'FastCgiModule',
 
         [System.String]
         $SiteName
     )
 
         $currentVerbs = @()
-        $Ensure = "Absent"
+        $Ensure = 'Absent'
         $getTargetResourceResult = $null;
 
         $modulePresent = $false;
@@ -133,7 +133,7 @@ function Get-TargetResource
 
         if($handler )
         {
-            $Ensure = "Present"
+            $Ensure = 'Present'
             $modulePresent = $true;
         }
 
@@ -190,7 +190,7 @@ function Get-GetParameters
     $getParameters = @{}
     foreach($key in $functionParameters.Keys)
     {
-        if($key -ine "Ensure")
+        if($key -ine 'Ensure')
         {
             $getParameters.Add($key, $functionParameters.$key) | Out-Null
         }
@@ -224,13 +224,13 @@ function Set-TargetResource
         [System.String]
         $SiteName,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure,
 
-        [ValidateSet("FastCgiModule")]
+        [ValidateSet('FastCgiModule')]
         [System.String]
-        $ModuleType = "FastCgiModule"
+        $ModuleType = 'FastCgiModule'
     )
     $GetParameters = Get-GetParameters -functionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
@@ -240,23 +240,23 @@ function Set-TargetResource
         return
     }
 
-    Trace-Message "Get complete"
+    Trace-Message 'Get complete'
 
-    if($Ensure -eq "Present")
+    if($Ensure -eq 'Present')
     {
         if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
         {
-            Trace-Message "Removing handler..."
+            Trace-Message 'Removing handler...'
             Remove-IisHandler
         }
 
         if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
         {
-            Trace-Message "Adding handler..."
+            Trace-Message 'Adding handler...'
             add-webconfiguration /system.webServer/handlers iis:\ -value @{
                 name = $Name
                 path = $RequestPath
-                verb = $Verb -join ","
+                verb = $Verb -join ','
                 modules = $ModuleType
                 scriptProcessor = $Path
             }
@@ -265,7 +265,7 @@ function Set-TargetResource
         # bug(TBD) deal with this better, maybe a seperate resource....
         if(-not $resourceTests.EndPointSetup)
         {
-            Trace-Message "Adding fastCgi..."
+            Trace-Message 'Adding fastCgi...'
             add-WebConfiguration /system.webServer/fastCgi iis:\ -value @{
                 fullPath = $Path
             }
@@ -304,13 +304,13 @@ function Test-TargetResource
         [System.String]
         $SiteName,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure,
 
-        [ValidateSet("FastCgiModule")]
+        [ValidateSet('FastCgiModule')]
         [System.String]
-        $ModuleType = "FastCgiModule"
+        $ModuleType = 'FastCgiModule'
     )
 
     $GetParameters = Get-GetParameters -functionParameters $PSBoundParameters
@@ -342,14 +342,14 @@ function Test-TargetResourceImpl
         [System.String[]]
         $Verb,
 
-        [ValidateSet("FastCgiModule")]
+        [ValidateSet('FastCgiModule')]
         [System.String]
-        $ModuleType = "FastCgiModule",
+        $ModuleType = 'FastCgiModule',
 
         [System.String]
         $SiteName,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure,
 
