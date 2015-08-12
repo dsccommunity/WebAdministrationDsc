@@ -21,11 +21,139 @@ if (! (Get-Module WebAdministration))
 
 Describe "MSFT_xWebAppPool"{
     InModuleScope $ModuleName {
+
+        Function TestTargetResourceSame
+        {
+            <#
+
+            .SYNOPSIS
+            Runs Test-TargetResource on $option so that when $option has the same value as the current setting, $true is returned.
+
+            .DESCRIPTION
+            Runs Test-TargetResource on $option so that when $option has the same value as the current setting, $true is returned.
+
+            .PARAMETER option 
+            should be the name of the option as defined in xWebAppPool.psm1
+
+            .PARAMETER appcmdVal
+            The location that would be used to get this value via appcmd.
+
+            .EXAMPLE
+            TestTargetResourceSame "autoStart" "add.autoStart"
+
+            #>
+            [OutputType([bool])]
+            Param($option,$appcmdVal)
+            $testParams =@{
+                Name = "PesterAppPool"
+                Ensure = "Present"
+            }
+            $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
+            #Write-Host $curVal
+            $testParams.Add($option,$curVal)
+
+            #need to explicitly set it to the current value.  This "resets" all the values so the previous tests don't interfere with this one
+            Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
+
+            Test-TargetResource @testParams
+            Return 
+        }
+
+        Function TestTargetResourceDiff
+        {
+            <#
+
+            .SYNOPSIS
+            Runs Test-TargetResource on $option so that when $option has a different value as the current setting, $false is returned.
+
+            .DESCRIPTION
+            Runs Test-TargetResource on $option so that when $option has a different value as the current setting, $false is returned.
+
+            .PARAMETER option 
+            should be the name of the option as defined in xWebAppPool.psm1
+
+            .PARAMETER appcmdVal
+            The location that would be used to get this value via appcmd.
+            
+            .PARAMETER value1
+            A valid value that $option can be set to.  Must be different than value2
+
+            .PARAMETER value2
+            A valid value that $option can be set to.  Must be different than value1
+
+            .EXAMPLE
+            TestTargetResourceDiff "autoStart" "add.autoStart" "true" "false"
+
+            #>
+            [OutputType([bool])]
+            Param($option,$appcmdVal,$value1,$value2)
+            $testParams =@{
+                Name = "PesterAppPool"
+                Ensure = "Present"
+            }
+            
+            $testParams.Add($option,$value1)
+            Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
+            $testParams.$option = $value2
+            Test-TargetResource @testParams
+            Return 
+        }
+
+        Function SetTargetResource
+        {
+            <#
+
+            .SYNOPSIS
+            Runs Set-TargetResource on $option and then verifies that option was changed to the desired value.  Returns $true if option was changed.
+
+            .DESCRIPTION
+            Runs Set-TargetResource on $option and then verifies that option was changed to the desired value.  Returns $true if option was changed.
+
+            .PARAMETER option 
+            should be the name of the option as defined in xWebAppPool.psm1
+
+            .PARAMETER appcmdVal
+            The location that would be used to get this value via appcmd.
+            
+            .PARAMETER value1
+            A valid value that $option can be set to.  Must be different than value2
+
+            .PARAMETER value2
+            A valid value that $option can be set to.  Must be different than value1
+
+            .EXAMPLE
+            SetTargetResource "autoStart" "add.autoStart" "true" "false"
+
+            #>
+            [OutputType([bool])]
+            Param($option,$appcmdVal,$value1,$value2)
+            $testParams =@{
+                Name = "PesterAppPool"
+                Ensure = "Present"
+            }
+            $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
+            if($curVal -ne $value1)
+            {
+                $testParams.Add($option,$value1)
+                Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
+                $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
+                $value1 -eq $curVal
+            }
+            else
+            {
+                $testParams.Add($option,$value2)
+                Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
+                $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
+                $value2 -eq $curVal
+            }
+
+            Return 
+        }
+
         try
         {
-            $apName = "PesterAppPool"
             $baseParams =@{
-                Name = $apName
+                Name = "PesterAppPool"
                 Ensure = "Present"
             }
 
@@ -36,2046 +164,666 @@ Describe "MSFT_xWebAppPool"{
 
             It 'Should create a new App Pool' {           
                 $testParams =@{
-                    Name = $apName
+                    Name = "PesterAppPool"
                     Ensure = "Present"
                 }
 
                 # if the app pool exists, remove it
-                if((Get-ChildItem IIS:\apppools).Name.Contains($apName))
+                if((Get-ChildItem IIS:\apppools).Name.Contains("PesterAppPool"))
                 {
-                    Remove-WebAppPool -Name $apName -ErrorAction Stop
+                    Remove-WebAppPool -Name "PesterAppPool" -ErrorAction Stop
                 }
 
                 Set-TargetResource @testParams
-                (Get-ChildItem IIS:\apppools).Name.Contains($apName) | Should be $true
-            }
-
-            It 'Passes test when App Pool does exist'{
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Should set autoStart' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoStart = "false"
-                }
-
-                if(!([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.autoStart)
-                {
-                    $testParams.autoStart = "true"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.autoStart -eq $testParams.autoStart | Should be $true
-            }
-
-            It 'Passes autoStart Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoStart = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.autoStart -eq "true")
-                {
-                    $testParams.autoStart = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails autoStart Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoStart = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.autoStart -eq "false")
-                {
-                    $testParams.autoStart = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $false
+                (Get-ChildItem IIS:\apppools).Name.Contains("PesterAppPool") | Should be $true
             }
             
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
+            Context 'Test-TargetResource' {
+                It 'Passes test when App Pool does exist'{
+                    $testParams =@{
+                        Name = "PesterAppPool"
+                        Ensure = "Present"
+                    }
 
-            It 'Should set Runtime Version' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    managedRuntimeVersion = "v2.0"
+                    Test-TargetResource @testParams | Should be $true
+                }
+                
+                It 'Passes autoStart Test when same' {
+                    
+                    TestTargetResourceSame "autoStart" "add.autoStart" | Should be $true
                 }
 
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedRuntimeVersion -eq "v2.0")
-                {
-                    $testParams.managedRuntimeVersion = "v4.0"
+                It 'Fails autoStart Test when different' {
+                    
+                    TestTargetResourceDiff "autoStart" "add.autoStart" "true" "false"| Should be $false
                 }
 
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedRuntimeVersion -eq $testParams.managedRuntimeVersion | Should be $true
-            }
-
-            It 'Passes Runtime Version Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    managedRuntimeVersion = "v2.0"
+                It 'Passes Runtime Version Test when same' {
+                  
+                    TestTargetResourceSame "managedRuntimeVersion" "add.managedRuntimeVersion" | Should be $true
                 }
 
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedRuntimeVersion -eq "v4.0")
-                {
-                    $testParams.managedRuntimeVersion = "v4.0"
+                It 'Fails Runtime Version Test when different' {
+                  
+                    TestTargetResourceDiff "managedRuntimeVersion" "add.managedRuntimeVersion" "v4.0" "v2.0" | Should be $false
                 }
 
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Runtime Version Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    managedRuntimeVersion = "v2.0"
+                It 'Passes Managed Pipeline Mode Test when same' {
+                  
+                    TestTargetResourceSame "managedPipelineMode" "add.managedPipelineMode" | Should be $true
                 }
 
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedRuntimeVersion -eq "v2.0")
-                {
-                    $testParams.managedRuntimeVersion = "v4.0"
+                It 'Fails Managed Pipeline Mode Test when different' {
+                  
+                    TestTargetResourceDiff "managedPipelineMode" "add.managedPipelineMode" "Integrated" "Classic"| Should be $false
                 }
 
-                Test-TargetResource @testParams | Should be $false
+                It 'Passes Start Mode Test when same' {
+                  
+                    TestTargetResourceSame "startMode" "add.startMode" | Should be $true
+                }
+
+                It 'Fails Start Mode Test when different' {
+                  
+                    TestTargetResourceDiff "startMode" "add.startMode" "AlwaysRunning" "OnDemand" | Should be $false
+                }
+
+                It 'Passes Identity Type Test when same' {
+                  
+                    TestTargetResourceSame "identityType" "add.processModel.identityType" | Should be $true
+                }
+
+                It 'Fails Identity Type Test when different' {
+                  
+                    TestTargetResourceDiff "identityType" "add.processModel.identityType" "ApplicationPoolIdentity" "LocalSystem" | Should be $false
+                }
+
+                It 'Passes Load User Profile Test when same' {
+                  
+                    TestTargetResourceSame "loadUserProfile" "add.processModel.loadUserProfile" | Should be $true
+                }
+
+                It 'Fails Load User Profile Test when different' {
+                  
+                    TestTargetResourceDiff "loadUserProfile" "add.processModel.loadUserProfile" "true" "false" | Should be $false
+                }
+
+                It 'Passes Queue Length Test when same' {
+                  
+                    TestTargetResourceSame "queueLength" "add.queueLength" | Should be $true
+                }
+
+                It 'Fails Queue Length Test when different' {
+                  
+                    TestTargetResourceDiff "queueLength" "add.queueLength" "2000" "1000" | Should be $false
+                }
+
+                It 'Passes Enable 32bit Test when same' {
+                  
+                    TestTargetResourceSame "enable32BitAppOnWin64" "add.enable32BitAppOnWin64" | Should be $true
+                }
+
+                It 'Fails Enable 32bit Test when different' {
+                  
+                    TestTargetResourceDiff "enable32BitAppOnWin64" "add.enable32BitAppOnWin64" "true" "false" | Should be $false
+                }
+
+                It 'Passes Config Override Test when same' {
+                  
+                    TestTargetResourceSame "enableConfigurationOverride" "add.enableConfigurationOverride" | Should be $true
+                }
+
+                It 'Fails Config Override Test when different' {
+                  
+                    TestTargetResourceDiff "enableConfigurationOverride" "add.enableConfigurationOverride" "true" "false" | Should be $false
+                }
+
+                It 'Passes Pass Anon Token Test when same' {
+                  
+                    TestTargetResourceSame "passAnonymousToken" "add.passAnonymousToken" | Should be $true
+                }
+
+                It 'Fails Pass Anon Token Test when different' {
+                  
+                    TestTargetResourceDiff "passAnonymousToken" "add.passAnonymousToken" "true" "false" | Should be $false
+                }
+
+                It 'Passes Logon Type Test when same' {
+                  
+                    TestTargetResourceSame "logonType" "add.processModel.logonType" | Should be $true
+                }
+
+                It 'Fails Logon Type Test when different' {
+                  
+                    TestTargetResourceDiff "logonType" "add.processModel.logonType" "LogonService" "LogonBatch" | Should be $false
+                }
+
+                It 'Passes Manual Group Membership Test when same' {
+                  
+                    TestTargetResourceSame "manualGroupMembership" "add.processModel.manualGroupMembership" | Should be $true
+                }
+
+                It 'Fails Manual Group Membership Test when different' {
+                  
+                    TestTargetResourceDiff "manualGroupMembership" "add.processModel.manualGroupMembership" "true" "false" | Should be $false
+                }
+
+                It 'Passes Idle Timeout Test when same' {
+                  
+                    TestTargetResourceSame "idleTimeout" "add.processModel.idleTimeout" | Should be $true
+                }
+
+                It 'Fails Idle Timeout Test when different' {
+                  
+                    TestTargetResourceDiff "idleTimeout" "add.processModel.idleTimeout" "00:25:00" "00:20:00" | Should be $false
+                }
+
+                It 'Passes Max Processes Test when same' {
+                  
+                    TestTargetResourceSame "maxProcesses" "add.processModel.maxProcesses" | Should be $true
+                }
+
+                It 'Fails Max Processes Test when different' {
+                  
+                    TestTargetResourceDiff "maxProcesses" "add.processModel.maxProcesses" "2" "1" | Should be $false
+                }
+
+                It 'Passes Shutdown Time Limit Test when same' {
+                  
+                    TestTargetResourceSame "shutdownTimeLimit" "add.processModel.shutdownTimeLimit" | Should be $true
+                }
+
+                It 'Fails Shutdown Time Limit Test when different' {
+                  
+                    TestTargetResourceDiff "shutdownTimeLimit" "add.processModel.shutdownTimeLimit" "00:02:30" "00:01:30" | Should be $false
+                }
+
+                It 'Passes Startup Time Limit Test when same' {
+                  
+                    TestTargetResourceSame "startupTimeLimit" "add.processModel.startupTimeLimit" | Should be $true
+                }
+
+                It 'Fails Startup Time Limit Test when different' {
+                  
+                    TestTargetResourceDiff "startupTimeLimit" "add.processModel.startupTimeLimit" "00:02:30" "00:01:30" | Should be $false
+                }
+
+                It 'Passes Ping Interval Test when same' {
+                  
+                    TestTargetResourceSame "pingInterval" "add.processModel.pingInterval" | Should be $true
+                }
+
+                It 'Fails Ping Interval Test when different' {
+                  
+                    TestTargetResourceDiff "pingInterval" "add.processModel.pingInterval" "00:02:30" "00:01:30" | Should be $false
+                }
+
+                It 'Passes Ping Response Test when same' {
+                  
+                    TestTargetResourceSame "pingResponseTime" "add.processModel.pingResponseTime" | Should be $true
+                }
+
+                It 'Fails Ping Response Test when different' {
+                  
+                    TestTargetResourceDiff "pingResponseTime" "add.processModel.pingResponseTime" "00:02:30" "00:01:30" | Should be $false
+                }
+
+                It 'Passes Ping Enabled Test when same' {
+                  
+                    TestTargetResourceSame "pingingEnabled" "add.processModel.pingingEnabled" | Should be $true
+                }
+
+                It 'Fails Ping Enabled Test when different' {
+                  
+                    TestTargetResourceDiff "pingingEnabled" "add.processModel.pingingEnabled" "true" "false" | Should be $false
+                }
+
+                It 'Passes Disallow Overlapping Rotation Test when same' {
+                  
+                    TestTargetResourceSame "disallowOverlappingRotation" "add.recycling.disallowOverlappingRotation" | Should be $true
+                }
+
+                It 'Fails Disallow Overlapping Rotation Test when different' {
+                  
+                    TestTargetResourceDiff "disallowOverlappingRotation" "add.recycling.disallowOverlappingRotation" "true" "false" | Should be $false
+                }
+
+                It 'Passes Disallow Rotation On Config Change Test when same' {
+                  
+                    TestTargetResourceSame "disallowRotationOnConfigChange" "add.recycling.disallowRotationOnConfigChange" | Should be $true
+                }
+
+                It 'Fails Disallow Rotation On Config Change Test when different' {
+                  
+                    TestTargetResourceDiff "disallowRotationOnConfigChange" "add.recycling.disallowRotationOnConfigChange" "true" "false" | Should be $false
+                }
+
+                It 'Passes Log Event On Recycle Test when same' {
+                  
+                    TestTargetResourceSame "logEventOnRecycle" "add.recycling.logEventOnRecycle" | Should be $true
+                }
+
+                It 'Fails Log Event On Recycle Test when different' {
+                  
+                    TestTargetResourceDiff "logEventOnRecycle" "add.recycling.logEventOnRecycle" "Time, Memory" "Time, Memory, PrivateMemory" | Should be $false
+                }
+
+                It 'Passes Restart Mem Limit Test when same' {
+                  
+                    TestTargetResourceSame "restartMemoryLimit" "add.recycling.periodicRestart.memory" | Should be $true
+                }
+
+                It 'Fails Restart Mem Limit Test when different' {
+                  
+                    TestTargetResourceDiff "restartMemoryLimit" "add.recycling.periodicRestart.memory" "0" "1" | Should be $false
+                }
+
+                It 'Passes Restart Private Mem Limit Test when same' {
+                  
+                    TestTargetResourceSame "restartPrivateMemoryLimit" "add.recycling.periodicRestart.privateMemory" | Should be $true
+                }
+
+                It 'Fails Restart Private Mem Limit Test when different' {
+                  
+                    TestTargetResourceDiff "restartPrivateMemoryLimit" "add.recycling.periodicRestart.privateMemory" "0" "1" | Should be $false
+                }
+
+                It 'Passes Restart Requests Limit Test when same' {
+                  
+                    TestTargetResourceSame "restartRequestsLimit" "add.recycling.periodicRestart.requests" | Should be $true
+                }
+
+                It 'Fails Restart Requests Limit Test when different' {
+                  
+                    TestTargetResourceDiff "restartRequestsLimit" "add.recycling.periodicRestart.requests" "0" "1" | Should be $false
+                }
+
+                It 'Passes Restart Time Limit Test when same' {
+                  
+                    TestTargetResourceSame "restartTimeLimit" "add.recycling.periodicRestart.time" | Should be $true
+                }
+
+                It 'Fails Restart Time Limit Test when different' {
+                  
+                    TestTargetResourceDiff "restartTimeLimit" "add.recycling.periodicRestart.time" "2.05:00:00" "1.05:00:00" | Should be $false
+                }
+
+                It 'Passes Restart Schedule Test when same' {
+                  
+                    TestTargetResourceSame "restartSchedule" "add.recycling.periodicRestart.schedule.add.value" | Should be $true
+                }
+
+                It 'Fails Restart Schedule Test when different' {
+                  
+                    TestTargetResourceDiff "restartSchedule" "add.recycling.periodicRestart.schedule.add.value" "18:30:00" "10:30:00" | Should be $false
+                }
+
+                It 'Passes Load Balancer Capabilities Test when same' {
+                  
+                    TestTargetResourceSame "loadBalancerCapabilities" "add.failure.loadBalancerCapabilities" | Should be $true
+                }
+
+                It 'Fails Load Balancer Capabilities Test when different' {
+                  
+                    TestTargetResourceDiff "loadBalancerCapabilities" "add.failure.loadBalancerCapabilities" "HttpLevel" "TcpLevel" | Should be $false
+                }
+
+                It 'Passes Orphan Worker Process Test when same' {
+                  
+                    TestTargetResourceSame "orphanWorkerProcess" "add.failure.orphanWorkerProcess" | Should be $true
+                }
+
+                It 'Fails Orphan Worker Process Test when different' {
+                  
+                    TestTargetResourceDiff "orphanWorkerProcess" "add.failure.orphanWorkerProcess" "true" "false" | Should be $false
+                }
+
+                It 'Passes Orphan Action Exe Test when same' {
+                  
+                    TestTargetResourceSame "orphanActionExe" "add.failure.orphanActionExe" | Should be $true
+                }
+
+                It 'Fails Orphan Action Exe Test when different' {
+                  
+                    TestTargetResourceDiff "orphanActionExe" "add.failure.orphanActionExe" "test.exe" "test1.exe" | Should be $false
+                }
+
+                It 'Passes Orphan Action Params Test when same' {
+                  
+                    TestTargetResourceSame "orphanActionParams" "add.failure.orphanActionParams" | Should be $true
+                }
+
+                It 'Fails Orphan Action Params Test when different' {
+                  
+                    TestTargetResourceDiff "orphanActionParams" "add.failure.orphanActionParams" "test.exe" "test1.exe" | Should be $false
+                }
+
+                It 'Passes Rapid Fail Protection Test when same' {
+                  
+                    TestTargetResourceSame "rapidFailProtection" "add.failure.rapidFailProtection" | Should be $true
+                }
+
+                It 'Fails Rapid Fail Protection Test when different' {
+                  
+                    TestTargetResourceDiff "rapidFailProtection" "add.failure.rapidFailProtection" "true" "false" | Should be $false
+                }
+
+                It 'Passes Rapid Fail Protection Interval Test when same' {
+                  
+                    TestTargetResourceSame "rapidFailProtectionInterval" "add.failure.rapidFailProtectionInterval" | Should be $true
+                }
+
+                It 'Fails Rapid Fail Protection Interval Test when different' {
+                  
+                    TestTargetResourceDiff "rapidFailProtectionInterval" "add.failure.rapidFailProtectionInterval" "00:15:00" "00:05:00" | Should be $false
+                }
+
+                It 'Passes Rapid Fail Protection Interval Max Crashes Test when same' {
+                  
+                    TestTargetResourceSame "rapidFailProtectionMaxCrashes" "add.failure.rapidFailProtectionMaxCrashes" | Should be $true
+                }
+
+                It 'Fails Rapid Fail Protection Interval Max Crashes Test when different' {
+                  
+                    TestTargetResourceDiff "rapidFailProtectionMaxCrashes" "add.failure.rapidFailProtectionMaxCrashes" "15:00" "05" | Should be $false
+                }
+
+                It 'Passes Auto Shutdown Exe Test when same' {
+                  
+                    TestTargetResourceSame "autoShutdownExe" "add.failure.autoShutdownExe" | Should be $true
+                }
+
+                It 'Fails Auto Shutdown Exe Test when different' {
+                  
+                    TestTargetResourceDiff "autoShutdownExe" "add.failure.autoShutdownExe" "test.exe" "test1.exe" | Should be $false
+                }
+
+                It 'Passes Auto Shutdown Params Test when same' {
+                  
+                    TestTargetResourceSame "autoShutdownParams" "add.failure.autoShutdownParams" | Should be $true
+                }
+
+                It 'Fails Auto Shutdown Params Test when different' {
+                  
+                    TestTargetResourceDiff "autoShutdownParams" "add.failure.autoShutdownParams" "test.exe" "test1.exe" | Should be $false
+                }
+
+                It 'Passes CPU Limit Test when same' {
+                  
+                    TestTargetResourceSame "cpuLimit" "add.cpu.limit" | Should be $true
+                }
+
+                It 'Fails CPU Limit Test Test when different' {
+                  
+                    TestTargetResourceDiff "cpuLimit" "add.cpu.limit" "1" "0" | Should be $false
+                }
+
+                It 'Passes CPU Action Test when same' {
+                  
+                    TestTargetResourceSame "cpuAction" "add.cpu.action" | Should be $true
+                }
+
+                It 'Fails CPU Action Test when different' {
+                  
+                    TestTargetResourceDiff "cpuAction" "add.cpu.action" "Throttle" "NoAction" | Should be $false
+                }
+
+                It 'Passes CPU Reset Interval Test when same' {
+                  
+                    TestTargetResourceSame "cpuResetInterval" "add.cpu.resetInterval" | Should be $true
+                }
+
+                It 'Fails CPU Reset Interval Test when different' {
+                  
+                    TestTargetResourceDiff "cpuResetInterval" "add.cpu.resetInterval" "00:15:00" "00:05:00" | Should be $false
+                }
+
+                It 'Passes CPU Smp Affinitized Test when same' {
+                  
+                    TestTargetResourceSame "cpuSmpAffinitized" "add.cpu.smpAffinitized" | Should be $true
+                }
+
+                It 'Fails CPU Smp Affinitized Test when different' {
+                  
+                    TestTargetResourceDiff "cpuSmpAffinitized" "add.cpu.smpAffinitized" "true" "false" | Should be $false
+                }
+
+                It 'Passes CPU Smp Processor Affinity Mask Test when same' {
+                  
+                    TestTargetResourceSame "cpuSmpProcessorAffinityMask" "add.cpu.smpProcessorAffinityMask" | Should be $true
+                }
+
+                It 'Fails CPU Smp Processor Affinity Mask Test when different' {
+                  
+                    TestTargetResourceDiff "cpuSmpProcessorAffinityMask" "add.cpu.smpProcessorAffinityMask" "4294967294" "4294967295" | Should be $false
+                }
+
+                It 'Passes CPU Smp Processor Affinity Mask 2 Test when same' {
+                  
+                    TestTargetResourceSame "cpuSmpProcessorAffinityMask2" "add.cpu.smpProcessorAffinityMask2" | Should be $true
+                }
+
+                It 'Fails CPU Smp Processor Affinity Mask 2 Test when different' {
+                  
+                    TestTargetResourceDiff "cpuSmpProcessorAffinityMask2" "add.cpu.smpProcessorAffinityMask2" "4294967294" "4294967295" | Should be $false
+                }
             }
             
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Managed Pipeline Mode Version' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    managedPipelineMode = "Classic"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedPipelineMode -eq "Classic")
-                {
-                    $testParams.managedPipelineMode = "Integrated"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedPipelineMode -eq $testParams.managedPipelineMode | Should be $true
-            }
-
-            It 'Passes Managed Pipeline Mode  Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    managedPipelineMode = "Classic"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedPipelineMode -eq "Integrated")
-                {
-                    $testParams.managedPipelineMode = "Integrated"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Managed Pipeline Mode Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    managedPipelineMode = "Classic"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.managedPipelineMode -eq "Classic")
-                {
-                    $testParams.managedPipelineMode = "Integrated"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Start Mode' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    startMode = "OnDemand"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.startMode -eq "OnDemand")
-                {
-                    $testParams.startMode = "AlwaysRunning"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.startMode -eq $testParams.startMode | Should be $true
-            }
-
-            It 'Passes Start Mode Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    startMode = "OnDemand"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.startMode -eq "AlwaysRunning")
-                {
-                    $testParams.startMode = "AlwaysRunning"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Start Mode Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    startMode = "OnDemand"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.startMode -eq "OnDemand")
-                {
-                    $testParams.startMode = "AlwaysRunning"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-            
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Identity Type' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    identityType = "LocalSystem"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.identityType -eq "LocalSystem")
-                {
-                    $testParams.identityType = "ApplicationPoolIdentity"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.identityType -eq $testParams.identityType | Should be $true
-            }
-
-            It 'Passes Identity Type Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    identityType = "LocalSystem"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.identityType -eq "ApplicationPoolIdentity")
-                {
-                    $testParams.identityType = "ApplicationPoolIdentity"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Identity Type Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    identityType = "LocalSystem"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.identityType -eq "LocalSystem")
-                {
-                    $testParams.identityType = "ApplicationPoolIdentity"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-            
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Load User Profile' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    loadUserProfile = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.loadUserProfile -eq "false")
-                {
-                    $testParams.loadUserProfile = "true"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.loadUserProfile -eq $testParams.loadUserProfile | Should be $true
-            }
-
-            It 'Passes Load User Profile Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    loadUserProfile = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.loadUserProfile -eq "true")
-                {
-                    $testParams.loadUserProfile = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Load User Profile Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    loadUserProfile = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.loadUserProfile -eq "false")
-                {
-                    $testParams.loadUserProfile = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Queue Length' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    queueLength = "2000"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.queueLength -eq "2000")
-                {
-                    $testParams.loadUserProfile = "1000"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.queueLength -eq $testParams.queueLength | Should be $true
-            }
-
-            It 'Passes Queue Length Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    queueLength = "2000"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.queueLength -eq "1000")
-                {
-                    $testParams.queueLength = "1000"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Queue Length Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    queueLength = "2000"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.queueLength -eq "2000")
-                {
-                    $testParams.queueLength = "1000"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Enable 32bit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    enable32BitAppOnWin64 = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enable32BitAppOnWin64 -eq "true")
-                {
-                    $testParams.enable32BitAppOnWin64 = "false"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enable32BitAppOnWin64 -eq $testParams.enable32BitAppOnWin64 | Should be $true
-            }
-
-            It 'Passes Enable 32bit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    enable32BitAppOnWin64 = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enable32BitAppOnWin64 -eq "false")
-                {
-                    $testParams.enable32BitAppOnWin64 = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Enable 32bit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    enable32BitAppOnWin64 = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enable32BitAppOnWin64 -eq "true")
-                {
-                    $testParams.enable32BitAppOnWin64 = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Config Override' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    enableConfigurationOverride = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enableConfigurationOverride -eq "true")
-                {
-                    $testParams.enableConfigurationOverride = "false"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enableConfigurationOverride -eq $testParams.enableConfigurationOverride | Should be $true
-            }
-
-            It 'Passes Config Override Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    enableConfigurationOverride = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enableConfigurationOverride -eq "false")
-                {
-                    $testParams.enableConfigurationOverride = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Config Override Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    enableConfigurationOverride = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.enableConfigurationOverride -eq "true")
-                {
-                    $testParams.enableConfigurationOverride = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Pass Anon Token' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    passAnonymousToken = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.passAnonymousToken -eq "true")
-                {
-                    $testParams.passAnonymousToken = "false"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.passAnonymousToken -eq $testParams.passAnonymousToken | Should be $true
-            }
-
-            It 'Passes Pass Anon Token Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    passAnonymousToken = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.passAnonymousToken -eq "false")
-                {
-                    $testParams.passAnonymousToken = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Pass Anon Token Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    passAnonymousToken = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.passAnonymousToken -eq "true")
-                {
-                    $testParams.passAnonymousToken = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Logon Type' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    logonType = "LogonService"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.logonType -eq "LogonService")
-                {
-                    $testParams.logonType = "LogonBatch"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.logonType -eq $testParams.logonType | Should be $true
-            }
-
-            It 'Passes Logon Type Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    logonType = "LogonService"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.logonType -eq "LogonBatch")
-                {
-                    $testParams.logonType = "LogonBatch"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Logon Type Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    logonType = "LogonService"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.logonType -eq "LogonService")
-                {
-                    $testParams.logonType = "LogonBatch"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Manual Group Membership' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    manualGroupMembership = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.manualGroupMembership -eq "true")
-                {
-                    $testParams.manualGroupMembership = "false"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.manualGroupMembership -eq $testParams.manualGroupMembership | Should be $true
-            }
-
-            It 'Passes Manual Group Membership Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    manualGroupMembership = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.manualGroupMembership -eq "false")
-                {
-                    $testParams.manualGroupMembership = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Manual Group Membership Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    manualGroupMembership = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.manualGroupMembership -eq "true")
-                {
-                    $testParams.manualGroupMembership = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Idle Timeout' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    idleTimeout = "00:25:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.idleTimeout -eq "00:25:00")
-                {
-                    $testParams.idleTimeout = "00:20:00"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.idleTimeout -eq $testParams.idleTimeout | Should be $true
-            }
-
-            It 'Passes Idle Timeout Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    idleTimeout = "00:25:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.idleTimeout -eq "00:20:00")
-                {
-                    $testParams.idleTimeout = "00:20:00"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Idle Timeout Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    idleTimeout = "00:25:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.idleTimeout -eq "00:25:00")
-                {
-                    $testParams.idleTimeout = "00:20:00"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Max Processes' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    maxProcesses = "2"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.maxProcesses -eq "2")
-                {
-                    $testParams.maxProcesses = "1"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.maxProcesses -eq $testParams.maxProcesses | Should be $true
-            }
-
-            It 'Passes Max Processes Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    maxProcesses = "2"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.maxProcesses -eq "1")
-                {
-                    $testParams.maxProcesses = "1"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Max Processes Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    maxProcesses = "2"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.maxProcesses -eq "2")
-                {
-                    $testParams.maxProcesses = "1"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Shutdown Time Limit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    shutdownTimeLimit = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.shutdownTimeLimit -eq "00:02:30")
-                {
-                    $testParams.shutdownTimeLimit = "00:01:30"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.shutdownTimeLimit -eq $testParams.shutdownTimeLimit | Should be $true
-            }
-
-            It 'Passes Shutdown Time Limit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    shutdownTimeLimit = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.shutdownTimeLimit -eq "00:01:30")
-                {
-                    $testParams.shutdownTimeLimit = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Shutdown Time Limit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    shutdownTimeLimit = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.shutdownTimeLimit -eq "00:02:30")
-                {
-                    $testParams.shutdownTimeLimit = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Startup Time Limit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    startupTimeLimit = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.startupTimeLimit -eq "00:02:30")
-                {
-                    $testParams.startupTimeLimit = "00:01:30"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.startupTimeLimit -eq $testParams.startupTimeLimit | Should be $true
-            }
-
-            It 'Passes Startup Time Limit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    startupTimeLimit = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.startupTimeLimit -eq "00:01:30")
-                {
-                    $testParams.startupTimeLimit = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Startup Time Limit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    startupTimeLimit = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.startupTimeLimit -eq "00:02:30")
-                {
-                    $testParams.startupTimeLimit = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Ping Interval' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingInterval = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingInterval -eq "00:02:30")
-                {
-                    $testParams.pingInterval = "00:01:30"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingInterval -eq $testParams.pingInterval | Should be $true
-            }
-
-            It 'Passes Ping Interval Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingInterval = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingInterval -eq "00:01:30")
-                {
-                    $testParams.pingInterval = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Ping Interval Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingInterval = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingInterval -eq "00:02:30")
-                {
-                    $testParams.pingInterval = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Ping Response Time' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingResponseTime = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingResponseTime -eq "00:02:30")
-                {
-                    $testParams.pingResponseTime = "00:01:30"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingResponseTime -eq $testParams.pingResponseTime | Should be $true
-            }
-
-            It 'Passes Ping Response Time Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingResponseTime = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingResponseTime -eq "00:01:30")
-                {
-                    $testParams.pingResponseTime = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Ping Response Time Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingResponseTime = "00:02:30"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingResponseTime -eq "00:02:30")
-                {
-                    $testParams.pingResponseTime = "00:01:30"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Ping Enabled' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingingEnabled = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingingEnabled -eq "false")
-                {
-                    $testParams.pingingEnabled = "true"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingingEnabled -eq $testParams.pingingEnabled | Should be $true
-            }
-
-            It 'Passes Ping Enabled Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingingEnabled = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingingEnabled -eq "true")
-                {
-                    $testParams.pingingEnabled = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Ping Enabled Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    pingingEnabled = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.processModel.pingingEnabled -eq "false")
-                {
-                    $testParams.pingingEnabled = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Disallow Overlapping Rotation' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    disallowOverlappingRotation = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowOverlappingRotation -eq "false")
-                {
-                    $testParams.disallowOverlappingRotation = "true"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowOverlappingRotation -eq $testParams.disallowOverlappingRotation | Should be $true
-            }
-
-            It 'Passes Disallow Overlapping Rotation Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    disallowOverlappingRotation = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowOverlappingRotation -eq "true")
-                {
-                    $testParams.disallowOverlappingRotation = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Disallow Overlapping Rotation Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    disallowOverlappingRotation = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowOverlappingRotation -eq "false")
-                {
-                    $testParams.disallowOverlappingRotation = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Disallow Rotation On Config Change' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    disallowRotationOnConfigChange = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowRotationOnConfigChange -eq "false")
-                {
-                    $testParams.disallowRotationOnConfigChange = "true"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowRotationOnConfigChange -eq $testParams.disallowRotationOnConfigChange | Should be $true
-            }
-
-            It 'Passes Disallow Rotation On Config Change Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    disallowRotationOnConfigChange = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowRotationOnConfigChange -eq "true")
-                {
-                    $testParams.disallowRotationOnConfigChange = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Disallow Rotation On Config Change Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    disallowRotationOnConfigChange = "false"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.disallowRotationOnConfigChange -eq "false")
-                {
-                    $testParams.disallowRotationOnConfigChange = "true"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Log Event On Recycle' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    logEventOnRecycle = "Time, Memory"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.logEventOnRecycle -eq "Time, Memory")
-                {
-                    $testParams.logEventOnRecycle = "Time, Memory, PrivateMemory"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.logEventOnRecycle -eq $testParams.logEventOnRecycle | Should be $true
-            }
-
-            It 'Passes Log Event On Recycle Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    logEventOnRecycle = "Time, Memory"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.logEventOnRecycle -eq "Time, Memory, PrivateMemory")
-                {
-                    $testParams.logEventOnRecycle = "Time, Memory, PrivateMemory"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Log Event On Recycle Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    logEventOnRecycle = "Time, Memory"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.logEventOnRecycle -eq "Time, Memory")
-                {
-                    $testParams.logEventOnRecycle = "Time, Memory, PrivateMemory"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Restart Mem Limit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartMemoryLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.memory -eq "1")
-                {
-                    $testParams.restartMemoryLimit = "0"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.memory -eq $testParams.restartMemoryLimit | Should be $true
-            }
-
-            It 'Passes Restart Mem Limit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartMemoryLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.memory -eq "0")
-                {
-                    $testParams.restartMemoryLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Restart Mem Limit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartMemoryLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.memory -eq "1")
-                {
-                    $testParams.restartMemoryLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Restart Private Mem Limit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartPrivateMemoryLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.privateMemory -eq "1")
-                {
-                    $testParams.restartPrivateMemoryLimit = "0"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.privateMemory -eq $testParams.restartPrivateMemoryLimit | Should be $true
-            }
-
-            It 'Passes Restart Private Mem Limit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartPrivateMemoryLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.privateMemory -eq "0")
-                {
-                    $testParams.restartPrivateMemoryLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Restart Private Mem Limit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartPrivateMemoryLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.privateMemory -eq "1")
-                {
-                    $testParams.restartPrivateMemoryLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Restart Requests Limit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartRequestsLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.requests -eq "1")
-                {
-                    $testParams.restartRequestsLimit = "0"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.requests -eq $testParams.restartRequestsLimit | Should be $true
-            }
-
-            It 'Passes Restart Requests Limit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartRequestsLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.requests -eq "0")
-                {
-                    $testParams.restartRequestsLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Restart Requests Limit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartRequestsLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.requests -eq "1")
-                {
-                    $testParams.restartRequestsLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Restart Time Limit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartTimeLimit = "2.05:00:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.time -eq "2.05:00:00")
-                {
-                    $testParams.restartTimeLimit = "1.05:00:00"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.time -eq $testParams.restartTimeLimit | Should be $true
-            }
-
-            It 'Passes Restart Time Limit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartTimeLimit = "2.05:00:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.time -eq "1.05:00:00")
-                {
-                    $testParams.restartTimeLimit = "1.05:00:00"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Restart Time Limit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartTimeLimit = "2.05:00:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.time -eq "2.05:00:00")
-                {
-                    $testParams.restartTimeLimit = "1.05:00:00"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Restart Schedule' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartSchedule = "18:30:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.schedule.add.value -eq "18:30:00")
-                {
-                    $testParams.restartSchedule = "10:30:00"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.schedule.add.value -eq $testParams.restartSchedule | Should be $true
-            }
-
-            It 'Passes Restart Schedule Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartSchedule = "18:30:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.schedule.add.value -eq "10:30:00")
-                {
-                    $testParams.restartSchedule = "10:30:00"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Restart Schedule Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    restartSchedule = "18:30:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.recycling.periodicRestart.schedule.add.value -eq "18:30:00")
-                {
-                    $testParams.restartSchedule = "10:30:00"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Load Balancer Capabilities' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    loadBalancerCapabilities = "TcpLevel"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.loadBalancerCapabilities -eq "TcpLevel")
-                {
-                    $testParams.loadBalancerCapabilities = "HttpLevel"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.loadBalancerCapabilities -eq $testParams.loadBalancerCapabilities | Should be $true
-            }
-
-            It 'Passes Load Balancer Capabilities Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    loadBalancerCapabilities = "TcpLevel"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.loadBalancerCapabilities -eq "HttpLevel")
-                {
-                    $testParams.loadBalancerCapabilities = "HttpLevel"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Load Balancer Capabilities Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    loadBalancerCapabilities = "TcpLevel"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.loadBalancerCapabilities -eq "TcpLevel")
-                {
-                    $testParams.loadBalancerCapabilities = "HttpLevel"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Orphan Worker Process' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanWorkerProcess = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanWorkerProcess -eq "true")
-                {
-                    $testParams.orphanWorkerProcess = "false"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanWorkerProcess -eq $testParams.orphanWorkerProcess | Should be $true
-            }
-
-            It 'Passes Orphan Worker Process Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanWorkerProcess = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanWorkerProcess -eq "false")
-                {
-                    $testParams.orphanWorkerProcess = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Orphan Worker Process Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanWorkerProcess = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanWorkerProcess -eq "true")
-                {
-                    $testParams.orphanWorkerProcess = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Orphan Action Exe' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanActionExe = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionExe -eq "test.exe")
-                {
-                    $testParams.orphanActionExe = "test1.exe"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionExe -eq $testParams.orphanActionExe | Should be $true
-            }
-
-            It 'Passes Orphan Action Exe Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanActionExe = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionExe -eq "test1.exe")
-                {
-                    $testParams.orphanActionExe = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Orphan Action Exe Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanActionExe = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionExe -eq "test.exe")
-                {
-                    $testParams.orphanActionExe = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Orphan Action Params' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanActionParams = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionParams -eq "test.exe")
-                {
-                    $testParams.orphanActionParams = "test1.exe"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionParams -eq $testParams.orphanActionParams | Should be $true
-            }
-
-            It 'Passes Orphan Action Params Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanActionParams = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionParams -eq "test1.exe")
-                {
-                    $testParams.orphanActionParams = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Orphan Action Params Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    orphanActionParams = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.orphanActionParams -eq "test.exe")
-                {
-                    $testParams.orphanActionParams = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Rapid Fail Protection' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtection = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtection -eq "true")
-                {
-                    $testParams.rapidFailProtection = "false"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtection -eq $testParams.rapidFailProtection | Should be $true
-            }
-
-            It 'Passes Rapid Fail Protection Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtection = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtection -eq "false")
-                {
-                    $testParams.rapidFailProtection = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Rapid Fail Protection Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtection = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtection -eq "true")
-                {
-                    $testParams.rapidFailProtection = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Rapid Fail Protection Interval' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtectionInterval = "00:15:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionInterval -eq "00:15:00")
-                {
-                    $testParams.rapidFailProtectionInterval = "00:05:00"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionInterval -eq $testParams.rapidFailProtectionInterval | Should be $true
-            }
-
-            It 'Passes Rapid Fail Protection Interval Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtectionInterval = "00:15:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionInterval -eq "00:05:00")
-                {
-                    $testParams.rapidFailProtectionInterval = "00:05:00"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Rapid Fail Protection Interval Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtectionInterval = "00:15:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionInterval -eq "00:15:00")
-                {
-                    $testParams.rapidFailProtectionInterval = "00:05:00"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Rapid Fail Protection Max Crashes' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtectionMaxCrashes = "15"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionMaxCrashes -eq "15")
-                {
-                    $testParams.rapidFailProtectionMaxCrashes = "05"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionMaxCrashes -eq $testParams.rapidFailProtectionMaxCrashes | Should be $true
-            }
-
-            It 'Passes Rapid Fail Protection Interval Max Crashes when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtectionMaxCrashes = "15"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionMaxCrashes -eq "05")
-                {
-                    $testParams.rapidFailProtectionMaxCrashes = "05"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Rapid Fail Protection Max Crashes Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    rapidFailProtectionMaxCrashes = "15"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.rapidFailProtectionMaxCrashes -eq "15")
-                {
-                    $testParams.rapidFailProtectionMaxCrashes = "05"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Auto Shutdown Exe' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoShutdownExe = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownExe -eq "test.exe")
-                {
-                    $testParams.autoShutdownExe = "test1.exe"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownExe -eq $testParams.autoShutdownExe | Should be $true
-            }
-
-            It 'Passes Auto Shutdown Exe Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoShutdownExe = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownExe -eq "test1.exe")
-                {
-                    $testParams.autoShutdownExe = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Auto Shutdown Exe Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoShutdownExe = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownExe -eq "test.exe")
-                {
-                    $testParams.autoShutdownExe = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set Auto Shutdown Params' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoShutdownParams = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownParams -eq "test.exe")
-                {
-                    $testParams.autoShutdownParams = "test1.exe"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownParams -eq $testParams.autoShutdownParams | Should be $true
-            }
-
-            It 'Passes Auto Shutdown Params Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoShutdownParams = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownParams -eq "test1.exe")
-                {
-                    $testParams.autoShutdownParams = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails Auto Shutdown Params Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    autoShutdownParams = "test.exe"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.failure.autoShutdownParams -eq "test.exe")
-                {
-                    $testParams.autoShutdownParams = "test1.exe"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set CPU Limit' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.limit -eq "1")
-                {
-                    $testParams.cpuLimit = "0"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.limit -eq $testParams.cpuLimit | Should be $true
-            }
-
-            It 'Passes CPU Limit Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.limit -eq "0")
-                {
-                    $testParams.cpuLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails CPU Limit Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuLimit = "1"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.limit -eq "1")
-                {
-                    $testParams.cpuLimit = "0"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set CPU Action' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuAction = "Throttle"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.action -eq "Throttle")
-                {
-                    $testParams.cpuAction = "NoAction"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.action -eq $testParams.cpuAction | Should be $true
-            }
-
-            It 'Passes CPU Action Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuAction = "Throttle"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.action -eq "NoAction")
-                {
-                    $testParams.cpuAction = "NoAction"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails CPU Action Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuAction = "Throttle"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.action -eq "Throttle")
-                {
-                    $testParams.cpuAction = "NoAction"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set CPU Reset Interval' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuResetInterval = "00:15:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.resetInterval -eq "00:15:00")
-                {
-                    $testParams.cpuResetInterval = "00:05:00"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.resetInterval -eq $testParams.cpuResetInterval | Should be $true
-            }
-
-            It 'Passes CPU Reset Interval Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuResetInterval = "00:15:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.resetInterval -eq "00:05:00")
-                {
-                    $testParams.cpuResetInterval = "00:05:00"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails CPU Reset Interval Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuResetInterval = "00:15:00"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.resetInterval -eq "00:15:00")
-                {
-                    $testParams.cpuResetInterval = "00:05:00"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set CPU Smp Affinitized' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpAffinitized = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpAffinitized -eq "true")
-                {
-                    $testParams.cpuSmpAffinitized = "false"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpAffinitized -eq $testParams.cpuSmpAffinitized | Should be $true
-            }
-
-            It 'Passes CPU Smp Affinitized Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpAffinitized = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpAffinitized -eq "false")
-                {
-                    $testParams.cpuSmpAffinitized = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails CPU Smp Affinitized Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpAffinitized = "true"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpAffinitized -eq "true")
-                {
-                    $testParams.cpuSmpAffinitized = "false"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set CPU Smp Processor Affinity Mask' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpProcessorAffinityMask = "4294967294"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask -eq "4294967294")
-                {
-                    $testParams.cpuSmpProcessorAffinityMask = "4294967295"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask -eq $testParams.cpuSmpProcessorAffinityMask | Should be $true
-            }
-
-            It 'Passes CPU Smp Processor Affinity Mask Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpProcessorAffinityMask = "4294967294"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask -eq "4294967295")
-                {
-                    $testParams.cpuSmpProcessorAffinityMask = "4294967295"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails CPU Smp Processor Affinity Mask Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpProcessorAffinityMask = "4294967294"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask -eq "4294967294")
-                {
-                    $testParams.cpuSmpProcessorAffinityMask = "4294967295"
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
-
-            Set-TargetResource @baseParams #need to remove after each test set so previous tests don't affect the next tests
-            
-            It 'Should set CPU Smp Processor Affinity Mask 2' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpProcessorAffinityMask2 = "4294967294"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask2 -eq "4294967294")
-                {
-                    $testParams.cpuSmpProcessorAffinityMask2 = "4294967295"
-                }
-
-                Set-TargetResource @testParams
-                ([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask2 -eq $testParams.cpuSmpProcessorAffinityMask2 | Should be $true
-            }
-
-            It 'Passes CPU Smp Processor Affinity Mask 2 Test when same' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpProcessorAffinityMask2 = "4294967294"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask2 -eq "4294967295")
-                {
-                    $testParams.cpuSmpProcessorAffinityMask2 = "4294967295"
-                }
-
-                Test-TargetResource @testParams | Should be $true
-            }
-
-            It 'Fails CPU Smp Processor Affinity Mask 2 Test when different' {
-                $testParams =@{
-                    Name = $apName
-                    Ensure = "Present"
-                    cpuSmpProcessorAffinityMask2 = "4294967294"
-                }
-
-                if(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $apName /config:*)).add.cpu.smpProcessorAffinityMask2 -eq "4294967294")
-                {
-                    $testParams.cpuSmpProcessorAffinityMask2 = "4294967295"
-                }
-
-                Test-TargetResource @testParams | Should be $false
+            Context 'Set-TargetResource' {
+                It 'Should set autoStart Test ' {
+                    
+                    SetTargetResource "autoStart" "add.autoStart" "true" "false"| Should be $true
+                }
+                
+                It 'Should set Runtime Version Test ' {
+                  
+                    SetTargetResource "managedRuntimeVersion" "add.managedRuntimeVersion" "v4.0" "v2.0" | Should be $true
+                }
+                
+                It 'Should set Managed Pipeline Mode Test ' {
+                  
+                    SetTargetResource "managedPipelineMode" "add.managedPipelineMode" "Integrated" "Classic"| Should be $true
+                }
+                
+                It 'Should set Start Mode Test ' {
+                  
+                    SetTargetResource "startMode" "add.startMode" "AlwaysRunning" "OnDemand" | Should be $true
+                }
+                
+                It 'Should set Identity Type Test ' {
+                  
+                    SetTargetResource "identityType" "add.processModel.identityType" "ApplicationPoolIdentity" "LocalSystem" | Should be $true
+                }
+                
+                It 'Should set Load User Profile Test ' {
+                  
+                    SetTargetResource "loadUserProfile" "add.processModel.loadUserProfile" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Queue Length Test ' {
+                  
+                    SetTargetResource "queueLength" "add.queueLength" "2000" "1000" | Should be $true
+                }
+                
+                It 'Should set Enable 32bit Test ' {
+                  
+                    SetTargetResource "enable32BitAppOnWin64" "add.enable32BitAppOnWin64" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Config Override Test ' {
+                  
+                    SetTargetResource "enableConfigurationOverride" "add.enableConfigurationOverride" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Pass Anon Token Test ' {
+                  
+                    SetTargetResource "passAnonymousToken" "add.passAnonymousToken" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Logon Type Test ' {
+                  
+                    SetTargetResource "logonType" "add.processModel.logonType" "LogonService" "LogonBatch" | Should be $true
+                }
+                
+                It 'Should set Manual Group Membership Test ' {
+                  
+                    SetTargetResource "manualGroupMembership" "add.processModel.manualGroupMembership" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Idle Timeout Test ' {
+                  
+                    SetTargetResource "idleTimeout" "add.processModel.idleTimeout" "00:25:00" "00:20:00" | Should be $true
+                }
+                
+                It 'Should set Max Processes Test ' {
+                  
+                    SetTargetResource "maxProcesses" "add.processModel.maxProcesses" "2" "1" | Should be $true
+                }
+                
+                It 'Should set Shutdown Time Limit Test ' {
+                  
+                    SetTargetResource "shutdownTimeLimit" "add.processModel.shutdownTimeLimit" "00:02:30" "00:01:30" | Should be $true
+                }
+                
+                It 'Should set Startup Time Limit Test ' {
+                  
+                    SetTargetResource "startupTimeLimit" "add.processModel.startupTimeLimit" "00:02:30" "00:01:30" | Should be $true
+                }
+                
+                It 'Should set Ping Interval Test ' {
+                  
+                    SetTargetResource "pingInterval" "add.processModel.pingInterval" "00:02:30" "00:01:30" | Should be $true
+                }
+                
+                It 'Should set Ping Response Test ' {
+                  
+                    SetTargetResource "pingResponseTime" "add.processModel.pingResponseTime" "00:02:30" "00:01:30" | Should be $true
+                }
+                
+                It 'Should set Ping Enabled Test ' {
+                  
+                    SetTargetResource "pingingEnabled" "add.processModel.pingingEnabled" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Disallow Overlapping Rotation Test ' {
+                  
+                    SetTargetResource "disallowOverlappingRotation" "add.recycling.disallowOverlappingRotation" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Disallow Rotation On Config Change Test ' {
+                  
+                    SetTargetResource "disallowRotationOnConfigChange" "add.recycling.disallowRotationOnConfigChange" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Log Event On Recycle Test ' {
+                  
+                    SetTargetResource "logEventOnRecycle" "add.recycling.logEventOnRecycle" "Time, Memory" "Time, Memory, PrivateMemory" | Should be $true
+                }
+                
+                It 'Should set Restart Mem Limit Test ' {
+                  
+                    SetTargetResource "restartMemoryLimit" "add.recycling.periodicRestart.memory" "0" "1" | Should be $true
+                }
+                
+                It 'Should set Restart Private Mem Limit Test ' {
+                  
+                    SetTargetResource "restartPrivateMemoryLimit" "add.recycling.periodicRestart.privateMemory" "0" "1" | Should be $true
+                }
+                
+                It 'Should set Restart Requests Limit Test ' {
+                  
+                    SetTargetResource "restartRequestsLimit" "add.recycling.periodicRestart.requests" "0" "1" | Should be $true
+                }
+                
+                It 'Should set Restart Time Limit Test ' {
+                  
+                    SetTargetResource "restartTimeLimit" "add.recycling.periodicRestart.time" "2.05:00:00" "1.05:00:00" | Should be $true
+                }
+                
+                It 'Should set Restart Schedule Test ' {
+                  
+                    SetTargetResource "restartSchedule" "add.recycling.periodicRestart.schedule.add.value" "18:30:00" "10:30:00" | Should be $true
+                }
+                
+                It 'Should set Load Balancer Capabilities Test ' {
+                  
+                    SetTargetResource "loadBalancerCapabilities" "add.failure.loadBalancerCapabilities" "HttpLevel" "TcpLevel" | Should be $true
+                }
+                
+                It 'Should set Orphan Worker Process Test ' {
+                  
+                    SetTargetResource "orphanWorkerProcess" "add.failure.orphanWorkerProcess" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Orphan Action Exe Test ' {
+                  
+                    SetTargetResource "orphanActionExe" "add.failure.orphanActionExe" "test.exe" "test1.exe" | Should be $true
+                }
+                
+                It 'Should set Orphan Action Params Test ' {
+                  
+                    SetTargetResource "orphanActionParams" "add.failure.orphanActionParams" "test.exe" "test1.exe" | Should be $true
+                }
+                
+                It 'Should set Rapid Fail Protection Test ' {
+                  
+                    SetTargetResource "rapidFailProtection" "add.failure.rapidFailProtection" "true" "false" | Should be $true
+                }
+                
+                It 'Should set Rapid Fail Protection Interval Test ' {
+                  
+                    SetTargetResource "rapidFailProtectionInterval" "add.failure.rapidFailProtectionInterval" "00:15:00" "00:05:00" | Should be $true
+                }
+                
+                It 'Should set Rapid Fail Protection Interval Max Crashes Test ' {
+                  
+                    SetTargetResource "rapidFailProtectionMaxCrashes" "add.failure.rapidFailProtectionMaxCrashes" "15" "05" | Should be $true
+                }
+                
+                It 'Should set Auto Shutdown Exe Test ' {
+                  
+                    SetTargetResource "autoShutdownExe" "add.failure.autoShutdownExe" "test.exe" "test1.exe" | Should be $true
+                }
+                
+                It 'Should set Auto Shutdown Params Test ' {
+                  
+                    SetTargetResource "autoShutdownParams" "add.failure.autoShutdownParams" "test.exe" "test1.exe" | Should be $true
+                }
+                
+                It 'Should set CPU Limit Test Test ' {
+                  
+                    SetTargetResource "cpuLimit" "add.cpu.limit" "1" "0" | Should be $true
+                }
+                
+                It 'Should set CPU Action Test ' {
+                  
+                    SetTargetResource "cpuAction" "add.cpu.action" "Throttle" "NoAction" | Should be $true
+                }
+                
+                It 'Should set CPU Reset Interval Test ' {
+                  
+                    SetTargetResource "cpuResetInterval" "add.cpu.resetInterval" "00:15:00" "00:05:00" | Should be $true
+                }
+                
+                It 'Should set CPU Smp Affinitized Test ' {
+                  
+                    SetTargetResource "cpuSmpAffinitized" "add.cpu.smpAffinitized" "true" "false" | Should be $true
+                }
+                
+                It 'Should set CPU Smp Processor Affinity Mask Test ' {
+                  
+                    SetTargetResource "cpuSmpProcessorAffinityMask" "add.cpu.smpProcessorAffinityMask" "4294967294" "4294967295" | Should be $true
+                }
+                
+                It 'Should set CPU Smp Processor Affinity Mask 2 Test ' {
+                  
+                    SetTargetResource "cpuSmpProcessorAffinityMask2" "add.cpu.smpProcessorAffinityMask2" "4294967294" "4294967295" | Should be $true
+                }
             }
 
             It 'Fails test when App Pool does not exist'{
                 $testParams =@{
-                    Name = $apName
+                    Name = 'PesterAppPool'
                     Ensure = "Present"
                 }
 
@@ -2091,9 +839,9 @@ Describe "MSFT_xWebAppPool"{
         finally
         {
             # if the app pool exists, remove it
-            if((Get-ChildItem IIS:\apppools).Name.Contains($apName))
+            if((Get-ChildItem IIS:\apppools).Name.Contains('PesterAppPool'))
             {
-                Remove-WebAppPool -Name $apName -ErrorAction Stop
+                Remove-WebAppPool -Name 'PesterAppPool' -ErrorAction Stop
             }
         }        
     }
