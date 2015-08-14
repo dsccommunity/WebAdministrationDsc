@@ -7,33 +7,33 @@ configuration Sample_IISFeatureDelegation
     )
 
     # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration
+    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
 
     Node $NodeName
     {
         # Install the IIS role
         WindowsFeature IIS
         {
-            Ensure          = "Present"
-            Name            = "Web-Server"
+            Ensure          = 'Present'
+            Name            = 'Web-Server'
         }
 
         # Allow Write access to some section that normally don't have it.
         xIisFeatureDelegation serverRuntime 
         {
-            SectionName      = "serverRuntime"
-            OverrideMode   = "Allow"
+            SectionName      = 'serverRuntime'
+            OverrideMode   = 'Allow'
         }
         xIisFeatureDelegation anonymousAuthentication 
         {
-            SectionName      = "security/authentication/anonymousAuthentication"
-            OverrideMode   = "Allow"
+            SectionName      = 'security/authentication/anonymousAuthentication'
+            OverrideMode   = 'Allow'
         }    
         
         xIisFeatureDelegation ipSecurity 
         {
-            SectionName      = "security/ipSecurity"
-            OverrideMode   = "Allow"
+            SectionName      = 'security/ipSecurity'
+            OverrideMode   = 'Allow'
         }              
     }
 }

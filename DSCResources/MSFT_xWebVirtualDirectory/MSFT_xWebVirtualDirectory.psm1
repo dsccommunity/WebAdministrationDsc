@@ -25,13 +25,13 @@ function Get-TargetResource
 
     $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
 
-    $PhysicalPath = ""
-    $Ensure = "Absent"
+    $PhysicalPath = ''
+    $Ensure = 'Absent'
 
     if ($virtualDirectory.Count -eq 1)
     {
         $PhysicalPath = $virtualDirectory.PhysicalPath
-        $Ensure = "Present"
+        $Ensure = 'Present'
     }
 
     $returnValue = @{
@@ -66,14 +66,14 @@ function Set-TargetResource
         [System.String]
         $PhysicalPath,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present"
+        $Ensure = 'Present'
     )
 
     Test-Dependancies
 
-    if ($Ensure -eq "Present")
+    if ($Ensure -eq 'Present')
     {
         $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
         if ($virtualDirectory.count -eq 0)
@@ -88,7 +88,7 @@ function Set-TargetResource
         }
     }
 
-    if ($Ensure -eq "Absent")
+    if ($Ensure -eq 'Absent')
     {
         Write-Verbose "Removing existing Virtual Directory $Name."
         Remove-WebVirtualDirectory -Site $Website -Application $WebApplication -Name $Name
@@ -117,21 +117,21 @@ function Test-TargetResource
         [System.String]
         $PhysicalPath,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present"
+        $Ensure = 'Present'
     )
 
     Test-Dependancies
 
-    Write-Verbose "Checking the virtual directories for the website."
+    Write-Verbose 'Checking the virtual directories for the website.'
     $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
 
-    if ($virtualDirectory.Count -eq 1 -and $Ensure -eq "Present")
+    if ($virtualDirectory.Count -eq 1 -and $Ensure -eq 'Present')
     {
         if ($virtualDirectory.PhysicalPath -eq $PhysicalPath)
         {
-            Write-Verbose "Web virtual directory is in required state"
+            Write-Verbose 'Web virtual directory is in required state'
             return $true
         }
         else
@@ -141,7 +141,7 @@ function Test-TargetResource
         }
     }
 
-    if ($virtualDirectory.count -eq 0 -and $Ensure -eq "Absent")
+    if ($virtualDirectory.count -eq 0 -and $Ensure -eq 'Absent')
     {
         Write-Verbose "Web virtual directory $Name should be absent and is absent"
         return $true
@@ -152,11 +152,11 @@ function Test-TargetResource
 
 function Test-Dependancies
 {
-    Write-Verbose "Checking whether WebAdministration is there in the machine or not."
+    Write-Verbose 'Checking whether WebAdministration is there in the machine or not.'
     # Check if WebAdministration module is present for IIS cmdlets
     if(!(Get-Module -ListAvailable -Name WebAdministration))
     {
-        Throw "Please ensure that WebAdministration module is installed."
+        Throw 'Please ensure that WebAdministration module is installed.'
     }
 }
 

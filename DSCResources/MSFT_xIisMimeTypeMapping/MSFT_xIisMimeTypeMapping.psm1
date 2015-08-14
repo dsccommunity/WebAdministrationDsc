@@ -31,7 +31,7 @@ function Get-TargetResource
         [ValidateNotNullOrEmpty()]
         [String]$MimeType,
 
-        [ValidateSet("Present", "Absent")]
+        [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
         [string]$Ensure
     )
@@ -67,9 +67,9 @@ function Set-TargetResource
 {
     param
     (    
-        [ValidateSet("Present", "Absent")]
+        [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
-        [string]$Ensure = "Present",
+        [string]$Ensure = 'Present',
             
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -82,21 +82,21 @@ function Set-TargetResource
 
         CheckIISPoshModule
 
-        [string]$psPathRoot = "MACHINE/WEBROOT/APPHOST"
-        [string]$sectionNode = "system.webServer/staticContent"
+        [string]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
+        [string]$sectionNode = 'system.webServer/staticContent'
 
         $mt = GetMapping -extension $Extension -type $MimeType 
 
-        if ($mt -eq $null -and $Ensure -eq "Present")
+        if ($mt -eq $null -and $Ensure -eq 'Present')
         {
             # add the MimeType            
-            Add-WebConfigurationProperty -pspath $psPathRoot  -filter $sectionNode -name "." -value @{fileExtension="$Extension";mimeType="$MimeType"}
+            Add-WebConfigurationProperty -pspath $psPathRoot  -filter $sectionNode -name '.' -value @{fileExtension="$Extension";mimeType="$MimeType"}
             Write-Verbose($LocalizedData.AddingType -f $MimeType,$Extension);
         }
-        elseif ($mt -ne $null -and $Ensure -eq "Absent")
+        elseif ($mt -ne $null -and $Ensure -eq 'Absent')
         {
             # remove the MimeType                      
-            Remove-WebConfigurationProperty -pspath $psPathRoot -filter $sectionNode -name "." -AtElement @{fileExtension="$Extension"}
+            Remove-WebConfigurationProperty -pspath $psPathRoot -filter $sectionNode -name '.' -AtElement @{fileExtension="$Extension"}
             Write-Verbose($LocalizedData.RemovingType -f $MimeType,$Extension);
         }
 }
@@ -111,8 +111,8 @@ function Test-TargetResource
     param
     (    
         [Parameter(Mandatory)]
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
+        [ValidateSet('Present', 'Absent')]
+        [string]$Ensure = 'Present',
     
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -129,16 +129,16 @@ function Test-TargetResource
 
     $mt = GetMapping -extension $Extension -type $MimeType 
 
-    if (($mt -eq $null -and $Ensure -eq "Present") -or ($mt -ne $null -and $Ensure -eq "Absent"))
+    if (($mt -eq $null -and $Ensure -eq 'Present') -or ($mt -ne $null -and $Ensure -eq 'Absent'))
     {
         $DesiredConfigurationMatch = $false;
     }
-    elseif ($mt -ne $null -and $Ensure -eq "Present")
+    elseif ($mt -ne $null -and $Ensure -eq 'Present')
     {
         # Already there 
         Write-Verbose($LocalizedData.TypeExists -f $MimeType,$Extension);
     }
-    elseif ($mt -eq $null -and $Ensure -eq "Absent")
+    elseif ($mt -eq $null -and $Ensure -eq 'Absent')
     {
         # TypeNotPresent
         Write-Verbose($LocalizedData.TypeNotPresent -f $MimeType,$Extension);
