@@ -590,9 +590,13 @@ function Test-WebsiteBindings
     # Assume bindings do not need updating
     $BindingNeedsUpdating = $false
 
-    Write-Verbose "Getting Web Binding: $name"
+    <#
+        Currently there is a problem in the LCM where Get-WebBinding short circuts the verbose stream
+        Write-Log can be changed to add the -File switch to log to a directory for troubleshooting.
+        However it's pretty noisy so it's being left in but commented out.
+    #>
+
     $ActualBindings = Get-WebBinding -Name $Name
-    Write-Verbose "ActualBindings $($ActualBindings.ToString())"
 
     # Format Binding information: Split BindingInfo into individual Properties (IPAddress:Port:HostName)
     $ActualBindingObjects = @()
@@ -616,6 +620,7 @@ function Test-WebsiteBindings
                 {
                     if([string]$ActualBinding.Protocol -ne [string]$binding.CimInstanceProperties['Protocol'].Value)
                     {
+                        Write-Log "Protocol is Incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
@@ -629,6 +634,7 @@ function Test-WebsiteBindings
                         }
                         else
                         {
+                            Write-Log "IP Address Incorrect" -File
                             $BindingNeedsUpdating = $true
                             break
                         }
@@ -636,30 +642,37 @@ function Test-WebsiteBindings
 
                     if([string]$ActualBinding.HostName -ne [string]$binding.CimInstanceProperties['HostName'].Value)
                     {
+                        Write-Log "HostName is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
                     if([string]$ActualBinding.CertificateThumbprint -ne [string]$binding.CimInstanceProperties['CertificateThumbprint'].Value)
                     {
+                        Write-Log "CertificateThumbprint is incorrect" -File
+                        Write-Log "Actual Binding: $($ActualBinding.CertificateThumbprint )" -File
+                        Write-Log "Binding Value: $($binding.CimInstanceProperties['CertificateThumbprint'].Value)" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
                     if(-not [string]::IsNullOrWhiteSpace([string]$ActualBinding.CertificateThumbprint) -and [string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
                     {
+                        Write-Log "Thumbprint is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
-                    if([string]$ActualBinding.SSLFlags -ne [string]$binding.CimInstanceProperties['SSLFlags'].Value)
+                    if(-not [string]::IsNullOrWhiteSpace([string]$binding.CimInstanceProperties['SSLFlags'].Value) -and [string]$ActualBinding.SSLFlags -ne [string]$binding.CimInstanceProperties['SSLFlags'].Value)
                     {
+                        Write-Log "SSLFlags is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
                 }
                 else
                 {
+                    Write-Log "No bindings returned" -File
                     $BindingNeedsUpdating = $true
                     break
                 }
@@ -667,6 +680,7 @@ function Test-WebsiteBindings
         }
         else
         {
+            Write-Log "Binding Count is incorrect"
             $BindingNeedsUpdating = $true
         }
 
@@ -842,6 +856,28 @@ function Update-DefaultPages
                 value = $page
             }
         }
+    }
+}
+
+function Write-Log
+{
+    param
+    (
+        [parameter(Position=1)]
+        [string]
+        $Message,
+
+        [switch] $File
+    )
+
+    $filename = "$env:tmp\xWebSite.log"
+
+    Write-Verbose -Verbose -Message $message
+
+    if ($File)
+    {
+        $date = Get-Date
+        "${date}: $message" | Out-File -Append -FilePath $filename
     }
 }
 

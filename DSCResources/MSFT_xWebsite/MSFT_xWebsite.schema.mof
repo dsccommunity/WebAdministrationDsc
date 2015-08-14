@@ -7,7 +7,7 @@ Class MSFT_xWebBindingInformation
     [write]String HostName;
     [write]String CertificateThumbprint;
     [write,ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] string CertificateStoreName;
-    [write] string SSLFlags;
+    [write,ValueMap{"0","1","2","3"},Values{"0","1","2","3"}] string SSLFlags;
 };
 
 
