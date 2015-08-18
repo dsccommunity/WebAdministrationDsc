@@ -1,12 +1,17 @@
-﻿[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIisModule**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts. 
+The **xWebAdministration** module contains various DSC resources for creating and configuring various IIS artifacts.  
+
+On the server level we have: **xIisModule**, 
+**xIisFeatureDelegation**, **xIisMimeTypeMapping**, **xIIsHandler**, **xWebAppPoolDefaults** and **xWebSiteDefaults**.
+
+On the web site and application pool level we have:
+**xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, and **xWebConfigKeyValue**.
 
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
-
 
 ## Resources
 
@@ -21,6 +26,32 @@ If empty, the resource will register the module with all of IIS.
 * **ModuleType**: The type of the module. 
 Currently, only FastCgiModule is supported. 
 * **Ensure**: Ensures that the module is **Present** or **Absent**. 
+
+### xIisFeatureDelegation
+* **SectionName**: relative path of the section to delegate such as **security/authentication**
+* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
+
+### xIisMimeTypeMapping
+* **Extension**: The file extension to map such as **.html**
+* **MimeType**: The MIME type to map that extension to such as **text/html**
+* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
+
+### xIisHandler
+* **Name**: The name of the handler such as **AXD-ISAPI-4.0_64bit**
+* **Ensure**: Ensures that handler is **Present** or **Absent**.
+
+### xWebAppPoolDefaults
+* **ApplyTo**: Required Key value, always **Machine**
+* **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
+* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService |LocalSystem | NetworkService}
+
+### xWebSiteDefaults
+* **ApplyTo**: Required Key value, always **Machine**
+* **LogFormat**: {W3C | IIS | NCSA | Custom}
+* **LogDirectory**: Parent directory for IIS logs.
+* **TraceLogDirectory**: Parent directory for failed request trace logs.
+* **DefaultApplicationPool**: AppPool to use when creating new applications.
+* **AllowSubDirConfig**: Specifies whether IIS looks for Web.config files in lower content directories.
 
 ### xWebAppPool
 
@@ -62,6 +93,10 @@ Currently, only FastCgiModule is supported.
 
 
 ## Versions
+
+### Unreleased
+
+* Added five new server level resources: xIisFeatureDelegation, xIisMimeTypeMapping, xIIsHandler, xWebAppPoolDefaults and xWebSiteDefaults
 
 ### 1.6.0.0
 
