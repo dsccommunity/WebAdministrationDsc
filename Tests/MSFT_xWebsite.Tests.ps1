@@ -19,7 +19,7 @@ Describe 'Schema Validation MSFT_xWebsite' {
         $result | Should Be $true
     }
 
-    It 'should pass Test-xDscResource' {
+    It 'should pass Test-xDscSchema' {
         $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebsite\MSFT_xWebsite.schema.mof'
         $result = Test-xDscSchema $path
         $result | Should Be $true
