@@ -27,19 +27,19 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory)]
-        [ValidateSet("Machine")]
+        [ValidateSet('Machine')]
         [string]$ApplyTo
     )
     
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
 
-    return @{LogFormat = (GetValue "siteDefaults/logFile" "logFormat")
-                                    TraceLogDirectory = ( GetValue "siteDefaults/traceFailedRequestsLogging" "directory")
-                                    DefaultApplicationPool = (GetValue "applicationDefaults" "applicationPool")
-                                    AllowSubDirConfig = (GetValue "virtualDirectoryDefaults" "allowSubDirConfig")
-                                    ApplyTo = "Machine"
-                                    LogDirectory = (GetValue "siteDefaults/logFile" "directory")}    
+    return @{LogFormat = (GetValue 'siteDefaults/logFile' 'logFormat')
+                                    TraceLogDirectory = ( GetValue 'siteDefaults/traceFailedRequestsLogging' 'directory')
+                                    DefaultApplicationPool = (GetValue 'applicationDefaults' 'applicationPool')
+                                    AllowSubDirConfig = (GetValue 'virtualDirectoryDefaults' 'allowSubDirConfig')
+                                    ApplyTo = 'Machine'
+                                    LogDirectory = (GetValue 'siteDefaults/logFile' 'directory')}    
 }
 
 ######################################################################################
@@ -50,25 +50,25 @@ function Set-TargetResource
 {
     param
     (    
-        [ValidateSet("Machine")]
+        [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
-        [ValidateSet("W3C","IIS","NCSA","Custom")]
+        [ValidateSet('W3C','IIS','NCSA','Custom')]
         [string]$LogFormat,
         [string]$LogDirectory,
         [string]$TraceLogDirectory,
         [string]$DefaultApplicationPool,
-        [ValidateSet("true","false")]
+        [ValidateSet('true','false')]
         [string]$AllowSubDirConfig
     )
 
         CheckIISPoshModule
 
-        SetValue "siteDefaults/logFile" "logFormat" $LogFormat
-        SetValue "siteDefaults/logFile" "directory" $LogDirectory
-        SetValue "siteDefaults/traceFailedRequestsLogging" "directory" $TraceLogDirectory
-        SetValue "applicationDefaults" "applicationPool" $DefaultApplicationPool
-        SetValue "virtualDirectoryDefaults" "allowSubDirConfig" $AllowSubDirConfig
+        SetValue 'siteDefaults/logFile' 'logFormat' $LogFormat
+        SetValue 'siteDefaults/logFile' 'directory' $LogDirectory
+        SetValue 'siteDefaults/traceFailedRequestsLogging' 'directory' $TraceLogDirectory
+        SetValue 'applicationDefaults' 'applicationPool' $DefaultApplicationPool
+        SetValue 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
 }
 
 ######################################################################################
@@ -80,15 +80,15 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (    
-        [ValidateSet("Machine")]
+        [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
-        [ValidateSet("W3C","IIS","NCSA","Custom")]
+        [ValidateSet('W3C','IIS','NCSA','Custom')]
         [string]$LogFormat,
         [string]$LogDirectory,
         [string]$TraceLogDirectory,
         [string]$DefaultApplicationPool,
-        [ValidateSet("true","false")]
+        [ValidateSet('true','false')]
         [string]$AllowSubDirConfig
     )
 
@@ -96,27 +96,27 @@ function Test-TargetResource
 
     # check for the various given settings:
 
-    if (!(CheckValue -path "virtualDirectoryDefaults" -name "allowSubDirConfig" -newValue $AllowSubDirConfig)) 
+    if (!(CheckValue -path 'virtualDirectoryDefaults' -name 'allowSubDirConfig' -newValue $AllowSubDirConfig)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path "siteDefaults/logFile" -name "logFormat" -newValue $LogFormat)) 
+    if (!(CheckValue -path 'siteDefaults/logFile' -name 'logFormat' -newValue $LogFormat)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path "siteDefaults/logFile" -name "directory" -newValue $LogDirectory)) 
+    if (!(CheckValue -path 'siteDefaults/logFile' -name 'directory' -newValue $LogDirectory)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path "siteDefaults/traceFailedRequestsLogging" -name "directory" -newValue $TraceLogDirectory)) 
+    if (!(CheckValue -path 'siteDefaults/traceFailedRequestsLogging' -name 'directory' -newValue $TraceLogDirectory)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path "applicationDefaults" -name "applicationPool" -newValue $DefaultApplicationPool)) 
+    if (!(CheckValue -path 'applicationDefaults' -name 'applicationPool' -newValue $DefaultApplicationPool)) 
     { 
         return $false 
     }
@@ -144,7 +144,7 @@ Function CheckValue([string]$path,[string]$name,[string]$newValue)
     }
     else
     {
-        $relPath = $path + "/" + $name
+        $relPath = $path + '/' + $name
         Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
         return $true
     }   
@@ -165,7 +165,7 @@ Function SetValue([string]$path,[string]$name,[string]$newValue)
     if ($existingValue -ne $newValue)
     {
         Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/$path" -name $name -value "$newValue"
-        $relPath = $path + "/" + $name
+        $relPath = $path + '/' + $name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
     }    
 }

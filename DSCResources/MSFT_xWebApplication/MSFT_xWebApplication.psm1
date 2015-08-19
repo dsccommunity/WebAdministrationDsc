@@ -25,15 +25,15 @@ function Get-TargetResource
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
-    $PhysicalPath = ""
-    $Ensure = "Absent"
-    $WebAppPool = ""
+    $PhysicalPath = ''
+    $Ensure = 'Absent'
+    $WebAppPool = ''
 
     if ($webApplication.Count -eq 1)
     {
         $PhysicalPath = $webApplication.PhysicalPath
         $WebAppPool = $webApplication.applicationPool
-        $Ensure = "Present"
+        $Ensure = 'Present'
     }
 
     $returnValue = @{
@@ -69,14 +69,14 @@ function Set-TargetResource
         [System.String]
         $PhysicalPath,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present"
+        $Ensure = 'Present'
     )
 
     CheckDependencies
 
-    if ($Ensure -eq "Present")
+    if ($Ensure -eq 'Present')
     {
         $webApplication = Get-WebApplication -Site $Website -Name $Name
         if ($webApplication.count -eq 0)
@@ -99,7 +99,7 @@ function Set-TargetResource
         }
     }
 
-    if ($Ensure -eq "Absent")
+    if ($Ensure -eq 'Absent')
     {
         Write-Verbose "Removing existing Web Application $Name."
         Remove-WebApplication -Site $Website -Name $Name
@@ -129,16 +129,16 @@ function Test-TargetResource
         [System.String]
         $PhysicalPath,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present"
+        $Ensure = 'Present'
     )
 
     CheckDependencies
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
-    if ($webApplication.count -eq 1 -and $Ensure -eq "Present") {
+    if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') {
         if ($webApplication.physicalPath -ne $PhysicalPath)
         {
             Write-Verbose "Physical path for web application $Name does not match desired state."
@@ -151,12 +151,12 @@ function Test-TargetResource
         }
         else
         {
-            Write-Verbose "Web application pool matches desired state."
+            Write-Verbose 'Web application pool matches desired state.'
             return $true
         }
     }
 
-    if ($webApplication.count -eq 0 -and $Ensure -eq "Absent") {
+    if ($webApplication.count -eq 0 -and $Ensure -eq 'Absent') {
         Write-Verbose "Web application $Name should be absent and is absent."
         return $true
     }
@@ -166,11 +166,11 @@ function Test-TargetResource
 
 function CheckDependencies
 {
-    Write-Verbose "Checking whether WebAdministration is there in the machine or not."
+    Write-Verbose 'Checking whether WebAdministration is there in the machine or not.'
     # Check if WebAdministration module is present for IIS cmdlets
     if(!(Get-Module -ListAvailable -Name WebAdministration))
     {
-        Throw "Please ensure that WebAdministration module is installed."
+        Throw 'Please ensure that WebAdministration module is installed.'
     }
 }
 

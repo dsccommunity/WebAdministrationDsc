@@ -9,7 +9,7 @@ function Get-TargetResource
         $WebsitePath,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("AppSettings")]
+        [ValidateSet('AppSettings')]
         [System.String]
         $ConfigSection,
 
@@ -27,14 +27,14 @@ function Get-TargetResource
     if($existingvalue.Length -eq 0)
     {
          return @{
-             Ensure = "Absent"
+             Ensure = 'Absent'
              Key = $Key
              Value = $existingvalue
         }
     }
 
     return @{
-        Ensure = "Present"
+        Ensure = 'Present'
         Key = $Key
         Value = $existingvalue
     }
@@ -51,13 +51,13 @@ function Set-TargetResource
         $WebsitePath,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("AppSettings")]
+        [ValidateSet('AppSettings')]
         [System.String]
         $ConfigSection,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present",
+        $Ensure = 'Present',
 
         [parameter(Mandatory = $true)]
         [String]
@@ -70,7 +70,7 @@ function Set-TargetResource
         $IsAttribute
     )
 
-    if($Ensure -eq "Present")
+    if($Ensure -eq 'Present')
     {
         $existingvalue = Get-ItemValue -key $Key -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
 
@@ -80,7 +80,7 @@ function Set-TargetResource
         }
         else
         {
-            $propertyName ="value"
+            $propertyName ='value'
             if($IsAttribute)
             {
                 $propertyName = $Key
@@ -105,13 +105,13 @@ function Test-TargetResource
         $WebsitePath,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("AppSettings")]
+        [ValidateSet('AppSettings')]
         [System.String]
         $ConfigSection,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present",
+        $Ensure = 'Present',
 
         [parameter(Mandatory = $true)]
         [String]
@@ -131,7 +131,7 @@ function Test-TargetResource
 
     $existingvalue = Get-ItemValue -key $Key -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
     
-    if($Ensure -eq "Present")
+    if($Ensure -eq 'Present')
     {
         if(!$IsAttribute)
         {
@@ -192,7 +192,7 @@ function Add-item([string]$key, [string]$value, [Boolean]$isAttribute, [string]$
 
     if(!$isAttribute)
     {
-        Add-WebConfigurationProperty -filter $defaultFilter -name "." -value $itemCollection -PSPath $websitePath
+        Add-WebConfigurationProperty -filter $defaultFilter -name '.' -value $itemCollection -PSPath $websitePath
     }
     else
     {
@@ -233,11 +233,11 @@ function Remove-Item([string]$key, [Boolean]$isAttribute, [string]$websitePath, 
         # this is a workaround to ensure if appSettings has no collection and we try to delete the only attribute, the entire node is not deleted.
         # if we try removing the only attribute even if there is one collection item, the node is preserved. I am not able to find a way to do this
         #using clear-webconfiguration alone.
-        Add-item -key "dummyKey" -value "dummyValue" -isAttribute $false -websitePath $websitePath -configSection $configSection
+        Add-item -key 'dummyKey' -value 'dummyValue' -isAttribute $false -websitePath $websitePath -configSection $configSection
 
         clear-WebConfiguration -filter $filter -PSPath $websitePath -WarningAction Stop
 
-        Remove-Item -key "dummyKey" -isAttribute $false -websitePath $websitePath -configSection $configSection
+        Remove-Item -key 'dummyKey' -isAttribute $false -websitePath $websitePath -configSection $configSection
     }
 }
 
@@ -250,7 +250,7 @@ function Get-ItemValue([string]$key, [Boolean]$isAttribute, [string]$websitePath
     {
         $filter = "$defaultFilter/add[@key=`'$key`']"
 
-        $value = Get-WebConfigurationProperty -Filter $filter -Name "value" -PSPath $websitePath
+        $value = Get-WebConfigurationProperty -Filter $filter -Name 'value' -PSPath $websitePath
  
     }
     else

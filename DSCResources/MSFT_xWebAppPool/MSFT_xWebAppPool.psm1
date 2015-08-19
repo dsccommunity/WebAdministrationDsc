@@ -9,22 +9,22 @@ function Get-TargetResource
         $Name
     )
 
-    $Ensure = "Absent"
-    $State  = "Stopped"
+    $Ensure = 'Absent'
+    $State  = 'Stopped'
 
     #need to import explicitly to run for IIS:\AppPools
     Import-Module WebAdministration
 
     if(!(Get-Module -ListAvailable -Name WebAdministration))
     {
-        Throw "Please ensure that WebAdministration module is installed."
+        Throw 'Please ensure that WebAdministration module is installed.'
     }
 
     $AppPool = Get-Item -Path IIS:\AppPools\* | ? {$_.name -eq $Name}
 
     if($AppPool -ne $null)
     {
-        $Ensure = "Present"
+        $Ensure = 'Present'
         $State  = $AppPool.state
     }
 
@@ -47,26 +47,26 @@ function Set-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present",
+        $Ensure = 'Present',
 
-        [ValidateSet("Started","Stopped")]
+        [ValidateSet('Started','Stopped')]
         [System.String]
-        $State = "Started"
+        $State = 'Started'
     )
 
-    if($Ensure -eq "Absent")
+    if($Ensure -eq 'Absent')
     {
-        Write-Verbose("Removing the Web App Pool")
+        Write-Verbose('Removing the Web App Pool')
         Remove-WebAppPool $Name
     }
     else
     {
         $AppPool = Get-TargetResource -Name $Name
-        if($AppPool.Ensure -ne "Present")
+        if($AppPool.Ensure -ne 'Present')
         {
-            Write-Verbose("Creating the Web App Pool")
+            Write-Verbose('Creating the Web App Pool')
             New-WebAppPool $Name
             $AppPool = Get-TargetResource -Name $Name
         }
@@ -89,17 +89,17 @@ function Test-TargetResource
         [System.String]
         $Name,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure  = "Present",
+        $Ensure  = 'Present',
 
-        [ValidateSet("Started","Stopped")]
+        [ValidateSet('Started','Stopped')]
         [System.String]
-        $State = "Started"
+        $State = 'Started'
     )
     $WebAppPool = Get-TargetResource -Name $Name
 
-    if($Ensure -eq "Present")
+    if($Ensure -eq 'Present')
     {
         if($WebAppPool.Ensure -eq $Ensure -and $WebAppPool.State -eq $state)
         {
@@ -117,14 +117,14 @@ function Test-TargetResource
 
 function ExecuteRequiredState([string] $Name, [string] $State)
 {
-    if($State -eq "Started")
+    if($State -eq 'Started')
     {
-        Write-Verbose("Starting the Web App Pool")
+        Write-Verbose('Starting the Web App Pool')
         start-WebAppPool -Name $Name
     }
     else
     {
-        Write-Verbose("Stopping the Web App Pool")
+        Write-Verbose('Stopping the Web App Pool')
         Stop-WebAppPool -Name $Name
     }
 }
