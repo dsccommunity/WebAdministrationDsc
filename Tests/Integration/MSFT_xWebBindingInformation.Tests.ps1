@@ -1,4 +1,7 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+﻿$DSCResourceName = 'MSFT_xWebsite'
+$DSCResource = Get-Module -ListAvailable -Name (
+    $PSScriptRoot | Join-Path -ChildPath "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
+)
 
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
@@ -6,9 +9,9 @@ if($env:APPVEYOR_BUILD_VERSION)
   Add-WindowsFeature Web-Server -Verbose
 }
 
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebsite\MSFT_xWebsite.psm1")
+$DSCResource | Import-Module -Force
 
-Describe "MSFT_xWebBindingInformation" {
+Describe 'MSFT_xWebBindingInformation' {
     It 'Should be able to get xWebsite' -test {
         # just a good idea.  
         # I thought it might force the classes to register, but it does not.
@@ -41,8 +44,8 @@ Describe "MSFT_xWebBindingInformation" {
     # Directly interacting with Cim classes is not supported by PowerShell DSC
     # it is being done here explicitly for the purpose of testing. Please do not
     # do this in actual resource code
-    $xWebBindingInforationClass = (Get-CimClass -Namespace "root/microsoft/Windows/DesiredStateConfiguration" -ClassName "MSFT_xWebBindingInformation")
-    $storeNames = (Get-CimClass -Namespace "root/microsoft/Windows/DesiredStateConfiguration" -ClassName "MSFT_xWebBindingInformation").CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
+    $xWebBindingInforationClass = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation')
+    $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
     foreach ($storeName in $storeNames){
         It "Uses valid credential store: $storeName" {
             (Join-Path -Path Cert:\LocalMachine -ChildPath $storeName) | Should Exist
