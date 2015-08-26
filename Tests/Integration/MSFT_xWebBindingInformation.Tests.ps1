@@ -1,7 +1,12 @@
 ﻿$DSCResourceName = 'MSFT_xWebsite'
-$DSCResource = Get-Module -ListAvailable -Name (
-    $PSScriptRoot | Join-Path -ChildPath "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
-)
+
+$Splat = @{
+    Path = $PSScriptRoot
+    ChildPath = "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
+    Resolve = $true
+    ErrorAction = 'Stop'
+}
+$DSCResourceModuleFile = Get-Item -Path (Join-Path @Splat)
 
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
@@ -9,7 +14,7 @@ if($env:APPVEYOR_BUILD_VERSION)
   Add-WindowsFeature Web-Server -Verbose
 }
 
-$DSCResource | Import-Module -Force
+Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
 Describe 'MSFT_xWebBindingInformation' {
     It 'Should be able to get xWebsite' -test {

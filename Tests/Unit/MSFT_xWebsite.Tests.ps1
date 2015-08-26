@@ -1,7 +1,12 @@
 $DSCResourceName = 'MSFT_xWebsite'
-$DSCResource = Get-Module -ListAvailable -Name (
-    $PSScriptRoot | Join-Path -ChildPath "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
-)
+
+$Splat = @{
+    Path = $PSScriptRoot
+    ChildPath = "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
+    Resolve = $true
+    ErrorAction = 'Stop'
+}
+$DSCResourceModuleFile = Get-Item -Path (Join-Path @Splat)
 
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
@@ -15,28 +20,30 @@ if (! (Get-Module -Name xDSCResourceDesigner))
 }
 
 
-Describe 'Schema Validation MSFT_xWebsite' {
+Describe "Schema Validation $DSCResourceName" {
     It 'should pass Test-xDscResource' {
-        $result = Test-xDscResource -Name $DSCResource.ModuleBase
+        $result = Test-xDscResource -Name $DSCResourceModuleFile.DirectoryName
         $result | Should Be $true
     }
 
     It 'should pass Test-xDscSchema' {
-        $path = $DSCResource.ModuleBase | 
-            Join-Path -ChildPath "$($DSCResource.Name).schema.mof" -Resolve
-        $result = Test-xDscSchema $path
+        $Splat = @{
+            Path = $DSCResourceModuleFile.DirectoryName
+            ChildPath = "$($DSCResourceName).schema.mof"
+        }
+        $result = Test-xDscSchema -Path (Join-Path @Splat -Resolve -ErrorAction Stop)
         $result | Should Be $true
     }
 }
 
-if (Get-Module -Name $DSCResource.Name)
+if (Get-Module -Name $DSCResourceName)
 {
-    Remove-Module -Name $DSCResource.Name
+    Remove-Module -Name $DSCResourceName
 }
 
-$DSCResource | Import-Module -Force
+Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
-InModuleScope MSFT_xWebsite {
+InModuleScope $DSCResourceName {
     Describe "how Test-TargetResource to Ensure = 'Present'" {
         $MockSite = @{
             Ensure          = 'Present'
