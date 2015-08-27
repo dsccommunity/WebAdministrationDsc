@@ -1,4 +1,12 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$DSCResourceName = 'MSFT_xWebsite'
+
+$Splat = @{
+    Path = $PSScriptRoot
+    ChildPath = "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
+    Resolve = $true
+    ErrorAction = 'Stop'
+}
+$DSCResourceModuleFile = Get-Item -Path (Join-Path @Splat)
 
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
@@ -6,34 +14,36 @@ if($env:APPVEYOR_BUILD_VERSION)
   Add-WindowsFeature Web-Server -Verbose
 }
 
-if (! (Get-Module xDSCResourceDesigner))
+if (! (Get-Module -Name xDSCResourceDesigner))
 {
     Import-Module -Name xDSCResourceDesigner
 }
 
 
-Describe 'Schema Validation MSFT_xWebsite' {
+Describe "Schema Validation $DSCResourceName" {
     It 'should pass Test-xDscResource' {
-        $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebsite'
-        $result = Test-xDscResource $path
+        $result = Test-xDscResource -Name $DSCResourceModuleFile.DirectoryName
         $result | Should Be $true
     }
 
     It 'should pass Test-xDscSchema' {
-        $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebsite\MSFT_xWebsite.schema.mof'
-        $result = Test-xDscSchema $path
+        $Splat = @{
+            Path = $DSCResourceModuleFile.DirectoryName
+            ChildPath = "$($DSCResourceName).schema.mof"
+        }
+        $result = Test-xDscSchema -Path (Join-Path @Splat -Resolve -ErrorAction Stop)
         $result | Should Be $true
     }
 }
 
-if (Get-Module MSFT_xWebsite)
+if (Get-Module -Name $DSCResourceName)
 {
-    Remove-Module MSFT_xWebsite
+    Remove-Module -Name $DSCResourceName
 }
 
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebsite\MSFT_xWebsite.psm1")
+Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
-InModuleScope MSFT_xWebsite {
+InModuleScope $DSCResourceName {
     Describe "how Test-TargetResource to Ensure = 'Present'" {
         $MockSite = @{
             Ensure          = 'Present'
