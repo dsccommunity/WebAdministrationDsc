@@ -12,13 +12,16 @@ function Get-TargetResource
     $Ensure = 'Absent'
     $State  = 'Stopped'
 
-    #need to import explicitly to run for IIS:\AppPools
-    Import-Module WebAdministration
-
+    # Check if webadministration module is present or not
     if(!(Get-Module -ListAvailable -Name WebAdministration))
     {
         Throw 'Please ensure that WebAdministration module is installed.'
     }
+
+    # Need to import explicitly to run for IIS:\AppPools
+    # Setting verbose to false to avoid seeing all the imported command in
+    # DSC configuration verbose messages when configuration is run with -Verbose specified
+    Import-Module WebAdministration -Verbose:$false
 
     $AppPool = Get-Item -Path IIS:\AppPools\* | ? {$_.name -eq $Name}
 
