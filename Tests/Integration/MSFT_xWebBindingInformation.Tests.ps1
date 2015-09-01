@@ -16,9 +16,18 @@ if($env:APPVEYOR_BUILD_VERSION)
 
 Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
+$moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\xWebAdministration"
+
+if(-not (Test-Path -Path $moduleRoot))
+{
+    $null = New-Item -Path $moduleRoot -ItemType Directory
+}
+
+Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
+
 Describe 'MSFT_xWebBindingInformation' {
     It 'Should be able to get xWebsite' -test {
-        # just a good idea.  
+        # just a good idea.
         # I thought it might force the classes to register, but it does not.
         $resources = Get-DscResource -Name xWebsite
         $resources.count | should be 1
@@ -45,7 +54,7 @@ Describe 'MSFT_xWebBindingInformation' {
         foo -OutputPath $env:temp\foo
         Start-DscConfiguration -Path $env:temp\foo -Wait -Verbose -ErrorAction Stop} | should not throw
     }
-    
+
     # Directly interacting with Cim classes is not supported by PowerShell DSC
     # it is being done here explicitly for the purpose of testing. Please do not
     # do this in actual resource code
