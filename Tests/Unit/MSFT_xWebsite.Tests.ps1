@@ -14,28 +14,6 @@ if($env:APPVEYOR_BUILD_VERSION)
   Add-WindowsFeature Web-Server -Verbose
 }
 
-if (! (Get-Module -Name xDSCResourceDesigner))
-{
-    Import-Module -Name xDSCResourceDesigner
-}
-
-
-Describe "Schema Validation $DSCResourceName" {
-    It 'should pass Test-xDscResource' {
-        $result = Test-xDscResource -Name $DSCResourceModuleFile.DirectoryName
-        $result | Should Be $true
-    }
-
-    It 'should pass Test-xDscSchema' {
-        $Splat = @{
-            Path = $DSCResourceModuleFile.DirectoryName
-            ChildPath = "$($DSCResourceName).schema.mof"
-        }
-        $result = Test-xDscSchema -Path (Join-Path @Splat -Resolve -ErrorAction Stop)
-        $result | Should Be $true
-    }
-}
-
 if (Get-Module -Name $DSCResourceName)
 {
     Remove-Module -Name $DSCResourceName
