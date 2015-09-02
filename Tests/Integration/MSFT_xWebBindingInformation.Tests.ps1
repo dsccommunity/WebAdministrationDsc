@@ -25,6 +25,9 @@ if(-not (Test-Path -Path $moduleRoot))
 
 Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
 
+# Now that xWebAdministration should be discoverable load the configuration data
+. "$PSScriptRoot\WebBindingInformation_Config.ps1"
+
 Describe 'MSFT_xWebBindingInformation' {
     It 'Should be able to get xWebsite' -test {
         # just a good idea.
@@ -39,20 +42,9 @@ Describe 'MSFT_xWebBindingInformation' {
         # Update the system environment path so that LCM will load the module
         # Requires WMF 5
         [System.Environment]::SetEnvironmentVariable('PSModulePath',$env:PSModulePath,[System.EnvironmentVariableTarget]::Machine)
-        configuration foo
-        {
-            Import-DscResource -ModuleName xWebAdministration
 
-            xWebsite foo
-            {
-                Name = 'foobar'
-                Ensure = 'absent'
-                PhysicalPath = "$env:temp\foo"
-            }
-        }
-
-        foo -OutputPath $env:temp\foo
-        Start-DscConfiguration -Path $env:temp\foo -Wait -Verbose -ErrorAction Stop} | should not throw
+        WebBindingInfo -OutputPath $env:temp\WebBindingInfo
+        Start-DscConfiguration -Path $env:temp\WebBindingInfo -Wait -Verbose -ErrorAction Stop} | should not throw
     }
 
     # Directly interacting with Cim classes is not supported by PowerShell DSC
