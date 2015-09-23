@@ -759,7 +759,7 @@ function Update-WebsiteBinding
         if($HostHeader -ne $null)
         {
             $bindingParams.Add('-HostHeader', $HostHeader)
-			$UseHostHeader = $true
+            $UseHostHeader = $true
         }
 
         if(-not [string]::IsNullOrWhiteSpace($SSLFlags))
@@ -790,7 +790,7 @@ function Update-WebsiteBinding
                 if ($UseHostHeader -eq $true)
                 {
                     $NewWebbinding = Get-WebBinding -Name $Name -Port $Port -HostHeader $HostHeader
-                    $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)                
+                    $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
                 }
                 Else{
                     $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
