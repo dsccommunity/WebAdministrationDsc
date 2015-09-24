@@ -31,10 +31,15 @@ function Get-TargetResource
         $State  = $AppPool.state
     }
 
+    $ManagedRuntimeVersion = Get-ItemProperty IIS:\AppPools\$Name managedRuntimeVersion.Value
+    $IdentityType = Get-ItemProperty IIS:\AppPools\$Name processModel.identityType
+
     $returnValue = @{
         Name   = $Name
         Ensure = $Ensure
         State  = $State
+        ManagedRuntimeVersion = $ManagedRuntimeVersion
+        IdentityType = $IdentityType
     }
 
     return $returnValue
@@ -56,7 +61,15 @@ function Set-TargetResource
 
         [ValidateSet('Started','Stopped')]
         [System.String]
-        $State = 'Started'
+        $State = "Started",
+                
+        [ValidateSet("", "v2.0","v4.0")]
+        [string]
+        $ManagedRuntimeVersion,
+
+        [ValidateSet("ApplicationPoolIdentity","LocalService","LocalSystem","NetworkService")]
+        [string]
+        $IdentityType
     )
 
     if($Ensure -eq 'Absent')
@@ -78,7 +91,22 @@ function Set-TargetResource
         {
             ExecuteRequiredState -Name $Name -State $State
         }
+
+        if($ManagedRuntimeVersion -and $AppPool.ManagedRuntimeVersion -ne $ManagedRuntimeVersion)
+        {
+            Write-Verbose("Setting managedRuntimeVersion to $ManagedRuntimeVersion")
+            Set-ItemProperty IIS:\AppPools\$Name managedRuntimeVersion $ManagedRuntimeVersion
     }
+
+        if($IdentityType -and $AppPool.ManagedRuntimeVersion -ne $IdentityType)
+        {
+            Write-Verbose("Setting processModel.IdentityType to $IdentityType")
+            
+            $propertyData = Get-ItemProperty IIS:\AppPools\$Name processModel
+            $propertyData.IdentityType = $IdentityType
+            Set-ItemProperty IIS:\AppPools\$Name processModel $propertyData
+        }
+}
 }
 
 
@@ -98,13 +126,24 @@ function Test-TargetResource
 
         [ValidateSet('Started','Stopped')]
         [System.String]
-        $State = 'Started'
+        $State = "Started",
+
+        [ValidateSet("", "v2.0","v4.0")]
+        [System.String]
+        $ManagedRuntimeVersion,
+
+        [ValidateSet("ApplicationPoolIdentity","LocalService","LocalSystem","NetworkService")]
+        [System.String]
+        $IdentityType    
     )
+
     $WebAppPool = Get-TargetResource -Name $Name
 
     if($Ensure -eq 'Present')
     {
-        if($WebAppPool.Ensure -eq $Ensure -and $WebAppPool.State -eq $state)
+        if($WebAppPool.Ensure -eq $Ensure -and $WebAppPool.State -eq $state `
+            -and (!$ManagedRuntimeVersion -or $WebAppPool.ManagedRuntimeVersion -eq $ManagedRuntimeVersion) `
+            -and (!$IdentityType -or $WebAppPool.IdentityType -eq $IdentityType))
         {
             return $true
         }
