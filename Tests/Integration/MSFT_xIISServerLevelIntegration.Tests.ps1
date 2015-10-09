@@ -308,3 +308,6 @@ Describe "xIISServerDefaults" {
         Get-ChildItem $env:temp -Filter $tempName* | Remove-item -Recurse
     }
 }
+
+# Cleanup after the test
+Remove-Item -Path $moduleRoot -Recurse -Force
