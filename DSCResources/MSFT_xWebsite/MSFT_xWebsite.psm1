@@ -294,6 +294,13 @@ function Set-TargetResource
                     $Website = New-Website @psboundparameters
                 }
                 $Result = Stop-Website $Website.name -ErrorAction Stop
+                
+                # Set website logging directory
+                Write-Verbose("Updating LogPath $LogPath");
+                if($LogPath -ne $null)
+                {
+                    Set-ItemProperty IIS:\Sites\$Name -name logFile.directory -value $LogPath
+                } 
 
                 #Clear default bindings if new bindings defined and are different
                 if($BindingInfo -ne $null)
