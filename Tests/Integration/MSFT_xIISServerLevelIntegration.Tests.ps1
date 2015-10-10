@@ -7,7 +7,41 @@
 # At this time, we don't have tests for all changable properties, but it should be easy to add more tests.
 ######################################################################################
 
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+# should check for the server OS
+if($env:APPVEYOR_BUILD_VERSION)
+{
+     Add-WindowsFeature Web-Server -Verbose
+}
+
+$DSCModuleName   = 'xWebAdministration'
+
+$moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\$DSCModuleName"
+
+if(-not (Test-Path -Path $moduleRoot))
+{
+    $null = New-Item -Path $moduleRoot -ItemType Directory
+}
+else
+{
+    # Copy the existing folder out to the temp directory to hold until the end of the run
+    # Delete the folder to remove the old files.
+    $tempLocation = Join-Path -Path $env:Temp -ChildPath $DSCModuleName
+    Copy-Item -Path $moduleRoot -Destination $tempLocation -Recurse -Force
+    Remove-Item -Path $moduleRoot -Recurse -Force
+    $null = New-Item -Path $moduleRoot -ItemType Directory
+}
+
+Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
+
+if (Get-Module -Name $DSCModuleName)
+{
+    Remove-Module -Name $DSCModuleName
+}
+
+Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadministration.psd1')) -Force
+
+# Now that xWebAdministration should be discoverable load the configuration data
+. "$PSScriptRoot\IISServerLevel_Configuration.ps1"
 
 # create a unique name that we use for our temp files and folders
 [string]$tempName = "xIISServerLevelTests_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
@@ -16,18 +50,6 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 [string]$constPsPath = 'MACHINE/WEBROOT/APPHOST'
 [string]$constAPDFilter = "system.applicationHost/applicationPools/applicationPoolDefaults"
 [string]$constSiteFilter = "system.applicationHost/sites/"
-
-$moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\xWebAdministration"
-
-if(-not (Test-Path -Path $moduleRoot))
-{
-    $null = New-Item -Path $moduleRoot -ItemType Directory
-}
-
-Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
-
-# Now that xWebAdministration should be discoverable load the configuration data
-. "$PSScriptRoot\IISServerLevel_Configuration.ps1"
 
 Describe "xIISServerDefaults" {
     Function GetSiteValue([string]$path,[string]$name)
