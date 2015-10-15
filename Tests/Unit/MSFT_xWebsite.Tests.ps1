@@ -1,4 +1,12 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$DSCResourceName = 'MSFT_xWebsite'
+
+$Splat = @{
+    Path = $PSScriptRoot
+    ChildPath = "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
+    Resolve = $true
+    ErrorAction = 'Stop'
+}
+$DSCResourceModuleFile = Get-Item -Path (Join-Path @Splat)
 
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
@@ -6,34 +14,14 @@ if($env:APPVEYOR_BUILD_VERSION)
   Add-WindowsFeature Web-Server -Verbose
 }
 
-if (! (Get-Module xDSCResourceDesigner))
+if (Get-Module -Name $DSCResourceName)
 {
-    Import-Module -Name xDSCResourceDesigner
+    Remove-Module -Name $DSCResourceName
 }
 
+Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
-Describe 'Schema Validation MSFT_xWebsite' {
-    It 'should pass Test-xDscResource' {
-        $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebsite'
-        $result = Test-xDscResource $path
-        $result | Should Be $true
-    }
-
-    It 'should pass Test-xDscResource' {
-        $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebsite\MSFT_xWebsite.schema.mof'
-        $result = Test-xDscSchema $path
-        $result | Should Be $true
-    }
-}
-
-if (Get-Module MSFT_xWebsite)
-{
-    Remove-Module MSFT_xWebsite
-}
-
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\MSFT_xWebsite\MSFT_xWebsite.psm1")
-
-InModuleScope MSFT_xWebsite {
+InModuleScope $DSCResourceName {
     Describe "how Test-TargetResource to Ensure = 'Present'" {
         $MockSite = @{
             Ensure          = 'Present'

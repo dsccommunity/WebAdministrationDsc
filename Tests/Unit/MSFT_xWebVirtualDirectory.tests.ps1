@@ -1,4 +1,12 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$DSCResourceName = 'MSFT_xWebVirtualDirectory'
+
+$Splat = @{
+    Path = $PSScriptRoot
+    ChildPath = "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
+    Resolve = $true
+    ErrorAction = 'Stop'
+}
+$DSCResourceModuleFile = Get-Item -Path (Join-Path @Splat)
 
 # should check for the server OS
 if($env:APPVEYOR_BUILD_VERSION)
@@ -6,33 +14,14 @@ if($env:APPVEYOR_BUILD_VERSION)
     Add-WindowsFeature Web-Server -Verbose
 }
 
-if (! (Get-Module xDSCResourceDesigner))
+if (Get-Module -Name $DSCResourceName)
 {
-    Import-Module -Name xDSCResourceDesigner
+    Remove-Module -Name $DSCResourceName
 }
 
-Describe 'Schema Validation MSFT_xWebVirtualDirectory' {
-    It 'should pass Test-xDscResource' {
-        $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebVirtualDirectory'
-        $result = Test-xDscResource $path
-        $result | Should Be $true
-    }
+Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
-    It 'should pass Test-xDscResource' {
-        $path = Join-Path -Path $((get-item $here).parent.FullName) -ChildPath 'DSCResources\MSFT_xWebVirtualDirectory\MSFT_xWebVirtualDirectory.schema.mof'
-        $result = Test-xDscSchema $path
-        $result | Should Be $true
-    }
-}
-
-if (Get-Module MSFT_xWebVirtualDirectory)
-{
-    Remove-Module MSFT_xWebVirtualDirectory
-}
-
-Import-Module (Join-Path $here -ChildPath '..\DSCResources\MSFT_xWebVirtualDirectory\MSFT_xWebVirtualDirectory.psm1')
-
-InModuleScope MSFT_xWebVirtualDirectory {
+InModuleScope $DSCResourceName {
     Describe 'Test-TargetResource' {
         $MockSite = @{
             Website        = 'contoso.com'

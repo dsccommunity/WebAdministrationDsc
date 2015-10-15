@@ -402,7 +402,9 @@ function Test-TargetResource
         Throw 'Please ensure that WebAdministration module is installed.'
     }
 
-    $Website = Get-Website -Name $Name
+    $Website = Get-Website | Where-Object -FilterScript {
+        $_.Name -eq $Name
+    }
     $Stop = $true
 
     Do
