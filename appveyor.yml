@@ -13,9 +13,8 @@ install:
   - ps: Pop-Location
   - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
   - git clone -q https://github.com/appveyor/ci.git
-  - ps: |
-   $blockRdp = $true;
-   .\ci\scripts\enable-rdp.ps1
+  - ps: $blockRdp = $true
+  - ps: .\ci\scripts\enable-rdp.ps1
 
 #---------------------------------#
 #      build configuration        #
