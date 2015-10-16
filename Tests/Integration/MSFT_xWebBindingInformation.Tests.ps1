@@ -32,9 +32,9 @@ if (Get-Module -Name $DSCModuleName -All)
 Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadministration.psd1')) -Force
 
 # Displaying all versions of xWebAdministration to fix #42
-if($env:APPVEYOR_BUILD_VERSION) {
-    Get-DscResource -Module 'xWebAdministration' | fl
-}
+# if($env:APPVEYOR_BUILD_VERSION) {
+#     Get-DscResource -Module 'xWebAdministration' | fl
+# }
 
 # Now that xWebAdministration should be discoverable load the configuration data
 . "$PSScriptRoot\WebBindingInformation_Config.ps1"

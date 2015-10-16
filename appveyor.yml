@@ -2,7 +2,7 @@
 #      environment configuration  #
 #---------------------------------#
 # This is necessary to use WMF5
-os: unstable
+# os: unstable
 version: 1.7.{build}.0
 install:
   - cinst -y pester
