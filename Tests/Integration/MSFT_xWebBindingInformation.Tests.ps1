@@ -34,12 +34,12 @@ else
 
 Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
 
-if (Get-Module -Name $DSCResourceName)
+if (Get-Module -Name $DSCResourceName -All)
 {
-    Remove-Module -Name $DSCResourceName
+    Get-Module -Name $DSCResourceName -All | Remove-Module
 }
 
-Import-Module -Name $DSCResourceModuleFile.FullName -Force
+Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadministration.psd1')) -Force
 
 # Now that xWebAdministration should be discoverable load the configuration data
 . "$PSScriptRoot\WebBindingInformation_Config.ps1"

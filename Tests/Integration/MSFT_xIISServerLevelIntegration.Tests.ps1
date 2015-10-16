@@ -13,7 +13,7 @@ if($env:APPVEYOR_BUILD_VERSION)
      Add-WindowsFeature Web-Server -Verbose
 }
 
-$DSCModuleName   = 'xWebAdministration'
+$DSCModuleName  = 'xWebAdministration'
 
 $moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\$DSCModuleName"
 
@@ -33,9 +33,9 @@ else
 
 Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
 
-if (Get-Module -Name $DSCModuleName)
+if (Get-Module -Name $DSCModuleName -All)
 {
-    Remove-Module -Name $DSCModuleName
+    Get-Module -Name $DSCModuleName -All | Remove-Module
 }
 
 Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadministration.psd1')) -Force
