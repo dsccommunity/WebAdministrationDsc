@@ -4,17 +4,7 @@ if($env:APPVEYOR_BUILD_VERSION)
      Add-WindowsFeature Web-Server -Verbose
 }
 
-$DSCResourceName = 'MSFT_xWebsite'
 $DSCModuleName   = 'xWebAdministration'
-
-$Splat = @{
-    Path = $PSScriptRoot
-    ChildPath = "..\..\DSCResources\$DSCResourceName\$DSCResourceName.psm1"
-    Resolve = $true
-    ErrorAction = 'Stop'
-}
-
-$DSCResourceModuleFile = Get-Item -Path (Join-Path @Splat)
 
 $moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\$DSCModuleName"
 
@@ -34,12 +24,17 @@ else
 
 Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
 
-if (Get-Module -Name $DSCResourceName -All)
+if (Get-Module -Name $DSCModuleName -All)
 {
-    Get-Module -Name $DSCResourceName -All | Remove-Module
+    Get-Module -Name $DSCModuleName -All | Remove-Module
 }
 
 Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadministration.psd1')) -Force
+
+# Displaying all versions of xWebAdministration to fix #42
+if($env:APPVEYOR_BUILD_VERSION) {
+    Get-DscResource -Module 'xWebAdministration' | fl
+}
 
 # Now that xWebAdministration should be discoverable load the configuration data
 . "$PSScriptRoot\WebBindingInformation_Config.ps1"

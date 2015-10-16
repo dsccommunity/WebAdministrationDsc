@@ -40,6 +40,8 @@ if (Get-Module -Name $DSCModuleName -All)
 
 Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadministration.psd1')) -Force
 
+Get-DscResource -Module 'xWebAdministration' | fl
+
 # Now that xWebAdministration should be discoverable load the configuration data
 . "$PSScriptRoot\IISServerLevel_Configuration.ps1"
 
