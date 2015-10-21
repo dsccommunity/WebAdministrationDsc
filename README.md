@@ -66,6 +66,7 @@ Currently, only FastCgiModule is supported.
 ### Unreleased
 * Added Tests to xWebVirtualDirectory
 * Modified xWebsite to allow Server Name Indication when specifiying SSL certificates.
+* Fixed xWebsite to set the site logging directory when creating a new site
 
 ### 1.7.0.0
 
