@@ -64,8 +64,16 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
-* Added Tests to xWebVirtualDirectory
 * Modified xWebsite to allow Server Name Indication when specifiying SSL certificates.
+* Change Test Get-Website to match other function
+* Removed xDscResourceDesigner tests
+* Suppress extra verbose messages when -verbose is specified to Start-DscConfiguration
+* Moved tests into child folders Unit and Integration
+* Added PSDesiredStateConfiguration to Import-DscResource statement
+* Fixed issue where Set-TargetResource was being run unexpectedly
+* Added Tests to MSFT_xWebVirtualDirectory
+* xWebsite tests updates
+* xWebVirtualDirectory tests updates
 
 ### 1.7.0.0
 
