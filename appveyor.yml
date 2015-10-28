@@ -16,6 +16,7 @@ install:
   - ps: $blockRdp = $true
   - ps: .\ci\scripts\enable-rdp.ps1
 
+
 #---------------------------------#
 #      build configuration        #
 #---------------------------------#
