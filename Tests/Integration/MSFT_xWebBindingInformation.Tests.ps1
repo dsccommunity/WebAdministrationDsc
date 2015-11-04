@@ -35,11 +35,7 @@ Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadmi
 if (($env:PSModulePath).Split(';') -ccontains $pwd.Path)
 {
     $script:tempPath = $env:PSModulePath
-    $modulePaths = @(
-        "${env:ProgramFiles}\WindowsPowerShell\Modules"
-        Join-Path -Path $pshome -ChildPath Modules
-    )
-    $env:PSModulePath = $modulePaths -join ';'
+    $env:PSModulePath = $env:PSModulePath -split ';' | Where-Object {$_ -ne $pwd.path}
 }
 
 try {
