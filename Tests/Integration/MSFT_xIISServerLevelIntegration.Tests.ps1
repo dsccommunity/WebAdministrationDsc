@@ -47,6 +47,7 @@ if (($env:PSModulePath).Split(';') -ccontains $pwd.Path)
 }
 
 try {
+    $breakvar = $true;
     # Now that xWebAdministration should be discoverable load the configuration data
     . "$PSScriptRoot\IISServerLevel_Configuration.ps1"
 
