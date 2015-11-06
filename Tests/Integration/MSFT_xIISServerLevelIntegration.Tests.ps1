@@ -43,7 +43,7 @@ Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath 'xWebadmi
 if (($env:PSModulePath).Split(';') -ccontains $pwd.Path)
 {
     $script:tempPath = $env:PSModulePath
-    $env:PSModulePath = $env:PSModulePath -split ';' | Where-Object {$_ -ne $pwd.path}
+    $env:PSModulePath = ($env:PSModulePath -split ';' | Where-Object {$_ -ne $pwd.path}) -join ';'
 }
 
 try {
