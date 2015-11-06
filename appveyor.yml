@@ -12,9 +12,6 @@ install:
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location
   - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
-  - git clone -q https://github.com/appveyor/ci.git
-  - ps: $blockRdp = $true
-  - ps: .\ci\scripts\enable-rdp.ps1
 
 #---------------------------------#
 #      build configuration        #
@@ -64,4 +61,3 @@ before_deploy:
           Write-Host "Pushing package $_ as Appveyor artifact"
           Push-AppveyorArtifact $_
         }
-
