@@ -7,10 +7,20 @@
 # At this time, we don't have tests for all changable properties, but it should be easy to add more tests.
 ######################################################################################
 
-# should check for the server OS
-if($env:APPVEYOR_BUILD_VERSION)
+# Check if WebServer is Installed
+if (@(Get-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer' `
+    | Where-Object -Property State -eq 'Disabled').Count -gt 0)
 {
-     Add-WindowsFeature Web-Server -Verbose
+    if ((Get-CimInstance Win32_OperatingSystem).ProductType -eq 1)
+    {
+        # Desktop OS
+        Enable-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer'
+    }
+    else
+    {
+        # Server OS
+        Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+    }
 }
 
 $DSCModuleName  = 'xWebAdministration'

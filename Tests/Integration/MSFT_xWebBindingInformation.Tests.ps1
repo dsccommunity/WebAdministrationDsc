@@ -1,10 +1,20 @@
-﻿# should check for the server OS
-if($env:APPVEYOR_BUILD_VERSION)
+﻿# Check if WebServer is Installed
+if (@(Get-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer' `
+    | Where-Object -Property State -eq 'Disabled').Count -gt 0)
 {
-     Add-WindowsFeature Web-Server -Verbose
+    if ((Get-CimInstance Win32_OperatingSystem).ProductType -eq 1)
+    {
+        # Desktop OS
+        Enable-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer'
+    }
+    else
+    {
+        # Server OS
+        Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+    }
 }
 
-$DSCModuleName   = 'xWebAdministration'
+$DSCModuleName = 'xWebAdministration'
 
 $moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\$DSCModuleName"
 
@@ -45,7 +55,8 @@ if ($executionPolicy -ne 'Unrestricted')
     $rollbackExecution = $true
 }
 
-try {
+try
+{
     # Now that xWebAdministration should be discoverable load the configuration data
     . "$PSScriptRoot\WebBindingInformation_Config.ps1"
 
@@ -57,15 +68,16 @@ try {
             $resources.count | should be 1
         }
 
-        It 'Should compile and run without throwing' -test {
+        It 'Should compile and run without throwing' -Test {
             {
-            # Force Cim Classes to register
-            # Update the system environment path so that LCM will load the module
-            # Requires WMF 5
-            [System.Environment]::SetEnvironmentVariable('PSModulePath',$env:PSModulePath,[System.EnvironmentVariableTarget]::Machine)
+                # Force Cim Classes to register
+                # Update the system environment path so that LCM will load the module
+                # Requires WMF 5
+                [System.Environment]::SetEnvironmentVariable('PSModulePath',$env:PSModulePath,[System.EnvironmentVariableTarget]::Machine)
 
-            WebBindingInfo -OutputPath $env:temp\WebBindingInfo
-            Start-DscConfiguration -Path $env:temp\WebBindingInfo -Wait -Verbose -ErrorAction Stop} | should not throw
+                WebBindingInfo -OutputPath $env:temp\WebBindingInfo
+                Start-DscConfiguration -Path $env:temp\WebBindingInfo -Wait -Verbose -ErrorAction Stop
+            } | should not throw
         }
 
         # Directly interacting with Cim classes is not supported by PowerShell DSC
@@ -73,7 +85,9 @@ try {
         # do this in actual resource code
         $xWebBindingInforationClass = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation')
         $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
-        foreach ($storeName in $storeNames){
+
+        foreach ($storeName in $storeNames)
+        {
             It "Uses valid credential store: $storeName" {
                 (Join-Path -Path Cert:\LocalMachine -ChildPath $storeName) | Should Exist
             }
@@ -83,8 +97,8 @@ try {
     # Cleanup after the test
     Remove-Item -Path $moduleRoot -Recurse -Force
 }
-finally {
-
+finally
+{
     if ($rollbackExecution)
     {
         Set-ExecutionPolicy -ExecutionPolicy $executionPolicy -Force
