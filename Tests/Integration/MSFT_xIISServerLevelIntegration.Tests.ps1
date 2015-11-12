@@ -101,30 +101,31 @@ try
         Backup-WebConfiguration -Name $tempName
 
         It 'Changing ManagedRuntimeVersion ' -test {
-        {
-            # get the current value
-            [string]$originalValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter -name managedRuntimeVersion)
-
-            # We are using environment variables here, because a inline PowerShell variable was empty after executing  Start-DscConfiguration
-
-            # change the value to something else
-            if ($originalValue -eq "v4.0")
             {
-                $env:PesterManagedRuntimeVersion =  "v2.0"
-            }
-            else
-            {
-                $env:PesterManagedRuntimeVersion =  "v4.0"
-            }
+                # get the current value
+                [string]$originalValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter -name managedRuntimeVersion)
 
-            # define the configuration
-            # we need to set the PSModulePath once more to get this to work in AppVevor to find our resources
-            [System.Environment]::SetEnvironmentVariable('PSModulePath',$env:PSModulePath,[System.EnvironmentVariableTarget]::Machine)
+                # We are using environment variables here, because a inline PowerShell variable was empty after executing  Start-DscConfiguration
 
-            # execute the configuration into a temp location
-            ManagedRuntimeVersion -OutputPath $env:temp\$($tempName)_ManagedRuntimeVersion
-            # run the configuration, it should not throw any errors
-            Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
+                # change the value to something else
+                if ($originalValue -eq "v4.0")
+                {
+                    $env:PesterManagedRuntimeVersion =  "v2.0"
+                }
+                else
+                {
+                    $env:PesterManagedRuntimeVersion =  "v4.0"
+                }
+
+                # define the configuration
+                # we need to set the PSModulePath once more to get this to work in AppVevor to find our resources
+                [System.Environment]::SetEnvironmentVariable('PSModulePath',$env:PSModulePath,[System.EnvironmentVariableTarget]::Machine)
+
+                # execute the configuration into a temp location
+                ManagedRuntimeVersion -OutputPath $env:temp\$($tempName)_ManagedRuntimeVersion
+                # run the configuration, it should not throw any errors
+                Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait -Verbose -ErrorAction Stop -Force
+            }  | should not throw
 
             # get the configured value again
             $changedValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter -name managedRuntimeVersion).Value
@@ -134,10 +135,11 @@ try
         }
 
 
-        It 'Invalid ManagedRuntimeVersion ' -test  {
-        {
-            InvalidManagedRuntimeVersion -OutputPath $env:temp\$($tempName)_InvalidManagedRuntimeVersion
-            Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait  -Verbose -ErrorAction Stop -Force}  | should throw
+        It 'Invalid ManagedRuntimeVersion ' -Test {
+            {
+                InvalidManagedRuntimeVersion -OutputPath $env:temp\$($tempName)_InvalidManagedRuntimeVersion
+                Start-DscConfiguration -Path $env:temp\$($tempName)_ManagedRuntimeVersion -Wait -Verbose -ErrorAction Stop -Force
+            }  | should throw
         }
 
         It 'Changing IdentityType' -test  {
