@@ -38,6 +38,13 @@ if (($env:PSModulePath).Split(';') -ccontains $pwd.Path)
     $env:PSModulePath = ($env:PSModulePath -split ';' | Where-Object {$_ -ne $pwd.path}) -join ';'
 }
 
+$executionPolicy = Get-ExecutionPolicy
+if ($executionPolicy -ne 'Unrestricted')
+{
+    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+    $rollbackExecution = $true
+}
+
 try {
     # Now that xWebAdministration should be discoverable load the configuration data
     . "$PSScriptRoot\WebBindingInformation_Config.ps1"
@@ -77,6 +84,12 @@ try {
     Remove-Item -Path $moduleRoot -Recurse -Force
 }
 finally {
+
+    if ($rollbackExecution)
+    {
+        Set-ExecutionPolicy -ExecutionPolicy $executionPolicy -Force
+    }
+
     if ($script:tempPath) {
         $env:PSModulePath = $script:tempPath
     }
