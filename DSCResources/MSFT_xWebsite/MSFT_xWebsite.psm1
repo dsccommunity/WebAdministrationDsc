@@ -893,5 +893,4 @@ function Write-Log
         "${date}: $message" | Out-File -Append -FilePath $filename
     }
 }
-
 #endregion
