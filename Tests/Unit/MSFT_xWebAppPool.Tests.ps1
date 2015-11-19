@@ -7,7 +7,7 @@ if(!(Get-WindowsFeature web-server).Installed)
   Add-WindowsFeature Web-Server -Verbose
 }
 
-Import-Module (Join-Path $here -ChildPath "..\DSCResources\$ModuleName\$ModuleName.psm1")
+Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\$ModuleName\$ModuleName.psm1")
 
 if (! (Get-Module xDSCResourceDesigner))
 {
