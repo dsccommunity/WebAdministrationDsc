@@ -1,6 +1,6 @@
 data LocalizedData
 {
-    # culture="en-US"
+    # culture="en-US" 
     ConvertFrom-StringData @'
 SetTargetResourceInstallwhatIfMessage=Trying to create AppPool "{0}".
 SetTargetResourceUnInstallwhatIfMessage=Trying to remove AppPool "{0}".
