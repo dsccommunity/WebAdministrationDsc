@@ -9,6 +9,11 @@ configuration Sample_xWebsite_NewWebsite
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String]$WebSiteName,
+        
+        # Name of the app pool
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$AppPoolName,
 
         # Source Path for Website content
         [Parameter(Mandatory)]
@@ -61,6 +66,19 @@ configuration Sample_xWebsite_NewWebsite
             DependsOn       = '[WindowsFeature]AspNet45'
         }       
 
+        # Create the new AppPool
+        xWebAppPool NewAppPool
+        {
+            Name = $AppPoolName
+            Ensure = "Present"
+            autoStart = "true"  
+            managedRuntimeVersion = "v4.0"
+            managedPipelineMode = "Integrated"
+            startMode = "AlwaysRunning"
+            identityType = "ApplicationPoolIdentity"
+            restartSchedule = @("18:30:00","05:00:00")
+        }
+        
         # Create the new Website
         xWebsite NewWebsite
         {
