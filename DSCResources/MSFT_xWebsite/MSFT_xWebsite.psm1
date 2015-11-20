@@ -718,6 +718,9 @@ function Update-WebsiteBinding
     #Need to clear the bindings before we can create new ones
     Clear-ItemProperty -Path IIS:\Sites\$Name -Name bindings -ErrorAction Stop
 
+    #Need to clear $UseHostheader flag for multiple ssl bindings per site
+    $UseHostHeader = $false
+
     foreach($binding in $BindingInfo)
     {
         $Protocol = $binding.CimInstanceProperties['Protocol'].Value
@@ -756,6 +759,7 @@ function Update-WebsiteBinding
         if($HostHeader -ne $null)
         {
             $bindingParams.Add('-HostHeader', $HostHeader)
+            $UseHostHeader = $true
         }
 
         if(-not [string]::IsNullOrWhiteSpace($SSLFlags))
@@ -783,8 +787,15 @@ function Update-WebsiteBinding
         {
             if ( -not [string]::IsNullOrWhiteSpace($CertificateThumbprint) )
             {
-                $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
-                $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
+                if ($UseHostHeader -eq $true)
+                {
+                    $NewWebbinding = Get-WebBinding -Name $Name -Port $Port -HostHeader $HostHeader
+                    $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
+                }
+                Else{
+                    $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
+                    $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
+                }
             }
         }
         catch
@@ -882,5 +893,4 @@ function Write-Log
         "${date}: $message" | Out-File -Append -FilePath $filename
     }
 }
-
 #endregion

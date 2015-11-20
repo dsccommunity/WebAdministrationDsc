@@ -21,6 +21,15 @@ if (Get-Module -Name $DSCResourceName)
 
 Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
+$moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\xWebAdministration"
+
+if(-not (Test-Path -Path $moduleRoot))
+{
+    $null = New-Item -Path $moduleRoot -ItemType Directory
+}
+
+Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
+
 InModuleScope $DSCResourceName {
     Describe "how Test-TargetResource to Ensure = 'Present'" {
         $MockSite = @{
@@ -1276,3 +1285,6 @@ InModuleScope $DSCResourceName {
         }
     }
 }
+
+# Cleanup after the test
+Remove-Item -Path $moduleRoot -Recurse -Force
