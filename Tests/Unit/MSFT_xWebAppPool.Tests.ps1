@@ -1,27 +1,84 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Check if WebServer is Installed
+if (@(Get-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer' `
+    | Where-Object -Property State -eq 'Disabled').Count -gt 0)
+{
+    if ((Get-CimInstance Win32_OperatingSystem).ProductType -eq 1)
+    {
+        # Desktop OS
+        Enable-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer'
+    }
+    else
+    {
+        # Server OS
+        Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+    }
+}
+
+$DSCModuleName  = 'xWebAdministration'
+
+$moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\$DSCModuleName"
+
+if(-not (Test-Path -Path $moduleRoot))
+{
+    $null = New-Item -Path $moduleRoot -ItemType Directory
+}
+else
+{
+    # Copy the existing folder out to the temp directory to hold until the end of the run
+    # Delete the folder to remove the old files.
+    $tempLocation = Join-Path -Path $env:Temp -ChildPath $DSCModuleName
+    Copy-Item -Path $moduleRoot -Destination $tempLocation -Recurse -Force
+    Remove-Item -Path $moduleRoot -Recurse -Force
+    $null = New-Item -Path $moduleRoot -ItemType Directory
+}
+
+Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
+
+if (Get-Module -Name $DSCModuleName -All)
+{
+    Get-Module -Name $DSCModuleName -All | Remove-Module
+}
+
+Import-Module -Name $(Get-Item -Path (Join-Path $moduleRoot -ChildPath "$DSCModuleName.psd1")) -Force
+
+if (($env:PSModulePath).Split(';') -ccontains $pwd.Path)
+{
+    $script:tempPath = $env:PSModulePath
+    $env:PSModulePath = ($env:PSModulePath -split ';' | Where-Object {$_ -ne $pwd.path}) -join ';'
+}
+
+
+$executionPolicy = Get-ExecutionPolicy
+if ($executionPolicy -ne 'Unrestricted')
+{
+    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+    $rollbackExecution = $true
+}
+
+#$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ModuleName = "MSFT_xWebAppPool"
 
 # Add web server if not already installed
-if(!(Get-WindowsFeature web-server).Installed)
-{
-  Add-WindowsFeature Web-Server -Verbose
-}
+#if(!(Get-WindowsFeature web-server).Installed)
+#{
+#  Add-WindowsFeature Web-Server -Verbose
+#}
 
-Import-Module (Join-Path $here -ChildPath "..\..\DSCResources\$ModuleName\$ModuleName.psm1")
+Import-Module (Join-Path $moduleRoot -ChildPath "DSCResources\$ModuleName\$ModuleName.psm1")
 
-if (! (Get-Module xDSCResourceDesigner))
-{
-    Import-Module -Name xDSCResourceDesigner
-}
+#if (! (Get-Module xDSCResourceDesigner))
+#{
+#    Import-Module -Name xDSCResourceDesigner
+#}
 
-if (! (Get-Module WebAdministration))
-{
-    Import-Module -Name WebAdministration
-}
+#if (! (Get-Module WebAdministration))
+#{
+#    Import-Module -Name WebAdministration
+#}
 
 Describe "MSFT_xWebAppPool"{
     InModuleScope $ModuleName {
-
+    #InModuleScope $DSCModuleName{
         Function TestTargetResourceSame
         {
             <#
@@ -53,8 +110,8 @@ Describe "MSFT_xWebAppPool"{
             $testParams.Add($option,$curVal)
 
             #need to explicitly set it to the current value.  This "resets" all the values so the previous tests don't interfere with this one
-            Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
-
+            #Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
+            Mock Invoke-AppCmd {return $testParams}
             Test-TargetResource @testParams
             Return 
         }
@@ -91,10 +148,15 @@ Describe "MSFT_xWebAppPool"{
                 Name = "PesterAppPool"
                 Ensure = "Present"
             }
-            
+            $failParams =@{
+                Name = "PesterAppPool"
+                Ensure = "Present"
+            }
+            $failParams.Add($option,$value2)
             $testParams.Add($option,$value1)
-            Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
-            $testParams.$option = $value2
+            #Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
+            Mock Invoke-AppCmd {return $failParams}
+            #$testParams.$option = $value2
             Test-TargetResource @testParams
             Return 
         }
@@ -157,10 +219,10 @@ Describe "MSFT_xWebAppPool"{
                 Ensure = "Present"
             }
 
-            It 'Should pass Test-xDscResource Schema Validation' {
-                $result = Test-xDscResource MSFT_xWebAppPool
-                $result | Should Be $true
-            }
+            #It 'Should pass Test-xDscResource Schema Validation' {
+            #    $result = Test-xDscResource MSFT_xWebAppPool
+            #    $result | Should Be $true
+            #}
 
             It 'Should create a new App Pool' {           
                 $testParams =@{
@@ -179,13 +241,14 @@ Describe "MSFT_xWebAppPool"{
             }
             
             Context 'Test-TargetResource' {
-                It 'Passes test when App Pool does exist'{
+                It 'Passes test when App Pool does exist and has correct Name'{
                     $testParams =@{
                         Name = "PesterAppPool"
                         Ensure = "Present"
                     }
 
                     Test-TargetResource @testParams | Should be $true
+                    
                 }
                 
                 It 'Passes autoStart Test when same' {
@@ -842,6 +905,15 @@ Describe "MSFT_xWebAppPool"{
             if((Get-ChildItem IIS:\apppools).Name.Contains('PesterAppPool'))
             {
                 Remove-WebAppPool -Name 'PesterAppPool' -ErrorAction Stop
+            }
+            
+            if ($rollbackExecution)
+            {
+                Set-ExecutionPolicy -ExecutionPolicy $executionPolicy -Force
+            }
+
+            if ($script:tempPath) {
+                $env:PSModulePath = $script:tempPath
             }
         }        
     }

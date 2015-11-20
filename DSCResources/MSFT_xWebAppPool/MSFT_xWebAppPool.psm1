@@ -14,6 +14,24 @@ AppPoolStateFailureError=Failure to successfully set the state of the AppPool {0
 '@
 }
 
+function Invoke-AppCmd
+{
+    param
+    (
+        [string[]] $Arguments,
+        [string] $Path = "$env:SystemRoot\system32\inetsrv\appcmd.exe"
+    )
+
+    if (Test-Path $Path)
+    {
+        & $Path $Arguments
+    }
+    else
+    {
+        throw "$Path does not exist"
+    }
+}
+
 # The Get-TargetResource cmdlet is used to fetch the status of role or AppPool on the target machine.
 # It gives the AppPool info of the requested role/feature on the target machine.  
 function Get-TargetResource 
@@ -34,8 +52,9 @@ function Get-TargetResource
             Throw "Please ensure that WebAdministration module is installed."
         }
 
-        $AppPools = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
-
+        #$AppPools = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+        $AppPools = Invoke-AppCmd -Arguments list,apppool,$Name
+         
         if ($AppPools.count -eq 0) # No AppPool exists with this name.
         {
             $ensureResult = "Absent";
@@ -43,9 +62,11 @@ function Get-TargetResource
         elseif ($AppPools.count -eq 1) # A single AppPool exists with this name.
         {
             $ensureResult = "Present"
-             $AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
-            [xml] $PoolConfig
-            $PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
+             #$AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
+             $AppPoolState = Invoke-AppCmd -Arguments list,apppool,$Name,/text:state 
+             [xml] $PoolConfig
+            #$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
+            $PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
             if($PoolConfig.add.processModel.userName){
                 $AppPoolPassword = $PoolConfig.add.processModel.password | ConvertTo-SecureString -AsPlainText -Force
                 $AppPoolCred = new-object -typename System.Management.Automation.PSCredential -argumentlist $PoolConfig.add.processModel.userName,$AppPoolPassword
@@ -275,8 +296,9 @@ function Set-TargetResource
             Throw "Please ensure that WebAdministration module is installed."
         }
 
-        $AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
-
+        #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+        $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
+        
         if($AppPool -eq $null) #AppPool doesn't exist so create a new one
         {
             try
@@ -295,7 +317,8 @@ function Set-TargetResource
 
                 Write-Verbose("successfully started AppPool $Name")
 
-                $AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+                #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+                $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
             }
             catch
             {
@@ -317,23 +340,27 @@ function Set-TargetResource
 
             #get configuration of AppPool
             #[xml] $PoolConfig
-            [xml]$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
+            #[xml]$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
+            [xml]$PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
 
             #Update autoStart if required
             if($PoolConfig.add.autoStart -ne $autoStart){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /autoStart:$autoStart
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /autoStart:$autoStart
+                Invoke-AppCmd -Arguments set,apppool,$Name,/autoStart:$autoStart
             }
 
             #update managedRuntimeVersion if required
             if($PoolConfig.add.managedRuntimeVersion -ne $managedRuntimeVersion){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedRuntimeVersion:$managedRuntimeVersion
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedRuntimeVersion:$managedRuntimeVersion
+                Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeVersion:$managedRuntimeVersion
             }
             #update managedPipelineMode if required
             if($PoolConfig.add.managedPipelineMode -ne $managedPipelineMode){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedPipelineMode:$managedPipelineMode
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedPipelineMode:$managedPipelineMode
+                Invoke-AppCmd -Arguments set,apppool,$Name,/managedPipelineMode:$managedPipelineMode
             }
             #update state if required
             if($AppPoolState -ne $state){
@@ -350,24 +377,28 @@ function Set-TargetResource
             #update startMode if required
             if($PoolConfig.add.startMode -ne $startMode){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /startMode:$startMode
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /startMode:$startMode
+                Invoke-AppCmd -Arguments set,apppool,$Name,/startMode:$startMode
             }
             #update identityType if required
             if($PoolConfig.add.processModel.identityType -ne $identityType){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.identityType:$identityType
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.identityType:$identityType
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.identityType:$identityType
             }
             #update userName if required
             if($identityType -eq "SpecificUser" -and $PoolConfig.add.processModel.userName -ne $userName){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.userName:$userName
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.userName:$userName
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.userName:$userName
             }
             #update password if required
             if($identityType -eq "SpecificUser" -and $Password){
                 $clearTextPassword = $Password.GetNetworkCredential().Password
                 if($clearTextPassword -cne $PoolConfig.add.processModel.password){
                     $UpdateNotRequired = $false
-                    & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.password:$clearTextPassword
+                    #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.password:$clearTextPassword
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.password:$clearTextPassword
                 }
 
             }
@@ -375,241 +406,281 @@ function Set-TargetResource
             #update loadUserProfile if required
             if($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.loadUserProfile:$loadUserProfile
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.loadUserProfile:$loadUserProfile
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.loadUserProfile:$loadUserProfile
             }
 
             #update queueLength if required
             if($PoolConfig.add.queueLength -ne $queueLength){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /queueLength:$queueLength
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /queueLength:$queueLength
+                Invoke-AppCmd -Arguments set,apppool,$Name,/queueLength:$queueLength
             }
 
             #update enable32BitAppOnWin64 if required
             if($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enable32BitAppOnWin64:$enable32BitAppOnWin64
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enable32BitAppOnWin64:$enable32BitAppOnWin64
+                Invoke-AppCmd -Arguments set,apppool,$Name,/enable32BitAppOnWin64:$enable32BitAppOnWin64
             }
             
             #update managedRuntimeLoader if required
             if($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedRuntimeLoader:$managedRuntimeLoader
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedRuntimeLoader:$managedRuntimeLoader
+                Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeLoader:$managedRuntimeLoader
             }
             
             #update enableConfigurationOverride if required
             if($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enableConfigurationOverride:$enableConfigurationOverride
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enableConfigurationOverride:$enableConfigurationOverride
+                Invoke-AppCmd -Arguments set,apppool,$Name,/enableConfigurationOverride:$enableConfigurationOverride
             }
             
             #update CLRConfigFile if required
             if($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /CLRConfigFile:$CLRConfigFile
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /CLRConfigFile:$CLRConfigFile
+                Invoke-AppCmd -Arguments set,apppool,$Name,/CLRConfigFile:$CLRConfigFile
             }
             
             #update passAnonymousToken if required
             if($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /passAnonymousToken:$passAnonymousToken
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /passAnonymousToken:$passAnonymousToken
+                Invoke-AppCmd -Arguments set,apppool,$Name,/passAnonymousToken:$passAnonymousToken
             }
 
             #update logonType if required
             if($PoolConfig.add.processModel.logonType -ne $logonType){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.logonType:$logonType
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.logonType:$logonType
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.logonType:$logonType
             }
 
             #update manualGroupMembership if required
             if($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.manualGroupMembership:$manualGroupMembership
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.manualGroupMembership:$manualGroupMembership
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.manualGroupMembership:$manualGroupMembership
             }
 
             #update idleTimeout if required
             if($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.idleTimeout:$idleTimeout
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.idleTimeout:$idleTimeout
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.idleTimeout:$idleTimeout
             }
 
             #update maxProcesses if required
             if($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.maxProcesses:$maxProcesses
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.maxProcesses:$maxProcesses
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.maxProcesses:$maxProcesses
             }
 
             #update shutdownTimeLimit if required
             if($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.shutdownTimeLimit:$shutdownTimeLimit
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.shutdownTimeLimit:$shutdownTimeLimit
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.shutdownTimeLimit:$shutdownTimeLimit
             }
 
             #update startupTimeLimit if required
             if($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.startupTimeLimit:$startupTimeLimit
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.startupTimeLimit:$startupTimeLimit
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.startupTimeLimit:$startupTimeLimit
             }
 
             #update pingingEnabled if required
             if($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingingEnabled:$pingingEnabled
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingingEnabled:$pingingEnabled
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingingEnabled:$pingingEnabled
             }
 
             #update pingInterval if required
             if($PoolConfig.add.processModel.pingInterval -ne $pingInterval){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingInterval:$pingInterval
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingInterval:$pingInterval
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingInterval:$pingInterval
             }
 
             #update pingResponseTime if required
             if($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingResponseTime:$pingResponseTime
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingResponseTime:$pingResponseTime
+                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingResponseTime:$pingResponseTime
             }
 
             #update disallowOverlappingRotation if required
             if($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.disallowOverlappingRotation:$disallowOverlappingRotation
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.disallowOverlappingRotation:$disallowOverlappingRotation
+                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowOverlappingRotation:$disallowOverlappingRotation
             }
 
             #update disallowRotationOnConfigChange if required
             if($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.disallowRotationOnConfigChange:$disallowRotationOnConfigChange
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.disallowRotationOnConfigChange:$disallowRotationOnConfigChange
+                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowRotationOnConfigChange:$disallowRotationOnConfigChange
             }
 
             #update logEventOnRecycle if required
             if($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.logEventOnRecycle:$logEventOnRecycle
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.logEventOnRecycle:$logEventOnRecycle
+                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.logEventOnRecycle:$logEventOnRecycle
             }
 
             #update restartMemoryLimit if required
             if($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.memory:$restartMemoryLimit
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.memory:$restartMemoryLimit
+                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.memory:$restartMemoryLimit
             }
 
             #update restartPrivateMemoryLimit if required
             if($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.privateMemory:$restartPrivateMemoryLimit
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.privateMemory:$restartPrivateMemoryLimit
+                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.privateMemory:$restartPrivateMemoryLimit
             }
 
             #update restartRequestsLimit if required
             if($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.requests:$restartRequestsLimit
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.requests:$restartRequestsLimit
+                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.requests:$restartRequestsLimit
             }
 
             #update restartTimeLimit if required
             if($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.time:$restartTimeLimit
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.time:$restartTimeLimit
+                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.time:$restartTimeLimit
             }
 
             #update restartSchedule if required
             #clear current schedule
             foreach($schTime in $PoolConfig.add.recycling.periodicRestart.schedule.add.value)
             {
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/-recycling.periodicRestart.schedule.[value='$schTime']"
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/-recycling.periodicRestart.schedule.[value='$schTime']"
+                Invoke-AppCmd -Arguments set,apppool,$Name,"/-recycling.periodicRestart.schedule.[value='$schTime']"
             }
             #add desired schedule
             foreach($time in $restartSchedule)
             {
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/+recycling.periodicRestart.schedule.[value='$time']"                
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/+recycling.periodicRestart.schedule.[value='$time']"                
+                Invoke-AppCmd -Arguments set,apppool,$Name,"/+recycling.periodicRestart.schedule.[value='$time']"                
             }
             
             #update loadBalancerCapabilities if required
             if($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.loadBalancerCapabilities:$loadBalancerCapabilities
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.loadBalancerCapabilities:$loadBalancerCapabilities
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.loadBalancerCapabilities:$loadBalancerCapabilities
             }
 
             #update orphanWorkerProcess if required
             if($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanWorkerProcess:$orphanWorkerProcess
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanWorkerProcess:$orphanWorkerProcess
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanWorkerProcess:$orphanWorkerProcess
             }
 
             #update orphanActionExe if required
             if($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanActionExe:$orphanActionExe
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanActionExe:$orphanActionExe
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionExe:$orphanActionExe
             }
 
             #update orphanActionParams if required
             if($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanActionParams:$orphanActionParams
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanActionParams:$orphanActionParams
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionParams:$orphanActionParams
             }
 
             #update rapidFailProtection if required
             if($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtection:$rapidFailProtection
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtection:$rapidFailProtection
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtection:$rapidFailProtection
             }
 
             #update rapidFailProtectionInterval if required
             if($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtectionInterval:$rapidFailProtectionInterval
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtectionInterval:$rapidFailProtectionInterval
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionInterval:$rapidFailProtectionInterval
             }
 
             #update rapidFailProtectionMaxCrashes if required
             if($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtectionMaxCrashes:$rapidFailProtectionMaxCrashes
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtectionMaxCrashes:$rapidFailProtectionMaxCrashes
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionMaxCrashes:$rapidFailProtectionMaxCrashes
             }
 
             #update autoShutdownExe if required
             if($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.autoShutdownExe:$autoShutdownExe
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.autoShutdownExe:$autoShutdownExe
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownExe:$autoShutdownExe
             }
 
             #update autoShutdownParams if required
             if($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.autoShutdownParams:$autoShutdownParams
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.autoShutdownParams:$autoShutdownParams
+                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownParams:$autoShutdownParams
             }
 
             #update cpuLimit if required
             if($PoolConfig.add.cpu.limit -ne $cpuLimit){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.limit:$cpuLimit
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.limit:$cpuLimit
+                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.limit:$cpuLimit
             }
 
             #update cpuAction if required
             if($PoolConfig.add.cpu.action -ne $cpuAction){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.action:$cpuAction
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.action:$cpuAction
+                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.action:$cpuAction
             }
 
             #update cpuResetInterval if required
             if($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.resetInterval:$cpuResetInterval
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.resetInterval:$cpuResetInterval
+                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.resetInterval:$cpuResetInterval
             }
 
             #update cpuSmpAffinitized if required
             if($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpAffinitized:$cpuSmpAffinitized
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpAffinitized:$cpuSmpAffinitized
+                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpAffinitized:$cpuSmpAffinitized
             }
 
             #update cpuSmpProcessorAffinityMask if required
             if($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpProcessorAffinityMask:$cpuSmpProcessorAffinityMask
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpProcessorAffinityMask:$cpuSmpProcessorAffinityMask
+                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask:$cpuSmpProcessorAffinityMask
             }
 
             #update cpuSmpProcessorAffinityMask2 if required
             if($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2){
                 $UpdateNotRequired = $false
-                & $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
+                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
             }
             
             if($UpdateNotRequired)
@@ -624,7 +695,8 @@ function Set-TargetResource
     { 
         try
         {
-            $AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+            #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+            $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
             if($AppPool -ne $null)
             {
                 Stop-WebAppPool $Name
@@ -798,12 +870,16 @@ function Test-TargetResource
         Throw "Please ensure that WebAdministration module is installed."
     }
     
-    $AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+    #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+    $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
+    
     if($AppPool){
         #get configuration of AppPool
         #[xml] $PoolConfig
-        [xml]$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
-        $AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
+        #[xml]$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
+        [xml]$PoolConfig = Invoke-AppCmd -Arguments  list,apppool,$Name,/config:*
+        #$AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
+        $AppPoolState = Invoke-AppCmd -Arguments  list,apppool,$Name,/text:state
     }
     $Stop = $true
 
