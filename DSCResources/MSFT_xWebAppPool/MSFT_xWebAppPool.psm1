@@ -32,6 +32,25 @@ function Invoke-AppCmd
     }
 }
 
+function Invoke-AppCmdState
+{
+    param
+    (
+        [string[]] $Arguments,
+        [string] $Path = "$env:SystemRoot\system32\inetsrv\appcmd.exe"
+    )
+
+    if (Test-Path $Path)
+    {
+        & $Path $Arguments
+    }
+    else
+    {
+        throw "$Path does not exist"
+    }
+}
+
+
 # The Get-TargetResource cmdlet is used to fetch the status of role or AppPool on the target machine.
 # It gives the AppPool info of the requested role/feature on the target machine.  
 function Get-TargetResource 
@@ -63,7 +82,7 @@ function Get-TargetResource
         {
             $ensureResult = "Present"
              #$AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
-             $AppPoolState = Invoke-AppCmd -Arguments list,apppool,$Name,/text:state 
+             $AppPoolState = Invoke-AppCmdState -Arguments list,apppool,$Name,/text:state 
              [xml] $PoolConfig
             #$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
             $PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
@@ -879,7 +898,7 @@ function Test-TargetResource
         #[xml]$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
         [xml]$PoolConfig = Invoke-AppCmd -Arguments  list,apppool,$Name,/config:*
         #$AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
-        $AppPoolState = Invoke-AppCmd -Arguments  list,apppool,$Name,/text:state
+        $AppPoolState = Invoke-AppCmdState -Arguments  list,apppool,$Name,/text:state
     }
     $Stop = $true
 

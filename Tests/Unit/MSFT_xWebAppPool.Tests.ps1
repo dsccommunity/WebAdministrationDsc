@@ -18,6 +18,8 @@ $DSCModuleName  = 'xWebAdministration'
 
 $moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\$DSCModuleName"
 
+[xml]$global:PoolCfg = '<add name="DefaultAppPool" queueLength="1000" autoStart="true" enable32BitAppOnWin64="false" managedRuntimeVersion="v4.0" managedRuntimeLoader="webengine4.dll" enableConfigurationOverride="true" managedPipelineMode="Integrated" CLRConfigFile="" passAnonymousToken="true" startMode="OnDemand"><processModel identityType="ApplicationPoolIdentity" userName="" password="" loadUserProfile="true" setProfileEnvironment="true" logonType="LogonBatch" manualGroupMembership="false" idleTimeout="00:20:00" idleTimeoutAction="Terminate" maxProcesses="1" shutdownTimeLimit="00:01:30" startupTimeLimit="00:01:30" pingingEnabled="true" pingInterval="00:00:30" pingResponseTime="00:01:30" logEventOnProcessModel="IdleTimeout" /><recycling disallowOverlappingRotation="false" disallowRotationOnConfigChange="false" logEventOnRecycle="Time, Memory, PrivateMemory"><periodicRestart memory="0" privateMemory="0" requests="0" time="1.05:00:00"><schedule></schedule></periodicRestart></recycling><failure loadBalancerCapabilities="HttpLevel" orphanWorkerProcess="false" orphanActionExe="" orphanActionParams="" rapidFailProtection="true" rapidFailProtectionInterval="00:05:00" rapidFailProtectionMaxCrashes="5" autoShutdownExe="" autoShutdownParams="" /><cpu limit="0" action="NoAction" resetInterval="00:05:00" smpAffinitized="false" smpProcessorAffinityMask="4294967295" smpProcessorAffinityMask2="4294967295" processorGroup="0" numaNodeAssignment="MostAvailableMemory" numaNodeAffinityMode="Soft" /></add>'
+
 if(-not (Test-Path -Path $moduleRoot))
 {
     $null = New-Item -Path $moduleRoot -ItemType Directory
@@ -55,30 +57,12 @@ if ($executionPolicy -ne 'Unrestricted')
     $rollbackExecution = $true
 }
 
-#$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ModuleName = "MSFT_xWebAppPool"
-
-# Add web server if not already installed
-#if(!(Get-WindowsFeature web-server).Installed)
-#{
-#  Add-WindowsFeature Web-Server -Verbose
-#}
 
 Import-Module (Join-Path $moduleRoot -ChildPath "DSCResources\$ModuleName\$ModuleName.psm1")
 
-#if (! (Get-Module xDSCResourceDesigner))
-#{
-#    Import-Module -Name xDSCResourceDesigner
-#}
-
-#if (! (Get-Module WebAdministration))
-#{
-#    Import-Module -Name WebAdministration
-#}
-
 Describe "MSFT_xWebAppPool"{
     InModuleScope $ModuleName {
-    #InModuleScope $DSCModuleName{
         Function TestTargetResourceSame
         {
             <#
@@ -102,16 +86,15 @@ Describe "MSFT_xWebAppPool"{
             [OutputType([bool])]
             Param($option,$appcmdVal)
             $testParams =@{
-                Name = "PesterAppPool"
+                Name = "DefaultAppPool"
                 Ensure = "Present"
             }
-            $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
-            #Write-Host $curVal
-            $testParams.Add($option,$curVal)
 
-            #need to explicitly set it to the current value.  This "resets" all the values so the previous tests don't interfere with this one
-            #Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
-            Mock Invoke-AppCmd {return $testParams}
+            $arrVal = $appcmdVal.Split(".")             
+            $val = $global:PoolCfg.GetElementsByTagName($arrVal[$arrVal.length-2]) | Select -ExpandProperty $arrVal[$arrVal.length-1]
+            $testParams.Add($option, $val)
+            Mock Invoke-AppCmd {return $global:PoolCfg.OuterXml}
+            Mock Invoke-AppCmdState {return "Started"}
             Test-TargetResource @testParams
             Return 
         }
@@ -145,18 +128,23 @@ Describe "MSFT_xWebAppPool"{
             [OutputType([bool])]
             Param($option,$appcmdVal,$value1,$value2)
             $testParams =@{
-                Name = "PesterAppPool"
+                Name = "DefaultAppPool"
                 Ensure = "Present"
             }
-            $failParams =@{
-                Name = "PesterAppPool"
-                Ensure = "Present"
+
+            $arrVal = $appcmdVal.Split(".")             
+            $curVal = $global:PoolCfg.GetElementsByTagName($arrVal[$arrVal.length-2]) | Select -ExpandProperty $arrVal[$arrVal.length-1]
+            if($curVal -eq $value1)
+            {
+              $testParams.Add($option,$value2)
             }
-            $failParams.Add($option,$value2)
-            $testParams.Add($option,$value1)
-            #Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
-            Mock Invoke-AppCmd {return $failParams}
-            #$testParams.$option = $value2
+            else
+            {
+              $testParams.Add($option,$value1)
+            }
+            
+            Mock Invoke-AppCmd {return $global:PoolCfg}
+            Mock Invoke-AppCmdState {return "Started"}
             Test-TargetResource @testParams
             Return 
         }
@@ -190,22 +178,22 @@ Describe "MSFT_xWebAppPool"{
             [OutputType([bool])]
             Param($option,$appcmdVal,$value1,$value2)
             $testParams =@{
-                Name = "PesterAppPool"
+                Name = "DefaultAppPool"
                 Ensure = "Present"
             }
-            $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
+            $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'DefaultAppPool' /config:*)).$($appcmdVal))"
             if($curVal -ne $value1)
             {
                 $testParams.Add($option,$value1)
                 Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
-                $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
+                $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'DefaultAppPool' /config:*)).$($appcmdVal))"
                 $value1 -eq $curVal
             }
             else
             {
                 $testParams.Add($option,$value2)
                 Set-TargetResource @testParams | Out-Null #So we only return the value of Test-TargetResource below
-                $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'PesterAppPool' /config:*)).$($appcmdVal))"
+                $curVal = Invoke-Expression "(([xml](& $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool 'DefaultAppPool' /config:*)).$($appcmdVal))"
                 $value2 -eq $curVal
             }
 
@@ -215,41 +203,15 @@ Describe "MSFT_xWebAppPool"{
         try
         {
             $baseParams =@{
-                Name = "PesterAppPool"
+                Name = "DefaultAppPool"
                 Ensure = "Present"
             }
 
-            #It 'Should pass Test-xDscResource Schema Validation' {
-            #    $result = Test-xDscResource MSFT_xWebAppPool
-            #    $result | Should Be $true
-            #}
-
-            It 'Should create a new App Pool' {           
-                $testParams =@{
-                    Name = "PesterAppPool"
-                    Ensure = "Present"
-                }
-
-                # if the app pool exists, remove it
-                if((Get-ChildItem IIS:\apppools).Name.Contains("PesterAppPool"))
-                {
-                    Remove-WebAppPool -Name "PesterAppPool" -ErrorAction Stop
-                }
-
-                Set-TargetResource @testParams
-                (Get-ChildItem IIS:\apppools).Name.Contains("PesterAppPool") | Should be $true
+            It 'DefaultAppPool should exist' {           
+                (Get-ChildItem IIS:\apppools).Name.Contains("DefaultAppPool") | Should be $true
             }
-            
-            Context 'Test-TargetResource' {
-                It 'Passes test when App Pool does exist and has correct Name'{
-                    $testParams =@{
-                        Name = "PesterAppPool"
-                        Ensure = "Present"
-                    }
 
-                    Test-TargetResource @testParams | Should be $true
-                    
-                }
+            Context 'Test-TargetResource' {
                 
                 It 'Passes autoStart Test when same' {
                     
@@ -263,7 +225,7 @@ Describe "MSFT_xWebAppPool"{
 
                 It 'Passes Runtime Version Test when same' {
                   
-                    TestTargetResourceSame "managedRuntimeVersion" "add.managedRuntimeVersion" | Should be $true
+                    TestTargetResourceSame "managedRuntimeVersion" "add.managedRuntimeVersion"  | Should be $true
                 }
 
                 It 'Fails Runtime Version Test when different' {
@@ -672,7 +634,7 @@ Describe "MSFT_xWebAppPool"{
                 }
             }
             
-            Context 'Set-TargetResource' {
+<#            Context 'Set-TargetResource' {
                 It 'Should set autoStart Test ' {
                     
                     SetTargetResource "autoStart" "add.autoStart" "true" "false"| Should be $true
@@ -883,30 +845,10 @@ Describe "MSFT_xWebAppPool"{
                     SetTargetResource "cpuSmpProcessorAffinityMask2" "add.cpu.smpProcessorAffinityMask2" "4294967294" "4294967295" | Should be $true
                 }
             }
-
-            It 'Fails test when App Pool does not exist'{
-                $testParams =@{
-                    Name = 'PesterAppPool'
-                    Ensure = "Present"
-                }
-
-                # if the app pool exists, remove it
-                if((Get-ChildItem IIS:\apppools).Name.Contains($apName))
-                {
-                    Remove-WebAppPool -Name $apName -ErrorAction Stop
-                }
-
-                Test-TargetResource @testParams | Should be $false
-            }
+#>
         }
         finally
-        {
-            # if the app pool exists, remove it
-            if((Get-ChildItem IIS:\apppools).Name.Contains('PesterAppPool'))
-            {
-                Remove-WebAppPool -Name 'PesterAppPool' -ErrorAction Stop
-            }
-            
+        {            
             if ($rollbackExecution)
             {
                 Set-ExecutionPolicy -ExecutionPolicy $executionPolicy -Force
