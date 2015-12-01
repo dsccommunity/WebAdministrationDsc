@@ -1,4 +1,3 @@
-$DSCModuleName   = 'xWebAdministration'
 $DSCResourceName = 'MSFT_xWebsite'
 
 $Splat = @{
@@ -10,9 +9,9 @@ $Splat = @{
 $DSCResourceModuleFile = Get-Item -Path (Join-Path @Splat)
 
 # should check for the server OS
-if ($env:APPVEYOR_BUILD_VERSION)
+if($env:APPVEYOR_BUILD_VERSION)
 {
-    Add-WindowsFeature -Name Web-Server -Verbose
+  Add-WindowsFeature Web-Server -Verbose
 }
 
 if (Get-Module -Name $DSCResourceName)
@@ -22,349 +21,208 @@ if (Get-Module -Name $DSCResourceName)
 
 Import-Module -Name $DSCResourceModuleFile.FullName -Force
 
-$ModuleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\$DSCModuleName"
+$moduleRoot = "${env:ProgramFiles}\WindowsPowerShell\Modules\xWebAdministration"
 
-if (-not (Test-Path -Path $ModuleRoot -PathType Container))
+if(-not (Test-Path -Path $moduleRoot))
 {
-    New-Item -Path $ModuleRoot -ItemType Directory | Out-Null
+    $null = New-Item -Path $moduleRoot -ItemType Directory
 }
 
-Copy-Item -Path "$PSScriptRoot\..\..\*" -Destination $ModuleRoot -Recurse -Force -Exclude '.git'
+Copy-Item -Path $PSScriptRoot\..\..\* -Destination $moduleRoot -Recurse -Force -Exclude '.git'
 
 InModuleScope $DSCResourceName {
-
-    Describe "how Test-TargetResource responds to Ensure = 'Present'" {
-
+    Describe "how Test-TargetResource to Ensure = 'Present'" {
         $MockSite = @{
-            Name            = 'MockName'
             Ensure          = 'Present'
-            PhysicalPath    = 'C:\NonExistent'
+            Name            = 'MockName'
+            PhysicalPath    = 'C:\NonExistant'
             ID              = 1
-            State           = 'Started'
+            State           = 'MockState'
             ApplicationPool = 'MockPool'
-            DefaultPage     = 'MockDefault.htm'
         }
 
-        $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-            Port      = [UInt16]80
-            Protocol  = 'http'
-            IPAddress = '*'
-            HostName  = ''
-        } -ClientOnly
-
-        Context 'WebAdminstration module is not installed' {
-            It 'should throw an error' {
-                Mock Get-Module -ModuleName $ModuleName {return $null}
-
+        Context 'WebAdminstration is not installed' {
+            It 'should throw an error if WebAdministration is not installed' {
+                Mock Get-Module -ModuleName $ModuleName { return $null }
                 {
                     Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath
                 } | Should Throw 'Please ensure that WebAdministration module is installed.'
             }
         }
 
-        Context 'Website does not exist' {
-            It 'should return False' {
+        Context 'Check Ensure is false' {
+            It 'should return false' {
                 Mock Get-Website {
                     return $null
                 }
 
-                $Result = Test-TargetResource -Name $MockSite.Name `
-                                              -Ensure $MockSite.Ensure `
-                                              -PhysicalPath $MockSite.PhysicalPath `
-                                              -Verbose:$VerbosePreference
+                $result = Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath -Verbose:$VerbosePreference
 
-                $Result | Should Be $false
+                $result | Should Be $false
             }
         }
 
-        Context 'Check PhysicalPath is different' {
-
+        Context 'Check Physical Property is false' {
             Mock Get-Website {
                 return $MockSite
             }
-
             Mock Test-WebsitePath -ModuleName $ModuleName {
                 return $true
             }
 
-            $Result = Test-TargetResource -Name $MockSite.Name `
-                                          -Ensure $MockSite.Ensure `
-                                          -PhysicalPath $MockSite.PhysicalPath `
-                                          -Verbose:$VerbosePreference
+            $result = Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath -Verbose:$VerbosePreference
 
-            It 'should return False' {
-                $Result | Should Be $false
+            It 'should return false' {
+                $result | Should Be $false
             }
         }
 
-        Context 'Check State is different' {
-
+        Context 'Check State is false' {
             Mock Get-Website {
                 return $MockSite
             }
-
             Mock Test-WebsitePath -ModuleName $ModuleName {
                 return $false
             }
 
-            $Result = Test-TargetResource -Name $MockSite.Name `
-                                          -Ensure $MockSite.Ensure `
-                                          -PhysicalPath $MockSite.PhysicalPath `
-                                          -State 'Stopped' `
-                                          -Verbose:$VerbosePreference
+            $result = Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath -State 'Started' -Verbose:$VerbosePreference
 
-            It 'should return False' {
-                $Result | Should Be $false
+            It 'should return false' {
+                $result | Should Be $false
             }
         }
 
-        Context 'Check ApplicationPool is different' {
+        Context 'Check Application Pool is false' {
+            $MockSite = @{
+                Ensure          = 'Present'
+                Name            = 'MockName'
+                PhysicalPath    = 'C:\NonExistant'
+                ID              = 1
+                State           = 'Started'
+                ApplicationPool = 'MockPool'
+            }
 
             Mock Get-Website {
                 return $MockSite
             }
-
             Mock Test-WebsitePath -ModuleName $ModuleName {
                 return $false
             }
 
-            $Result = Test-TargetResource -Name $MockSite.Name `
-                                          -Ensure $MockSite.Ensure `
-                                          -PhysicalPath $MockSite.PhysicalPath `
-                                          -State $MockSite.State `
-                                          -ApplicationPool 'MockPoolDifferent' `
-                                          -Verbose:$VerbosePreference
+            $result = Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -Verbose:$VerbosePreference
 
-            It 'should return False' {
-                $Result | Should Be $false
+            It 'should return false' {
+                $result | Should Be $false
             }
         }
 
-        Context 'Check BindingInfo is different' {
+        Context 'Binding Properties is false' {
+            $MockSite = @{
+                Ensure          = 'Present'
+                Name            = 'MockName'
+                PhysicalPath    = 'C:\NonExistant'
+                ID              = 1
+                State           = 'Started'
+                ApplicationPool = 'MockPool'
+            }
+
+            $BindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+            }
+
+            $MockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                Port      = [System.UInt16] $BindingObject.Port
+                Protocol  = $BindingObject.Protocol
+                IPAddress = $BindingObject.IPaddress
+                HostName  = $BindingObject.Hostname
+            } -ClientOnly
+
 
             Mock Get-Website {
                 return $MockSite
             }
-
             Mock Test-WebsitePath -ModuleName $ModuleName {
-                return $false
+                return $true
             }
-
             Mock Test-WebsiteBindings -ModuleName $ModuleName -Name $Name -BindingInfo $BindingInfo {
-                return $true
+                return $false
             }
 
-            $Result = Test-TargetResource -Name $MockSite.Name `
-                                          -Ensure $MockSite.Ensure `
-                                          -PhysicalPath $MockSite.PhysicalPath `
-                                          -State $MockSite.State `
-                                          -ApplicationPool $MockSite.ApplicationPool `
-                                          -BindingInfo $MockBindingInfo `
-                                          -Verbose:$VerbosePreference
+            $result = Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool' -BindingInfo $MockBinding -Verbose:$VerbosePreference
 
-            It 'should return False' {
-                $Result | Should Be $false
+            It 'should return false' {
+                $result | Should Be $false
             }
         }
 
-        Context 'Check DefaultPage is different' {
+        Context 'Default Page is false' {
+            $MockSite = @{
+                Ensure          = 'Present'
+                Name            = 'MockName'
+                PhysicalPath    = 'C:\NonExistant'
+                ID              = 1
+                State           = 'Started'
+                ApplicationPool = 'MockPool'
+                DefaultPage     = 'something'
+            }
+
+            $BindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+            }
+
+            $MockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                Port      = [System.UInt16] $BindingObject.Port
+                Protocol  = $BindingObject.Protocol
+                IPAddress = $BindingObject.IPaddress
+                HostName  = $BindingObject.Hostname
+            } -ClientOnly
+
 
             Mock Get-Website {
                 return $MockSite
             }
 
             Mock Test-WebsitePath {
-                return $false
+                return $true
             }
 
-            Mock Test-WebsiteBindings -ModuleName $ModuleName -Name $Name -BindingInfo $BindingInfo {
-                return $false
+            Mock Test-WebsiteBindings -Name $Name -BindingInfo $BindingInfo {
+                return $true
             }
 
             Mock Get-WebConfiguration {
-                return @{value = 'MockDifferent.htm'}
+                return 'Notsomething'
             }
 
-            $Result = Test-TargetResource -Name $MockSite.Name `
-                                          -Ensure $MockSite.Ensure `
-                                          -PhysicalPath $MockSite.PhysicalPath `
-                                          -State $MockSite.State `
-                                          -ApplicationPool $MockSite.ApplicationPool `
-                                          -BindingInfo $MockBindingInfo `
-                                          -DefaultPage $MockSite.DefaultPage `
-                                          -Verbose:$VerbosePreference
+            $result = Test-TargetResource -Name $MockSite.Name -Ensure $MockSite.Ensure -PhysicalPath $MockSite.PhysicalPath -State $MockSite.State -ApplicationPool $MockSite.ApplicationPool -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage -Verbose:$VerbosePreference
 
-            It 'should return False' {
-                $Result | Should Be $false
+            It 'should return false' {
+                $result | Should Be $false
             }
         }
     }
 
     Describe "how Get-TargetResource responds to Ensure = 'Present'" {
-
         $MockSite = @{
-            Name            = 'MockName'
             Ensure          = 'Present'
-            PhysicalPath    = 'C:\NonExistent'
+            Name            = 'MockName'
+            PhysicalPath    = 'C:\NonExistant'
             ID              = 1
             State           = 'Started'
             ApplicationPool = 'MockPool'
-            DefaultPage     = 'MockDefault.htm'
         }
 
-        $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-            Port      = [UInt16]80
-            Protocol  = 'http'
-            IPAddress = '*'
-            HostName  = ''
-        } -ClientOnly
-
-        Context 'WebAdminstration module is not installed' {
-            It 'should throw an error' {
-                Mock Get-Module -ModuleName $ModuleName {
-                    return $null
-                }
-
-                {
-                    Get-TargetResource -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath
-                } | Should Throw 'Please ensure that WebAdministration module is installed.'
-            }
-        }
-
-        Context 'Website does not exist' {
-            Mock Get-Website {
-                return $null
-            }
-
-            $Result = Get-TargetResource -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath
-
-            It 'should return Absent' {
-                $Result.Ensure | Should Be 'Absent'
-            }
-        }
-
-        Context 'There are multiple websites with the same name' {
-            Mock Get-Website -ModuleName $ModuleName {
-                return @(
-                    [PSCustomObject]@{
-                        Name = 'Site1'
-                    },
-
-                    [PSCustomObject]@{
-                        Name = 'Site1'
-                    }
-                )
-            }
-
-            $errorId = 'WebsiteDiscoveryFailure'
-            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $errorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f 'Site1'
-            $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-            $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
-            It 'should throw the correct error' {
-                {
-                    Get-TargetResource -Name 'Site1' -PhysicalPath 'C:\SomePath'
-                } | Should Throw $errorRecord
-            }
-        }
-
-        Context 'Single website exists' {
-
-            $MockBindingRaw = @{
-                bindingInformation   = '*:443:MockHostName'
-                protocol             = 'https'
-                certificateHash      = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
-                certificateStoreName = 'My'
-                sslFlags             = '1'
-            }
-
-            $MockSite = @{
-                Name            = 'MockName'
-                PhysicalPath    = 'C:\NonExistent'
-                ID              = 1
-                State           = 'Started'
-                ApplicationPool = 'MockPool'
-                DefaultPage     = 'MockDefault.htm'
-                Bindings        = @{Collection = @($MockBindingRaw)}
-                Count           = 1
-            }
-
-            $MockBindingCustom = @{
-                IPAddress             = '*'
-                Port                  = 443
-                HostName              = 'MockHostName'
-                Protocol              = 'https'
-                CertificateThumbprint = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
-                CertificateStoreName  = 'My'
-                SslFlags              = '1'
-            }
-
-            Mock Get-Website {
-                return $MockSite
-            }
-
-            Mock Get-WebConfiguration {
-                return $null
-            }
-
-            It 'should not throw an error' {
-                {
-                    Get-TargetResource -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath
-                } | Should Not Throw
-            }
-
-            $Result = Get-TargetResource -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath
-
-            It 'should call Get-Website once' {
-                Assert-MockCalled -CommandName Get-Website
-            }
-
-            It 'should return the Name' {
-                $Result.Name | Should Be $MockSite.Name
-            }
-
-            It 'should return the Ensure' {
-                $Result.Ensure | Should Be 'Present'
-            }
-
-            It 'should return the PhysicalPath' {
-                $Result.PhysicalPath | Should Be $MockSite.PhysicalPath
-            }
-
-            It 'should return the BindingInfo' {
-                $Result.BindingInfo.IPAddress             | Should Be $MockBindingCustom.IPAddress
-                $Result.BindingInfo.Port                  | Should Be $MockBindingCustom.Port
-                $Result.BindingInfo.HostName              | Should Be $MockBindingCustom.HostName
-                $Result.BindingInfo.Protocol              | Should Be $MockBindingCustom.Protocol
-                $Result.BindingInfo.CertificateThumbprint | Should Be $MockBindingCustom.CertificateThumbprint
-                $Result.BindingInfo.CertificateStoreName  | Should Be $MockBindingCustom.CertificateStoreName
-                $Result.BindingInfo.SslFlags              | Should Be $MockBindingCustom.SslFlags
-            }
-
-            It 'should return the State' {
-                $Result.State | Should Be $MockSite.State
-            }
-
-            It 'should return the ID' {
-                $Result.ID | Should Be $MockSite.ID
-            }
-        }
-    }
-
-    Describe "how Set-TargetResource responds to Ensure = 'Present'" {
-
-        $MockSite = @{
-            Ensure          = 'Present'
-            Name            = 'MockName'
-            PhysicalPath    = 'C:\NonExistent'
-            ID              = 1
-            State           = 'Stopped'
-            ApplicationPool = 'MockPool'
-            DefaultPage     = 'index.htm'
-        }
-
-        $MockBindingCustom = @{
+        $BindingObject = @{
             Port                  = 80
             Protocol              = 'http'
             IPAddress             = '127.0.0.1'
@@ -373,85 +231,228 @@ InModuleScope $DSCResourceName {
             CertificateStoreName  = ''
         }
 
-        $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-            Port      = [UInt16]$MockBindingCustom.Port
-            Protocol  = $MockBindingCustom.Protocol
-            IPAddress = $MockBindingCustom.IPAddress
-            HostName  = $MockBindingCustom.HostName
+        $MockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+            Port      = [System.UInt16] $BindingObject.Port
+            Protocol  = $BindingObject.Protocol
+            IPAddress = $BindingObject.IPaddress
+            HostName  = $BindingObject.Hostname
         } -ClientOnly
+
+        Context 'WebAdminstration is not installed' {
+            It 'should throw an error if WebAdministration is not installed' {
+                Mock Get-Module -ModuleName $ModuleName  { return $null }
+                {
+                    Get-TargetResource -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath
+                } | Should Throw 'Please ensure that WebAdministration module is installed.'
+            }
+        }
+
+        Context 'No Website exists' {
+            Mock Get-Website {
+                return $null
+            }
+            $result = Get-TargetResource -Name 'MockName' -PhysicalPath $MockSite.PhysicalPath
+
+            It 'should return absent' {
+                $result.Ensure | Should Be 'Absent'
+            }
+        }
+
+        Context 'Multiple Websites of the same name exist' {
+            Mock Get-Website -ModuleName 'MSFT_xWebsite' {
+                return @(
+                    [PSCustomObject] @{
+                        Name = 'Site1'
+                    },
+                    [PSCustomObject] @{
+                        Name = 'Site1'
+                    }
+                )
+            }
+
+            $errorId = 'WebsiteDiscoveryFailure,Get-TargetResource'
+            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+            $errorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f 'Site1'
+            $exception = New-Object System.InvalidOperationException $errorMessage
+            $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $errorId, $errorCategory, $null
+
+            It 'should throw "WebsiteDiscoveryFailure"' {
+                { Get-TargetResource -Name 'Site1' -PhysicalPath 'C:\somePath' } | Should Throw $errorRecord
+            }
+        }
+
+        Context 'Single website exists' {
+            $BindingObject = [PSCustomObject] @{
+                Protocol  = 'https'
+                IPAddress = '127.0.0.1'
+                Port      = 443
+                HostName  = 'MockHostName'
+            }
+
+            $BindingInfo = [PSCustomObject] @{
+                bindingInformation = '127.0.0.1:443:MockHostName'
+                protocol           = 'https'
+                SslFlags           = 1
+                CertificateHash = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+                CertificateStoreName  = 'My'
+            }
+
+            $Website = [PSCustomObject] @{
+                Name            = 'MockHostName'
+                PhysicalPath    = 'C:\SomePath'
+                State           = 'Started'
+                ID              = 0
+                ApplicationPool = 'Pool'
+                Count           = 1
+            }
+
+            Mock Get-Website {
+                return $Website
+            }
+
+            Mock Get-ItemProperty {
+                return @{
+                    collection = $BindingInfo
+                }
+            }
+
+            Mock Get-WebConfiguration {
+                return $null
+            }
+
+            It 'should not throw' {
+                {
+                    Get-TargetResource -Name 'MockHostName' -PhysicalPath 'C:\somePath'
+                } | Should Not throw
+            }
+
+            $result = Get-TargetResource -Name 'MockHostName' -PhysicalPath 'C:\somePath'
+
+            It 'should call Get-Website once' {
+                Assert-MockCalled -commandName Get-Website
+            }
+
+            It 'should call Get-itemProperty once' {
+                Assert-MockCalled -commandName Get-ItemProperty
+            }
+
+            It 'should return the name' {
+                $result.Name | Should Be 'MockHostName'
+            }
+
+            It 'should return the EnsureResult' {
+                $result.Ensure | Should Be 'Present'
+            }
+
+            It 'should return the PhysicalPath' {
+                $result.PhysicalPath | Should Be 'C:\SomePath'
+            }
+
+            It 'should return the correct bindings' {
+                $result.BindingInfo.Port                  | Should Be $BindingObject.Port
+                $result.BindingInfo.Protocol              | Should Be $BindingInfo.Protocol
+                $result.BindingInfo.IPAddress             | Should Be $BindingObject.IPAddress
+                $result.BindingInfo.HostName              | Should Be $BindingObject.HostName
+                $result.BindingInfo.CertificateThumbprint | Should Be $BindingInfo.Certificatehash
+                $result.BindingInfo.CertificateStoreName  | Should Be $BindingInfo.CertificateStoreName
+                $result.BindingInfo.SSLFlags              | Should Be $BindingInfo.SSLFlags
+            }
+
+            It 'should return the State' {
+                $result.State | Should Be 'Started'
+            }
+
+            It 'should return the ID' {
+                $result.ID | Should Be 0
+            }
+        }
+    }
+
+    Describe "how Set-TargetResource responds to Ensure = 'Present'" {
+        $MockSite = @{
+            Ensure          = 'Present'
+            Name            = 'MockName'
+            PhysicalPath    = 'C:\NonExistant'
+            ID              = 1
+            State           = 'Stopped'
+            ApplicationPool = 'MockPool'
+            DefaultPage = 'index.htm'
+        }
+
+        $BindingObject = @{
+            Port                  = 80
+            Protocol              = 'http'
+            IPAddress             = '127.0.0.1'
+            HostName              = 'MockHostName'
+            CertificateThumbprint = ''
+            CertificateStoreName  = ''
+        }
+
+        $MockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+            Port      = [System.UInt16] $BindingObject.Port
+            Protocol  = $BindingObject.Protocol
+            IPAddress = $BindingObject.IPaddress
+            HostName  = $BindingObject.Hostname
+        } -ClientOnly
+
 
         $MockSite2 = @{
             Ensure          = 'Present'
             Name            = 'MockName2'
-            PhysicalPath    = 'C:\NonExistent2'
+            PhysicalPath    = 'C:\NonExistant2'
             ID              = 1
             State           = 'Stopped'
             ApplicationPool = 'MockPool2'
-            DefaultPage     = 'index2.htm'
-            BindingInfo     =  $MockBindingInfo
+            DefaultPage     = 'index.htm'
+            BindingInfo     =  $MockBinding
         }
 
-        Context 'Everything needs to be updated and website is started' {
-
+        Context 'Everything needs to be updated and application is started' {
             Mock Get-Website {
                 return @($MockSite, $MockSite2)
             }
             Mock Start-Website {return $null}
-            Mock Test-WebsitePath {return $true}
-            Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings {return $true}
-            Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $true}
-            Mock Get-TargetResource {return $MockSite2}
 
-            $Result = Set-TargetResource -Ensure 'Present' `
-                                         -Name $MockSite.Name `
-                                         -PhysicalPath $MockSite.PhysicalPath `
-                                         -State 'Started' `
-                                         -ApplicationPool 'MockPool2' `
-                                         -BindingInfo $MockBindingInfo `
-                                         -DefaultPage $MockSite.DefaultPage
+            Mock Test-WebsitePath { return $true }
+            Mock Set-ItemProperty { return $null }
+            Mock Test-WebsiteBindings { return $true }
+            Mock Update-WebsiteBinding { return $null }
+            Mock Update-DefaultPages { return $null }
+            Mock Confirm-PortIPHostisUnique { return $true }
+            Mock Get-TargetResource { return $MockSite2 }
+
+            $result = Set-TargetResource -Ensure 'Present' -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage
 
             It 'should call all the mocks' {
-                Assert-MockCalled -CommandName Test-WebsitePath
-                Assert-MockCalled -CommandName Set-ItemProperty -Exactly 2
-                Assert-MockCalled -CommandName Update-WebsiteBinding
-                Assert-MockCalled -CommandName Update-DefaultPages
-                Assert-MockCalled -CommandName Confirm-PortIpHostIsUnique
-                Assert-MockCalled -CommandName Get-TargetResource
-                Assert-MockCalled -CommandName Start-Website   
+                Assert-MockCalled Test-WebsitePath
+                Assert-MockCalled Set-ItemProperty 2
+                Assert-MockCalled Update-WebsiteBinding
+                Assert-MockCalled Update-DefaultPages
+                Assert-MockCalled Confirm-PortIPHostisUnique
+                Assert-MockCalled Get-TargetResource
+                Assert-MockCalled Start-Website
             }
         }
 
-        Context 'Confirm-PortIpHostIsUnique returns False' {
-
-            Mock Get-Website {return @($MockSite, $MockSite2)}
+        Context 'Confirm-PortIPHostisUnique returns false' {
+            Mock Get-Website { return @($MockSite, $MockSite2) }
             Mock Start-Website {return $null}
-            Mock Test-WebsitePath {return $true}
-            Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings { return $true}
-            Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $false}
-            Mock Get-TargetResource {return $MockSite2}
+            Mock Test-WebsitePath { return $true }
+            Mock Set-ItemProperty { return $null }
+            Mock Test-WebsiteBindings { return $true }
+            Mock Update-WebsiteBinding { return $null }
+            Mock Update-DefaultPages { return $null }
+            Mock Confirm-PortIPHostisUnique { return $false }
+            Mock Get-TargetResource { return $MockSite2 }
 
-            It 'should throw the correct error' {
+            It 'should throw the right error' {
                 $errorId = 'WebsiteBindingConflictOnStart'
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
                 $errorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f $MockSite.Name
                 $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-                {
-                    Set-TargetResource -Ensure 'Present' `
-                                       -Name $MockSite.Name `
-                                       -PhysicalPath $MockSite.PhysicalPath `
-                                       -State 'Started' `
-                                       -ApplicationPool 'MockPool2' `
-                                       -BindingInfo $MockBindingInfo `
-                                       -DefaultPage $MockSite.DefaultPage
-                } | Should Throw $errorRecord
+                { Set-TargetResource -Ensure 'Present' -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage } | should throw $errorRecord
             }
         }
 
@@ -460,15 +461,17 @@ InModuleScope $DSCResourceName {
                 return @($MockSite, $MockSite2)
             }
             Mock Start-Website {return throw}
-            Mock Test-WebsitePath {return $true}
-            Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings {return $true}
-            Mock Update-WebsiteBinding {return $null }
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $true}
-            Mock Get-TargetResource {return $MockSite2}
+
+            Mock Test-WebsitePath { return $true }
+            Mock Set-ItemProperty { return $null }
+            Mock Test-WebsiteBindings { return $true }
+            Mock Update-WebsiteBinding { return $null }
+            Mock Update-DefaultPages { return $null }
+            Mock Confirm-PortIPHostisUnique { return $true }
+            Mock Get-TargetResource { return $MockSite2 }
 
             It 'Should throw the correct error' {
+
                 $errorId = 'WebsiteStateFailure'
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
                 $errorMessage = $($LocalizedData.WebsiteStateFailureError) -f $MockSite.Name
@@ -476,55 +479,41 @@ InModuleScope $DSCResourceName {
                 $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-                {
-                    Set-TargetResource -Ensure 'Present' `
-                                       -Name $MockSite.Name `
-                                       -PhysicalPath $MockSite.PhysicalPath `
-                                       -State 'Started' `
-                                       -ApplicationPool 'MockPool2' `
-                                       -BindingInfo $MockBinding `
-                                       -DefaultPage $MockSite.DefaultPage
-                } | Should Throw $errorRecord
+                { Set-TargetResource -Ensure 'Present' -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage } | should throw $errorRecord
             }
         }
 
-        Context 'Everything needs to be updated and website is stopped' {
-
+        Context 'Everything needs to be updated and application is stopped' {
             $MockSite = @{
                 Ensure          = 'Present'
                 Name            = 'MockName'
-                PhysicalPath    = 'C:\NonExistent'
+                PhysicalPath    = 'C:\NonExistant'
                 ID              = 1
                 State           = 'Started'
                 ApplicationPool = 'MockPool'
-                DefaultPage     = 'index.htm'
+                DefaultPage = 'index.htm'
             }
 
             Mock Get-Website {
                 return @($MockSite, $MockSite2)
             }
             Mock Stop-Website {return $null}
-            Mock Test-WebsitePath {return $true}
-            Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings {return $true}
-            Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $true}
 
-            $Result = Set-TargetResource -Ensure 'Present' `
-                                         -Name $MockSite.Name `
-                                         -PhysicalPath $MockSite.PhysicalPath `
-                                         -State 'Stopped' `
-                                         -ApplicationPool 'MockPool2' `
-                                         -BindingInfo $MockBindingInfo `
-                                         -DefaultPage $MockSite.DefaultPage
+            Mock Test-WebsitePath { return $true }
+            Mock Set-ItemProperty { return $null }
+            Mock Test-WebsiteBindings { return $true }
+            Mock Update-WebsiteBinding { return $null }
+            Mock Update-DefaultPages { return $null }
+            Mock Confirm-PortIPHostisUnique { return $true }
+
+            $result = Set-TargetResource -Ensure 'Present' -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -State 'Stopped' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage
 
             It 'should call all the mocks' {
-                Assert-MockCalled -CommandName Test-WebsitePath
-                Assert-MockCalled -CommandName Set-ItemProperty -Exactly 2
-                Assert-MockCalled -CommandName Update-WebsiteBinding
-                Assert-MockCalled -CommandName Update-DefaultPages
-                Assert-MockCalled -CommandName Stop-Website 
+                Assert-MockCalled Test-WebsitePath
+                Assert-MockCalled Set-ItemProperty 2
+                Assert-MockCalled Update-WebsiteBinding
+                Assert-MockCalled Update-DefaultPages
+                Assert-MockCalled Stop-Website
             }
         }
 
@@ -532,49 +521,40 @@ InModuleScope $DSCResourceName {
             $MockSite = @{
                 Ensure          = 'Present'
                 Name            = 'MockName'
-                PhysicalPath    = 'C:\NonExistent'
+                PhysicalPath    = 'C:\NonExistant'
                 ID              = 1
                 State           = 'Started'
                 ApplicationPool = 'MockPool'
-                DefaultPage     = 'index.htm'
+                DefaultPage = 'index.htm'
             }
 
             Mock Get-Website {
                 return $MockSite
             }
 
-            Mock New-Website {return $null}
-            Mock Stop-Website {return $null}
-            Mock Test-WebsiteBindings {return $true}
-            Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
-            Mock Start-Website {return $true}
-            Mock Get-ItemProperty {return $null}
+            Mock New-Website { return $null }
+            Mock Stop-Website { return $null }
+            Mock Test-WebsiteBindings { return $true }
+            Mock Update-WebsiteBinding { return $null }
+            Mock Update-DefaultPages { return $null }
+            Mock Start-Website { return $true }
+            Mock Get-ItemProperty { return $null }
 
-            $Result = Set-TargetResource -Ensure 'Present' `
-                                         -Name 'MockName2' `
-                                         -PhysicalPath $MockSite.PhysicalPath `
-                                         -State 'Started' `
-                                         -ApplicationPool 'MockPool2' `
-                                         -BindingInfo $MockBindingInfo `
-                                         -DefaultPage $MockSite.DefaultPage
+            $result = Set-TargetResource -Ensure 'Present' -Name 'MockName2' -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage
 
             It 'should call all the mocks' {
-                 Assert-MockCalled -CommandName New-Website
-                 Assert-MockCalled -CommandName Stop-Website
-                 Assert-MockCalled -CommandName Test-WebsiteBindings
-                 Assert-MockCalled -CommandName Update-WebsiteBinding
-                 Assert-MockCalled -CommandName Update-DefaultPages
-                 Assert-MockCalled -CommandName Start-Website
+                 Assert-MockCalled New-Website
+                 Assert-MockCalled Stop-Website
+                 Assert-MockCalled Test-WebsiteBindings
+                 Assert-MockCalled Update-WebsiteBinding
+                 Assert-MockCalled Update-DefaultPages
+                 Assert-MockCalled Start-Website
             }
         }
 
-        Context 'Error on website creation' {
-            Mock New-Website {
-                throw
-            }
-
-            It 'should throw the correct error' {
+        Context 'Error in non-existant site' {
+            Mock New-Website {throw;}
+            It 'Should throw the correct error' {
                 $errorId = 'WebsiteCreationFailure'
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
                 $errorMessage = $($LocalizedData.WebsiteCreationFailureError) -f 'MockName2'
@@ -582,34 +562,24 @@ InModuleScope $DSCResourceName {
                 $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-                {
-                    $Result = Set-TargetResource -Ensure 'Present' `
-                                                 -Name 'MockName2' `
-                                                 -PhysicalPath $MockSite.PhysicalPath `
-                                                 -State 'Started' `
-                                                 -ApplicationPool 'MockPool2' `
-                                                 -BindingInfo $MockBindingInfo `
-                                                 -DefaultPage $MockSite.DefaultPage
-                } | Should Throw $errorRecord
+                {$result = Set-TargetResource -Ensure 'Present' -Name 'MockName2' -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage } | Should throw $errorRecord
             }
         }
     }
 
     Describe "how Set-TargetResource responds to Ensure = 'Absent'" {
-
         It 'should call Remove-Website' {
-
             $MockSite = @{
                 Ensure          = 'Present'
                 Name            = 'MockName'
-                PhysicalPath    = 'C:\NonExistent'
+                PhysicalPath    = 'C:\NonExistant'
                 ID              = 1
                 State           = 'Stopped'
                 ApplicationPool = 'MockPool'
-                DefaultPage     = 'index.htm'
+                DefaultPage = 'index.htm'
             }
 
-            $MockBindingCustom = @{
+            $BindingObject = @{
                 Port                  = 80
                 Protocol              = 'http'
                 IPAddress             = '127.0.0.1'
@@ -618,42 +588,34 @@ InModuleScope $DSCResourceName {
                 CertificateStoreName  = ''
             }
 
-            $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration `
-                -Property @{
-                    Port      = [UInt16]$MockBindingCustom.Port
-                    Protocol  = $MockBindingCustom.Protocol
-                    IPAddress = $MockBindingCustom.IPAddress
-                    HostName  = $MockBindingCustom.HostName
-                } -ClientOnly
+            $MockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                Port      = [System.UInt16] $BindingObject.Port
+                Protocol  = $BindingObject.Protocol
+                IPAddress = $BindingObject.IPaddress
+                HostName  = $BindingObject.Hostname
+            } -ClientOnly
 
             Mock Get-Website {return $MockSite}
             Mock Remove-Website {return $null}
 
-            $Result = Set-TargetResource -Ensure 'Absent' `
-                                         -Name $MockSite.Name `
-                                         -PhysicalPath $MockSite.PhysicalPath `
-                                         -State 'Started' `
-                                         -ApplicationPool 'MockPool2' `
-                                         -BindingInfo $MockBindingInfo `
-                                         -DefaultPage $MockSite.DefaultPage
+            $result = Set-TargetResource -Ensure 'Absent' -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage
 
-            Assert-MockCalled -CommandName Get-Website
-            Assert-MockCalled -CommandName Remove-Website
+            Assert-MockCalled Get-Website
+            Assert-MockCalled Remove-Website
         }
 
-        It 'should throw the correct error' {
-
+        It 'should throw the right error' {
             $MockSite = @{
                 Ensure          = 'Present'
                 Name            = 'MockName'
-                PhysicalPath    = 'C:\NonExistent'
+                PhysicalPath    = 'C:\NonExistant'
                 ID              = 1
                 State           = 'Stopped'
                 ApplicationPool = 'MockPool'
-                DefaultPage     = 'index.htm'
+                DefaultPage = 'index.htm'
             }
 
-            $MockBindingCustom = @{
+            $BindingObject = @{
                 Port                  = 80
                 Protocol              = 'http'
                 IPAddress             = '127.0.0.1'
@@ -662,15 +624,15 @@ InModuleScope $DSCResourceName {
                 CertificateStoreName  = ''
             }
 
-            $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                Port      = [UInt16]$MockBindingCustom.Port
-                Protocol  = $MockBindingCustom.Protocol
-                IPAddress = $MockBindingCustom.IPAddress
-                HostName  = $MockBindingCustom.HostName
+            $MockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                Port      = [System.UInt16] $BindingObject.Port
+                Protocol  = $BindingObject.Protocol
+                IPAddress = $BindingObject.IPaddress
+                HostName  = $BindingObject.Hostname
             } -ClientOnly
 
             Mock Get-Website {return $MockSite}
-            Mock Remove-Website {throw}
+            Mock Remove-Website {throw }
 
             $errorId = 'WebsiteRemovalFailure'
             $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
@@ -679,182 +641,166 @@ InModuleScope $DSCResourceName {
             $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
             $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-            {
-                Set-TargetResource -Ensure 'Absent' `
-                                   -Name $MockSite.Name `
-                                   -PhysicalPath $MockSite.PhysicalPath `
-                                   -State 'Started' `
-                                   -ApplicationPool 'MockPool2' `
-                                   -BindingInfo $MockBinding `
-                                   -DefaultPage $MockSite.DefaultPage
-            } | Should Throw $errorRecord
+            { Set-TargetResource -Ensure 'Absent' -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -State 'Started' -ApplicationPool 'MockPool2' -BindingInfo $MockBinding -DefaultPage $MockSite.DefaultPage } | should throw $errorRecord
         }
     }
 
-    Describe 'ConvertTo-CimBinding' {
-
-        Context 'IPv4 address is passed and the protocol is http' {
-
-            $MockBindingRaw = @{
-                bindingInformation = '127.0.0.1:80:MockHostName'
-                protocol           = 'http'
-            }
-
-            $Result = ConvertTo-CimBinding -InputObject $MockBindingRaw
-
-            It 'should return the IPv4 Address' {
-                $Result.IPAddress | Should Be '127.0.0.1'
-            }
-
-            It 'should return the Protocol' {
-                $Result.Protocol | Should Be 'http'
-            }
-
-            It 'should return the HostName' {
-                $Result.HostName | Should Be 'MockHostName'
-            }
-
-            It 'should return the Port' {
-                $Result.Port | Should Be '80'
-            }
-        }
-
+    Describe 'how Get-WebBindingObject responds' {
         Context 'IPv6 address is passed and the protocol is http' {
-
-            $MockBindingRaw =  @{
+            $BindingInfo = [PSCustomObject] @{
                 bindingInformation = '[0:0:0:0:0:0:0:1]:80:MockHostName'
                 protocol           = 'http'
             }
 
-            $Result = ConvertTo-CimBinding -InputObject $MockBindingRaw
+            $result = Get-WebBindingObject -BindingInfo $BindingInfo
 
-            It 'should return the IPv6 Address' {
-                $Result.IPAddress | Should Be '0:0:0:0:0:0:0:1'
+            It 'should return the IPv6 address' {
+                $result.IPaddress | Should be '0:0:0:0:0:0:0:1'
             }
 
-            It 'should return the Protocol' {
-                $Result.Protocol | Should Be 'http'
+            It 'should return http' {
+                $result.Protocol | Should Be 'http'
             }
 
-            It 'should return the HostName' {
-                $Result.HostName | Should Be 'MockHostName'
+            It 'should return the hostname' {
+                $result.Hostname | Should Be 'MockHostName'
             }
 
-            It 'should return the Port' {
-                $Result.Port | Should Be '80'
-            }
-        }
-
-        Context 'IPv4 address with SSL certificate is passed' {
-
-            $MockBindingRaw =  @{
-                bindingInformation   = '127.0.0.1:443:MockHostName'
-                protocol             = 'https'
-                certificateHash      = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
-                certificateStoreName = 'My'
-                sslFlags             = '1'
-            }
-
-            $Result = ConvertTo-CimBinding -InputObject $MockBindingRaw
-
-            It 'should return the IPv4 Address' {
-                $Result.IPAddress | Should Be '127.0.0.1'
-            }
-
-            It 'should return the Protocol' {
-                $Result.Protocol | Should Be 'https'
-            }
-
-            It 'should return the HostName' {
-                $Result.HostName | Should Be 'MockHostName'
-            }
-
-            It 'should return the Port' {
-                $Result.Port | Should Be '443'
-            }
-
-            It 'should return the CertificateThumbprint' {
-                $Result.CertificateThumbprint | Should Be '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
-            }
-
-            It 'should return the CertificateStoreName' {
-                $Result.CertificateStoreName | Should Be 'My'
-            }
-
-            It 'should return the SslFlags' {
-                $Result.SslFlags | Should Be '1'
+            It 'should return the port' {
+                $result.Port | Should Be '80'
             }
         }
 
-        Context 'IPv6 address with SSL certificate is passed' {
-
-            $MockBindingRaw = @{
-                bindingInformation   = '[0:0:0:0:0:0:0:1]:443:MockHostName'
-                protocol             = 'https'
-                certificateHash      = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
-                certificateStoreName = 'My'
-                sslFlags             = '1'
+        Context 'IPv4 address is passed and the protocol is http' {
+            $BindingInfo = [PSCustomObject] @{
+                bindingInformation = '127.0.0.1:80:MockHostName'
+                protocol           = 'http'
             }
 
-            $Result = ConvertTo-CimBinding -InputObject $MockBindingRaw
+            $result = Get-WebBindingObject -BindingInfo $BindingInfo
 
-            It 'should return the IPv6 Address' {
-                $Result.IPAddress | Should Be '0:0:0:0:0:0:0:1'
+            It 'should return the IPv6 address' {
+                $result.IPaddress | Should be '127.0.0.1'
             }
 
-            It 'should return the Protocol' {
-                $Result.Protocol | Should Be 'https'
+            It 'should return http' {
+                $result.Protocol | Should Be 'http'
             }
 
-            It 'should return the HostName' {
-                $Result.HostName | Should Be 'MockHostName'
+            It 'should return the hostname' {
+                $result.Hostname | Should Be 'MockHostName'
             }
 
-            It 'should return the Port' {
-                $Result.Port | Should Be '443'
-            }
-
-            It 'should return the CertificateThumbprint' {
-                $Result.CertificateThumbprint | Should Be '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
-            }
-
-            It 'should return the CertificateStoreName' {
-                $Result.CertificateStoreName | Should Be 'My'
-            }
-
-            It 'should return the SslFlags' {
-                $Result.SslFlags | Should Be '1'
+            It 'should return the port' {
+                $result.Port | Should Be '80'
             }
         }
 
+        Context 'IPv4 SSL Certificate is passed' {
+            $BindingInfo = [PSCustomObject] @{
+                bindingInformation     = '127.0.0.1:443:MockHostName'
+                protocol               = 'https'
+                CertificateHash  = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+                CertificateStoreName   = 'My'
+                SSLFlags               = '1'
+            }
+
+            $result = Get-WebBindingObject -BindingInfo $BindingInfo
+
+            It 'should return the IPv6 address' {
+                $result.IPaddress | Should be '127.0.0.1'
+            }
+
+            It 'should return http' {
+                $result.Protocol | Should Be 'https'
+            }
+
+            It 'should return the hostname' {
+                $result.Hostname | Should Be 'MockHostName'
+            }
+
+            It 'should return the port' {
+                $result.Port | Should Be '443'
+            }
+
+            It 'should return the Hash' {
+                $result.CertificateThumbprint | Should Be '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+            }
+
+            It 'should return the store' {
+                $result.CertificateStoreName | Should Be 'My'
+            }
+
+            It 'should return the SSLFlags' {
+                $result.SSLFlags | Should Be '1'
+            }
+        }
+
+        Context 'IPv6 SSL Certificate is passed' {
+            $BindingInfo = [PSCustomObject] @{
+                bindingInformation    = '[0:0:0:0:0:0:0:1]:443:MockHostName'
+                protocol              = 'https'
+                CertificateHash = '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+                CertificateStoreName  = 'My'
+                SSLFlags              = '1'
+            }
+
+            $result = Get-WebBindingObject -BindingInfo $BindingInfo
+
+            It 'should return the IPv6 address' {
+                $result.IPaddress | Should be '0:0:0:0:0:0:0:1'
+            }
+
+            It 'should return http' {
+                $result.Protocol | Should Be 'https'
+            }
+
+            It 'should return the hostname' {
+                $result.Hostname | Should Be 'MockHostName'
+            }
+
+            It 'should return the port' {
+                $result.Port | Should Be '443'
+            }
+
+            It 'should return the Hash' {
+                $result.CertificateThumbprint | Should Be '3E09CCC8DFDCB8E3D4A83CFF164CC4754C25E9E5'
+            }
+
+            It 'should return the store' {
+                $result.CertificateStoreName | Should Be 'My'
+            }
+
+            It 'should return the SSLFlags' {
+                $result.SSLFlags | Should Be '1'
+            }
+        }
     }
 
     Describe 'Test-WebsitePath' {
         Context 'the path is wrong' {
-            It 'Should return True' {
+            It 'Should return true' {
                 Mock Get-ItemProperty {
                     return 'C:\WrongPath'
                 }
-
-                Test-WebsitePath -Name 'SomeSite' -PhysicalPath 'C:\RightPath' | Should Be $true
+                Test-WebsitePath -Name 'SomeSite' -PhysicalPath 'C:\RightPath' | Should be $true
             }
         }
 
         Context 'the path is correct' {
-            It 'Should return False if the path does not need to be updated' {
+            It 'Should return false if the path does not need to be updated' {
                 Mock Get-ItemProperty {
                     return 'C:\RightPath'
                 }
-
-                Test-WebsitePath -Name 'SomeSite' -PhysicalPath 'C:\RightPath' | Should Be $false
+                Test-WebsitePath -Name 'SomeSite' -PhysicalPath 'C:\RightPath' | Should be $false
             }
         }
     }
 
-    Describe 'Confirm-PortIpHostIsUnique' {
+    Describe 'Confirm-PortIPHostisUnique' {
         Context 'bindings are not unique' {
-            It 'should return False' {
-                $MockBindingCustom = @{
+            It 'should return false' {
+                $BindingObject = @{
                     Port                  = 80
                     Protocol              = 'http'
                     IPAddress             = '127.0.0.1'
@@ -863,22 +809,23 @@ InModuleScope $DSCResourceName {
                     CertificateStoreName  = ''
                 }
 
-                $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    Port      = [UInt16]$MockBindingCustom.Port
-                    Protocol  = $MockBindingCustom.Protocol
-                    IPAddress = $MockBindingCustom.IPAddress
-                    HostName  = $MockBindingCustom.HostName
+                $bindingArray = @()
+                $mockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Port      = [System.UInt16] $BindingObject.Port
+                    Protocol  = $BindingObject.Protocol
+                    IPAddress = $BindingObject.IPaddress
+                    HostName  = $BindingObject.Hostname
                 } -ClientOnly
 
-                $BindingArray = @($MockBindingInfo, $MockBindingInfo)
+                $bindingArray += $MockBinding, $MockBinding
 
-                Confirm-PortIpHostIsUnique -Port $MockBindingCustom.Port -IPAddress $MockBindingCustom.IPAddress -HostName $MockBindingCustom.HostName -BindingInfo $BindingArray | Should Be $false
+                Confirm-PortIPHostisUnique -Port $BindingObject.Port -IPAddress $BindingObject.IPAddress -HostName $BindingObject.Hostname -BindingInfo $bindingArray | should be $false
             }
         }
 
         Context 'bindings are unique' {
-            It 'should return True' {
-                $MockBindingCustom = @{
+            It 'should return true' {
+                $BindingObject = @{
                     Port                  = 80
                     Protocol              = 'http'
                     IPAddress             = '127.0.0.1'
@@ -887,495 +834,376 @@ InModuleScope $DSCResourceName {
                     CertificateStoreName  = ''
                 }
 
-                $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    Port      = [UInt16]$MockBindingCustom.Port
-                    Protocol  = $MockBindingCustom.Protocol
-                    IPAddress = $MockBindingCustom.IPAddress
-                    HostName  = $MockBindingCustom.HostName
+                $mockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Port      = [System.UInt16] $BindingObject.Port
+                    Protocol  = $BindingObject.Protocol
+                    IPAddress = $BindingObject.IPaddress
+                    HostName  = $BindingObject.Hostname
                 } -ClientOnly
 
-                $BindingArray = @($MockBindingInfo)
+                $bindingArray = $MockBinding
 
-                Confirm-PortIpHostIsUnique -Port $MockBindingCustom.Port -IPAddress $MockBindingCustom.IPAddress -HostName $MockBindingCustom.HostName -BindingInfo $BindingArray | Should Be $true
+                Confirm-PortIPHostisUnique -Port $BindingObject.Port -IPAddress $BindingObject.IPAddress -HostName $BindingObject.Hostname -BindingInfo $bindingArray | should be $true
             }
         }
     }
 
     Describe 'Test-WebsiteBindings' {
-
-        $MockBindingRawToDiff = @{
-            bindingInformation   = '*:80:'
-            protocol             = 'http'
-            certificateHash      = ''
-            certificateStoreName = ''
-            sslFlags             = '0'
-        }
-
         $MockSite = @{
-            Name     = 'MockHostName'
-            Bindings = @{Collection = @($MockBindingRawToDiff)}
+            Ensure          = 'Present'
+            Name            = 'MockHostName'
+            PhysicalPath    = 'C:\NonExistant'
+            ID              = 1
+            State           = 'Started'
+            ApplicationPool = 'MockPool'
+            BindingInformation = '127.0.0.1:80:'
         }
 
-        Mock Get-WebSite {return $MockSite}
+        $BindingObject = @{
+            Port                  = 80
+            Protocol              = 'http'
+            IPAddress             = '127.0.0.1'
+            HostName              = 'MockHostName'
+            CertificateThumbprint = ''
+            CertificateStoreName  = ''
+            SSLFlags              = 0
+        }
 
-        Context 'Confirm-PortIpHostIsUnique returns False' {
+        $mockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+            Port      = [System.UInt16] $BindingObject.Port
+            Protocol  = $BindingObject.Protocol
+            IPAddress = $BindingObject.IPaddress
+            HostName  = $BindingObject.Hostname
+            SSLFlags  = $BindingObject.SSLFlags
+        } -ClientOnly
 
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]80
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
-
-            It 'should throw the correct error' {
-
-                Mock Confirm-PortIpHostIsUnique {return $false}
+        Context 'Confirm-PortIPHostisUnique returns false' {
+            It 'should throw an error' {
+                Mock Confirm-PortIPHostisUnique {return $false}
 
                 $errorId = 'WebsiteBindingInputInvalidation'
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $errorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f $MockSite.Name
+                $errorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f $BindingObject.Hostname
                 $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-                {
-                    Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo
-                } | Should Throw $errorRecord
+                {Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $mockBinding } | Should throw $errorRecord
             }
-
         }
 
-        Context 'Bindings comparison throws an error' {
+        Context 'Comparing bindings throws an error' {
 
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]80
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+            }
+
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $MockBinding }
 
             $errorId = 'WebsiteCompareFailure'
             $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $errorMessage = $($LocalizedData.WebsiteCompareFailureError) -f $MockBindingCustom.HostName
+            $errorMessage = $($LocalizedData.WebsiteCompareFailureError) -f $BindingObject.Hostname
             $errorMessage += $_.Exception.Message
             $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
             $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-            It 'should not return an error' {
-                {
-                    Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo
-                } | Should Not Throw $errorRecord
+            It 'should return an error' {
+                {Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $badBindingObject } | Should not throw $errorRecord # currently broken
             }
         }
 
-        Context 'Port is different' {
+        Context 'Port is incorrect' {
+            $badBindingObject = @{
+                Port                  = 81
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+            }
 
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]8080
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
 
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+            It 'should return true' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $true
             }
         }
 
-        Context 'Protocol is different' {
+        Context 'Protocol is incorrect' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'https'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+            }
 
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]80
-                    HostName              = ''
-                    Protocol              = 'https'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
 
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+            It 'should return true' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $true
             }
         }
 
-        Context 'IPAddress is different' {
+        Context 'IPAddress is incorrect' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.2'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+            }
 
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '192.168.1.16'
-                    Port                  = [UInt16]80
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
 
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+            It 'should return true' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $true
             }
         }
 
-        Context 'HostName is different' {
+        Context 'IPAddress is *' {
+            $BindingObjectIP = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = ''
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+                SSLFlags              = 0
+            }
 
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]80
-                    HostName              = 'MockHostName'
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
+            $mockBindingIP = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                Port      = [System.UInt16] $BindingObjectIP.Port
+                Protocol  = $BindingObjectIP.Protocol
+                IPAddress = $BindingObjectIP.IPaddress
+                HostName  = $BindingObjectIP.Hostname
+            } -ClientOnly
 
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '*'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+            }
+
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObjectIP }
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
+
+            It 'should return false' {
+                Test-WebsiteBindings -Name $BindingObjectIP.hostname -BindingInfo $mockBindingIP | Should be $false
             }
         }
 
-        Context 'CertificateThumbprint is different' {
-
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]443
-                    HostName              = ''
-                    Protocol              = 'https'
-                    CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                    CertificateStoreName  = 'My'
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
-
-            $MockBindingRawToDiff = @{
-                bindingInformation   = '*:443:'
-                protocol             = 'https'
-                certificateHash      = 'B30F3184A831320382C61EFB0551766321FA88A5'
-                certificateStoreName = 'My'
-                sslFlags             = '0'
+        Context 'Hostname is incorrect' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName2'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
             }
 
-            $MockSite = @{
-                Name     = 'MockHostName'
-                Bindings = @{Collection = @($MockBindingRawToDiff)}
-            }
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
 
-            Mock Get-WebSite {return $MockSite}
-
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+            It 'should return true' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $true
             }
         }
 
-        Context 'CertificateStoreName is different' {
-
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]443
-                    HostName              = ''
-                    Protocol              = 'https'
-                    CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                    CertificateStoreName  = 'My'
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
-
-            $MockBindingRawToDiff = @{
-                bindingInformation   = '*:443:'
-                protocol             = 'https'
-                certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                certificateStoreName = 'WebHosting'
-                sslFlags             = '0'
+        Context 'CertificateThumbprint is incorrect' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = '1234560215616'
+                CertificateStoreName  = ''
             }
 
-            $MockSite = @{
-                Name     = 'MockHostName'
-                Bindings = @{Collection = @($MockBindingRawToDiff)}
-            }
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
 
-            Mock Get-WebSite {return $MockSite}
-
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+            It 'should return true' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $true
             }
         }
 
-        Context 'CertificateStoreName is different and no CertificateThumbprint is specified' {
-
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]443
-                    HostName              = ''
-                    Protocol              = 'https'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = 'My'
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
-
-            $MockBindingRawToDiff = @{
-                bindingInformation   = '*:443:'
-                protocol             = 'https'
-                certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                certificateStoreName = 'WebHosting'
-                sslFlags             = '0'
+        Context 'CertificateStoreName is incorrect' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = '1234560215616'
+                CertificateStoreName  = 'WebHosting'
             }
 
-            $MockSite = @{
-                Name     = 'MockHostName'
-                Bindings = @{Collection = @($MockBindingRawToDiff)}
-            }
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
 
-            Mock Get-WebSite {return $MockSite}
-
-            $errorId = 'WebsiteBindingInputInvalidation'
-            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $errorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f $MockSite.Name
-            $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-            $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
-            It 'should throw the correct error' {
-                {
-                    Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo
-                } | Should Throw $errorRecord
-            }
-
-        }
-
-        Context 'SslFlags is different' {
-
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]443
-                    HostName              = ''
-                    Protocol              = 'https'
-                    CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                    CertificateStoreName  = 'WebHosting'
-                    SslFlags              = '1'
-                } -ClientOnly
-            )
-
-            $MockBindingRawToDiff = @{
-                bindingInformation   = '*:443:'
-                protocol             = 'https'
-                certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                certificateStoreName = 'WebHosting'
-                sslFlags             = '0'
-            }
-
-            $MockSite = @{
-                Name     = 'MockHostName'
-                Bindings = @{Collection = @($MockBindingRawToDiff)}
-            }
-
-            Mock Get-WebSite {return $MockSite}
-
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
-            }
-
-        }
-
-        Context 'Identical collections of bindings' {
-
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]80
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly;
-
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]8080
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
-
-            $MockBindingRawToDiff = @(
-                @{
-                    bindingInformation   = '*:80:'
-                    protocol             = 'http'
-                    certificateHash      = ''
-                    certificateStoreName = ''
-                    sslFlags             = '0'
-                },
-
-                @{
-                    bindingInformation   = '*:8080:'
-                    protocol             = 'http'
-                    certificateHash      = ''
-                    certificateStoreName = ''
-                    sslFlags             = '0'
-                }
-            )
-
-            $MockSite = @{
-                Name     = 'MockHostName'
-                Bindings = @{Collection = @($MockBindingRawToDiff)}
-            }
-
-            Mock Get-WebSite {return $MockSite}
-
-            It 'should return False' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $false
+            It 'should return true' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $true
             }
         }
 
-        Context 'Different collections of bindings' {
-
-            $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]80
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly;
-
-                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                    IPAddress             = '*'
-                    Port                  = [UInt16]8080
-                    HostName              = ''
-                    Protocol              = 'http'
-                    CertificateThumbprint = ''
-                    CertificateStoreName  = ''
-                    SslFlags              = '0'
-                } -ClientOnly
-            )
-
-            $MockBindingRawToDiff = @(
-                @{
-                    bindingInformation   = '*:80:'
-                    protocol             = 'http'
-                    certificateHash      = ''
-                    certificateStoreName = ''
-                    sslFlags             = '0'
-                },
-
-                @{
-                    bindingInformation   = '*:8081:'
-                    protocol             = 'http'
-                    certificateHash      = ''
-                    certificateStoreName = ''
-                    sslFlags             = '0'
-                }
-            )
-
-            $MockSite = @{
-                Name     = 'MockHostName'
-                Bindings = @{Collection = @($MockBindingRawToDiff)}
+        Context 'CertificateStoreName is incorrect and no thumbrpint is specified' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = 'WebHosting'
+                SSLFlags = 0
             }
 
-            Mock Get-WebSite {return $MockSite}
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
 
-            It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+            It 'should return false' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $false
             }
-
         }
 
+        Context 'SSLFlags is incorrect' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+                SSLFlags              = 1
+            }
+
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
+
+            It 'should return true' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $true
+            }
+        }
+
+        Context 'Everything is the same' {
+            $badBindingObject = @{
+                Port                  = 80
+                Protocol              = 'http'
+                IPAddress             = '127.0.0.1'
+                HostName              = 'MockHostName'
+                CertificateThumbprint = ''
+                CertificateStoreName  = ''
+                SSLFlags              = 0
+            }
+
+            Mock Confirm-PortIPHostisUnique {return $true}
+            Mock Get-WebBinding {return $BindingObject}
+            Mock Get-Website {return $MockSite}
+            Mock Get-WebBindingObject { return $badBindingObject }
+
+            It 'should return false' {
+                Test-WebsiteBindings -Name $BindingObject.hostname -BindingInfo $MockBinding | Should be $false
+            }
+        }
     }
 
     Describe 'Update-WebsiteBinding' {
-
         $MockSite = @{
-            Ensure             = 'Present'
-            Name               = 'MockName'
-            PhysicalPath       = 'C:\NonExistent'
-            ID                 = 1
-            State              = 'Started'
-            ApplicationPool    = 'MockPool'
+            Ensure          = 'Present'
+            Name            = 'MockHostName'
+            PhysicalPath    = 'C:\NonExistant'
+            ID              = 1
+            State           = 'Started'
+            ApplicationPool = 'MockPool'
+            BindingInformation = '127.0.0.1:443:'
         }
 
-        $MockBindingCustom = @{
+        $BindingObject = @{
             Port                  = 443
             Protocol              = 'https'
             IPAddress             = '127.0.0.1'
             HostName              = 'MockHostName'
             CertificateThumbprint = '1234561651481561891481654891651'
             CertificateStoreName  = 'MY'
-            SslFlags              = '1'
+            SSLFlags              = 1
         }
 
-        $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-            Port      = [UInt16]$MockBindingCustom.Port
-            Protocol  = $MockBindingCustom.Protocol
-            IPAddress = $MockBindingCustom.IPAddress
-            HostName  = $MockBindingCustom.HostName
-            SslFlags  = $MockBindingCustom.SslFlags
+        $mockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+            Port      = [System.UInt16] $BindingObject.Port
+            Protocol  = $BindingObject.Protocol
+            IPAddress = $BindingObject.IPaddress
+            HostName  = $BindingObject.Hostname
+            SSLFlags  = $BindingObject.SSLFlags
         } -ClientOnly
 
         Context 'expected behavior' {
-            Mock Clear-ItemProperty {return $null}
-            Mock New-WebBinding {
-                return @{
+            Mock Clear-ItemProperty { return $null }
+            Mock New-WebBinding { return @{
                     Name = $Name;
                     Protocol = $Protocol;
                     Port = $Port;
-                    IPAddress = $IPAddress;
-                    HostHeader = $HostHeader;
+                    IPaddress = $IPaddress;
+                    Hostheader = $Hostheader;
                     SslFlags = $SslFlags;
                 }
             } -Verifiable
 
-            $Result = Update-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo
-
+            $result = Update-WebsiteBinding -Name $MockSite.Name -BindingInfo $mockBinding
             It 'should call all the mocks' {
-                Assert-MockCalled -CommandName New-WebBinding
+                Assert-MockCalled New-WebBinding
             }
 
             It 'should use the right name' {
-                $Result.Name | Should Be $MockSite.Name
+                $result.Name | Should be $MockSite.Name
             }
 
             It 'should use the right protocol' {
-                $Result.Protocol | Should Be $MockBindingInfo.Protocol
+                $result.Protocol | Should be $mockBinding.Protocol
             }
 
-            It 'should use the right IPAddress' {
-                $Result.IPAddress | Should Be $MockBindingInfo.IPAddress
+            It 'should use the right IPaddress' {
+                $result.IPaddress | Should be $mockBinding.IPaddress
             }
 
-            It 'should use the right HostHeader' {
-                $Result.HostHeader | Should Be $MockBindingInfo.HostName
+            It 'should use the right Hostheader' {
+                $result.Hostheader | Should be $mockBinding.HostName
             }
 
-            It 'should use the right SslFlags' {
-                $Result.SslFlags | Should Be $MockBindingInfo.SslFlags
+            It 'should use the right SSLFlags' {
+                $result.SslFlags | Should be $mockBinding.SslFlags
             }
         }
 
@@ -1388,12 +1216,10 @@ InModuleScope $DSCResourceName {
                 $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-                Mock Clear-ItemProperty {return $null}
-                Mock New-WebBinding {throw}
+                Mock Clear-ItemProperty { return $null }
+                Mock New-WebBinding { throw}
 
-                {
-                    Update-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo
-                } | Should Throw $errorRecord
+                { Update-WebsiteBinding -Name $MockSite.Name -BindingInfo $mockBinding } | should throw $errorRecord
             }
         }
 
@@ -1401,14 +1227,14 @@ InModuleScope $DSCResourceName {
             $MockSite = @{
                 Ensure          = 'Present'
                 Name            = 'MockHostName'
-                PhysicalPath    = 'C:\NonExistent'
+                PhysicalPath    = 'C:\NonExistant'
                 ID              = 1
                 State           = 'Started'
                 ApplicationPool = 'MockPool'
                 BindingInformation = '127.0.0.1:80:'
             }
 
-            $MockBindingCustom = @{
+            $BindingObject = @{
                 Port                  = 80
                 Protocol              = 'http'
                 IPAddress             = '127.0.0.1'
@@ -1417,13 +1243,13 @@ InModuleScope $DSCResourceName {
                 CertificateStoreName  = 'MY'
             }
 
-            $MockBindingInfo = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                Port                  = [UInt16]$MockBindingCustom.Port
-                Protocol              = $MockBindingCustom.Protocol
-                IPAddress             = $MockBindingCustom.IPAddress
-                HostName              = $MockBindingCustom.HostName
-                CertificateThumbprint = $MockBindingCustom.CertificateThumbprint
-                CertificateStoreName  = $MockBindingCustom.CertificateStoreName
+            $mockBinding = New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                Port      = [System.UInt16] $BindingObject.Port
+                Protocol  = $BindingObject.Protocol
+                IPAddress = $BindingObject.IPaddress
+                HostName  = $BindingObject.Hostname
+                CertificateThumbprint  = $BindingObject.CertificateThumbprint
+                CertificateStoreName  = $BindingObject.CertificateStoreName
             } -ClientOnly
 
             It 'should throw the right error' {
@@ -1432,50 +1258,33 @@ InModuleScope $DSCResourceName {
                         throw;
                     }
                 }
-                Mock Clear-ItemProperty {return $null}
-                Mock New-WebBinding {return $null}
-                Mock Get-WebBinding {return throw}
+                Mock Clear-ItemProperty { return $null }
+                Mock New-WebBinding { return $null }
+                Mock Get-WebBinding { return throw; }
 
-                $errorId = 'WebBindingCertificateError'
+                $errorId = 'WebBindingCertifcateError'
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                $errorMessage = $($LocalizedData.WebBindingCertificateError) -f $MockBindingCustom.CertificateThumbprint
+                $errorMessage = $($LocalizedData.WebBindingCertifcateError) -f $BindingObject.CertificateThumbprint
                 $errorMessage += $_.Exception.Message
                 $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-                {
-                    Update-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo
-                } | Should Throw $errorRecord
+                { Update-WebsiteBinding -Name $MockSite.Name -BindingInfo $mockBinding } | should throw $errorRecord
             }
         }
     }
 
     Describe 'Update-DefaultPages' {
-
-        $MockSite = @{
-            Ensure             = 'Present'
-            Name               = 'MockName'
-            PhysicalPath       = 'C:\NonExistent'
-            ID                 = 1
-            State              = 'Started'
-            ApplicationPool    = 'MockPool'
-            DefaultPage        = 'index.htm'
-        }
-
         Context 'Does not find the default page' {
             It 'should call Add-WebConfiguration' {
-                Mock Get-WebConfiguration {return @{value = 'index2.htm'}}
-                Mock Add-WebConfiguration {return $null}
-
-                $Result = Update-DefaultPages -Name $MockSite.Name -DefaultPage $MockSite.DefaultPage
-
-                Assert-MockCalled -CommandName Add-WebConfiguration
+                Mock Get-WebConfiguration { return 'index.htm' }
+                Mock Add-WebConfiguration { return $null }
+                $result = Update-DefaultPages -Name 'Default Web Site' -DefaultPage 'index2.htm'
+                Assert-MockCalled -commandName Add-WebConfiguration
             }
         }
     }
-
 }
 
 # Cleanup after the test
-Remove-Item -Path $ModuleRoot -Recurse -Force
-
+Remove-Item -Path $moduleRoot -Recurse -Force
