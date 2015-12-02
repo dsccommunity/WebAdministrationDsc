@@ -51,14 +51,11 @@ function Get-TargetResource
     {
         $EnsureResult = 'Absent'
     }
-    elseif ($Website.count -eq 1) # A single Website exists with this name.
+    elseif ($Website.Count -eq 1) # A single Website exists with this name.
     {
         $EnsureResult = 'Present'
 
-        $CimBindings = @(
-            $Website.bindings.Collection |
-            ConvertTo-CimBinding
-        )
+        $CimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
 
         $allDefaultPage = @(
             Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
@@ -80,7 +77,7 @@ function Get-TargetResource
 
     # Add all Website properties to the hash table
     return @{
-        Name            = $Website.Name
+        Name            = $Name
         Ensure          = $EnsureResult
         PhysicalPath    = $Website.PhysicalPath
         State           = $Website.State
@@ -563,55 +560,76 @@ function ConvertTo-CimBinding
 {
     <#
     .SYNOPSIS
-        Converts WebAdministration Binding object to instance of the MSFT_xWebBindingInformation CIM class.
+        Converts binding objects to instances of the MSFT_xWebBindingInformation CIM class.
     #>
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     param
     (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [ValidateNotNullOrEmpty()]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [Object[]]
         $InputObject
     )
+    begin
+    {
+        $CimClassName = 'MSFT_xWebBindingInformation'
+        $CimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
+    }
     process
     {
-        if ($InputObject -is [Microsoft.Management.Infrastructure.CimInstance])
-        {
-            $CimProperties = @{
-                    Port                  = [UInt16]$InputObject.Port
-                    Protocol              = $InputObject.Protocol
-                    IPAddress             = $(if (-not $InputObject.IPAddress) {'*'} else {$InputObject.IPAddress})
-                    HostName              = $InputObject.HostName
-                    CertificateThumbprint = $(if (-not $InputObject.CertificateThumbprint) {''} else {$InputObject.CertificateThumbprint})
-                    CertificateStoreName  = $(if (-not $InputObject.CertificateStoreName) {''} else {$InputObject.CertificateStoreName})
-                    SslFlags              = [String][Int32]$InputObject.SslFlags
-                }
-        }
-        else
-        {
-            if ($InputObject.bindingInformation -match '^\[(.*?)\]\:(.*?)\:(.*?)$')
+        $InputObject |
+        ForEach-Object -Process {
+
+            $Binding = $_
+
+            #TODO: Implement support for other binding types: 'ftp', 'msmq.formatname', 'net.msmq', 'net.pipe', 'net.tcp'.
+            if ($Binding.Protocol -notin @('http', 'https'))
             {
-                $IPAddress = $Matches[1]
-                [UInt16]$Port = $Matches[2]
-                $HostName = $Matches[3]
+                Write-Verbose -Message "Protocol '$($Binding.protocol)' is not currently supported. The element will be skipped."
+                return
+            }
+
+            if ($Binding -is [Microsoft.Management.Infrastructure.CimInstance])
+            {
+                $CimProperties = @{
+                    Port                  = [UInt16]$Binding.Port
+                    Protocol              = [String]$Binding.Protocol
+                    IPAddress             = [String]$(if ($Binding.IPAddress) {$Binding.IPAddress} else {'*'})
+                    HostName              = [String]$Binding.HostName
+                    CertificateThumbprint = [String]$Binding.CertificateThumbprint
+                    CertificateStoreName  = [String]$Binding.CertificateStoreName
+                    SslFlags              = [String][Int32]$Binding.SslFlags
+                }
             }
             else
             {
-                $IPAddress, $Port, $HostName = $InputObject.bindingInformation -split '\:'
+                if ($Binding.bindingInformation -match '^\[(.*?)\]\:(.*?)\:(.*?)$')
+                {
+                    $IPAddress = $Matches[1]
+                    $Port = $Matches[2]
+                    $HostName = $Matches[3]
+                }
+                else
+                {
+                    $IPAddress, $Port, $HostName = $Binding.bindingInformation -split '\:'
+                }
+
+                $CimProperties = @{
+                    Port                  = [UInt16]$Port
+                    Protocol              = [String]$Binding.Protocol
+                    IPAddress             = [String]$(if ($IPAddress) {$IPAddress} else {'*'})
+                    HostName              = [String]$HostName
+                    CertificateThumbprint = [String]$Binding.certificateHash
+                    CertificateStoreName  = [String]$Binding.certificateStoreName
+                    SslFlags              = [String][Int32]$Binding.sslFlags
+                }
             }
 
-            $CimProperties = @{
-                    Port                  = [UInt16]$Port
-                    Protocol              = $InputObject.Protocol
-                    IPAddress             = $(if (-not $IPAddress) {'*'} else {$IPAddress})
-                    HostName              = $HostName
-                    CertificateThumbprint = $(if (-not $InputObject.certificateHash) {''} else {$InputObject.certificateHash})
-                    CertificateStoreName  = $(if (-not $InputObject.certificateStoreName) {''} else {$InputObject.certificateStoreName})
-                    SslFlags              = [String][Int32]$InputObject.SslFlags
-                }
-        }
+            New-CimInstance -ClassName $CimClassName -Namespace $CimNamespace -Property $CimProperties -ClientOnly
 
-        New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -Property $CimProperties -ClientOnly
+        }
     }
 }
 
@@ -625,6 +643,7 @@ function Test-WebsiteBindings
         Helper function used to validate and compare website bindings of current to desired.
         Returns True if bindings need to be updated and False if not.
     #>
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -666,20 +685,21 @@ function Test-WebsiteBindings
             $_.Name -eq $Name
         }
 
-        # Get-WebBinding may fail in case there are no bindings assigned to a website
-        $CurrentCimBindings = @(
-            $Website.bindings.Collection |
-            ConvertTo-CimBinding
-        )
+        if ($Website.bindings.Collection | Where-Object -FilterScript {$_.protocol -notin @('http', 'https')})
+        {
+            Write-Verbose -Message "Website '$Name' has bindings of unsupported types."
+            $IsUpdateRequired = $true
+        }
+
+        $CurrentCimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
 
         # Normalize $BindingInfo to ensure its objects have the same full set of properties as $CurrentCimBindings
-        $DesiredCimBindings = @(
-            $BindingInfo |
-            ConvertTo-CimBinding
-        )
+        $DesiredCimBindings = @(ConvertTo-CimBinding -InputObject $BindingInfo)
 
         $PropertiesToCompare = 'Port', 'Protocol', 'IPAddress', 'HostName', 'CertificateThumbprint', 'CertificateStoreName'
 
+        # The sslFlags attribute was added in IIS 8.0.
+        # This check is needed for backwards compatibility with Windows Server 2008 R2.
         if ([Environment]::OSVersion.Version -ge '6.2')
         {
             $PropertiesToCompare += 'SslFlags'
@@ -726,15 +746,15 @@ function Update-WebsiteBinding
     #Need to clear $UseHostheader flag for multiple ssl bindings per site
     $UseHostHeader = $false
 
-    foreach ($binding in $BindingInfo)
+    foreach ($Binding in $BindingInfo)
     {
-        $Protocol = $binding.CimInstanceProperties['Protocol'].Value
-        $IPAddress = $binding.CimInstanceProperties['IPAddress'].Value
-        $Port = $binding.CimInstanceProperties['Port'].Value
-        $HostHeader = $binding.CimInstanceProperties['HostName'].Value
-        $CertificateThumbprint = $binding.CimInstanceProperties['CertificateThumbprint'].Value
-        $CertificateStoreName = $binding.CimInstanceProperties['CertificateStoreName'].Value
-        $SslFlags = $binding.CimInstanceProperties['SslFlags'].Value
+        $Protocol = $Binding.CimInstanceProperties['Protocol'].Value
+        $IPAddress = $Binding.CimInstanceProperties['IPAddress'].Value
+        $Port = $Binding.CimInstanceProperties['Port'].Value
+        $HostHeader = $Binding.CimInstanceProperties['HostName'].Value
+        $CertificateThumbprint = $Binding.CimInstanceProperties['CertificateThumbprint'].Value
+        $CertificateStoreName = $Binding.CimInstanceProperties['CertificateStoreName'].Value
+        $SslFlags = $Binding.CimInstanceProperties['SslFlags'].Value
 
         $BindingParams = @{}
         $BindingParams.Add('Name', $Name)
@@ -767,7 +787,7 @@ function Update-WebsiteBinding
             $UseHostHeader = $true
         }
 
-        if ([Environment]::OSVersion.Version -ge '6.2' -and -not [String]::IsNullOrWhiteSpace($SslFlags))
+        if ([Environment]::OSVersion.Version -ge '6.2' -and -not [String]::IsNullOrEmpty($SslFlags))
         {
             $BindingParams.Add('SslFlags', $SslFlags)
         }
@@ -790,7 +810,7 @@ function Update-WebsiteBinding
 
         try
         {
-            if (-not [String]::IsNullOrWhiteSpace($CertificateThumbprint))
+            if (-not [String]::IsNullOrEmpty($CertificateThumbprint))
             {
                 # Modify the last added binding
                 if ($UseHostHeader -eq $true)
