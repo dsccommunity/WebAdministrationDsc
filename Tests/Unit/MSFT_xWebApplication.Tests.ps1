@@ -41,7 +41,7 @@ InModuleScope -ModuleName  $DSCResourceName -ScriptBlock {
         PhysicalPath  = 'C:\MockSite\MockApp'
     }
 
-    Describe 'CheckDependencies' {
+    Describe 'MSFT_xWebApplicaiton\CheckDependencies' {
 
         Context 'WebAdminstration module is not installed' {
 
@@ -60,7 +60,7 @@ InModuleScope -ModuleName  $DSCResourceName -ScriptBlock {
     }
 
 
-    Describe 'Get-TargetResource' {
+    Describe 'MSFT_xWebApplicaiton\Get-TargetResource' {
 
         Context 'Absent should return correctly' {
 
@@ -95,7 +95,7 @@ InModuleScope -ModuleName  $DSCResourceName -ScriptBlock {
     }
 
 
-    Describe "how Test-TargetResource responds to Ensure = 'Absent'" {
+    Describe "how MSFT_xWebApplicaiton\Test-TargetResource responds to Ensure = 'Absent'" {
 
         Context 'Web Application does not exist' {
 
@@ -126,7 +126,7 @@ InModuleScope -ModuleName  $DSCResourceName -ScriptBlock {
     }
 
 
-    Describe "how Test-TargetResource responds to Ensure = 'Present'" {
+    Describe "how MSFT_xWebApplicaiton\Test-TargetResource responds to Ensure = 'Present'" {
 
         Context 'Web Application does not exist' {
 
@@ -195,7 +195,7 @@ InModuleScope -ModuleName  $DSCResourceName -ScriptBlock {
     }
 
 
-    Describe "how Set-TargetResource responds to Ensure = 'Absent'" {
+    Describe "how MSFT_xWebApplicaiton\Set-TargetResource responds to Ensure = 'Absent'" {
 
         Context 'Web Application exists' {
 
@@ -214,7 +214,7 @@ InModuleScope -ModuleName  $DSCResourceName -ScriptBlock {
     }
 
 
-    Describe "how Set-TargetResource responds to Ensure = 'Present'" {
+    Describe "how MSFT_xWebApplicaiton\Set-TargetResource responds to Ensure = 'Present'" {
 
         Context 'Web Application does not exist' {
 
