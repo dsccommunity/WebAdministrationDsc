@@ -23,6 +23,7 @@ WebsiteBindingConflictOnStartError = Website "{0}" could not be started due to b
 # It gives the Website info of the requested role/feature on the target machine.
 function Get-TargetResource
 {
+    [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
@@ -43,9 +44,7 @@ function Get-TargetResource
         throw 'Please ensure that WebAdministration module is installed.'
     }
 
-    $Website = Get-Website | Where-Object -FilterScript {
-        $_.Name -eq $Name
-    }
+    $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
     if ($Website.Count -eq 0) # No Website exists with this name.
     {
@@ -57,22 +56,20 @@ function Get-TargetResource
 
         $CimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
 
-        $allDefaultPage = @(
+        $AllDefaultPages = @(
             Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
-            ForEach-Object -Process {
-                Write-Output -InputObject $_.value
-            }
+            ForEach-Object -Process {Write-Output -InputObject $_.value}
         )
     }
     else # Multiple websites with the same name exist. This is not supported and is an error
     {
-        $errorId = 'WebsiteDiscoveryFailure'
-        $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-        $errorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f ${Name}
-        $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-        $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+        $ErrorId = 'WebsiteDiscoveryFailure'
+        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+        $ErrorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f ${Name}
+        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-        $PSCmdlet.ThrowTerminatingError($errorRecord)
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
 
     # Add all Website properties to the hash table
@@ -84,7 +81,7 @@ function Get-TargetResource
         ID              = $Website.ID
         ApplicationPool = $Website.ApplicationPool
         BindingInfo     = $CimBindings
-        DefaultPage     = $allDefaultPage
+        DefaultPage     = $AllDefaultPages
     }
 }
 
@@ -123,8 +120,6 @@ function Set-TargetResource
         $DefaultPage
     )
 
-    $getTargetResourceResult = $null
-
     if ($Ensure -eq 'Present')
     {
         #Remove Ensure from parameters as it is not needed to create new website
@@ -146,9 +141,7 @@ function Set-TargetResource
             throw 'Please ensure that WebAdministration module is installed.'
         }
 
-        $Website = Get-Website | Where-Object -FilterScript {
-            $_.Name -eq $Name
-        }
+        $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
         if ($Website -ne $null)
         {
@@ -168,13 +161,13 @@ function Set-TargetResource
             #Update Bindings if required
             if ($BindingInfo -ne $null)
             {
-                if (Test-WebsiteBindings -Name $Name -BindingInfo $BindingInfo)
+                if (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo)
                 {
                     $UpdateNotRequired = $false
                     #Update Bindings
                     Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo -ErrorAction Stop
 
-                    Write-Verbose -Message "Bindings for website $Name have been updated."
+                    Write-Verbose -Message "Bindings for website $Name have been updated"
                 }
             }
 
@@ -190,7 +183,7 @@ function Set-TargetResource
             #Update Default pages if required
             if ($DefaultPage -ne $null)
             {
-                Update-DefaultPages -Name $Name -DefaultPage $DefaultPage
+                Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
             }
 
             #Update State if required
@@ -201,34 +194,34 @@ function Set-TargetResource
                 if ($State -eq 'Started')
                 {
                     # Ensure that there are no other websites with binding information that will conflict with this site before starting
-                    $existingSites = Get-Website | Where-Object -FilterScript {$_.Name -ne $Name}
+                    $ExistingSites = Get-Website | Where-Object -FilterScript {$_.Name -ne $Name}
 
-                    foreach ($site in $existingSites)
+                    foreach ($Site in $ExistingSites)
                     {
-                        $siteInfo = Get-TargetResource -Name $site.Name -PhysicalPath $site.PhysicalPath
+                        $SiteInfo = Get-TargetResource -Name $Site.Name -PhysicalPath $Site.PhysicalPath
 
-                        foreach ($binding in $BindingInfo)
+                        foreach ($Binding in $BindingInfo)
                         {
                             #Normalize empty IPAddress to "*"
-                            if ([String]::IsNullOrEmpty($binding.IPAddress))
+                            if ([String]::IsNullOrEmpty($Binding.IPAddress))
                             {
                                 $NormalizedIPAddress = '*'
                             }
                             else
                             {
-                                $NormalizedIPAddress = $binding.IPAddress
+                                $NormalizedIPAddress = $Binding.IPAddress
                             }
 
-                            if (-not (Confirm-PortIpHostIsUnique -Port $binding.Port -IPAddress $NormalizedIPAddress -HostName $binding.HostName -BindingInfo $siteInfo.BindingInfo -UniqueInstances 1))
+                            if (-not (Confirm-UniqueBindingInfo -Port $Binding.Port -IPAddress $NormalizedIPAddress -HostName $Binding.HostName -BindingInfo $SiteInfo.BindingInfo -UniqueInstances 1))
                             {
                                 #return error & Do not start Website
-                                $errorId = 'WebsiteBindingConflictOnStart'
-                                $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                                $errorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f ${Name}
-                                $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                                $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+                                $ErrorId = 'WebsiteBindingConflictOnStart'
+                                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                                $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f ${Name}
+                                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                                $PSCmdlet.ThrowTerminatingError($errorRecord)
+                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
                             }
                         }
                     }
@@ -239,14 +232,14 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $errorId = 'WebsiteStateFailure'
-                        $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                        $errorMessage = $($LocalizedData.WebsiteStateFailureError) -f ${Name}
-                        $errorMessage += $_.Exception.Message
-                        $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                        $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+                        $ErrorId = 'WebsiteStateFailure'
+                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+                        $ErrorMessage = $($LocalizedData.WebsiteStateFailureError) -f ${Name}
+                        $ErrorMessage += $_.Exception.Message
+                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                        $PSCmdlet.ThrowTerminatingError($errorRecord)
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
                     }
                 }
                 else
@@ -257,14 +250,14 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $errorId = 'WebsiteStateFailure'
-                        $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                        $errorMessage = $($LocalizedData.WebsiteStateFailureError) -f ${Name}
-                        $errorMessage += $_.Exception.Message
-                        $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                        $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+                        $ErrorId = 'WebsiteStateFailure'
+                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+                        $ErrorMessage = $($LocalizedData.WebsiteStateFailureError) -f ${Name}
+                        $ErrorMessage += $_.Exception.Message
+                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                        $PSCmdlet.ThrowTerminatingError($errorRecord)
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
                     }
                 }
 
@@ -292,12 +285,12 @@ function Set-TargetResource
                     $Website = New-Website @PSBoundParameters
                 }
 
-                $Result = Stop-Website $Website.Name -ErrorAction Stop
+                $Result = Stop-Website -Name $Website.Name -ErrorAction Stop
 
                 #Clear default bindings if new bindings defined and are different
                 if ($BindingInfo -ne $null)
                 {
-                    if (Test-WebsiteBindings -Name $Name -BindingInfo $BindingInfo)
+                    if (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo)
                     {
                         Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
                     }
@@ -306,7 +299,7 @@ function Set-TargetResource
                 #Add Default pages for new created website
                 if ($DefaultPage -ne $null)
                 {
-                    Update-DefaultPages -Name $Name -DefaultPage $DefaultPage
+                    Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
                 }
 
                 Write-Verbose -Message "successfully created website $Name"
@@ -324,13 +317,13 @@ function Set-TargetResource
             }
             catch
             {
-                $errorId = 'WebsiteCreationFailure'
-                $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                $errorMessage = $($LocalizedData.WebsiteCreationFailureError) -f ${Name}
-                $errorMessage += $_.Exception.Message
-                $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
+                $ErrorId = 'WebsiteCreationFailure'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+                $ErrorMessage = $($LocalizedData.WebsiteCreationFailureError) -f ${Name}
+                $ErrorMessage += $_.Exception.Message
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
             }
         }
     }
@@ -338,9 +331,7 @@ function Set-TargetResource
     {
         try
         {
-            $Website = Get-Website | Where-Object -FilterScript {
-                $_.Name -eq $Name
-            }
+            $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
             if ($Website -ne $null)
             {
@@ -354,14 +345,14 @@ function Set-TargetResource
         }
         catch
         {
-            $errorId = 'WebsiteRemovalFailure'
-            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-            $errorMessage = $($LocalizedData.WebsiteRemovalFailureError) -f ${Name}
-            $errorMessage += $_.Exception.Message
-            $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-            $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+            $ErrorId = 'WebsiteRemovalFailure'
+            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+            $ErrorMessage = $($LocalizedData.WebsiteRemovalFailureError) -f ${Name}
+            $ErrorMessage += $_.Exception.Message
+            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
         }
     }
 }
@@ -370,6 +361,7 @@ function Set-TargetResource
 # The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
 function Test-TargetResource
 {
+    [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
@@ -409,9 +401,7 @@ function Test-TargetResource
         throw 'Please ensure that WebAdministration module is installed.'
     }
 
-    $Website = Get-Website | Where-Object -FilterScript {
-        $_.Name -eq $Name
-    }
+    $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
     #Check Ensure
     if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
@@ -447,7 +437,7 @@ function Test-TargetResource
         #Check Binding properties
         if ($BindingInfo -ne $null)
         {
-            if (Test-WebsiteBindings -Name $Name -BindingInfo $BindingInfo)
+            if (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo)
             {
                 $DesiredConfigurationMatch = $false
                 Write-Verbose -Message "Bindings for website $Name do not match the desired state."
@@ -457,16 +447,14 @@ function Test-TargetResource
         #Check Default Pages
         if ($DefaultPage -ne $null)
         {
-            $allDefaultPage = @(
+            $AllDefaultPages = @(
                 Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
-                ForEach-Object -Process {
-                    Write-Output -InputObject $_.value
-                }
+                ForEach-Object -Process {Write-Output -InputObject $_.value}
             )
 
             foreach ($Page in $DefaultPage)
             {
-                if ($allDefaultPage -inotcontains $Page)
+                if ($AllDefaultPages -inotcontains $Page)
                 {
                     $DesiredConfigurationMatch = $false
                     Write-Verbose -Message "Default Page for website $Name does not match the desired state."
@@ -484,6 +472,8 @@ function Test-TargetResource
 # Helper function used to validate website path
 function Test-WebsitePath
 {
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -511,8 +501,10 @@ function Test-WebsitePath
 # Helper function used to validate website bindings
 # Returns true if bindings are valid (ie. port, IPAddress & Hostname combinations are unique).
 
-function Confirm-PortIpHostIsUnique
+function Confirm-UniqueBindingInfo
 {
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
     param
     (
         [Parameter()]
@@ -636,7 +628,7 @@ function ConvertTo-CimBinding
 
 # Helper function used to compare website bindings of actual to desired
 # Returns true if bindings need to be updated and false if not.
-function Test-WebsiteBindings
+function Test-WebsiteBinding
 {
     <#
     .SYNOPSIS
@@ -644,6 +636,7 @@ function Test-WebsiteBindings
         Returns True if bindings need to be updated and False if not.
     #>
     [CmdletBinding()]
+    [OutputType([System.Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -661,18 +654,18 @@ function Test-WebsiteBindings
     {
         # First ensure that desired binding information is valid (i.e. no duplicate IPAddress, Port, HostName combinations).
         if (
-            (-not (Confirm-PortIpHostIsUnique -Port $Binding.Port -IPAddress $Binding.IPAddress -HostName $Binding.HostName -BindingInfo $BindingInfo)) -or
+            (-not (Confirm-UniqueBindingInfo -Port $Binding.Port -IPAddress $Binding.IPAddress -HostName $Binding.HostName -BindingInfo $BindingInfo)) -or
             ($Binding.CertificateThumbprint -eq '' -and $Binding.CertificateStoreName -ne '') -or
             ($Binding.CertificateThumbprint -ne '' -and $Binding.CertificateStoreName -eq '')
         )
         {
-            $errorId = 'WebsiteBindingInputInvalidation'
-            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $errorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f ${Name}
-            $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-            $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+            $ErrorId = 'WebsiteBindingInputInvalidation'
+            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+            $ErrorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f ${Name}
+            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
         }
     }
 
@@ -681,9 +674,7 @@ function Test-WebsiteBindings
 
     try
     {
-        $Website = Get-Website | Where-Object -FilterScript {
-            $_.Name -eq $Name
-        }
+        $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
         if ($Website.bindings.Collection | Where-Object -FilterScript {$_.protocol -notin @('http', 'https')})
         {
@@ -712,14 +703,14 @@ function Test-WebsiteBindings
     }
     catch
     {
-        $errorId = 'WebsiteCompareFailure'
-        $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-        $errorMessage = $($LocalizedData.WebsiteCompareFailureError) -f ${Name}
-        $errorMessage += $_.Exception.Message
-        $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-        $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+        $ErrorId = 'WebsiteCompareFailure'
+        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+        $ErrorMessage = $($LocalizedData.WebsiteCompareFailureError) -f ${Name}
+        $ErrorMessage += $_.Exception.Message
+        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-        $PSCmdlet.ThrowTerminatingError($errorRecord)
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
 
     return $IsUpdateRequired
@@ -728,6 +719,7 @@ function Test-WebsiteBindings
 
 function Update-WebsiteBinding
 {
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -798,14 +790,14 @@ function Update-WebsiteBinding
         }
         catch
         {
-            $errorId = 'WebsiteBindingUpdateFailure'
-            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $errorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f ${Name}
-            $errorMessage += $_.Exception.Message
-            $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-            $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+            $ErrorId = 'WebsiteBindingUpdateFailure'
+            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+            $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f ${Name}
+            $ErrorMessage += $_.Exception.Message
+            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
         }
 
         try
@@ -827,22 +819,23 @@ function Update-WebsiteBinding
         }
         catch
         {
-            $errorId = 'WebBindingCertificateError'
-            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-            $errorMessage = $($LocalizedData.WebBindingCertificateError) -f ${CertificateThumbprint}
-            $errorMessage += $_.Exception.Message
-            $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-            $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+            $ErrorId = 'WebBindingCertificateError'
+            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+            $ErrorMessage = $($LocalizedData.WebBindingCertificateError) -f ${CertificateThumbprint}
+            $ErrorMessage += $_.Exception.Message
+            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
         }
     }
 }
 
 
 # Helper function used to Update default pages of website
-function Update-DefaultPages
+function Update-DefaultPage
 {
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -854,20 +847,16 @@ function Update-DefaultPages
         $DefaultPage
     )
 
-    $allDefaultPage = @(
+    $AllDefaultPages = @(
         Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
-        ForEach-Object -Process {
-            Write-Output -InputObject $_.value
-        }
+        ForEach-Object -Process {Write-Output -InputObject $_.value}
     )
 
     foreach ($Page in $DefaultPage)
     {
-        if ($allDefaultPage -inotcontains $Page)
+        if ($AllDefaultPages -inotcontains $Page)
         {
-            Add-WebConfiguration -Filter '//defaultDocument/files' -PSPath "IIS:\Sites\$Name" -Value @{
-                value = $Page
-            }
+            Add-WebConfiguration -Filter '//defaultDocument/files' -PSPath "IIS:\Sites\$Name" -Value @{value = $Page}
 
             if ($? -eq $true)
             {

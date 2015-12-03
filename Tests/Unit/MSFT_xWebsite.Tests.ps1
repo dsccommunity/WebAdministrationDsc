@@ -31,9 +31,10 @@ if (-not (Test-Path -Path $ModuleRoot -PathType Container))
 
 Copy-Item -Path "$PSScriptRoot\..\..\*" -Destination $ModuleRoot -Recurse -Force -Exclude '.git'
 
-InModuleScope $DSCResourceName {
 
-    Describe "how Test-TargetResource responds to Ensure = 'Present'" {
+InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
+
+    Describe "how MSFT_xWebsite\Test-TargetResource responds to Ensure = 'Present'" {
 
         $MockSite = @{
             Name            = 'MockName'
@@ -150,7 +151,7 @@ InModuleScope $DSCResourceName {
                 return $false
             }
 
-            Mock Test-WebsiteBindings -ModuleName $ModuleName -Name $Name -BindingInfo $BindingInfo {
+            Mock Test-WebsiteBinding -ModuleName $ModuleName -Name $Name -BindingInfo $BindingInfo {
                 return $true
             }
 
@@ -177,7 +178,7 @@ InModuleScope $DSCResourceName {
                 return $false
             }
 
-            Mock Test-WebsiteBindings -ModuleName $ModuleName -Name $Name -BindingInfo $BindingInfo {
+            Mock Test-WebsiteBinding -ModuleName $ModuleName -Name $Name -BindingInfo $BindingInfo {
                 return $false
             }
 
@@ -200,7 +201,7 @@ InModuleScope $DSCResourceName {
         }
     }
 
-    Describe "how Get-TargetResource responds to Ensure = 'Present'" {
+    Describe "how MSFT_xWebsite\Get-TargetResource responds to Ensure = 'Present'" {
 
         $MockSite = @{
             Name            = 'MockName'
@@ -352,7 +353,7 @@ InModuleScope $DSCResourceName {
         }
     }
 
-    Describe "how Set-TargetResource responds to Ensure = 'Present'" {
+    Describe "how MSFT_xWebsite\Set-TargetResource responds to Ensure = 'Present'" {
 
         $MockSite = @{
             Ensure          = 'Present'
@@ -399,10 +400,10 @@ InModuleScope $DSCResourceName {
             Mock Start-Website {return $null}
             Mock Test-WebsitePath {return $true}
             Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings {return $true}
+            Mock Test-WebsiteBinding {return $true}
             Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $true}
+            Mock Update-DefaultPage {return $null}
+            Mock Confirm-UniqueBindingInfo {return $true}
             Mock Get-TargetResource {return $MockSite2}
 
             $Result = Set-TargetResource -Ensure 'Present' `
@@ -417,23 +418,23 @@ InModuleScope $DSCResourceName {
                 Assert-MockCalled -CommandName Test-WebsitePath
                 Assert-MockCalled -CommandName Set-ItemProperty -Exactly 2
                 Assert-MockCalled -CommandName Update-WebsiteBinding
-                Assert-MockCalled -CommandName Update-DefaultPages
-                Assert-MockCalled -CommandName Confirm-PortIpHostIsUnique
+                Assert-MockCalled -CommandName Update-DefaultPage
+                Assert-MockCalled -CommandName Confirm-UniqueBindingInfo
                 Assert-MockCalled -CommandName Get-TargetResource
                 Assert-MockCalled -CommandName Start-Website   
             }
         }
 
-        Context 'Confirm-PortIpHostIsUnique returns False' {
+        Context 'Confirm-UniqueBindingInfo returns False' {
 
             Mock Get-Website {return @($MockSite, $MockSite2)}
             Mock Start-Website {return $null}
             Mock Test-WebsitePath {return $true}
             Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings { return $true}
+            Mock Test-WebsiteBinding { return $true}
             Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $false}
+            Mock Update-DefaultPage {return $null}
+            Mock Confirm-UniqueBindingInfo {return $false}
             Mock Get-TargetResource {return $MockSite2}
 
             It 'should throw the correct error' {
@@ -462,10 +463,10 @@ InModuleScope $DSCResourceName {
             Mock Start-Website {return throw}
             Mock Test-WebsitePath {return $true}
             Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings {return $true}
+            Mock Test-WebsiteBinding {return $true}
             Mock Update-WebsiteBinding {return $null }
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $true}
+            Mock Update-DefaultPage {return $null}
+            Mock Confirm-UniqueBindingInfo {return $true}
             Mock Get-TargetResource {return $MockSite2}
 
             It 'Should throw the correct error' {
@@ -506,10 +507,10 @@ InModuleScope $DSCResourceName {
             Mock Stop-Website {return $null}
             Mock Test-WebsitePath {return $true}
             Mock Set-ItemProperty {return $null}
-            Mock Test-WebsiteBindings {return $true}
+            Mock Test-WebsiteBinding {return $true}
             Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
-            Mock Confirm-PortIpHostIsUnique {return $true}
+            Mock Update-DefaultPage {return $null}
+            Mock Confirm-UniqueBindingInfo {return $true}
 
             $Result = Set-TargetResource -Ensure 'Present' `
                                          -Name $MockSite.Name `
@@ -523,7 +524,7 @@ InModuleScope $DSCResourceName {
                 Assert-MockCalled -CommandName Test-WebsitePath
                 Assert-MockCalled -CommandName Set-ItemProperty -Exactly 2
                 Assert-MockCalled -CommandName Update-WebsiteBinding
-                Assert-MockCalled -CommandName Update-DefaultPages
+                Assert-MockCalled -CommandName Update-DefaultPage
                 Assert-MockCalled -CommandName Stop-Website 
             }
         }
@@ -545,9 +546,9 @@ InModuleScope $DSCResourceName {
 
             Mock New-Website {return $null}
             Mock Stop-Website {return $null}
-            Mock Test-WebsiteBindings {return $true}
+            Mock Test-WebsiteBinding {return $true}
             Mock Update-WebsiteBinding {return $null}
-            Mock Update-DefaultPages {return $null}
+            Mock Update-DefaultPage {return $null}
             Mock Start-Website {return $true}
             Mock Get-ItemProperty {return $null}
 
@@ -562,9 +563,9 @@ InModuleScope $DSCResourceName {
             It 'should call all the mocks' {
                  Assert-MockCalled -CommandName New-Website
                  Assert-MockCalled -CommandName Stop-Website
-                 Assert-MockCalled -CommandName Test-WebsiteBindings
+                 Assert-MockCalled -CommandName Test-WebsiteBinding
                  Assert-MockCalled -CommandName Update-WebsiteBinding
-                 Assert-MockCalled -CommandName Update-DefaultPages
+                 Assert-MockCalled -CommandName Update-DefaultPage
                  Assert-MockCalled -CommandName Start-Website
             }
         }
@@ -595,7 +596,7 @@ InModuleScope $DSCResourceName {
         }
     }
 
-    Describe "how Set-TargetResource responds to Ensure = 'Absent'" {
+    Describe "how MSFT_xWebsite\Set-TargetResource responds to Ensure = 'Absent'" {
 
         It 'should call Remove-Website' {
 
@@ -691,7 +692,7 @@ InModuleScope $DSCResourceName {
         }
     }
 
-    Describe 'ConvertTo-CimBinding' {
+    Describe 'MSFT_xWebsite\ConvertTo-CimBinding' {
 
         Context 'IPv4 address is passed and the protocol is http' {
 
@@ -829,7 +830,7 @@ InModuleScope $DSCResourceName {
 
     }
 
-    Describe 'Test-WebsitePath' {
+    Describe 'MSFT_xWebsite\Test-WebsitePath' {
         Context 'the path is wrong' {
             It 'Should return True' {
                 Mock Get-ItemProperty {
@@ -851,7 +852,7 @@ InModuleScope $DSCResourceName {
         }
     }
 
-    Describe 'Confirm-PortIpHostIsUnique' {
+    Describe 'MSFT_xWebsite\Confirm-UniqueBindingInfo' {
         Context 'bindings are not unique' {
             It 'should return False' {
                 $MockBindingCustom = @{
@@ -872,7 +873,7 @@ InModuleScope $DSCResourceName {
 
                 $BindingArray = @($MockBindingInfo, $MockBindingInfo)
 
-                Confirm-PortIpHostIsUnique -Port $MockBindingCustom.Port -IPAddress $MockBindingCustom.IPAddress -HostName $MockBindingCustom.HostName -BindingInfo $BindingArray | Should Be $false
+                Confirm-UniqueBindingInfo -Port $MockBindingCustom.Port -IPAddress $MockBindingCustom.IPAddress -HostName $MockBindingCustom.HostName -BindingInfo $BindingArray | Should Be $false
             }
         }
 
@@ -896,12 +897,12 @@ InModuleScope $DSCResourceName {
 
                 $BindingArray = @($MockBindingInfo)
 
-                Confirm-PortIpHostIsUnique -Port $MockBindingCustom.Port -IPAddress $MockBindingCustom.IPAddress -HostName $MockBindingCustom.HostName -BindingInfo $BindingArray | Should Be $true
+                Confirm-UniqueBindingInfo -Port $MockBindingCustom.Port -IPAddress $MockBindingCustom.IPAddress -HostName $MockBindingCustom.HostName -BindingInfo $BindingArray | Should Be $true
             }
         }
     }
 
-    Describe 'Test-WebsiteBindings' {
+    Describe 'MSFT_xWebsite\Test-WebsiteBinding' {
 
         $MockBindingRawToDiff = @{
             bindingInformation   = '*:80:'
@@ -918,7 +919,7 @@ InModuleScope $DSCResourceName {
 
         Mock Get-WebSite {return $MockSite}
 
-        Context 'Confirm-PortIpHostIsUnique returns False' {
+        Context 'Confirm-UniqueBindingInfo returns False' {
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -934,7 +935,7 @@ InModuleScope $DSCResourceName {
 
             It 'should throw the correct error' {
 
-                Mock Confirm-PortIpHostIsUnique {return $false}
+                Mock Confirm-UniqueBindingInfo {return $false}
 
                 $errorId = 'WebsiteBindingInputInvalidation'
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
@@ -943,7 +944,7 @@ InModuleScope $DSCResourceName {
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
                 {
-                    Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo
+                    Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo
                 } | Should Throw $errorRecord
             }
 
@@ -972,7 +973,7 @@ InModuleScope $DSCResourceName {
 
             It 'should not return an error' {
                 {
-                    Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo
+                    Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo
                 } | Should Not Throw $errorRecord
             }
         }
@@ -992,7 +993,7 @@ InModuleScope $DSCResourceName {
             )
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
         }
 
@@ -1011,7 +1012,7 @@ InModuleScope $DSCResourceName {
             )
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
         }
 
@@ -1030,7 +1031,7 @@ InModuleScope $DSCResourceName {
             )
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
         }
 
@@ -1049,7 +1050,7 @@ InModuleScope $DSCResourceName {
             )
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
         }
 
@@ -1083,7 +1084,7 @@ InModuleScope $DSCResourceName {
             Mock Get-WebSite {return $MockSite}
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
         }
 
@@ -1117,7 +1118,7 @@ InModuleScope $DSCResourceName {
             Mock Get-WebSite {return $MockSite}
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
         }
 
@@ -1158,7 +1159,7 @@ InModuleScope $DSCResourceName {
 
             It 'should throw the correct error' {
                 {
-                    Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo
+                    Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo
                 } | Should Throw $errorRecord
             }
 
@@ -1194,7 +1195,7 @@ InModuleScope $DSCResourceName {
             Mock Get-WebSite {return $MockSite}
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
 
         }
@@ -1249,7 +1250,7 @@ InModuleScope $DSCResourceName {
             Mock Get-WebSite {return $MockSite}
 
             It 'should return False' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $false
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $false
             }
         }
 
@@ -1303,14 +1304,14 @@ InModuleScope $DSCResourceName {
             Mock Get-WebSite {return $MockSite}
 
             It 'should return True' {
-                Test-WebsiteBindings -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
+                Test-WebsiteBinding -Name $MockSite.Name -BindingInfo $MockBindingInfo | Should Be $true
             }
 
         }
 
     }
 
-    Describe 'Update-WebsiteBinding' {
+    Describe 'MSFT_xWebsite\Update-WebsiteBinding' {
 
         $MockSite = @{
             Ensure             = 'Present'
@@ -1450,7 +1451,7 @@ InModuleScope $DSCResourceName {
         }
     }
 
-    Describe 'Update-DefaultPages' {
+    Describe 'MSFT_xWebsite\Update-DefaultPage' {
 
         $MockSite = @{
             Ensure             = 'Present'
@@ -1467,7 +1468,7 @@ InModuleScope $DSCResourceName {
                 Mock Get-WebConfiguration {return @{value = 'index2.htm'}}
                 Mock Add-WebConfiguration {return $null}
 
-                $Result = Update-DefaultPages -Name $MockSite.Name -DefaultPage $MockSite.DefaultPage
+                $Result = Update-DefaultPage -Name $MockSite.Name -DefaultPage $MockSite.DefaultPage
 
                 Assert-MockCalled -CommandName Add-WebConfiguration
             }
@@ -1475,6 +1476,7 @@ InModuleScope $DSCResourceName {
     }
 
 }
+
 
 # Cleanup after the test
 Remove-Item -Path $ModuleRoot -Recurse -Force
