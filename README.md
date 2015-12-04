@@ -64,6 +64,9 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+
+### 1.8.0.0
+
 * Modified xWebsite to allow Server Name Indication when specifiying SSL certificates.
 * Change Test Get-Website to match other function
 * Removed xDscResourceDesigner tests
