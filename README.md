@@ -215,6 +215,7 @@ configuration xPhp
         }
 
         $phpZip = Join-Path $PackageFolder "php.zip"
+
         # Make sure the PHP archine is in the package folder
         xRemoteFile phpArchive
         {
@@ -252,19 +253,19 @@ configuration xPhp
         }
 
         # Make sure the php cgi module is registered with IIS
-        xIisModule phpHandler
-        {
-           Name = "phpFastCgi"
-           Path = "$($DestinationPath)\php-cgi.exe"
-           RequestPath = "*.php"
-           Verb = "*"
-           Ensure = "Present"
-           DependsOn = @("[Package]vcRedist","[File]PhpIni")
-           # Removed because this dependency does not work in
-           # Windows Server 2012 R2 and below
-           # This should work in WMF v5 and above
-           # "[IisPreReqs_php]Iis"
-        }
+		xIisModule phpHandler
+		{
+			Name = "phpFastCgi"
+			Path = "$($DestinationPath)\php-cgi.exe"
+			RequestPath = "*.php"
+			Verb = "*"
+			Ensure = "Present"
+			DependsOn = @("[Package]vcRedist","[File]PhpIni")
+			# Removed because this dependency does not work in
+			# Windows Server 2012 R2 and below
+			# This should work in WMF v5 and above
+			# "[IisPreReqs_php]Iis"
+		}
 
         # Make sure the php binary folder is in the path
         Environment PathPhp
