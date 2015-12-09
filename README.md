@@ -65,6 +65,11 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+* Fixed issue in xWebApplication where Set-TargetResource created a folder instead of an applicaition
+    * Added Tests to xWebApplication which will allow more changes if desired.
+* Fixed binding compare issue in xWebsite which was causing bindings to be changed every DSC check.
+* Modified README.MD to clean up Code Formatting
+
 ### 1.8.0.0
 
 * Modified xWebsite to allow Server Name Indication when specifiying SSL certificates.
