@@ -928,7 +928,7 @@ function Add-Handler
     }
     else
     {
-        throw ($LocalizedData.HandlerNotSupported -f $Name);
+        New-TerminatingError -ErrorId 'HandlerNotSupported' -ErrorMessage $($LocalizedData.HandlerNotSupported -f $Name) -ErrorCategory InvalidArgument
     }
 }
 #endregion
