@@ -1,4 +1,5 @@
-#requires -Version 3 -Modules CimCmdlets
+#requires -Version 4.0 -Modules CimCmdlets
+
 data LocalizedData
 {
     # culture="en-US"
@@ -19,12 +20,15 @@ WebsiteBindingConflictOnStartError = Website "{0}" could not be started due to b
 '@
 }
 
-# The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
-# It gives the Website info of the requested role/feature on the target machine.
 function Get-TargetResource
 {
+    <#
+    .SYNOPSYS
+        The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
+        It gives the Website info of the requested role/feature on the target machine.
+    #>
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
+    [OutputType([Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -72,23 +76,27 @@ function Get-TargetResource
         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
 
-    # Add all Website properties to the hash table
+    # Add all website properties to the hash table
     return @{
-        Name            = $Name
-        Ensure          = $EnsureResult
-        PhysicalPath    = $Website.PhysicalPath
-        State           = $Website.State
-        ID              = $Website.ID
-        ApplicationPool = $Website.ApplicationPool
-        BindingInfo     = $CimBindings
-        DefaultPage     = $AllDefaultPages
+        Ensure           = $EnsureResult
+        Name             = $Name
+        PhysicalPath     = $Website.PhysicalPath
+        State            = $Website.State
+        ApplicationPool  = $Website.ApplicationPool
+        BindingInfo      = $CimBindings
+        DefaultPage      = $AllDefaultPages
+        EnabledProtocols = $Website.EnabledProtocols
+        Id               = $Website.Id
     }
 }
 
-
-# The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine.
 function Set-TargetResource
 {
+    <#
+    .SYNOPSYS
+        The Set-TargetResource cmdlet is used to create, delete 
+        or configure a website on the target machine.
+    #>
     [CmdletBinding(SupportsShouldProcess = $true)]
     param
     (
@@ -110,6 +118,7 @@ function Set-TargetResource
         [String]
         $State = 'Started',
 
+        [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
 
@@ -117,118 +126,86 @@ function Set-TargetResource
         $BindingInfo,
 
         [String[]]
-        $DefaultPage
+        $DefaultPage,
+
+        [String]
+        $EnabledProtocols
     )
+
+    # Check if WebAdministration module is present for IIS cmdlets
+    if (-not (Get-Module -ListAvailable -Name WebAdministration))
+    {
+        throw 'Please ensure that WebAdministration module is installed.'
+    }
 
     if ($Ensure -eq 'Present')
     {
-        #Remove Ensure from parameters as it is not needed to create new website
-        $Result = $PSBoundParameters.Remove('Ensure')
-        #Remove State parameter form website. Will start the website after configuration is complete
-        $Result = $PSBoundParameters.Remove('State')
-
-        #Remove bindings from parameters if they exist
-        #Bindings will be added to site using separate cmdlet
-        $Result = $PSBoundParameters.Remove('BindingInfo')
-
-        #Remove default pages from parameters if they exist
-        #Default Pages will be added to site using separate cmdlet
-        $Result = $PSBoundParameters.Remove('DefaultPage')
-
-        # Check if WebAdministration module is present for IIS cmdlets
-        if (-not (Get-Module -ListAvailable -Name WebAdministration))
-        {
-            throw 'Please ensure that WebAdministration module is installed.'
-        }
-
         $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
         if ($Website -ne $null)
         {
-            #update parameters as required
-
-            $UpdateNotRequired = $true
-
-            #Update Physical Path if required
-            if (Test-WebsitePath -Name $Name -PhysicalPath $PhysicalPath)
+            # Update Physical Path if required
+            if ($Website.PhysicalPath -ne $PhysicalPath)
             {
-                $UpdateNotRequired = $false
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name physicalPath -Value $PhysicalPath -ErrorAction Stop
 
-                Write-Verbose -Message "Physical path for website $Name has been updated to $PhysicalPath"
+                Write-Verbose -Message "Physical Path for website '$Name' has been updated to '$PhysicalPath'."
             }
 
-            #Update Bindings if required
-            if ($BindingInfo -ne $null)
+            # Update Application Pool if required
+            if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool -ne $ApplicationPool)
             {
-                if (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationPool -Value $ApplicationPool -ErrorAction Stop
+
+                Write-Verbose -Message "Application Pool for website '$Name' has been updated to '$ApplicationPool'."
+            }
+
+            # Update Bindings if required
+            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+            {
+                if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
                 {
-                    $UpdateNotRequired = $false
-                    #Update Bindings
                     Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo -ErrorAction Stop
 
-                    Write-Verbose -Message "Bindings for website $Name have been updated"
+                    Write-Verbose -Message "Bindings for website '$Name' have been updated."
                 }
             }
 
-            #Update Application Pool if required
-            if (($Website.applicationPool -ne $ApplicationPool) -and ($ApplicationPool -ne ''))
+            # Update Enabled Protocols if required
+            if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
             {
-                $UpdateNotRequired = $false
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationPool -Value $ApplicationPool -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols -Value $EnabledProtocols -ErrorAction Stop
 
-                Write-Verbose -Message "Application Pool for website $Name has been updated to $ApplicationPool"
+                Write-Verbose -Message "Enabled Protocols for website '$Name' has been updated to '$EnabledProtocols'."
             }
 
-            #Update Default pages if required
-            if ($DefaultPage -ne $null)
+            # Update Default pages if required
+            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
             {
                 Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
             }
 
-            #Update State if required
-            if ($Website.state -ne $State -and $State -ne '')
+            # Update State if required
+            if ($PSBoundParameters.ContainsKey('State') -and $Website.State -ne $State)
             {
-                $UpdateNotRequired = $false
-
                 if ($State -eq 'Started')
                 {
                     # Ensure that there are no other websites with binding information that will conflict with this site before starting
-                    $ExistingSites = Get-Website | Where-Object -FilterScript {$_.Name -ne $Name}
-
-                    foreach ($Site in $ExistingSites)
+                    if (-not (Confirm-UniqueBinding -BindingInfo $BindingInfo -ExcludeSite $Name))
                     {
-                        $SiteInfo = Get-TargetResource -Name $Site.Name -PhysicalPath $Site.PhysicalPath
+                        # Return error and do not start Website
+                        $ErrorId = 'WebsiteBindingConflictOnStart'
+                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                        $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f ${Name}
+                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                        foreach ($Binding in $BindingInfo)
-                        {
-                            #Normalize empty IPAddress to "*"
-                            if ([String]::IsNullOrEmpty($Binding.IPAddress))
-                            {
-                                $NormalizedIPAddress = '*'
-                            }
-                            else
-                            {
-                                $NormalizedIPAddress = $Binding.IPAddress
-                            }
-
-                            if (-not (Confirm-UniqueBindingInfo -Port $Binding.Port -IPAddress $NormalizedIPAddress -HostName $Binding.HostName -BindingInfo $SiteInfo.BindingInfo -UniqueInstances 1))
-                            {
-                                #return error & Do not start Website
-                                $ErrorId = 'WebsiteBindingConflictOnStart'
-                                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                                $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f ${Name}
-                                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-                            }
-                        }
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
                     }
 
                     try
                     {
-                        Start-Website -Name $Name
+                        Start-Website -Name $Name -ErrorAction Stop
                     }
                     catch
                     {
@@ -246,7 +223,7 @@ function Set-TargetResource
                 {
                     try
                     {
-                        Stop-Website -Name $Name
+                        Stop-Website -Name $Name -ErrorAction Stop
                     }
                     catch
                     {
@@ -261,59 +238,91 @@ function Set-TargetResource
                     }
                 }
 
-                Write-Verbose -Message "State for website $Name has been updated to $State"
-            }
-
-            if ($UpdateNotRequired)
-            {
-                Write-Verbose -Message "Website $Name already exists and properties do not need to be updated."
+                Write-Verbose -Message "State for website '$Name' has been updated to '$State'."
             }
         }
-        else #Website doesn't exist so create new one
+        else # Create website if it does not exist
         {
             try
             {
-                $Websites = Get-Website
-
-                if ($Websites -eq $null)
-                {
-                    # We do not have any sites this will cause an exception in 2008R2 if we don't specify an ID
-                    $Website = New-Website @PSBoundParameters -Id 1
-                }
-                else
-                {
-                    $Website = New-Website @PSBoundParameters
+                $PSBoundParameters.GetEnumerator() |
+                Where-Object -FilterScript {
+                    $_.Key -in (Get-Command -Name New-Website -Module WebAdministration).Parameters.Keys
+                } |
+                ForEach-Object -Begin {
+                    $NewWebsiteSplat = @{}
+                } -Process {
+                    $NewWebsiteSplat.Add($_.Key, $_.Value)
                 }
 
-                $Result = Stop-Website -Name $Website.Name -ErrorAction Stop
-
-                #Clear default bindings if new bindings defined and are different
-                if ($BindingInfo -ne $null)
+                # If there are no other websites, specify the Id parameter for the new website.
+                # Otherwise an error can occur on systems running Windows Server 2008 R2.
+                if (-not (Get-Website))
                 {
-                    if (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo)
+                    $NewWebsiteSplat.Add('Id', 1)
+                }
+
+                $Website = New-Website @NewWebsiteSplat
+
+                Stop-Website -Name $Website.Name -ErrorAction Stop
+
+                # Clear default bindings if new bindings defined and are different
+                if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+                {
+                    if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
                     {
                         Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
-                    }
+                    }  
                 }
 
-                #Add Default pages for new created website
-                if ($DefaultPage -ne $null)
+                # Set Enabled Protocols if required
+                if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
+                {
+                    Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols -Value $EnabledProtocols -ErrorAction Stop
+                }
+
+                # Add Default Pages for the newly created website
+                if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
                 {
                     Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
                 }
 
-                Write-Verbose -Message "successfully created website $Name"
+                Write-Verbose -Message "Successfully created website '$Name'."
 
-                #Start site if required
+                # Start website if required
                 if ($State -eq 'Started')
                 {
-                    #Wait 1 sec for bindings to take effect
-                    #I have found that starting the website results in an error if it happens to quickly
-                    Start-Sleep -Seconds 1
-                    Start-Website -Name $Name -ErrorAction Stop
-                }
+                    # Ensure that there are no other websites with binding information that will conflict with this site before starting
+                    if (-not (Confirm-UniqueBinding -BindingInfo $BindingInfo -ExcludeSite $Name))
+                    {
+                        # Return error and do not start Website
+                        $ErrorId = 'WebsiteBindingConflictOnStart'
+                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                        $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f ${Name}
+                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                Write-Verbose -Message "successfully started website $Name"
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                    }
+
+                    try
+                    {
+                        Start-Website -Name $Name -ErrorAction Stop
+
+                        Write-Verbose -Message "Successfully started website '$Name'."
+                    }
+                    catch
+                    {
+                        $ErrorId = 'WebsiteStateFailure'
+                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+                        $ErrorMessage = $($LocalizedData.WebsiteStateFailureError) -f ${Name}
+                        $ErrorMessage += $_.Exception.Message
+                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                    }
+                }
             }
             catch
             {
@@ -323,24 +332,26 @@ function Set-TargetResource
                 $ErrorMessage += $_.Exception.Message
                 $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                 $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
                 $PSCmdlet.ThrowTerminatingError($ErrorRecord)
             }
         }
     }
-    else #Ensure is set to "Absent" so remove website
+    else # Remove website if Ensure is set to 'Absent'
     {
         try
         {
             $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
-            if ($Website -ne $null)
+            if ($Website)
             {
                 Remove-Website -Name $Name
-                Write-Verbose -Message "Successfully removed Website $Name."
+
+                Write-Verbose -Message "Successfully removed website '$Name'."
             }
             else
             {
-                Write-Verbose -Message "Website $Name does not exist."
+                Write-Verbose -Message "Website '$Name' does not exist."
             }
         }
         catch
@@ -357,12 +368,14 @@ function Set-TargetResource
     }
 }
 
-
-# The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
 function Test-TargetResource
 {
+    <#
+    .SYNOPSYS
+        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
+    #>
     [CmdletBinding()]
-    [OutputType([System.Boolean])]
+    [OutputType([Boolean])]
     param
     (
         [ValidateSet('Present', 'Absent')]
@@ -383,6 +396,7 @@ function Test-TargetResource
         [String]
         $State = 'Started',
 
+        [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
 
@@ -390,10 +404,20 @@ function Test-TargetResource
         $BindingInfo,
 
         [String[]]
-        $DefaultPage
+        $DefaultPage,
+
+        [String]
+        $EnabledProtocols
     )
 
-    $DesiredConfigurationMatch = $true
+    $PSBoundParameters.GetEnumerator() |
+    ForEach-Object -Begin {
+        $Width = $PSBoundParameters.Keys.Length | Sort-Object -Descending | Select-Object -First 1
+    } -Process {
+        "{0,-$($Width)} : '{1}'" -f $_.Key, ($_.Value -join ', ') | Write-Verbose
+    }
+
+    $InDesiredState = $true
 
     # Check if WebAdministration module is present for IIS cmdlets
     if (-not (Get-Module -ListAvailable -Name WebAdministration))
@@ -403,49 +427,56 @@ function Test-TargetResource
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
-    #Check Ensure
+    # Check Ensure
     if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
     {
-        $DesiredConfigurationMatch = $false
-        Write-Verbose -Message "The Ensure state for website $Name does not match the desired state."
+        $InDesiredState = $false
+        Write-Verbose -Message "The Ensure state for website '$Name' does not match the desired state."
     }
 
-    # Only check properties if $Website exists
+    # Only check properties if website exists
     if ($Ensure -eq 'Present' -and $Website -ne $null)
     {
-        #Check Physical Path property
-        if (Test-WebsitePath -Name $Name -PhysicalPath $PhysicalPath)
+        # Check Physical Path property
+        if ($Website.PhysicalPath -ne $PhysicalPath)
         {
-            $DesiredConfigurationMatch = $false
-            Write-Verbose -Message "Physical Path of Website $Name does not match the desired state."
+            $InDesiredState = $false
+            Write-Verbose -Message "Physical Path of website '$Name' does not match the desired state."
         }
 
-        #Check State
-        if ($Website.state -ne $State -and $State -ne $null)
+        # Check State
+        if ($PSBoundParameters.ContainsKey('State') -and $Website.State -ne $State)
         {
-            $DesiredConfigurationMatch = $false
-            Write-Verbose -Message "The state of Website $Name does not match the desired state."
+            $InDesiredState = $false
+            Write-Verbose -Message "The state of website '$Name' does not match the desired state."
         }
 
-        #Check Application Pool property
-        if ($Website.applicationPool -ne $ApplicationPool -and $ApplicationPool -ne '')
+        # Check Application Pool property
+        if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool -ne $ApplicationPool)
         {
-            $DesiredConfigurationMatch = $false
-            Write-Verbose -Message "Application Pool for Website $Name does not match the desired state."
+            $InDesiredState = $false
+            Write-Verbose -Message "Application Pool for website '$Name' does not match the desired state."
         }
 
-        #Check Binding properties
-        if ($BindingInfo -ne $null)
+        # Check Binding properties
+        if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
         {
-            if (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo)
+            if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
             {
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message "Bindings for website $Name do not match the desired state."
+                $InDesiredState = $false
+                Write-Verbose -Message "Bindings for website '$Name' do not match the desired state."
             }
         }
 
-        #Check Default Pages
-        if ($DefaultPage -ne $null)
+        # Check Enabled Protocols
+        if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
+        {
+            $InDesiredState = $false
+            Write-Verbose -Message "Enabled Protocols for website '$Name' does not match the desired state."
+        }
+
+        # Check Default Pages
+        if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
         {
             $AllDefaultPages = @(
                 Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
@@ -456,103 +487,92 @@ function Test-TargetResource
             {
                 if ($AllDefaultPages -inotcontains $Page)
                 {
-                    $DesiredConfigurationMatch = $false
-                    Write-Verbose -Message "Default Page for website $Name does not match the desired state."
+                    $InDesiredState = $false
+                    Write-Verbose -Message "Default Page for website '$Name' does not match the desired state."
                 }
             }
         }
+
     }
 
-    return $DesiredConfigurationMatch
-}
+    if ($InDesiredState -eq $true)
+    {
+        Write-Verbose -Message "The target resource is already in the desired state. No action is required."
+    }
+    else
+    {
+        Write-Verbose -Message "The target resource is not in the desired state."
+    }
 
+    return $InDesiredState
+
+}
 
 #region Helper Functions
 
-# Helper function used to validate website path
-function Test-WebsitePath
+function Confirm-UniqueBinding
 {
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the desired bindings are unique to all websites.
+        Returns False if at least one of the bindings is already assigned to another website.
+    .PARAMETER Binding
+        Specifies the collection of bindings to check.
+    .PARAMETER ExcludeSite
+        Specifies the name of the website to exclude from processing.
+    #>
     [CmdletBinding()]
-    [OutputType([System.Boolean])]
+    [OutputType([Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $PhysicalPath
-    )
-
-    if ((Get-ItemProperty -Path "IIS:\Sites\$Name" -Name physicalPath) -ne $PhysicalPath)
-    {
-        $IsDifferent = $true
-    }
-    else
-    {
-        $IsDifferent = $false
-    }
-
-    return $IsDifferent
-}
-
-
-# Helper function used to validate website bindings
-# Returns true if bindings are valid (ie. port, IPAddress & Hostname combinations are unique).
-
-function Confirm-UniqueBindingInfo
-{
-    [CmdletBinding()]
-    [OutputType([System.Boolean])]
-    param
-    (
-        [Parameter()]
-        [UInt16]
-        $Port,
-
-        [Parameter()]
-        [String]
-        $IPAddress,
-
-        [Parameter()]
-        [String]
-        $HostName,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo,
 
-        [Parameter()]
-        $UniqueInstances = 0
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [String[]]
+        $ExcludeSite
     )
 
-    foreach ($Binding in $BindingInfo)
-    {
-        if ($Binding.Port -eq $Port -and [String]$Binding.IPAddress -eq $IPAddress -and [String]$Binding.HostName -eq $HostName)
-        {
-            $UniqueInstances += 1
-        }
+    $IsUnique = $true
+
+    # Test standard (HTTP, HTTPS) bindings only
+    $ReferenceObject = @(
+        $BindingInfo |
+        Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
+        ConvertTo-WebBinding -Verbose:$false
+    )
+
+    $DifferenceObject = @(
+        Get-Website |
+        Where-Object -FilterScript {$_.Name -notin @($ExcludeSite)} |
+        ForEach-Object -Process {$_.bindings.Collection} |
+        Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
+        ConvertTo-WebBinding -Verbose:$false
+    )
+
+    $CompareSplat = @{
+        ReferenceObject  = $ReferenceObject
+        DifferenceObject = $DifferenceObject
+        Property         = @('protocol', 'bindingInformation')
+        ExcludeDifferent = $true
+        IncludeEqual     = $true
     }
 
-    if ($UniqueInstances -gt 1)
+    if (Compare-Object @CompareSplat)
     {
-        return $false
+        $IsUnique = $false
     }
-    else
-    {
-        return $true
-    }
+
+    return $IsUnique
 }
 
-
-# Helper function used to convert WebAdministration binding objects to instances of the MSFT_xWebBindingInformation CIM class
 function ConvertTo-CimBinding
 {
     <#
     .SYNOPSIS
-        Converts binding objects to instances of the MSFT_xWebBindingInformation CIM class.
+        Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
     #>
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
@@ -576,48 +596,47 @@ function ConvertTo-CimBinding
 
             $Binding = $_
 
-            #TODO: Implement support for other binding types: 'ftp', 'msmq.formatname', 'net.msmq', 'net.pipe', 'net.tcp'.
-            if ($Binding.Protocol -notin @('http', 'https'))
-            {
-                Write-Verbose -Message "Protocol '$($Binding.protocol)' is not currently supported. The element will be skipped."
-                return
+            [Hashtable]$CimProperties = @{
+                Protocol           = [String]$Binding.protocol
+                BindingInformation = [String]$Binding.bindingInformation
             }
 
-            if ($Binding -is [Microsoft.Management.Infrastructure.CimInstance])
-            {
-                $CimProperties = @{
-                    Port                  = [UInt16]$Binding.Port
-                    Protocol              = [String]$Binding.Protocol
-                    IPAddress             = [String]$(if ($Binding.IPAddress) {$Binding.IPAddress} else {'*'})
-                    HostName              = [String]$Binding.HostName
-                    CertificateThumbprint = [String]$Binding.CertificateThumbprint
-                    CertificateStoreName  = [String]$Binding.CertificateStoreName
-                    SslFlags              = [String][Int32]$Binding.SslFlags
-                }
-            }
-            else
+            if ($Binding.Protocol -in @('http', 'https'))
             {
                 if ($Binding.bindingInformation -match '^\[(.*?)\]\:(.*?)\:(.*?)$')
                 {
                     $IPAddress = $Matches[1]
-                    $Port = $Matches[2]
-                    $HostName = $Matches[3]
+                    $Port      = $Matches[2]
+                    $HostName  = $Matches[3]
                 }
                 else
                 {
                     $IPAddress, $Port, $HostName = $Binding.bindingInformation -split '\:'
                 }
 
-                $CimProperties = @{
-                    Port                  = [UInt16]$Port
-                    Protocol              = [String]$Binding.Protocol
-                    IPAddress             = [String]$(if ($IPAddress) {$IPAddress} else {'*'})
-                    HostName              = [String]$HostName
-                    CertificateThumbprint = [String]$Binding.certificateHash
-                    CertificateStoreName  = [String]$Binding.certificateStoreName
-                    SslFlags              = [String][Int32]$Binding.sslFlags
+                if (-not $IPAddress)
+                {
+                    $IPAddress = '*'
                 }
+
+                $CimProperties.Add('IPAddress', [String]$IPAddress)
+                $CimProperties.Add('Port',      [UInt16]$Port)
+                $CimProperties.Add('HostName',  [String]$HostName)
             }
+            else
+            {
+                $CimProperties.Add('IPAddress', [String]::Empty)
+                $CimProperties.Add('Port',      [UInt16]::MinValue)
+                $CimProperties.Add('HostName',  [String]::Empty)
+            }
+
+            if ([Environment]::OSVersion.Version -ge '6.2')
+            {
+                $CimProperties.Add('SslFlags', [String]$Binding.sslFlags)
+            }
+
+            $CimProperties.Add('CertificateThumbprint', [String]$Binding.certificateHash)
+            $CimProperties.Add('CertificateStoreName',  [String]$Binding.certificateStoreName)
 
             New-CimInstance -ClassName $CimClassName -Namespace $CimNamespace -Property $CimProperties -ClientOnly
 
@@ -625,18 +644,326 @@ function ConvertTo-CimBinding
     }
 }
 
+function ConvertTo-WebBinding
+{
+    <#
+    .SYNOPSIS
+        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding> element representation.
+    .LINK
+        https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
+    #>
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [Object[]]
+        $InputObject
+    )
+    process
+    {
+        $InputObject |
+        ForEach-Object -Process {
 
-# Helper function used to compare website bindings of actual to desired
-# Returns true if bindings need to be updated and false if not.
+            $Binding = $_
+
+            $OutputObject = @{
+                protocol = $Binding.Protocol
+            }
+
+            if ($Binding -is [Microsoft.Management.Infrastructure.CimInstance])
+            {
+                if ($Binding.Protocol -in @('http', 'https'))
+                {
+                    if ($Binding.BindingInformation)
+                    {
+                        if ($Binding.IPAddress -or $Binding.Port -or $Binding.HostName)
+                        {
+                            Write-Verbose -Message ("BindingInformation is ignored for bindings of type '$($Binding.Protocol)'" +
+                                " in case at least one of the following properties is specified: IPAddress, Port, HostName.")
+
+                            $IsJoinRequired = $true
+                        }
+                        else
+                        {
+                            $IsJoinRequired = $false
+                        }
+                    }
+                    else
+                    {
+                        $IsJoinRequired = $true   
+                    }
+
+                    # Construct the bindingInformation attribute
+                    if ($IsJoinRequired -eq $true)
+                    {
+                        try
+                        {
+                            $IPAddressString = Format-IPAddressString -InputString $Binding.IPAddress -ErrorAction Stop
+                        }
+                        catch
+                        {
+                            throw "Could not validate IP address '$($Binding.IPAddress)': '$($_.Exception.Message)'."
+                        }
+
+                        if (-not $Binding.Port)
+                        {
+                            switch ($Binding.Protocol)
+                            {
+                                'http'  {$PortNumberString = '80'}
+                                'https' {$PortNumberString = '443'}
+                            }
+
+                            Write-Verbose -Message "Port is not specified. The default '$($Binding.Protocol)' port '$PortNumberString' will be used."
+                        }
+                        else
+                        {
+                            if (Test-PortNumber -InputString $Binding.Port)
+                            {
+                                $PortNumberString = $Binding.Port
+                            }
+                            else
+                            {
+                                throw 'The port number must be a positive integer between 1 and 65535.'
+                            }
+                        }
+
+                        $BindingInformation = $IPAddressString, $PortNumberString, $Binding.HostName -join ':'
+                        $OutputObject.Add('bindingInformation', [String]$BindingInformation)
+                    }
+                    else
+                    {
+                        $OutputObject.Add('bindingInformation', [String]$Binding.BindingInformation)
+                    }
+                }
+                else
+                {
+                    if (-not $Binding.BindingInformation)
+                    {
+                        throw "BindingInformation is required for bindings of type '$($Binding.Protocol)'."
+                    }
+                    else
+                    {
+                        $OutputObject.Add('bindingInformation', [String]$Binding.BindingInformation)
+                    }
+                }
+
+                # SSL-related properties
+                if ($Binding.Protocol -eq 'https')
+                {
+                    if (-not $Binding.CertificateThumbprint)
+                    {
+                        throw "CertificateThumbprint is required for bindings of type '$($Binding.Protocol)'."
+                    }
+
+                    if (-not $Binding.CertificateStoreName)
+                    {
+                        $CertificateStoreName = 'MY'
+
+                        Write-Verbose -Message "CertificateStoreName is not specified. The default value '$CertificateStoreName' will be used."
+                    }
+                    else
+                    {
+                        $CertificateStoreName = $Binding.CertificateStoreName
+                    }
+
+                    $OutputObject.Add('certificateHash',      [String]$Binding.CertificateThumbprint)
+                    $OutputObject.Add('certificateStoreName', [String]$CertificateStoreName)
+
+                    if ([Environment]::OSVersion.Version -ge '6.2')
+                    {
+                        $OutputObject.Add('sslFlags', [Int64]$Binding.SslFlags)
+                    }
+                }
+                else
+                {
+                    # Ignore SSL-related properties for non-SSL bindings
+                    $OutputObject.Add('certificateHash',      [String]::Empty)
+                    $OutputObject.Add('certificateStoreName', [String]::Empty)
+
+                    if ([Environment]::OSVersion.Version -ge '6.2')
+                    {
+                        $OutputObject.Add('sslFlags', [Int64]0)
+                    }
+                }
+            }
+            else
+            {
+                <#
+                    WebAdministration can throw the following exception if there are non-standard bindings (e.g. 'net.tcp'):
+                    'The data is invalid. (Exception from HRESULT: 0x8007000D)'
+
+                    Steps to reproduce:
+                    1) Add 'net.tcp' binding
+                    2) Execute {Get-Website | ForEach-Object {$_.bindings.Collection} | Select-Object *}
+
+                    Workaround is to create a new custom object and use dot notation to access binding properties.
+                #>
+
+                $OutputObject.Add('bindingInformation',   [String]$Binding.bindingInformation)
+                $OutputObject.Add('certificateHash',      [String]$Binding.certificateHash)
+                $OutputObject.Add('certificateStoreName', [String]$Binding.certificateStoreName)
+
+                if ([Environment]::OSVersion.Version -ge '6.2')
+                {
+                    $OutputObject.Add('sslFlags', [Int64]$Binding.sslFlags)
+                }
+            }
+
+            return ([PSCustomObject]$OutputObject)
+
+        }
+    }
+}
+
+function Format-IPAddressString
+{
+    <#
+    .SYNOPSYS
+        Formats the input IP address string for use in the bindingInformation attribute.
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [String]
+        $InputString
+    )
+
+    if (-not $InputString -or $InputString -eq '*')
+    {
+        $OutputString = '*'
+    }
+    else
+    {
+        try
+        {
+            $IPAddress = [IPAddress]::Parse($InputString)
+
+            switch ($IPAddress.AddressFamily)
+            {
+                'InterNetwork'
+                {
+                    $OutputString = $IPAddress.IPAddressToString
+                }
+                'InterNetworkV6'
+                {
+                    $OutputString = '[{0}]' -f $IPAddress.IPAddressToString
+                }
+            }
+        }
+        catch
+        {
+            throw $_.Exception.Message
+        }
+    }
+
+    return $OutputString
+
+}
+
+function Test-BindingInfo
+{
+    <#
+    .SYNOPSYS
+        Validates the desired binding information (i.e. no duplicate IP address, port, and host name combinations).
+    #>
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $BindingInfo
+    )
+
+    $IsValid = $true
+
+    try
+    {
+        # Normalize the input (helper functions will perform additional validations)
+        $Bindings = @(ConvertTo-WebBinding -InputObject $BindingInfo | ConvertTo-CimBinding)
+        $StandardBindings = @($Bindings | Where-Object -FilterScript {$_.Protocol -in @('http', 'https')})
+        $NonStandardBindings = @($Bindings | Where-Object -FilterScript {$_.Protocol -notin @('http', 'https')})
+
+        if ($StandardBindings.Count -ne 0)
+        {
+            # IP address, port, and host name combination must be unique
+            if (($StandardBindings | Group-Object -Property IPAddress, Port, HostName) | Where-Object -FilterScript {$_.Count -ne 1})
+            {
+                Write-Verbose -Message "BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination."
+                $IsValid = $false
+            }
+
+            # A single port can only be used by a single binding, regardless of the protocol used
+            if (($StandardBindings | Group-Object -Property Port) | Where-Object -FilterScript {$_.Count -ne 1})
+            {
+                Write-Verbose -Message "BindingInfo contains multiple items with the same Port."
+                $IsValid = $false
+            }
+        }
+
+        if ($NonStandardBindings.Count -ne 0)
+        {
+            if (($NonStandardBindings | Group-Object -Property Protocol, BindingInformation) | Where-Object -FilterScript {$_.Count -ne 1})
+            {
+                Write-Verbose -Message "BindingInfo contains multiple items with the same Protocol and BindingInformation combination."
+                $IsValid = $false
+            }
+        }
+    }
+    catch
+    {
+        Write-Verbose -Message "Unable to validate BindingInfo: '$($_.Exception.Message)'."
+        $IsValid = $false
+    }
+
+    return $IsValid
+}
+
+function Test-PortNumber
+{
+    <#
+    .SYNOPSYS
+        Validates that an input string represents a valid port number.
+        The port number must be a positive integer between 1 and 65535.
+    #>
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [String]
+        $InputString
+    )
+
+    try
+    {
+        $IsValid = [UInt16]$InputString -ne 0
+    }
+    catch
+    {
+        $IsValid = $false
+    }
+
+    return $IsValid
+}
+
 function Test-WebsiteBinding
 {
     <#
     .SYNOPSIS
         Helper function used to validate and compare website bindings of current to desired.
-        Returns True if bindings need to be updated and False if not.
+        Returns True if bindings do not need to be updated.
     #>
     [CmdletBinding()]
-    [OutputType([System.Boolean])]
+    [OutputType([Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -645,60 +972,44 @@ function Test-WebsiteBinding
         $Name,
 
         [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo
     )
 
-    foreach ($Binding in $BindingInfo)
+    $InDesiredState = $true
+
+    # Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and host name combinations).
+    if (-not (Test-BindingInfo -BindingInfo $BindingInfo))
     {
-        # First ensure that desired binding information is valid (i.e. no duplicate IPAddress, Port, HostName combinations).
-        if (
-            (-not (Confirm-UniqueBindingInfo -Port $Binding.Port -IPAddress $Binding.IPAddress -HostName $Binding.HostName -BindingInfo $BindingInfo)) -or
-            ($Binding.CertificateThumbprint -eq '' -and $Binding.CertificateStoreName -ne '') -or
-            ($Binding.CertificateThumbprint -ne '' -and $Binding.CertificateStoreName -eq '')
-        )
-        {
-            $ErrorId = 'WebsiteBindingInputInvalidation'
-            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $ErrorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f ${Name}
-            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+        $ErrorId = 'WebsiteBindingInputInvalidation'
+        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+        $ErrorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f ${Name}
+        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-        }
+        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
-
-    # Assume bindings do not need to be updated
-    $IsUpdateRequired = $false
 
     try
     {
         $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
-        if ($Website.bindings.Collection | Where-Object -FilterScript {$_.protocol -notin @('http', 'https')})
-        {
-            Write-Verbose -Message "Website '$Name' has bindings of unsupported types."
-            $IsUpdateRequired = $true
-        }
+        # Normalize binding objects to ensure they have the same representation
+        $CurrentBindings = @(ConvertTo-WebBinding -InputObject $Website.bindings.Collection -Verbose:$false)
+        $DesiredBindings = @(ConvertTo-WebBinding -InputObject $BindingInfo -Verbose:$false)
 
-        $CurrentCimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
-
-        # Normalize $BindingInfo to ensure its objects have the same full set of properties as $CurrentCimBindings
-        $DesiredCimBindings = @(ConvertTo-CimBinding -InputObject $BindingInfo)
-
-        $PropertiesToCompare = 'Port', 'Protocol', 'IPAddress', 'HostName', 'CertificateThumbprint', 'CertificateStoreName'
+        $PropertiesToCompare = 'protocol', 'bindingInformation', 'certificateHash', 'certificateStoreName'
 
         # The sslFlags attribute was added in IIS 8.0.
         # This check is needed for backwards compatibility with Windows Server 2008 R2.
         if ([Environment]::OSVersion.Version -ge '6.2')
         {
-            $PropertiesToCompare += 'SslFlags'
+            $PropertiesToCompare += 'sslFlags'
         }
 
-        if (Compare-Object -ReferenceObject $DesiredCimBindings -DifferenceObject $CurrentCimBindings -Property $PropertiesToCompare)
+        if (Compare-Object -ReferenceObject $CurrentBindings -DifferenceObject $DesiredBindings -Property $PropertiesToCompare)
         {
-            $IsUpdateRequired = $true
+            $InDesiredState = $false
         }
     }
     catch
@@ -713,128 +1024,15 @@ function Test-WebsiteBinding
         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
     }
 
-    return $IsUpdateRequired
+    return $InDesiredState
 }
 
-
-function Update-WebsiteBinding
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $false)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo
-    )
-
-    #Need to clear the bindings before we can create new ones
-    Clear-ItemProperty -Path "IIS:\Sites\$Name" -Name bindings -ErrorAction Stop
-
-    #Need to clear $UseHostheader flag for multiple ssl bindings per site
-    $UseHostHeader = $false
-
-    foreach ($Binding in $BindingInfo)
-    {
-        $Protocol = $Binding.CimInstanceProperties['Protocol'].Value
-        $IPAddress = $Binding.CimInstanceProperties['IPAddress'].Value
-        $Port = $Binding.CimInstanceProperties['Port'].Value
-        $HostHeader = $Binding.CimInstanceProperties['HostName'].Value
-        $CertificateThumbprint = $Binding.CimInstanceProperties['CertificateThumbprint'].Value
-        $CertificateStoreName = $Binding.CimInstanceProperties['CertificateStoreName'].Value
-        $SslFlags = $Binding.CimInstanceProperties['SslFlags'].Value
-
-        $BindingParams = @{}
-        $BindingParams.Add('Name', $Name)
-        $BindingParams.Add('Port', $Port)
-
-        #Set IP Address parameter
-        if ($IPAddress -ne $null)
-        {
-            $BindingParams.Add('IPAddress', $IPAddress)
-        }
-        else # Default to any/all IP Addresses
-        {
-            $BindingParams.Add('IPAddress', '*')
-        }
-
-        #Set protocol parameter
-        if ($Protocol -ne $null)
-        {
-            $BindingParams.Add('Protocol', $Protocol)
-        }
-        else #Default to HTTP
-        {
-            $BindingParams.Add('Protocol', 'http')
-        }
-
-        #Set Host parameter if it exists
-        if ($HostHeader -ne $null)
-        {
-            $BindingParams.Add('HostHeader', $HostHeader)
-            $UseHostHeader = $true
-        }
-
-        if ([Environment]::OSVersion.Version -ge '6.2' -and -not [String]::IsNullOrEmpty($SslFlags))
-        {
-            $BindingParams.Add('SslFlags', $SslFlags)
-        }
-
-        try
-        {
-            New-WebBinding @BindingParams -ErrorAction Stop
-        }
-        catch
-        {
-            $ErrorId = 'WebsiteBindingUpdateFailure'
-            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f ${Name}
-            $ErrorMessage += $_.Exception.Message
-            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-        }
-
-        try
-        {
-            if (-not [String]::IsNullOrEmpty($CertificateThumbprint))
-            {
-                # Modify the last added binding
-                if ($UseHostHeader -eq $true)
-                {
-                    $NewWebBinding = Get-WebBinding -Name $Name -Port $Port -HostHeader $HostHeader | Select-Object -Last 1
-                    $NewWebBinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
-                }
-                else
-                {
-                    $NewWebBinding = Get-WebBinding -Name $Name -Port $Port | Select-Object -Last 1
-                    $NewWebBinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
-                }
-            }
-        }
-        catch
-        {
-            $ErrorId = 'WebBindingCertificateError'
-            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-            $ErrorMessage = $($LocalizedData.WebBindingCertificateError) -f ${CertificateThumbprint}
-            $ErrorMessage += $_.Exception.Message
-            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-        }
-    }
-}
-
-
-# Helper function used to Update default pages of website
 function Update-DefaultPage
 {
+    <#
+    .SYNOPSIS
+        Helper function used to update default pages of website.
+    #>
     [CmdletBinding()]
     param
     (
@@ -858,14 +1056,109 @@ function Update-DefaultPage
         {
             Add-WebConfiguration -Filter '//defaultDocument/files' -PSPath "IIS:\Sites\$Name" -Value @{value = $Page}
 
-            if ($? -eq $true)
-            {
-                Write-Verbose -Message "Default page for website $Name has been updated to $Page"
-            }
+            Write-Verbose -Message "Default page for website $Name has been updated to $Page"
         }
     }
 }
 
+function Update-WebsiteBinding
+{
+    <#
+    .SYNOPSIS
+        Updates website bindings.
+    #>
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Name,
+
+        [Parameter(Mandatory = $false)]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $BindingInfo
+    )
+
+    # Use Get-WebConfiguration instead of Get-Website to retrieve XPath of the target website.
+    # XPath -Filter is case-sensitive. Use Where-Object to get the target website by name.
+    $Website = Get-WebConfiguration -Filter '/system.applicationHost/sites/site' |
+        Where-Object -FilterScript {$_.Name -eq $Name}
+
+    if (-not $Website)
+    {
+        throw "Website '$Name' could not be found."
+    }
+
+    ConvertTo-WebBinding -InputObject $BindingInfo -ErrorAction Stop |
+    ForEach-Object -Begin {
+
+        Clear-WebConfiguration -Filter "$($Website.ItemXPath)/bindings" -Force -ErrorAction Stop
+
+    } -Process {
+
+        $Properties = $_
+
+        try
+        {
+            Add-WebConfiguration -Filter "$($Website.ItemXPath)/bindings" -Value @{
+                protocol = $Properties.protocol
+                bindingInformation = $Properties.bindingInformation
+            } -Force -ErrorAction Stop
+        }
+        catch
+        {
+            $ErrorId = 'WebsiteBindingUpdateFailure'
+            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+            $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f ${Name}
+            $ErrorMessage += $_.Exception.Message
+            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+        }
+
+        if ($Properties.protocol -eq 'https')
+        {
+            if ([Environment]::OSVersion.Version -ge '6.2')
+            {
+                try
+                {
+                    Set-WebConfigurationProperty -Filter "$($Website.ItemXPath)/bindings/binding[last()]" -Name sslFlags -Value $Properties.sslFlags -Force -ErrorAction Stop
+                }
+                catch
+                {
+                    $ErrorId = 'WebsiteBindingUpdateFailure'
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                    $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f ${Name}
+                    $ErrorMessage += $_.Exception.Message
+                    $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                    $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                }
+            }
+
+            try
+            {
+                $Binding = Get-WebConfiguration -Filter "$($Website.ItemXPath)/bindings/binding[last()]" -ErrorAction Stop
+                $Binding.AddSslCertificate($Properties.certificateHash, $Properties.certificateStoreName)
+            }
+            catch
+            {
+                $ErrorId = 'WebBindingCertificateError'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+                $ErrorMessage = $($LocalizedData.WebBindingCertificateError) -f $Properties.certificateHash
+                $ErrorMessage += $_.Exception.Message
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            }
+        }
+
+    }
+
+}
 
 #endregion
-
