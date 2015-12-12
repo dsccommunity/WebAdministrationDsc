@@ -69,8 +69,6 @@ function Set-TargetResource
         [String] $OverrideMode
     )
 
-    [string] $oMode = Get-OverrideMode -section $SectionName
-
      Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName, $OverrideMode)
      Set-WebConfiguration -Location '' -Filter "/system.webServer/$SectionName" -PSPath 'machine/webroot/apphost' -Metadata overrideMode -Value $OverrideMode
 }
