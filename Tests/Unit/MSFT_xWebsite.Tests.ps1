@@ -88,15 +88,17 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 )
             }
 
-            $ErrorId = 'WebsiteDiscoveryFailure'
-            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $ErrorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f 'MockName'
-            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
             It 'should throw the correct error' {
+
+                $ErrorId = 'WebsiteDiscoveryFailure'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f 'MockName'
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
                 {Get-TargetResource -Name 'MockName' -PhysicalPath 'C:\NonExistent'} |
                 Should Throw $ErrorRecord
+
             }
 
         }
@@ -273,6 +275,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             It 'should return False' {
                 $Result | Should Be $false
             }
+
         }
 
         Context 'Check BindingInfo is different' {
@@ -430,7 +433,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             Mock -CommandName Confirm-UniqueBinding -MockWith {return $true}
             Mock -CommandName Start-Website -MockWith {throw}
 
-            It 'Should throw the correct error' {
+            It 'should throw the correct error' {
 
                 $ErrorId = 'WebsiteStateFailure'
                 $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
@@ -564,6 +567,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 Should Throw $ErrorRecord
 
             }
+
         }
 
     }
@@ -709,6 +713,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             It 'should return the Port' {
                 $Result.Port | Should Be '80'
             }
+
         }
 
         Context 'IPv6 address is passed and the protocol is http' {
@@ -735,6 +740,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             It 'should return the Port' {
                 $Result.Port | Should Be '80'
             }
+
         }
 
         Context 'IPv4 address with SSL certificate is passed' {
@@ -776,6 +782,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             It 'should return the SslFlags' {
                 $Result.SslFlags | Should Be '1'
             }
+
         }
 
         Context 'IPv6 address with SSL certificate is passed' {
@@ -817,6 +824,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             It 'should return the SslFlags' {
                 $Result.SslFlags | Should Be '1'
             }
+
         }
 
     }
@@ -856,11 +864,32 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 $Result.certificateStoreName | Should Be 'WebHosting'
             }
 
-            if ([Environment]::OSVersion.Version -ge '6.2')
-            {
-                It 'should return the correct SslFlags value' {
-                    $Result.sslFlags | Should Be 1
-                }
+            It 'should return the correct SslFlags value' {
+                $Result.sslFlags | Should Be 1
+            }
+
+        }
+
+        Context 'IP address is invalid' {
+
+            $MockBindingInfo = @(
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol  = 'http'
+                    IPAddress = '127.0.0.256'
+                } -ClientOnly
+            )
+
+            It 'should throw the correct error' {
+
+                $ErrorId = 'WebBindingInvalidIPAddress'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $($LocalizedData.WebBindingInvalidIPAddressError) -f $MockBindingInfo.IPAddress
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                {ConvertTo-WebBinding -InputObject $MockBindingInfo} |
+                Should Throw $ErrorRecord
+
             }
 
         }
@@ -896,20 +925,49 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         }
 
-        Context 'Protocol is HTTPS and CertificateThumbprint is not specified' {
+        Context 'Port is invalid' {
 
-            It 'should throw an error' {
+            $MockBindingInfo = @(
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol = 'http'
+                    Port     = 0
+                } -ClientOnly
+            )
 
-                $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol              = 'https'
-                        CertificateThumbprint = ''
-                        CertificateStoreName  = 'WebHosting'
-                    } -ClientOnly
-                )
+            It 'should throw the correct error' {
+
+                $ErrorId = 'WebBindingInvalidPort'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $($LocalizedData.WebBindingInvalidPortError) -f $MockBindingInfo.Port
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
                 {ConvertTo-WebBinding -InputObject $MockBindingInfo} |
-                Should Throw
+                Should Throw $ErrorRecord
+
+            }
+
+        }
+
+        Context 'Protocol is HTTPS and CertificateThumbprint is not specified' {
+
+            $MockBindingInfo = @(
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol              = 'https'
+                    CertificateThumbprint = ''
+                } -ClientOnly
+            )
+
+            It 'should throw the correct error' {
+
+                $ErrorId = 'WebBindingMissingCertificateThumbprint'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $($LocalizedData.WebBindingMissingCertificateThumbprintError) -f $MockBindingInfo.Protocol
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                {ConvertTo-WebBinding -InputObject $MockBindingInfo} |
+                Should Throw $ErrorRecord
 
             }
 
@@ -917,34 +975,36 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         Context 'Protocol is HTTPS and CertificateStoreName is not specified' {
 
-            It 'should set CertificateStoreName to the default value' {
+            $MockBindingInfo = @(
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol              = 'https'
+                    CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                    CertificateStoreName  = ''
+                } -ClientOnly
+            )
 
-                $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol              = 'https'
-                        CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
-                        CertificateStoreName  = ''
-                    } -ClientOnly
-                )
+            It 'should set CertificateStoreName to the default value' {
 
                 $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
                 $Result.certificateStoreName | Should Be 'MY'
+
             }
 
         }
 
         Context 'Protocol is not HTTPS' {
 
-            It 'should ignore SSL properties' {
+            $MockBindingInfo = @(
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol              = 'http'
+                    CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                    CertificateStoreName  = 'WebHosting'
+                    SslFlags              = 1
+                } -ClientOnly
+            )
 
-                $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol              = 'http'
-                        CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
-                        CertificateStoreName  = 'WebHosting'
-                        SslFlags              = 1
-                    } -ClientOnly
-                )
+
+            It 'should ignore SSL properties' {
 
                 $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
                 $Result.certificateHash      | Should Be ''
@@ -958,16 +1018,22 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
         Context 'Protocol is neither HTTP nor HTTPS' {
 
             It 'should throw an error if BindingInformation is not specified' {
-                
-                 $MockBindingInfo = @(
+
+                $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                         Protocol           = 'net.tcp'
                         BindingInformation = ''
                     } -ClientOnly
                 )
 
+                $ErrorId = 'WebBindingMissingBindingInformation'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $($LocalizedData.WebBindingMissingBindingInformationError) -f $MockBindingInfo.Protocol
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
                 {ConvertTo-WebBinding -InputObject $MockBindingInfo} |
-                Should Throw
+                Should Throw $ErrorRecord
 
             }
 
@@ -984,7 +1050,6 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 )
 
                 $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
-
                 $Result.BindingInformation | Should Be '808:*'
 
             }
@@ -1031,9 +1096,9 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
     }
 
     Describe 'MSFT_xWebsite\Test-BindingInfo' {
-    
+
         Context 'BindingInfo is valid' {
-        
+
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                     Protocol              = 'http'
@@ -1054,7 +1119,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                     CertificateStoreName  = 'WebHosting'
                     SslFlags              = 1
                 } -ClientOnly
-            ) 
+            )
 
             It 'should return True' {
                 Test-BindingInfo -BindingInfo $MockBindingInfo |
@@ -1085,7 +1150,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                     CertificateStoreName  = 'WebHosting'
                     SslFlags              = 1
                 } -ClientOnly
-            ) 
+            )
 
             It 'should return False' {
                 Test-BindingInfo -BindingInfo $MockBindingInfo |
@@ -1095,7 +1160,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
         }
 
         Context 'BindingInfo contains multiple items with the same Port' {
-        
+
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                     Protocol              = 'http'
@@ -1116,7 +1181,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                     CertificateStoreName  = 'WebHosting'
                     SslFlags              = 1
                 } -ClientOnly
-            ) 
+            )
 
             It 'should return False' {
                 Test-BindingInfo -BindingInfo $MockBindingInfo |
@@ -1137,7 +1202,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                     Protocol = 'net.tcp'
                     BindingInformation = '808:*'
                 } -ClientOnly
-            ) 
+            )
 
             It 'should return False' {
                 Test-BindingInfo -BindingInfo $MockBindingInfo |
@@ -1145,7 +1210,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             }
 
         }
-    
+
     }
 
     Describe 'MSFT_xWebsite\Test-PortNumber' {
@@ -1258,6 +1323,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 {Test-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo} |
                 Should Not Throw $ErrorRecord
             }
+
         }
 
         Context 'Port is different' {
@@ -1278,6 +1344,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 Test-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo |
                 Should Be $false
             }
+
         }
 
         Context 'Protocol is different' {
@@ -1340,6 +1407,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 Test-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo |
                 Should Be $false
             }
+
         }
 
         Context 'CertificateThumbprint is different' {
@@ -1377,6 +1445,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 Test-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo |
                 Should Be $false
             }
+
         }
 
         Context 'CertificateStoreName is different' {
@@ -1412,6 +1481,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 Test-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo |
                 Should Be $false
             }
+
         }
 
         Context 'CertificateStoreName is different and no CertificateThumbprint is specified' {
@@ -1545,6 +1615,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 Test-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo |
                 Should Be $true
             }
+
         }
 
         Context 'Different collections of bindings' {
@@ -1618,20 +1689,19 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         Context 'Does not find the default page' {
 
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                return @{value = 'index2.htm'}
+            }
+
+            Mock -CommandName Add-WebConfiguration
+
             It 'should call Add-WebConfiguration' {
-
-                Mock -CommandName Get-WebConfiguration -MockWith {
-                    return @{value = 'index2.htm'}
-                }
-
-                Mock -CommandName Add-WebConfiguration
-
                 $Result = Update-DefaultPage -Name $MockWebsite.Name -DefaultPage $MockWebsite.DefaultPage
-
                 Assert-MockCalled -CommandName Add-WebConfiguration
             }
 
         }
+
     }
 
     Describe 'MSFT_xWebsite\Update-WebsiteBinding' {
@@ -1684,22 +1754,44 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         }
 
-        Context 'Error on adding a new binding' {
+        Context 'Website does not exist' {
 
-            $ErrorId = 'WebsiteBindingUpdateFailure'
-            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f $MockWebsite.Name
-            $ErrorMessage += $_.Exception.Message
-            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+            Mock -CommandName Get-WebConfiguration -ParameterFilter {
+                $Filter -eq '/system.applicationHost/sites/site'
+            } -MockWith {
+                return $null
+            }
 
             It 'should throw the correct error' {
 
-                Mock -CommandName Add-WebConfiguration -ParameterFilter {
-                    $Filter -eq "$($MockWebsite.ItemXPath)/bindings"
-                } -MockWith {
-                    throw
-                }
+                $ErrorId = 'WebsiteNotFound'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $($LocalizedData.WebsiteNotFoundError) -f $MockWebsite.Name
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                {Update-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo} |
+                Should Throw $ErrorRecord
+
+            }
+
+        }
+
+        Context 'Error on adding a new binding' {
+
+            Mock -CommandName Add-WebConfiguration -ParameterFilter {
+                $Filter -eq "$($MockWebsite.ItemXPath)/bindings"
+            } -MockWith {
+                throw
+            }
+
+            It 'should throw the correct error' {
+
+                $ErrorId = 'WebsiteBindingUpdateFailure'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f $MockWebsite.Name
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
                 {Update-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo} |
                 Should Throw $ErrorRecord
@@ -1710,22 +1802,21 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         Context 'Error on setting sslFlags attribute' {
 
+            Mock -CommandName Add-WebConfiguration
+
+            Mock -CommandName Set-WebConfigurationProperty -ParameterFilter {
+                $Filter -eq "$($MockWebsite.ItemXPath)/bindings/binding[last()]" -and $Name -eq 'sslFlags'
+            } -MockWith {
+                throw
+            }
+
             It 'should throw the correct error' {
 
                 $ErrorId = 'WebsiteBindingUpdateFailure'
                 $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
                 $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f $MockWebsite.Name
-                $ErrorMessage += $_.Exception.Message
                 $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                 $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                Mock -CommandName Add-WebConfiguration
-
-                Mock -CommandName Set-WebConfigurationProperty -ParameterFilter {
-                    $Filter -eq "$($MockWebsite.ItemXPath)/bindings/binding[last()]" -and $Name -eq 'sslFlags'
-                } -MockWith {
-                    throw
-                }
 
                 {Update-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo} |
                 Should Throw $ErrorRecord
@@ -1735,28 +1826,28 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         Context 'Error on adding SSL certificate' {
 
+            Mock -CommandName Add-WebConfiguration
+            Mock -CommandName Set-WebConfigurationProperty
+
+            Mock -CommandName Get-WebConfiguration -ParameterFilter {
+                $Filter -eq "$($MockWebsite.ItemXPath)/bindings/binding[last()]"
+            } -MockWith {
+                New-Module -AsCustomObject -ScriptBlock {
+                    function AddSslCertificate {throw}
+                }
+            }
+
             It 'should throw the correct error' {
 
                 $ErrorId = 'WebBindingCertificateError'
                 $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
                 $ErrorMessage = $($LocalizedData.WebBindingCertificateError) -f $MockBindingInfo.CertificateThumbprint
-                $ErrorMessage += $_.Exception.Message
                 $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                 $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                Mock -CommandName Add-WebConfiguration
-                Mock -CommandName Set-WebConfigurationProperty
-
-                Mock -CommandName Get-WebConfiguration -ParameterFilter {
-                    $Filter -eq "$($MockWebsite.ItemXPath)/bindings/binding[last()]"
-                } -MockWith {
-                    New-Module -AsCustomObject -ScriptBlock {
-                        function AddSslCertificate {throw}
-                    }
-                }
-
                 {Update-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo} |
                 Should Throw $ErrorRecord
+
             }
 
         }
