@@ -183,7 +183,7 @@ function Set-TargetResource
                 Write-Verbose -Message "Enabled Protocols for website '$Name' has been updated to '$EnabledProtocols'."
             }
 
-            # Update Default pages if required
+            # Update Default Pages if required
             if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
             {
                 Update-DefaultPage -Name $Name -DefaultPage $DefaultPage

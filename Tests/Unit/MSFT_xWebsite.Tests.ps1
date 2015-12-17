@@ -633,54 +633,50 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         Context 'Bindings are not unique' {
 
+            $MockBindingInfo = @(
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol  = 'http'
+                    IPAddress = '*'
+                    Port      = 80
+                    HostName  = 'web01.contoso.com'
+                } -ClientOnly
+
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol  = 'http'
+                    IPAddress = '*'
+                    Port      = 8080
+                    HostName  = ''
+                } -ClientOnly
+            )
+
             It 'should return False' {
-
-                $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 80
-                        HostName  = 'web01.contoso.com'
-                    } -ClientOnly
-
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 8080
-                        HostName  = ''
-                    } -ClientOnly
-                )
-
                 Confirm-UniqueBinding -BindingInfo $MockBindingInfo -ExcludeSite 'MockSite' |
                 Should Be $false
-
             }
 
         }
 
         Context 'Bindings are unique' {
 
+            $MockBindingInfo = @(
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol  = 'http'
+                    IPAddress = '*'
+                    Port      = 8090
+                    HostName  = ''
+                } -ClientOnly
+
+                New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Protocol  = 'http'
+                    IPAddress = '*'
+                    Port      = 9090
+                    HostName  = ''
+                } -ClientOnly
+            )
+
             It 'should return True' {
-
-                $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 8090
-                        HostName  = ''
-                    } -ClientOnly
-
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 9090
-                        HostName  = ''
-                    } -ClientOnly
-                )
-
                 Confirm-UniqueBinding -BindingInfo $MockBindingInfo -ExcludeSite 'MockSite' |
                 Should Be $true
-
             }
 
         }
@@ -984,10 +980,8 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
             )
 
             It 'should set CertificateStoreName to the default value' {
-
                 $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
                 $Result.certificateStoreName | Should Be 'MY'
-
             }
 
         }
@@ -1003,14 +997,11 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
                 } -ClientOnly
             )
 
-
             It 'should ignore SSL properties' {
-
                 $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
                 $Result.certificateHash      | Should Be ''
                 $Result.certificateStoreName | Should Be ''
                 $Result.sslFlags             | Should Be 0
-
             }
 
         }
@@ -1562,7 +1553,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         }
 
-        Context 'Identical collections of bindings' {
+        Context 'Bindings are identical' {
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -1618,7 +1609,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
 
         }
 
-        Context 'Different collections of bindings' {
+        Context 'Bindings are different' {
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -1707,7 +1698,7 @@ InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
     Describe 'MSFT_xWebsite\Update-WebsiteBinding' {
 
         $MockWebsite = @{
-            Name      = "MockSite"
+            Name      = 'MockSite'
             ItemXPath = "/system.applicationHost/sites/site[@name='MockSite']"
         }
 
