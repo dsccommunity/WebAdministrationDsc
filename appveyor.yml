@@ -2,11 +2,12 @@
 #      environment configuration  #
 #---------------------------------#
 # This is necessary to use WMF5
-os: unstable
+os: WMF 5
 version: 1.8.{build}.0
 install:
   - cinst -y pester --version 3.3.13
   - git clone https://github.com/PowerShell/DscResource.Tests
+  - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
   - ps: Push-Location
   - cd DscResource.Tests
   - ps: Import-Module .\TestHelper.psm1 -force
@@ -62,3 +63,4 @@ deploy_script:
           Write-Host "Pushing package $_ as Appveyor artifact"
           Push-AppveyorArtifact $_
         }
+
