@@ -86,14 +86,16 @@ try
         It 'Checking resource: xWebSiteDefaults' -test {
             (Get-DSCResource -name xWebSiteDefaults).count | should be 1
         }
+
         It 'Checking resource: xWebAppPoolDefaults' -test {
             (Get-DSCResource -name xWebAppPoolDefaults).count | should be 1
         }
+
         It 'Checking resource: xIisFeatureDelegation' -test {
             (Get-DSCResource -name xIisFeatureDelegation).count | should be 1
         }
-        It 'Checking resource: xIisMimeTypeMapping' -test {
 
+        It 'Checking resource: xIisMimeTypeMapping' -test {
             (Get-DSCResource -name xIisMimeTypeMapping).count | should be 1
         }
 
@@ -200,26 +202,7 @@ try
             $changedValue | should be $env:PesterDefaultPool
         }
 
-        It 'Changing Default virtualDirectoryDefaults' -test {
-        {
-            # get the current value
 
-            [string]$originalValue = GetSiteValue "virtualDirectoryDefaults" "allowSubDirConfig"
-
-            if ($originalValue -eq "true")
-            {
-                $env:PesterVirtualDirectoryDefaults = "false"
-            }
-            else
-            {
-                $env:PesterVirtualDirectoryDefaults = "true"
-            }
-
-            virtualDirectoryDefaults -OutputPath $env:temp\$($tempName)_LogFormat
-            Start-DscConfiguration -Path $env:temp\$($tempName)_LogFormat -Wait -Verbose -ErrorAction Stop -Force}  | should not throw
-            $changedValue = GetSiteValue "virtualDirectoryDefaults" "allowSubDirConfig"
-            $changedValue | should be $env:PesterVirtualDirectoryDefaults
-        }
 
         It 'Adding a new MimeType' -test {
         {
