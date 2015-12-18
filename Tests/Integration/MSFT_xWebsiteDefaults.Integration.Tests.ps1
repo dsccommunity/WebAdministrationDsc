@@ -23,6 +23,10 @@ try {
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
     . $ConfigFile
 
+    [string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+    Backup-WebConfiguration -Name $tempName
+
+
     Describe "$($Global:DSCResourceName)_Integration" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
@@ -70,6 +74,9 @@ try {
 finally
 {
     #region FOOTER
+    Restore-WebConfiguration -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName
+
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion
 }
