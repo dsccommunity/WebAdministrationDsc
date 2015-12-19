@@ -19,36 +19,3 @@ configuration DenyDelegation
         OverrideMode = "Deny"
     }
 }
-
-configuration RemoveHandler
-{
-    Import-DscResource -ModuleName xWebAdministration
-
-    xIisHandler TRACEVerbHandler
-    {
-        Name = "TRACEVerbHandler"
-        Ensure = "Absent"
-    }
-}
-
-configuration AddHandler
-{
-    Import-DscResource -ModuleName xWebAdministration
-
-    xIisHandler WebDAV
-    {
-        Name = "WebDAV"
-        Ensure = "Present"
-    }
-}
-
-configuration StaticFileHandler
-{
-    Import-DscResource -ModuleName xWebAdministration
-
-    xIisHandler StaticFile
-    {
-        Name = "StaticFile"
-        Ensure = "Present"
-    }
-}
