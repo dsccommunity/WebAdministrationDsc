@@ -82,6 +82,8 @@ try
         # before doing our changes, create a backup of the current config
         Backup-WebConfiguration -Name $tempName
 
+
+        # TODO: Create xIISMimeTypeMapping Integration Tests
         It 'Adding a new MimeType' -test {
         {
             AddMimeType -OutputPath $env:temp\$($tempName)_AddMimeType
@@ -91,8 +93,12 @@ try
             ((Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 1
         }
 
+        # TODO: Create xIISFeatureDelegation
+
         # Allow Feature Delegation
         # for this test we are using the anonymous Authentication feature, which is installed by default, but has Feature Delegation set to denied by default
+
+        # TODO: Modify this call to account for both Client/Server configurations.
         if ((Get-WindowsOptionalFeature –Online | Where {$_.FeatureName -eq "IIS-Security" -and $_.State -eq "Enabled"}).Count -eq 1)
         {
             if ((Get-WebConfiguration /system.webserver/security/authentication/anonymousAuthentication iis:\).OverrideModeEffective -eq 'Deny')
@@ -108,25 +114,24 @@ try
         }
 
         It 'Deny Feature Delegation' -test {
-        {
-            # this test doesn't really test the resource if it defaultDocument
-            # is already Deny (not the default)
-            # well it doesn't test the Set Method, but does test the Test method
-            # What if the default document module is not installed?
+            {
+                # this test doesn't really test the resource if it defaultDocument
+                # is already Deny (not the default)
+                # well it doesn't test the Set Method, but does test the Test method
+                # What if the default document module is not installed?
 
-            DenyDelegation -OutputPath $env:temp\$($tempName)_DenyDelegation
-            Start-DscConfiguration -Path $env:temp\$($tempName)_DenyDelegation -Wait -Verbose -ErrorAction Stop
+                DenyDelegation -OutputPath $env:temp\$($tempName)_DenyDelegation
+                Start-DscConfiguration -Path $env:temp\$($tempName)_DenyDelegation -Wait -Verbose -ErrorAction Stop
 
-            # Now lets try to add a new default document on site level, this should fail
-            # get the first site, it doesn't matter which one, it should fail.
-            $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
-            Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -value @{value='pesterpage.cgi'}
+                # Now lets try to add a new default document on site level, this should fail
+                # get the first site, it doesn't matter which one, it should fail.
+                $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
+                Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -value @{value='pesterpage.cgi'}
 
-            # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.
-            Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -AtElement @{value='pesterpage.cgi'} } | should throw
+                # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.
+                Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -AtElement @{value='pesterpage.cgi'}
+            } | should throw
         }
-
-        # Handler Tests
     }
 }
 finally
