@@ -24,7 +24,7 @@ try {
     . $ConfigFile
 
     [string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
-    Backup-WebConfiguration -Name $tempName
+    $null = Backup-WebConfiguration -Name $tempName
 
 
     Describe "$($Global:DSCResourceName)_Integration" {
@@ -53,15 +53,6 @@ try {
                 -PSPath 'MACHINE/WEBROOT/APPHOST' `
                 -Filter 'system.applicationHost/sites/virtualDirectoryDefaults' `
                 -Name 'allowSubDirConfig').Value
-
-            if ($originalValue -eq "true")
-            {
-                $env:PesterVirtualDirectoryDefaults = "false"
-            }
-            else
-            {
-                $env:PesterVirtualDirectoryDefaults = "true"
-            }
 
             Invoke-Expression -Command "$($Global:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
             Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
