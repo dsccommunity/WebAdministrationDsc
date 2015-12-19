@@ -1,20 +1,4 @@
-﻿# Check if WebServer is Installed
-if (@(Get-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer' `
-    | Where-Object -Property State -eq 'Disabled').Count -gt 0)
-{
-    if ((Get-CimInstance Win32_OperatingSystem).ProductType -eq 1)
-    {
-        # Desktop OS
-        Enable-WindowsOptionalFeature -Online -FeatureName 'IIS-WebServer'
-    }
-    else
-    {
-        # Server OS
-        Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
-    }
-}
-
-$global:DSCModuleName = 'xWebAdministration'
+﻿$global:DSCModuleName = 'xWebAdministration'
 $global:DSCResourceName = 'MSFT_xWebsite'
 
 #region HEADER
@@ -27,6 +11,7 @@ else
 {
     & git @('-C',(Join-Path -Path (Get-Location) -ChildPath '\DSCResource.Tests\'),'pull')
 }
+
 Import-Module .\DSCResource.Tests\TestHelper.psm1 -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $Global:DSCModuleName `
@@ -40,8 +25,8 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    [string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
-    Backup-WebConfiguration -Name $tempName
+    [string] $tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+    $null = Backup-WebConfiguration -Name $tempName
 
     Describe "$($Global:DSCResourceName)_Integration" {
         #region DEFAULT TESTS
