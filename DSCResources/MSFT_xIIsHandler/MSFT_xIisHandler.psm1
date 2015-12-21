@@ -7,257 +7,932 @@
 # top of the list, meaning, they are tried first. There is no way of ordering the
 # handler list except for removing all and then adding them in the correct order.
 ######################################################################################
+
+# Load the Helper Module
+Import-Module $PSScriptRoot\..\Helper.psm1 -Verbose:$false
+
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-AddingHandler=Adding handler '{0}'
-RemovingHandler=Removing handler '{0}'
-HandlerExists=Handler with name '{0}' already exist
-HandlerNotPresent=Handler with name '{0}' is not present as requested
-HandlerStatusUnknown=Handler with name '{0}' is in an unknown status
-HandlerNotSupported=The handler with name '{0}' is not supported. 
+        NoWebAdministrationModule   =   Please ensure that WebAdministration module is installed.
+        AddingHandler               =   Adding handler '{0}'
+        RemovingHandler             =   Removing handler '{0}'
+        HandlerExists               =   Handler with name '{0}' already exist
+        HandlerNotPresent           =   Handler with name '{0}' is not present as requested
+        HandlerNotSupported         =   The handler with name '{0}' is not supported.
 '@
 }
 
-######################################################################################
-# The Get-TargetResource cmdlet.
-######################################################################################
+#region script variables
+$script:handlers = @{
+    'aspq-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'aspq-Integrated-4.0';
+        Path = '*.aspq';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.HttpForbiddenHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'aspq-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'aspq-ISAPI-4.0_32bit';
+        Path = '*.aspq';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'aspq-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'aspq-ISAPI-4.0_64bit';
+        Path = '*.aspq';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'AssemblyResourceLoader-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'AssemblyResourceLoader-Integrated-4.0';
+        Path = 'WebResource.axd';
+        Verb = 'GET,DEBUG';
+        Type = 'System.Web.Handlers.AssemblyResourceLoader';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'AssemblyResourceLoader-Integrated' = (New-Object PSObject -Property @{
+        Name = 'AssemblyResourceLoader-Integrated';
+        Path = 'WebResource.axd';
+        Verb = 'GET,DEBUG';
+        Type = 'System.Web.Handlers.AssemblyResourceLoader';
+        PreCondition = 'integratedMode'
+    });
+
+    'AXD-ISAPI-2.0-64' = (New-Object PSObject -Property @{
+        Name = 'AXD-ISAPI-2.0-64';
+        Path = '*.axd';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'AXD-ISAPI-2.0' = (New-Object PSObject -Property @{
+        Name = 'AXD-ISAPI-2.0';
+        Path = '*.axd';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'AXD-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'AXD-ISAPI-4.0_32bit';
+        Path = '*.axd';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'AXD-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'AXD-ISAPI-4.0_64bit';
+        Path = '*.axd';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'CGI-exe' = (New-Object PSObject -Property @{
+        Name = 'CGI-exe';
+        Path = '*.exe';
+        Verb = '*';
+        Modules = 'CgiModule';
+        ResourceType = 'File';
+        RequireAccess = 'Execute';
+        AllowPathInfo = 'true'
+    });
+
+    'ClientLoggingHandler' = (New-Object PSObject -Property @{
+        Name = 'ClientLoggingHandler';
+        Path = '*.log';
+        Verb = 'POST';
+        Modules = 'ClientLoggingHandler';
+        ResourceType = 'Unspecified';
+        RequireAccess = 'None'
+    });
+
+    'cshtm-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'cshtm-Integrated-4.0';
+        Path = '*.cshtm';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.HttpForbiddenHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'cshtm-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'cshtm-ISAPI-4.0_32bit';
+        Path = '*.cshtm';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'cshtm-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'cshtm-ISAPI-4.0_64bit';
+        Path = '*.cshtm';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'cshtml-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'cshtml-Integrated-4.0';
+        Path = '*.cshtml';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.HttpForbiddenHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'cshtml-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'cshtml-ISAPI-4.0_32bit';
+        Path = '*.cshtml';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'cshtml-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'cshtml-ISAPI-4.0_64bit';
+        Path = '*.cshtml';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'ExtensionlessUrlHandler-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'ExtensionlessUrlHandler-Integrated-4.0';
+        Path = '*.';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.Handlers.TransferRequestHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0';
+        ResponseBufferLimit = '0'
+    });
+
+    'ExtensionlessUrlHandler-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'ExtensionlessUrlHandler-ISAPI-4.0_32bit';
+        Path = '*.';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'ExtensionlessUrlHandler-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'ExtensionlessUrlHandler-ISAPI-4.0_64bit';
+        Path = '*.';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-rem-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-rem-Integrated-4.0';
+        Path = '*.rem';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = b77a5c561934e089';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'HttpRemotingHandlerFactory-rem-Integrated' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-rem-Integrated';
+        Path = '*.rem';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version = 2.0.0.0,;Culture = neutral,;PublicKeyToken = b77a5c561934e089';
+        PreCondition = 'integratedMode,runtimeVersionv2.0'
+    });
+
+    'HttpRemotingHandlerFactory-rem-ISAPI-2.0-64' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-rem-ISAPI-2.0-64';
+        Path = '*.rem';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-rem-ISAPI-2.0' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-rem-ISAPI-2.0';
+        Path = '*.rem';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-rem-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-rem-ISAPI-4.0_32bit';
+        Path = '*.rem';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-rem-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-rem-ISAPI-4.0_64bit';
+        Path = '*.rem';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-soap-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-soap-Integrated-4.0';
+        Path = '*.soap';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = b77a5c561934e089';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'HttpRemotingHandlerFactory-soap-Integrated' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-soap-Integrated';
+        Path = '*.soap';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version = 2.0.0.0,;Culture = neutral,;PublicKeyToken = b77a5c561934e089';
+        PreCondition = 'integratedMode,runtimeVersionv2.0'
+    });
+
+    'HttpRemotingHandlerFactory-soap-ISAPI-2.0-64' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-soap-ISAPI-2.0-64';
+        Path = '*.soap';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-soap-ISAPI-2.0' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-soap-ISAPI-2.0';
+        Path = '*.soap';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-soap-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-soap-ISAPI-4.0_32bit';
+        Path = '*.soap';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'HttpRemotingHandlerFactory-soap-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'HttpRemotingHandlerFactory-soap-ISAPI-4.0_64bit';
+        Path = '*.soap';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'ISAPI-dll' = (New-Object PSObject -Property @{
+        Name = 'ISAPI-dll';
+        Path = '*.dll';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ResourceType = 'File';
+        RequireAccess = 'Execute';
+        AllowPathInfo = 'true'
+    });
+
+    'OPTIONSVerbHandler' = (New-Object PSObject -Property @{
+        Name = 'OPTIONSVerbHandler';
+        Path = '*';
+        Verb = 'OPTIONS';
+        Modules = 'ProtocolSupportModule';
+        RequireAccess = 'None'
+    });
+
+    'PageHandlerFactory-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'PageHandlerFactory-Integrated-4.0';
+        Path = '*.aspx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.UI.PageHandlerFactory';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'PageHandlerFactory-Integrated' = (New-Object PSObject -Property @{
+        Name = 'PageHandlerFactory-Integrated';
+        Path = '*.aspx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.UI.PageHandlerFactory';
+        PreCondition = 'integratedMode'
+    });
+
+    'PageHandlerFactory-ISAPI-2.0-64' = (New-Object PSObject -Property @{
+        Name = 'PageHandlerFactory-ISAPI-2.0-64';
+        Path = '*.aspx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'PageHandlerFactory-ISAPI-2.0' = (New-Object PSObject -Property @{
+        Name = 'PageHandlerFactory-ISAPI-2.0';
+        Path = '*.aspx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'PageHandlerFactory-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'PageHandlerFactory-ISAPI-4.0_32bit';
+        Path = '*.aspx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'PageHandlerFactory-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'PageHandlerFactory-ISAPI-4.0_64bit';
+        Path = '*.aspx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'rules-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'rules-Integrated-4.0';
+        Path = '*.rules';
+        Verb = '*';
+        Type = 'System.ServiceModel.Activation.ServiceHttpHandlerFactory,;System.ServiceModel.Activation,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = 31bf3856ad364e35';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'rules-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'rules-ISAPI-4.0_32bit';
+        Path = '*.rules';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'rules-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'rules-ISAPI-4.0_64bit';
+        Path = '*.rules';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'ScriptHandlerFactoryAppServices-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'ScriptHandlerFactoryAppServices-Integrated-4.0';
+        Path = '*_AppService.axd';
+        Verb = '*';
+        Type = 'System.Web.Script.Services.ScriptHandlerFactory,;System.Web.Extensions,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = 31BF3856AD364E35';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'ScriptResourceIntegrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'ScriptResourceIntegrated-4.0';
+        Path = '*ScriptResource.axd';
+        Verb = 'GET,HEAD';
+        Type = 'System.Web.Handlers.ScriptResourceHandler,;System.Web.Extensions,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = 31BF3856AD364E35';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'SecurityCertificate' = (New-Object PSObject -Property @{
+        Name = 'SecurityCertificate';
+        Path = '*.cer';
+        Verb = 'GET,HEAD,POST';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\system32\inetsrv\asp.dll';
+        ResourceType = 'File'
+    });
+
+    'SimpleHandlerFactory-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'SimpleHandlerFactory-Integrated-4.0';
+        Path = '*.ashx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.UI.SimpleHandlerFactory';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'SimpleHandlerFactory-Integrated' = (New-Object PSObject -Property @{
+        Name = 'SimpleHandlerFactory-Integrated';
+        Path = '*.ashx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.UI.SimpleHandlerFactory';
+        PreCondition = 'integratedMode'
+    });
+
+    'SimpleHandlerFactory-ISAPI-2.0-64' = (New-Object PSObject -Property @{
+        Name = 'SimpleHandlerFactory-ISAPI-2.0-64';
+        Path = '*.ashx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'SimpleHandlerFactory-ISAPI-2.0' = (New-Object PSObject -Property @{
+        Name = 'SimpleHandlerFactory-ISAPI-2.0';
+        Path = '*.ashx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'SimpleHandlerFactory-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'SimpleHandlerFactory-ISAPI-4.0_32bit';
+        Path = '*.ashx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'SimpleHandlerFactory-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'SimpleHandlerFactory-ISAPI-4.0_64bit';
+        Path = '*.ashx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'SSINC-shtm' = (New-Object PSObject -Property @{
+        Name = 'SSINC-shtm';
+        Path = '*.shtm';
+        Verb = 'GET,HEAD,POST';
+        Modules = 'ServerSideIncludeModule';
+        ResourceType = 'File'
+    });
+
+    'SSINC-shtml' = (New-Object PSObject -Property @{
+        Name = 'SSINC-shtml';
+        Path = '*.shtml';
+        Verb = 'GET,HEAD,POST';
+        Modules = 'ServerSideIncludeModule';
+        ResourceType = 'File'
+    });
+
+    'SSINC-stm' = (New-Object PSObject -Property @{
+        Name = 'SSINC-stm';
+        Path = '*.stm';
+        Verb = 'GET,HEAD,POST';
+        Modules = 'ServerSideIncludeModule';
+        ResourceType = 'File'
+    });
+
+    'StaticFile' = (New-Object PSObject -Property @{
+        Name = 'StaticFile';
+        Path = '*';
+        Verb = '*';
+        Modules = 'StaticFileModule,DefaultDocumentModule,DirectoryListingModule';
+        ResourceType = 'Either';
+        RequireAccess = 'Read'
+    });
+
+    'svc-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'svc-Integrated-4.0';
+        Path = '*.svc';
+        Verb = '*';
+        Type = 'System.ServiceModel.Activation.ServiceHttpHandlerFactory,;System.ServiceModel.Activation,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = 31bf3856ad364e35';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'svc-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'svc-ISAPI-4.0_32bit';
+        Path = '*.svc';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'svc-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'svc-ISAPI-4.0_64bit';
+        Path = '*.svc';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'TraceHandler-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'TraceHandler-Integrated-4.0';
+        Path = 'trace.axd';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.Handlers.TraceHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'TraceHandler-Integrated' = (New-Object PSObject -Property @{
+        Name = 'TraceHandler-Integrated';
+        Path = 'trace.axd';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.Handlers.TraceHandler';
+        PreCondition = 'integratedMode'
+    });
+
+    'TRACEVerbHandler' = (New-Object PSObject -Property @{
+        Name = 'TRACEVerbHandler';
+        Path = '*';
+        Verb = 'TRACE';
+        Modules = 'ProtocolSupportModule';
+        RequireAccess = 'None'
+    });
+
+    'vbhtm-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'vbhtm-Integrated-4.0';
+        Path = '*.vbhtm';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.HttpForbiddenHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'vbhtm-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'vbhtm-ISAPI-4.0_32bit';
+        Path = '*.vbhtm';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'vbhtm-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'vbhtm-ISAPI-4.0_64bit';
+        Path = '*.vbhtm';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'vbhtml-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'vbhtml-Integrated-4.0';
+        Path = '*.vbhtml';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.HttpForbiddenHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'vbhtml-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'vbhtml-ISAPI-4.0_32bit';
+        Path = '*.vbhtml';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'vbhtml-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'vbhtml-ISAPI-4.0_64bit';
+        Path = '*.vbhtml';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'WebAdminHandler-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'WebAdminHandler-Integrated-4.0';
+        Path = 'WebAdmin.axd';
+        Verb = 'GET,DEBUG';
+        Type = 'System.Web.Handlers.WebAdminHandler';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'WebAdminHandler-Integrated' = (New-Object PSObject -Property @{
+        Name = 'WebAdminHandler-Integrated';
+        Path = 'WebAdmin.axd';
+        Verb = 'GET,DEBUG';
+        Type = 'System.Web.Handlers.WebAdminHandler';
+        PreCondition = 'integratedMode'
+    });
+
+    'WebDAV' = (New-Object PSObject -Property @{
+        Name = 'WebDAV';
+        Path = '*';
+        Verb = 'PROPFIND,PROPPATCH,MKCOL,PUT,COPY,DELETE,MOVE,LOCK,UNLOCK';
+        Modules = 'WebDAVModule';
+        ResourceType = 'Unspecified';
+        RequireAccess = 'None'
+    });
+
+    'WebServiceHandlerFactory-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'WebServiceHandlerFactory-Integrated-4.0';
+        Path = '*.asmx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.Script.Services.ScriptHandlerFactory,;System.Web.Extensions,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = 31bf3856ad364e35';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'WebServiceHandlerFactory-Integrated' = (New-Object PSObject -Property @{
+        Name = 'WebServiceHandlerFactory-Integrated';
+        Path = '*.asmx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.Services.Protocols.WebServiceHandlerFactory,;System.Web.Services,;Version = 2.0.0.0,;Culture = neutral,;PublicKeyToken = b03f5f7f11d50a3a';
+        PreCondition = 'integratedMode,runtimeVersionv2.0'
+    });
+
+    'WebServiceHandlerFactory-ISAPI-2.0-64' = (New-Object PSObject -Property @{
+        Name = 'WebServiceHandlerFactory-ISAPI-2.0-64';
+        Path = '*.asmx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'WebServiceHandlerFactory-ISAPI-2.0' = (New-Object PSObject -Property @{
+        Name = 'WebServiceHandlerFactory-ISAPI-2.0';
+        Path = '*.asmx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv2.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'WebServiceHandlerFactory-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'WebServiceHandlerFactory-ISAPI-4.0_32bit';
+        Path = '*.asmx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'WebServiceHandlerFactory-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'WebServiceHandlerFactory-ISAPI-4.0_64bit';
+        Path = '*.asmx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'xamlx-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'xamlx-Integrated-4.0';
+        Path = '*.xamlx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Xaml.Hosting.XamlHttpHandlerFactory,;System.Xaml.Hosting,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = 31bf3856ad364e35';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'xamlx-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'xamlx-ISAPI-4.0_32bit';
+        Path = '*.xamlx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'xamlx-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'xamlx-ISAPI-4.0_64bit';
+        Path = '*.xamlx';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    });
+
+    'xoml-Integrated-4.0' = (New-Object PSObject -Property @{
+        Name = 'xoml-Integrated-4.0';
+        Path = '*.xoml';
+        Verb = '*';
+        Type = 'System.ServiceModel.Activation.ServiceHttpHandlerFactory,;System.ServiceModel.Activation,;Version = 4.0.0.0,;Culture = neutral,;PublicKeyToken = 31bf3856ad364e35';
+        PreCondition = 'integratedMode,runtimeVersionv4.0'
+    });
+
+    'xoml-ISAPI-4.0_32bit' = (New-Object PSObject -Property @{
+        Name = 'xoml-ISAPI-4.0_32bit';
+        Path = '*.xoml';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
+        ResponseBufferLimit = '0'
+    });
+
+    'xoml-ISAPI-4.0_64bit' = (New-Object PSObject -Property @{
+        Name = 'xoml-ISAPI-4.0_64bit';
+        Path = '*.xoml';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
+        ResponseBufferLimit = '0'
+    })
+}
+
+#endregion
+
+#region Get-TargetResource
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
     param
-    (        
+    (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String]$Name,
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [string]$Ensure = 'Present'
+        [string]$Ensure
     )
-    
-    # Check if WebAdministration module is present for IIS cmdlets
-    CheckIISPoshModule
 
-    $handler = GetHandler -name $Name
+    # Check if WebAdministration module is present for IIS cmdlets
+    Assert-Module
+
+    $handler = Get-Handler -Name $Name
 
     if ($handler -eq $null)
     {
         return @{
             Ensure = 'Absent'
-            Name = $Name
+            Name   = $Name
         }
     }
     else
     {
         return @{
             Ensure = 'Present'
-            Name = $Name
+            Name   = $Name
         }
     }
 }
+#endregion
 
-######################################################################################
-# The Set-TargetResource cmdlet.
-######################################################################################
+#region Set-TargetResource
 function Set-TargetResource
 {
     param
-    (        
+    (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String]$Name,
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [string]$Ensure = 'Present'
+        [string]$Ensure
     )
 
-        CheckIISPoshModule
+    Assert-Module
 
-        [string]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
-        [string]$sectionNode = 'system.webServer/handlers'
+    [string] $psPathRoot  = 'MACHINE/WEBROOT/APPHOST'
+    [string] $sectionNode = 'system.webServer/handlers'
 
-        $handler = GetHandler -name $Name 
+    $handler = Get-Handler -Name $Name
 
-        if ($handler -eq $null -and $Ensure -eq 'Present')
-        {
-            # add the handler  
-            AddHandler -name $Name    
-            Write-Verbose($LocalizedData.AddingHandler -f $Name);
-        }
-        elseif ($handler -ne $null -and $Ensure -eq 'Absent')
-        {
-            # remove the handler                      
-            Remove-WebConfigurationProperty -pspath $psPathRoot -filter $sectionNode -name '.' -AtElement @{name="$Name"}
-            Write-Verbose($LocalizedData.RemovingHandler -f $Name);
-        }
+    if ($handler -eq $null -and $Ensure -eq 'Present')
+    {
+        # add the handler
+        Add-Handler -Name $Name
+        Write-Verbose -Message ($LocalizedData.AddingHandler -f $Name)
+    }
+    elseif ($handler -ne $null -and $Ensure -eq 'Absent')
+    {
+        # remove the handler
+        Remove-WebConfigurationProperty -PSPath $psPathRoot -Filter $sectionNode -Name '.' -AtElement @{name="$Name"}
+        Write-Verbose -Message ($LocalizedData.RemovingHandler -f $Name)
+    }
 }
+#endregion
 
-######################################################################################
-# The Test-TargetResource cmdlet.
-######################################################################################
+#region Test-TargetResource
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
     param
-    (        
+    (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String]$Name,
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [string]$Ensure = 'Present'
+        [string]$Ensure
     )
 
-    [bool]$DesiredConfigurationMatch = $true;
-    
-    CheckIISPoshModule
+    Assert-Module
 
-    $handler = GetHandler -name $Name 
+    $handler = Get-Handler -Name $Name
 
     if (($handler -eq $null -and $Ensure -eq 'Present') -or ($handler -ne $null -and $Ensure -eq 'Absent'))
     {
-        $DesiredConfigurationMatch = $false;
+        return $false;
     }
     elseif ($handler -ne $null -and $Ensure -eq 'Present')
     {
-        # Already there 
-        Write-Verbose($LocalizedData.HandlerExists -f $Name);
-    }
-    elseif ($handler -eq $null -and $Ensure -eq 'Absent')
-    {
-        # handler not there and shouldn't be there.
-        Write-Verbose($LocalizedData.HandlerNotPresent -f $Name);
+        # Handler is present
+        Write-Verbose -Message ($LocalizedData.HandlerExists -f $Name);
+        return $true;
     }
     else
     {
-        $DesiredConfigurationMatch = $false;
-        Write-Verbose($LocalizedData.HandlerStatusUnknown -f $Name);
-    }
-    
-    return $DesiredConfigurationMatch
-}
-
-Function CheckIISPoshModule
-{
-    # Check if WebAdministration module is present for IIS cmdlets
-    if(!(Get-Module -ListAvailable -Name WebAdministration))
-    {
-        Throw $LocalizedData.NoWebAdministrationModule
+        # Handler not present and should not be there.
+        Write-Verbose -Message ($LocalizedData.HandlerNotPresent -f $Name);
+        return $true;
     }
 }
+#endregion
 
-Function GetHandler([string]$name)
+#region Helper Functions
+function Get-Handler
 {
-    [string]$filter = "system.webServer/handlers/Add[@Name='" + $name + "']"
-    return Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .
+    param
+    (
+        [string] $Name
+    )
+
+    [string] $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
+    return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
 }
 
-Function AddHandler([string]$name)
+function Add-Handler
 {
-    # using a dictionary of PSObjects, each holding all the information about one handler
-    $handlers = New-Object 'System.Collections.Generic.Dictionary[string,object]'
-    # these properties are always the same on all supported versions of Windows 
-    $handlers.Add('ASPClassic',(New-Object PSObject -Property @{name='ASPClassic';path='*.asp';verb='GET,HEAD,POST';modules='IsapiModule';scriptProcessor='%windir%\system32\inetsrv\asp.dll';resourceType='File'}))
-    $handlers.Add('aspq-Integrated-4.0',(New-Object PSObject -Property @{name='aspq-Integrated-4.0';path='*.aspq';verb='GET,HEAD,POST,DEBUG';type='System.Web.HttpForbiddenHandler';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('aspq-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='aspq-ISAPI-4.0_32bit';path='*.aspq';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('aspq-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='aspq-ISAPI-4.0_64bit';path='*.aspq';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('AssemblyResourceLoader-Integrated-4.0',(New-Object PSObject -Property @{name='AssemblyResourceLoader-Integrated-4.0';path='WebResource.axd';verb='GET,DEBUG';type='System.Web.Handlers.AssemblyResourceLoader';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('AssemblyResourceLoader-Integrated',(New-Object PSObject -Property @{name='AssemblyResourceLoader-Integrated';path='WebResource.axd';verb='GET,DEBUG';type='System.Web.Handlers.AssemblyResourceLoader';preCondition='integratedMode'}))
-    $handlers.Add('AXD-ISAPI-2.0-64',(New-Object PSObject -Property @{name='AXD-ISAPI-2.0-64';path='*.axd';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('AXD-ISAPI-2.0',(New-Object PSObject -Property @{name='AXD-ISAPI-2.0';path='*.axd';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('AXD-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='AXD-ISAPI-4.0_32bit';path='*.axd';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('AXD-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='AXD-ISAPI-4.0_64bit';path='*.axd';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('CGI-exe',(New-Object PSObject -Property @{name='CGI-exe';path='*.exe';verb='*';modules='CgiModule';resourceType='File';requireAccess='Execute';allowPathInfo='true'}))
-    $handlers.Add('ClientLoggingHandler',(New-Object PSObject -Property @{name='ClientLoggingHandler';path='*.log';verb='POST';modules='ClientLoggingHandler';resourceType='Unspecified';requireAccess='None'}))
-    $handlers.Add('cshtm-Integrated-4.0',(New-Object PSObject -Property @{name='cshtm-Integrated-4.0';path='*.cshtm';verb='GET,HEAD,POST,DEBUG';type='System.Web.HttpForbiddenHandler';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('cshtm-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='cshtm-ISAPI-4.0_32bit';path='*.cshtm';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('cshtm-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='cshtm-ISAPI-4.0_64bit';path='*.cshtm';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('cshtml-Integrated-4.0',(New-Object PSObject -Property @{name='cshtml-Integrated-4.0';path='*.cshtml';verb='GET,HEAD,POST,DEBUG';type='System.Web.HttpForbiddenHandler';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('cshtml-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='cshtml-ISAPI-4.0_32bit';path='*.cshtml';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('cshtml-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='cshtml-ISAPI-4.0_64bit';path='*.cshtml';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('ExtensionlessUrlHandler-Integrated-4.0',(New-Object PSObject -Property @{name='ExtensionlessUrlHandler-Integrated-4.0';path='*.';verb='GET,HEAD,POST,DEBUG';type='System.Web.Handlers.TransferRequestHandler';preCondition='integratedMode,runtimeVersionv4.0';responseBufferLimit='0'}))
-    $handlers.Add('ExtensionlessUrlHandler-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='ExtensionlessUrlHandler-ISAPI-4.0_32bit';path='*.';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('ExtensionlessUrlHandler-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='ExtensionlessUrlHandler-ISAPI-4.0_64bit';path='*.';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-rem-Integrated-4.0',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-rem-Integrated-4.0';path='*.rem';verb='GET,HEAD,POST,DEBUG';type='System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=b77a5c561934e089';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-rem-Integrated',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-rem-Integrated';path='*.rem';verb='GET,HEAD,POST,DEBUG';type='System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version=2.0.0.0,;Culture=neutral,;PublicKeyToken=b77a5c561934e089';preCondition='integratedMode,runtimeVersionv2.0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-rem-ISAPI-2.0-64',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-rem-ISAPI-2.0-64';path='*.rem';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-rem-ISAPI-2.0',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-rem-ISAPI-2.0';path='*.rem';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-rem-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-rem-ISAPI-4.0_32bit';path='*.rem';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-rem-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-rem-ISAPI-4.0_64bit';path='*.rem';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-soap-Integrated-4.0',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-soap-Integrated-4.0';path='*.soap';verb='GET,HEAD,POST,DEBUG';type='System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=b77a5c561934e089';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-soap-Integrated',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-soap-Integrated';path='*.soap';verb='GET,HEAD,POST,DEBUG';type='System.Runtime.Remoting.Channels.Http.HttpRemotingHandlerFactory,;System.Runtime.Remoting,;Version=2.0.0.0,;Culture=neutral,;PublicKeyToken=b77a5c561934e089';preCondition='integratedMode,runtimeVersionv2.0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-soap-ISAPI-2.0-64',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-soap-ISAPI-2.0-64';path='*.soap';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-soap-ISAPI-2.0',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-soap-ISAPI-2.0';path='*.soap';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-soap-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-soap-ISAPI-4.0_32bit';path='*.soap';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('HttpRemotingHandlerFactory-soap-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='HttpRemotingHandlerFactory-soap-ISAPI-4.0_64bit';path='*.soap';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('ISAPI-dll',(New-Object PSObject -Property @{name='ISAPI-dll';path='*.dll';verb='*';modules='IsapiModule';resourceType='File';requireAccess='Execute';allowPathInfo='true'}))
-    $handlers.Add('OPTIONSVerbHandler',(New-Object PSObject -Property @{name='OPTIONSVerbHandler';path='*';verb='OPTIONS';modules='ProtocolSupportModule';requireAccess='None'}))
-    $handlers.Add('PageHandlerFactory-Integrated-4.0',(New-Object PSObject -Property @{name='PageHandlerFactory-Integrated-4.0';path='*.aspx';verb='GET,HEAD,POST,DEBUG';type='System.Web.UI.PageHandlerFactory';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('PageHandlerFactory-Integrated',(New-Object PSObject -Property @{name='PageHandlerFactory-Integrated';path='*.aspx';verb='GET,HEAD,POST,DEBUG';type='System.Web.UI.PageHandlerFactory';preCondition='integratedMode'}))
-    $handlers.Add('PageHandlerFactory-ISAPI-2.0-64',(New-Object PSObject -Property @{name='PageHandlerFactory-ISAPI-2.0-64';path='*.aspx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('PageHandlerFactory-ISAPI-2.0',(New-Object PSObject -Property @{name='PageHandlerFactory-ISAPI-2.0';path='*.aspx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('PageHandlerFactory-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='PageHandlerFactory-ISAPI-4.0_32bit';path='*.aspx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('PageHandlerFactory-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='PageHandlerFactory-ISAPI-4.0_64bit';path='*.aspx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('rules-Integrated-4.0',(New-Object PSObject -Property @{name='rules-Integrated-4.0';path='*.rules';verb='*';type='System.ServiceModel.Activation.ServiceHttpHandlerFactory,;System.ServiceModel.Activation,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=31bf3856ad364e35';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('rules-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='rules-ISAPI-4.0_32bit';path='*.rules';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('rules-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='rules-ISAPI-4.0_64bit';path='*.rules';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('ScriptHandlerFactoryAppServices-Integrated-4.0',(New-Object PSObject -Property @{name='ScriptHandlerFactoryAppServices-Integrated-4.0';path='*_AppService.axd';verb='*';type='System.Web.Script.Services.ScriptHandlerFactory,;System.Web.Extensions,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=31BF3856AD364E35';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('ScriptResourceIntegrated-4.0',(New-Object PSObject -Property @{name='ScriptResourceIntegrated-4.0';path='*ScriptResource.axd';verb='GET,HEAD';type='System.Web.Handlers.ScriptResourceHandler,;System.Web.Extensions,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=31BF3856AD364E35';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('SecurityCertificate',(New-Object PSObject -Property @{name='SecurityCertificate';path='*.cer';verb='GET,HEAD,POST';modules='IsapiModule';scriptProcessor='%windir%\system32\inetsrv\asp.dll';resourceType='File'}))
-    $handlers.Add('SimpleHandlerFactory-Integrated-4.0',(New-Object PSObject -Property @{name='SimpleHandlerFactory-Integrated-4.0';path='*.ashx';verb='GET,HEAD,POST,DEBUG';type='System.Web.UI.SimpleHandlerFactory';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('SimpleHandlerFactory-Integrated',(New-Object PSObject -Property @{name='SimpleHandlerFactory-Integrated';path='*.ashx';verb='GET,HEAD,POST,DEBUG';type='System.Web.UI.SimpleHandlerFactory';preCondition='integratedMode'}))
-    $handlers.Add('SimpleHandlerFactory-ISAPI-2.0-64',(New-Object PSObject -Property @{name='SimpleHandlerFactory-ISAPI-2.0-64';path='*.ashx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('SimpleHandlerFactory-ISAPI-2.0',(New-Object PSObject -Property @{name='SimpleHandlerFactory-ISAPI-2.0';path='*.ashx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('SimpleHandlerFactory-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='SimpleHandlerFactory-ISAPI-4.0_32bit';path='*.ashx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('SimpleHandlerFactory-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='SimpleHandlerFactory-ISAPI-4.0_64bit';path='*.ashx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('SSINC-shtm',(New-Object PSObject -Property @{name='SSINC-shtm';path='*.shtm';verb='GET,HEAD,POST';modules='ServerSideIncludeModule';resourceType='File'}))
-    $handlers.Add('SSINC-shtml',(New-Object PSObject -Property @{name='SSINC-shtml';path='*.shtml';verb='GET,HEAD,POST';modules='ServerSideIncludeModule';resourceType='File'}))
-    $handlers.Add('SSINC-stm',(New-Object PSObject -Property @{name='SSINC-stm';path='*.stm';verb='GET,HEAD,POST';modules='ServerSideIncludeModule';resourceType='File'}))
-    $handlers.Add('StaticFile',(New-Object PSObject -Property @{name='StaticFile';path='*';verb='*';modules='StaticFileModule,DefaultDocumentModule,DirectoryListingModule';resourceType='Either';requireAccess='Read'}))
-    $handlers.Add('svc-Integrated-4.0',(New-Object PSObject -Property @{name='svc-Integrated-4.0';path='*.svc';verb='*';type='System.ServiceModel.Activation.ServiceHttpHandlerFactory,;System.ServiceModel.Activation,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=31bf3856ad364e35';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('svc-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='svc-ISAPI-4.0_32bit';path='*.svc';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('svc-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='svc-ISAPI-4.0_64bit';path='*.svc';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('TraceHandler-Integrated-4.0',(New-Object PSObject -Property @{name='TraceHandler-Integrated-4.0';path='trace.axd';verb='GET,HEAD,POST,DEBUG';type='System.Web.Handlers.TraceHandler';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('TraceHandler-Integrated',(New-Object PSObject -Property @{name='TraceHandler-Integrated';path='trace.axd';verb='GET,HEAD,POST,DEBUG';type='System.Web.Handlers.TraceHandler';preCondition='integratedMode'}))
-    $handlers.Add('TRACEVerbHandler',(New-Object PSObject -Property @{name='TRACEVerbHandler';path='*';verb='TRACE';modules='ProtocolSupportModule';requireAccess='None'}))
-    $handlers.Add('vbhtm-Integrated-4.0',(New-Object PSObject -Property @{name='vbhtm-Integrated-4.0';path='*.vbhtm';verb='GET,HEAD,POST,DEBUG';type='System.Web.HttpForbiddenHandler';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('vbhtm-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='vbhtm-ISAPI-4.0_32bit';path='*.vbhtm';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('vbhtm-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='vbhtm-ISAPI-4.0_64bit';path='*.vbhtm';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('vbhtml-Integrated-4.0',(New-Object PSObject -Property @{name='vbhtml-Integrated-4.0';path='*.vbhtml';verb='GET,HEAD,POST,DEBUG';type='System.Web.HttpForbiddenHandler';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('vbhtml-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='vbhtml-ISAPI-4.0_32bit';path='*.vbhtml';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('vbhtml-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='vbhtml-ISAPI-4.0_64bit';path='*.vbhtml';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('WebAdminHandler-Integrated-4.0',(New-Object PSObject -Property @{name='WebAdminHandler-Integrated-4.0';path='WebAdmin.axd';verb='GET,DEBUG';type='System.Web.Handlers.WebAdminHandler';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('WebAdminHandler-Integrated',(New-Object PSObject -Property @{name='WebAdminHandler-Integrated';path='WebAdmin.axd';verb='GET,DEBUG';type='System.Web.Handlers.WebAdminHandler';preCondition='integratedMode'}))
-    $handlers.Add('WebDAV',(New-Object PSObject -Property @{name='WebDAV';path='*';verb='PROPFIND,PROPPATCH,MKCOL,PUT,COPY,DELETE,MOVE,LOCK,UNLOCK';modules='WebDAVModule';resourceType='Unspecified';requireAccess='None'}))
-    $handlers.Add('WebServiceHandlerFactory-Integrated-4.0',(New-Object PSObject -Property @{name='WebServiceHandlerFactory-Integrated-4.0';path='*.asmx';verb='GET,HEAD,POST,DEBUG';type='System.Web.Script.Services.ScriptHandlerFactory,;System.Web.Extensions,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=31bf3856ad364e35';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('WebServiceHandlerFactory-Integrated',(New-Object PSObject -Property @{name='WebServiceHandlerFactory-Integrated';path='*.asmx';verb='GET,HEAD,POST,DEBUG';type='System.Web.Services.Protocols.WebServiceHandlerFactory,;System.Web.Services,;Version=2.0.0.0,;Culture=neutral,;PublicKeyToken=b03f5f7f11d50a3a';preCondition='integratedMode,runtimeVersionv2.0'}))
-    $handlers.Add('WebServiceHandlerFactory-ISAPI-2.0-64',(New-Object PSObject -Property @{name='WebServiceHandlerFactory-ISAPI-2.0-64';path='*.asmx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('WebServiceHandlerFactory-ISAPI-2.0',(New-Object PSObject -Property @{name='WebServiceHandlerFactory-ISAPI-2.0';path='*.asmx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv2.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('WebServiceHandlerFactory-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='WebServiceHandlerFactory-ISAPI-4.0_32bit';path='*.asmx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('WebServiceHandlerFactory-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='WebServiceHandlerFactory-ISAPI-4.0_64bit';path='*.asmx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('xamlx-Integrated-4.0',(New-Object PSObject -Property @{name='xamlx-Integrated-4.0';path='*.xamlx';verb='GET,HEAD,POST,DEBUG';type='System.Xaml.Hosting.XamlHttpHandlerFactory,;System.Xaml.Hosting,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=31bf3856ad364e35';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('xamlx-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='xamlx-ISAPI-4.0_32bit';path='*.xamlx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('xamlx-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='xamlx-ISAPI-4.0_64bit';path='*.xamlx';verb='GET,HEAD,POST,DEBUG';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
-    $handlers.Add('xoml-Integrated-4.0',(New-Object PSObject -Property @{name='xoml-Integrated-4.0';path='*.xoml';verb='*';type='System.ServiceModel.Activation.ServiceHttpHandlerFactory,;System.ServiceModel.Activation,;Version=4.0.0.0,;Culture=neutral,;PublicKeyToken=31bf3856ad364e35';preCondition='integratedMode,runtimeVersionv4.0'}))
-    $handlers.Add('xoml-ISAPI-4.0_32bit',(New-Object PSObject -Property @{name='xoml-ISAPI-4.0_32bit';path='*.xoml';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness32';responseBufferLimit='0'}))
-    $handlers.Add('xoml-ISAPI-4.0_64bit',(New-Object PSObject -Property @{name='xoml-ISAPI-4.0_64bit';path='*.xoml';verb='*';modules='IsapiModule';scriptProcessor='%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';preCondition='classicMode,runtimeVersionv4.0,bitness64';responseBufferLimit='0'}))
+    param
+    (
+        [string] $Name
+    )
 
     # check whether our dictionary has an item with the specified key
-    if ($handlers.ContainsKey($name))
+    if ($script:handlers.ContainsKey($name))
     {
         # add the new handler
-        Add-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter 'system.webServer/handlers' -name '.' -value $handlers[$name]
+        Add-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter 'system.webServer/handlers' -Name '.' -Value $script:handlers[$Name]
     }
     else
     {
-        Throw ($LocalizedData.HandlerNotSupported -f $Name);
+        New-TerminatingError -ErrorId 'HandlerNotSupported' -ErrorMessage $($LocalizedData.HandlerNotSupported -f $Name) -ErrorCategory InvalidArgument
     }
 }
+#endregion
 
-#  FUNCTIONS TO BE EXPORTED 
+
+#  FUNCTIONS TO BE EXPORTED
 Export-ModuleMember -Function *-TargetResource
