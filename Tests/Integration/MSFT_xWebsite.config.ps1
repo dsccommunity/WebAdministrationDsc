@@ -1,4 +1,4 @@
-configuration WebBindingInfo
+configuration MSFT_xWebsite_Config
 {
     Import-DscResource -ModuleName xWebAdministration
 
