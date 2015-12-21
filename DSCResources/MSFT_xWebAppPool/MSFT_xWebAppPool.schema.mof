@@ -9,13 +9,12 @@ class MSFT_xWebAppPool : OMI_BaseResource
     [write, Description("Which version of .Net"), ValueMap{"v4.0","v2.0",""},Values{"v4.0","v2.0",""}] string managedRuntimeVersion;
     [write, Description("Specifies the request-processing mode that is used to process requests for managed content."), ValueMap{"Integrated","Classic"},Values{"Integrated","Classic"}] string managedPipelineMode;
     [write, Description("App pool always running or on demand"), ValueMap{"AlwaysRunning","OnDemand"},Values{"AlwaysRunning","OnDemand"}] string startMode;
-    
+
     [write, Description("Who should the app pool run as"), ValueMap{"ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser"},
     Values{"ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser"}]
     string identityType;
-    
-    [write, Description("User name if SpecificUser is choosen for app pool identity")] string userName;
-    [write, Description("Password of that user"), EmbeddedInstance("MSFT_Credential")] string Password;
+
+    [write, Description("Credential of that user"), EmbeddedInstance("MSFT_Credential")] string Credential;
     [write, Description("Load the users profile"), ValueMap{"true","false"},Values{"true","false"}] string loadUserProfile;
     [write, Description("Indicates to HTTP.sys how many requests to queue for an application pool before rejecting future requests.")] string queueLength;
     [write, Description("When true, enables a 32-bit application to run on a computer that runs a 64-bit version of Windows."), ValueMap{"true","false"},Values{"true","false"}] string enable32BitAppOnWin64;

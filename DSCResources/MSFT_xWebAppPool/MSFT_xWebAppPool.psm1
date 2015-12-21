@@ -1,174 +1,181 @@
+# Load the Helper Module
+Import-Module $PSScriptRoot\..\Helper.psm1 -Verbose:$false
+
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-SetTargetResourceInstallwhatIfMessage=Trying to create AppPool "{0}".
-SetTargetResourceUnInstallwhatIfMessage=Trying to remove AppPool "{0}".
-AppPoolNotFoundError=The requested AppPool "{0}" is not found on the target machine.
-AppPoolDiscoveryFailureError=Failure to get the requested AppPool "{0}" information from the target machine.
-AppPoolCreationFailureError=Failure to successfully create the AppPool "{0}".
-AppPoolRemovalFailureError=Failure to successfully remove the AppPool "{0}".
-AppPoolUpdateFailureError=Failure to successfully update the properties for AppPool "{0}".
-AppPoolCompareFailureError=Failure to successfully compare properties for AppPool "{0}".
-AppPoolStateFailureError=Failure to successfully set the state of the AppPool {0}.
+    AppPoolNotFoundError            =   The requested AppPool "{0}" is not found on the target machine.
+    AppPoolDiscoveryFailureError    =   Failure to get the requested AppPool "{0}" information from the target machine.
+    AppPoolCreationFailureError     =   Failure to successfully create the AppPool "{0}".
+    AppPoolRemovalFailureError      =   Failure to successfully remove the AppPool "{0}".
+    AppPoolDiscoveryFailure         =   Multiple AppPools contain the name "{0}". Unable to continue.
+    AppPoolCompareFailureError      =   Failure to successfully compare properties for AppPool "{0}".
+    AppPoolStateFailureError        =   Failure to successfully set the state of the AppPool {0}.
+    SetTargetResourceUnInstallwhatIfMessage   =   Trying to remove AppPool "{0}".
+    SetTargetResourceInstallwhatIfMessage     =   Trying to create AppPool "{0}".
+    TestEnsureState     =   The Ensure state for AppPool "{0}" does not match the desired state.
+    TestStateConfig     =   State of AppPool "{0}" does not match the desired state.
+    TestAutoStartConfig     = AutoStart of AppPool "{0}" does not match the desired state.
+    TestmanagedRuntimeVersionConfig     =   managedRuntimeVersion of AppPool "{0}" does not match the desired state.
+    TestmanagedPipelineModeConfig   =   managedPipelineMode of AppPool "{0}" does not match the desired state.
+    TeststartModeConfig     =   startMode of AppPool "{0}" does not match the desired state.
+    TestidentityTypeConfig  =   identityType of AppPool "{0}" does not match the desired state.
+    TestuserNameConfig  =   userName of AppPool "{0}" does not match the desired state.
+    TestPasswordConfig  =   Password of AppPool "{0}" does not match the desired state.
+    TestloadUserProfileConfig   =   loadUserProfile of AppPool "{0}" does not match the desired state.
+    TestqueueLengthConfig   =   queueLength of AppPool "{0}" does not match the desired state.
+    Testenable32BitAppOnWin64Config     =   enable32BitAppOnWin64 of AppPool "{0}" does not match the desired state.
+    TestmanagedRuntimeLoaderConfig  =   managedRuntimeLoader of AppPool "{0}" does not match the desired state.
+    TestenableConfigurationOverrideConfig   =   enableConfigurationOverride of AppPool "{0}" does not match the desired state.
+    TestCLRConfigFileConfig     =   CLRConfigFile of AppPool "{0}" does not match the desired state.
+    TestpassAnonymousTokenConfig    =   passAnonymousToken of AppPool "{0}" does not match the desired state.
+    TestlogonTypeConfig     =   logonType of AppPool "{0}" does not match the desired state.
+    TestmanualGroupMembershipConfig     =   manualGroupMembership of AppPool "{0}" does not match the desired state.
+    TestidleTimeoutConfig   =   idleTimeout of AppPool "{0}" does not match the desired state.
+    TestmaxProcessesConfig  =   maxProcesses of AppPool "{0}" does not match the desired state.
+    TestshutdownTimeLimitConfig     =   shutdownTimeLimit of AppPool "{0}" does not match the desired state.
+    TeststartupTimeLimitConfig  =   startupTimeLimit of AppPool "{0}" does not match the desired state.
+    TestpingingEnabledConfig    =   pingingEnabled of AppPool "{0}" does not match the desired state.
+    TestpingIntervalConfig  =   pingInterval of AppPool "{0}" does not match the desired state.
+    TestpingResponseTimeConfig  =   pingResponseTime of AppPool "{0}" does not match the desired state.
+    TestdisallowOverlappingRotationConfig   =   disallowOverlappingRotation of AppPool "{0}" does not match the desired state.
+    TestdisallowRotationOnConfigChangeConfig    =   disallowRotationOnConfigChange of AppPool "{0}" does not match the desired state.
+    TestlogEventOnRecycleConfig     =   logEventOnRecycle of AppPool "{0}" does not match the desired state.
+    TestrestartMemoryLimitConfig    =   restartMemoryLimit of AppPool "{0}" does not match the desired state.
+    TestrestartPrivateMemoryLimitConfig     =   restartPrivateMemoryLimit of AppPool "{0}" does not match the desired state.
+    TestrestartRequestsLimitConfig  =   restartRequestsLimit of AppPool "{0}" does not match the desired state.
+    TestrestartTimeLimitConfig  =   restartTimeLimit of AppPool "{0}" does not match the desired state.
+    TestloadBalancerCapabilitiesConfig  =   loadBalancerCapabilities of AppPool "{0}" does not match the desired state.
+    TestorphanWorkerProcessConfig   =   orphanWorkerProcess of AppPool "{0}" does not match the desired state.
+    TestorphanActionExeConfig   =   orphanActionExe of AppPool "{0}" does not match the desired state.
+    TestorphanActionParamsConfig    =   orphanActionParams of AppPool "{0}" does not match the desired state.
+    TestrapidFailProtectionConfig   =   rapidFailProtection of AppPool "{0}" does not match the desired state.
+    TestrapidFailProtectionIntervalConfig   =   rapidFailProtectionInterval of AppPool "{0}" does not match the desired state.
+    TestrapidFailProtectionMaxCrashesConfig     =   rapidFailProtectionMaxCrashes of AppPool "{0}" does not match the desired state.
+    TestautoShutdownExeConfig   =   autoShutdownExe of AppPool "{0}" does not match the desired state.
+    TestautoShutdownParamsConfig    =   autoShutdownParams of AppPool "{0}" does not match the desired state.
+    TestcpuLimitConfig  =   cpuLimit of AppPool "{0}" does not match the desired state.
+    TestcpuActionConfig     =   cpuAction of AppPool "{0}" does not match the desired state.
+    TestcpuResetIntervalConfig  =   cpuResetInterval of AppPool "{0}" does not match the desired state.
+    TestcpuSmpAffinitizedConfig     =   cpuSmpAffinitized of AppPool "{0}" does not match the desired state.
+    TestcpuSmpProcessorAffinityMaskConfig   =   cpuSmpProcessorAffinityMask of AppPool "{0}" does not match the desired state.
+    TestcpuSmpProcessorAffinityMask2Config  =   cpuSmpProcessorAffinityMask2 of AppPool "{0}" does not match the desired state.
 '@
 }
 
-function Invoke-AppCmd
-{
-    param
-    (
-        [string[]] $Arguments,
-        [string] $Path = "$env:SystemRoot\system32\inetsrv\appcmd.exe"
-    )
-
-    if (Test-Path $Path)
-    {
-        & $Path $Arguments
-    }
-    else
-    {
-        throw "$Path does not exist"
-    }
-}
-
-function Invoke-AppCmdState
-{
-    param
-    (
-        [string[]] $Arguments,
-        [string] $Path = "$env:SystemRoot\system32\inetsrv\appcmd.exe"
-    )
-
-    if (Test-Path $Path)
-    {
-        & $Path $Arguments
-    }
-    else
-    {
-        throw "$Path does not exist"
-    }
-}
-
-
 # The Get-TargetResource cmdlet is used to fetch the status of role or AppPool on the target machine.
-# It gives the AppPool info of the requested role/feature on the target machine.  
-function Get-TargetResource 
+# It gives the AppPool info of the requested role/feature on the target machine.
+function Get-TargetResource
 {
-    [OutputType([hashtable])]
-    param 
-    (   
+    [OutputType([Hashtable])]
+    param
+    (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$Name
+        [string] $Name
     )
 
-        $getTargetResourceResult = $null;
+    Assert-Module
 
-        # Check if WebAdministration module is present for IIS cmdlets
-        if(!(Get-Module -ListAvailable -Name WebAdministration))
+    #$AppPools = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+    $AppPools = Invoke-AppCmd -Arguments list,apppool,$Name
+
+    if ($AppPools.Count -eq 0) # No AppPool exists with this name.
+    {
+        $ensureResult = 'Absent';
+    }
+    elseif ($AppPools.Count -eq 1) # A single AppPool exists with this name.
+    {
+        $ensureResult = 'Present'
+        $AppPoolState = Invoke-AppCmd -Arguments list,apppool,$Name,/text:state
+        [xml] $PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
+
+        if ($PoolConfig.add.processModel.userName)
         {
-            Throw "Please ensure that WebAdministration module is installed."
+            $AppPoolPassword = $PoolConfig.add.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+            $AppPoolCred = New-Object `
+                -TypeName System.Management.Automation.PSCredential `
+                -ArgumentList $($PoolConfig.add.processModel.userName, $AppPoolPassword)
+        }
+        else
+        {
+            $AppPoolCred = $null
         }
 
-        #$AppPools = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
-        $AppPools = Invoke-AppCmd -Arguments list,apppool,$Name
-         
-        if ($AppPools.count -eq 0) # No AppPool exists with this name.
-        {
-            $ensureResult = "Absent";
-        }
-        elseif ($AppPools.count -eq 1) # A single AppPool exists with this name.
-        {
-            $ensureResult = "Present"
-             #$AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
-             $AppPoolState = Invoke-AppCmdState -Arguments list,apppool,$Name,/text:state 
-             [xml] $PoolConfig
-            #$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
-            $PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
-            if($PoolConfig.add.processModel.userName){
-                $AppPoolPassword = $PoolConfig.add.processModel.password | ConvertTo-SecureString -AsPlainText -Force
-                $AppPoolCred = new-object -typename System.Management.Automation.PSCredential -argumentlist $PoolConfig.add.processModel.userName,$AppPoolPassword
-            }
-            else{
-                $AppPoolCred =$null
-            }
+    }
+    else # Multiple AppPools with the same name exist. This is not supported and is an error
+    {
+        $errorId = 'AppPoolDiscoveryFailure';
+        $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+        $errorMessage = $($LocalizedData.AppPoolDiscoveryFailure) -f ${Name}
+        $exception = New-Object System.InvalidOperationException $errorMessage
+        $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $errorId, $errorCategory, $null
 
-        }
-        else # Multiple AppPools with the same name exist. This is not supported and is an error
-        {
-            $errorId = "AppPoolDiscoveryFailure"; 
-            $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $errorMessage = $($LocalizedData.AppPoolUpdateFailureError) -f ${Name} 
-            $exception = New-Object System.InvalidOperationException $errorMessage 
-            $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $errorId, $errorCategory, $null
+        $PSCmdlet.ThrowTerminatingError($errorRecord);
+    }
 
-            $PSCmdlet.ThrowTerminatingError($errorRecord);
-        }
-
-        # Add all Website properties to the hash table
-        $getTargetResourceResult = @{
-                                        Name = $PoolConfig.add.name; 
-                                        Ensure = $ensureResult;
-                                        State = $AppPoolState;
-                                        autoStart = $PoolConfig.add.autoStart;
-                                        managedRuntimeVersion = $PoolConfig.add.managedRuntimeVersion;
-                                        managedPipelineMode = $PoolConfig.add.managedPipelineMode;
-                                        startMode = $PoolConfig.add.startMode;
-                                        identityType = $PoolConfig.add.processModel.identityType;
-                                        userName = $PoolConfig.add.processModel.userName;
-                                        password = $AppPoolCred;
-                                        loadUserProfile = $PoolConfig.add.processModel.loadUserProfile;
-                                        queueLength = $PoolConfig.add.queueLength;
-                                        enable32BitAppOnWin64 = $PoolConfig.add.enable32BitAppOnWin64;
-                                        managedRuntimeLoader = $PoolConfig.add.managedRuntimeLoader;
-                                        enableConfigurationOverride = $PoolConfig.add.enableConfigurationOverride;
-                                        CLRConfigFile = $PoolConfig.add.CLRConfigFile;
-                                        passAnonymousToken = $PoolConfig.add.passAnonymousToken;
-                                        logonType = $PoolConfig.add.processModel.logonType;
-                                        manualGroupMembership = $PoolConfig.add.processModel.manualGroupMembership;
-                                        idleTimeout = $PoolConfig.add.processModel.idleTimeout;
-                                        maxProcesses = $PoolConfig.add.processModel.maxProcesses;
-                                        shutdownTimeLimit = $PoolConfig.add.processModel.shutdownTimeLimit;
-                                        startupTimeLimit = $PoolConfig.add.processModel.startupTimeLimit;
-                                        pingingEnabled = $PoolConfig.add.processModel.pingingEnabled;
-                                        pingInterval = $PoolConfig.add.processModel.pingInterval;
-                                        pingResponseTime = $PoolConfig.add.processModel.pingResponseTime;
-                                        disallowOverlappingRotation = $PoolConfig.add.recycling.disallowOverlappingRotation;
-                                        disallowRotationOnConfigChange = $PoolConfig.add.recycling.disallowRotationOnConfigChange;
-                                        logEventOnRecycle = $PoolConfig.add.recycling.logEventOnRecycle;
-                                        restartMemoryLimit = $PoolConfig.add.recycling.periodicRestart.memory;
-                                        restartPrivateMemoryLimit = $PoolConfig.add.recycling.periodicRestart.privateMemory;
-                                        restartRequestsLimit = $PoolConfig.add.recycling.periodicRestart.requests;
-                                        restartTimeLimit = $PoolConfig.add.recycling.periodicRestart.time;
-                                        restartSchedule = $PoolConfig.add.recycling.periodicRestart.schedule;
-                                        loadBalancerCapabilities = $PoolConfig.add.failure.loadBalancerCapabilities;
-                                        orphanWorkerProcess = $PoolConfig.add.failure.orphanWorkerProcess;
-                                        orphanActionExe = $PoolConfig.add.failure.orphanActionExe;
-                                        orphanActionParams = $PoolConfig.add.failure.orphanActionParams;
-                                        rapidFailProtection = $PoolConfig.add.failure.rapidFailProtection;
-                                        rapidFailProtectionInterval = $PoolConfig.add.failure.rapidFailProtectionInterval;
-                                        rapidFailProtectionMaxCrashes = $PoolConfig.add.failure.rapidFailProtectionMaxCrashes;
-                                        autoShutdownExe = $PoolConfig.add.failure.autoShutdownExe;
-                                        autoShutdownParams = $PoolConfig.add.failure.autoShutdownParams;
-                                        cpuLimit = $PoolConfig.add.cpu.limit;
-                                        cpuAction = $PoolConfig.add.cpu.action;
-                                        cpuResetInterval = $PoolConfig.add.cpu.resetInterval;
-                                        cpuSmpAffinitized = $PoolConfig.add.cpu.smpAffinitized;
-                                        cpuSmpProcessorAffinityMask = $PoolConfig.add.cpu.smpProcessorAffinityMask;
-                                        cpuSmpProcessorAffinityMask2 = $PoolConfig.add.cpu.smpProcessorAffinityMask2;
-                                    }
-        
-        return $getTargetResourceResult;
+    # Add all Website properties to the hash table
+    return @{
+        Name = $Name;
+        Ensure = $ensureResult;
+        State = $AppPoolState;
+        autoStart = $PoolConfig.add.autoStart;
+        managedRuntimeVersion = $PoolConfig.add.managedRuntimeVersion;
+        managedPipelineMode = $PoolConfig.add.managedPipelineMode;
+        startMode = $PoolConfig.add.startMode;
+        identityType = $PoolConfig.add.processModel.identityType;
+        userName = $PoolConfig.add.processModel.userName;
+        password = $AppPoolCred;
+        loadUserProfile = $PoolConfig.add.processModel.loadUserProfile;
+        queueLength = $PoolConfig.add.queueLength;
+        enable32BitAppOnWin64 = $PoolConfig.add.enable32BitAppOnWin64;
+        managedRuntimeLoader = $PoolConfig.add.managedRuntimeLoader;
+        enableConfigurationOverride = $PoolConfig.add.enableConfigurationOverride;
+        CLRConfigFile = $PoolConfig.add.CLRConfigFile;
+        passAnonymousToken = $PoolConfig.add.passAnonymousToken;
+        logonType = $PoolConfig.add.processModel.logonType;
+        manualGroupMembership = $PoolConfig.add.processModel.manualGroupMembership;
+        idleTimeout = $PoolConfig.add.processModel.idleTimeout;
+        maxProcesses = $PoolConfig.add.processModel.maxProcesses;
+        shutdownTimeLimit = $PoolConfig.add.processModel.shutdownTimeLimit;
+        startupTimeLimit = $PoolConfig.add.processModel.startupTimeLimit;
+        pingingEnabled = $PoolConfig.add.processModel.pingingEnabled;
+        pingInterval = $PoolConfig.add.processModel.pingInterval;
+        pingResponseTime = $PoolConfig.add.processModel.pingResponseTime;
+        disallowOverlappingRotation = $PoolConfig.add.recycling.disallowOverlappingRotation;
+        disallowRotationOnConfigChange = $PoolConfig.add.recycling.disallowRotationOnConfigChange;
+        logEventOnRecycle = $PoolConfig.add.recycling.logEventOnRecycle;
+        restartMemoryLimit = $PoolConfig.add.recycling.periodicRestart.memory;
+        restartPrivateMemoryLimit = $PoolConfig.add.recycling.periodicRestart.privateMemory;
+        restartRequestsLimit = $PoolConfig.add.recycling.periodicRestart.requests;
+        restartTimeLimit = $PoolConfig.add.recycling.periodicRestart.time;
+        restartSchedule = $PoolConfig.add.recycling.periodicRestart.schedule;
+        loadBalancerCapabilities = $PoolConfig.add.failure.loadBalancerCapabilities;
+        orphanWorkerProcess = $PoolConfig.add.failure.orphanWorkerProcess;
+        orphanActionExe = $PoolConfig.add.failure.orphanActionExe;
+        orphanActionParams = $PoolConfig.add.failure.orphanActionParams;
+        rapidFailProtection = $PoolConfig.add.failure.rapidFailProtection;
+        rapidFailProtectionInterval = $PoolConfig.add.failure.rapidFailProtectionInterval;
+        rapidFailProtectionMaxCrashes = $PoolConfig.add.failure.rapidFailProtectionMaxCrashes;
+        autoShutdownExe = $PoolConfig.add.failure.autoShutdownExe;
+        autoShutdownParams = $PoolConfig.add.failure.autoShutdownParams;
+        cpuLimit = $PoolConfig.add.cpu.limit;
+        cpuAction = $PoolConfig.add.cpu.action;
+        cpuResetInterval = $PoolConfig.add.cpu.resetInterval;
+        cpuSmpAffinitized = $PoolConfig.add.cpu.smpAffinitized;
+        cpuSmpProcessorAffinityMask = $PoolConfig.add.cpu.smpProcessorAffinityMask;
+        cpuSmpProcessorAffinityMask2 = $PoolConfig.add.cpu.smpProcessorAffinityMask2;
+    }
 }
 
 
-# The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine. 
-function Set-TargetResource 
+# The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine.
+function Set-TargetResource
 {
     [CmdletBinding(SupportsShouldProcess=$true)]
-    param 
-    (       
+    param
+    (
         [ValidateSet("Present", "Absent")]
         [string]$Ensure = "Present",
 
@@ -194,14 +201,11 @@ function Set-TargetResource
         [ValidateSet("ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser")]
         [string]$identityType = "ApplicationPoolIdentity",
 
-        [string]$userName,
-
-        [System.Management.Automation.PSCredential]
-        $Password,
+        [System.Management.Automation.PSCredential] $Credential,
 
         [ValidateSet("true","false")]
         [string]$loadUserProfile = "true",
-        
+
         [string]$queueLength = "1000",
 
         [ValidateSet("true","false")]
@@ -259,7 +263,7 @@ function Set-TargetResource
         [string]$restartRequestsLimit = "0",
 
         [string]$restartTimeLimit = "1.05:00:00",
-        
+
         #Format 00:00:00 24hr clock and must have 00 for seconds
         [string[]]$restartSchedule = @(""),
 
@@ -300,7 +304,7 @@ function Set-TargetResource
 
         [string]$cpuSmpProcessorAffinityMask2 = "4294967295"
     )
- 
+
     $getTargetResourceResult = $null;
 
     if($Ensure -eq "Present")
@@ -317,7 +321,7 @@ function Set-TargetResource
 
         #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
         $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
-        
+
         if($AppPool -eq $null) #AppPool doesn't exist so create a new one
         {
             try
@@ -325,9 +329,9 @@ function Set-TargetResource
                 New-WebAppPool $Name
                 Wait-Event -Timeout 5
                 Stop-WebAppPool $Name
-            
+
                 Write-Verbose("successfully created AppPool $Name")
-                
+
                 #Start site if required
                 if($autoStart -eq "true")
                 {
@@ -341,7 +345,7 @@ function Set-TargetResource
             }
             catch
             {
-                $errorId = "AppPoolCreationFailure"; 
+                $errorId = "AppPoolCreationFailure";
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation;
                 $errorMessage = $($LocalizedData.FeatureCreationFailureError) -f ${Name} ;
                 $exception = New-Object System.InvalidOperationException $errorMessage ;
@@ -349,7 +353,7 @@ function Set-TargetResource
 
                 $PSCmdlet.ThrowTerminatingError($errorRecord);
             }
-        }    
+        }
 
         if($AppPool -ne $null)
         {
@@ -442,28 +446,28 @@ function Set-TargetResource
                 #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enable32BitAppOnWin64:$enable32BitAppOnWin64
                 Invoke-AppCmd -Arguments set,apppool,$Name,/enable32BitAppOnWin64:$enable32BitAppOnWin64
             }
-            
+
             #update managedRuntimeLoader if required
             if($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader){
                 $UpdateNotRequired = $false
                 #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedRuntimeLoader:$managedRuntimeLoader
                 Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeLoader:$managedRuntimeLoader
             }
-            
+
             #update enableConfigurationOverride if required
             if($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride){
                 $UpdateNotRequired = $false
                 #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enableConfigurationOverride:$enableConfigurationOverride
                 Invoke-AppCmd -Arguments set,apppool,$Name,/enableConfigurationOverride:$enableConfigurationOverride
             }
-            
+
             #update CLRConfigFile if required
             if($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile){
                 $UpdateNotRequired = $false
                 #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /CLRConfigFile:$CLRConfigFile
                 Invoke-AppCmd -Arguments set,apppool,$Name,/CLRConfigFile:$CLRConfigFile
             }
-            
+
             #update passAnonymousToken if required
             if($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken){
                 $UpdateNotRequired = $false
@@ -593,10 +597,10 @@ function Set-TargetResource
             #add desired schedule
             foreach($time in $restartSchedule)
             {
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/+recycling.periodicRestart.schedule.[value='$time']"                
-                Invoke-AppCmd -Arguments set,apppool,$Name,"/+recycling.periodicRestart.schedule.[value='$time']"                
+                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/+recycling.periodicRestart.schedule.[value='$time']"
+                Invoke-AppCmd -Arguments set,apppool,$Name,"/+recycling.periodicRestart.schedule.[value='$time']"
             }
-            
+
             #update loadBalancerCapabilities if required
             if($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities){
                 $UpdateNotRequired = $false
@@ -701,17 +705,17 @@ function Set-TargetResource
                 #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
                 Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
             }
-            
+
             if($UpdateNotRequired)
             {
                 Write-Verbose("AppPool $Name already exists and properties do not need to be updated.");
             }
-            
+
         }
- 
+
     }
-    else #Ensure is set to "Absent" so remove website 
-    { 
+    else #Ensure is set to "Absent" so remove website
+    {
         try
         {
             #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
@@ -720,7 +724,7 @@ function Set-TargetResource
             {
                 Stop-WebAppPool $Name
                 Remove-WebAppPool $Name
-        
+
                 Write-Verbose("Successfully removed AppPool $Name.")
             }
             else
@@ -730,7 +734,7 @@ function Set-TargetResource
         }
         catch
         {
-            $errorId = "AppPoolRemovalFailure"; 
+            $errorId = "AppPoolRemovalFailure";
             $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation;
             $errorMessage = $($LocalizedData.WebsiteRemovalFailureError) -f ${Name} ;
             $exception = New-Object System.InvalidOperationException $errorMessage ;
@@ -738,525 +742,540 @@ function Set-TargetResource
 
             $PSCmdlet.ThrowTerminatingError($errorRecord);
         }
-        
+
     }
 }
 
 
 # The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
-function Test-TargetResource 
+function Test-TargetResource
 {
     [OutputType([bool])]
-    param 
-    (       
+    param
+    (
         [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
+        [string] $Ensure = "Present",
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$Name,
+        [string] $Name,
 
         [ValidateSet("Started","Stopped")]
-        [string]$state = "Started",
+        [string] $state = "Started",
 
         [ValidateSet("true","false")]
-        [string]$autoStart = "true",
+        [string] $autoStart = "true",
 
         [ValidateSet("v4.0","v2.0","")]
-        [string]$managedRuntimeVersion = "v4.0",
+        [string] $managedRuntimeVersion = "v4.0",
 
         [ValidateSet("Integrated","Classic")]
-        [string]$managedPipelineMode = "Integrated",
+        [string] $managedPipelineMode = "Integrated",
 
         [ValidateSet("AlwaysRunning","OnDemand")]
-        [string]$startMode = "OnDemand",
+        [string] $startMode = "OnDemand",
 
         [ValidateSet("ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser")]
-        [string]$identityType = "ApplicationPoolIdentity",
+        [string] $identityType = "ApplicationPoolIdentity",
 
-        [string]$userName,
-
-        [System.Management.Automation.PSCredential]
-        $Password,
+        [System.Management.Automation.PSCredential] $Credential,
 
         [ValidateSet("true","false")]
-        [string]$loadUserProfile = "true",
+        [string] $loadUserProfile = "true",
 
-        [string]$queueLength = "1000",
-
-        [ValidateSet("true","false")]
-        [string]$enable32BitAppOnWin64 = "false",
-
-        [string]$managedRuntimeLoader = "webengine4.dll",
+        [string] $queueLength = "1000",
 
         [ValidateSet("true","false")]
-        [string]$enableConfigurationOverride = "true",
+        [string] $enable32BitAppOnWin64 = "false",
 
-        [string]$CLRConfigFile = "",
+        [string] $managedRuntimeLoader = "webengine4.dll",
 
         [ValidateSet("true","false")]
-        [string]$passAnonymousToken = "true",
+        [string] $enableConfigurationOverride = "true",
+
+        [string] $CLRConfigFile = "",
+
+        [ValidateSet("true","false")]
+        [string] $passAnonymousToken = "true",
 
         [ValidateSet("LogonBatch","LogonService")]
-        [string]$logonType = "LogonBatch",
+        [string] $logonType = "LogonBatch",
 
         [ValidateSet("true","false")]
-        [string]$manualGroupMembership = "false",
+        [string] $manualGroupMembership = "false",
 
         #Format 00:20:00
-        [string]$idleTimeout = "00:20:00",
+        [string] $idleTimeout = "00:20:00",
 
-        [string]$maxProcesses = "1",
-
-        #Format 00:20:00
-        [string]$shutdownTimeLimit = "00:01:30",
+        [string] $maxProcesses = "1",
 
         #Format 00:20:00
-        [string]$startupTimeLimit = "00:01:30",
+        [string] $shutdownTimeLimit = "00:01:30",
+
+        #Format 00:20:00
+        [string] $startupTimeLimit = "00:01:30",
 
         [ValidateSet("true","false")]
-        [string]$pingingEnabled = "true",
+        [string] $pingingEnabled = "true",
 
         #Format 00:20:00
-        [string]$pingInterval = "00:00:30",
+        [string] $pingInterval = "00:00:30",
 
         #Format 00:20:00
-        [string]$pingResponseTime = "00:01:30",
+        [string] $pingResponseTime = "00:01:30",
 
         [ValidateSet("true","false")]
-        [string]$disallowOverlappingRotation = "false",
+        [string] $disallowOverlappingRotation = "false",
 
         [ValidateSet("true","false")]
-        [string]$disallowRotationOnConfigChange = "false",
+        [string] $disallowRotationOnConfigChange = "false",
 
         #format "Time, Memory, PrivateMemory"
-        [string]$logEventOnRecycle = "Time, Memory, PrivateMemory",
+        [string] $logEventOnRecycle = "Time, Memory, PrivateMemory",
 
-        [string]$restartMemoryLimit = "0",
+        [string] $restartMemoryLimit = "0",
 
-        [string]$restartPrivateMemoryLimit = "0",
+        [string] $restartPrivateMemoryLimit = "0",
 
-        [string]$restartRequestsLimit = "0",
+        [string] $restartRequestsLimit = "0",
 
-        [string]$restartTimeLimit = "1.05:00:00",
-        
+        [string] $restartTimeLimit = "1.05:00:00",
+
         #Format 00:00:00 24hr clock and must have 00 for seconds
-        [string[]]$restartSchedule = @(""),
+        [string[]] $restartSchedule = @(""),
 
         [ValidateSet("HttpLevel","TcpLevel")]
-        [string]$loadBalancerCapabilities = "HttpLevel",
+        [string] $loadBalancerCapabilities = "HttpLevel",
 
         [ValidateSet("true","false")]
-        [string]$orphanWorkerProcess = "false",
+        [string] $orphanWorkerProcess = "false",
 
-        [string]$orphanActionExe = "",
+        [string] $orphanActionExe = "",
 
-        [string]$orphanActionParams = "",
+        [string] $orphanActionParams = "",
 
         [ValidateSet("true","false")]
-        [string]$rapidFailProtection = "true",
+        [string] $rapidFailProtection = "true",
 
         #Format 00:20:00
-        [string]$rapidFailProtectionInterval = "00:05:00",
+        [string] $rapidFailProtectionInterval = "00:05:00",
 
-        [string]$rapidFailProtectionMaxCrashes = "5",
+        [string] $rapidFailProtectionMaxCrashes = "5",
 
-        [string]$autoShutdownExe = "",
+        [string] $autoShutdownExe = "",
 
-        [string]$autoShutdownParams = "",
+        [string] $autoShutdownParams = "",
 
-        [string]$cpuLimit = "0",
+        [string] $cpuLimit = "0",
 
         [ValidateSet("NoAction","KillW3wp","Throttle","ThrottleUnderLoad")]
-        [string]$cpuAction = "NoAction",
+        [string] $cpuAction = "NoAction",
 
         #Format 00:20:00
-        [string]$cpuResetInterval = "00:05:00",
+        [string] $cpuResetInterval = "00:05:00",
 
         [ValidateSet("true","false")]
-        [string]$cpuSmpAffinitized = "false",
+        [string] $cpuSmpAffinitized = "false",
 
-        [string]$cpuSmpProcessorAffinityMask = "4294967295",
+        [string] $cpuSmpProcessorAffinityMask = "4294967295",
 
-        [string]$cpuSmpProcessorAffinityMask2 = "4294967295"
+        [string] $cpuSmpProcessorAffinityMask2 = "4294967295"
     )
- 
+
     $DesiredConfigurationMatch = $true
 
-    # Check if WebAdministration module is present for IIS cmdlets
-    if(!(Get-Module -ListAvailable -Name WebAdministration))
-    {
-        Throw "Please ensure that WebAdministration module is installed."
-    }
-    
-    #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
+    Assert-Module
+
     $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
-    
-    if($AppPool){
-        #get configuration of AppPool
-        #[xml] $PoolConfig
-        #[xml]$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
-        [xml]$PoolConfig = Invoke-AppCmd -Arguments  list,apppool,$Name,/config:*
-        #$AppPoolState = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /text:state
-        $AppPoolState = Invoke-AppCmdState -Arguments  list,apppool,$Name,/text:state
+    if ($AppPool)
+    {
+        [xml] $PoolConfig = Invoke-AppCmd -Arguments  list,apppool,$Name,/config:*
+        $AppPoolState = Invoke-AppCmd -Arguments  list,apppool,$Name,/text:state
     }
+
     $Stop = $true
 
     Do
     {
         #Check Ensure
-        if(($Ensure -eq "Present" -and $AppPool -eq $null) -or ($Ensure -eq "Absent" -and $AppPool -ne $null))
+        if (($Ensure -eq 'Present' -and $AppPool -eq $null) -or ($Ensure -eq 'Absent' -and $AppPool -ne $null))
         {
             $DesiredConfigurationMatch = $false
-            Write-Verbose("The Ensure state for AppPool $Name does not match the desired state.");
+            Write-Verbose -Message $($LocalizedData['TestEnsureState'] -f $Name)
             break
         }
 
         # Only check properties if $AppPool exists
         if ($AppPool -ne $null)
         {
-            #Check autoStart
-            if($PoolConfig.add.autoStart -ne $autoStart){
+            # Check state
+            if ($AppPoolState -ne $State)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("autoStart of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData['TestStateConfig'] -f $Name)
                 break
             }
 
-            #Check managedRuntimeVersion 
-            if($PoolConfig.add.managedRuntimeVersion -ne $managedRuntimeVersion){
+            # Check autoStart
+            if ($PoolConfig.add.autoStart -ne $autoStart)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("managedRuntimeVersion of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData['TestAutoStartConfig'] -f $Name)
                 break
             }
-            
-            #Check managedPipelineMode 
-            if($PoolConfig.add.managedPipelineMode -ne $managedPipelineMode){
+
+            # Check managedRuntimeVersion
+            if ($PoolConfig.add.managedRuntimeVersion -ne $managedRuntimeVersion)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("managedPipelineMode of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData['TestmanagedRuntimeVersionConfig'] -f $Name)
                 break
             }
-            
-            #Check state 
-            if($AppPoolState -ne $state){
+
+            # Check managedPipelineMode
+            if ($PoolConfig.add.managedPipelineMode -ne $managedPipelineMode)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("state of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData['TestmanagedPipelineModeConfig'] -f $Name)
                 break
             }
-            
-            #Check startMode 
-            if($PoolConfig.add.startMode -ne $startMode){
+
+            # Check startMode
+            if ($PoolConfig.add.startMode -ne $startMode)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("startMode of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData['TeststartModeConfig'] -f $Name)
                 break
             }
-            
-            #Check identityType 
-            if($PoolConfig.add.processModel.identityType -ne $identityType){
+
+            # Check identityType
+            if ($PoolConfig.add.processModel.identityType -ne $identityType)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("identityType of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData['TestidentityTypeConfig'] -f $Name)
                 break
             }
-            
-            #Check userName 
-            if($PoolConfig.add.processModel.userName -ne $userName){
+
+            # Check userName
+            if ($PoolConfig.add.processModel.userName -ne $Credential.UserName)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("userName of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData['TestuserNameConfig'] -f $Name)
                 break
             }
-            
-            #Check password 
-            if($identityType -eq "SpecificUser" -and $Password){
-                $clearTextPassword = $Password.GetNetworkCredential().Password
-                if($clearTextPassword -cne $PoolConfig.add.processModel.password){
+
+            # Check password
+            if ($identityType -eq "SpecificUser" -and $Credential)
+            {
+                $clearTextPassword = $Credential.GetNetworkCredential().Password
+                if ($clearTextPassword -cne $PoolConfig.add.processModel.password)
+                {
                     $DesiredConfigurationMatch = $false
-                    Write-Verbose("Password of AppPool $Name does not match the desired state.");
+                    Write-Verbose -Message $($LocalizedData['TestPasswordConfig'] -f $Name)
                     break
                 }
             }
-            
-            #Check loadUserProfile 
+
+            #Check loadUserProfile
             if($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("loadUserProfile of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.loadUserProfile -f $loadUserProfile)
                 break
             }
 
-            #Check queueLength 
+            #Check queueLength
             if($PoolConfig.add.queueLength -ne $queueLength){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("queueLength of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.queueLength -f $queueLength)
                 break
             }
 
-            #Check enable32BitAppOnWin64 
+            #Check enable32BitAppOnWin64
             if($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("enable32BitAppOnWin64 of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.enable32BitAppOnWin64 -f $enable32BitAppOnWin64)
                 break
             }
-            
-            #Check managedRuntimeLoader 
+
+            #Check managedRuntimeLoader
             if($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("managedRuntimeLoader of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.managedRuntimeLoader -f $managedRuntimeLoader)
                 break
             }
-            
-            #Check enableConfigurationOverride 
+
+            #Check enableConfigurationOverride
             if($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("enableConfigurationOverride of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.enableConfigurationOverride -f $enableConfigurationOverride)
                 break
             }
-            
-            #Check CLRConfigFile 
+
+            #Check CLRConfigFile
             if($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("CLRConfigFile of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.CLRConfigFile -f $CLRConfigFile)
                 break
             }
-            
-            #Check passAnonymousToken 
+
+            #Check passAnonymousToken
             if($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("passAnonymousToken of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.passAnonymousToken -f $passAnonymousToken)
                 break
             }
 
-            #Check logonType 
+            #Check logonType
             if($PoolConfig.add.processModel.logonType -ne $logonType){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("logonType of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.logonType -f $logonType)
                 break
             }
 
-            #Check manualGroupMembership 
+            #Check manualGroupMembership
             if($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("manualGroupMembership of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.manualGroupMembership -f $manualGroupMembership)
                 break
             }
 
-            #Check idleTimeout 
+            #Check idleTimeout
             if($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("idleTimeout of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.idleTimeout -f $idleTimeout)
                 break
             }
 
-            #Check maxProcesses 
+            #Check maxProcesses
             if($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("maxProcesses of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.maxProcesses -f $maxProcesses)
                 break
             }
 
-            #Check shutdownTimeLimit 
+            #Check shutdownTimeLimit
             if($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("shutdownTimeLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.shutdownTimeLimit -f $shutdownTimeLimit)
                 break
             }
 
-            #Check startupTimeLimit 
+            #Check startupTimeLimit
             if($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("startupTimeLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.startupTimeLimit -f $startupTimeLimit)
                 break
             }
 
-            #Check pingingEnabled 
+            #Check pingingEnabled
             if($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("pingingEnabled of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.pingingEnabled -f $pingingEnabled)
                 break
             }
 
-            #Check pingInterval 
+            #Check pingInterval
             if($PoolConfig.add.processModel.pingInterval -ne $pingInterval){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("pingInterval of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.pingInterval -f $pingInterval)
                 break
             }
 
-            #Check pingResponseTime 
+            #Check pingResponseTime
             if($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("pingResponseTime of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.pingResponseTime -f $pingResponseTime)
                 break
             }
 
-            #Check disallowOverlappingRotation 
+            #Check disallowOverlappingRotation
             if($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("disallowOverlappingRotation of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.disallowOverlappingRotation -f $disallowOverlappingRotation)
                 break
             }
 
-            #Check disallowRotationOnConfigChange 
+            #Check disallowRotationOnConfigChange
             if($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("disallowRotationOnConfigChange of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.disallowRotationOnConfigChange -f $disallowRotationOnConfigChange)
                 break
             }
 
-            #Check logEventOnRecycle 
+            #Check logEventOnRecycle
             if($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("logEventOnRecycle of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.logEventOnRecycle -f $logEventOnRecycle)
                 break
             }
 
-            #Check restartMemoryLimit 
+            #Check restartMemoryLimit
             if($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("restartMemoryLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.restartMemoryLimit -f $restartMemoryLimit)
                 break
             }
 
-            #Check restartPrivateMemoryLimit 
+            #Check restartPrivateMemoryLimit
             if($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("restartPrivateMemoryLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.restartPrivateMemoryLimit -f $restartPrivateMemoryLimit)
                 break
             }
 
-            #Check restartRequestsLimit 
+            #Check restartRequestsLimit
             if($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("restartRequestsLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.restartRequestsLimit -f $restartRequestsLimit)
                 break
             }
 
-            #Check restartTimeLimit 
+            #Check restartTimeLimit
             if($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("restartTimeLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.restartTimeLimit -f $restartTimeLimit)
                 break
             }
 
             #Check restartSchedule
             if(($PoolConfig.add.recycling.periodicRestart.schedule.add.value -ne $null) -and ((Compare-Object $restartSchedule $PoolConfig.add.recycling.periodicRestart.schedule.add.value) -ne $null)){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("restartTimeLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.restartTimeLimit -f $restartTimeLimit)
                 break
             }
             if(($PoolConfig.add.recycling.periodicRestart.schedule.add.value -eq $null) -and ($restartSchedule -ne $null)){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("restartTimeLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.restartTimeLimit -f $restartTimeLimit)
                 break
             }
 
-            #Check loadBalancerCapabilities 
+            #Check loadBalancerCapabilities
             if($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("loadBalancerCapabilities of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.loadBalancerCapabilities -f $loadBalancerCapabilities)
                 break
             }
 
-            #Check orphanWorkerProcess 
+            #Check orphanWorkerProcess
             if($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("orphanWorkerProcess of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.orphanWorkerProcess -f $orphanWorkerProcess)
                 break
             }
 
-            #Check orphanActionExe 
+            #Check orphanActionExe
             if($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("orphanActionExe of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.orphanActionExe -f $orphanActionExe)
                 break
             }
 
-            #Check orphanActionParams 
+            #Check orphanActionParams
             if($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("orphanActionParams of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.orphanActionParams -f $orphanActionParams)
                 break
             }
 
-            #Check rapidFailProtection 
+            #Check rapidFailProtection
             if($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("rapidFailProtection of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.rapidFailProtection -f $rapidFailProtection)
                 break
             }
 
-            #Check rapidFailProtectionInterval 
+            #Check rapidFailProtectionInterval
             if($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("rapidFailProtectionInterval of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.rapidFailProtectionInterval -f $rapidFailProtectionInterval)
                 break
             }
 
-            #Check rapidFailProtectionMaxCrashes 
+            #Check rapidFailProtectionMaxCrashes
             if($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("rapidFailProtectionMaxCrashes of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.rapidFailProtectionMaxCrashes -f $rapidFailProtectionMaxCrashes)
                 break
             }
 
-            #Check autoShutdownExe 
+            #Check autoShutdownExe
             if($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("autoShutdownExe of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.autoShutdownExe -f $autoShutdownExe)
                 break
             }
 
-            #Check autoShutdownParams 
+            #Check autoShutdownParams
             if($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("autoShutdownParams of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.autoShutdownParams -f $autoShutdownParams)
                 break
             }
 
-            #Check cpuLimit 
+            #Check cpuLimit
             if($PoolConfig.add.cpu.limit -ne $cpuLimit){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("cpuLimit of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.cpuLimit -f $cpuLimit)
                 break
             }
 
-            #Check cpuAction 
+            #Check cpuAction
             if($PoolConfig.add.cpu.action -ne $cpuAction){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("cpuAction of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.cpuAction -f $cpuAction)
                 break
             }
 
-            #Check cpuResetInterval 
+            #Check cpuResetInterval
             if($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("cpuResetInterval of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.cpuResetInterval -f $cpuResetInterval)
                 break
             }
 
-            #Check cpuSmpAffinitized 
+            #Check cpuSmpAffinitized
             if($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("cpuSmpAffinitized of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.cpuSmpAffinitized -f $cpuSmpAffinitized)
                 break
             }
 
-            #Check cpuSmpProcessorAffinityMask 
+            #Check cpuSmpProcessorAffinityMask
             if($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask){
                 $DesiredConfigurationMatch = $false
-                Write-Verbose("cpuSmpProcessorAffinityMask of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.cpuSmpProcessorAffinityMask -f $cpuSmpProcessorAffinityMask)
                 break
             }
 
-            #Check cpuSmpProcessorAffinityMask2 
+            #Check cpuSmpProcessorAffinityMask2
             if($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2){
                $DesiredConfigurationMatch = $false
-                Write-Verbose("cpuSmpProcessorAffinityMask2 of AppPool $Name does not match the desired state.");
+                Write-Verbose -Message $($LocalizedData.cpuSmpProcessorAffinityMask2 -f $cpuSmpProcessorAffinityMask2)
                 break
             }
-
         }
 
         $Stop = $false
     }
-    While($Stop)   
+    While($Stop)
 
     return $DesiredConfigurationMatch
+}
+
+function Invoke-AppCmd
+{
+    param
+    (
+        [string[]] $Arguments,
+        [string] $Path = "$env:SystemRoot\system32\inetsrv\appcmd.exe"
+    )
+
+    if (Test-Path $Path)
+    {
+        & $Path $Arguments
+    }
+    else
+    {
+        throw "$Path does not exist"
+    }
 }
