@@ -176,176 +176,171 @@ function Set-TargetResource
     [CmdletBinding(SupportsShouldProcess=$true)]
     param
     (
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
-
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$Name,
+        [string] $Name,
 
-        [ValidateSet("Started","Stopped")]
-        [string]$state = "Started",
+        [ValidateSet('Present', 'Absent')]
+        [string] $Ensure = 'Present',
 
-        [ValidateSet("true","false")]
-        [string]$autoStart = "true",
+        [ValidateSet('Started','Stopped')]
+        [string] $state = 'Started',
 
-        [ValidateSet("v4.0","v2.0","")]
-        [string]$managedRuntimeVersion = "v4.0",
+        [ValidateSet('true','false')]
+        [string] $autoStart = 'true',
 
-        [ValidateSet("Integrated","Classic")]
-        [string]$managedPipelineMode = "Integrated",
+        [ValidateSet('v4.0','v2.0','')]
+        [string] $managedRuntimeVersion = 'v4.0',
 
-        [ValidateSet("AlwaysRunning","OnDemand")]
-        [string]$startMode = "OnDemand",
+        [ValidateSet('Integrated','Classic')]
+        [string] $managedPipelineMode = 'Integrated',
 
-        [ValidateSet("ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser")]
-        [string]$identityType = "ApplicationPoolIdentity",
+        [ValidateSet('AlwaysRunning','OnDemand')]
+        [string] $startMode = 'OnDemand',
+
+        [ValidateSet('ApplicationPoolIdentity','LocalSystem','LocalService','NetworkService','SpecificUser')]
+        [string] $identityType = 'ApplicationPoolIdentity',
 
         [System.Management.Automation.PSCredential] $Credential,
 
-        [ValidateSet("true","false")]
-        [string]$loadUserProfile = "true",
+        [ValidateSet('true','false')]
+        [string] $loadUserProfile = 'true',
 
-        [string]$queueLength = "1000",
+        [string] $queueLength = '1000',
 
-        [ValidateSet("true","false")]
-        [string]$enable32BitAppOnWin64 = "false",
+        [ValidateSet('true','false')]
+        [string] $enable32BitAppOnWin64 = 'false',
 
-        [string]$managedRuntimeLoader = "webengine4.dll",
+        [string] $managedRuntimeLoader = 'webengine4.dll',
 
-        [ValidateSet("true","false")]
-        [string]$enableConfigurationOverride = "true",
+        [ValidateSet('true','false')]
+        [string] $enableConfigurationOverride = 'true',
 
-        [string]$CLRConfigFile = "",
+        [string] $CLRConfigFile = '',
 
-        [ValidateSet("true","false")]
-        [string]$passAnonymousToken = "true",
+        [ValidateSet('true','false')]
+        [string] $passAnonymousToken = 'true',
 
-        [ValidateSet("LogonBatch","LogonService")]
-        [string]$logonType = "LogonBatch",
+        [ValidateSet('LogonBatch','LogonService')]
+        [string] $logonType = 'LogonBatch',
 
-        [ValidateSet("true","false")]
-        [string]$manualGroupMembership = "false",
-
-        #Format 00:20:00
-        [string]$idleTimeout = "00:20:00",
-
-        [string]$maxProcesses = "1",
+        [ValidateSet('true','false')]
+        [string] $manualGroupMembership = 'false',
 
         #Format 00:20:00
-        [string]$shutdownTimeLimit = "00:01:30",
+        [string] $idleTimeout = '00:20:00',
+
+        [string] $maxProcesses = '1',
 
         #Format 00:20:00
-        [string]$startupTimeLimit = "00:01:30",
-
-        [ValidateSet("true","false")]
-        [string]$pingingEnabled = "true",
+        [string] $shutdownTimeLimit = '00:01:30',
 
         #Format 00:20:00
-        [string]$pingInterval = "00:00:30",
+        [string] $startupTimeLimit = '00:01:30',
+
+        [ValidateSet('true','false')]
+        [string] $pingingEnabled = 'true',
 
         #Format 00:20:00
-        [string]$pingResponseTime = "00:01:30",
+        [string] $pingInterval = '00:00:30',
 
-        [ValidateSet("true","false")]
-        [string]$disallowOverlappingRotation = "false",
+        #Format 00:20:00
+        [string] $pingResponseTime = '00:01:30',
 
-        [ValidateSet("true","false")]
-        [string]$disallowRotationOnConfigChange = "false",
+        [ValidateSet('true','false')]
+        [string] $disallowOverlappingRotation = 'false',
 
-        #format "Time, Memory, PrivateMemory"
-        [string]$logEventOnRecycle = "Time, Memory, PrivateMemory",
+        [ValidateSet('true','false')]
+        [string] $disallowRotationOnConfigChange = 'false',
 
-        [string]$restartMemoryLimit = "0",
+        #format 'Time, Memory, PrivateMemory'
+        [string] $logEventOnRecycle = 'Time, Memory, PrivateMemory',
 
-        [string]$restartPrivateMemoryLimit = "0",
+        [string] $restartMemoryLimit = '0',
 
-        [string]$restartRequestsLimit = "0",
+        [string] $restartPrivateMemoryLimit = '0',
 
-        [string]$restartTimeLimit = "1.05:00:00",
+        [string] $restartRequestsLimit = '0',
+
+        [string] $restartTimeLimit = '1.05:00:00',
 
         #Format 00:00:00 24hr clock and must have 00 for seconds
-        [string[]]$restartSchedule = @(""),
+        [string[]] $restartSchedule = @(''),
 
-        [ValidateSet("HttpLevel","TcpLevel")]
-        [string]$loadBalancerCapabilities = "HttpLevel",
+        [ValidateSet('HttpLevel','TcpLevel')]
+        [string] $loadBalancerCapabilities = 'HttpLevel',
 
-        [ValidateSet("true","false")]
-        [string]$orphanWorkerProcess = "false",
+        [ValidateSet('true','false')]
+        [string] $orphanWorkerProcess = 'false',
 
-        [string]$orphanActionExe = "",
+        [string] $orphanActionExe = '',
 
-        [string]$orphanActionParams = "",
+        [string] $orphanActionParams = '',
 
-        [ValidateSet("true","false")]
-        [string]$rapidFailProtection = "true",
-
-        #Format 00:20:00
-        [string]$rapidFailProtectionInterval = "00:05:00",
-
-        [string]$rapidFailProtectionMaxCrashes = "5",
-
-        [string]$autoShutdownExe = "",
-
-        [string]$autoShutdownParams = "",
-
-        [string]$cpuLimit = "0",
-
-        [ValidateSet("NoAction","KillW3wp","Throttle","ThrottleUnderLoad")]
-        [string]$cpuAction = "NoAction",
+        [ValidateSet('true','false')]
+        [string] $rapidFailProtection = 'true',
 
         #Format 00:20:00
-        [string]$cpuResetInterval = "00:05:00",
+        [string] $rapidFailProtectionInterval = '00:05:00',
 
-        [ValidateSet("true","false")]
-        [string]$cpuSmpAffinitized = "false",
+        [string] $rapidFailProtectionMaxCrashes = '5',
 
-        [string]$cpuSmpProcessorAffinityMask = "4294967295",
+        [string] $autoShutdownExe = '',
 
-        [string]$cpuSmpProcessorAffinityMask2 = "4294967295"
+        [string] $autoShutdownParams = '',
+
+        [string] $cpuLimit = '0',
+
+        [ValidateSet('NoAction','KillW3wp','Throttle','ThrottleUnderLoad')]
+        [string] $cpuAction = 'NoAction',
+
+        #Format 00:20:00
+        [string] $cpuResetInterval = '00:05:00',
+
+        [ValidateSet('true','false')]
+        [string] $cpuSmpAffinitized = 'false',
+
+        [string] $cpuSmpProcessorAffinityMask = '4294967295',
+
+        [string] $cpuSmpProcessorAffinityMask2 = '4294967295'
     )
 
     $getTargetResourceResult = $null;
 
-    if($Ensure -eq "Present")
+    if ($Ensure -eq 'Present')
     {
-        #Remove Ensure from parameters as it is not needed to create new AppPool
-        $Result = $psboundparameters.Remove("Ensure");
-
+        # Remove Ensure from parameters as it is not needed to create new AppPool
+        $Result = $psboundparameters.Remove('Ensure');
 
         # Check if WebAdministration module is present for IIS cmdlets
-        if(!(Get-Module -ListAvailable -Name WebAdministration))
-        {
-            Throw "Please ensure that WebAdministration module is installed."
-        }
+        Assert-Module
 
-        #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
         $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
 
-        if($AppPool -eq $null) #AppPool doesn't exist so create a new one
+        # AppPool doesn't exist so create a new one
+        if ($AppPool -eq $null)
         {
             try
             {
-                New-WebAppPool $Name
+                New-WebAppPool -Name $Name
                 Wait-Event -Timeout 5
-                Stop-WebAppPool $Name
+                Stop-WebAppPool -Name $Name
 
                 Write-Verbose("successfully created AppPool $Name")
 
                 #Start site if required
-                if($autoStart -eq "true")
+                if ($autoStart -eq 'true')
                 {
                     Start-WebAppPool $Name
                 }
 
-                Write-Verbose("successfully started AppPool $Name")
+                Write-Verbose('successfully started AppPool $Name')
 
-                #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
                 $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
             }
             catch
             {
-                $errorId = "AppPoolCreationFailure";
+                $errorId = 'AppPoolCreationFailure';
                 $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation;
                 $errorMessage = $($LocalizedData.FeatureCreationFailureError) -f ${Name} ;
                 $exception = New-Object System.InvalidOperationException $errorMessage ;
@@ -355,235 +350,241 @@ function Set-TargetResource
             }
         }
 
-        if($AppPool -ne $null)
+        if ($AppPool -ne $null)
         {
-            #update parameters as required
+            # update parameters as required
 
             $UpdateNotRequired = $true
 
-            #get configuration of AppPool
-            #[xml] $PoolConfig
-            #[xml]$PoolConfig = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name /config:*
-            [xml]$PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
+            # get configuration of AppPool
+            [xml] $PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
 
             #Update autoStart if required
-            if($PoolConfig.add.autoStart -ne $autoStart){
+            if ($PoolConfig.add.autoStart -ne $autoStart)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /autoStart:$autoStart
                 Invoke-AppCmd -Arguments set,apppool,$Name,/autoStart:$autoStart
             }
 
             #update managedRuntimeVersion if required
-            if($PoolConfig.add.managedRuntimeVersion -ne $managedRuntimeVersion){
+            if ($PoolConfig.add.managedRuntimeVersion -ne $managedRuntimeVersion)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedRuntimeVersion:$managedRuntimeVersion
                 Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeVersion:$managedRuntimeVersion
             }
             #update managedPipelineMode if required
-            if($PoolConfig.add.managedPipelineMode -ne $managedPipelineMode){
+            if ($PoolConfig.add.managedPipelineMode -ne $managedPipelineMode)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedPipelineMode:$managedPipelineMode
                 Invoke-AppCmd -Arguments set,apppool,$Name,/managedPipelineMode:$managedPipelineMode
             }
+
             #update state if required
-            if($AppPoolState -ne $state){
+            $AppPoolState = Invoke-AppCmd -Arguments  list,apppool,$Name,/text:state
+            if ($AppPoolState -ne $state)
+            {
                 $UpdateNotRequired = $false
-                if($State -eq "Started")
+
+                if ($State -eq 'Started')
                 {
-                    start-WebAppPool -Name $Name
+                    Start-WebAppPool -Name $Name
                 }
                 else
                 {
                     Stop-WebAppPool -Name $Name
                 }
             }
+
             #update startMode if required
-            if($PoolConfig.add.startMode -ne $startMode){
+            if ($PoolConfig.add.startMode -ne $startMode)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /startMode:$startMode
                 Invoke-AppCmd -Arguments set,apppool,$Name,/startMode:$startMode
             }
+
             #update identityType if required
-            if($PoolConfig.add.processModel.identityType -ne $identityType){
+            if ($PoolConfig.add.processModel.identityType -ne $identityType)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.identityType:$identityType
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.identityType:$identityType
             }
+
             #update userName if required
-            if($identityType -eq "SpecificUser" -and $PoolConfig.add.processModel.userName -ne $userName){
-                $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.userName:$userName
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.userName:$userName
-            }
             #update password if required
-            if($identityType -eq "SpecificUser" -and $Password){
-                $clearTextPassword = $Password.GetNetworkCredential().Password
-                if($clearTextPassword -cne $PoolConfig.add.processModel.password){
+            if ($identityType -eq 'SpecificUser' -and $Credential)
+            {
+                if ($PoolConfig.add.processModel.userName -ne $Credential.UserName)
+                {
                     $UpdateNotRequired = $false
-                    #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.password:$clearTextPassword
-                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.password:$clearTextPassword
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.userName:$userName
                 }
 
+                $clearTextPassword = $Credential.GetNetworkCredential().Password
+                if ($clearTextPassword -cne $PoolConfig.add.processModel.password)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.password:$clearTextPassword
+                }
             }
 
-            #update loadUserProfile if required
-            if($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile){
+            # update loadUserProfile if required
+            if ($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.loadUserProfile:$loadUserProfile
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.loadUserProfile:$loadUserProfile
             }
 
-            #update queueLength if required
-            if($PoolConfig.add.queueLength -ne $queueLength){
+            # update queueLength if required
+            if ($PoolConfig.add.queueLength -ne $queueLength)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /queueLength:$queueLength
                 Invoke-AppCmd -Arguments set,apppool,$Name,/queueLength:$queueLength
             }
 
-            #update enable32BitAppOnWin64 if required
-            if($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64){
+            # update enable32BitAppOnWin64 if required
+            if ($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enable32BitAppOnWin64:$enable32BitAppOnWin64
                 Invoke-AppCmd -Arguments set,apppool,$Name,/enable32BitAppOnWin64:$enable32BitAppOnWin64
             }
 
-            #update managedRuntimeLoader if required
-            if($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader){
+            # update managedRuntimeLoader if required
+            if ($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /managedRuntimeLoader:$managedRuntimeLoader
                 Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeLoader:$managedRuntimeLoader
             }
 
-            #update enableConfigurationOverride if required
-            if($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride){
+            # update enableConfigurationOverride if required
+            if ($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /enableConfigurationOverride:$enableConfigurationOverride
                 Invoke-AppCmd -Arguments set,apppool,$Name,/enableConfigurationOverride:$enableConfigurationOverride
             }
 
-            #update CLRConfigFile if required
-            if($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile){
+            # update CLRConfigFile if required
+            if ($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /CLRConfigFile:$CLRConfigFile
                 Invoke-AppCmd -Arguments set,apppool,$Name,/CLRConfigFile:$CLRConfigFile
             }
 
-            #update passAnonymousToken if required
-            if($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken){
+            # update passAnonymousToken if required
+            if ($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /passAnonymousToken:$passAnonymousToken
                 Invoke-AppCmd -Arguments set,apppool,$Name,/passAnonymousToken:$passAnonymousToken
             }
 
             #update logonType if required
-            if($PoolConfig.add.processModel.logonType -ne $logonType){
+            if ($PoolConfig.add.processModel.logonType -ne $logonType)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.logonType:$logonType
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.logonType:$logonType
             }
 
             #update manualGroupMembership if required
-            if($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership){
+            if ($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.manualGroupMembership:$manualGroupMembership
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.manualGroupMembership:$manualGroupMembership
             }
 
             #update idleTimeout if required
-            if($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout){
+            if ($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.idleTimeout:$idleTimeout
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.idleTimeout:$idleTimeout
             }
 
             #update maxProcesses if required
-            if($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses){
+            if ($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.maxProcesses:$maxProcesses
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.maxProcesses:$maxProcesses
             }
 
             #update shutdownTimeLimit if required
-            if($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit){
+            if ($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.shutdownTimeLimit:$shutdownTimeLimit
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.shutdownTimeLimit:$shutdownTimeLimit
             }
 
             #update startupTimeLimit if required
-            if($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit){
+            if ($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.startupTimeLimit:$startupTimeLimit
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.startupTimeLimit:$startupTimeLimit
             }
 
             #update pingingEnabled if required
-            if($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled){
+            if ($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingingEnabled:$pingingEnabled
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingingEnabled:$pingingEnabled
             }
 
             #update pingInterval if required
-            if($PoolConfig.add.processModel.pingInterval -ne $pingInterval){
+            if ($PoolConfig.add.processModel.pingInterval -ne $pingInterval)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingInterval:$pingInterval
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingInterval:$pingInterval
             }
 
             #update pingResponseTime if required
-            if($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime){
+            if ($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /processModel.pingResponseTime:$pingResponseTime
                 Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingResponseTime:$pingResponseTime
             }
 
             #update disallowOverlappingRotation if required
-            if($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation){
+            if ($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.disallowOverlappingRotation:$disallowOverlappingRotation
                 Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowOverlappingRotation:$disallowOverlappingRotation
             }
 
             #update disallowRotationOnConfigChange if required
-            if($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange){
+            if ($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.disallowRotationOnConfigChange:$disallowRotationOnConfigChange
                 Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowRotationOnConfigChange:$disallowRotationOnConfigChange
             }
 
             #update logEventOnRecycle if required
-            if($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle){
+            if ($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.logEventOnRecycle:$logEventOnRecycle
                 Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.logEventOnRecycle:$logEventOnRecycle
             }
 
             #update restartMemoryLimit if required
-            if($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit){
+            if ($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.memory:$restartMemoryLimit
                 Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.memory:$restartMemoryLimit
             }
 
             #update restartPrivateMemoryLimit if required
-            if($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit){
+            if ($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.privateMemory:$restartPrivateMemoryLimit
                 Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.privateMemory:$restartPrivateMemoryLimit
             }
 
             #update restartRequestsLimit if required
-            if($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit){
+            if ($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.requests:$restartRequestsLimit
                 Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.requests:$restartRequestsLimit
             }
 
             #update restartTimeLimit if required
-            if($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit){
+            if ($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /recycling.periodicRestart.time:$restartTimeLimit
                 Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.time:$restartTimeLimit
             }
 
@@ -591,150 +592,145 @@ function Set-TargetResource
             #clear current schedule
             foreach($schTime in $PoolConfig.add.recycling.periodicRestart.schedule.add.value)
             {
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/-recycling.periodicRestart.schedule.[value='$schTime']"
-                Invoke-AppCmd -Arguments set,apppool,$Name,"/-recycling.periodicRestart.schedule.[value='$schTime']"
+                Invoke-AppCmd -Arguments set,apppool,$Name,'/-recycling.periodicRestart.schedule.[value='$schTime']'
             }
             #add desired schedule
             foreach($time in $restartSchedule)
             {
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name "/+recycling.periodicRestart.schedule.[value='$time']"
-                Invoke-AppCmd -Arguments set,apppool,$Name,"/+recycling.periodicRestart.schedule.[value='$time']"
+                Invoke-AppCmd -Arguments set,apppool,$Name,'/+recycling.periodicRestart.schedule.[value='$time']'
             }
 
             #update loadBalancerCapabilities if required
-            if($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities){
+            if ($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.loadBalancerCapabilities:$loadBalancerCapabilities
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.loadBalancerCapabilities:$loadBalancerCapabilities
             }
 
             #update orphanWorkerProcess if required
-            if($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess){
+            if ($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanWorkerProcess:$orphanWorkerProcess
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanWorkerProcess:$orphanWorkerProcess
             }
 
             #update orphanActionExe if required
-            if($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe){
+            if ($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanActionExe:$orphanActionExe
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionExe:$orphanActionExe
             }
 
             #update orphanActionParams if required
-            if($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams){
+            if ($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.orphanActionParams:$orphanActionParams
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionParams:$orphanActionParams
             }
 
             #update rapidFailProtection if required
-            if($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection){
+            if ($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtection:$rapidFailProtection
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtection:$rapidFailProtection
             }
 
             #update rapidFailProtectionInterval if required
-            if($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval){
+            if ($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtectionInterval:$rapidFailProtectionInterval
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionInterval:$rapidFailProtectionInterval
             }
 
             #update rapidFailProtectionMaxCrashes if required
-            if($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes){
+            if ($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.rapidFailProtectionMaxCrashes:$rapidFailProtectionMaxCrashes
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionMaxCrashes:$rapidFailProtectionMaxCrashes
             }
 
             #update autoShutdownExe if required
-            if($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe){
+            if ($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.autoShutdownExe:$autoShutdownExe
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownExe:$autoShutdownExe
             }
 
             #update autoShutdownParams if required
-            if($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams){
+            if ($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /failure.autoShutdownParams:$autoShutdownParams
                 Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownParams:$autoShutdownParams
             }
 
             #update cpuLimit if required
-            if($PoolConfig.add.cpu.limit -ne $cpuLimit){
+            if ($PoolConfig.add.cpu.limit -ne $cpuLimit)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.limit:$cpuLimit
                 Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.limit:$cpuLimit
             }
 
             #update cpuAction if required
-            if($PoolConfig.add.cpu.action -ne $cpuAction){
+            if ($PoolConfig.add.cpu.action -ne $cpuAction)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.action:$cpuAction
                 Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.action:$cpuAction
             }
 
             #update cpuResetInterval if required
-            if($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval){
+            if ($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.resetInterval:$cpuResetInterval
                 Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.resetInterval:$cpuResetInterval
             }
 
             #update cpuSmpAffinitized if required
-            if($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized){
+            if ($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpAffinitized:$cpuSmpAffinitized
                 Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpAffinitized:$cpuSmpAffinitized
             }
 
             #update cpuSmpProcessorAffinityMask if required
-            if($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask){
+            if ($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpProcessorAffinityMask:$cpuSmpProcessorAffinityMask
                 Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask:$cpuSmpProcessorAffinityMask
             }
 
             #update cpuSmpProcessorAffinityMask2 if required
-            if($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2){
+            if ($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2)
+            {
                 $UpdateNotRequired = $false
-                #& $env:SystemRoot\system32\inetsrv\appcmd.exe set apppool $Name /cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
                 Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
             }
 
-            if($UpdateNotRequired)
+            if ($UpdateNotRequired)
             {
-                Write-Verbose("AppPool $Name already exists and properties do not need to be updated.");
+                Write-Verbose('AppPool $Name already exists and properties do not need to be updated.');
             }
-
         }
-
     }
-    else #Ensure is set to "Absent" so remove website
+    else #Ensure is set to 'Absent' so remove website
     {
         try
         {
-            #$AppPool = & $env:SystemRoot\system32\inetsrv\appcmd.exe list apppool $Name
             $AppPool = Invoke-AppCmd -Arguments list,apppool,$Name
-            if($AppPool -ne $null)
+            if ($AppPool -ne $null)
             {
                 Stop-WebAppPool $Name
                 Remove-WebAppPool $Name
 
-                Write-Verbose("Successfully removed AppPool $Name.")
+                Write-Verbose('Successfully removed AppPool $Name.')
             }
             else
             {
-                Write-Verbose("AppPool $Name does not exist.")
+                Write-Verbose('AppPool $Name does not exist.')
             }
         }
         catch
         {
-            $errorId = "AppPoolRemovalFailure";
+            $errorId = 'AppPoolRemovalFailure';
             $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation;
             $errorMessage = $($LocalizedData.WebsiteRemovalFailureError) -f ${Name} ;
             $exception = New-Object System.InvalidOperationException $errorMessage ;
@@ -742,10 +738,8 @@ function Set-TargetResource
 
             $PSCmdlet.ThrowTerminatingError($errorRecord);
         }
-
     }
 }
-
 
 # The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
 function Test-TargetResource
@@ -753,133 +747,133 @@ function Test-TargetResource
     [OutputType([bool])]
     param
     (
-        [ValidateSet("Present", "Absent")]
-        [string] $Ensure = "Present",
+        [ValidateSet('Present', 'Absent')]
+        [string] $Ensure = 'Present',
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [string] $Name,
 
-        [ValidateSet("Started","Stopped")]
-        [string] $state = "Started",
+        [ValidateSet('Started','Stopped')]
+        [string] $state = 'Started',
 
-        [ValidateSet("true","false")]
-        [string] $autoStart = "true",
+        [ValidateSet('true','false')]
+        [string] $autoStart = 'true',
 
-        [ValidateSet("v4.0","v2.0","")]
-        [string] $managedRuntimeVersion = "v4.0",
+        [ValidateSet('v4.0','v2.0','')]
+        [string] $managedRuntimeVersion = 'v4.0',
 
-        [ValidateSet("Integrated","Classic")]
-        [string] $managedPipelineMode = "Integrated",
+        [ValidateSet('Integrated','Classic')]
+        [string] $managedPipelineMode = 'Integrated',
 
-        [ValidateSet("AlwaysRunning","OnDemand")]
-        [string] $startMode = "OnDemand",
+        [ValidateSet('AlwaysRunning','OnDemand')]
+        [string] $startMode = 'OnDemand',
 
-        [ValidateSet("ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser")]
-        [string] $identityType = "ApplicationPoolIdentity",
+        [ValidateSet('ApplicationPoolIdentity','LocalSystem','LocalService','NetworkService','SpecificUser')]
+        [string] $identityType = 'ApplicationPoolIdentity',
 
         [System.Management.Automation.PSCredential] $Credential,
 
-        [ValidateSet("true","false")]
-        [string] $loadUserProfile = "true",
+        [ValidateSet('true','false')]
+        [string] $loadUserProfile = 'true',
 
-        [string] $queueLength = "1000",
+        [string] $queueLength = '1000',
 
-        [ValidateSet("true","false")]
-        [string] $enable32BitAppOnWin64 = "false",
+        [ValidateSet('true','false')]
+        [string] $enable32BitAppOnWin64 = 'false',
 
-        [string] $managedRuntimeLoader = "webengine4.dll",
+        [string] $managedRuntimeLoader = 'webengine4.dll',
 
-        [ValidateSet("true","false")]
-        [string] $enableConfigurationOverride = "true",
+        [ValidateSet('true','false')]
+        [string] $enableConfigurationOverride = 'true',
 
-        [string] $CLRConfigFile = "",
+        [string] $CLRConfigFile = '',
 
-        [ValidateSet("true","false")]
-        [string] $passAnonymousToken = "true",
+        [ValidateSet('true','false')]
+        [string] $passAnonymousToken = 'true',
 
-        [ValidateSet("LogonBatch","LogonService")]
-        [string] $logonType = "LogonBatch",
+        [ValidateSet('LogonBatch','LogonService')]
+        [string] $logonType = 'LogonBatch',
 
-        [ValidateSet("true","false")]
-        [string] $manualGroupMembership = "false",
-
-        #Format 00:20:00
-        [string] $idleTimeout = "00:20:00",
-
-        [string] $maxProcesses = "1",
+        [ValidateSet('true','false')]
+        [string] $manualGroupMembership = 'false',
 
         #Format 00:20:00
-        [string] $shutdownTimeLimit = "00:01:30",
+        [string] $idleTimeout = '00:20:00',
+
+        [string] $maxProcesses = '1',
 
         #Format 00:20:00
-        [string] $startupTimeLimit = "00:01:30",
-
-        [ValidateSet("true","false")]
-        [string] $pingingEnabled = "true",
+        [string] $shutdownTimeLimit = '00:01:30',
 
         #Format 00:20:00
-        [string] $pingInterval = "00:00:30",
+        [string] $startupTimeLimit = '00:01:30',
+
+        [ValidateSet('true','false')]
+        [string] $pingingEnabled = 'true',
 
         #Format 00:20:00
-        [string] $pingResponseTime = "00:01:30",
+        [string] $pingInterval = '00:00:30',
 
-        [ValidateSet("true","false")]
-        [string] $disallowOverlappingRotation = "false",
+        #Format 00:20:00
+        [string] $pingResponseTime = '00:01:30',
 
-        [ValidateSet("true","false")]
-        [string] $disallowRotationOnConfigChange = "false",
+        [ValidateSet('true','false')]
+        [string] $disallowOverlappingRotation = 'false',
 
-        #format "Time, Memory, PrivateMemory"
-        [string] $logEventOnRecycle = "Time, Memory, PrivateMemory",
+        [ValidateSet('true','false')]
+        [string] $disallowRotationOnConfigChange = 'false',
 
-        [string] $restartMemoryLimit = "0",
+        #format 'Time, Memory, PrivateMemory'
+        [string] $logEventOnRecycle = 'Time, Memory, PrivateMemory',
 
-        [string] $restartPrivateMemoryLimit = "0",
+        [string] $restartMemoryLimit = '0',
 
-        [string] $restartRequestsLimit = "0",
+        [string] $restartPrivateMemoryLimit = '0',
 
-        [string] $restartTimeLimit = "1.05:00:00",
+        [string] $restartRequestsLimit = '0',
+
+        [string] $restartTimeLimit = '1.05:00:00',
 
         #Format 00:00:00 24hr clock and must have 00 for seconds
-        [string[]] $restartSchedule = @(""),
+        [string[]] $restartSchedule = @(''),
 
-        [ValidateSet("HttpLevel","TcpLevel")]
-        [string] $loadBalancerCapabilities = "HttpLevel",
+        [ValidateSet('HttpLevel','TcpLevel')]
+        [string] $loadBalancerCapabilities = 'HttpLevel',
 
-        [ValidateSet("true","false")]
-        [string] $orphanWorkerProcess = "false",
+        [ValidateSet('true','false')]
+        [string] $orphanWorkerProcess = 'false',
 
-        [string] $orphanActionExe = "",
+        [string] $orphanActionExe = '',
 
-        [string] $orphanActionParams = "",
+        [string] $orphanActionParams = '',
 
-        [ValidateSet("true","false")]
-        [string] $rapidFailProtection = "true",
-
-        #Format 00:20:00
-        [string] $rapidFailProtectionInterval = "00:05:00",
-
-        [string] $rapidFailProtectionMaxCrashes = "5",
-
-        [string] $autoShutdownExe = "",
-
-        [string] $autoShutdownParams = "",
-
-        [string] $cpuLimit = "0",
-
-        [ValidateSet("NoAction","KillW3wp","Throttle","ThrottleUnderLoad")]
-        [string] $cpuAction = "NoAction",
+        [ValidateSet('true','false')]
+        [string] $rapidFailProtection = 'true',
 
         #Format 00:20:00
-        [string] $cpuResetInterval = "00:05:00",
+        [string] $rapidFailProtectionInterval = '00:05:00',
 
-        [ValidateSet("true","false")]
-        [string] $cpuSmpAffinitized = "false",
+        [string] $rapidFailProtectionMaxCrashes = '5',
 
-        [string] $cpuSmpProcessorAffinityMask = "4294967295",
+        [string] $autoShutdownExe = '',
 
-        [string] $cpuSmpProcessorAffinityMask2 = "4294967295"
+        [string] $autoShutdownParams = '',
+
+        [string] $cpuLimit = '0',
+
+        [ValidateSet('NoAction','KillW3wp','Throttle','ThrottleUnderLoad')]
+        [string] $cpuAction = 'NoAction',
+
+        #Format 00:20:00
+        [string] $cpuResetInterval = '00:05:00',
+
+        [ValidateSet('true','false')]
+        [string] $cpuSmpAffinitized = 'false',
+
+        [string] $cpuSmpProcessorAffinityMask = '4294967295',
+
+        [string] $cpuSmpProcessorAffinityMask2 = '4294967295'
     )
 
     $DesiredConfigurationMatch = $true
@@ -956,17 +950,16 @@ function Test-TargetResource
                 break
             }
 
-            # Check userName
-            if ($PoolConfig.add.processModel.userName -ne $Credential.UserName)
-            {
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData['TestuserNameConfig'] -f $Name)
-                break
-            }
-
-            # Check password
+            # Check userName/password
             if ($identityType -eq "SpecificUser" -and $Credential)
             {
+                if ($PoolConfig.add.processModel.userName -ne $Credential.UserName)
+                {
+                    $DesiredConfigurationMatch = $false
+                    Write-Verbose -Message $($LocalizedData['TestuserNameConfig'] -f $Name)
+                    break
+                }
+
                 $clearTextPassword = $Credential.GetNetworkCredential().Password
                 if ($clearTextPassword -cne $PoolConfig.add.processModel.password)
                 {
@@ -976,281 +969,327 @@ function Test-TargetResource
                 }
             }
 
-            #Check loadUserProfile
-            if($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile){
+            # Check loadUserProfile
+            if ($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.loadUserProfile -f $loadUserProfile)
+                Write-Verbose -Message $($LocalizedData['TestLoadUserProfileConfig'] -f $Name)
                 break
             }
 
-            #Check queueLength
-            if($PoolConfig.add.queueLength -ne $queueLength){
+            # Check queueLength
+            if ($PoolConfig.add.queueLength -ne $queueLength)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestqueueLengthConfig'] -f $Name)
+                break
+            }
+
+            # Check enable32BitAppOnWin64
+            if ($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.queueLength -f $queueLength)
+                Write-Verbose -Message $($LocalizedData['Testenable32BitAppOnWin64Config'] -f $Name)
                 break
             }
 
-            #Check enable32BitAppOnWin64
-            if($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64){
-               $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.enable32BitAppOnWin64 -f $enable32BitAppOnWin64)
-                break
-            }
-
-            #Check managedRuntimeLoader
-            if($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader){
-               $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.managedRuntimeLoader -f $managedRuntimeLoader)
-                break
-            }
-
-            #Check enableConfigurationOverride
-            if($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride){
+            # Check managedRuntimeLoader
+            if ($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.enableConfigurationOverride -f $enableConfigurationOverride)
+                Write-Verbose -Message $($LocalizedData['TestmanagedRuntimeLoaderConfig'] -f $Name)
                 break
             }
 
-            #Check CLRConfigFile
-            if($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile){
-               $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.CLRConfigFile -f $CLRConfigFile)
-                break
-            }
-
-            #Check passAnonymousToken
-            if($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken){
+            # Check enableConfigurationOverride
+            if ($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.passAnonymousToken -f $passAnonymousToken)
+                Write-Verbose -Message $($LocalizedData['testenableConfigurationOverrideConfig'] -f $Name)
                 break
             }
 
-            #Check logonType
-            if($PoolConfig.add.processModel.logonType -ne $logonType){
+            # Check CLRConfigFile
+            if ($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.logonType -f $logonType)
+                Write-Verbose -Message $($LocalizedData['testCLRConfigFileConfig'] -f $Name)
                 break
             }
 
-            #Check manualGroupMembership
-            if($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership){
+            # Check passAnonymousToken
+            if ($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.manualGroupMembership -f $manualGroupMembership)
+                Write-Verbose -Message $($LocalizedData['testpassAnonymousTokenConfig'] -f $Name)
                 break
             }
 
-            #Check idleTimeout
-            if($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout){
+            # Check logonType
+            if ($PoolConfig.add.processModel.logonType -ne $logonType)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.idleTimeout -f $idleTimeout)
+                Write-Verbose -Message $($LocalizedData['testlogonTypeConfig'] -f $Name)
                 break
             }
 
-            #Check maxProcesses
-            if($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses){
+            # Check manualGroupMembership
+            if ($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.maxProcesses -f $maxProcesses)
+                Write-Verbose -Message $($LocalizedData['testmanualGroupMembershipConfig'] -f $Name)
+                break
+            }
+
+            # Check idleTimeout
+            if ($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['testidleTimeoutConfig'] -f $Name)
+                break
+            }
+
+            # Check maxProcesses
+            if ($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['testmaxProcessesConfig'] -f $Name)
                 break
             }
 
             #Check shutdownTimeLimit
-            if($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit){
+            if ($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.shutdownTimeLimit -f $shutdownTimeLimit)
+                Write-Verbose -Message $($LocalizedData['testshutdownTimeLimitConfig'] -f $Name)
                 break
             }
 
-            #Check startupTimeLimit
-            if($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit){
+            # Check startupTimeLimit
+            if ($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.startupTimeLimit -f $startupTimeLimit)
+                Write-Verbose -Message $($LocalizedData['teststartupTimeLimitConfig'] -f $Name)
                 break
             }
 
-            #Check pingingEnabled
-            if($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled){
+            # Check pingingEnabled
+            if ($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.pingingEnabled -f $pingingEnabled)
+                Write-Verbose -Message $($LocalizedData['testpingingEnabledConfig'] -f $Name)
                 break
             }
 
-            #Check pingInterval
-            if($PoolConfig.add.processModel.pingInterval -ne $pingInterval){
+            # Check pingInterval
+            if ($PoolConfig.add.processModel.pingInterval -ne $pingInterval)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.pingInterval -f $pingInterval)
+                Write-Verbose -Message $($LocalizedData['testpingIntervalConfig'] -f $Name)
                 break
             }
 
-            #Check pingResponseTime
-            if($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime){
+            # Check pingResponseTime
+            if ($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['testpingResponseTimeConfig'] -f $Name)
+                break
+            }
+
+            # Check disallowOverlappingRotation
+            if ($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['testdisallowOverlappingRotationConfig'] -f $Name)
+                break
+            }
+
+            # Check disallowRotationOnConfigChange
+            if ($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestdisallowRotationOnConfigChangeConfig'] -f $Name)
+                break
+            }
+
+            # Check logEventOnRecycle
+            if ($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestlogEventOnRecycleConfig'] -f $Name)
+                break
+            }
+
+            # Check restartMemoryLimit
+            if ($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.pingResponseTime -f $pingResponseTime)
+                Write-Verbose -Message $($LocalizedData['TestrestartMemoryLimitConfig'] -f $Name)
                 break
             }
 
-            #Check disallowOverlappingRotation
-            if($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation){
+            # Check restartPrivateMemoryLimit
+            if ($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.disallowOverlappingRotation -f $disallowOverlappingRotation)
+                Write-Verbose -Message $($LocalizedData['TestrestartPrivateMemoryLimitConfig'] -f $Name)
                 break
             }
 
-            #Check disallowRotationOnConfigChange
-            if($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange){
+            # Check restartRequestsLimit
+            if ($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.disallowRotationOnConfigChange -f $disallowRotationOnConfigChange)
+                Write-Verbose -Message $($LocalizedData['TestrestartRequestsLimitConfig'] -f $Name)
                 break
             }
 
-            #Check logEventOnRecycle
-            if($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle){
+            # Check restartTimeLimit
+            if ($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.logEventOnRecycle -f $logEventOnRecycle)
+                Write-Verbose -Message $($LocalizedData['TestrestartTimeLimitConfig'] -f $Name)
                 break
             }
 
-            #Check restartMemoryLimit
-            if($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit){
+            # Check restartSchedule
+            $periodicRestartValue = $PoolConfig.add.recycling.periodicRestart.schedule.add.value
+
+            if (( $periodicRestartValue -ne $null) `
+                -and ((Compare-Object `
+                    -ReferenceObject $restartSchedule `
+                    -DifferenceObject $periodicRestartValue) -ne $null))
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestrestartTimeLimitConfig'] -f $Name)
+                break
+            }
+
+            if (($periodicRestartValue -eq $null) -and ($restartSchedule -ne $null))
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestrestartTimeLimitConfig'] -f $Name)
+                break
+            }
+
+            # Check loadBalancerCapabilities
+            if ($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities)
+            {
+                $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestloadBalancerCapabilitiesConfig'] -f $Name)
+                break
+            }
+
+            # Check orphanWorkerProcess
+            if ($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.restartMemoryLimit -f $restartMemoryLimit)
+                Write-Verbose -Message $($LocalizedData['TestorphanWorkerProcessConfig'] -f $Name)
                 break
             }
 
-            #Check restartPrivateMemoryLimit
-            if($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit){
+            # Check orphanActionExe
+            if ($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.restartPrivateMemoryLimit -f $restartPrivateMemoryLimit)
+                Write-Verbose -Message $($LocalizedData['TestorphanActionExeConfig'] -f $Name)
                 break
             }
 
-            #Check restartRequestsLimit
-            if($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit){
+            # Check orphanActionParams
+            if ($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.restartRequestsLimit -f $restartRequestsLimit)
+                Write-Verbose -Message $($LocalizedData['TestorphanActionParamsConfig'] -f $Name)
                 break
             }
 
-            #Check restartTimeLimit
-            if($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit){
+            # Check rapidFailProtection
+            if ($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.restartTimeLimit -f $restartTimeLimit)
+                Write-Verbose -Message $($LocalizedData['TestrapidFailProtectionConfig'] -f $Name)
                 break
             }
 
-            #Check restartSchedule
-            if(($PoolConfig.add.recycling.periodicRestart.schedule.add.value -ne $null) -and ((Compare-Object $restartSchedule $PoolConfig.add.recycling.periodicRestart.schedule.add.value) -ne $null)){
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.restartTimeLimit -f $restartTimeLimit)
-                break
-            }
-            if(($PoolConfig.add.recycling.periodicRestart.schedule.add.value -eq $null) -and ($restartSchedule -ne $null)){
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.restartTimeLimit -f $restartTimeLimit)
-                break
-            }
-
-            #Check loadBalancerCapabilities
-            if($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities){
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.loadBalancerCapabilities -f $loadBalancerCapabilities)
-                break
-            }
-
-            #Check orphanWorkerProcess
-            if($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess){
+            # Check rapidFailProtectionInterval
+            if ($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.orphanWorkerProcess -f $orphanWorkerProcess)
+                Write-Verbose -Message $($LocalizedData['TestrapidFailProtectionIntervalConfig'] -f $Name)
                 break
             }
 
-            #Check orphanActionExe
-            if($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe){
+            # Check rapidFailProtectionMaxCrashes
+            if ($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.orphanActionExe -f $orphanActionExe)
+                Write-Verbose -Message $($LocalizedData['TestrapidFailProtectionMaxCrashesConfig'] -f $Name)
                 break
             }
 
-            #Check orphanActionParams
-            if($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams){
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.orphanActionParams -f $orphanActionParams)
-                break
-            }
-
-            #Check rapidFailProtection
-            if($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection){
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.rapidFailProtection -f $rapidFailProtection)
-                break
-            }
-
-            #Check rapidFailProtectionInterval
-            if($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval){
+            # Check autoShutdownExe
+            if ($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.rapidFailProtectionInterval -f $rapidFailProtectionInterval)
+                Write-Verbose -Message $($LocalizedData['TestautoShutdownExeConfig'] -f $Name)
                 break
             }
 
-            #Check rapidFailProtectionMaxCrashes
-            if($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes){
+            # Check autoShutdownParams
+            if ($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.rapidFailProtectionMaxCrashes -f $rapidFailProtectionMaxCrashes)
+                Write-Verbose -Message $($LocalizedData['TestautoShutdownParamsConfig'] -f $Name)
                 break
             }
 
-            #Check autoShutdownExe
-            if($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe){
+            # Check cpuLimit
+            if ($PoolConfig.add.cpu.limit -ne $cpuLimit)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.autoShutdownExe -f $autoShutdownExe)
+                Write-Verbose -Message $($LocalizedData['TestcpuLimitConfig'] -f $Name)
                 break
             }
 
-            #Check autoShutdownParams
-            if($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams){
+            # Check cpuAction
+            if ($PoolConfig.add.cpu.action -ne $cpuAction)
+            {
+               $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestcpuActionConfig'] -f $Name)
+                break
+            }
+
+            # Check cpuResetInterval
+            if ($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval)
+            {
+               $DesiredConfigurationMatch = $false
+                Write-Verbose -Message $($LocalizedData['TestcpuResetIntervalConfig'] -f $Name)
+                break
+            }
+
+            # Check cpuSmpAffinitized
+            if ($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.autoShutdownParams -f $autoShutdownParams)
+                Write-Verbose -Message $($LocalizedData['TestcpuSmpAffinitizedConfig'] -f $Name)
                 break
             }
 
-            #Check cpuLimit
-            if($PoolConfig.add.cpu.limit -ne $cpuLimit){
-               $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.cpuLimit -f $cpuLimit)
-                break
-            }
-
-            #Check cpuAction
-            if($PoolConfig.add.cpu.action -ne $cpuAction){
-               $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.cpuAction -f $cpuAction)
-                break
-            }
-
-            #Check cpuResetInterval
-            if($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval){
-               $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.cpuResetInterval -f $cpuResetInterval)
-                break
-            }
-
-            #Check cpuSmpAffinitized
-            if($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized){
+            # Check cpuSmpProcessorAffinityMask
+            if ($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask)
+            {
                 $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.cpuSmpAffinitized -f $cpuSmpAffinitized)
+                Write-Verbose -Message $($LocalizedData['TestcpuSmpProcessorAffinityMaskConfig'] -f $Name)
                 break
             }
 
-            #Check cpuSmpProcessorAffinityMask
-            if($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask){
-                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.cpuSmpProcessorAffinityMask -f $cpuSmpProcessorAffinityMask)
-                break
-            }
-
-            #Check cpuSmpProcessorAffinityMask2
-            if($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2){
+            # Check cpuSmpProcessorAffinityMask2
+            if ($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2)
+            {
                $DesiredConfigurationMatch = $false
-                Write-Verbose -Message $($LocalizedData.cpuSmpProcessorAffinityMask2 -f $cpuSmpProcessorAffinityMask2)
+                Write-Verbose -Message $($LocalizedData['TestcpuSmpProcessorAffinityMask2Config'] -f $Name)
                 break
             }
         }

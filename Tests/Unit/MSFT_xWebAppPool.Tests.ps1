@@ -360,6 +360,7 @@ try
 
             Context 'userName is not the same' {
                 $UserNameTest = $PoolCfg.Clone()
+                $UserNameTest.add.processModel.identityType = 'SpecificUser'
                 $UserNameTest.add.processModel.userName = 'username'
                 $UserNameTest.add.processModel.password = 'password'
 
@@ -373,7 +374,7 @@ try
                     -TypeName System.Management.Automation.PSCredential `
                     -ArgumentList $('NotUserName', $AppPoolPassword)
 
-                $result = Test-TargetResource -Name $Name -Credential $AppPoolCred -Verbose 4>&1
+                $result = Test-TargetResource -Name $Name -IdentityType 'SpecificUser' -Credential $AppPoolCred -Verbose 4>&1
 
                 It 'should return the correct verbose message' {
                     $result[0] | Should be $($LocalizedData['TestuserNameConfig'] -f $Name)
@@ -407,13 +408,781 @@ try
                     $result[1] | Should be $false
                 }
             }
+
+            Context 'LoadUserProfile is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -LoadUserProfile 'false' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['TestLoadUserProfileConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'queueLength is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -queueLength '1' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['TestqueueLengthConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'enable32BitAppOnWin64 is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -enable32BitAppOnWin64 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['Testenable32BitAppOnWin64Config'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'managedRuntimeLoader is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -managedRuntimeLoader 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['TestmanagedRuntimeLoaderConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'enableConfigurationOverride is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -enableConfigurationOverride 'false' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['TestenableConfigurationOverrideConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'enableConfigurationOverride is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -enableConfigurationOverride 'false' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['TestenableConfigurationOverrideConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'CLRConfigFile is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -CLRConfigFile 'false' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testCLRConfigFileConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'passAnonymousToken is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -passAnonymousToken 'false' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testpassAnonymousTokenconfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'logonType is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -logonType 'LogonService' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testlogonTypeConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'manualGroupMembership is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -manualGroupMembership 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testmanualGroupMembershipConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'idleTimeout is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -idleTimeout '00:10:00' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testidleTimeoutConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'maxProcesses is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -maxProcesses '2' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testmaxProcessesConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'shutdownTimeLimit is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -shutdownTimeLimit '00:02:00' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testshutdownTimeLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'startupTimeLimit is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -startupTimeLimit '00:02:00' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['teststartupTimeLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'pingingEnabled is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -pingingEnabled 'false' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testpingingEnabledConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'pingInterval is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -pingInterval '00:01:00' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testpingIntervalConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'pingResponseTime is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -pingResponseTime '00:01:00' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testpingResponseTimeConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'disallowOverlappingRotation is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -disallowOverlappingRotation 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testdisallowOverlappingRotationConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'disallowRotationOnConfigChange is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -disallowRotationOnConfigChange 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testdisallowRotationOnConfigChangeConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'logEventOnRecycle is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -logEventOnRecycle 'Memory, Time, PrivateMemory' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testlogEventOnRecycleConfig'] -f $name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'restartMemoryLimit is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -restartMemoryLimit '1' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testrestartMemoryLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'restartPrivateMemoryLimit is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -restartPrivateMemoryLimit '1' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testrestartPrivateMemoryLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'restartRequestsLimit is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -restartRequestsLimit 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testrestartRequestsLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'restartTimeLimit is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -restartTimeLimit '1.00:00:00' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testrestartTimeLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'restartSchedule is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -restartSchedule @('00:00:00', '01:00:00') -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['TestrestartTimeLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'loadBalancerCapabilities is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -loadBalancerCapabilities 'TcpLevel' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testloadBalancerCapabilitiesConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'orphanWorkerProcess is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -orphanWorkerProcess 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testorphanWorkerProcessConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'orphanActionExe is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -orphanActionExe 'C:\pathto\some.exe' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testorphanActionExeConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'orphanActionParams is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -orphanActionParams '/some /parameters' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testorphanActionParamsConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'rapidFailProtection is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -rapidFailProtection 'false' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testrapidFailProtectionConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'rapidFailProtectionInterval is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -rapidFailProtectionInterval '00:20:00' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testrapidFailProtectionIntervalConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'rapidFailProtectionMaxCrashes is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -rapidFailProtectionMaxCrashes '1' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testrapidFailProtectionMaxCrashesConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'autoShutdownExe is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -autoShutdownExe 'C:\autoshutdown.exe' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testautoShutdownExeConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'autoShutdownParams is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -autoShutdownParams '/params' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testautoShutdownParamsConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'cpuLimit is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -cpuLimit '1' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testcpuLimitConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'cpuAction is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -cpuAction 'KillW3wp' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testcpuActionConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'cpuSmpAffinitized is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -cpuSmpAffinitized 'true' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testcpuSmpAffinitizedConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'cpuSmpProcessorAffinityMask is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -cpuSmpProcessorAffinityMask '1' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testcpuSmpProcessorAffinityMaskConfig'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
+
+            Context 'cpuSmpProcessorAffinityMask2 is not the same' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return @{Count = 1}}
+                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+
+                $result = Test-TargetResource -Name $Name -cpuSmpProcessorAffinityMask2 '1' -Verbose 4>&1
+
+                It 'should return the correct verbose message' {
+                    $result[0] | Should be $($LocalizedData['testcpuSmpProcessorAffinityMask2Config'] -f $Name)
+                }
+                It 'Should return false' {
+                    $result[1] | Should be $false
+                }
+            }
         }
         #endregion
 
 
         #region Function Set-TargetResource
         Describe "$($Global:DSCResourceName)\Set-TargetResource" {
-            # TODO: Complete Tests...
+            [xml] $PoolCfg = '
+            <add name="DefaultAppPool"
+                queueLength="1000"
+                autoStart="true"
+                enable32BitAppOnWin64="false"
+                managedRuntimeVersion="v4.0"
+                managedRuntimeLoader="webengine4.dll"
+                enableConfigurationOverride="true"
+                managedPipelineMode="Integrated"
+                CLRConfigFile=""
+                passAnonymousToken="true"
+                startMode="OnDemand">
+                <processModel
+                    identityType="ApplicationPoolIdentity"
+                    userName=""
+                    password=""
+                    loadUserProfile="true"
+                    setProfileEnvironment="true"
+                    logonType="LogonBatch"
+                    manualGroupMembership="false"
+                    idleTimeout="00:20:00"
+                    idleTimeoutAction="Terminate"
+                    maxProcesses="1"
+                    shutdownTimeLimit="00:01:30"
+                    startupTimeLimit="00:01:30"
+                    pingingEnabled="true"
+                    pingInterval="00:00:30"
+                    pingResponseTime="00:01:30"
+                    logEventOnProcessModel="IdleTimeout"/>
+                <recycling
+                    disallowOverlappingRotation="false"
+                    disallowRotationOnConfigChange="false"
+                    logEventOnRecycle="Time, Memory, PrivateMemory">
+                    <periodicRestart
+                        memory="0"
+                        privateMemory="0"
+                        requests="0"
+                        time="1.05:00:00">
+                        <schedule>
+                        </schedule>
+                    </periodicRestart>
+                </recycling>
+                <failure
+                    loadBalancerCapabilities="HttpLevel"
+                    orphanWorkerProcess="false"
+                    orphanActionExe=""
+                    orphanActionParams=""
+                    rapidFailProtection="true"
+                    rapidFailProtectionInterval="00:05:00"
+                    rapidFailProtectionMaxCrashes="5"
+                    autoShutdownExe=""
+                    autoShutdownParams=""/>
+                <cpu limit="0"
+                    action="NoAction"
+                    resetInterval="00:05:00"
+                    smpAffinitized="false"
+                    smpProcessorAffinityMask="4294967295"
+                    smpProcessorAffinityMask2="4294967295"
+                    processorGroup="0"
+                    numaNodeAssignment="MostAvailableMemory"
+                    numaNodeAffinityMode="Soft" />
+            </add>'
+
+            $Name = 'DefaultAppPool'
+
+            Context 'AppPool does not Exist, so Create it' {
+                Mock New-WebAppPool -Verifiable
+                Mock Stop-WebAppPool -Verifiable
+                Mock Start-WebAppPool -Verifiable
+                Mock Invoke-AppCmd -Verifiable
+
+                It 'Should call all the mocks' {
+                    $result = Set-TargetResource -Name $Name
+                    Assert-VerifiableMocks
+                }
+            }
+
+            Context 'AppPool Exists so modify it' {
+                Mock Assert-Module
+                Mock Invoke-AppCmd {return $PoolCfg} -Verifiable
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')} -Verifiable
+                Mock Stop-WebAppPool
+
+                $AppPoolPassword = 'NotPassword' | ConvertTo-SecureString -AsPlainText -Force
+                $AppPoolCred = New-Object `
+                    -TypeName System.Management.Automation.PSCredential `
+                    -ArgumentList $('NotUserName', $AppPoolPassword)
+
+                $params = @{
+                    Name   = 'DefaultAppPool';
+                    Ensure = 'Present';
+                    state = 'Stopped';
+                    autoStart = 'false';
+                    managedRuntimeVersion = 'v2.0';
+                    managedPipelineMode = 'Classic';
+                    startMode = 'AlwaysRunning';
+                    identityType = 'SpecificUser';
+                    Credential = $AppPoolCred;
+                    loadUserProfile = 'false';
+                    queueLength = '1';
+                    enable32BitAppOnWin64 = 'true';
+                    managedRuntimeLoader = 'somedll.dll';
+                    enableConfigurationOverride = 'false';
+                    CLRConfigFile = 'CLRConfigFile';
+                    passAnonymousToken = 'false';
+                    logonType = 'LogonService';
+                    manualGroupMembership = 'true';
+                    idleTimeout = '00:10:00';
+                    maxProcesses = '10';
+                    shutdownTimeLimit = '00:10:30';
+                    startupTimeLimit = '00:10:30';
+                    pingingEnabled = 'false';
+                    pingInterval = '00:10:30';
+                    pingResponseTime = '00:11:30';
+                    disallowOverlappingRotation = 'true';
+                    disallowRotationOnConfigChange = 'true';
+                    logEventOnRecycle = 'Time, Memory, PrivateMemory, OtherEvent';
+                    restartMemoryLimit = '1';
+                    restartPrivateMemoryLimit = '1';
+                    restartRequestsLimit = '1';
+                    restartTimeLimit = '1.15:00:00';
+                    restartSchedule = @('00:00:00','01:00:00');
+                    loadBalancerCapabilities = 'TcpLevel';
+                    orphanWorkerProcess = 'false';
+                    orphanActionExe = 'orphanActionExe.exe';
+                    orphanActionParams = '/some params';
+                    rapidFailProtection = 'false';
+                    rapidFailProtectionInterval = '00:15:00';
+                    rapidFailProtectionMaxCrashes = '15';
+                    autoShutdownExe = 'autoShutdownExe';
+                    autoShutdownParams = '/autoShutdownParams';
+                    cpuLimit = '1';
+                    cpuAction = 'KillW3wp';
+                    cpuResetInterval = '00:15:00';
+                    cpuSmpAffinitized = 'true';
+                    cpuSmpProcessorAffinityMask = '1';
+                    cpuSmpProcessorAffinityMask2 = '2';
+                }
+
+                $result = Set-TargetResource @params
+
+                It 'Should Call all the Mocks' {
+                    Assert-VerifiableMocks
+                }
+            }
         }
         #endregion
 
