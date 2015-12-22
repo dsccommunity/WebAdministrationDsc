@@ -19,7 +19,6 @@ $TestEnvironment = Initialize-TestEnvironment `
 #endregion
 try
 {
-
     #region Pester Tests
 
     # The InModuleScope command allows you to perform white-box unit testing on the internal
@@ -40,9 +39,9 @@ try
                 passAnonymousToken="true"
                 startMode="OnDemand">
                 <processModel
-                    identityType="ApplicationPoolIdentity"
-                    userName=""
-                    password=""
+                    identityType="SpecificUser"
+                    userName="username"
+                    password="password"
                     loadUserProfile="true"
                     setProfileEnvironment="true"
                     logonType="LogonBatch"
@@ -120,63 +119,67 @@ try
                 Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
                 Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
 
+                $AppPoolPassword = $PoolCfg.add.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+                $AppPoolCred = New-Object `
+                    -TypeName System.Management.Automation.PSCredential `
+                    -ArgumentList $($PoolCfg.add.processModel.userName, $AppPoolPassword)
+
                 $result = Get-TargetResource -Name 'DefaultAppPool'
 
                 It 'Should return the correct values' {
-                    $result.Name                           | Should Be 'DefaultAppPool'
-                    $result.Ensure                         | Should Be 'Present'
-                    $result.State                          | Should Be 'Started'
-                    $result.autoStart                      | Should Be $PoolCfg.add.autoStart
-                    $result.managedRuntimeVersion          | Should Be $PoolCfg.add.managedRuntimeVersion
-                    $result.managedPipelineMode            | Should Be $PoolCfg.add.managedPipelineMode
-                    $result.startMode                      | Should Be $PoolCfg.add.startMode
-                    $result.identityType                   | Should Be $PoolCfg.add.processModel.identityType
-                    $result.userName                       | Should Be $PoolCfg.add.processModel.userName
-                    $result.password                       | Should Be $null
-                    $result.loadUserProfile                | Should Be $PoolCfg.add.processModel.loadUserProfile
-                    $result.queueLength                    | Should Be $PoolCfg.add.queueLength
-                    $result.enable32BitAppOnWin64          | Should Be $PoolCfg.add.enable32BitAppOnWin64
-                    $result.managedRuntimeLoader           | Should Be $PoolCfg.add.managedRuntimeLoader
-                    $result.enableConfigurationOverride    | Should Be $PoolCfg.add.enableConfigurationOverride
-                    $result.CLRConfigFile                  | Should Be $PoolCfg.add.CLRConfigFile
-                    $result.passAnonymousToken             | Should Be $PoolCfg.add.passAnonymousToken
-                    $result.logonType                      | Should Be $PoolCfg.add.processModel.logonType
-                    $result.manualGroupMembership          | Should Be $PoolCfg.add.processModel.manualGroupMembership
-                    $result.idleTimeout                    | Should Be $PoolCfg.add.processModel.idleTimeout
-                    $result.maxProcesses                   | Should Be $PoolCfg.add.processModel.maxProcesses
-                    $result.shutdownTimeLimit              | Should Be $PoolCfg.add.processModel.shutdownTimeLimit
-                    $result.startupTimeLimit               | Should Be $PoolCfg.add.processModel.startupTimeLimit
-                    $result.pingingEnabled                 | Should Be $PoolCfg.add.processModel.pingingEnabled
-                    $result.pingInterval                   | Should Be $PoolCfg.add.processModel.pingInterval
-                    $result.pingResponseTime               | Should Be $PoolCfg.add.processModel.pingResponseTime
-                    $result.disallowOverlappingRotation    | Should Be $PoolCfg.add.recycling.disallowOverlappingRotation
-                    $result.disallowRotationOnConfigChange | Should Be $PoolCfg.add.recycling.disallowRotationOnConfigChange
-                    $result.logEventOnRecycle              | Should Be $PoolCfg.add.recycling.logEventOnRecycle
-                    $result.restartMemoryLimit             | Should Be $PoolCfg.add.recycling.periodicRestart.memory
-                    $result.restartPrivateMemoryLimit      | Should Be $PoolCfg.add.recycling.periodicRestart.privateMemory
-                    $result.restartRequestsLimit           | Should Be $PoolCfg.add.recycling.periodicRestart.requests
-                    $result.restartTimeLimit               | Should Be $PoolCfg.add.recycling.periodicRestart.time
-                    $result.restartSchedule                | Should Be $PoolCfg.add.recycling.periodicRestart.schedule
-                    $result.loadBalancerCapabilities       | Should Be $PoolCfg.add.failure.loadBalancerCapabilities
-                    $result.orphanWorkerProcess            | Should Be $PoolCfg.add.failure.orphanWorkerProcess
-                    $result.orphanActionExe                | Should Be $PoolCfg.add.failure.orphanActionExe
-                    $result.orphanActionParams             | Should Be $PoolCfg.add.failure.orphanActionParams
-                    $result.rapidFailProtection            | Should Be $PoolCfg.add.failure.rapidFailProtection
-                    $result.rapidFailProtectionInterval    | Should Be $PoolCfg.add.failure.rapidFailProtectionInterval
-                    $result.rapidFailProtectionMaxCrashes  | Should Be $PoolCfg.add.failure.rapidFailProtectionMaxCrashes
-                    $result.autoShutdownExe                | Should Be $PoolCfg.add.failure.autoShutdownExe
-                    $result.autoShutdownParams             | Should Be $PoolCfg.add.failure.autoShutdownParams
-                    $result.cpuLimit                       | Should Be $PoolCfg.add.cpu.limit
-                    $result.cpuAction                      | Should Be $PoolCfg.add.cpu.action
-                    $result.cpuResetInterval               | Should Be $PoolCfg.add.cpu.resetInterval
-                    $result.cpuSmpAffinitized              | Should Be $PoolCfg.add.cpu.smpAffinitized
-                    $result.cpuSmpProcessorAffinityMask    | Should Be $PoolCfg.add.cpu.smpProcessorAffinityMask
-                    $result.cpuSmpProcessorAffinityMask2   | Should Be $PoolCfg.add.cpu.smpProcessorAffinityMask2
+                    $result.Name                                       | Should Be 'DefaultAppPool'
+                    $result.Ensure                                     | Should Be 'Present'
+                    $result.State                                      | Should Be 'Started'
+                    $result.autoStart                                  | Should Be $PoolCfg.add.autoStart
+                    $result.managedRuntimeVersion                      | Should Be $PoolCfg.add.managedRuntimeVersion
+                    $result.managedPipelineMode                        | Should Be $PoolCfg.add.managedPipelineMode
+                    $result.startMode                                  | Should Be $PoolCfg.add.startMode
+                    $result.identityType                               | Should Be $PoolCfg.add.processModel.identityType
+                    $result.Credential.userName                        | Should Be $PoolCfg.add.processModel.userName
+                    $result.Credential.GetNetworkCredential().Password | Should Be $PoolCfg.add.processModel.password
+                    $result.loadUserProfile                            | Should Be $PoolCfg.add.processModel.loadUserProfile
+                    $result.queueLength                                | Should Be $PoolCfg.add.queueLength
+                    $result.enable32BitAppOnWin64                      | Should Be $PoolCfg.add.enable32BitAppOnWin64
+                    $result.managedRuntimeLoader                       | Should Be $PoolCfg.add.managedRuntimeLoader
+                    $result.enableConfigurationOverride                | Should Be $PoolCfg.add.enableConfigurationOverride
+                    $result.CLRConfigFile                              | Should Be $PoolCfg.add.CLRConfigFile
+                    $result.passAnonymousToken                         | Should Be $PoolCfg.add.passAnonymousToken
+                    $result.logonType                                  | Should Be $PoolCfg.add.processModel.logonType
+                    $result.manualGroupMembership                      | Should Be $PoolCfg.add.processModel.manualGroupMembership
+                    $result.idleTimeout                                | Should Be $PoolCfg.add.processModel.idleTimeout
+                    $result.maxProcesses                               | Should Be $PoolCfg.add.processModel.maxProcesses
+                    $result.shutdownTimeLimit                          | Should Be $PoolCfg.add.processModel.shutdownTimeLimit
+                    $result.startupTimeLimit                           | Should Be $PoolCfg.add.processModel.startupTimeLimit
+                    $result.pingingEnabled                             | Should Be $PoolCfg.add.processModel.pingingEnabled
+                    $result.pingInterval                               | Should Be $PoolCfg.add.processModel.pingInterval
+                    $result.pingResponseTime                           | Should Be $PoolCfg.add.processModel.pingResponseTime
+                    $result.disallowOverlappingRotation                | Should Be $PoolCfg.add.recycling.disallowOverlappingRotation
+                    $result.disallowRotationOnConfigChange             | Should Be $PoolCfg.add.recycling.disallowRotationOnConfigChange
+                    $result.logEventOnRecycle                          | Should Be $PoolCfg.add.recycling.logEventOnRecycle
+                    $result.restartMemoryLimit                         | Should Be $PoolCfg.add.recycling.periodicRestart.memory
+                    $result.restartPrivateMemoryLimit                  | Should Be $PoolCfg.add.recycling.periodicRestart.privateMemory
+                    $result.restartRequestsLimit                       | Should Be $PoolCfg.add.recycling.periodicRestart.requests
+                    $result.restartTimeLimit                           | Should Be $PoolCfg.add.recycling.periodicRestart.time
+                    $result.restartSchedule                            | Should Be $PoolCfg.add.recycling.periodicRestart.schedule
+                    $result.loadBalancerCapabilities                   | Should Be $PoolCfg.add.failure.loadBalancerCapabilities
+                    $result.orphanWorkerProcess                        | Should Be $PoolCfg.add.failure.orphanWorkerProcess
+                    $result.orphanActionExe                            | Should Be $PoolCfg.add.failure.orphanActionExe
+                    $result.orphanActionParams                         | Should Be $PoolCfg.add.failure.orphanActionParams
+                    $result.rapidFailProtection                        | Should Be $PoolCfg.add.failure.rapidFailProtection
+                    $result.rapidFailProtectionInterval                | Should Be $PoolCfg.add.failure.rapidFailProtectionInterval
+                    $result.rapidFailProtectionMaxCrashes              | Should Be $PoolCfg.add.failure.rapidFailProtectionMaxCrashes
+                    $result.autoShutdownExe                            | Should Be $PoolCfg.add.failure.autoShutdownExe
+                    $result.autoShutdownParams                         | Should Be $PoolCfg.add.failure.autoShutdownParams
+                    $result.cpuLimit                                   | Should Be $PoolCfg.add.cpu.limit
+                    $result.cpuAction                                  | Should Be $PoolCfg.add.cpu.action
+                    $result.cpuResetInterval                           | Should Be $PoolCfg.add.cpu.resetInterval
+                    $result.cpuSmpAffinitized                          | Should Be $PoolCfg.add.cpu.smpAffinitized
+                    $result.cpuSmpProcessorAffinityMask                | Should Be $PoolCfg.add.cpu.smpProcessorAffinityMask
+                    $result.cpuSmpProcessorAffinityMask2               | Should Be $PoolCfg.add.cpu.smpProcessorAffinityMask2
                 }
             }
         }
         #endregion
-
 
         #region Function Test-TargetResource
         Describe "$($Global:DSCResourceName)\Test-TargetResource" {
@@ -1035,7 +1038,6 @@ try
         }
         #endregion
 
-
         #region Function Set-TargetResource
         Describe "$($Global:DSCResourceName)\Set-TargetResource" {
             [xml] $PoolCfg = '
@@ -1117,7 +1119,7 @@ try
 
             Context 'AppPool Exists so modify it' {
                 Mock Assert-Module
-                Mock Invoke-AppCmd {return $PoolCfg} -Verifiable
+                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('set')} -Verifiable
                 Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')} -Verifiable
                 Mock Stop-WebAppPool
 
@@ -1127,7 +1129,7 @@ try
                     -ArgumentList $('NotUserName', $AppPoolPassword)
 
                 $params = @{
-                    Name   = 'DefaultAppPool';
+                    Name   = 'PesterAppPool';
                     Ensure = 'Present';
                     state = 'Stopped';
                     autoStart = 'false';
@@ -1137,7 +1139,7 @@ try
                     identityType = 'SpecificUser';
                     Credential = $AppPoolCred;
                     loadUserProfile = 'false';
-                    queueLength = '1';
+                    queueLength = '10';
                     enable32BitAppOnWin64 = 'true';
                     managedRuntimeLoader = 'somedll.dll';
                     enableConfigurationOverride = 'false';
@@ -1154,7 +1156,7 @@ try
                     pingResponseTime = '00:11:30';
                     disallowOverlappingRotation = 'true';
                     disallowRotationOnConfigChange = 'true';
-                    logEventOnRecycle = 'Time, Memory, PrivateMemory, OtherEvent';
+                    logEventOnRecycle = 'Time, Memory, PrivateMemory, PrivateMemory';
                     restartMemoryLimit = '1';
                     restartPrivateMemoryLimit = '1';
                     restartRequestsLimit = '1';
@@ -1177,17 +1179,18 @@ try
                     cpuSmpProcessorAffinityMask2 = '2';
                 }
 
-                $result = Set-TargetResource @params
+                It 'should not throw' {
+                    {Set-TargetResource @params} | Should Not Throw
+                }
 
-                It 'Should Call all the Mocks' {
+                It 'Should call all the Mocks' {
                     Assert-VerifiableMocks
+
+                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$Arguments.Contains('set')} -Exactly 44
                 }
             }
         }
         #endregion
-
-        # TODO: Pester Tests for any Helper Cmdlets
-
     }
     #endregion
 }
@@ -1196,6 +1199,4 @@ finally
     #region FOOTER
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion
-
-    # TODO: Other Optional Cleanup Code Goes Here...
 }

@@ -125,8 +125,7 @@ function Get-TargetResource
         managedPipelineMode = $PoolConfig.add.managedPipelineMode;
         startMode = $PoolConfig.add.startMode;
         identityType = $PoolConfig.add.processModel.identityType;
-        userName = $PoolConfig.add.processModel.userName;
-        password = $AppPoolCred;
+        Credential = $AppPoolCred;
         loadUserProfile = $PoolConfig.add.processModel.loadUserProfile;
         queueLength = $PoolConfig.add.queueLength;
         enable32BitAppOnWin64 = $PoolConfig.add.enable32BitAppOnWin64;
@@ -305,13 +304,14 @@ function Set-TargetResource
         [string] $cpuSmpProcessorAffinityMask2 = '4294967295'
     )
 
-    $getTargetResourceResult = $null;
+    Write-Verbose "Begining Set-TargetResource"
 
     if ($Ensure -eq 'Present')
     {
         # Remove Ensure from parameters as it is not needed to create new AppPool
         $Result = $psboundparameters.Remove('Ensure');
 
+        Write-Verbose -Message 'Asserting WebAdministration is installed'
         # Check if WebAdministration module is present for IIS cmdlets
         Assert-Module
 
@@ -352,362 +352,370 @@ function Set-TargetResource
 
         if ($AppPool -ne $null)
         {
-            # update parameters as required
+            try {
+                # update parameters as required
 
-            $UpdateNotRequired = $true
+                $UpdateNotRequired = $true
 
-            # get configuration of AppPool
-            [xml] $PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
+                # get configuration of AppPool
+                [xml] $PoolConfig = Invoke-AppCmd -Arguments list,apppool,$Name,/config:*
+                $AppPoolState = Invoke-AppCmd -Arguments  list,apppool,$Name,/text:state
 
-            #Update autoStart if required
-            if ($PoolConfig.add.autoStart -ne $autoStart)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/autoStart:$autoStart
-            }
-
-            #update managedRuntimeVersion if required
-            if ($PoolConfig.add.managedRuntimeVersion -ne $managedRuntimeVersion)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeVersion:$managedRuntimeVersion
-            }
-            #update managedPipelineMode if required
-            if ($PoolConfig.add.managedPipelineMode -ne $managedPipelineMode)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/managedPipelineMode:$managedPipelineMode
-            }
-
-            #update state if required
-            $AppPoolState = Invoke-AppCmd -Arguments  list,apppool,$Name,/text:state
-            if ($AppPoolState -ne $state)
-            {
-                $UpdateNotRequired = $false
-
-                if ($State -eq 'Started')
-                {
-                    Start-WebAppPool -Name $Name
-                }
-                else
-                {
-                    Stop-WebAppPool -Name $Name
-                }
-            }
-
-            #update startMode if required
-            if ($PoolConfig.add.startMode -ne $startMode)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/startMode:$startMode
-            }
-
-            #update identityType if required
-            if ($PoolConfig.add.processModel.identityType -ne $identityType)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.identityType:$identityType
-            }
-
-            #update userName if required
-            #update password if required
-            if ($identityType -eq 'SpecificUser' -and $Credential)
-            {
-                if ($PoolConfig.add.processModel.userName -ne $Credential.UserName)
+                #Update autoStart if required
+                if ($PoolConfig.add.autoStart -ne $autoStart)
                 {
                     $UpdateNotRequired = $false
-                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.userName:$userName
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/autoStart:$autoStart
                 }
 
-                $clearTextPassword = $Credential.GetNetworkCredential().Password
-                if ($clearTextPassword -cne $PoolConfig.add.processModel.password)
+                #update managedRuntimeVersion if required
+                if ($PoolConfig.add.managedRuntimeVersion -ne $managedRuntimeVersion)
                 {
                     $UpdateNotRequired = $false
-                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.password:$clearTextPassword
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeVersion:$managedRuntimeVersion
+                }
+
+                #update managedPipelineMode if required
+                if ($PoolConfig.add.managedPipelineMode -ne $managedPipelineMode)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/managedPipelineMode:$managedPipelineMode
+                }
+
+                #update state if required
+                if ($AppPoolState -ne $state)
+                {
+                    $UpdateNotRequired = $false
+
+                    if ($State -eq 'Started')
+                    {
+                        Start-WebAppPool -Name $Name
+                    }
+                    else
+                    {
+                        Stop-WebAppPool -Name $Name
+                    }
+                }
+
+                #update startMode if required
+                if ($PoolConfig.add.startMode -ne $startMode)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/startMode:$startMode
+                }
+
+                #update identityType if required
+                if ($PoolConfig.add.processModel.identityType -ne $identityType)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.identityType:$identityType
+                }
+
+                #update userName if required
+                #update password if required
+                if ($identityType -eq 'SpecificUser' -and $Credential)
+                {
+                    if ($PoolConfig.add.processModel.userName -ne $Credential.UserName)
+                    {
+                        $UpdateNotRequired = $false
+                        Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.userName:$userName
+                    }
+
+                    $clearTextPassword = $Credential.GetNetworkCredential().Password
+                    if ($clearTextPassword -cne $PoolConfig.add.processModel.password)
+                    {
+                        $UpdateNotRequired = $false
+                        Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.password:$clearTextPassword
+                    }
+                }
+
+                # update loadUserProfile if required
+                if ($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.loadUserProfile:$loadUserProfile
+                }
+
+                # update queueLength if required
+                if ($PoolConfig.add.queueLength -ne $queueLength)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/queueLength:$queueLength
+                }
+
+                # update enable32BitAppOnWin64 if required
+                if ($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/enable32BitAppOnWin64:$enable32BitAppOnWin64
+                }
+
+                # update managedRuntimeLoader if required
+                if ($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeLoader:$managedRuntimeLoader
+                }
+
+                # update enableConfigurationOverride if required
+                if ($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/enableConfigurationOverride:$enableConfigurationOverride
+                }
+
+                # update CLRConfigFile if required
+                if ($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/CLRConfigFile:$CLRConfigFile
+                }
+
+                # update passAnonymousToken if required
+                if ($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/passAnonymousToken:$passAnonymousToken
+                }
+
+                #update logonType if required
+                if ($PoolConfig.add.processModel.logonType -ne $logonType)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.logonType:$logonType
+                }
+
+                #update manualGroupMembership if required
+                if ($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.manualGroupMembership:$manualGroupMembership
+                }
+
+                #update idleTimeout if required
+                if ($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.idleTimeout:$idleTimeout
+                }
+
+                #update maxProcesses if required
+                if ($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.maxProcesses:$maxProcesses
+                }
+
+                #update shutdownTimeLimit if required
+                if ($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.shutdownTimeLimit:$shutdownTimeLimit
+                }
+
+                #update startupTimeLimit if required
+                if ($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.startupTimeLimit:$startupTimeLimit
+                }
+
+                #update pingingEnabled if required
+                if ($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingingEnabled:$pingingEnabled
+                }
+
+                #update pingInterval if required
+                if ($PoolConfig.add.processModel.pingInterval -ne $pingInterval)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingInterval:$pingInterval
+                }
+
+                #update pingResponseTime if required
+                if ($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingResponseTime:$pingResponseTime
+                }
+
+                #update disallowOverlappingRotation if required
+                if ($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowOverlappingRotation:$disallowOverlappingRotation
+                }
+
+                #update disallowRotationOnConfigChange if required
+                if ($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowRotationOnConfigChange:$disallowRotationOnConfigChange
+                }
+
+                #update logEventOnRecycle if required
+                if ($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.logEventOnRecycle:$logEventOnRecycle
+                }
+
+                #update restartMemoryLimit if required
+                if ($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.memory:$restartMemoryLimit
+                }
+
+                #update restartPrivateMemoryLimit if required
+                if ($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.privateMemory:$restartPrivateMemoryLimit
+                }
+
+                #update restartRequestsLimit if required
+                if ($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.requests:$restartRequestsLimit
+                }
+
+                #update restartTimeLimit if required
+                if ($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.time:$restartTimeLimit
+                }
+
+                #clear current schedule
+                foreach($schTime in $PoolConfig.add.recycling.periodicRestart.schedule.add.value)
+                {
+                    # Invoke-AppCmd -Arguments set,apppool,$Name,"/-recycling.periodicRestart.schedule.[value='$schTime']"
+                }
+
+                #update restartSchedule if required
+                #add desired schedule
+                foreach($time in $restartSchedule)
+                {
+                    # Invoke-AppCmd -Arguments set,apppool,$Name,"/+recycling.periodicRestart.schedule.[value='$time']"
+                }
+
+                #update loadBalancerCapabilities if required
+                if ($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.loadBalancerCapabilities:$loadBalancerCapabilities
+                }
+
+                #update orphanWorkerProcess if required
+                if ($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanWorkerProcess:$orphanWorkerProcess
+                }
+
+                #update orphanActionExe if required
+                if ($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionExe:$orphanActionExe
+                }
+
+                #update orphanActionParams if required
+                if ($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionParams:$orphanActionParams
+                }
+
+                #update rapidFailProtection if required
+                if ($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtection:$rapidFailProtection
+                }
+
+                #update rapidFailProtectionInterval if required
+                if ($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionInterval:$rapidFailProtectionInterval
+                }
+
+                #update rapidFailProtectionMaxCrashes if required
+                if ($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionMaxCrashes:$rapidFailProtectionMaxCrashes
+                }
+
+                #update autoShutdownExe if required
+                if ($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownExe:$autoShutdownExe
+                }
+
+                #update autoShutdownParams if required
+                if ($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownParams:$autoShutdownParams
+                }
+
+                #update cpuLimit if required
+                if ($PoolConfig.add.cpu.limit -ne $cpuLimit)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.limit:$cpuLimit
+                }
+
+                #update cpuAction if required
+                if ($PoolConfig.add.cpu.action -ne $cpuAction)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.action:$cpuAction
+                }
+
+                #update cpuResetInterval if required
+                if ($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.resetInterval:$cpuResetInterval
+                }
+
+                #update cpuSmpAffinitized if required
+                if ($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpAffinitized:$cpuSmpAffinitized
+                }
+
+                #update cpuSmpProcessorAffinityMask if required
+                if ($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask:$cpuSmpProcessorAffinityMask
+                }
+
+                #update cpuSmpProcessorAffinityMask2 if required
+                if ($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2)
+                {
+                    $UpdateNotRequired = $false
+                    Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
+                }
+
+                if ($UpdateNotRequired)
+                {
+                    Write-Verbose('AppPool $Name already exists and properties do not need to be updated.');
                 }
             }
-
-            # update loadUserProfile if required
-            if ($PoolConfig.add.processModel.loadUserProfile -ne $loadUserProfile)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.loadUserProfile:$loadUserProfile
-            }
-
-            # update queueLength if required
-            if ($PoolConfig.add.queueLength -ne $queueLength)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/queueLength:$queueLength
-            }
-
-            # update enable32BitAppOnWin64 if required
-            if ($PoolConfig.add.enable32BitAppOnWin64 -ne $enable32BitAppOnWin64)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/enable32BitAppOnWin64:$enable32BitAppOnWin64
-            }
-
-            # update managedRuntimeLoader if required
-            if ($PoolConfig.add.managedRuntimeLoader -ne $managedRuntimeLoader)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/managedRuntimeLoader:$managedRuntimeLoader
-            }
-
-            # update enableConfigurationOverride if required
-            if ($PoolConfig.add.enableConfigurationOverride -ne $enableConfigurationOverride)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/enableConfigurationOverride:$enableConfigurationOverride
-            }
-
-            # update CLRConfigFile if required
-            if ($PoolConfig.add.CLRConfigFile -ne $CLRConfigFile)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/CLRConfigFile:$CLRConfigFile
-            }
-
-            # update passAnonymousToken if required
-            if ($PoolConfig.add.passAnonymousToken -ne $passAnonymousToken)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/passAnonymousToken:$passAnonymousToken
-            }
-
-            #update logonType if required
-            if ($PoolConfig.add.processModel.logonType -ne $logonType)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.logonType:$logonType
-            }
-
-            #update manualGroupMembership if required
-            if ($PoolConfig.add.processModel.manualGroupMembership -ne $manualGroupMembership)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.manualGroupMembership:$manualGroupMembership
-            }
-
-            #update idleTimeout if required
-            if ($PoolConfig.add.processModel.idleTimeout -ne $idleTimeout)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.idleTimeout:$idleTimeout
-            }
-
-            #update maxProcesses if required
-            if ($PoolConfig.add.processModel.maxProcesses -ne $maxProcesses)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.maxProcesses:$maxProcesses
-            }
-
-            #update shutdownTimeLimit if required
-            if ($PoolConfig.add.processModel.shutdownTimeLimit -ne $shutdownTimeLimit)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.shutdownTimeLimit:$shutdownTimeLimit
-            }
-
-            #update startupTimeLimit if required
-            if ($PoolConfig.add.processModel.startupTimeLimit -ne $startupTimeLimit)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.startupTimeLimit:$startupTimeLimit
-            }
-
-            #update pingingEnabled if required
-            if ($PoolConfig.add.processModel.pingingEnabled -ne $pingingEnabled)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingingEnabled:$pingingEnabled
-            }
-
-            #update pingInterval if required
-            if ($PoolConfig.add.processModel.pingInterval -ne $pingInterval)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingInterval:$pingInterval
-            }
-
-            #update pingResponseTime if required
-            if ($PoolConfig.add.processModel.pingResponseTime -ne $pingResponseTime)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/processModel.pingResponseTime:$pingResponseTime
-            }
-
-            #update disallowOverlappingRotation if required
-            if ($PoolConfig.add.recycling.disallowOverlappingRotation -ne $disallowOverlappingRotation)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowOverlappingRotation:$disallowOverlappingRotation
-            }
-
-            #update disallowRotationOnConfigChange if required
-            if ($PoolConfig.add.recycling.disallowRotationOnConfigChange -ne $disallowRotationOnConfigChange)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.disallowRotationOnConfigChange:$disallowRotationOnConfigChange
-            }
-
-            #update logEventOnRecycle if required
-            if ($PoolConfig.add.recycling.logEventOnRecycle -ne $logEventOnRecycle)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.logEventOnRecycle:$logEventOnRecycle
-            }
-
-            #update restartMemoryLimit if required
-            if ($PoolConfig.add.recycling.periodicRestart.memory -ne $restartMemoryLimit)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.memory:$restartMemoryLimit
-            }
-
-            #update restartPrivateMemoryLimit if required
-            if ($PoolConfig.add.recycling.periodicRestart.privateMemory -ne $restartPrivateMemoryLimit)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.privateMemory:$restartPrivateMemoryLimit
-            }
-
-            #update restartRequestsLimit if required
-            if ($PoolConfig.add.recycling.periodicRestart.requests -ne $restartRequestsLimit)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.requests:$restartRequestsLimit
-            }
-
-            #update restartTimeLimit if required
-            if ($PoolConfig.add.recycling.periodicRestart.time -ne $restartTimeLimit)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/recycling.periodicRestart.time:$restartTimeLimit
-            }
-
-            #update restartSchedule if required
-            #clear current schedule
-            foreach($schTime in $PoolConfig.add.recycling.periodicRestart.schedule.add.value)
-            {
-                Invoke-AppCmd -Arguments set,apppool,$Name,'/-recycling.periodicRestart.schedule.[value='$schTime']'
-            }
-            #add desired schedule
-            foreach($time in $restartSchedule)
-            {
-                Invoke-AppCmd -Arguments set,apppool,$Name,'/+recycling.periodicRestart.schedule.[value='$time']'
-            }
-
-            #update loadBalancerCapabilities if required
-            if ($PoolConfig.add.failure.loadBalancerCapabilities -ne $loadBalancerCapabilities)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.loadBalancerCapabilities:$loadBalancerCapabilities
-            }
-
-            #update orphanWorkerProcess if required
-            if ($PoolConfig.add.failure.orphanWorkerProcess -ne $orphanWorkerProcess)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanWorkerProcess:$orphanWorkerProcess
-            }
-
-            #update orphanActionExe if required
-            if ($PoolConfig.add.failure.orphanActionExe -ne $orphanActionExe)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionExe:$orphanActionExe
-            }
-
-            #update orphanActionParams if required
-            if ($PoolConfig.add.failure.orphanActionParams -ne $orphanActionParams)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.orphanActionParams:$orphanActionParams
-            }
-
-            #update rapidFailProtection if required
-            if ($PoolConfig.add.failure.rapidFailProtection -ne $rapidFailProtection)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtection:$rapidFailProtection
-            }
-
-            #update rapidFailProtectionInterval if required
-            if ($PoolConfig.add.failure.rapidFailProtectionInterval -ne $rapidFailProtectionInterval)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionInterval:$rapidFailProtectionInterval
-            }
-
-            #update rapidFailProtectionMaxCrashes if required
-            if ($PoolConfig.add.failure.rapidFailProtectionMaxCrashes -ne $rapidFailProtectionMaxCrashes)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.rapidFailProtectionMaxCrashes:$rapidFailProtectionMaxCrashes
-            }
-
-            #update autoShutdownExe if required
-            if ($PoolConfig.add.failure.autoShutdownExe -ne $autoShutdownExe)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownExe:$autoShutdownExe
-            }
-
-            #update autoShutdownParams if required
-            if ($PoolConfig.add.failure.autoShutdownParams -ne $autoShutdownParams)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/failure.autoShutdownParams:$autoShutdownParams
-            }
-
-            #update cpuLimit if required
-            if ($PoolConfig.add.cpu.limit -ne $cpuLimit)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.limit:$cpuLimit
-            }
-
-            #update cpuAction if required
-            if ($PoolConfig.add.cpu.action -ne $cpuAction)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.action:$cpuAction
-            }
-
-            #update cpuResetInterval if required
-            if ($PoolConfig.add.cpu.resetInterval -ne $cpuResetInterval)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.resetInterval:$cpuResetInterval
-            }
-
-            #update cpuSmpAffinitized if required
-            if ($PoolConfig.add.cpu.smpAffinitized -ne $cpuSmpAffinitized)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpAffinitized:$cpuSmpAffinitized
-            }
-
-            #update cpuSmpProcessorAffinityMask if required
-            if ($PoolConfig.add.cpu.smpProcessorAffinityMask -ne $cpuSmpProcessorAffinityMask)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask:$cpuSmpProcessorAffinityMask
-            }
-
-            #update cpuSmpProcessorAffinityMask2 if required
-            if ($PoolConfig.add.cpu.smpProcessorAffinityMask2 -ne $cpuSmpProcessorAffinityMask2)
-            {
-                $UpdateNotRequired = $false
-                Invoke-AppCmd -Arguments set,apppool,$Name,/cpu.smpProcessorAffinityMask2:$cpuSmpProcessorAffinityMask2
-            }
-
-            if ($UpdateNotRequired)
-            {
-                Write-Verbose('AppPool $Name already exists and properties do not need to be updated.');
+            catch [Exception]{
+                Write-Verbose 'Catch occured'
+                throw $_
             }
         }
     }
