@@ -14,9 +14,6 @@ install:
   - ps: Pop-Location
   - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
 
-init:
-- ps: $BlockRdp=$true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
 #---------------------------------#
 #      build configuration        #
 #---------------------------------#

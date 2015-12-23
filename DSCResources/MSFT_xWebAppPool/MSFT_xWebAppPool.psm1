@@ -149,7 +149,7 @@ function Get-TargetResource
         restartPrivateMemoryLimit = $PoolConfig.add.recycling.periodicRestart.privateMemory;
         restartRequestsLimit = $PoolConfig.add.recycling.periodicRestart.requests;
         restartTimeLimit = $PoolConfig.add.recycling.periodicRestart.time;
-        restartSchedule = $PoolConfig.add.recycling.periodicRestart.schedule;
+        restartSchedule = @($PoolConfig.add.recycling.periodicRestart.schedule.add.value);
         loadBalancerCapabilities = $PoolConfig.add.failure.loadBalancerCapabilities;
         orphanWorkerProcess = $PoolConfig.add.failure.orphanWorkerProcess;
         orphanActionExe = $PoolConfig.add.failure.orphanActionExe;
@@ -593,14 +593,15 @@ function Set-TargetResource
                 #clear current schedule
                 foreach($schTime in $PoolConfig.add.recycling.periodicRestart.schedule.add.value)
                 {
-                    # Invoke-AppCmd -Arguments set,apppool,$Name,"/-recycling.periodicRestart.schedule.[value='$schTime']"
+                    # Doesn't this set this to the existing time?
+                    Invoke-AppCmd -Arguments set,apppool,$Name,"/-recycling.periodicRestart.schedule.[value='$schTime']"
                 }
 
                 #update restartSchedule if required
                 #add desired schedule
                 foreach($time in $restartSchedule)
                 {
-                    # Invoke-AppCmd -Arguments set,apppool,$Name,"/+recycling.periodicRestart.schedule.[value='$time']"
+                    Invoke-AppCmd -Arguments set,apppool,$Name,"/+recycling.periodicRestart.schedule.[value='$time']"
                 }
 
                 #update loadBalancerCapabilities if required

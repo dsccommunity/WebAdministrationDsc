@@ -32,6 +32,12 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
+# Test Setup
+if ((Get-Service w3svc) -ne 'Running')
+{
+    Get-Service w3svc | Start-Service
+}
+
 # Using try/finally to always cleanup even if something awful happens.
 try
 {

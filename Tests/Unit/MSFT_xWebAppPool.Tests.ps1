@@ -65,6 +65,8 @@ try
                         requests="0"
                         time="1.05:00:00">
                         <schedule>
+                            <add value = "00:00:00" />
+                            <add value = "01:00:00" />
                         </schedule>
                     </periodicRestart>
                 </recycling>
@@ -160,7 +162,7 @@ try
                     $result.restartPrivateMemoryLimit                  | Should Be $PoolCfg.add.recycling.periodicRestart.privateMemory
                     $result.restartRequestsLimit                       | Should Be $PoolCfg.add.recycling.periodicRestart.requests
                     $result.restartTimeLimit                           | Should Be $PoolCfg.add.recycling.periodicRestart.time
-                    $result.restartSchedule                            | Should Be $PoolCfg.add.recycling.periodicRestart.schedule
+                    $result.restartSchedule                            | Should Be @($PoolCfg.add.recycling.periodicRestart.schedule.add.value)
                     $result.loadBalancerCapabilities                   | Should Be $PoolCfg.add.failure.loadBalancerCapabilities
                     $result.orphanWorkerProcess                        | Should Be $PoolCfg.add.failure.orphanWorkerProcess
                     $result.orphanActionExe                            | Should Be $PoolCfg.add.failure.orphanActionExe
@@ -1186,7 +1188,7 @@ try
                 It 'Should call all the Mocks' {
                     Assert-VerifiableMocks
 
-                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$Arguments.Contains('set')} -Exactly 44
+                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$Arguments.Contains('set')} -Times 44
                 }
             }
         }
