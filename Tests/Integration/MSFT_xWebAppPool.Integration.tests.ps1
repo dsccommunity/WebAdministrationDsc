@@ -32,8 +32,6 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
-# TODO: Other Init Code Goes Here...
-
 # Using try/finally to always cleanup even if something awful happens.
 try
 {
