@@ -14,13 +14,13 @@ function New-TerminatingError
     param
     (
         [Parameter(Mandatory)]
-        [String]$errorId,
+        [String] $ErrorId,
 
         [Parameter(Mandatory)]
-        [String]$errorMessage,
+        [String] $ErrorMessage,
 
         [Parameter(Mandatory)]
-        [System.Management.Automation.ErrorCategory]$errorCategory
+        [System.Management.Automation.ErrorCategory] $ErrorCategory
     )
 
     $exception = New-Object System.InvalidOperationException $errorMessage
@@ -34,7 +34,7 @@ function Assert-Module
     [CmdletBinding()]
     param
     (
-        [string]$moduleName = 'WebAdministration'
+        [String] $moduleName = 'WebAdministration'
     )
 
     if(-not (Get-Module -Name $moduleName -ListAvailable))
