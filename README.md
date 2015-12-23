@@ -69,6 +69,7 @@ Currently, only FastCgiModule is supported.
     * Added Tests to xWebApplication which will allow more changes if desired.
 * Fixed binding compare issue in xWebsite which was causing bindings to be changed every DSC check.
 * Modified README.MD to clean up Code Formatting
+* xWebAppPool is now has feature parity to cWebAppPool - should now support most changes.
 
 ### 1.8.0.0
 
