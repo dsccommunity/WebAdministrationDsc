@@ -65,7 +65,8 @@ try
                         requests="0"
                         time="1.05:00:00">
                         <schedule>
-                            <add value="00:00:00" />
+                            <add value = "00:00:00" />
+                            <add value = "01:00:00" />
                         </schedule>
                     </periodicRestart>
                 </recycling>

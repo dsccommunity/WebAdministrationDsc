@@ -81,7 +81,7 @@ try
 
         #region Function Set-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Set-TargetResource' {
-            $breakvar = $true;
+            # TODO: Add Set-TargetResource tests
         }
         #endregion
 
