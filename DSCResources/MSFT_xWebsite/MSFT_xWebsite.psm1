@@ -66,6 +66,7 @@ function Get-TargetResource
                 HostName              = $BindingObject.Hostname
                 CertificateThumbprint = $BindingObject.CertificateThumbprint
                 CertificateStoreName  = $BindingObject.CertificateStoreName
+                SSLFlags              = $BindingObject.SSLFlags
             } -ClientOnly
         }
 
@@ -88,10 +89,10 @@ function Get-TargetResource
     return @{
         Name            = $Website.Name
         Ensure          = $ensureResult
-        PhysicalPath    = $Website.physicalPath
-        State           = $Website.state
-        ID              = $Website.id
-        ApplicationPool = $Website.applicationPool
+        PhysicalPath    = $Website.PhysicalPath
+        State           = $Website.State
+        ID              = $Website.ID
+        ApplicationPool = $Website.ApplicationPool
         BindingInfo     = $CimBindings
         DefaultPage     = $allDefaultPage
     }
@@ -401,7 +402,9 @@ function Test-TargetResource
         Throw 'Please ensure that WebAdministration module is installed.'
     }
 
-    $Website = Get-Website -Name $Name
+    $Website = Get-Website | Where-Object -FilterScript {
+        $_.Name -eq $Name
+    }
     $Stop = $true
 
     Do
@@ -589,6 +592,12 @@ function Test-WebsiteBindings
     # Assume bindings do not need updating
     $BindingNeedsUpdating = $false
 
+    <#
+        Currently there is a problem in the LCM where Get-WebBinding short circuts the verbose stream
+        Write-Log can be changed to add the -File switch to log to a directory for troubleshooting.
+        However it's pretty noisy so it's being left in but commented out.
+    #>
+
     $ActualBindings = Get-WebBinding -Name $Name
 
     # Format Binding information: Split BindingInfo into individual Properties (IPAddress:Port:HostName)
@@ -613,6 +622,7 @@ function Test-WebsiteBindings
                 {
                     if([string]$ActualBinding.Protocol -ne [string]$binding.CimInstanceProperties['Protocol'].Value)
                     {
+                        Write-Log "Protocol is Incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
@@ -626,6 +636,7 @@ function Test-WebsiteBindings
                         }
                         else
                         {
+                            Write-Log "IP Address Incorrect" -File
                             $BindingNeedsUpdating = $true
                             break
                         }
@@ -633,24 +644,37 @@ function Test-WebsiteBindings
 
                     if([string]$ActualBinding.HostName -ne [string]$binding.CimInstanceProperties['HostName'].Value)
                     {
+                        Write-Log "HostName is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
                     if([string]$ActualBinding.CertificateThumbprint -ne [string]$binding.CimInstanceProperties['CertificateThumbprint'].Value)
                     {
+                        Write-Log "CertificateThumbprint is incorrect" -File
+                        Write-Log "Actual Binding: $($ActualBinding.CertificateThumbprint )" -File
+                        Write-Log "Binding Value: $($binding.CimInstanceProperties['CertificateThumbprint'].Value)" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
 
-                    if([string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
+                    if(-not [string]::IsNullOrWhiteSpace([string]$ActualBinding.CertificateThumbprint) -and [string]$ActualBinding.CertificateStoreName -ne [string]$binding.CimInstanceProperties['CertificateStoreName'].Value)
                     {
+                        Write-Log "Thumbprint is incorrect" -File
+                        $BindingNeedsUpdating = $true
+                        break
+                    }
+
+                    if(-not [string]::IsNullOrWhiteSpace([string]$binding.CimInstanceProperties['SSLFlags'].Value) -and [string]$ActualBinding.SSLFlags -ne [string]$binding.CimInstanceProperties['SSLFlags'].Value)
+                    {
+                        Write-Log "SSLFlags is incorrect" -File
                         $BindingNeedsUpdating = $true
                         break
                     }
                 }
                 else
                 {
+                    Write-Log "No bindings returned" -File
                     $BindingNeedsUpdating = $true
                     break
                 }
@@ -658,6 +682,7 @@ function Test-WebsiteBindings
         }
         else
         {
+            Write-Log "Binding Count is incorrect"
             $BindingNeedsUpdating = $true
         }
 
@@ -693,6 +718,9 @@ function Update-WebsiteBinding
     #Need to clear the bindings before we can create new ones
     Clear-ItemProperty -Path IIS:\Sites\$Name -Name bindings -ErrorAction Stop
 
+    #Need to clear $UseHostheader flag for multiple ssl bindings per site
+    $UseHostHeader = $false
+
     foreach($binding in $BindingInfo)
     {
         $Protocol = $binding.CimInstanceProperties['Protocol'].Value
@@ -701,6 +729,7 @@ function Update-WebsiteBinding
         $HostHeader = $binding.CimInstanceProperties['HostName'].Value
         $CertificateThumbprint = $binding.CimInstanceProperties['CertificateThumbprint'].Value
         $CertificateStoreName = $binding.CimInstanceProperties['CertificateStoreName'].Value
+        $SSLFlags = $binding.CimInstanceProperties['SSLFlags'].Value
 
         $bindingParams = @{}
         $bindingParams.Add('-Name', $Name)
@@ -730,6 +759,12 @@ function Update-WebsiteBinding
         if($HostHeader -ne $null)
         {
             $bindingParams.Add('-HostHeader', $HostHeader)
+            $UseHostHeader = $true
+        }
+
+        if(-not [string]::IsNullOrWhiteSpace($SSLFlags))
+        {
+            $bindingParams.Add('-SSLFlags', $SSLFlags)
         }
 
         try
@@ -750,10 +785,17 @@ function Update-WebsiteBinding
 
         try
         {
-            if($CertificateThumbprint -ne $null)
+            if ( -not [string]::IsNullOrWhiteSpace($CertificateThumbprint) )
             {
-                $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
-                $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
+                if ($UseHostHeader -eq $true)
+                {
+                    $NewWebbinding = Get-WebBinding -Name $Name -Port $Port -HostHeader $HostHeader
+                    $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
+                }
+                Else{
+                    $NewWebbinding = Get-WebBinding -Name $Name -Port $Port
+                    $NewWebbinding.AddSslCertificate($CertificateThumbprint, $CertificateStoreName)
+                }
             }
         }
         catch
@@ -793,13 +835,14 @@ function Get-WebBindingObject
         $HostName = $SplitProps.item(2)
     }
 
-    return $WebBindingObject = New-Object -TypeName PSObject -Property @{
+    return New-Object -TypeName PSObject -Property @{
         Protocol              = $BindingInfo.protocol
         IPAddress             = $IPAddress
         Port                  = $Port
         HostName              = $HostName
         CertificateThumbprint = $BindingInfo.CertificateHash
         CertificateStoreName  = $BindingInfo.CertificateStoreName
+        sslFlags              = $BindingInfo.sslFlags
     }
 }
 
@@ -829,4 +872,25 @@ function Update-DefaultPages
     }
 }
 
+function Write-Log
+{
+    param
+    (
+        [parameter(Position=1)]
+        [string]
+        $Message,
+
+        [switch] $File
+    )
+
+    $filename = "$env:tmp\xWebSite.log"
+
+    Write-Verbose -Verbose -Message $message
+
+    if ($File)
+    {
+        $date = Get-Date
+        "${date}: $message" | Out-File -Append -FilePath $filename
+    }
+}
 #endregion

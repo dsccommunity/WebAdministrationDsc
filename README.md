@@ -2,7 +2,7 @@
 
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIisModule**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts. 
+The **xWebAdministration** module contains the **xIisModule**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
 
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
@@ -12,25 +12,25 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### xIISModule
 
-* **Path**: The path to the module to be registered. 
-* **Name**: The logical name to register the module as in IIS. 
+* **Path**: The path to the module to be registered.
+* **Name**: The logical name to register the module as in IIS.
 * **RequestPath**: The allowed request paths, such as *.php
-* **Verb**: An array of allowed verbs, such as get and post. 
-* **SiteName**: The name of the Site to register the module for. 
-If empty, the resource will register the module with all of IIS. 
-* **ModuleType**: The type of the module. 
-Currently, only FastCgiModule is supported. 
-* **Ensure**: Ensures that the module is **Present** or **Absent**. 
+* **Verb**: An array of allowed verbs, such as get and post.
+* **SiteName**: The name of the Site to register the module for.
+If empty, the resource will register the module with all of IIS.
+* **ModuleType**: The type of the module.
+Currently, only FastCgiModule is supported.
+* **Ensure**: Ensures that the module is **Present** or **Absent**.
 
 ### xWebAppPool
 
-* **Name**: The desired name of the web application pool 
-* **Ensure**: Should the application pool be present or absent 
-* **State**: State of the application pool – started or stopped 
+* **Name**: The desired name of the web application pool
+* **Ensure**: Should the application pool be present or absent
+* **State**: State of the application pool – started or stopped
 
 ### xWebsite
 
-* **Name**: The desired name of the website.  
+* **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: State of the website: { Started | Stopped }
 * **BindingInfo**: Website's binding information.
@@ -47,24 +47,36 @@ Currently, only FastCgiModule is supported.
 
 ### xWebVirtualDirectory
 
-* **Website**: Name of website with which virtual directory is associated 
-* **WebApplication**:  Web application name for the virtual directory 
-* **PhysicalPath**: The path to the files that compose the virtual directory 
-* **Name**: The name of the virtual directory 
-* **Ensure**: Ensures if the virtual directory is Present or Absent. 
+* **Website**: Name of website with which virtual directory is associated
+* **WebApplication**:  Web application name for the virtual directory
+* **PhysicalPath**: The path to the files that compose the virtual directory
+* **Name**: The name of the virtual directory
+* **Ensure**: Ensures if the virtual directory is Present or Absent.
 * **State**: State of the application pool: { **Started** | **Stopped** }
 
 ### xWebConfigKeyValue
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
-* **KeyValuePair**: Key value pair for AppSettings (ItemCollection format). 
+* **KeyValuePair**: Key value pair for AppSettings (ItemCollection format).
 
 
 ## Versions
 
 ### Unreleased
 
+### 1.8.0.0
+
+* Modified xWebsite to allow Server Name Indication when specifiying SSL certificates.
+* Change Test Get-Website to match other function
+* Removed xDscResourceDesigner tests
+* Suppress extra verbose messages when -verbose is specified to Start-DscConfiguration
+* Moved tests into child folders Unit and Integration
+* Added PSDesiredStateConfiguration to Import-DscResource statement
+* Fixed issue where Set-TargetResource was being run unexpectedly
+* Added Tests to MSFT_xWebVirtualDirectory
+* xWebsite tests updates
+* xWebVirtualDirectory tests updates
 
 ### 1.7.0.0
 
@@ -78,7 +90,7 @@ Currently, only FastCgiModule is supported.
 
 ### 1.6.0.0
 
-* Fixed bug in xWebsite resource regarding incorrect name of personal certificate store. 
+* Fixed bug in xWebsite resource regarding incorrect name of personal certificate store.
 
 ### 1.5.0.0
 
@@ -103,7 +115,7 @@ Changed Key property in MSFT_xWebConfigKeyValue to be a Key, instead of Required
 
 ### 1.3.2.2
 
-* Documentation only change. 
+* Documentation only change.
 Module manifest metadata changed to improve PowerShell Gallery experience.
 
 ### 1.3.2.1
@@ -118,7 +130,7 @@ Module manifest metadata changed to improve PowerShell Gallery experience.
 
 * Added the **xWebAppPool**, **xWebApplication**, **xWebVirtualDirectory**, and **xWebConfigKeyValue**.
 
-### 1.1.0.0 
+### 1.1.0.0
 
 * Added support for HTTPS protocol
 * Updated binding information to include Certificate information for HTTPS
@@ -136,7 +148,7 @@ Module manifest metadata changed to improve PowerShell Gallery experience.
 ### Registering PHP
 
 When configuring an IIS Application that uses PHP, you first need to register the PHP CGI module with IIS.
-The following **xPhp** configuration downloads and installs the prerequisites for PHP, downloads PHP, registers the PHP CGI module with IIS and sets the system environment variable that PHP needs to run. 
+The following **xPhp** configuration downloads and installs the prerequisites for PHP, downloads PHP, registers the PHP CGI module with IIS and sets the system environment variable that PHP needs to run.
 
 Note: This example is intended to be used as a composite resource, so it does not use Configuration Data.
 Please see the [Composite Configuration Blog](http://blogs.msdn.com/b/powershell/archive/2014/02/25/reusing-existing-configuration-scripts-in-powershell-desired-state-configuration.aspx) on how to use this configuration in another configuration.
@@ -151,7 +163,7 @@ param
         [Validateset("Present","Absent")]
         [String]
         $Ensure
-    )    
+    )
     foreach ($Feature in @("Web-Server","Web-Mgmt-Tools","web-Default-Doc", `
 "Web-Dir-Browsing","Web-Http-Errors","Web-Static-Content",`
             "Web-Http-Logging","web-Stat-Compression","web-Filtering",`
@@ -185,7 +197,7 @@ configuration xPhp
         IisPreReqs_php Iis
         {
             Ensure = "Present"
-            # Removed because this dependency does not work in 
+            # Removed because this dependency does not work in
      # Windows Server 2012 R2 and below
             # This should work in WMF v5 and above
             # DependsOn = "[File]PackagesFolder"
@@ -212,7 +224,7 @@ configuration xPhp
             Destination  = $DestinationPath
         }
         if ($installMySqlExt )
-        {               
+        {
             # Make sure the MySql extention for PHP is in the main PHP path
             File phpMySqlExt
             {
@@ -240,11 +252,11 @@ configuration xPhp
                RequestPath = "*.php"
                Verb = "*"
                Ensure = "Present"
-               DependsOn = @("[Package]vcRedist","[File]PhpIni") 
-               # Removed because this dependency does not work in 
+               DependsOn = @("[Package]vcRedist","[File]PhpIni")
+               # Removed because this dependency does not work in
  # Windows Server 2012 R2 and below
             # This should work in WMF v5 and above
-                # "[IisPreReqs_php]Iis" 
+                # "[IisPreReqs_php]Iis"
             }
         # Make sure the php binary folder is in the path
         Environment PathPhp
@@ -266,8 +278,8 @@ xPhp -PackageFolder "C:\packages" `
 
 ## Stopping the default website
 
-When configuring a new IIS server, several references recommend removing or stopping the default website for security purposes. 
-This example sets up your IIS web server by installing IIS Windows Feature. 
+When configuring a new IIS server, several references recommend removing or stopping the default website for security purposes.
+This example sets up your IIS web server by installing IIS Windows Feature.
 After that, it will stop the default website by setting `State = Stopped`.
 
 ```powershell
@@ -289,7 +301,7 @@ Configuration Sample_xWebsite_StopDefault
             Name            = "Web-Server"
         }
         # Stop the default website
-        xWebsite DefaultSite 
+        xWebsite DefaultSite
         {
             Ensure          = "Present"
             Name            = "Default Web Site"
@@ -303,9 +315,9 @@ Configuration Sample_xWebsite_StopDefault
 
 ### Create a new website
 
-While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet. 
-After all, people typically use IIS to set up websites of their own with custom protocol and bindings. 
-Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website. 
+While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet.
+After all, people typically use IIS to set up websites of their own with custom protocol and bindings.
+Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website.
 
 ```powershell
 Configuration Sample_xWebsite_NewWebsite
@@ -344,7 +356,7 @@ Configuration Sample_xWebsite_NewWebsite
             Name            = "Web-Asp-Net45"
         }
         # Stop the default website
-        xWebsite DefaultSite 
+        xWebsite DefaultSite
         {
             Ensure          = "Present"
             Name            = "Default Web Site"
@@ -361,7 +373,7 @@ Configuration Sample_xWebsite_NewWebsite
             Recurse         = $true
             Type            = "Directory"
             DependsOn       = "[WindowsFeature]AspNet45"
-        }       
+        }
         # Create the new Website with HTTPS
         xWebsite NewWebsite
         {
@@ -379,18 +391,18 @@ Configuration Sample_xWebsite_NewWebsite
             DependsOn       = "[File]WebContent"
         }
     }
-} 
+}
 ```
 
 ### Creating the default website using configuration data
 
-In this example, we’ve moved the parameters used to generate the website into a configuration data file. 
-All of the variant portions of the configuration are stored in a separate file. 
-This can be a powerful tool when using DSC to configure a project that will be deployed to multiple environments. 
-For example, users managing larger environments may want to test their configuration on a small number of machines before deploying it across many more machines in their production environment.  
+In this example, we’ve moved the parameters used to generate the website into a configuration data file.
+All of the variant portions of the configuration are stored in a separate file.
+This can be a powerful tool when using DSC to configure a project that will be deployed to multiple environments.
+For example, users managing larger environments may want to test their configuration on a small number of machines before deploying it across many more machines in their production environment.
 
 Configuration files are made with this in mind.
-This is an example configuration data file (saved as a .psd1). 
+This is an example configuration data file (saved as a .psd1).
 
 ```powershell
 Configuration Sample_xWebsite_FromConfigurationData
@@ -413,7 +425,7 @@ Configuration Sample_xWebsite_FromConfigurationData
             Name            = "Web-Asp-Net45"
         }
         # Stop an existing website (set up in Sample_xWebsite_Default)
-        xWebsite DefaultSite 
+        xWebsite DefaultSite
         {
             Ensure          = "Present"
             Name            = "Default Web Site"
@@ -430,9 +442,9 @@ Configuration Sample_xWebsite_FromConfigurationData
             Recurse         = $true
             Type            = "Directory"
             DependsOn       = "[WindowsFeature]AspNet45"
-        }       
+        }
         # Create a new website
-        xWebsite BakeryWebSite 
+        xWebsite BakeryWebSite
         {
             Ensure          = "Present"
             Name            = $Node.WebsiteName
@@ -447,7 +459,7 @@ Configuration Sample_xWebsite_FromConfigurationData
 @{
     # Node specific data
     AllNodes = @(
-       # All the WebServer has following identical information 
+       # All the WebServer has following identical information
        @{
             NodeName           = "*"
             WebsiteName        = "FourthCoffee"
@@ -470,9 +482,9 @@ Sample_xWebsite_FromConfigurationData -ConfigurationData ConfigurationData.psd1
 ```
 
 ### All resources (end-to-end scenario)
- 
+
 ```powershell
-# End to end sample for xWebAdministration 
+# End to end sample for xWebAdministration
 
 configuration Sample_EndToEndxWebAdministration
 {
@@ -545,7 +557,7 @@ configuration Sample_EndToEndxWebAdministration
     }
 }
 
-#You can place the below in another file to create multiple websites using the same configuration block. 
+#You can place the below in another file to create multiple websites using the same configuration block.
 $Config = @{
     AllNodes = @(
         @{

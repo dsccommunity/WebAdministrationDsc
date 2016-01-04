@@ -27,7 +27,7 @@ function Get-TargetResource
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("Allow", "Deny")]
+        [ValidateSet('Allow', 'Deny')]
         [String]$OverrideMode
     )
     
@@ -37,17 +37,17 @@ function Get-TargetResource
 
     if ($oMode -eq $null)
     {
-        $ensureResult = "Absent";
+        $ensureResult = 'Absent';
     }
     else
     {        
         if ($oMode -eq $OverrideMode)
         {
-            $ensureResult = "Present"
+            $ensureResult = 'Present'
         }
         else
         {
-            $ensureResult = "Absent";
+            $ensureResult = 'Absent';
         }
     }
 
@@ -74,7 +74,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("Allow", "Deny")]
+        [ValidateSet('Allow', 'Deny')]
         [String]$OverrideMode
     )
 
@@ -82,15 +82,15 @@ function Set-TargetResource
     [string]$oMode = GetOverrideMode -section $SectionName
 
 
-    if ($oMode -eq "Allow" -and $OverrideMode -eq "Deny")
+    if ($oMode -eq 'Allow' -and $OverrideMode -eq 'Deny')
     {
-         Set-webconfiguration -Location "" -Filter "/system.webServer/$SectionName" -PSPath "machine/webroot/apphost" -metadata overrideMode -value Deny
-         Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName,"Deny")
+         Set-webconfiguration -Location '' -Filter "/system.webServer/$SectionName" -PSPath 'machine/webroot/apphost' -metadata overrideMode -value Deny
+         Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName,'Deny')
     }
-    elseif ($oMode -eq "Deny" -and $OverrideMode -eq "Allow")
+    elseif ($oMode -eq 'Deny' -and $OverrideMode -eq 'Allow')
     {
-         Set-webconfiguration -Location "" -Filter "/system.webServer/$SectionName" -PSPath "machine/webroot/apphost" -metadata overrideMode -value Allow
-         Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName,"Allow")
+         Set-webconfiguration -Location '' -Filter "/system.webServer/$SectionName" -PSPath 'machine/webroot/apphost' -metadata overrideMode -value Allow
+         Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName,'Allow')
     }
 }
 
@@ -109,7 +109,7 @@ function Test-TargetResource
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [ValidateSet("Allow", "Deny")]
+        [ValidateSet('Allow', 'Deny')]
         [String]$OverrideMode
     )
 
@@ -141,12 +141,12 @@ Function CheckIISPoshModule
 Function GetOverrideMode([string]$section)
 {
     $errorMessage = $($LocalizedData.UnableToGetConfig) -f $section
-    if ((Get-WebConfiguration -Location "" -Filter /system.webServer/$section).count -eq 0)
+    if ((Get-WebConfiguration -Location '' -Filter /system.webServer/$section).count -eq 0)
     {        
         Throw $errorMessage;
     }
 
-    [string]$oMode = ((Get-WebConfiguration -Location "" -Filter /system.webServer/$section -metadata).Metadata).effectiveOverrideMode
+    [string]$oMode = ((Get-WebConfiguration -Location '' -Filter /system.webServer/$section -metadata).Metadata).effectiveOverrideMode
 
     # check for a single value.
     # if $oMode is anything but Allow or Deny, we have a problem with our get-webconfiguration call
