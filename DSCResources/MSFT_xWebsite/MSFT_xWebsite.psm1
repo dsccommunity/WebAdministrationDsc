@@ -503,7 +503,7 @@ function Confirm-UniqueBinding
     .SYNOPSIS
         Helper function used to validate that the desired bindings are unique to all websites.
         Returns False if at least one of the bindings is already assigned to another website.
-    .PARAMETER Binding
+    .PARAMETER BindingInfo
         Specifies the collection of bindings to check.
     .PARAMETER ExcludeSite
         Specifies the name of the website to exclude from processing.

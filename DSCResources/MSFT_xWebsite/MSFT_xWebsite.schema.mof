@@ -1,4 +1,4 @@
-[ClassVersion("1.1.0")]
+[ClassVersion("1.0.0")]
 class MSFT_xWebBindingInformation
 {
     [Write,ValueMap{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"},Values{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"}] String Protocol;
@@ -12,7 +12,7 @@ class MSFT_xWebBindingInformation
 };
 
 
-[ClassVersion("2.1.0"), FriendlyName("xWebsite")]
+[ClassVersion("2.0.0"), FriendlyName("xWebsite")]
 class MSFT_xWebsite : OMI_BaseResource
 {
     [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
@@ -20,7 +20,7 @@ class MSFT_xWebsite : OMI_BaseResource
     [Required] String PhysicalPath;
     [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
     [Write] String ApplicationPool;
-    [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Hashtable containing binding information")] String BindingInfo[];
+    [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.")] String BindingInfo[];
     [Write] String DefaultPage[];
     [Write] String EnabledProtocols;
     [Read] String Id;
