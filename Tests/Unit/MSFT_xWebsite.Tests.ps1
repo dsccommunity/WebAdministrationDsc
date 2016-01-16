@@ -47,19 +47,7 @@ try
                 ApplicationPool  = 'MockPool'
                 Bindings         = @{Collection = @($MockWebBinding)}
                 EnabledProtocols = 'http'
-                Id               = 1
                 Count            = 1
-            }
-
-            Context 'WebAdminstration module is not installed' {
-
-                Mock -CommandName Get-Module
-
-                It 'should throw an error' {
-                    {Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath} |
-                    Should Throw 'Please ensure that WebAdministration module is installed.'
-                }
-
             }
 
             Context 'Website does not exist' {
@@ -87,7 +75,7 @@ try
 
                     $ErrorId = 'WebsiteDiscoveryFailure'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f 'MockName'
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f 'MockName'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -149,10 +137,6 @@ try
                     $Result.EnabledProtocols | Should Be $MockWebsite.EnabledProtocols
                 }
 
-                It 'should return Id' {
-                    $Result.Id | Should Be $MockWebsite.Id
-                }
-
             }
 
         }
@@ -199,19 +183,7 @@ try
                 ApplicationPool  = 'MockPool'
                 Bindings         = @{Collection = @($MockWebBinding)}
                 EnabledProtocols = 'http'
-                Id               = 1
                 Count            = 1
-            }
-
-            Context 'WebAdminstration module is not installed' {
-
-                Mock -CommandName Get-Module
-
-                It 'should throw an error' {
-                    {Test-TargetResource -Ensure $MockParameters.Ensure -Name $MockParameters.Name -PhysicalPath $MockParameters.PhysicalPath} |
-                    Should Throw 'Please ensure that WebAdministration module is installed.'
-                }
-
             }
 
             Context 'Website does not exist' {
@@ -367,7 +339,6 @@ try
                 ApplicationPool  = 'MockPoolDifferent'
                 Bindings         = @{Collection = @($MockWebBinding)}
                 EnabledProtocols = 'http'
-                Id               = 1
             }
 
             Context 'All properties need to be updated and website must be started' {
@@ -407,7 +378,7 @@ try
 
                     $ErrorId = 'WebsiteBindingConflictOnStart'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f $MockParameters.Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $MockParameters.Name
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -432,7 +403,7 @@ try
 
                     $ErrorId = 'WebsiteStateFailure'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $ErrorMessage = $($LocalizedData.WebsiteStateFailureError) -f $MockParameters.Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $MockParameters.Name, 'ScriptHalted'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -479,7 +450,6 @@ try
                     ApplicationPool  = 'MockPool'
                     Bindings         = @{Collection = @($MockWebBinding)}
                     EnabledProtocols = 'http'
-                    Id               = 1
                 }
 
                 Mock -CommandName Get-Website
@@ -516,7 +486,6 @@ try
                     ApplicationPool  = 'MockPool'
                     Bindings         = @{Collection = @($MockWebBinding)}
                     EnabledProtocols = 'http'
-                    Id               = 1
                 }
 
                 Mock -CommandName Get-Website
@@ -533,7 +502,7 @@ try
 
                     $ErrorId = 'WebsiteBindingConflictOnStart'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f $MockParameters.Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $MockParameters.Name
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -553,8 +522,7 @@ try
 
                     $ErrorId = 'WebsiteCreationFailure'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $ErrorMessage = $($LocalizedData.WebsiteCreationFailureError) -f $MockParameters.Name
-                    $ErrorMessage += $_.Exception.Message
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteCreationFailure -f $MockParameters.Name, 'ScriptHalted'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -594,7 +562,7 @@ try
 
                 $ErrorId = 'WebsiteRemovalFailure'
                 $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                $ErrorMessage = $($LocalizedData.WebsiteRemovalFailureError) -f $MockParameters.Name
+                $ErrorMessage = $LocalizedData.ErrorWebsiteRemovalFailure -f $MockParameters.Name, 'ScriptHalted'
                 $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                 $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -873,8 +841,8 @@ try
                 It 'should throw the correct error' {
 
                     $ErrorId = 'WebBindingInvalidIPAddress'
-                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebBindingInvalidIPAddressError) -f $MockBindingInfo.IPAddress
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidArgument
+                    $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress -f $MockBindingInfo.IPAddress, 'Exception calling "Parse" with "1" argument(s): "An invalid IP address was specified."'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -928,8 +896,8 @@ try
                 It 'should throw the correct error' {
 
                     $ErrorId = 'WebBindingInvalidPort'
-                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebBindingInvalidPortError) -f $MockBindingInfo.Port
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidArgument
+                    $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidPort -f $MockBindingInfo.Port
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -952,8 +920,8 @@ try
                 It 'should throw the correct error' {
 
                     $ErrorId = 'WebBindingMissingCertificateThumbprint'
-                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebBindingMissingCertificateThumbprintError) -f $MockBindingInfo.Protocol
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidArgument
+                    $ErrorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint -f $MockBindingInfo.Protocol
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1013,8 +981,8 @@ try
                     )
 
                     $ErrorId = 'WebBindingMissingBindingInformation'
-                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebBindingMissingBindingInformationError) -f $MockBindingInfo.Protocol
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidArgument
+                    $ErrorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation -f $MockBindingInfo.Protocol
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1277,7 +1245,7 @@ try
 
                     $ErrorId = 'WebsiteBindingInputInvalidation'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f $MockWebsite.Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation -f $MockWebsite.Name
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1301,7 +1269,7 @@ try
 
                 $ErrorId = 'WebsiteCompareFailure'
                 $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $ErrorMessage = $($LocalizedData.WebsiteCompareFailureError) -f $MockWebsite.Name
+                $ErrorMessage = $LocalizedData.ErrorWebsiteCompareFailure -f $MockWebsite.Name, 'ScriptHalted'
                 $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                 $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1501,7 +1469,7 @@ try
 
                 $ErrorId = 'WebsiteBindingInputInvalidation'
                 $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $ErrorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f $MockWebsite.Name
+                $ErrorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation -f $MockWebsite.Name
                 $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                 $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1752,7 +1720,7 @@ try
 
                     $ErrorId = 'WebsiteNotFound'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteNotFoundError) -f $MockWebsite.Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound -f $MockWebsite.Name
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1775,7 +1743,7 @@ try
 
                     $ErrorId = 'WebsiteBindingUpdateFailure'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f $MockWebsite.Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure -f $MockWebsite.Name, 'ScriptHalted'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1800,7 +1768,7 @@ try
 
                     $ErrorId = 'WebsiteBindingUpdateFailure'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f $MockWebsite.Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure -f $MockWebsite.Name, 'ScriptHalted'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
@@ -1825,9 +1793,9 @@ try
 
                 It 'should throw the correct error' {
 
-                    $ErrorId = 'WebBindingCertificateError'
+                    $ErrorId = 'WebBindingCertificate'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $ErrorMessage = $($LocalizedData.WebBindingCertificateError) -f $MockBindingInfo.CertificateThumbprint
+                    $ErrorMessage = $LocalizedData.ErrorWebBindingCertificate -f $MockBindingInfo.CertificateThumbprint, 'Exception calling "AddSslCertificate" with "2" argument(s): "ScriptHalted"'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 

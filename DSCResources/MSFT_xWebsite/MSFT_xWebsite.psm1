@@ -1,27 +1,52 @@
 #requires -Version 4.0 -Modules CimCmdlets
 
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+
 # Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-    SetTargetResourceInstallWhatIfMessage       = Trying to create website "{0}".
-    SetTargetResourceUninstallWhatIfMessage     = Trying to remove website "{0}".
-    WebsiteNotFoundError                        = The requested website "{0}" is not found on the target machine.
-    WebsiteDiscoveryFailureError                = Failure to get the requested website "{0}" information from the target machine.
-    WebsiteCreationFailureError                 = Failure to successfully create the website "{0}".
-    WebsiteRemovalFailureError                  = Failure to successfully remove the website "{0}".
-    WebsiteUpdateFailureError                   = Failure to successfully update the properties for website "{0}".
-    WebsiteBindingUpdateFailureError            = Failure to successfully update the bindings for website "{0}".
-    WebsiteBindingInputInvalidationError        = Desired website bindings are not valid for website "{0}".
-    WebsiteCompareFailureError                  = Failure to successfully compare properties for website "{0}".
-    WebBindingCertificateError                  = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid.
-    WebsiteStateFailureError                    = Failure to successfully set the state of the website "{0}".
-    WebsiteBindingConflictOnStartError          = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
-    WebBindingInvalidIPAddressError             = Failure to validate the IPAddress property value "{0}".
-    WebBindingInvalidPortError                  = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
-    WebBindingMissingBindingInformationError    = The BindingInformation property is required for bindings of type "{0}".
-    WebBindingMissingCertificateThumbprintError = The CertificateThumbprint property is required for bindings of type "{0}".
+    ErrorWebsiteNotFound = The requested website "{0}" cannot be found on the target machine.
+    ErrorWebsiteDiscoveryFailure = Failure to get the requested website "{0}" information from the target machine.
+    ErrorWebsiteCreationFailure = Failure to successfully create the website "{0}". Error: "{1}".
+    ErrorWebsiteRemovalFailure = Failure to successfully remove the website "{0}". Error: "{1}".
+    ErrorWebsiteBindingUpdateFailure = Failure to successfully update the bindings for website "{0}". Error: "{1}".
+    ErrorWebsiteBindingInputInvalidation = Desired website bindings are not valid for website "{0}".
+    ErrorWebsiteCompareFailure = Failure to successfully compare properties for website "{0}". Error: "{1}".
+    ErrorWebBindingCertificate = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
+    ErrorWebsiteStateFailure = Failure to successfully set the state of the website "{0}". Error: "{1}".
+    ErrorWebsiteBindingConflictOnStart = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+    ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property value "{0}". Error: "{1}".
+    ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
+    ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
+    ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
+    VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
+    VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
+    VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
+    VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" has been updated to "{1}".
+    VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
+    VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
+    VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
+    VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
+    VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
+    VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
+    VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
+    VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
+    VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
+    VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" does not match the desired state.
+    VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
+    VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
+    VerboseTestTargetFalseResult = The target resource is not in the desired state.
+    VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
+    VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
+    VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
+    VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
+    VerboseTestBindingInfoSamePort = BindingInfo contains multiple items with the same Port.
+    VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
+    VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
+    VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
 '@
 }
 
@@ -47,11 +72,7 @@ function Get-TargetResource
         $PhysicalPath
     )
 
-    # Check if WebAdministration module is present for IIS cmdlets
-    if (-not (Get-Module -Name WebAdministration -ListAvailable))
-    {
-        throw 'Please ensure that WebAdministration module is installed.'
-    }
+    Assert-Module
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
@@ -72,13 +93,8 @@ function Get-TargetResource
     }
     else # Multiple websites with the same name exist. This is not supported and is an error
     {
-        $ErrorId = 'WebsiteDiscoveryFailure'
-        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-        $ErrorMessage = $($LocalizedData.WebsiteDiscoveryFailureError) -f $Name
-        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+        $ErrorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f $Name
+        New-TerminatingError -ErrorId 'WebsiteDiscoveryFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
     }
 
     # Add all website properties to the hash table
@@ -91,7 +107,6 @@ function Get-TargetResource
         BindingInfo      = $CimBindings
         DefaultPage      = $AllDefaultPages
         EnabledProtocols = $Website.EnabledProtocols
-        Id               = $Website.Id
     }
 }
 
@@ -136,11 +151,7 @@ function Set-TargetResource
         $EnabledProtocols
     )
 
-    # Check if WebAdministration module is present for IIS cmdlets
-    if (-not (Get-Module -Name WebAdministration -ListAvailable))
-    {
-        throw 'Please ensure that WebAdministration module is installed.'
-    }
+    Assert-Module
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
@@ -152,16 +163,14 @@ function Set-TargetResource
             if ($Website.PhysicalPath -ne $PhysicalPath)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name physicalPath -Value $PhysicalPath -ErrorAction Stop
-
-                Write-Verbose -Message "Physical Path for website '$Name' has been updated to '$PhysicalPath'."
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedPhysicalPath -f $Name, $PhysicalPath)
             }
 
             # Update Application Pool if required
             if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool -ne $ApplicationPool)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationPool -Value $ApplicationPool -ErrorAction Stop
-
-                Write-Verbose -Message "Application Pool for website '$Name' has been updated to '$ApplicationPool'."
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedApplicationPool -f $Name, $ApplicationPool)
             }
 
             # Update Bindings if required
@@ -170,8 +179,7 @@ function Set-TargetResource
                 if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
                 {
                     Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
-
-                    Write-Verbose -Message "Bindings for website '$Name' have been updated."
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo -f $Name)
                 }
             }
 
@@ -179,8 +187,7 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols -Value $EnabledProtocols -ErrorAction Stop
-
-                Write-Verbose -Message "Enabled Protocols for website '$Name' has been updated to '$EnabledProtocols'."
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols -f $Name, $EnabledProtocols)
             }
 
             # Update Default Pages if required
@@ -198,13 +205,8 @@ function Set-TargetResource
                     if (-not (Confirm-UniqueBinding -BindingInfo $BindingInfo -ExcludeSite $Name))
                     {
                         # Return error and do not start Website
-                        $ErrorId = 'WebsiteBindingConflictOnStart'
-                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                        $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f $Name
-                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
+                        New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
                     }
 
                     try
@@ -213,14 +215,8 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $ErrorId = 'WebsiteStateFailure'
-                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                        $ErrorMessage = $($LocalizedData.WebsiteStateFailureError) -f $Name
-                        $ErrorMessage += ' {0}' -f $_.Exception.Message
-                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
+                        New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
                     }
                 }
                 else
@@ -231,18 +227,12 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $ErrorId = 'WebsiteStateFailure'
-                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                        $ErrorMessage = $($LocalizedData.WebsiteStateFailureError) -f $Name
-                        $ErrorMessage += ' {0}' -f $_.Exception.Message
-                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
+                        New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
                     }
                 }
 
-                Write-Verbose -Message "State for website '$Name' has been updated to '$State'."
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState -f $Name, $State)
             }
         }
         else # Create website if it does not exist
@@ -291,7 +281,7 @@ function Set-TargetResource
                     Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
                 }
 
-                Write-Verbose -Message "Successfully created website '$Name'."
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated -f $Name)
 
                 # Start website if required
                 if ($State -eq 'Started')
@@ -300,65 +290,40 @@ function Set-TargetResource
                     if (-not (Confirm-UniqueBinding -BindingInfo $BindingInfo -ExcludeSite $Name))
                     {
                         # Return error and do not start Website
-                        $ErrorId = 'WebsiteBindingConflictOnStart'
-                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                        $ErrorMessage = $($LocalizedData.WebsiteBindingConflictOnStartError) -f $Name
-                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
+                        New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
                     }
 
                     try
                     {
                         Start-Website -Name $Name -ErrorAction Stop
-
-                        Write-Verbose -Message "Successfully started website '$Name'."
+                        Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteStarted -f $Name)
                     }
                     catch
                     {
-                        $ErrorId = 'WebsiteStateFailure'
-                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                        $ErrorMessage = $($LocalizedData.WebsiteStateFailureError) -f $Name
-                        $ErrorMessage += ' {0}' -f $_.Exception.Message
-                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
+                        New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
                     }
                 }
             }
             catch
             {
-                $ErrorId = 'WebsiteCreationFailure'
-                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                $ErrorMessage = $($LocalizedData.WebsiteCreationFailureError) -f $Name
-                $ErrorMessage += ' {0}' -f $_.Exception.Message
-                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                $ErrorMessage = $LocalizedData.ErrorWebsiteCreationFailure -f $Name, $_.Exception.Message
+                New-TerminatingError -ErrorId 'WebsiteCreationFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
             }
         }
     }
-    elseif ($Ensure -eq 'Absent') # Remove website
+    else # Remove website
     {
         try
         {
             Remove-Website -Name $Name -ErrorAction Stop
-
-            Write-Verbose -Message "Successfully removed website '$Name'."
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteRemoved -f $Name)
         }
         catch
         {
-            $ErrorId = 'WebsiteRemovalFailure'
-            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-            $ErrorMessage = $($LocalizedData.WebsiteRemovalFailureError) -f $Name
-            $ErrorMessage += ' {0}' -f $_.Exception.Message
-            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            $ErrorMessage = $LocalizedData.ErrorWebsiteRemovalFailure -f $Name, $_.Exception.Message
+            New-TerminatingError -ErrorId 'WebsiteRemovalFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
         }
     }
 }
@@ -405,13 +370,9 @@ function Test-TargetResource
         $EnabledProtocols
     )
 
-    $InDesiredState = $true
+    Assert-Module
 
-    # Check if WebAdministration module is present for IIS cmdlets
-    if (-not (Get-Module -Name WebAdministration -ListAvailable))
-    {
-        throw 'Please ensure that WebAdministration module is installed.'
-    }
+    $InDesiredState = $true
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
@@ -419,7 +380,7 @@ function Test-TargetResource
     if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
     {
         $InDesiredState = $false
-        Write-Verbose -Message "The Ensure state for website '$Name' does not match the desired state."
+        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnsure -f $Name)
     }
 
     # Only check properties if website exists
@@ -429,21 +390,21 @@ function Test-TargetResource
         if ($Website.PhysicalPath -ne $PhysicalPath)
         {
             $InDesiredState = $false
-            Write-Verbose -Message "Physical Path of website '$Name' does not match the desired state."
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)
         }
 
         # Check State
         if ($PSBoundParameters.ContainsKey('State') -and $Website.State -ne $State)
         {
             $InDesiredState = $false
-            Write-Verbose -Message "The state of website '$Name' does not match the desired state."
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseState -f $Name)
         }
 
         # Check Application Pool property
         if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool -ne $ApplicationPool)
         {
             $InDesiredState = $false
-            Write-Verbose -Message "Application Pool for website '$Name' does not match the desired state."
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseApplicationPool -f $Name)
         }
 
         # Check Binding properties
@@ -452,7 +413,7 @@ function Test-TargetResource
             if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
             {
                 $InDesiredState = $false
-                Write-Verbose -Message "Bindings for website '$Name' do not match the desired state."
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseBindingInfo -f $Name)
             }
         }
 
@@ -460,7 +421,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
         {
             $InDesiredState = $false
-            Write-Verbose -Message "Enabled Protocols for website '$Name' does not match the desired state."
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnabledProtocols -f $Name)
         }
 
         # Check Default Pages
@@ -476,7 +437,7 @@ function Test-TargetResource
                 if ($AllDefaultPages -inotcontains $Page)
                 {
                     $InDesiredState = $false
-                    Write-Verbose -Message "Default Page for website '$Name' does not match the desired state."
+                    Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseDefaultPage -f $Name)
                 }
             }
         }
@@ -485,11 +446,11 @@ function Test-TargetResource
 
     if ($InDesiredState -eq $true)
     {
-        Write-Verbose -Message "The target resource is already in the desired state. No action is required."
+        Write-Verbose -Message ($LocalizedData.VerboseTestTargetTrueResult)
     }
     else
     {
-        Write-Verbose -Message "The target resource is not in the desired state."
+        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseResult)
     }
 
     return $InDesiredState
@@ -524,7 +485,8 @@ function Confirm-UniqueBinding
 
     $IsUnique = $true
 
-    # Test standard (HTTP, HTTPS) bindings only
+    # Test standard (HTTP, HTTPS) bindings only.
+    # It is possible to add identical non-standard bindings (such as "net.tcp") to different websites.
     $ReferenceObject = @(
         $BindingInfo |
         Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
@@ -663,10 +625,8 @@ function ConvertTo-WebBinding
                             -not [String]::IsNullOrEmpty($Binding.HostName)
                         )
                         {
-                            Write-Verbose -Message ("BindingInformation is ignored for bindings of type '$($Binding.Protocol)'" +
-                                " in case at least one of the following properties is specified: IPAddress, Port, HostName.")
-
                             $IsJoinRequired = $true
+                            Write-Verbose -Message ($LocalizedData.VerboseConvertToWebBindingIgnoreBindingInformation -f $Binding.Protocol)
                         }
                         else
                         {
@@ -681,21 +641,7 @@ function ConvertTo-WebBinding
                     # Construct the bindingInformation attribute
                     if ($IsJoinRequired -eq $true)
                     {
-                        try
-                        {
-                            $IPAddressString = Format-IPAddressString -InputString $Binding.IPAddress -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            $ErrorId = 'WebBindingInvalidIPAddressError'
-                            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                            $ErrorMessage = $($LocalizedData.WebBindingInvalidIPAddressError) -f $Binding.IPAddress
-                            $ErrorMessage += ' {0}' -f $_.Exception.Message
-                            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-                        }
+                        $IPAddressString = Format-IPAddressString -InputString $Binding.IPAddress -ErrorAction Stop
 
                         if ([String]::IsNullOrEmpty($Binding.Port))
                         {
@@ -705,7 +651,7 @@ function ConvertTo-WebBinding
                                 'https' {$PortNumberString = '443'}
                             }
 
-                            Write-Verbose -Message "Port is not specified. The default '$($Binding.Protocol)' port '$PortNumberString' will be used."
+                            Write-Verbose -Message ($LocalizedData.VerboseConvertToWebBindingDefaultPort -f $Binding.Protocol, $PortNumberString)
                         }
                         else
                         {
@@ -715,13 +661,8 @@ function ConvertTo-WebBinding
                             }
                             else
                             {
-                                $ErrorId = 'WebBindingInvalidPortError'
-                                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                                $ErrorMessage = $($LocalizedData.WebBindingInvalidPortError) -f $Binding.Port
-                                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                                $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidPort -f $Binding.Port
+                                New-TerminatingError -ErrorId 'WebBindingInvalidPort' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
                             }
                         }
 
@@ -737,13 +678,8 @@ function ConvertTo-WebBinding
                 {
                     if ([String]::IsNullOrEmpty($Binding.BindingInformation))
                     {
-                        $ErrorId = 'WebBindingMissingBindingInformation'
-                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                        $ErrorMessage = $($LocalizedData.WebBindingMissingBindingInformationError) -f $Binding.Protocol
-                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation -f $Binding.Protocol
+                        New-TerminatingError -ErrorId 'WebBindingMissingBindingInformation' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
                     }
                     else
                     {
@@ -756,20 +692,14 @@ function ConvertTo-WebBinding
                 {
                     if ([String]::IsNullOrEmpty($Binding.CertificateThumbprint))
                     {
-                        $ErrorId = 'WebBindingMissingCertificateThumbprint'
-                        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                        $ErrorMessage = $($LocalizedData.WebBindingMissingCertificateThumbprintError) -f $Binding.Protocol
-                        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint -f $Binding.Protocol
+                        New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
                     }
 
                     if ([String]::IsNullOrEmpty($Binding.CertificateStoreName))
                     {
                         $CertificateStoreName = 'MY'
-
-                        Write-Verbose -Message "CertificateStoreName is not specified. The default value '$CertificateStoreName' will be used."
+                        Write-Verbose -Message ($LocalizedData.VerboseConvertToWebBindingDefaultCertificateStoreName -f $CertificateStoreName)
                     }
                     else
                     {
@@ -865,7 +795,8 @@ function Format-IPAddressString
         }
         catch
         {
-            throw $_.Exception.Message
+            $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress -f $InputString, $_.Exception.Message
+            New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
         }
     }
 
@@ -901,15 +832,15 @@ function Test-BindingInfo
             # IP address, port, and host name combination must be unique
             if (($StandardBindings | Group-Object -Property IPAddress, Port, HostName) | Where-Object -FilterScript {$_.Count -ne 1})
             {
-                Write-Verbose -Message "BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination."
                 $IsValid = $false
+                Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
             }
 
             # A single port can only be used by a single binding, regardless of the protocol used
             if (($StandardBindings | Group-Object -Property Port) | Where-Object -FilterScript {$_.Count -ne 1})
             {
-                Write-Verbose -Message "BindingInfo contains multiple items with the same Port."
                 $IsValid = $false
+                Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSamePort)
             }
         }
 
@@ -917,15 +848,15 @@ function Test-BindingInfo
         {
             if (($NonStandardBindings | Group-Object -Property Protocol, BindingInformation) | Where-Object -FilterScript {$_.Count -ne 1})
             {
-                Write-Verbose -Message "BindingInfo contains multiple items with the same Protocol and BindingInformation combination."
                 $IsValid = $false
+                Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSameProtocolBindingInformation)
             }
         }
     }
     catch
     {
-        Write-Verbose -Message "Unable to validate BindingInfo: '$($_.Exception.Message)'."
         $IsValid = $false
+        Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoInvalidCatch -f $_.Exception.Message)
     }
 
     return $IsValid
@@ -987,13 +918,8 @@ function Test-WebsiteBinding
     # Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and host name combinations).
     if (-not (Test-BindingInfo -BindingInfo $BindingInfo))
     {
-        $ErrorId = 'WebsiteBindingInputInvalidation'
-        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-        $ErrorMessage = $($LocalizedData.WebsiteBindingInputInvalidationError) -f $Name
-        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation -f $Name
+        New-TerminatingError -ErrorId 'WebsiteBindingInputInvalidation' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
     }
 
     try
@@ -1020,14 +946,8 @@ function Test-WebsiteBinding
     }
     catch
     {
-        $ErrorId = 'WebsiteCompareFailure'
-        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-        $ErrorMessage = $($LocalizedData.WebsiteCompareFailureError) -f $Name
-        $ErrorMessage += ' {0}' -f $_.Exception.Message
-        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+        $ErrorMessage = $LocalizedData.ErrorWebsiteCompareFailure -f $Name, $_.Exception.Message
+        New-TerminatingError -ErrorId 'WebsiteCompareFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
     }
 
     return $InDesiredState
@@ -1061,8 +981,7 @@ function Update-DefaultPage
         if ($AllDefaultPages -inotcontains $Page)
         {
             Add-WebConfiguration -Filter '//defaultDocument/files' -PSPath "IIS:\Sites\$Name" -Value @{value = $Page}
-
-            Write-Verbose -Message "Default page for website $Name has been updated to $Page"
+            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated -f $Name, $Page)
         }
     }
 }
@@ -1093,13 +1012,8 @@ function Update-WebsiteBinding
 
     if (-not $Website)
     {
-        $ErrorId = 'WebsiteNotFound'
-        $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-        $ErrorMessage = $($LocalizedData.WebsiteNotFoundError) -f $Name
-        $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-        $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound -f $Name
+        New-TerminatingError -ErrorId 'WebsiteNotFound' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
     }
 
     ConvertTo-WebBinding -InputObject $BindingInfo -ErrorAction Stop |
@@ -1120,14 +1034,8 @@ function Update-WebsiteBinding
         }
         catch
         {
-            $ErrorId = 'WebsiteBindingUpdateFailure'
-            $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-            $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f $Name
-            $ErrorMessage += ' {0}' -f $_.Exception.Message
-            $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-            $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure -f $Name, $_.Exception.Message
+            New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
         }
 
         if ($Properties.protocol -eq 'https')
@@ -1140,14 +1048,8 @@ function Update-WebsiteBinding
                 }
                 catch
                 {
-                    $ErrorId = 'WebsiteBindingUpdateFailure'
-                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                    $ErrorMessage = $($LocalizedData.WebsiteBindingUpdateFailureError) -f $Name
-                    $ErrorMessage += ' {0}' -f $_.Exception.Message
-                    $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                    $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure -f $Name, $_.Exception.Message
+                    New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
                 }
             }
 
@@ -1158,14 +1060,8 @@ function Update-WebsiteBinding
             }
             catch
             {
-                $ErrorId = 'WebBindingCertificateError'
-                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                $ErrorMessage = $($LocalizedData.WebBindingCertificateError) -f $Properties.certificateHash
-                $ErrorMessage += ' {0}' -f $_.Exception.Message
-                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                $ErrorMessage = $LocalizedData.ErrorWebBindingCertificate -f $Properties.certificateHash, $_.Exception.Message
+                New-TerminatingError -ErrorId 'WebBindingCertificate' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
             }
         }
 

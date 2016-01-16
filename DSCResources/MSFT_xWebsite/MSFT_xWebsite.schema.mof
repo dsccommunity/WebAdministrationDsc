@@ -11,7 +11,6 @@ class MSFT_xWebBindingInformation
     [Write,ValueMap{"0","1","2","3"},Values{"0","1","2","3"}] String SslFlags;
 };
 
-
 [ClassVersion("2.0.0"), FriendlyName("xWebsite")]
 class MSFT_xWebsite : OMI_BaseResource
 {
@@ -23,6 +22,4 @@ class MSFT_xWebsite : OMI_BaseResource
     [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.")] String BindingInfo[];
     [Write] String DefaultPage[];
     [Write] String EnabledProtocols;
-    [Read] String Id;
 };
-
