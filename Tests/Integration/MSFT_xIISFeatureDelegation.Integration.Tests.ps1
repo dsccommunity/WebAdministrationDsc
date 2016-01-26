@@ -18,6 +18,8 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
+$breakvar = $true;
+
 try
 {
     # Now that xWebAdministration should be discoverable load the configuration data

@@ -1,0 +1,7 @@
+[ClassVersion("1.0"), FriendlyName("xSSLSettings")]
+class MSFT_xSSLSettings : OMI_BaseResource
+{
+    [Key] string Name;
+    [Required] string Bindings[];
+    [write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
+};
