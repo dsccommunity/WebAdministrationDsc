@@ -1,31 +1,29 @@
-$Global:DSCModuleName = 'xWebAdministration'
+$Global:DSCModuleName   = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebsite'
 
 #region HEADER
-
-if (
-    (-not (Test-Path -Path '.\DSCResource.Tests\')) -or
-    (-not (Test-Path -Path '.\DSCResource.Tests\TestHelper.psm1'))
-)
+[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
+if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+     (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git')
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 else
 {
-    & git @('-C', (Join-Path -Path (Get-Location) -ChildPath '\DSCResource.Tests\'), 'pull')
+    & git @('-C',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'),'pull')
 }
-
-Import-Module -Name '.\DSCResource.Tests\TestHelper.psm1' -Force
-
+Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $Global:DSCModuleName `
     -DSCResourceName $Global:DSCResourceName `
     -TestType Unit
-
 #endregion
 
+# Begin Testing
 try
 {
+    #region Pester Tests
+
     InModuleScope -ModuleName $Global:DSCResourceName -ScriptBlock {
 
         Describe "how $Global:DSCResourceName\Get-TargetResource responds" {
@@ -1809,12 +1807,12 @@ try
         }
 
     }
+
+    #endregion
 }
 finally
 {
     #region FOOTER
-
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
-
     #endregion
 }

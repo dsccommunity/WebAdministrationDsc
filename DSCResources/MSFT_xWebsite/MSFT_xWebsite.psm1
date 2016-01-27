@@ -8,45 +8,45 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-    ErrorWebsiteNotFound = The requested website "{0}" cannot be found on the target machine.
-    ErrorWebsiteDiscoveryFailure = Failure to get the requested website "{0}" information from the target machine.
-    ErrorWebsiteCreationFailure = Failure to successfully create the website "{0}". Error: "{1}".
-    ErrorWebsiteRemovalFailure = Failure to successfully remove the website "{0}". Error: "{1}".
-    ErrorWebsiteBindingUpdateFailure = Failure to successfully update the bindings for website "{0}". Error: "{1}".
-    ErrorWebsiteBindingInputInvalidation = Desired website bindings are not valid for website "{0}".
-    ErrorWebsiteCompareFailure = Failure to successfully compare properties for website "{0}". Error: "{1}".
-    ErrorWebBindingCertificate = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
-    ErrorWebsiteStateFailure = Failure to successfully set the state of the website "{0}". Error: "{1}".
-    ErrorWebsiteBindingConflictOnStart = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
-    ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property value "{0}". Error: "{1}".
-    ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
-    ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
-    ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
-    VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
-    VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
-    VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
-    VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" has been updated to "{1}".
-    VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
-    VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
-    VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
-    VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
-    VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
-    VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
-    VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
-    VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
-    VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
-    VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" does not match the desired state.
-    VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
-    VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
-    VerboseTestTargetFalseResult = The target resource is not in the desired state.
-    VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
-    VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
-    VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
-    VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
-    VerboseTestBindingInfoSamePort = BindingInfo contains multiple items with the same Port.
-    VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
-    VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
-    VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
+ErrorWebsiteNotFound = The requested website "{0}" cannot be found on the target machine.
+ErrorWebsiteDiscoveryFailure = Failure to get the requested website "{0}" information from the target machine.
+ErrorWebsiteCreationFailure = Failure to successfully create the website "{0}". Error: "{1}".
+ErrorWebsiteRemovalFailure = Failure to successfully remove the website "{0}". Error: "{1}".
+ErrorWebsiteBindingUpdateFailure = Failure to successfully update the bindings for website "{0}". Error: "{1}".
+ErrorWebsiteBindingInputInvalidation = Desired website bindings are not valid for website "{0}".
+ErrorWebsiteCompareFailure = Failure to successfully compare properties for website "{0}". Error: "{1}".
+ErrorWebBindingCertificate = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
+ErrorWebsiteStateFailure = Failure to successfully set the state of the website "{0}". Error: "{1}".
+ErrorWebsiteBindingConflictOnStart = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property value "{0}". Error: "{1}".
+ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
+ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
+ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
+VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
+VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
+VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
+VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" has been updated to "{1}".
+VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
+VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
+VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
+VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
+VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
+VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
+VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
+VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
+VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
+VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" does not match the desired state.
+VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
+VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
+VerboseTestTargetFalseResult = The target resource is not in the desired state.
+VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
+VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
+VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
+VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
+VerboseTestBindingInfoSamePort = BindingInfo contains multiple items with the same Port.
+VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
+VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
+VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
 '@
 }
 
@@ -486,7 +486,7 @@ function Confirm-UniqueBinding
     $IsUnique = $true
 
     # Test standard (HTTP, HTTPS) bindings only.
-    # It is possible to add identical non-standard bindings (such as "net.tcp") to different websites.
+    # It is possible to add identical non-standard bindings (such as 'net.tcp') to different websites.
     $ReferenceObject = @(
         $BindingInfo |
         Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
@@ -729,7 +729,7 @@ function ConvertTo-WebBinding
             else
             {
                 <#
-                    WebAdministration can throw the following exception if there are non-standard bindings (e.g. 'net.tcp'):
+                    WebAdministration can throw the following exception if there are non-standard bindings (such as 'net.tcp'):
                     'The data is invalid. (Exception from HRESULT: 0x8007000D)'
 
                     Steps to reproduce:
