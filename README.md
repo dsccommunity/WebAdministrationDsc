@@ -32,9 +32,10 @@ Currently, only FastCgiModule is supported.
 
 * **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
-* **State**: State of the website: { Started | Stopped }
-* **BindingInfo**: Website's binding information.
+* **State**: The state of the website: { Started | Stopped }
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.
 * **ApplicationPool**: The website’s application pool.
+* **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
 
 ### xWebApplication
@@ -71,15 +72,17 @@ Currently, only FastCgiModule is supported.
 
 * Added the following resources:
     * xSSLSettings
-
-* Fixed issue in xWebApplication where Set-TargetResource created a folder instead of an applicaition
+* Fixed an issue in xWebApplication where Set-TargetResource attempted to modify a folder instead of an application.
     * Added Tests to xWebApplication which will allow more changes if desired.
-* Fixed binding compare issue in xWebsite which was causing bindings to be changed every DSC check.
 * Modified README.MD to clean up Code Formatting
 * Modified all unit/integration tests to utilize template system.
 * xWebAppPool is now has feature parity to cWebAppPool - should now support most changes.
 * Added Unit tests to IISFeatureDelegation, general script clean up
 * Refactored xIisHandle to load script variables once, added unit tests.
+* xWebsite updated:
+    * Fixed an issue in bindings comparison which was causing bindings to be reassigned on every consistency check.
+    * Added support for the following binding protocols: `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
+    * Added support for setting the `EnabledProtocols` property.
 
 ### 1.8.0.0
 
