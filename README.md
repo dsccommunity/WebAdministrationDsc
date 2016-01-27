@@ -60,10 +60,17 @@ Currently, only FastCgiModule is supported.
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
 * **KeyValuePair**: Key value pair for AppSettings (ItemCollection format).
 
+### xSSLSettings
+* **Name**: The Name of website in which to modify the SSL Settings
+* **Bindings*: The SSL bindings to implement.
+* **Ensure*: Ensures if the bindings are Present or Absent.
 
 ## Versions
 
 ### Unreleased
+
+* Added the following resources:
+    * xSSLSettings
 
 * Fixed issue in xWebApplication where Set-TargetResource created a folder instead of an applicaition
     * Added Tests to xWebApplication which will allow more changes if desired.
@@ -617,3 +624,35 @@ $Config = @{
 Sample_EndToEndxWebAdministration -ConfigurationData $config
 Start-DscConfiguration ./Sample_EndToEndxWebAdministration -wait -Verbose
 ```
+
+````powershell
+configuration Sample_IISServerDefaults
+{
+    param
+    (
+        # Target nodes to apply the configuration
+        [string[]]$NodeName = 'localhost'
+    )
+
+    # Import the module that defines custom resources
+    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
+
+    Node $NodeName
+    {
+         xWebSiteDefaults SiteDefaults
+         {
+            ApplyTo = 'Machine'
+            LogFormat = 'IIS'
+            AllowSubDirConfig = 'true'
+         }
+
+
+         xWebAppPoolDefaults PoolDefaults
+         {
+            ApplyTo = 'Machine'
+            ManagedRuntimeVersion = 'v4.0'
+            IdentityType = 'ApplicationPoolIdentity'
+         }
+    }
+}
+````
