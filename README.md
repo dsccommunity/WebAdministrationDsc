@@ -33,7 +33,7 @@ Currently, only FastCgiModule is supported.
 * **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
-* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class.
 * **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website. 
 * **Ensure**: Ensures that the website is **Present** or **Absent**.

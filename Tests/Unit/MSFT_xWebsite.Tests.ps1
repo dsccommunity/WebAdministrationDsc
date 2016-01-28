@@ -573,71 +573,223 @@ try
 
         Describe "$Global:DSCResourceName\Confirm-UniqueBinding" {
 
-            $MockWebBinding = @(
-                @{
-                    protocol = 'http'
-                    bindingInformation = '*:80:web01.contoso.com'
-                }
-
-                @{
-                    protocol = 'http'
-                    bindingInformation = '*:8080:'
-                }
-            )
-
-            $MockWebsite = @{
-                Name     = 'MockSiteOther'
-                Bindings = @{Collection = @($MockWebBinding)}
+            $MockParameters = @{
+                Name = 'MockSite'
             }
 
-            Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+            Context 'Website does not exist' {
 
-            Context 'Bindings are not unique' {
+                Mock -CommandName Get-Website
 
-                $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 80
-                        HostName  = 'web01.contoso.com'
-                    } -ClientOnly
+                It 'should throw the correct error' {
 
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 8080
-                        HostName  = ''
-                    } -ClientOnly
+                    $ErrorId = 'WebsiteNotFound'
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound -f $MockParameters.Name
+                    $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                    $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                    {Confirm-UniqueBinding -Name $MockParameters.Name} |
+                    Should Throw $ErrorRecord
+
+                }
+
+            }
+
+            Context 'Expected behavior' {
+
+                $GetWebsiteOutput = @(
+                    @{
+                        Name = $MockParameters.Name
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                            )
+                        }
+                    }
                 )
 
-                It 'should return False' {
-                    Confirm-UniqueBinding -BindingInfo $MockBindingInfo -ExcludeSite 'MockSite' |
-                    Should Be $false
+                Mock -CommandName Get-Website -MockWith {return $GetWebsiteOutput}
+
+                It 'should not throw an error' {
+                    {Confirm-UniqueBinding -Name $MockParameters.Name} |
+                    Should Not Throw
+                }
+
+                It 'should call Get-Website twice' {
+                    Assert-MockCalled -CommandName Get-Website -Exactly 2
                 }
 
             }
 
             Context 'Bindings are unique' {
 
-                $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 8090
-                        HostName  = ''
-                    } -ClientOnly
+                $GetWebsiteOutput = @(
+                    @{
+                        Name = $MockParameters.Name
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                                @{protocol = 'http'; bindingInformation = '*:8080:'}
+                            )
+                        }
+                    }
 
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol  = 'http'
-                        IPAddress = '*'
-                        Port      = 9090
-                        HostName  = ''
-                    } -ClientOnly
+                    @{
+                        Name = 'MockSite2'
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:81:'}
+                            )
+                        }
+                    }
+
+                    @{
+                        Name = 'MockSite3'
+                        State = 'Started'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:8081:'}
+                            )
+                        }
+                    }
                 )
 
+                Mock -CommandName Get-Website -MockWith {return $GetWebsiteOutput}
+
                 It 'should return True' {
-                    Confirm-UniqueBinding -BindingInfo $MockBindingInfo -ExcludeSite 'MockSite' |
+                    Confirm-UniqueBinding -Name $MockParameters.Name |
                     Should Be $true
+                }
+
+            }
+
+            Context 'Bindings are not unique' {
+
+                $GetWebsiteOutput = @(
+                    @{
+                        Name = $MockParameters.Name
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                                @{protocol = 'http'; bindingInformation = '*:8080:'}
+                            )
+                        }
+                    }
+
+                    @{
+                        Name = 'MockSite2'
+                        State = 'Started'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                            )
+                        }
+                    }
+
+                    @{
+                        Name = 'MockSite3'
+                        State = 'Started'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:8080:'}
+                            )
+                        }
+                    }
+                )
+
+                Mock -CommandName Get-Website -MockWith {return $GetWebsiteOutput}
+
+                It 'should return False' {
+                    Confirm-UniqueBinding -Name $MockParameters.Name |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'One of the bindings is assigned to another website that is Stopped' {
+
+                $GetWebsiteOutput = @(
+                    @{
+                        Name = $MockParameters.Name
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                                @{protocol = 'http'; bindingInformation = '*:8080:'}
+                            )
+                        }
+                    }
+
+                    @{
+                        Name = 'MockSite2'
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                            )
+                        }
+                    }
+                )
+
+                Mock -CommandName Get-Website -MockWith {return $GetWebsiteOutput}
+
+                It 'should return True if stopped websites are excluded' {
+                    Confirm-UniqueBinding -Name $MockParameters.Name -ExcludeStopped |
+                    Should Be $true
+                }
+
+                It 'should return False if stopped websites are not excluded' {
+                    Confirm-UniqueBinding -Name $MockParameters.Name |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'One of the bindings is assigned to another website that is Started' {
+
+                $GetWebsiteOutput = @(
+                    @{
+                        Name = $MockParameters.Name
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                                @{protocol = 'http'; bindingInformation = '*:8080:'}
+                            )
+                        }
+                    }
+
+                    @{
+                        Name = 'MockSite2'
+                        State = 'Stopped'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                            )
+                        }
+                    }
+
+                    @{
+                        Name = 'MockSite3'
+                        State = 'Started'
+                        Bindings = @{
+                            Collection = @(
+                                @{protocol = 'http'; bindingInformation = '*:80:'}
+                            )
+                        }
+                    }
+                )
+
+                Mock -CommandName Get-Website -MockWith {return $GetWebsiteOutput}
+
+                It 'should return False' {
+                    Confirm-UniqueBinding -Name $MockParameters.Name -ExcludeStopped |
+                    Should Be $false
                 }
 
             }
