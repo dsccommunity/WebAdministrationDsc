@@ -33,9 +33,21 @@ Currently, only FastCgiModule is supported.
 * **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
-* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class.
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class. **MSFT_xWebBindingInformation** properties:
+    * **Protocol**: The protocol of the binding. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`. The default value is `http`.
+    * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
+    * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
+    * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
+    * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
+    * **CertificateThumbprint**: The thumbprint of the certificate. This property is only applicable for `https` bindings.
+    * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
+    * **SslFlags**: The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for `https` bindings. The acceptable values for this property are:
+        * **0**: The default value. The secure connection be made using an IP/Port combination. Only one certificate can be bound to a combination of IP address and the port.
+        * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
+        * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
+        * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
 * **ApplicationPool**: The website’s application pool.
-* **EnabledProtocols**: The protocols that are enabled for the website. 
+* **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
 
 ### xWebApplication
@@ -74,9 +86,10 @@ Currently, only FastCgiModule is supported.
 * Added Unit tests to IISFeatureDelegation, general script clean up
 * Refactored xIisHandle to load script variables once, added unit tests.
 * xWebsite updated:
-    * Fixed an issue in bindings comparison which was causing bindings to be reassigned on every consistency check.
     * Added support for the following binding protocols: `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
     * Added support for setting the `EnabledProtocols` property.
+    * Fixed an issue in bindings comparison which was causing bindings to be reassigned on every consistency check.
+    * Fixed an issue where binding conflict was not properly detected and handled. Stopped websites will not be checked for conflicting bindings anymore.
 
 ### 1.8.0.0
 
@@ -266,19 +279,19 @@ configuration xPhp
         }
 
         # Make sure the php cgi module is registered with IIS
-		xIisModule phpHandler
-		{
-			Name = "phpFastCgi"
-			Path = "$($DestinationPath)\php-cgi.exe"
-			RequestPath = "*.php"
-			Verb = "*"
-			Ensure = "Present"
-			DependsOn = @("[Package]vcRedist","[File]PhpIni")
-			# Removed because this dependency does not work in
-			# Windows Server 2012 R2 and below
-			# This should work in WMF v5 and above
-			# "[IisPreReqs_php]Iis"
-		}
+        xIisModule phpHandler
+        {
+            Name = "phpFastCgi"
+            Path = "$($DestinationPath)\php-cgi.exe"
+            RequestPath = "*.php"
+            Verb = "*"
+            Ensure = "Present"
+            DependsOn = @("[Package]vcRedist","[File]PhpIni")
+            # Removed because this dependency does not work in
+            # Windows Server 2012 R2 and below
+            # This should work in WMF v5 and above
+            # "[IisPreReqs_php]Iis"
+        }
 
         # Make sure the php binary folder is in the path
         Environment PathPhp
