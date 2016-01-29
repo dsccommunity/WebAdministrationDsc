@@ -1,7 +1,7 @@
 [ClassVersion("1.0.0")]
 class MSFT_xWebBindingInformation
 {
-    [Write,ValueMap{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"},Values{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"}] String Protocol;
+    [Required,ValueMap{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"},Values{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"}] String Protocol;
     [Write] String BindingInformation;
     [Write] String IPAddress;
     [Write] UInt16 Port;

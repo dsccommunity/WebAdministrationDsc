@@ -25,7 +25,7 @@ ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property
 VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
-VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" has been updated to "{1}".
+VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" have been updated to "{1}".
 VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
 VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
 VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
@@ -35,7 +35,7 @@ VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not mat
 VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
 VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
 VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
-VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" does not match the desired state.
+VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" do not match the desired state.
 VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
 VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
 VerboseTestTargetFalseResult = The target resource is not in the desired state.
@@ -201,10 +201,10 @@ function Set-TargetResource
             {
                 if ($State -eq 'Started')
                 {
-                    # Ensure that there are no other websites with binding information that will conflict with this site before starting
-                    if (-not (Confirm-UniqueBinding -BindingInfo $BindingInfo -ExcludeSite $Name))
+                    # Ensure that there are no other running websites with binding information that will conflict with this website before starting
+                    if (-not (Confirm-UniqueBinding -Name $Name -ExcludeStopped))
                     {
-                        # Return error and do not start Website
+                        # Return error and do not start the website
                         $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
                         New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
                     }
@@ -257,59 +257,60 @@ function Set-TargetResource
                 }
 
                 $Website = New-Website @NewWebsiteSplat -ErrorAction Stop
-
-                Stop-Website -Name $Website.Name -ErrorAction Stop
-
-                # Clear default bindings if new bindings defined and are different
-                if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
-                {
-                    if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
-                    {
-                        Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
-                    }
-                }
-
-                # Set Enabled Protocols if required
-                if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
-                {
-                    Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols -Value $EnabledProtocols -ErrorAction Stop
-                }
-
-                # Add Default Pages for the newly created website
-                if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
-                {
-                    Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
-                }
-
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated -f $Name)
-
-                # Start website if required
-                if ($State -eq 'Started')
-                {
-                    # Ensure that there are no other websites with binding information that will conflict with this site before starting
-                    if (-not (Confirm-UniqueBinding -BindingInfo $BindingInfo -ExcludeSite $Name))
-                    {
-                        # Return error and do not start Website
-                        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
-                        New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
-                    }
-
-                    try
-                    {
-                        Start-Website -Name $Name -ErrorAction Stop
-                        Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteStarted -f $Name)
-                    }
-                    catch
-                    {
-                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
-                        New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
-                    }
-                }
             }
             catch
             {
                 $ErrorMessage = $LocalizedData.ErrorWebsiteCreationFailure -f $Name, $_.Exception.Message
                 New-TerminatingError -ErrorId 'WebsiteCreationFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+            }
+
+            Stop-Website -Name $Website.Name -ErrorAction Stop
+
+            # Clear default bindings if new bindings defined and are different
+            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+            {
+                if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
+                {
+                    Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo -f $Name)
+                }
+            }
+
+            # Update Enabled Protocols if required
+            if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols -Value $EnabledProtocols -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols -f $Name, $EnabledProtocols)
+            }
+
+            # Update Default Pages if required
+            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
+            {
+                Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
+            }
+
+            # Start website if required
+            if ($State -eq 'Started')
+            {
+                # Ensure that there are no other running websites with binding information that will conflict with this website before starting
+                if (-not (Confirm-UniqueBinding -Name $Name -ExcludeStopped))
+                {
+                    # Return error and do not start the website
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
+                    New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                }
+
+                try
+                {
+                    Start-Website -Name $Name -ErrorAction Stop
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteStarted -f $Name)
+                }
+                catch
+                {
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
+                    New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+                }
             }
         }
     }
@@ -462,44 +463,63 @@ function Confirm-UniqueBinding
 {
     <#
     .SYNOPSIS
-        Helper function used to validate that the desired bindings are unique to all websites.
+        Helper function used to validate that the website's binding information is unique to other websites.
         Returns False if at least one of the bindings is already assigned to another website.
-    .PARAMETER BindingInfo
-        Specifies the collection of bindings to check.
-    .PARAMETER ExcludeSite
-        Specifies the name of the website to exclude from processing.
+    .PARAMETER Name
+        Specifies the name of the website.
+    .PARAMETER ExcludeStopped
+        Omits stopped websites.
+    .NOTES
+        This function tests standard ('http' and 'https') bindings only.
+        It is technically possible to assign identical non-standard bindings (such as 'net.tcp') to different websites.
     #>
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo,
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Name,
 
         [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [String[]]
-        $ExcludeSite
+        [Switch]
+        $ExcludeStopped
     )
 
-    $IsUnique = $true
+    $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
-    # Test standard (HTTP, HTTPS) bindings only.
-    # It is possible to add identical non-standard bindings (such as 'net.tcp') to different websites.
+    if (-not $Website)
+    {
+        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound -f $Name
+        New-TerminatingError -ErrorId 'WebsiteNotFound' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+    }
+
     $ReferenceObject = @(
-        $BindingInfo |
+        $Website.bindings.Collection |
         Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
         ConvertTo-WebBinding -Verbose:$false
     )
 
+    if ($ExcludeStopped)
+    {
+        $OtherWebsiteFilter = {$_.Name -ne $Website.Name -and $_.State -ne 'Stopped'}
+    }
+    else
+    {
+        $OtherWebsiteFilter = {$_.Name -ne $Website.Name}
+    }
+
     $DifferenceObject = @(
         Get-Website |
-        Where-Object -FilterScript {$_.Name -notin @($ExcludeSite)} |
+        Where-Object -FilterScript $OtherWebsiteFilter |
         ForEach-Object -Process {$_.bindings.Collection} |
         Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
         ConvertTo-WebBinding -Verbose:$false
     )
+
+    # Assume that bindings are unique
+    $Result = $true
 
     $CompareSplat = @{
         ReferenceObject  = $ReferenceObject
@@ -511,10 +531,10 @@ function Confirm-UniqueBinding
 
     if (Compare-Object @CompareSplat)
     {
-        $IsUnique = $false
+        $Result = $false
     }
 
-    return $IsUnique
+    return $Result
 }
 
 function ConvertTo-CimBinding
