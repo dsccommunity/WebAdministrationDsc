@@ -90,6 +90,7 @@ Currently, only FastCgiModule is supported.
     * Added support for setting the `EnabledProtocols` property.
     * Fixed an issue in bindings comparison which was causing bindings to be reassigned on every consistency check.
     * Fixed an issue where binding conflict was not properly detected and handled. Stopped websites will not be checked for conflicting bindings anymore.
+    * The qualifier for the Protocol property of the MSFT_xWebBindingInformation CIM class was changed from Write to Required.
 
 ### 1.8.0.0
 
