@@ -82,6 +82,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+### 1.8.0.0
+
 * Added the following resources:
     * xSSLSettings
 * Fixed an issue in xWebApplication where Set-TargetResource attempted to modify a folder instead of an application.
