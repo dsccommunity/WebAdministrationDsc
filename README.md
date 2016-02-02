@@ -75,8 +75,8 @@ Currently, only FastCgiModule is supported.
 
 ### xSSLSettings
 * **Name**: The Name of website in which to modify the SSL Settings
-* **Bindings*: The SSL bindings to implement.
-* **Ensure*: Ensures if the bindings are Present or Absent.
+* **Bindings**: The SSL bindings to implement.
+* **Ensure**: Ensures if the bindings are Present or Absent.
 
 ## Versions
 
