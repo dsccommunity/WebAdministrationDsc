@@ -1,0 +1,7 @@
+[ClassVersion("1.0"), FriendlyName("xSSLSettings")]
+class MSFT_xSSLSettings : OMI_BaseResource
+{
+    [Key, Description("Name of website in which to modify the SSL Settings")] string Name;
+    [Required, Description("The Bindings in which to modify for the website")] string Bindings[];
+    [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"},Description("Whether the bindings should be present or absent")] string Ensure;
+};
