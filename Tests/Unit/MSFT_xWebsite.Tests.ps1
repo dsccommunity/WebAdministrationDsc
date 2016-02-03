@@ -1263,7 +1263,7 @@ try
 
             }
 
-            Context 'BindingInfo containts items that share the same Port but have different Protocols' {
+            Context 'BindingInfo contains items that share the same Port but have different Protocols' {
 
                 $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
