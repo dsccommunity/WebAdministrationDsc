@@ -1236,19 +1236,19 @@ try
 
                 $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol              = 'http'
+                        Protocol              = 'https'
                         IPAddress             = '*'
-                        Port                  = 8080
+                        Port                  = 443
                         HostName              = 'web01.contoso.com'
-                        CertificateThumbprint = ''
-                        CertificateStoreName  = ''
+                        CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
+                        CertificateStoreName  = 'My'
                         SslFlags              = 0
                     } -ClientOnly
 
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                         Protocol              = 'https'
                         IPAddress             = '*'
-                        Port                  = 8080
+                        Port                  = 443
                         HostName              = 'web01.contoso.com'
                         CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
                         CertificateStoreName  = 'WebHosting'
@@ -1263,13 +1263,13 @@ try
 
             }
 
-            Context 'BindingInfo contains multiple items with the same Port' {
+            Context 'BindingInfo containts items that share the same Port but have different Protocols' {
 
                 $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                         Protocol              = 'http'
-                        IPAddress             = '127.0.0.1'
-                        Port                  = 8080
+                        IPAddress             = '*'
+                        Port                  = 443
                         HostName              = ''
                         CertificateThumbprint = ''
                         CertificateStoreName  = ''
@@ -1279,7 +1279,7 @@ try
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                         Protocol              = 'https'
                         IPAddress             = '*'
-                        Port                  = 8080
+                        Port                  = 443
                         HostName              = 'web01.contoso.com'
                         CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
                         CertificateStoreName  = 'WebHosting'
