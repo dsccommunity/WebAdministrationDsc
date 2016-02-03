@@ -82,6 +82,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+* Fixed script analyzer failures in examples
+
 ### 1.9.0.0
 
 * Added the following resources:
