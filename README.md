@@ -82,7 +82,7 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
-### 1.8.0.0
+### 1.9.0.0
 
 * Added the following resources:
     * xSSLSettings
