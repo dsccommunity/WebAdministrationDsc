@@ -4,9 +4,50 @@ class MSFT_xWebAppPool : OMI_BaseResource
 {
     [Key, Description("Name of the Web Application Pool")] String Name;
     [Write, Description("Web Application Pool Present/Absent"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
-    [Write, Description("State of Web Application Pool"), ValueMap{"Started","Stopped"}, Values{"Started","Stopped"}] String State;
+    [Write, Description("Should the app pool be started or stopped"), ValueMap{"Started","Stopped"}, Values{"Started","Stopped"}] String State;
+    [write, Description("When true, indicates to the World Wide Web Publishing Service (W3SVC) that the application pool should be automatically started when it is created or when IIS is started."), ValueMap{"true","false"},Values{"true","false"}] string autoStart;
+    [write, Description("Which version of .Net"), ValueMap{"v4.0","v2.0",""},Values{"v4.0","v2.0",""}] string managedRuntimeVersion;
+    [write, Description("Specifies the request-processing mode that is used to process requests for managed content."), ValueMap{"Integrated","Classic"},Values{"Integrated","Classic"}] string managedPipelineMode;
+    [write, Description("App pool always running or on demand"), ValueMap{"AlwaysRunning","OnDemand"},Values{"AlwaysRunning","OnDemand"}] string startMode;
+    [write, Description("Who should the app pool run as"), ValueMap{"ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser"}, Values{"ApplicationPoolIdentity","LocalSystem","LocalService","NetworkService","SpecificUser"}] string identityType;
+    [write, Description("Credential of that user"), EmbeddedInstance("MSFT_Credential")] string Credential;
+    [write, Description("Load the users profile"), ValueMap{"true","false"},Values{"true","false"}] string loadUserProfile;
+    [write, Description("Indicates to HTTP.sys how many requests to queue for an application pool before rejecting future requests.")] string queueLength;
+    [write, Description("When true, enables a 32-bit application to run on a computer that runs a 64-bit version of Windows."), ValueMap{"true","false"},Values{"true","false"}] string enable32BitAppOnWin64;
+    [write, Description("Specifies the managed loader to use for pre-loading the application pool.")] string managedRuntimeLoader;
+    [write, Description("When true, indicates that delegated settings in Web.config files will processed for applications within this application pool. When false, all settings in Web.config files will be ignored for this application pool."), ValueMap{"true","false"},Values{"true","false"}] string enableConfigurationOverride;
+    [write, Description("Specifies the .NET configuration file for the application pool.")] string CLRConfigFile;
+    [write, Description("If true, the Windows Process Activation Service (WAS) creates and passes a token for the built-in IUSR anonymous user account to the Anonymous authentication module. The Anonymous authentication module uses the token to impersonate the built-in account. When PassAnonymousToken is false, the token will not be passed."), ValueMap{"true","false"},Values{"true","false"}] string passAnonymousToken;
+    [write, Description("Specifies the logon type for the process identity."), ValueMap{"LogonBatch","LogonService"},Values{"LogonBatch","LogonService"}] string logonType;
+    [write, Description("Specifies whether the IIS_IUSRS group Security Identifier (SID) is added to the worker process token. When false, IIS automatically uses an application pool identity as though it were a member of the built-in IIS_IUSRS group, which has access to necessary file and system resources. When true, an application pool identity must be explicitly added to all resources that a worker process requires at runtime."), ValueMap{"true","false"},Values{"true","false"}] string manualGroupMembership;
+    [write, Description("The period of time a worker process should run if no new requests are received and the worker process is not processing requests.")] string idleTimeout;
+    [write, Description("The number of worker processes associated with the application pool.")] string maxProcesses;
+    [write, Description("The period of time that IIS waits for requests to finish running in a worker process before IIS terminates the worker process.")] string shutdownTimeLimit;
+    [write, Description("The period of time that IIS waits for an application pool to start.")] string startupTimeLimit;
+    [write, Description("Pinging behavior for the worker process health monitoring."), ValueMap{"true","false"},Values{"true","false"}] string pingingEnabled;
+    [write, Description("The time interval between health-monitoring pings that the World Wide Web Publishing Service (WWW service) sends to a worker process.")] string pingInterval;
+    [write, Description("The period of time that a worker process is given to respond to a health-monitoring ping.")] string pingResponseTime;
+    [write, Description("Specifies whether or not the World Wide Web Publishing Service (WWW Service) should start up another worker process to replace the existing worker process while it is shutting down."), ValueMap{"true","false"},Values{"true","false"}] string disallowOverlappingRotation;
+    [write, Description("Specifies whether the WWW Service should rotate worker processes in an application pool when the configuration has changed."), ValueMap{"true","false"},Values{"true","false"}] string disallowRotationOnConfigChange;
+    [write, Description("Specifies that IIS should log an event when an application pool is recycled. The logEventOnRecycle property must have a bit set corresponding to the reason for the recycle if IIS is to log the event.")] string logEventOnRecycle;
+    [write, Description("Restart app pool when memory exceeds this limit")] string restartMemoryLimit;
+    [write, Description("Restart app pool when private memory exceeds this limit")] string restartPrivateMemoryLimit;
+    [write, Description("Specifies that the worker process should be recycled after it processes a specific number of requests.")] string restartRequestsLimit;
+    [write, Description("Specifies that the worker process should be recycled after a specified amount of time has elapsed.")] string restartTimeLimit;
+    [write, Description("Restart the app pool at these times")] string restartSchedule[];
+    [write, Description("The response behavior of a service when it is unavailable."), ValueMap{"HttpLevel","TcpLevel"},Values{"HttpLevel","TcpLevel"}] string loadBalancerCapabilities;
+    [write, Description("Value indicating whether to put a worker process in an orphan state when an application pool fails."), ValueMap{"true","false"},Values{"true","false"}] string orphanWorkerProcess;
+    [write, Description("The path of an executable to run when the service orphans a worker process.")] string orphanActionExe;
+    [write, Description("Command-line parameters for the executable named by the OrphanActionExe property.")] string orphanActionParams;
+    [write, Description("Value indicating whether rapid-fail protection is on or off."), ValueMap{"true","false"},Values{"true","false"}] string rapidFailProtection;
+    [write, Description("The interval of time before the failure count for a process is reset.")] string rapidFailProtectionInterval;
+    [write, Description("The maximum number of failures allowed within the time specified by the RapidFailProtectionInterval property.")] string rapidFailProtectionMaxCrashes;
+    [write, Description("The path of an executable to run when the service shuts down an application pool for rapid-fail protection.")] string autoShutdownExe;
+    [write, Description("Command-line parameters for the executable that is specified by the AutoShutdownExe property.")] string autoShutdownParams;
+    [write, Description("Configures the maximum percentage of CPU time (in 1/1000ths of one percent) that the worker processes in an application pool are allowed to consume over a period of time as indicated by the resetInterval attribute.")] string cpuLimit;
+    [write, Description("Configures the action that IIS takes when a worker process exceeds its configured CPU limit. "), ValueMap{"NoAction","KillW3wp","Throttle","ThrottleUnderLoad"},Values{"NoAction","KillW3wp","Throttle","ThrottleUnderLoad"}] string cpuAction;
+    [write, Description("Specifies the reset period (in minutes) for CPU monitoring and throttling limits on an application pool.")] string cpuResetInterval;
+    [write, Description("Specifies whether a particular worker process assigned to an application pool should also be assigned to a given CPU."), ValueMap{"true","false"},Values{"true","false"}] string cpuSmpAffinitized;
+    [write, Description("Specifies the hexadecimal processor mask for multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound. Before this property takes effect, the smpAffinitized attribute must be set to true for the application pool.")] string cpuSmpProcessorAffinityMask;
+    [write, Description("Specifies the high-order DWORD hexadecimal processor mask for 64-bit multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound. Before this property takes effect, the smpAffinitized attribute must be set to true for the application pool.")] string cpuSmpProcessorAffinityMask2;
 };
-
-
-
-
