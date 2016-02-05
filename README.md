@@ -82,7 +82,7 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
-* Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
+* Fixed script analyzer failures in examples
 
 ### 1.9.0.0
 
