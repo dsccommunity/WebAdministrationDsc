@@ -83,6 +83,7 @@ Currently, only FastCgiModule is supported.
 ### Unreleased
 
 * Fixed script analyzer failures in examples
+* Changed PhysicalPath in xWebsite to be optional
 
 ### 1.9.0.0
 
