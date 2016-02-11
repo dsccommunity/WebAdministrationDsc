@@ -52,7 +52,7 @@ try
 
                 Mock -CommandName Get-Website
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should return Absent' {
                     $Result.Ensure | Should Be 'Absent'
@@ -89,7 +89,7 @@ try
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
                 Mock -CommandName Get-WebConfiguration -MockWith {return @{value = 'index.html'}}
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should call Get-Website once' {
                     Assert-MockCalled -CommandName Get-Website -Exactly 1
