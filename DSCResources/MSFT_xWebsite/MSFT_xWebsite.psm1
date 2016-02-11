@@ -346,7 +346,6 @@ function Test-TargetResource
         [String]
         $Name,
 
-        [Parameter(Mandatory = $true)]
         [String]
         $PhysicalPath,
 
