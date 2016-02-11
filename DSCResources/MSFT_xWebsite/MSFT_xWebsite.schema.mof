@@ -1,4 +1,4 @@
-﻿[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0")]
 class MSFT_xWebBindingInformation
 {
     [Required,ValueMap{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"},Values{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"}] String Protocol;

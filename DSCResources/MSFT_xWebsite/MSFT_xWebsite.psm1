@@ -1,4 +1,4 @@
-﻿#requires -Version 4.0 -Modules CimCmdlets
+#requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false

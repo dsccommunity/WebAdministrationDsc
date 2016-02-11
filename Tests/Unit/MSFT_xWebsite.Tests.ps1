@@ -77,7 +77,7 @@ try
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                    {Get-TargetResource -Name 'MockName' -PhysicalPath 'C:\NonExistent'} |
+                    {Get-TargetResource -Name 'MockName'} |
                     Should Throw $ErrorRecord
 
                 }
