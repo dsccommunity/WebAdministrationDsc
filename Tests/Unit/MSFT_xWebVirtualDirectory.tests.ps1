@@ -176,14 +176,6 @@ try
                 }
             }
         }
-
-        Describe "$global:DSCResourceName\Get-CompositeName" {
-            Context 'data is passed in' {
-                It 'should return the correct string' {
-                    Get-CompositeName -Name 'Name' -Application 'Application' | should be 'Application/Name'
-                }
-            }
-        }
     }
 }
 finally
