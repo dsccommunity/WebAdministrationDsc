@@ -177,30 +177,6 @@ try
             }
         }
 
-        Describe "$global:DSCResourceName\Test-ApplicationExists" {
-            $MockSite = @{
-                Website        = 'contoso.com'
-                WebApplication = 'contosoapp'
-                Name           = 'shared_directory'
-                PhysicalPath   = 'C:\inetpub\wwwroot\shared'
-                Ensure         = 'Present'
-            }
-
-            Context 'Get-WebApplication returns a value' {
-                It 'should return true' {
-                    Mock Get-WebApplication { return @{Count = 1} }
-                    Test-ApplicationExists -Site $MockSite.Website -Application $MockSite.WebApplication | should be $true
-                }
-            }
-
-            Context 'Get-WebApplication returns no value' {
-                It 'should return false' {
-                    Mock Get-WebApplication { return @{Count = 0} }
-                    Test-ApplicationExists -Site $MockSite.Website -Application $MockSite.WebApplication | should be $false
-                }
-            }
-        }
-
         Describe "$global:DSCResourceName\Get-CompositeName" {
             Context 'data is passed in' {
                 It 'should return the correct string' {
