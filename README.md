@@ -84,6 +84,7 @@ Currently, only FastCgiModule is supported.
 
 * Fixed script analyzer failures in examples
 * **xWebsite**: Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
+* Changed PhysicalPath in xWebsite to be optional
 
 ### 1.9.0.0
 
