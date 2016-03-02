@@ -1246,13 +1246,13 @@ try
                     } -ClientOnly
 
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol              = 'https'
+                        Protocol              = 'http'
                         IPAddress             = '*'
                         Port                  = 8080
                         HostName              = 'web01.contoso.com'
-                        CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
-                        CertificateStoreName  = 'WebHosting'
-                        SslFlags              = 1
+                        CertificateThumbprint = ''
+                        CertificateStoreName  = ''
+                        SslFlags              = 0
                     } -ClientOnly
                 )
 
@@ -1263,7 +1263,7 @@ try
 
             }
 
-            Context 'BindingInfo contains multiple items with the same Port' {
+            Context 'BindingInfo contains items that share the same Port but have different Protocols' {
 
                 $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
