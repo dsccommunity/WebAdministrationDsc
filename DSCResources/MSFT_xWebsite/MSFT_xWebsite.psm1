@@ -64,12 +64,7 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $PhysicalPath
+        $Name
     )
 
     Assert-Module
@@ -128,7 +123,6 @@ function Set-TargetResource
         [String]
         $Name,
 
-        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
         $PhysicalPath,
@@ -160,7 +154,7 @@ function Set-TargetResource
         if ($Website -ne $null)
         {
             # Update Physical Path if required
-            if ($Website.PhysicalPath -ne $PhysicalPath)
+            if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name physicalPath -Value $PhysicalPath -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedPhysicalPath -f $Name, $PhysicalPath)
@@ -237,6 +231,10 @@ function Set-TargetResource
         }
         else # Create website if it does not exist
         {
+            if ([string]::IsNullOrEmpty($PhysicalPath)) {
+                throw "The PhysicalPath parameter must be provided for a website to be created"
+            }
+
             try
             {
                 $PSBoundParameters.GetEnumerator() |
@@ -348,8 +346,6 @@ function Test-TargetResource
         [String]
         $Name,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
         [String]
         $PhysicalPath,
 
@@ -388,7 +384,7 @@ function Test-TargetResource
     if ($Ensure -eq 'Present' -and $Website -ne $null)
     {
         # Check Physical Path property
-        if ($Website.PhysicalPath -ne $PhysicalPath)
+        if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)

@@ -52,7 +52,7 @@ try
 
                 Mock -CommandName Get-Website
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should return Absent' {
                     $Result.Ensure | Should Be 'Absent'
@@ -77,7 +77,7 @@ try
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                    {Get-TargetResource -Name 'MockName' -PhysicalPath 'C:\NonExistent'} |
+                    {Get-TargetResource -Name 'MockName'} |
                     Should Throw $ErrorRecord
 
                 }
@@ -89,7 +89,7 @@ try
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
                 Mock -CommandName Get-WebConfiguration -MockWith {return @{value = 'index.html'}}
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should call Get-Website once' {
                     Assert-MockCalled -CommandName Get-Website -Exactly 1
