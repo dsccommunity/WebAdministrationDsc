@@ -2,7 +2,7 @@
 
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIisModule**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
 
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
@@ -49,6 +49,10 @@ Currently, only FastCgiModule is supported.
 * **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
+* **PreloadEnabled**: Allows WebSite to automatically start without a request
+* **ServiceAutoStartEnabled**: Enables Autostart on a Website
+* **ServiceAutoStartProvider**: Adds a AutostartProvider
+* **ApplicationType**: Adds a AutostartProvider ApplicationType
 
 ### xWebApplication
 
@@ -57,6 +61,10 @@ Currently, only FastCgiModule is supported.
 * **WebAppPool**:  Web application’s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
 * **Ensure**: Ensures that the web application is **Present** or **Absent**.
+* **PreloadEnabled**: Allows Application to automatically start without a request
+* **ServiceAutoStartEnabled**: Enables Autostart on a Application
+* **ServiceAutoStartProvider**: Adds a AutostartProvider
+* **ApplicationType**: Adds a AutostartProvider ApplicationType
 
 ### xWebVirtualDirectory
 
@@ -83,6 +91,7 @@ Currently, only FastCgiModule is supported.
 ### Unreleased
 
 * Fixed script analyzer failures in examples
+* Added preload and ServiceAutoStart functionality to xWebsite and xWebApplication
 
 ### 1.9.0.0
 
