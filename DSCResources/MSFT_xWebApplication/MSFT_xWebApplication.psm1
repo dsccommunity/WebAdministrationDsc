@@ -29,19 +29,25 @@ function Get-TargetResource
     $Ensure = 'Absent'
     $WebAppPool = ''
 
-    if ($webApplication.Count -eq 1)
+    if ($webApplication)
     {
-        $PhysicalPath = $webApplication.PhysicalPath
-        $WebAppPool = $webApplication.applicationPool
-        $Ensure = 'Present'
+        $PhysicalPath      = $webApplication.PhysicalPath
+        $WebAppPool        = $webApplication.applicationPool
+        $Preload           = $Website.preloadEnabled
+        $AutoStartProvider = $Website.serviceAutoStartProvider
+        $AutoStartEnabled  = $Website.serviceAutoStartEnabled
+        $Ensure            = 'Present'
     }
 
     $returnValue = @{
-        Website = $Website
-        Name = $Name
-        WebAppPool = $WebAppPool
-        PhysicalPath = $PhysicalPath
-        Ensure = $Ensure
+        Website           = $Website
+        Name              = $Name
+        WebAppPool        = $WebAppPool
+        PhysicalPath      = $PhysicalPath
+        Ensure            = $Ensure
+        Preload           = $Preload
+        AutoStartProvider = $AutoStartProvider
+        AutoStartEnabled  = $AutoStartEnabled
     }
 
     return $returnValue
@@ -71,7 +77,21 @@ function Set-TargetResource
 
         [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = 'Present'
+        $Ensure = 'Present',
+
+        [ValidateSet("True","False")]
+        [String]
+        $PreloadEnabled,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $ServiceAutoStartEnabled,
+
+        [String]
+        $ServiceAutoStartProvider,
+        
+        [String]
+        $ApplicationType
     )
 
     CheckDependencies
@@ -84,6 +104,25 @@ function Set-TargetResource
             Write-Verbose "Creating new Web application $Name."
             New-WebApplication -Site $Website -Name $Name -PhysicalPath $PhysicalPath -ApplicationPool $WebAppPool
         }
+        # Update Preload if required
+        if ($webApplication.preloadEnabled -ne $preloadEnabled)
+        {
+            Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
+        }
+            
+        # Update AutoStart if required
+        if ($webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+        {
+            Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
+        }
+            
+        # Update AutoStartProviders if required
+        if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+        {
+            Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+            Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+        }
+
         else
         {
             if ($webApplication.physicalPath -ne $PhysicalPath)
@@ -91,10 +130,29 @@ function Set-TargetResource
                 Write-Verbose "Updating physical path for Web application $Name."
                 Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" -Name physicalPath -Value $PhysicalPath
             }
+            
             if ($webApplication.applicationPool -ne $WebAppPool)
             {
                 Write-Verbose "Updating application pool for Web application $Name."
                 Set-WebConfigurationProperty -Filter $webApplication.ItemXPath -Name applicationPool -Value $WebAppPool
+            }
+            # Update Preload if required
+            if ($webApplication.preloadEnabled -ne $PreloadEnabled)
+            {
+               Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStart if required
+            if ($webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStartProviders if required
+            if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
             }
         }
     }
@@ -131,28 +189,60 @@ function Test-TargetResource
 
         [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = 'Present'
+        $Ensure = 'Present',
+
+        [ValidateSet("True","False")]
+        [String]
+        $preloadEnabled,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $serviceAutoStartEnabled,
+
+        [String]
+        $serviceAutoStartProvider,
+        
+        [String]
+        $ApplicationType
     )
 
     CheckDependencies
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
-
-    if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') {
+    
+    if ((-Not $WebApplication) -and $Ensure -eq 'Present') {
         if ($webApplication.physicalPath -ne $PhysicalPath)
         {
             Write-Verbose "Physical path for web application $Name does not match desired state."
             return $false
         }
-        elseif ($webApplication.applicationPool -ne $WebAppPool)
+        if ($webApplication.applicationPool -ne $WebAppPool)
         {
             Write-Verbose "Web application pool for web application $Name does not match desired state."
             return $false
-        }
-        else
+        }       
+        #Check Preload
+        if($webApplication.preloadEnabled -ne $PreloadEnabled)
         {
-            Write-Verbose 'Web application pool matches desired state.'
-            return $true
+            Write-Verbose -Message 'Preload is not in the desired state'
+            return $false
+        } 
+             
+        #Check AutoStartEnabled
+        if($webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+        {
+            Write-Verbose -Message 'Autostart is not in the desired state'
+            return $false
+        }
+        
+        #Check AutoStartProviders 
+        if($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+        {
+            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+            {
+                Write-Verbose -Message 'AutoStartProviders are not in the desired state'
+                return $false     
+            }
         }
     }
 
@@ -161,8 +251,10 @@ function Test-TargetResource
         return $true
     }
 
-    return $false
+    return $true
 }
+
+#region Helper Functions
 
 function CheckDependencies
 {
@@ -173,6 +265,66 @@ function CheckDependencies
         Throw 'Please ensure that WebAdministration module is installed.'
     }
 }
+
+function Confirm-UniqueServiceAutoStartProviders
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other websites.
+        Returns False if the AutoStartProviders exist.
+;    .PARAMETER serviceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+    .PARAMETER ExcludeStopped
+        Specifies the name of the Application Type for the AutoStartProvider.
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
+        need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
+    #>
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $serviceAutoStartProvider,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ApplicationType
+    )
+
+$WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+
+$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $serviceAutoStartProvider | Select Name,Type
+
+$ProposedObject = @(New-Object -TypeName PSObject -Property @{
+                                                                name   = $serviceAutoStartProvider
+                                                                type   = $ApplicationType
+                                                             })
+
+$Result = $true
+
+if (-Not $ExistingObject)
+    {
+        $Result = $false
+        return $Result
+    }
+
+if (-Not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+    {
+        if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
+        {
+        throw 'Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.'
+        }
+    }
+
+return $Result
+
+}
+
+#endregion
 
 Export-ModuleMember -Function *-TargetResource
 

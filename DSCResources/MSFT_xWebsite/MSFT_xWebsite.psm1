@@ -22,6 +22,10 @@ ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property val
 ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
 ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
 ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
+ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
+ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
+ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
+ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
 VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
@@ -30,6 +34,12 @@ VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}"
 VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
 VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
 VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
+VerboseSetTargetWebsitePreloadEnabled = Successfully enabled Preload on website "{0}"
+VerboseSetTargetWebsitePreloadRemoved = Successfully disabled Preload on website "{0}"
+VerboseSetTargetWebsiteAutoStartEnabled = Successfully enabled AutoStart on website "{0}"
+VerboseSetTargetWebsiteAutoStartRemoved = Successfully disabled AutoStart on website "{0}"
+VerboseSetTargetWebsiteAutoStartProviderAdded = Successfully added AutoStartProvider on website "{0}"
+VerboseSetTargetWebsiteAutoStartProviderRemoved = Successfully removed AutoStartProvider on website "{0}"
 VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
 VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
 VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
@@ -39,6 +49,9 @@ VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" do 
 VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
 VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
 VerboseTestTargetFalseResult = The target resource is not in the desired state.
+VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
+VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
+VerboseTestTargetFalseAutoStartProvider = AutoStartProvider for website "{0}" does not match the desired state.
 VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
 VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
 VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
@@ -99,14 +112,18 @@ function Get-TargetResource
 
     # Add all website properties to the hash table
     return @{
-        Ensure           = $EnsureResult
-        Name             = $Name
-        PhysicalPath     = $Website.PhysicalPath
-        State            = $Website.State
-        ApplicationPool  = $Website.ApplicationPool
-        BindingInfo      = $CimBindings
-        DefaultPage      = $AllDefaultPages
-        EnabledProtocols = $Website.EnabledProtocols
+        Ensure            = $EnsureResult
+        Name              = $Name
+        PhysicalPath      = $Website.PhysicalPath
+        State             = $Website.State
+        ApplicationPool   = $Website.ApplicationPool
+        BindingInfo       = $CimBindings
+        DefaultPage       = $AllDefaultPages
+        EnabledProtocols  = $Website.EnabledProtocols
+        Preload           = $Website.applicationDefaults.preloadEnabled
+        AutoStartProvider = $Website.applicationDefaults.serviceAutoStartProvider
+        AutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
+        
     }
 }
 
@@ -116,7 +133,8 @@ function Set-TargetResource
     .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine.
     #>
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    #[CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param
     (
         [ValidateSet('Present', 'Absent')]
@@ -148,7 +166,21 @@ function Set-TargetResource
         $DefaultPage,
 
         [String]
-        $EnabledProtocols
+        $EnabledProtocols,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $PreloadEnabled,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $ServiceAutoStartEnabled,
+
+        [String]
+        $ServiceAutoStartProvider,
+        
+        [String]
+        $ApplicationType
     )
 
     Assert-Module
@@ -234,6 +266,25 @@ function Set-TargetResource
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState -f $Name, $State)
             }
+            
+            # Update Preload if required
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $PreloadEnabled -ne $null)
+            {
+               Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStart if required
+            if ($ServiceAutoStartEnabled -ne "")
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStartProviders if required
+            if ($ServiceAutoStartProvider -ne "")
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+            }
         }
         else # Create website if it does not exist
         {
@@ -312,6 +363,24 @@ function Set-TargetResource
                     New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
                 }
             }
+            # Update Preload if required
+            if($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+            {
+               Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStart if required
+            if ($ServiceAutoStartEnabled -ne "")
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStartProviders if required
+            if ($ServiceAutoStartProvider -ne "")
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+            }
         }
     }
     else # Remove website
@@ -368,7 +437,21 @@ function Test-TargetResource
         $DefaultPage,
 
         [String]
-        $EnabledProtocols
+        $EnabledProtocols,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $PreloadEnabled,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $ServiceAutoStartEnabled,
+
+        [String]
+        $ServiceAutoStartProvider,
+        
+        [String]
+        $ApplicationType
     )
 
     Assert-Module
@@ -376,7 +459,7 @@ function Test-TargetResource
     $InDesiredState = $true
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-
+    
     # Check Ensure
     if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
     {
@@ -442,16 +525,39 @@ function Test-TargetResource
                 }
             }
         }
-
+        
+        #Check Preload
+        if($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+        {
+            $InDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
+        } 
+              
+        #Check AutoStartEnabled
+        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and $Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled )
+        {
+            $InDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart -f $Name)
+        }
+        
+        #Check AutoStartProviders 
+        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and $Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider )
+        {
+            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+            {
+                $InDesiredState = $false
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProvider)     
+            }
+        }
     }
 
     if ($InDesiredState -eq $true)
     {
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetTrueResult)
+        #Write-Verbose -Message ($LocalizedData.VerboseTestTargetTrueResult)
     }
     else
     {
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseResult)
+        #Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseResult)
     }
 
     return $InDesiredState
@@ -535,6 +641,65 @@ function Confirm-UniqueBinding
     }
 
     return $Result
+}
+
+function Confirm-UniqueServiceAutoStartProviders
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other websites.
+        Returns False if the AutoStartProviders exist.
+;    .PARAMETER serviceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+    .PARAMETER ExcludeStopped
+        Specifies the name of the Application Type for the AutoStartProvider.
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
+        need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
+    #>
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ServiceAutoStartProvider,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ApplicationType
+    )
+
+$WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+
+$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select Name,Type
+
+$ProposedObject = @(New-Object -TypeName PSObject -Property @{
+                                                                name   = $ServiceAutoStartProvider
+                                                                type   = $ApplicationType
+                                                             })
+
+$Result = $true
+
+if (-Not $ExistingObject)
+    {
+        $Result = $false
+        return $Result
+    }
+
+if (-Not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+    {
+        if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
+        {
+        $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure #-f $Name
+        New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+        }
+    }
+
+return $Result
+
 }
 
 function ConvertTo-CimBinding
