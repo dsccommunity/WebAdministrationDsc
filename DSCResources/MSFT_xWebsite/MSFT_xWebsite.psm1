@@ -88,7 +88,7 @@ function Get-TargetResource
     Assert-Module
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-
+    
     if ($Website.Count -eq 0) # No Website exists with this name
     {
         $EnsureResult = 'Absent'
@@ -103,6 +103,9 @@ function Get-TargetResource
             Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
             ForEach-Object -Process {Write-Output -InputObject $_.value}
         )
+        
+        $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+        $WebConfiguration = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select Name,Type
     }
     else # Multiple websites with the same name exist. This is not supported and is an error
     {
@@ -112,17 +115,18 @@ function Get-TargetResource
 
     # Add all website properties to the hash table
     return @{
-        Ensure            = $EnsureResult
-        Name              = $Name
-        PhysicalPath      = $Website.PhysicalPath
-        State             = $Website.State
-        ApplicationPool   = $Website.ApplicationPool
-        BindingInfo       = $CimBindings
-        DefaultPage       = $AllDefaultPages
-        EnabledProtocols  = $Website.EnabledProtocols
-        Preload           = $Website.applicationDefaults.preloadEnabled
-        AutoStartProvider = $Website.applicationDefaults.serviceAutoStartProvider
-        AutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
+        Ensure                   = $EnsureResult
+        Name                     = $Name
+        PhysicalPath             = $Website.PhysicalPath
+        State                    = $Website.State
+        ApplicationPool          = $Website.ApplicationPool
+        BindingInfo              = $CimBindings
+        DefaultPage              = $AllDefaultPages
+        EnabledProtocols         = $Website.EnabledProtocols
+        Preload                  = $Website.applicationDefaults.preloadEnabled
+        ServiceAutoStartProvider = $Website.applicationDefaults.serviceAutoStartProvider
+        ServiceAutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
+        ApplicationType          = $WebConfiguration.Type
         
     }
 }
@@ -274,13 +278,13 @@ function Set-TargetResource
             }
             
             # Update AutoStart if required
-            if ($ServiceAutoStartEnabled -ne "")
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $ServiceAutoStartEnabled -ne $null)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
             }
             
             # Update AutoStartProviders if required
-            if ($ServiceAutoStartProvider -ne "")
+            if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
                 Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
@@ -370,13 +374,13 @@ function Set-TargetResource
             }
             
             # Update AutoStart if required
-            if ($ServiceAutoStartEnabled -ne "")
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $ServiceAutoStartEnabled -ne $null)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
             }
             
             # Update AutoStartProviders if required
-            if ($ServiceAutoStartProvider -ne "")
+            if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
                 Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
@@ -662,7 +666,6 @@ function Confirm-UniqueServiceAutoStartProviders
     [OutputType([Boolean])]
     param
     (
-
         [Parameter(Mandatory = $true)]
         [String]
         $ServiceAutoStartProvider,
@@ -683,17 +686,17 @@ $ProposedObject = @(New-Object -TypeName PSObject -Property @{
 
 $Result = $true
 
-if (-Not $ExistingObject)
+if (-not $ExistingObject)
     {
         $Result = $false
         return $Result
     }
 
-if (-Not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+if (-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
     {
         if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
         {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure #-f $Name
+        $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
         New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
         }
     }
