@@ -20,11 +20,11 @@ function Get-TargetResource
         [System.String]
         $PhysicalPath,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $PreloadEnabled,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $ServiceAutoStartEnabled,
 
@@ -93,11 +93,11 @@ function Set-TargetResource
         [System.String]
         $Ensure = 'Present',
 
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $PreloadEnabled,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $ServiceAutoStartEnabled,
 
@@ -211,11 +211,11 @@ function Test-TargetResource
         [System.String]
         $Ensure = 'Present',
 
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $preloadEnabled,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $serviceAutoStartEnabled,
 
@@ -322,7 +322,7 @@ function Confirm-UniqueServiceAutoStartProviders
 
 $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
-$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $serviceAutoStartProvider | Select Name,Type
+$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $serviceAutoStartProvider | Select-Object Name,Type
 
 $ProposedObject = @(New-Object -TypeName PSObject -Property @{
                                                                 name   = $serviceAutoStartProvider

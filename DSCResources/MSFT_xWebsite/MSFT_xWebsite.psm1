@@ -105,7 +105,7 @@ function Get-TargetResource
         )
         
         $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
-        $WebConfiguration = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select Name,Type
+        $WebConfiguration = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select-Object Name,Type
     }
     else # Multiple websites with the same name exist. This is not supported and is an error
     {
@@ -172,11 +172,11 @@ function Set-TargetResource
         [String]
         $EnabledProtocols,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $PreloadEnabled,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $ServiceAutoStartEnabled,
 
@@ -443,11 +443,11 @@ function Test-TargetResource
         [String]
         $EnabledProtocols,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $PreloadEnabled,
         
-        [ValidateSet("True","False")]
+        [ValidateSet('True','False')]
         [String]
         $ServiceAutoStartEnabled,
 
@@ -677,7 +677,7 @@ function Confirm-UniqueServiceAutoStartProviders
 
 $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
-$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select Name,Type
+$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select-Object Name,Type
 
 $ProposedObject = @(New-Object -TypeName PSObject -Property @{
                                                                 name   = $ServiceAutoStartProvider
