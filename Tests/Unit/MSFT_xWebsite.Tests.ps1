@@ -28,6 +28,9 @@ try
 
         Describe "how $Global:DSCResourceName\Get-TargetResource responds" {
 
+        Function Get-WebConfiguration ($filter) {}
+        Function Get-Website {}
+
             $MockWebBinding = @(
                 @{
                     bindingInformation   = '*:443:web01.contoso.com'
@@ -180,6 +183,9 @@ try
         }
 
         Describe "how $Global:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
+
+            Function Get-WebConfiguration {}
+            Function Get-Website {}
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -399,6 +405,14 @@ try
         }
 
         Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
+
+        Function Get-WebConfiguration {}
+        Function Get-Website {}
+        Function Add-WebConfiguration {}
+        Function Start-Website {}
+        Function Stop-Website {}
+        Function New-Website {}
+        Function Remove-Website {}
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -675,6 +689,10 @@ try
 
         Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
 
+        Function Get-WebConfiguration {}
+        Function Get-Website {}
+        Function Remove-Website {}
+
             $MockParameters = @{
                 Ensure       = 'Absent'
                 Name         = 'MockName'
@@ -712,6 +730,8 @@ try
         }
 
         Describe "$Global:DSCResourceName\Confirm-UniqueBinding" {
+
+        Function Get-Website {}
 
             $MockParameters = @{
                 Name = 'MockSite'
@@ -937,16 +957,11 @@ try
         }
 
         Describe "$Global:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
-            
-            function Get-WebConfiguration ($Recurse, $Metadata, $Location, $Filter, $PSPath, $WarningAction, $WarningVariable)
-            {
-                Return 42
-            }
-
-            function Get-TestConfiguration ($Filter){}
-
+        
+        Function Get-WebConfiguration {}
+        
             $MockParameters = @{
-                Name = 'MockAutoStartProvider'
+                Name = 'MockServiceAutoStartProvider'
                 Type = 'MockApplicationType'
             }
 
@@ -1023,8 +1038,18 @@ try
             }
 
             Context 'ServiceAutoStartProvider does exist' {
+
+                $GetWebConfigurationOutput = @(
+                    @{
+                        SectionPath = 'MockSectionPath'
+                        PSPath      = 'MockPSPath'
+                        Collection  = @(
+                                   [PSCustomObject]@{Name = 'MockServiceAutoStartProvider' ;Type = 'MockApplicationType'}   
+                        )
+                    }
+                )
                 
-                Mock -CommandName Get-WebConfiguration -MockWith { [PSCustomObject]@{Name = 'MockServiceAutoStartProvider'; Type = 'MockApplicationType'}}
+                Mock -CommandName Get-WebConfiguration -MockWith {return $GetWebConfigurationOutput}
 
                 It 'should return True' {
                     Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $MockParameters.Name -ApplicationType $MockParameters.Type |
@@ -1600,6 +1625,8 @@ try
 
         Describe "$Global:DSCResourceName\Test-WebsiteBinding" {
 
+        function Get-WebSite {}
+
             $MockWebBinding = @(
                 @{
                     bindingInformation   = '*:80:'
@@ -2021,6 +2048,9 @@ try
 
         Describe "$Global:DSCResourceName\Update-DefaultPage" {
 
+        function Get-WebConfiguration {}
+        function Add-WebConfiguration {}
+
             $MockWebsite = @{
                 Ensure             = 'Present'
                 Name               = 'MockName'
@@ -2048,6 +2078,10 @@ try
         }
 
         Describe "$Global:DSCResourceName\Update-WebsiteBinding" {
+
+        function Get-WebConfiguration ($filter) {}
+        function Clear-WebConfiguration {}
+        function Add-WebConfiguration ($Filter) {}
 
             $MockWebsite = @{
                 Name      = 'MockSite'

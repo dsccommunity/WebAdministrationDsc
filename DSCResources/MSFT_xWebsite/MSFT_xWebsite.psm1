@@ -538,14 +538,14 @@ function Test-TargetResource
         } 
               
         #Check AutoStartEnabled
-        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and $Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled )
+        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and $Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart -f $Name)
         }
         
         #Check AutoStartProviders 
-        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and $Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider )
+        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and $Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
             if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
             {

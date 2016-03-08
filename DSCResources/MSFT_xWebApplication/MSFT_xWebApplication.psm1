@@ -1,3 +1,16 @@
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+
+# Localized messages
+data LocalizedData
+{
+    # culture="en-US"
+    ConvertFrom-StringData -StringData @'
+ErrorWebAdministrationModuleNotFound = Please ensure that WebAdministration module is installed.
+ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+'@
+}
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -118,19 +131,19 @@ function Set-TargetResource
             Write-Verbose "Creating new Web application $Name."
             New-WebApplication -Site $Website -Name $Name -PhysicalPath $PhysicalPath -ApplicationPool $WebAppPool
             # Update Preload if required
-            if ($preloadEnabled)
+            if ($webApplication.preloadEnabled -ne $PreloadEnabled)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
             }
                 
             # Update AutoStart if required
-            if ($ServiceAutoStartEnabled)
+            if ($webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
             }
                 
             # Update AutoStartProviders if required
-            if ($ServiceAutoStartProvider -and $ApplicationType)
+            if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                     {
@@ -166,7 +179,7 @@ function Set-TargetResource
             }
 
             # Update AutoStartProviders if required
-            if ($ServiceAutoStartProvider -and $ApplicationType)
+            if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                     {
@@ -287,7 +300,8 @@ function CheckDependencies
     # Check if WebAdministration module is present for IIS cmdlets
     if(!(Get-Module -ListAvailable -Name WebAdministration))
     {
-        Throw 'Please ensure that WebAdministration module is installed.'
+        $ErrorMessage = $LocalizedData.ErrorWebAdministrationModuleNotFound
+        New-TerminatingError -ErrorId 'ErrorWebAdministrationModuleNotFound' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
     }
 }
 
@@ -331,17 +345,18 @@ $ProposedObject = @(New-Object -TypeName PSObject -Property @{
 
 $Result = $true
 
-if (-Not $ExistingObject)
+if(-not $ExistingObject)
     {
         $Result = $false
         return $Result
     }
 
-if (-Not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
     {
         if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
         {
-        throw 'Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.'
+        $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
+        New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
         }
     }
 
