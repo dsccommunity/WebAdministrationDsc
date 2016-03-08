@@ -18,7 +18,21 @@ function Get-TargetResource
 
         [parameter(Mandatory = $true)]
         [System.String]
-        $PhysicalPath
+        $PhysicalPath,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $PreloadEnabled,
+        
+        [ValidateSet("True","False")]
+        [String]
+        $ServiceAutoStartEnabled,
+
+        [String]
+        $ServiceAutoStartProvider,
+        
+        [String]
+        $ApplicationType
     )
 
     CheckDependencies
@@ -31,23 +45,23 @@ function Get-TargetResource
 
     if ($webApplication)
     {
-        $PhysicalPath      = $webApplication.PhysicalPath
-        $WebAppPool        = $webApplication.applicationPool
-        $Preload           = $Website.preloadEnabled
-        $AutoStartProvider = $Website.serviceAutoStartProvider
-        $AutoStartEnabled  = $Website.serviceAutoStartEnabled
-        $Ensure            = 'Present'
+        $PhysicalPath             = $webApplication.PhysicalPath
+        $WebAppPool               = $webApplication.applicationPool
+        $PreloadEnabled           = $webApplication.preloadEnabled
+        $ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
+        $ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
+        $Ensure                   = 'Present'
     }
 
     $returnValue = @{
-        Website           = $Website
-        Name              = $Name
-        WebAppPool        = $WebAppPool
-        PhysicalPath      = $PhysicalPath
-        Ensure            = $Ensure
-        Preload           = $Preload
-        AutoStartProvider = $AutoStartProvider
-        AutoStartEnabled  = $AutoStartEnabled
+        Website                  = $Website
+        Name                     = $Name
+        WebAppPool               = $WebAppPool
+        PhysicalPath             = $PhysicalPath
+        Ensure                   = $Ensure
+        PreloadEnabled           = $PreloadEnabled
+        ServiceAutoStartProvider = $ServiceAutoStartProvider
+        ServiceAutoStartEnabled  = $ServiceAutoStartEnabled
     }
 
     return $returnValue
@@ -103,26 +117,29 @@ function Set-TargetResource
         {
             Write-Verbose "Creating new Web application $Name."
             New-WebApplication -Site $Website -Name $Name -PhysicalPath $PhysicalPath -ApplicationPool $WebAppPool
-        }
-        # Update Preload if required
-        if ($webApplication.preloadEnabled -ne $preloadEnabled)
-        {
-            Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
-        }
-            
-        # Update AutoStart if required
-        if ($webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
-        {
-            Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
-        }
-            
-        # Update AutoStartProviders if required
-        if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
-        {
-            Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
-            Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
-        }
+            # Update Preload if required
+            if ($preloadEnabled)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
+            }
+                
+            # Update AutoStart if required
+            if ($ServiceAutoStartEnabled)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
+            }
+                
+            # Update AutoStartProviders if required
+            if ($ServiceAutoStartProvider -and $ApplicationType)
+            {
+                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+                    {
+                        Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+                        Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                    }
+            }
 
+        }
         else
         {
             if ($webApplication.physicalPath -ne $PhysicalPath)
@@ -147,12 +164,15 @@ function Set-TargetResource
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
             }
-            
+
             # Update AutoStartProviders if required
-            if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+            if ($ServiceAutoStartProvider -and $ApplicationType)
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
-                Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+                    {
+                        Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+                        Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                    }
             }
         }
     }
@@ -210,7 +230,12 @@ function Test-TargetResource
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     
-    if ((-Not $WebApplication) -and $Ensure -eq 'Present') {
+    if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') {
+        Write-Verbose "Web application $Name is absent and should not absent."
+        return $false
+    }
+    
+    if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') {
         if ($webApplication.physicalPath -ne $PhysicalPath)
         {
             Write-Verbose "Physical path for web application $Name does not match desired state."
@@ -246,9 +271,9 @@ function Test-TargetResource
         }
     }
 
-    if ($webApplication.count -eq 0 -and $Ensure -eq 'Absent') {
-        Write-Verbose "Web application $Name should be absent and is absent."
-        return $true
+    if ($webApplication.count -eq 1 -and $Ensure -eq 'Absent') {
+        Write-Verbose "Web application $Name should be absent and is not absent."
+        return $false
     }
 
     return $true
