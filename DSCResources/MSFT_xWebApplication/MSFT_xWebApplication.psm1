@@ -33,6 +33,13 @@ function Get-TargetResource
         [System.String]
         $PhysicalPath,
         
+        [ValidateNotNull()]
+        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [string]$SSlFlags = "",
+
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo,
+
         [ValidateSet('True','False')]
         [String]
         $PreloadEnabled,
@@ -52,6 +59,10 @@ function Get-TargetResource
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
+    $AuthenticationInfo = Get-AuthenticationInfo -Site $Website -Name $Name
+
+    $SSLFlags = (Get-SSLFlags -Location "${Website}/${Name}")
+
     $PhysicalPath = ''
     $Ensure = 'Absent'
     $WebAppPool = ''
@@ -60,6 +71,8 @@ function Get-TargetResource
     {
         $PhysicalPath             = $webApplication.PhysicalPath
         $WebAppPool               = $webApplication.applicationPool
+        $Authentication           = $AuthenticationInfo
+        $SSLSettings              = $SSLFlags
         $PreloadEnabled           = $webApplication.preloadEnabled
         $ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         $ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
@@ -71,15 +84,17 @@ function Get-TargetResource
         Name                     = $Name
         WebAppPool               = $WebAppPool
         PhysicalPath             = $PhysicalPath
-        Ensure                   = $Ensure
+        Authentication           = $Authentication
+        SSLSettings              = $SSLSettings
         PreloadEnabled           = $PreloadEnabled
         ServiceAutoStartProvider = $ServiceAutoStartProvider
         ServiceAutoStartEnabled  = $ServiceAutoStartEnabled
+        Ensure                   = $Ensure
+
     }
 
     return $returnValue
 }
-
 
 function Set-TargetResource
 {
@@ -106,6 +121,13 @@ function Set-TargetResource
         [System.String]
         $Ensure = 'Present',
 
+        [ValidateNotNull()]
+        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [string]$SSlFlags = "",
+
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo,
+
         [ValidateSet('True','False')]
         [String]
         $PreloadEnabled,
@@ -126,24 +148,42 @@ function Set-TargetResource
     if ($Ensure -eq 'Present')
     {
         $webApplication = Get-WebApplication -Site $Website -Name $Name
+
+        if ($AuthenticationInfo -eq $null) 
+        { 
+            $AuthenticationInfo = Get-DefaultAuthenticationInfo 
+        }
+
         if ($webApplication.count -eq 0)
         {
             Write-Verbose "Creating new Web application $Name."
             New-WebApplication -Site $Website -Name $Name -PhysicalPath $PhysicalPath -ApplicationPool $WebAppPool
+            
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo'))
+            {
+                Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
+            }
+
+            # Update SSLFlags if required
+            if ($PSBoundParameters.ContainsKey('SSLFlags'))
+            {
+                Set-WebConfiguration -Location "${Website}/${Name}" -Filter 'system.webserver/security/access' -Value $SSlFlags
+            }
+
             # Update Preload if required
-            if ($webApplication.preloadEnabled -ne $PreloadEnabled)
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $webApplication.preloadEnabled -ne $PreloadEnabled)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
             }
                 
             # Update AutoStart if required
-            if ($webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
             }
                 
             # Update AutoStartProviders if required
-            if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                     {
@@ -166,20 +206,32 @@ function Set-TargetResource
                 Write-Verbose "Updating application pool for Web application $Name."
                 Set-WebConfigurationProperty -Filter $webApplication.ItemXPath -Name applicationPool -Value $WebAppPool
             }
-            # Update Preload if required
-            if ($webApplication.preloadEnabled -ne $PreloadEnabled)
+
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo'))
             {
-               Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+                Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
             }
-            
-            # Update AutoStart if required
-            if ($webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            # Update SSLFlags if required
+
+            if ($PSBoundParameters.ContainsKey('SSLFlags'))
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                Set-WebConfiguration -Location "${Website}/${Name}" -Filter 'system.webserver/security/access' -Value $SSlFlags
             }
 
+            # Update Preload if required
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $webApplication.preloadEnabled -ne $PreloadEnabled)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
+            }  
+                          
+            # Update AutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
+            }
+                
             # Update AutoStartProviders if required
-            if ($webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                     {
@@ -196,7 +248,6 @@ function Set-TargetResource
         Remove-WebApplication -Site $Website -Name $Name
     }
 }
-
 
 function Test-TargetResource
 {
@@ -224,6 +275,13 @@ function Test-TargetResource
         [System.String]
         $Ensure = 'Present',
 
+        [ValidateNotNull()]
+        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [string]$SSlFlags = "",
+
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo,
+
         [ValidateSet('True','False')]
         [String]
         $preloadEnabled,
@@ -242,6 +300,13 @@ function Test-TargetResource
     CheckDependencies
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
+
+    $CurrentSSLFlags = Get-SSLFlags -Location "${Website}/${Name}"
+
+    if ($AuthenticationInfo -eq $null) 
+    { 
+        $AuthenticationInfo = Get-DefaultAuthenticationInfo 
+    }
     
     if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') {
         Write-Verbose "Web application $Name is absent and should not absent."
@@ -258,7 +323,22 @@ function Test-TargetResource
         {
             Write-Verbose "Web application pool for web application $Name does not match desired state."
             return $false
+        }
+        
+        #Check SSLFlags
+        if ($CurrentSSLFlags -eq $SSLFlags)
+        {
+            Write-Verbose -Message 'SSLFlags are not in the desired state'
+            return $false
+        }
+
+        #Check AuthenticationInfo
+        if (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo) 
+        { 
+            Write-Verbose -Message 'AuthenticationInfo is not in the desired state'
+            return $false
         }       
+        
         #Check Preload
         if($webApplication.preloadEnabled -ne $PreloadEnabled)
         {
@@ -363,6 +443,153 @@ if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $Prop
 return $Result
 
 }
+
+function Get-AuthenticationInfo
+{
+    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
+    Param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory = $true)]
+        [System.String]$Name
+    )
+
+    $authenticationProperties = @{}
+    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    {
+        $authenticationProperties[$type] = [string](Test-AuthenticationEnabled -Site $Site -Name $Name -Type $type)
+    }
+
+    return New-CimInstance -ClassName SEEK_cWebApplicationAuthenticationInformation -ClientOnly -Property $authenticationProperties
+}
+
+function Get-DefaultAuthenticationInfo
+{
+    New-CimInstance -ClassName SEEK_cWebApplicationAuthenticationInformation `
+        -ClientOnly `
+        -Property @{Anonymous="false";Basic="false";Digest="false";Windows="false"}
+}
+
+function Get-SSLFlags
+{
+    [CmdletBinding()]
+    param
+    (
+        [System.String]$Location
+    )
+
+    $sslFlags = Get-WebConfiguration -PSPath IIS:\Sites -Location $Location -Filter 'system.webserver/security/access' | % { $_.sslFlags }
+    $sslFlags = if ($sslFlags -eq $null) { "" } else { $sslFlags }
+    return $sslFlags
+}
+
+function Set-Authentication
+{
+    Param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory = $true)]
+        [System.String]$Name,
+
+        [parameter(Mandatory = $true)]
+        [ValidateSet("Anonymous","Basic","Digest","Windows")]
+        [System.String]$Type,
+
+        [System.Boolean]$Enabled
+    )
+
+    Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/${Type}Authentication `
+        -Name enabled `
+        -Value $Enabled `
+        -Location "${WebSite}/${Name}"
+}
+
+function Set-AuthenticationInfo
+{
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory = $true)]
+        [System.String]$Name,
+
+        [parameter()]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+    )
+
+    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    {
+        $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
+        Set-Authentication -Site $Site -Name $Name -Type $type -Enabled $enabled
+    }
+}
+
+function Test-AuthenticationEnabled
+{
+    [OutputType([System.Boolean])]
+    Param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory = $true)]
+        [System.String]$Name,
+
+        [parameter(Mandatory = $true)]
+        [ValidateSet("Anonymous","Basic","Digest","Windows")]
+        [System.String]$Type
+    )
+
+
+    $prop = Get-WebConfigurationProperty `
+        -Filter /system.WebServer/security/authentication/${Type}Authentication `
+        -Name enabled `
+        -Location "${WebSite}/${ApplicationName}"
+    return $prop.Value
+}
+
+function Test-AuthenticationInfo
+{
+    [OutputType([System.Boolean])]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory = $true)]
+        [System.String]$Name,
+
+        [parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+    )
+
+    $result = $true
+
+    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    {
+
+        $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
+        $actual = Test-AuthenticationEnabled -Site $Site -Name $Name -Type $type
+        if ($expected -ne $actual)
+        {
+            $result = $false
+            break
+        }
+    }
+
+    return $result
+}
+
+
+
+
 
 #endregion
 
