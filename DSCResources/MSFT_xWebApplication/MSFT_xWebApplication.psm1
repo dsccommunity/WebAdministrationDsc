@@ -35,7 +35,7 @@ function Get-TargetResource
         
         [ValidateNotNull()]
         [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [string]$SSlFlags = "",
+        [string]$SSlFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
@@ -61,7 +61,7 @@ function Get-TargetResource
 
     $AuthenticationInfo = Get-AuthenticationInfo -Site $Website -Name $Name
 
-    $SSLFlags = (Get-SSLFlags -Location "${Website}/${Name}")
+    $SslFlags = (Get-SslFlags -Location "${Website}/${Name}")
 
     $PhysicalPath = ''
     $Ensure = 'Absent'
@@ -72,7 +72,7 @@ function Get-TargetResource
         $PhysicalPath             = $webApplication.PhysicalPath
         $WebAppPool               = $webApplication.applicationPool
         $Authentication           = $AuthenticationInfo
-        $SSLSettings              = $SSLFlags
+        $SSLSettings              = $SslFlags
         $PreloadEnabled           = $webApplication.preloadEnabled
         $ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         $ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
@@ -85,7 +85,7 @@ function Get-TargetResource
         WebAppPool               = $WebAppPool
         PhysicalPath             = $PhysicalPath
         Authentication           = $Authentication
-        SSLSettings              = $SSLSettings
+        SslFlags                 = $SSLSettings
         PreloadEnabled           = $PreloadEnabled
         ServiceAutoStartProvider = $ServiceAutoStartProvider
         ServiceAutoStartEnabled  = $ServiceAutoStartEnabled
@@ -123,7 +123,7 @@ function Set-TargetResource
 
         [ValidateNotNull()]
         [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [string]$SSlFlags = "",
+        [string]$SSlFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
@@ -164,8 +164,8 @@ function Set-TargetResource
                 Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
             }
 
-            # Update SSLFlags if required
-            if ($PSBoundParameters.ContainsKey('SSLFlags'))
+            # Update SslFlags if required
+            if ($PSBoundParameters.ContainsKey('SslFlags'))
             {
                 Set-WebConfiguration -Location "${Website}/${Name}" -Filter 'system.webserver/security/access' -Value $SSlFlags
             }
@@ -211,9 +211,9 @@ function Set-TargetResource
             {
                 Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
             }
-            # Update SSLFlags if required
+            # Update SslFlags if required
 
-            if ($PSBoundParameters.ContainsKey('SSLFlags'))
+            if ($PSBoundParameters.ContainsKey('SslFlags'))
             {
                 Set-WebConfiguration -Location "${Website}/${Name}" -Filter 'system.webserver/security/access' -Value $SSlFlags
             }
@@ -277,7 +277,7 @@ function Test-TargetResource
 
         [ValidateNotNull()]
         [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [string]$SSlFlags = "",
+        [string]$SSlFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
@@ -301,7 +301,7 @@ function Test-TargetResource
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
-    $CurrentSSLFlags = Get-SSLFlags -Location "${Website}/${Name}"
+    $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
     if ($AuthenticationInfo -eq $null) 
     { 
@@ -325,10 +325,10 @@ function Test-TargetResource
             return $false
         }
         
-        #Check SSLFlags
-        if ($CurrentSSLFlags -eq $SSLFlags)
+        #Check SslFlags
+        if ($CurrentSslFlags -eq $SslFlags)
         {
-            Write-Verbose -Message 'SSLFlags are not in the desired state'
+            Write-Verbose -Message 'SslFlags are not in the desired state'
             return $false
         }
 
@@ -391,7 +391,7 @@ function Confirm-UniqueServiceAutoStartProviders
     .SYNOPSIS
         Helper function used to validate that the AutoStartProviders is unique to other websites.
         Returns False if the AutoStartProviders exist.
-;    .PARAMETER serviceAutoStartProvider
+    .PARAMETER serviceAutoStartProvider
         Specifies the name of the AutoStartProviders.
     .PARAMETER ExcludeStopped
         Specifies the name of the Application Type for the AutoStartProvider.
@@ -400,6 +400,7 @@ function Confirm-UniqueServiceAutoStartProviders
         need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
         Name is passed in to bubble to any error messages during the test.
     #>
+    
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -457,22 +458,22 @@ function Get-AuthenticationInfo
     )
 
     $authenticationProperties = @{}
-    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
         $authenticationProperties[$type] = [string](Test-AuthenticationEnabled -Site $Site -Name $Name -Type $type)
     }
 
-    return New-CimInstance -ClassName SEEK_cWebApplicationAuthenticationInformation -ClientOnly -Property $authenticationProperties
+    return New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation -ClientOnly -Property $authenticationProperties
 }
 
 function Get-DefaultAuthenticationInfo
 {
-    New-CimInstance -ClassName SEEK_cWebApplicationAuthenticationInformation `
+    New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
         -ClientOnly `
-        -Property @{Anonymous="false";Basic="false";Digest="false";Windows="false"}
+        -Property @{Anonymous='false';Basic='false';Digest='false';Windows='false'}
 }
 
-function Get-SSLFlags
+function Get-SslFlags
 {
     [CmdletBinding()]
     param
@@ -480,9 +481,17 @@ function Get-SSLFlags
         [System.String]$Location
     )
 
-    $sslFlags = Get-WebConfiguration -PSPath IIS:\Sites -Location $Location -Filter 'system.webserver/security/access' | % { $_.sslFlags }
-    $sslFlags = if ($sslFlags -eq $null) { "" } else { $sslFlags }
-    return $sslFlags
+    $SslFlags = Get-WebConfiguration -PSPath IIS:\Sites -Location $Location -Filter 'system.webserver/security/access' | ForEach-Object { $_.sslFlags }
+    $SslFlags = if ($SslFlags -eq $null) 
+        { 
+            '' 
+        } 
+        else 
+        { 
+            $SslFlags 
+        }
+
+    return $SslFlags
 }
 
 function Set-Authentication
@@ -496,7 +505,7 @@ function Set-Authentication
         [System.String]$Name,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("Anonymous","Basic","Digest","Windows")]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [System.String]$Type,
 
         [System.Boolean]$Enabled
@@ -505,7 +514,7 @@ function Set-Authentication
     Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/${Type}Authentication `
         -Name enabled `
         -Value $Enabled `
-        -Location "${WebSite}/${Name}"
+        -Location "${Site}/${Name}"
 }
 
 function Set-AuthenticationInfo
@@ -523,7 +532,7 @@ function Set-AuthenticationInfo
         [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
     )
 
-    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
         $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
         Set-Authentication -Site $Site -Name $Name -Type $type -Enabled $enabled
@@ -542,7 +551,7 @@ function Test-AuthenticationEnabled
         [System.String]$Name,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("Anonymous","Basic","Digest","Windows")]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [System.String]$Type
     )
 
@@ -550,7 +559,7 @@ function Test-AuthenticationEnabled
     $prop = Get-WebConfigurationProperty `
         -Filter /system.WebServer/security/authentication/${Type}Authentication `
         -Name enabled `
-        -Location "${WebSite}/${ApplicationName}"
+        -Location "${Site}/${Name}"
     return $prop.Value
 }
 
@@ -572,7 +581,7 @@ function Test-AuthenticationInfo
 
     $result = $true
 
-    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
 
         $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
@@ -586,10 +595,6 @@ function Test-AuthenticationInfo
 
     return $result
 }
-
-
-
-
 
 #endregion
 
