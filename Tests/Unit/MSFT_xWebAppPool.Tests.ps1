@@ -204,12 +204,12 @@ try
                     $result.Credential.GetNetworkCredential().Password | Should Be $mockAppPool.processModel.password
                 }
 
-                It 'Should return the idleTimeoutAction property' {
-                    $result.idleTimeoutAction | Should Be $mockAppPool.processModel.idleTimeoutAction
-                }
-
                 It 'Should return the idleTimeout property' {
                     $result.idleTimeout | Should Be $mockAppPool.processModel.idleTimeout
+                }
+
+                It 'Should return the idleTimeoutAction property' {
+                    $result.idleTimeoutAction | Should Be $mockAppPool.processModel.idleTimeoutAction
                 }
 
                 It 'Should return the loadUserProfile property' {

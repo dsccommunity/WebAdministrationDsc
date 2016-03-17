@@ -105,7 +105,7 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateLength(1, 64)]
+        [ValidateLength(1, 64)] # The value must contain between 1 and 64 characters.
         [String]
         $Name
     )
@@ -181,7 +181,7 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateLength(1, 64)] # The application pool name must be between 1 and 64 characters.
+        [ValidateLength(1, 64)] # The value must contain between 1 and 64 characters.
         [String]
         $Name,
 
@@ -235,7 +235,7 @@ function Set-TargetResource
         [UInt32]
         $cpuLimit,
 
-        [ValidateScript({[TimeSpan]::Parse($_).TotalMinutes -in @(0..1440)})] # The valid range (in minutes) is 0 to 1440 (1 day).
+        [ValidateScript({([ValidateRange(0, 1440)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 1440.
         [String]
         $cpuResetInterval,
 
@@ -255,7 +255,7 @@ function Set-TargetResource
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        [ValidateScript({[TimeSpan]::Parse($_).TotalMinutes -in @(0..43200)})] # The valid range (in minutes) is 0 to 43200 (30 days).
+        [ValidateScript({([ValidateRange(0, 43200)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 43200.
         [String]
         $idleTimeout,
 
@@ -282,22 +282,22 @@ function Set-TargetResource
         [Boolean]
         $pingingEnabled,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingInterval,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingResponseTime,
 
         [Boolean]
         $setProfileEnvironment,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $shutdownTimeLimit,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $startupTimeLimit,
 
@@ -317,7 +317,7 @@ function Set-TargetResource
         [Boolean]
         $rapidFailProtection = $true,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 1 to 144000.
         [String]
         $rapidFailProtectionInterval,
 
@@ -348,13 +348,14 @@ function Set-TargetResource
         [UInt32]
         $restartRequestsLimit,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 432000.
         [String]
         $restartTimeLimit,
 
-        # Allow empty strings, so a single empty string ('' or @('')) can be used to ensure all values are removed.
+        # Allow empty strings, so a single empty string '' can be used to ensure all the values are removed.
         # The parameter is not added to $PSBoundParameters if its value is $null or is an empty array @() (DSC-specific behavior).
-        [ValidateScript({if ($_ -eq '') {$true} else {[TimeSpan]::Parse($_)}})]
+        # TimeSpan values must be between 00:00:00 and 23:59:59 seconds inclusive, with a granularity of 60 seconds.
+        [ValidateScript({($_ -eq '') -or ([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})]
         [String[]]
         $restartSchedule
     )
@@ -551,7 +552,7 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateLength(1, 64)] # The application pool name must be between 1 and 64 characters.
+        [ValidateLength(1, 64)] # The value must contain between 1 and 64 characters.
         [String]
         $Name,
 
@@ -589,7 +590,7 @@ function Test-TargetResource
         [Boolean]
         $passAnonymousToken,
 
-        [ValidateSet('AlwaysRunning', 'OnDemand')]
+        [ValidateSet('OnDemand', 'AlwaysRunning')]
         [String]
         $startMode,
 
@@ -605,7 +606,7 @@ function Test-TargetResource
         [UInt32]
         $cpuLimit,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(0, 1440)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 1440.
         [String]
         $cpuResetInterval,
 
@@ -625,7 +626,7 @@ function Test-TargetResource
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(0, 43200)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 43200.
         [String]
         $idleTimeout,
 
@@ -652,22 +653,22 @@ function Test-TargetResource
         [Boolean]
         $pingingEnabled,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingInterval,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingResponseTime,
 
         [Boolean]
         $setProfileEnvironment,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $shutdownTimeLimit,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $startupTimeLimit,
 
@@ -687,7 +688,7 @@ function Test-TargetResource
         [Boolean]
         $rapidFailProtection = $true,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 1 to 144000.
         [String]
         $rapidFailProtectionInterval,
 
@@ -718,13 +719,14 @@ function Test-TargetResource
         [UInt32]
         $restartRequestsLimit,
 
-        [ValidateScript({[TimeSpan]::Parse($_)})]
+        [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 432000.
         [String]
         $restartTimeLimit,
 
-        # Allow empty strings, so a single empty string ('' or @('')) can be used to ensure all values are removed.
+        # Allow empty strings, so a single empty string '' can be used to ensure all the values are removed.
         # The parameter is not added to $PSBoundParameters if its value is $null or is an empty array @() (DSC-specific behavior).
-        [ValidateScript({if ($_ -eq '') {$true} else {[TimeSpan]::Parse($_)}})]
+        # TimeSpan values must be between 00:00:00 and 23:59:59 seconds inclusive, with a granularity of 60 seconds.
+        [ValidateScript({($_ -eq '') -or ([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})]
         [String[]]
         $restartSchedule
     )
