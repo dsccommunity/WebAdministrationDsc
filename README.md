@@ -24,9 +24,111 @@ Currently, only FastCgiModule is supported.
 
 ### xWebAppPool
 
-* **Name**: The desired name of the web application pool
-* **Ensure**: Should the application pool be present or absent
-* **State**: State of the application pool – started or stopped
+* **Name** : Indicates the application pool name.
+  The value must contain between `1` and `64` characters.
+* **Ensure** : Indicates if the application pool exists.
+  Set this property to `Absent` to ensure that the application pool does not exist.
+  Setting it to `Present` (the default value) ensures that the application pool exists.
+* **State** : Indicates the state of the application pool.
+  The values that are allowed for this property are: `Started`, `Stopped`.
+* **autoStart** : When `$true`, indicates to the World Wide Web Publishing Service (W3SVC) that the application pool should be automatically started when it is created or when IIS is started.
+* **CLRConfigFile** : Indicates the .NET configuration file for the application pool.
+* **enable32BitAppOnWin64** : When `$true`, enables a 32-bit application to run on a computer that runs a 64-bit version of Windows.
+* **enableConfigurationOverride** : When `$true`, indicates that delegated settings in Web.config files will processed for applications within this application pool.
+  When `$false`, all settings in Web.config files will be ignored for this application pool.
+* **managedPipelineMode** : Indicates the request-processing mode that is used to process requests for managed content.
+  The values that are allowed for this property are: `Integrated`, `Classic`.
+* **managedRuntimeLoader** : Indicates the managed loader to use for pre-loading the application pool.
+* **managedRuntimeVersion** : Indicates the CLR version to be used by the application pool.
+  The values that are allowed for this property are: `v4.0`, `v2.0`, and `""`.
+* **passAnonymousToken** : When `$true`, the Windows Process Activation Service (WAS) creates and passes a token for the built-in IUSR anonymous user account to the Anonymous authentication module.
+  The Anonymous authentication module uses the token to impersonate the built-in account. When this property is set to `$false`, the token will not be passed.
+* **startMode** : Indicates the startup type for the application pool.
+  The values that are allowed for this property are: `OnDemand`, `AlwaysRunning`.
+* **queueLength** : Indicates the maximum number of requests that HTTP.sys will queue for the application pool.
+  The value must be a valid integer between `10` and `65535`.
+* **cpuAction** : Configures the action that IIS takes when a worker process exceeds its configured CPU limit.
+  The values that are allowed for this property are: `NoAction`, `KillW3wp`, `Throttle`, and `ThrottleUnderLoad`.
+* **cpuLimit** : Configures the maximum percentage of CPU time that the worker processes in an application pool are allowed to consume over a period of time as indicated by the resetInterval attribute.
+  The value must be a valid integer between `0` and `100`.
+* **cpuResetInterval** : Indicates the reset period for CPU monitoring and throttling limits on an application pool.
+  The value must be a valid TimeSpan format string.
+  The valid range (in minutes) is `0` to `1440`.
+  Setting the value of this property to `0` disables CPU monitoring.
+* **cpuSmpAffinitized** : Indicates whether a particular worker process assigned to an application pool should also be assigned to a given CPU.
+* **cpuSmpProcessorAffinityMask** : Indicates the hexadecimal processor mask for multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound.
+  Before this property takes effect, the **cpuSmpAffinitized** property must be set to `$true` for the application pool.
+* **cpuSmpProcessorAffinityMask2** : Indicates the high-order DWORD hexadecimal processor mask for 64-bit multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound.
+  Before this property takes effect, the **cpuSmpAffinitized** property must be set to `$true` for the application pool.
+* **identityType** : Indicates the account identity under which the application pool runs.
+  The values that are allowed for this property are: `ApplicationPoolIdentity`, `LocalService`, `LocalSystem`, `NetworkService`, and `SpecificUser`.
+* **Credential** : Indicates the custom account crededentials.
+  This property is only valid when the **identityType** property is set to `SpecificUser`.
+* **idleTimeout** : Indicates the amount of time a worker process will remain idle before it shuts down.
+  The value must be a string representation of a TimeSpan value.
+  The valid range (in minutes) is `0` to `43200`.
+* **idleTimeoutAction** : Indicates the action to perform when the idle timeout duration has been reached.
+  The values that are allowed for this property are: `Terminate`, `Suspend`.
+  This property is supported in IIS 8.5 or later.
+* **loadUserProfile** : Indicates whether IIS loads the user profile for the application pool identity.
+* **logEventOnProcessModel** : Indicates that IIS should generate an event log entry for each occurrence of the specified process model events.
+  This property is supported in IIS 8.0 or later.
+* **logonType** : Indicates the logon type for the process identity.
+  The values that are allowed for this property are: `LogonBatch`, `LogonService`.
+* **manualGroupMembership** : Indicates whether the IIS_IUSRS group Security Identifier (SID) is added to the worker process token.
+  When `$false`, IIS automatically uses an application pool identity as though it were a member of the built-in IIS_IUSRS group, which has access to necessary file and system resources.
+  When `$true`, an application pool identity must be explicitly added to all resources that a worker process requires at runtime.
+* **maxProcesses** : Indicates the maximum number of worker processes that would be used for the application pool.
+* **pingingEnabled** : Indicates whether pinging (health monitoring) is enabled for the worker process(es) serving this application pool.
+* **pingInterval** : Indicates the period of time between health monitoring pings sent to the worker process(es) serving this application pool.
+  The value must be a string representation of a TimeSpan value.
+  The valid range (in seconds) is `1` to `4294967`.
+* **pingResponseTime** : Indicates the maximum time that a worker process is given to respond to a health monitoring ping.
+  The value must be a string representation of a TimeSpan value.
+  The valid range (in seconds) is `1` to `4294967`.
+* **setProfileEnvironment** : Indicates the environment to be set based on the user profile for the new process.
+  This property is supported in IIS 8.0 or later.
+* **shutdownTimeLimit** : Indicates the period of time a worker process is given to finish processing requests and shut down.
+  The value must be a string representation of a TimeSpan value.
+  The valid range (in seconds) is `1` to `4294967`.
+* **startupTimeLimit** : Indicates the period of time a worker process is given to start up and initialize.
+  The value must be a string representation of a TimeSpan value.
+  The valid range (in seconds) is `1` to `4294967`.
+* **orphanActionExe** : Indicates an executable to run when a worker process is orphaned.
+* **orphanActionParams** : Indicates parameters for the executable that is specified in the **orphanActionExe** property.
+* **orphanWorkerProcess** : Indicates whether to assign a worker process to an orphan state instead of terminating it when an application pool fails.
+  If `$true`, an unresponsive worker process will be orphaned instead of terminated.
+* **loadBalancerCapabilities** : Indicates the response behavior of a service when it is unavailable.
+  The values that are allowed for this property are: `HttpLevel`, `TcpLevel`.
+  If set to `HttpLevel` and the application pool is stopped, HTTP.sys will return HTTP 503 error.
+  If set to `TcpLevel`, HTTP.sys will reset the connection.
+* **rapidFailProtection** : Indicates whether rapid-fail protection is enabled.
+  If `$true`, the application pool is shut down if there are a specified number of worker process crashes within a specified time period.
+* **rapidFailProtectionInterval** : Indicates the time interval during which the specified number of worker process crashes must occur before the application pool is shut down by rapid-fail protection.
+  The value must be a string representation of a TimeSpan value.
+  The valid range (in minutes) is `1` to `144000`.
+* **rapidFailProtectionMaxCrashes** : Indicates the maximum number of worker process crashes permitted before the application pool is shut down by rapid-fail protection.
+* **autoShutdownExe** : Indicates an executable to run when an application pool is shut down by rapid-fail protection.
+* **autoShutdownParams** : Indicates parameters for the executable that is specified in the **autoShutdownExe** property.
+* **disallowOverlappingRotation** : Indicates whether the W3SVC service should start another worker process to replace the existing worker process while that process is shutting down.
+  If `$true`, the application pool recycle will happen such that the existing worker process exits before another worker process is created.
+* **disallowRotationOnConfigChange** : Indicates whether the W3SVC service should rotate worker processes in an application pool when the configuration has changed.
+  If `$true`, the application pool will not recycle when its configuration is changed.
+* **logEventOnRecycle** : Indicates that IIS should generate an event log entry for each occurrence of the specified recycling events.
+* **restartMemoryLimit** : Indicates the maximum amount of virtual memory (in KB) a worker process can consume before causing the application pool to recycle.
+  A value of `0` means there is no limit.
+* **restartPrivateMemoryLimit** : Indicates the maximum amount of private memory (in KB) a worker process can consume before causing the application pool to recycle.
+  A value of `0` means there is no limit.
+* **restartRequestsLimit** : Indicates the maximum number of requests an application pool can process before it is recycled.
+  A value of `0` means the application pool can process an unlimited number of requests. 
+* **restartTimeLimit** : Indicates that the worker process should be recycled after a specified amount of time has elapsed.
+  The value must be a string representation of a TimeSpan value.
+  The valid range (in minutes) is `0` to `432000`.
+  A value of `0` means the application pool does not recycle on a regular interval.
+* **restartSchedule** : Indicates a set of specific local times, in 24 hour format, when the application pool is recycled.
+  The value must be an array of string representations of TimeSpan values.
+  TimeSpan values must be between `00:00:00` and `23:59:59` seconds inclusive, with a granularity of 60 seconds.
+  Setting the value of this property to `""` ensures that the collection is empty.
 
 ### xWebsite
 

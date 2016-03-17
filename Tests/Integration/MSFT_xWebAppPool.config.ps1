@@ -1,119 +1,133 @@
-$rules = @{
-    Name                           = 'PesterAppPool'
-    Ensure                         = 'Present'
-    state                          = 'Stopped'
-    autoStart                      = 'false'
-    managedRuntimeVersion          = 'v2.0'
-    managedPipelineMode            = 'Classic'
-    startMode                      = 'AlwaysRunning'
-    identityType                   = 'LocalService'
-    loadUserProfile                = 'false'
-    queueLength                    = '10'
-    enable32BitAppOnWin64          = 'true'
-    managedRuntimeLoader           = 'somedll.dll'
-    enableConfigurationOverride    = 'false'
-    CLRConfigFile                  = 'CLRConfigFile'
-    passAnonymousToken             = 'false'
-    logonType                      = 'LogonService'
-    manualGroupMembership          = 'true'
-    idleTimeout                    = '00:10:00'
-    maxProcesses                   = '10'
-    shutdownTimeLimit              = '00:10:30'
-    startupTimeLimit               = '00:10:30'
-    pingingEnabled                 = 'false'
-    pingInterval                   = '00:10:30'
-    pingResponseTime               = '00:11:30'
-    disallowOverlappingRotation    = 'true'
-    disallowRotationOnConfigChange = 'true'
-    logEventOnRecycle              = 'Time, Memory, ConfigChange, PrivateMemory'
-    restartMemoryLimit             = '1'
-    restartPrivateMemoryLimit      = '1'
-    restartRequestsLimit           = '1'
-    restartTimeLimit               = '1.15:00:00'
-    restartSchedule                = @('01:00:00','02:00:00')
-    loadBalancerCapabilities       = 'TcpLevel'
-    orphanWorkerProcess            = 'false'
-    orphanActionExe                = 'orphanActionExe.exe'
-    orphanActionParams             = '/someparams'
-    rapidFailProtection            = 'false'
-    rapidFailProtectionInterval    = '00:15:00'
-    rapidFailProtectionMaxCrashes  = '15'
-    autoShutdownExe                = 'autoShutdownExe'
-    autoShutdownParams             = '/autoShutdownParams'
-    cpuLimit                       = '1'
-    cpuAction                      = 'KillW3wp'
-    cpuResetInterval               = '00:15:00'
-    cpuSmpAffinitized              = 'true'
-    cpuSmpProcessorAffinityMask    = '1'
-    cpuSmpProcessorAffinityMask2   = '2'
-}
-
 $ConfigData = @{
     AllNodes = @(
         @{
-            NodeName                    = '*'
-            PSDscAllowPlainTextPassword = $True
+            NodeName = '*'
+            PSDscAllowPlainTextPassword = $true
         }
         @{
-            NodeName     = 'localhost'
+            NodeName = 'localhost'
         }
     )
 }
 
-configuration MSFT_xWebAppPool_Config
+$TestCredential = New-Object -TypeName PSCredential -ArgumentList (
+    'CONTOSO\JDoe',
+    ('5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force)
+)
+
+$TestParameters = [Ordered]@{
+    Name                           = 'TestAppPool'
+    Ensure                         = 'Present'
+    State                          = 'Stopped'
+    autoStart                      = $false
+    CLRConfigFile                  = 'C:\inetpub\temp\aspnet.config'
+    enable32BitAppOnWin64          = $true
+    enableConfigurationOverride    = $false
+    managedPipelineMode            = 'Classic'
+    managedRuntimeLoader           = ''
+    managedRuntimeVersion          = 'v2.0'
+    passAnonymousToken             = $false
+    startMode                      = 'AlwaysRunning'
+    queueLength                    = 2000
+    cpuAction                      = 'KillW3wp'
+    cpuLimit                       = 90
+    cpuResetInterval               = '00:10:00'
+    cpuSmpAffinitized              = $true
+    cpuSmpProcessorAffinityMask    = 1
+    cpuSmpProcessorAffinityMask2   = 1
+    identityType                   = 'SpecificUser'
+    Credential                     = $TestCredential
+    idleTimeout                    = '00:15:00'
+    idleTimeoutAction              = 'Suspend'
+    loadUserProfile                = $false
+    logEventOnProcessModel         = ''
+    logonType                      = 'LogonService'
+    manualGroupMembership          = $true
+    maxProcesses                   = 2
+    pingingEnabled                 = $false
+    pingInterval                   = '00:01:00'
+    pingResponseTime               = '00:02:00'
+    setProfileEnvironment          = $true
+    shutdownTimeLimit              = '00:02:00'
+    startupTimeLimit               = '00:02:00'
+    orphanActionExe                = 'C:\inetpub\temp\orphanAction.exe'
+    orphanActionParams             = 'orphanActionParam1'
+    orphanWorkerProcess            = $true
+    loadBalancerCapabilities       = 'TcpLevel'
+    rapidFailProtection            = $false
+    rapidFailProtectionInterval    = '00:10:00'
+    rapidFailProtectionMaxCrashes  = 10
+    autoShutdownExe                = 'C:\inetpub\temp\autoShutdown.exe'
+    autoShutdownParams             = 'autoShutdownParam1'
+    disallowOverlappingRotation    = $true
+    disallowRotationOnConfigChange = $true
+    logEventOnRecycle              = 'Time,Memory,PrivateMemory'
+    restartMemoryLimit             = 4294967
+    restartPrivateMemoryLimit      = 4294967
+    restartRequestsLimit           = 1000
+    restartTimeLimit               = '2.10:00:00'
+    restartSchedule                = @('06:00:00', '08:00:00')
+}
+
+Configuration MSFT_xWebAppPool_Config
 {
     Import-DscResource -ModuleName xWebAdministration
 
-    node $AllNodes.NodeName {
+    Node $AllNodes.NodeName
+    {
         xWebAppPool TestAppPool
         {
-            Name                           = $rules.Name
-            Ensure                         = $rules.Ensure
-            state                          = $rules.state
-            autoStart                      = $rules.autoStart
-            managedRuntimeVersion          = $rules.managedRuntimeVersion
-            managedPipelineMode            = $rules.managedPipelineMode
-            startMode                      = $rules.startMode
-            identityType                   = $rules.identityType
-            loadUserProfile                = $rules.loadUserProfile
-            queueLength                    = $rules.queueLength
-            enable32BitAppOnWin64          = $rules.enable32BitAppOnWin64
-            managedRuntimeLoader           = $rules.managedRuntimeLoader
-            enableConfigurationOverride    = $rules.enableConfigurationOverride
-            CLRConfigFile                  = $rules.CLRConfigFile
-            passAnonymousToken             = $rules.passAnonymousToken
-            logonType                      = $rules.logonType
-            manualGroupMembership          = $rules.manualGroupMembership
-            idleTimeout                    = $rules.idleTimeout
-            maxProcesses                   = $rules.maxProcesses
-            shutdownTimeLimit              = $rules.shutdownTimeLimit
-            startupTimeLimit               = $rules.startupTimeLimit
-            pingingEnabled                 = $rules.pingingEnabled
-            pingInterval                   = $rules.pingInterval
-            pingResponseTime               = $rules.pingResponseTime
-            disallowOverlappingRotation    = $rules.disallowOverlappingRotation
-            disallowRotationOnConfigChange = $rules.disallowRotationOnConfigChange
-            logEventOnRecycle              = $rules.logEventOnRecycle
-            restartMemoryLimit             = $rules.restartMemoryLimit
-            restartPrivateMemoryLimit      = $rules.restartPrivateMemoryLimit
-            restartRequestsLimit           = $rules.restartRequestsLimit
-            restartTimeLimit               = $rules.restartTimeLimit
-            restartSchedule                = $rules.restartSchedule
-            loadBalancerCapabilities       = $rules.loadBalancerCapabilities
-            orphanWorkerProcess            = $rules.orphanWorkerProcess
-            orphanActionExe                = $rules.orphanActionExe
-            orphanActionParams             = $rules.orphanActionParams
-            rapidFailProtection            = $rules.rapidFailProtection
-            rapidFailProtectionInterval    = $rules.rapidFailProtectionInterval
-            rapidFailProtectionMaxCrashes  = $rules.rapidFailProtectionMaxCrashes
-            autoShutdownExe                = $rules.autoShutdownExe
-            autoShutdownParams             = $rules.autoShutdownParams
-            cpuLimit                       = $rules.cpuLimit
-            cpuAction                      = $rules.cpuAction
-            cpuResetInterval               = $rules.cpuResetInterval
-            cpuSmpAffinitized              = $rules.cpuSmpAffinitized
-            cpuSmpProcessorAffinityMask    = $rules.cpuSmpProcessorAffinityMask
-            cpuSmpProcessorAffinityMask2   = $rules.cpuSmpProcessorAffinityMask2
+            Name                           = $TestParameters.Name
+            Ensure                         = $TestParameters.Ensure
+            State                          = $TestParameters.State
+            autoStart                      = $TestParameters.autoStart
+            CLRConfigFile                  = $TestParameters.CLRConfigFile
+            enable32BitAppOnWin64          = $TestParameters.enable32BitAppOnWin64
+            enableConfigurationOverride    = $TestParameters.enableConfigurationOverride
+            managedPipelineMode            = $TestParameters.managedPipelineMode
+            managedRuntimeLoader           = $TestParameters.managedRuntimeLoader
+            managedRuntimeVersion          = $TestParameters.managedRuntimeVersion
+            passAnonymousToken             = $TestParameters.passAnonymousToken
+            startMode                      = $TestParameters.startMode
+            queueLength                    = $TestParameters.queueLength
+            cpuAction                      = $TestParameters.cpuAction
+            cpuLimit                       = $TestParameters.cpuLimit
+            cpuResetInterval               = $TestParameters.cpuResetInterval
+            cpuSmpAffinitized              = $TestParameters.cpuSmpAffinitized
+            cpuSmpProcessorAffinityMask    = $TestParameters.cpuSmpProcessorAffinityMask
+            cpuSmpProcessorAffinityMask2   = $TestParameters.cpuSmpProcessorAffinityMask2
+            identityType                   = $TestParameters.identityType
+            Credential                     = $TestParameters.Credential
+            idleTimeout                    = $TestParameters.idleTimeout
+            idleTimeoutAction              = $TestParameters.idleTimeoutAction
+            loadUserProfile                = $TestParameters.loadUserProfile
+            logEventOnProcessModel         = $TestParameters.logEventOnProcessModel
+            logonType                      = $TestParameters.logonType
+            manualGroupMembership          = $TestParameters.manualGroupMembership
+            maxProcesses                   = $TestParameters.maxProcesses
+            pingingEnabled                 = $TestParameters.pingingEnabled
+            pingInterval                   = $TestParameters.pingInterval
+            pingResponseTime               = $TestParameters.pingResponseTime
+            setProfileEnvironment          = $TestParameters.setProfileEnvironment
+            shutdownTimeLimit              = $TestParameters.shutdownTimeLimit
+            startupTimeLimit               = $TestParameters.startupTimeLimit
+            orphanActionExe                = $TestParameters.orphanActionExe
+            orphanActionParams             = $TestParameters.orphanActionParams
+            orphanWorkerProcess            = $TestParameters.orphanWorkerProcess
+            loadBalancerCapabilities       = $TestParameters.loadBalancerCapabilities
+            rapidFailProtection            = $TestParameters.rapidFailProtection
+            rapidFailProtectionInterval    = $TestParameters.rapidFailProtectionInterval
+            rapidFailProtectionMaxCrashes  = $TestParameters.rapidFailProtectionMaxCrashes
+            autoShutdownExe                = $TestParameters.autoShutdownExe
+            autoShutdownParams             = $TestParameters.autoShutdownParams
+            disallowOverlappingRotation    = $TestParameters.disallowOverlappingRotation
+            disallowRotationOnConfigChange = $TestParameters.disallowRotationOnConfigChange
+            logEventOnRecycle              = $TestParameters.logEventOnRecycle
+            restartMemoryLimit             = $TestParameters.restartMemoryLimit
+            restartPrivateMemoryLimit      = $TestParameters.restartPrivateMemoryLimit
+            restartRequestsLimit           = $TestParameters.restartRequestsLimit
+            restartTimeLimit               = $TestParameters.restartTimeLimit
+            restartSchedule                = $TestParameters.restartSchedule
         }
     }
 }
