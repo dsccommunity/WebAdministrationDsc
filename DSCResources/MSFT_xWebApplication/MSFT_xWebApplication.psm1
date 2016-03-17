@@ -326,7 +326,7 @@ function Test-TargetResource
         }
         
         #Check SslFlags
-        if ($CurrentSslFlags -eq $SslFlags)
+        if ($CurrentSslFlags -ne $SslFlags)
         {
             Write-Verbose -Message 'SslFlags are not in the desired state'
             return $false
@@ -405,10 +405,9 @@ function Confirm-UniqueServiceAutoStartProviders
     [OutputType([Boolean])]
     param
     (
-
         [Parameter(Mandatory = $true)]
         [String]
-        $serviceAutoStartProvider,
+        $ServiceAutoStartProvider,
 
         [Parameter(Mandatory = $true)]
         [String]
@@ -420,7 +419,66 @@ $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHo
 $ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $serviceAutoStartProvider | Select-Object Name,Type
 
 $ProposedObject = @(New-Object -TypeName PSObject -Property @{
-                                                                name   = $serviceAutoStartProvider
+                                                                name   = $ServiceAutoStartProvider
+                                                                type   = $ApplicationType
+                                                             })
+
+$Result = $true
+
+if(-not $ExistingObject)
+    {
+        $Result = $false
+        return $Result
+    }
+
+if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+    {
+        if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
+        {
+        $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
+        New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+        }
+    }
+
+return $Result
+
+}
+
+function Confirm-UniqueSASP
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other websites.
+        Returns False if the AutoStartProviders exist.
+    .PARAMETER serviceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+    .PARAMETER ExcludeStopped
+        Specifies the name of the Application Type for the AutoStartProvider.
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
+        need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
+    #>
+    
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ServiceAutoStartProvider,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ApplicationType
+    )
+
+$WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+
+$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $serviceAutoStartProvider | Select-Object Name,Type
+
+$ProposedObject = @(New-Object -TypeName PSObject -Property @{
+                                                                name   = $ServiceAutoStartProvider
                                                                 type   = $ApplicationType
                                                              })
 
@@ -447,6 +505,15 @@ return $Result
 
 function Get-AuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    #>
+
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     Param
     (
@@ -468,6 +535,11 @@ function Get-AuthenticationInfo
 
 function Get-DefaultAuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to build a default CimInstance for AuthenticationInformation
+    #>
+
     New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
         -ClientOnly `
         -Property @{Anonymous='false';Basic='false';Digest='false';Windows='false'}
@@ -475,6 +547,13 @@ function Get-DefaultAuthenticationInfo
 
 function Get-SslFlags
 {
+    <#
+    .SYNOPSIS
+        Helper function used to return the SSLFlags on an Application.
+    .PARAMETER Location
+        Specifies the path in the IIS: PSDrive to the Application
+    #>
+    
     [CmdletBinding()]
     param
     (
@@ -496,6 +575,19 @@ function Get-SslFlags
 
 function Set-Authentication
 {
+    <#
+    .SYNOPSIS
+        Helper function used to set authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .PARAMETER Enabled
+        Whether the Authentication is enabled or not.
+    #>
+
     Param
     (
         [parameter(Mandatory = $true)]
@@ -519,6 +611,17 @@ function Set-Authentication
 
 function Set-AuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
     param
     (
         [parameter(Mandatory = $true)]
@@ -541,6 +644,18 @@ function Set-AuthenticationInfo
 
 function Test-AuthenticationEnabled
 {
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that value which will either [string]True or [String]False
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+   .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    #>
+
     [OutputType([System.Boolean])]
     Param
     (
@@ -565,6 +680,19 @@ function Test-AuthenticationEnabled
 
 function Test-AuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that result which will either [boolean]$True or [boolean]$False for use in Test-TargetResource.
+        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break this function out.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
     [OutputType([System.Boolean])]
     param
     (

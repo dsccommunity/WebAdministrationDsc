@@ -388,19 +388,19 @@ function Set-TargetResource
             }
 
             # Update Preload if required
-            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+            if ($PSBoundParameters.ContainsKey('preloadEnabled'))
             {
                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
             }
             
             # Update AutoStart if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled'))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
             }
             
             # Update AutoStartProviders if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider)
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider'))
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                 {
@@ -1026,6 +1026,15 @@ function Format-IPAddressString
 
 function Get-AuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    #>
+
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     Param
@@ -1035,7 +1044,7 @@ function Get-AuthenticationInfo
     )
 
     $authenticationProperties = @{}
-    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
         $authenticationProperties[$type] = [string](Test-AuthenticationEnabled -Site $Site -Type $type)
     }
@@ -1045,13 +1054,31 @@ function Get-AuthenticationInfo
 
 function Get-DefaultAuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to build a default CimInstance for AuthenticationInformation
+    #>
+
     New-CimInstance -ClassName SEEK_cWebAuthenticationInformation `
         -ClientOnly `
-        -Property @{Anonymous="false";Basic="false";Digest="false";Windows="false"}
+        -Property @{Anonymous='false';Basic='false';Digest='false';Windows='false'}
 }
 
 function Set-Authentication
 {
+    <#
+    .SYNOPSIS
+        Helper function used to set authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .PARAMETER Enabled
+        Whether the Authentication is enabled or not.
+    #>
+
     [CmdletBinding()]
     Param
     (
@@ -1059,7 +1086,7 @@ function Set-Authentication
         [System.String]$Site,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("Anonymous","Basic","Digest","Windows")]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [System.String]$Type,
 
         [System.Boolean]$Enabled
@@ -1073,6 +1100,17 @@ function Set-Authentication
 
 function Set-AuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
     [CmdletBinding()]
     param
     (
@@ -1084,7 +1122,7 @@ function Set-AuthenticationInfo
         [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
     )
 
-    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
         $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
         Set-Authentication -Site $Site -Type $type -Enabled $enabled
@@ -1093,6 +1131,18 @@ function Set-AuthenticationInfo
 
 function Test-AuthenticationEnabled
 {
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that value which will either [string]True or [String]False
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+   .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     Param
@@ -1101,7 +1151,7 @@ function Test-AuthenticationEnabled
         [System.String]$Site,
 
         [parameter(Mandatory = $true)]
-        [ValidateSet("Anonymous","Basic","Digest","Windows")]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [System.String]$Type
     )
 
@@ -1115,6 +1165,19 @@ function Test-AuthenticationEnabled
 
 function Test-AuthenticationInfo
 {
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that result which will either [boolean]$True or [boolean]$False for use in Test-TargetResource.
+        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break this function out.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -1129,7 +1192,7 @@ function Test-AuthenticationInfo
 
     $result = $true
 
-    foreach ($type in @("Anonymous", "Basic", "Digest", "Windows"))
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
         $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
         $actual = Test-AuthenticationEnabled -Site $Site -Type $type
@@ -1411,7 +1474,7 @@ function Update-WebsiteBinding
 
 #endregion
 
-
+Export-ModuleMember -Function *-TargetResource
 
 
 

@@ -29,6 +29,7 @@ try
         Describe "how $Global:DSCResourceName\Get-TargetResource responds" {
 
         Function Get-WebConfiguration ($filter) {}
+        Function Get-WebConfigurationProperty {}
         Function Get-Website {}
 
             $MockWebBinding = @(
@@ -506,7 +507,7 @@ try
                 Mock -CommandName Update-WebsiteBinding
                 Mock -CommandName Update-DefaultPage
                 Mock -CommandName Confirm-UniqueBinding -MockWith {return $false}
-                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $false}
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $true}
                 Mock -CommandName Start-Website
 
                 It 'should throw the correct error' {
@@ -648,6 +649,7 @@ try
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName Update-DefaultPage
                 Mock -CommandName Confirm-UniqueBinding -MockWith {return $false}
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $true}
                 Mock -CommandName Start-Website
 
                 It 'should throw the correct error' {
@@ -1461,6 +1463,317 @@ try
 
             }
 
+        }
+
+        Describe "$Global:DSCResourceName\Get-AuthenticationInfo" {      
+           function Get-WebConfigurationProperty {}
+
+            $MockWebsite = @{
+                Name                 = 'MockName'
+                PhysicalPath         = 'C:\NonExistent'
+                State                = 'Started'
+                ApplicationPool      = 'MockPool'
+                Bindings             = @{Collection = @($MockWebBinding)}
+                EnabledProtocols     = 'http'
+                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
+                Count                = 1         
+            }
+
+           Context 'Expected behavior' {
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { return 'False'}
+
+                It 'should not throw an error' {
+                    { Get-AuthenticationInfo -site $MockWebsite.Name } |
+                    Should Not Throw
+                }
+
+                It 'should call Get-WebConfigurationProperty four times' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                }
+            }
+
+            Context 'AuthenticationInfo is false' {
+
+                $GetWebConfigurationOutput = @(
+                    @{
+                        Value = 'False'
+                    }
+                )
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+
+                
+                It 'should all be false' {
+                    $result = Get-AuthenticationInfo -site $MockWebsite.Name 
+                    $result.Anonymous | Should be False
+                    $result.Digest | Should be False
+                    $result.Basic | Should be False
+                    $result.Windows | Should be False
+                }
+
+                It 'should call Get-WebConfigurationProperty four times' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                }
+            }
+
+            Context 'AuthenticationInfo is true' {
+                
+                $GetWebConfigurationOutput = @(
+                    @{
+                        Value = 'True'
+                    }
+                )
+                
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+     
+                It 'should all be true' {
+                    $result = Get-AuthenticationInfo -site $MockWebsite.Name 
+                    $result.Anonymous | Should be True
+                    $result.Digest | Should be True
+                    $result.Basic | Should be True
+                    $result.Windows | Should be True
+                }
+
+                It 'should call Get-WebConfigurationProperty four times' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                }
+            }
+        }
+
+        Describe "$Global:DSCResourceName\Get-DefaultAuthenticationInfo" {
+       
+            Context 'Expected behavior' {
+
+                It 'should not throw an error' {
+                    { Get-DefaultAuthenticationInfo }|
+                    Should Not Throw
+                }
+
+            }
+           
+            Context 'Get-DefaultAuthenticationInfo should produce a false CimInstance' {
+               
+                It 'should all be false' {
+                    $result = Get-DefaultAuthenticationInfo
+                    $result.Anonymous | Should be False
+                    $result.Digest | Should be False
+                    $result.Basic | Should be False
+                    $result.Windows | Should be False
+                }
+            }           
+        }
+       
+        Describe "$Global:DSCResourceName\Set-Authentication" {
+
+        Context 'Expected behavior' {
+            Function Set-WebConfigurationProperty {}
+
+            $MockWebsite = @{
+                Name                 = 'MockName'
+                PhysicalPath         = 'C:\NonExistent'
+                State                = 'Started'
+                ApplicationPool      = 'MockPool'
+                Bindings             = @{Collection = @($MockWebBinding)}
+                EnabledProtocols     = 'http'
+                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
+                Count                = 1         
+            }
+
+            Mock -CommandName Set-WebConfigurationProperty
+
+            It 'should not throw an error' {
+                    { Set-Authentication -Site $MockWebsite.Name -Type Basic -Enabled $true }|
+                    Should Not Throw
+                }
+
+            It 'should call Set-WebConfigurationProperty once' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                }    
+            }
+        }
+
+        Describe "$Global:DSCResourceName\Set-AuthenticationInfo" {
+        
+        Context 'Expected behavior' {
+            Function Set-WebConfigurationProperty {}
+
+            $MockWebsite = @{
+                Name                 = 'MockName'
+                PhysicalPath         = 'C:\NonExistent'
+                State                = 'Started'
+                ApplicationPool      = 'MockPool'
+                Bindings             = @{Collection = @($MockWebBinding)}
+                EnabledProtocols     = 'http'
+                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
+                Count                = 1         
+            }
+
+            Mock -CommandName Set-WebConfigurationProperty
+
+            $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                                                  -ClientOnly `
+                                                  -Property @{Anonymous='true';Basic='false';Digest='false';Windows='false'}
+
+            It 'should not throw an error' {
+                    { Set-AuthenticationInfo  -Site $MockWebsite.Name -AuthenticationInfo $AuthenticationInfo }|
+                    Should Not Throw
+                }
+
+            It 'should call should call expected mocks' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 4
+                }    
+            }       
+        }
+
+        Describe "$Global:DSCResourceName\Test-AuthenticationEnabled" {
+
+        $MockWebsite = @{
+                Name                 = 'MockName'
+                PhysicalPath         = 'C:\NonExistent'
+                State                = 'Started'
+                ApplicationPool      = 'MockPool'
+                Bindings             = @{Collection = @($MockWebBinding)}
+                EnabledProtocols     = 'http'
+                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
+                Count                = 1         
+            }
+        
+        Context 'Expected behavior' {
+
+            $GetWebConfigurationOutput = @(
+                    @{
+                        Value = 'False'
+                    }
+                )
+            Function Get-WebConfigurationProperty {}
+
+            Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+
+            It 'should not throw an error' {
+                    { Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic'}|
+                    Should Not Throw
+                }
+
+            It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
+                }    
+            }
+        Context 'AuthenticationInfo is false' {
+
+                $GetWebConfigurationOutput = @(
+                    @{
+                        Value = 'False'
+                    }
+                )
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+
+                
+                It 'should return false' {
+                    Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic' | Should be False
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
+                }
+            }
+        Context 'AuthenticationInfo is true' {
+                
+                $GetWebConfigurationOutput = @(
+                    @{
+                        Value = 'True'
+                    }
+                )
+                
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+     
+                It 'should all be true' {
+                    Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic' | Should be True
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
+                }
+            }   
+        }
+        
+        Describe "$Global:DSCResourceName\Test-AuthenticationInfo" {
+
+        Function Get-WebConfigurationProperty {}
+
+        Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+
+        $MockWebsite = @{
+                Name                 = 'MockName'
+                PhysicalPath         = 'C:\NonExistent'
+                State                = 'Started'
+                ApplicationPool      = 'MockPool'
+                Bindings             = @{Collection = @($MockWebBinding)}
+                EnabledProtocols     = 'http'
+                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
+                Count                = 1         
+            }
+
+        $GetWebConfigurationOutput = @(
+                    @{
+                        Value = 'False'
+                    }
+                )
+
+        $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                                    -ClientOnly `
+                                    -Property @{Anonymous='false';Basic='true';Digest='false';Windows='false'}
+        
+        Context 'Expected behavior' {
+
+
+            It 'should not throw an error' {
+                    { Test-AuthenticationInfo -Site $MockWebsite.Name -AuthenticationInfo $AuthenticationInfo }|
+                    Should Not Throw
+                }
+
+            It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
+                }    
+            }
+
+        Context 'Return False when AuthenticationInfo is not correct' {
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+
+                
+                It 'should return false' {
+                    Test-AuthenticationInfo -Site $MockWebsite.Name -AuthenticationInfo $AuthenticationInfo | Should be False
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
+                }
+            }
+
+        Context 'Return True when AuthenticationInfo is correct' {
+                
+                $GetWebConfigurationOutput = @(
+                    @{
+                        Value = 'True'
+                    }
+                )
+      
+                $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                                    -ClientOnly `
+                                    -Property @{Anonymous='true';Basic='true';Digest='true';Windows='true'}
+                
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+     
+                It 'should return true' {
+                    Test-AuthenticationInfo -Site $MockWebsite.Name -AuthenticationInfo $AuthenticationInfo | Should be True
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                }
+            }     
         }
 
         Describe "$Global:DSCResourceName\Test-BindingInfo" {
