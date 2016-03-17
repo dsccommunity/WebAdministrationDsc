@@ -56,8 +56,11 @@ try
                     {
                         CheckDependencies
                     } | Should Throw 'Please ensure that WebAdministration module is installed.'
+ 
                 }
+ 
             }
+  
         }
 
         Describe "$Global:DSCResourceName\Get-TargetResource" {
@@ -77,6 +80,7 @@ try
                     $Result = Get-TargetResource @MockParameters
                     $Result.Ensure | Should Be 'Absent'
                 }
+  
             }
 
             Context 'Present should return correctly' {
@@ -99,7 +103,9 @@ try
                     $Result = Get-TargetResource @MockParameters
                     $Result.Ensure | Should Be 'Present'
                 }
+ 
             }
+ 
         }
 
         Describe "how $Global:DSCResourceName\Test-TargetResource responds to Ensure = 'Absent'" {
@@ -128,7 +134,9 @@ try
                     $Result = Test-TargetResource -Ensure 'Absent' @MockParameters
                     $Result | Should Be $false
                 }
+ 
             }
+ 
         }
 
         Describe "how $Global:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
@@ -146,6 +154,7 @@ try
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $false
                 }
+ 
             }
 
             Context 'Web Application exists and is in the desired state' {
@@ -159,6 +168,7 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
+ 
                 }
 
                 Mock Get-WebConfiguration -MockWith { $GetWebConfigurationOutput }
@@ -167,6 +177,7 @@ try
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $true
                 }
+ 
             }
 
             Context 'Web Application exists but has a different WebAppPool' {
@@ -180,12 +191,14 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
+ 
                 }
 
                 It 'should return False' {
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $False
                 }
+ 
             }
 
             Context 'Web Application exists but has a different PhysicalPath' {
@@ -198,12 +211,14 @@ try
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         Count = 1
                     }
+  
                 }
 
                 It 'should return False' {
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $False
                 }
+
             }
 
             Context 'Check Preload is different' {
@@ -224,7 +239,7 @@ try
                 It 'should return False' {
                     $Result | Should Be $false
                 }
-
+ 
             }
 
             Context 'Check ServiceAutoStartEnabled is different' {
@@ -261,9 +276,7 @@ try
                         Count = 1
                         }
                     }
-
-                
-
+               
                 $Result = Test-TargetResource -Ensure 'Present' @MockParameters
 
                 It 'should return False' {
@@ -289,7 +302,9 @@ try
                     $Result = Set-TargetResource -Ensure 'Absent' @MockParameters
                     Assert-MockCalled -CommandName Remove-WebApplication -Exactly 1
                 }
+
             }
+
         }
 
         Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
@@ -322,6 +337,7 @@ try
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     #Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
                 }
+
             }
 
             Context 'Web Application exists but has a different WebAppPool' {
@@ -336,6 +352,7 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
+  
                 }
 
                 Mock -CommandName Set-WebConfigurationProperty
@@ -363,6 +380,7 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
+ 
                 }
 
                 Mock -CommandName Set-WebConfigurationProperty
@@ -375,6 +393,7 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                 }
+ 
             }
 
             Context 'Web Application exists but has Preload not set' {
@@ -390,7 +409,8 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
-                }
+
+               }
 
                 Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Set-ItemProperty
@@ -402,6 +422,7 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                 }
+ 
             }
 
             Context 'Web Application exists but has ServiceAutoStartEnabled not set' {
@@ -417,9 +438,8 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
+ 
                 }
-
-
 
                 Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Set-ItemProperty
@@ -431,6 +451,7 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                 }
+  
             }
 
             Context 'Web Application exists but has different ServiceAutoStartProvider' {
@@ -458,7 +479,9 @@ try
                         
                         Count = 1
                     }
+
                 }
+
                 Mock -CommandName Get-WebConfiguration -MockWith {return $GetWebConfigurationOutput}
                 Mock -CommandName Set-ItemProperty
                 Mock -CommandName Add-WebConfiguration
@@ -596,6 +619,7 @@ try
                 It 'should call Get-WebConfigurationProperty four times' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
+ 
             }
 
             Context 'AuthenticationInfo is false' {
@@ -620,6 +644,7 @@ try
                 It 'should call Get-WebConfigurationProperty four times' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
+  
             }
 
             Context 'AuthenticationInfo is true' {
@@ -643,7 +668,9 @@ try
                 It 'should call Get-WebConfigurationProperty four times' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
+ 
             }
+
         }
 
         Describe "$Global:DSCResourceName\Get-DefaultAuthenticationInfo" {
@@ -666,7 +693,9 @@ try
                     $result.Basic | Should be False
                     $result.Windows | Should be False
                 }
+   
             }           
+ 
         }
 
         Describe "$Global:DSCResourceName\Get-SslFlags" {
@@ -706,7 +735,9 @@ try
                     Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) |
                     Should Be 'Ssl'
                 }
+ 
             }
+
         }
 
         Describe "$Global:DSCResourceName\Set-Authentication" {
@@ -724,7 +755,9 @@ try
             It 'should call Set-WebConfigurationProperty once' {
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                 }    
+ 
             }
+  
         }
 
         Describe "$Global:DSCResourceName\Set-AuthenticationInfo" {
@@ -746,8 +779,10 @@ try
             It 'should call should call expected mocks' {
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 4
                 }    
+  
             }       
-        }
+
+      }
         
         Describe "$Global:DSCResourceName\Test-AuthenticationEnabled" {
         
@@ -770,6 +805,7 @@ try
             It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
                 }    
+    
             }
 
         Context 'AuthenticationInfo is false' {
@@ -790,6 +826,7 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
                 }
+
             }
 
         Context 'AuthenticationInfo is true' {
@@ -809,7 +846,9 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
                 }
+  
             }   
+  
         }
         
         Describe "$Global:DSCResourceName\Test-AuthenticationInfo" {
@@ -839,6 +878,7 @@ try
             It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
                 }    
+ 
             }
 
         Context 'Return False when AuthenticationInfo is not correct' {
@@ -853,6 +893,7 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
                 }
+  
             }
 
         Context 'Return True when AuthenticationInfo is correct' {
@@ -876,8 +917,11 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
+  
             }     
+  
         }
+ 
     }
 }
 finally

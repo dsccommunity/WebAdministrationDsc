@@ -1659,6 +1659,7 @@ try
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
                 }    
             }
+        
         Context 'AuthenticationInfo is false' {
 
                 $GetWebConfigurationOutput = @(
@@ -1678,6 +1679,7 @@ try
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
                 }
             }
+        
         Context 'AuthenticationInfo is true' {
                 
                 $GetWebConfigurationOutput = @(
@@ -1773,7 +1775,9 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
+            
             }     
+        
         }
 
         Describe "$Global:DSCResourceName\Test-BindingInfo" {
