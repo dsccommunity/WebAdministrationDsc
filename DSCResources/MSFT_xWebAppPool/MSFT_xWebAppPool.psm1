@@ -8,7 +8,7 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".'
+ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
 ErrorAppCmdPathNotFound           = AppCmd.exe could not be found at path "{0}".
 ErrorNewAppPool                   = Failed to create application pool "{0}". Error: "{1}".
 ErrorRemoveAppPool                = Failed to remove application pool "{0}". Error: "{1}".
@@ -113,10 +113,10 @@ function Get-TargetResource
 
     Assert-Module
 
-    $AppPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
+    $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
         Where-Object -FilterScript {$_.name -eq $Name}
 
-    if ($AppPool -eq $null)
+    if ($appPool -eq $null)
     {
         Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
 
@@ -129,14 +129,14 @@ function Get-TargetResource
 
         $ensureResult = 'Present'
 
-        if ($AppPool.processModel.identityType -eq 'SpecificUser')
+        if ($appPool.processModel.identityType -eq 'SpecificUser')
         {
             $cimCredential = New-CimInstance -ClientOnly `
                 -ClassName MSFT_Credential `
                 -Namespace root/microsoft/windows/DesiredStateConfiguration `
                 -Property @{
-                    UserName = [String]$AppPool.processModel.userName
-                    Password = [String]$AppPool.processModel.password
+                    UserName = [String]$appPool.processModel.userName
+                    Password = [String]$appPool.processModel.password
                 }
         }
         else
@@ -157,11 +157,11 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $returnValue.Add($_.Name, (Invoke-Expression -Command ('$AppPool.{0}' -f $_.Path)))
+            $returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
         }
     )
 
-    $restartScheduleCurrent = [String[]]@(@($AppPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
+    $restartScheduleCurrent = [String[]]@(@($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
     $returnValue.Add('restartSchedule', $restartScheduleCurrent)
 
     return $returnValue
@@ -355,20 +355,20 @@ function Set-TargetResource
 
     Assert-Module
 
-    $AppPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
+    $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
         Where-Object -FilterScript {$_.name -eq $Name}
 
     if ($Ensure -eq 'Present')
     {
         # Create Application Pool
-        if ($AppPool -eq $null)
+        if ($appPool -eq $null)
         {
             Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
 
             try
             {
                 Write-Verbose -Message ($LocalizedData['VerboseNewAppPool'] -f $Name)
-                $AppPool = New-WebAppPool -Name $Name -ErrorAction Stop
+                $appPool = New-WebAppPool -Name $Name -ErrorAction Stop
                 Start-Sleep -Seconds 5
             }
             catch
@@ -379,7 +379,7 @@ function Set-TargetResource
         }
 
         # Set Application Pool Properties
-        if ($AppPool -ne $null)
+        if ($appPool -ne $null)
         {
             Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
 
@@ -393,7 +393,7 @@ function Set-TargetResource
                     $propertyName = $_.Name
                     $propertyPath = $_.Path
 
-                    if ($PSBoundParameters[$propertyName] -ne (Invoke-Expression -Command ('$AppPool.{0}' -f $propertyPath)))
+                    if ($PSBoundParameters[$propertyName] -ne (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath)))
                     {
                         Write-Verbose -Message ($LocalizedData['VerboseSetProperty'] -f $propertyName, $Name)
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, ('/{0}:{1}' -f $propertyPath, $PSBoundParameters[$propertyName])
@@ -405,7 +405,7 @@ function Set-TargetResource
             {
                 if ($PSBoundParameters['identityType'] -eq 'SpecificUser')
                 {
-                    if ($AppPool.processModel.userName -ne $Credential.UserName)
+                    if ($appPool.processModel.userName -ne $Credential.UserName)
                     {
                         Write-Verbose -Message ($LocalizedData['VerboseSetProperty'] -f 'Credential (userName)', $Name)
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, ('/processModel.userName:{0}' -f $Credential.UserName)
@@ -413,7 +413,7 @@ function Set-TargetResource
 
                     $clearTextPassword = $Credential.GetNetworkCredential().Password
 
-                    if ($AppPool.processModel.password -cne $clearTextPassword)
+                    if ($appPool.processModel.password -cne $clearTextPassword)
                     {
                         Write-Verbose -Message ($LocalizedData['VerboseSetProperty'] -f 'Credential (password)', $Name)
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, ('/processModel.password:{0}' -f $clearTextPassword)
@@ -429,11 +429,11 @@ function Set-TargetResource
             if (
                 (
                     (($PSBoundParameters.ContainsKey('identityType') -eq $true) -and ($PSBoundParameters['identityType'] -ne 'SpecificUser')) -or
-                    (($PSBoundParameters.ContainsKey('identityType') -eq $false) -and ($AppPool.processModel.identityType -ne 'SpecificUser'))
+                    (($PSBoundParameters.ContainsKey('identityType') -eq $false) -and ($appPool.processModel.identityType -ne 'SpecificUser'))
                 ) -and
                 (
-                    ([String]::IsNullOrEmpty($AppPool.processModel.userName) -eq $false) -or
-                    ([String]::IsNullOrEmpty($AppPool.processModel.password) -eq $false)
+                    ([String]::IsNullOrEmpty($appPool.processModel.userName) -eq $false) -or
+                    ([String]::IsNullOrEmpty($appPool.processModel.password) -eq $false)
                 )
             )
             {
@@ -450,7 +450,7 @@ function Set-TargetResource
                     Select-Object -Unique
                 )
 
-                $restartScheduleCurrent = [String[]]@(@($AppPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
+                $restartScheduleCurrent = [String[]]@(@($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
 
                 Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent) |
                 ForEach-Object -Process {
@@ -469,7 +469,7 @@ function Set-TargetResource
                 }
             }
 
-            if ($PSBoundParameters.ContainsKey('State') -and $AppPool.state -ne $State)
+            if ($PSBoundParameters.ContainsKey('State') -and $appPool.state -ne $State)
             {
                 if ($State -eq 'Started')
                 {
@@ -503,11 +503,11 @@ function Set-TargetResource
     else
     {
         # Remove Application Pool
-        if ($AppPool -ne $null)
+        if ($appPool -ne $null)
         {
             Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
 
-            if ($AppPool.state -eq 'Started')
+            if ($appPool.state -eq 'Started')
             {
                 try
                 {
@@ -729,17 +729,17 @@ function Test-TargetResource
 
     $inDesiredState = $true
 
-    $AppPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
+    $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
         Where-Object -FilterScript {$_.name -eq $Name}
 
     if (
-        ($Ensure -eq 'Absent' -and $AppPool -ne $null) -or
-        ($Ensure -eq 'Present' -and $AppPool -eq $null)
+        ($Ensure -eq 'Absent' -and $appPool -ne $null) -or
+        ($Ensure -eq 'Present' -and $appPool -eq $null)
     )
     {
         $inDesiredState = $false
 
-        if ($AppPool -ne $null)
+        if ($appPool -ne $null)
         {
             Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
         }
@@ -751,7 +751,7 @@ function Test-TargetResource
         Write-Verbose -Message ($LocalizedData['VerboseEnsureNotInDesiredState'] -f $Name)
     }
 
-    if ($Ensure -eq 'Present' -and $AppPool -ne $null)
+    if ($Ensure -eq 'Present' -and $appPool -ne $null)
     {
         Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
 
@@ -765,7 +765,7 @@ function Test-TargetResource
                 $propertyName = $_.Name
                 $propertyPath = $_.Path
 
-                if ($PSBoundParameters[$propertyName] -ne (Invoke-Expression -Command ('$AppPool.{0}' -f $propertyPath)))
+                if ($PSBoundParameters[$propertyName] -ne (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath)))
                 {
                     $inDesiredState = $false
                     Write-Verbose -Message ($LocalizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name)
@@ -777,7 +777,7 @@ function Test-TargetResource
         {
             if ($PSBoundParameters['identityType'] -eq 'SpecificUser')
             {
-                if ($AppPool.processModel.userName -ne $Credential.UserName)
+                if ($appPool.processModel.userName -ne $Credential.UserName)
                 {
                     $inDesiredState = $false
                     Write-Verbose -Message ($LocalizedData['VerbosePropertyNotInDesiredState'] -f 'Credential (userName)', $Name)
@@ -785,7 +785,7 @@ function Test-TargetResource
 
                 $clearTextPassword = $Credential.GetNetworkCredential().Password
 
-                if ($AppPool.processModel.password -cne $clearTextPassword)
+                if ($appPool.processModel.password -cne $clearTextPassword)
                 {
                     $inDesiredState = $false
                     Write-Verbose -Message ($LocalizedData['VerbosePropertyNotInDesiredState'] -f 'Credential (password)', $Name)
@@ -801,11 +801,11 @@ function Test-TargetResource
         if (
             (
                 (($PSBoundParameters.ContainsKey('identityType') -eq $true) -and ($PSBoundParameters['identityType'] -ne 'SpecificUser')) -or
-                (($PSBoundParameters.ContainsKey('identityType') -eq $false) -and ($AppPool.processModel.identityType -ne 'SpecificUser'))
+                (($PSBoundParameters.ContainsKey('identityType') -eq $false) -and ($appPool.processModel.identityType -ne 'SpecificUser'))
             ) -and
             (
-                ([String]::IsNullOrEmpty($AppPool.processModel.userName) -eq $false) -or
-                ([String]::IsNullOrEmpty($AppPool.processModel.password) -eq $false)
+                ([String]::IsNullOrEmpty($appPool.processModel.userName) -eq $false) -or
+                ([String]::IsNullOrEmpty($appPool.processModel.password) -eq $false)
             )
         )
         {
@@ -821,7 +821,7 @@ function Test-TargetResource
                 Select-Object -Unique
             )
 
-            $restartScheduleCurrent = [String[]]@(@($AppPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
+            $restartScheduleCurrent = [String[]]@(@($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
 
             if (Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent))
             {
