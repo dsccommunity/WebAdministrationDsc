@@ -197,11 +197,13 @@ try
                 }
 
                 It 'Should return the Credential (userName) property' {
+                    # Get-DscConfiguration returns MSFT_Credential with empty UserName
                     $result.Credential.userName | Should Be $mockAppPool.processModel.userName
                 }
 
                 It 'Should return the Credential (password) property' {
-                    $result.Credential.GetNetworkCredential().Password | Should Be $mockAppPool.processModel.password
+                    # Get-DscConfiguration returns MSFT_Credential with empty Password
+                    $result.Credential.Password | Should Be $mockAppPool.processModel.password
                 }
 
                 It 'Should return the idleTimeout property' {
@@ -243,7 +245,7 @@ try
                 It 'Should return the pingResponseTime property' {
                     $result.pingResponseTime | Should Be $mockAppPool.processModel.pingResponseTime
                 }
-                
+
                 It 'Should return the setProfileEnvironment property' {
                     $result.setProfileEnvironment | Should Be $mockAppPool.processModel.setProfileEnvironment
                 }

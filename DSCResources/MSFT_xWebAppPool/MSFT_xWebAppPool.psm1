@@ -121,7 +121,7 @@ function Get-TargetResource
         Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
 
         $ensureResult = 'Absent'
-        $currentCredential = $null
+        $cimCredential = $null
     }
     else
     {
@@ -131,34 +131,24 @@ function Get-TargetResource
 
         if ($AppPool.processModel.identityType -eq 'SpecificUser')
         {
-            if ([String]::IsNullOrEmpty($AppPool.processModel.userName))
-            {
-                $currentCredential = $null
-            }
-            else
-            {
-                if ([String]::IsNullOrEmpty($AppPool.processModel.password))
-                {
-                    $currentPassword = New-Object -TypeName SecureString
+            $cimCredential = New-CimInstance -ClientOnly `
+                -ClassName MSFT_Credential `
+                -Namespace root/microsoft/windows/DesiredStateConfiguration `
+                -Property @{
+                    UserName = [String]$AppPool.processModel.userName
+                    Password = [String]$AppPool.processModel.password
                 }
-                else
-                {
-                    $currentPassword = ConvertTo-SecureString -String $AppPool.processModel.password -AsPlainText -Force
-                }
-
-                $currentCredential = New-Object -TypeName PSCredential -ArgumentList $AppPool.processModel.userName, $currentPassword
-            }
         }
         else
         {
-            $currentCredential = $null
+            $cimCredential = $null
         }
     }
 
     $returnValue = @{
         Name = $Name
         Ensure = $ensureResult
-        Credential = $currentCredential
+        Credential = $cimCredential
     }
 
     $PropertyData.Where(
@@ -171,7 +161,8 @@ function Get-TargetResource
         }
     )
 
-    $returnValue.Add('restartSchedule', @($AppPool.recycling.periodicRestart.schedule.Collection.ForEach('value')))
+    $restartScheduleCurrent = [String[]]@(@($AppPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
+    $returnValue.Add('restartSchedule', $restartScheduleCurrent)
 
     return $returnValue
 }
@@ -437,16 +428,16 @@ function Set-TargetResource
             # Ensure the userName and password are cleared in case identityType is not set to SpecificUser
             if (
                 (
-                    ($AppPool.processModel.identityType -ne 'SpecificUser') -and
-                    ($PSBoundParameters['identityType'] -ne 'SpecificUser')
+                    (($PSBoundParameters.ContainsKey('identityType') -eq $true) -and ($PSBoundParameters['identityType'] -ne 'SpecificUser')) -or
+                    (($PSBoundParameters.ContainsKey('identityType') -eq $false) -and ($AppPool.processModel.identityType -ne 'SpecificUser'))
                 ) -and
                 (
-                    (-not [String]::IsNullOrEmpty($AppPool.processModel.userName)) -or
-                    (-not [String]::IsNullOrEmpty($AppPool.processModel.password))
+                    ([String]::IsNullOrEmpty($AppPool.processModel.userName) -eq $false) -or
+                    ([String]::IsNullOrEmpty($AppPool.processModel.password) -eq $false)
                 )
             )
             {
-                Write-Verbose -Message ($LocalizedData['VerboseClearCredential'])
+                Write-Verbose -Message ($LocalizedData['VerboseClearCredential'] -f $Name)
                 Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, '/processModel.userName:'
                 Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, '/processModel.password:'
             }
@@ -459,7 +450,7 @@ function Set-TargetResource
                     Select-Object -Unique
                 )
 
-                $restartScheduleCurrent = [String[]]@($AppPool.recycling.periodicRestart.schedule.Collection.ForEach('value'))
+                $restartScheduleCurrent = [String[]]@(@($AppPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
 
                 Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent) |
                 ForEach-Object -Process {
@@ -809,17 +800,17 @@ function Test-TargetResource
         # Ensure the userName and password are cleared in case identityType is not set to SpecificUser
         if (
             (
-                ($AppPool.processModel.identityType -ne 'SpecificUser') -and
-                ($PSBoundParameters['identityType'] -ne 'SpecificUser')
+                (($PSBoundParameters.ContainsKey('identityType') -eq $true) -and ($PSBoundParameters['identityType'] -ne 'SpecificUser')) -or
+                (($PSBoundParameters.ContainsKey('identityType') -eq $false) -and ($AppPool.processModel.identityType -ne 'SpecificUser'))
             ) -and
             (
-                (-not [String]::IsNullOrEmpty($AppPool.processModel.userName)) -or
-                (-not [String]::IsNullOrEmpty($AppPool.processModel.password))
+                ([String]::IsNullOrEmpty($AppPool.processModel.userName) -eq $false) -or
+                ([String]::IsNullOrEmpty($AppPool.processModel.password) -eq $false)
             )
         )
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeCleared'])
+            Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeCleared'] -f $Name)
         }
 
         if ($PSBoundParameters.ContainsKey('restartSchedule'))
@@ -830,7 +821,7 @@ function Test-TargetResource
                 Select-Object -Unique
             )
 
-            $restartScheduleCurrent = [String[]]@($AppPool.recycling.periodicRestart.schedule.Collection.ForEach('value'))
+            $restartScheduleCurrent = [String[]]@(@($AppPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
 
             if (Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent))
             {
