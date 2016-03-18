@@ -8,6 +8,7 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
+ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".'
 ErrorAppCmdPathNotFound           = AppCmd.exe could not be found at path "{0}".
 ErrorNewAppPool                   = Failed to create application pool "{0}". Error: "{1}".
 ErrorRemoveAppPool                = Failed to remove application pool "{0}". Error: "{1}".
@@ -33,7 +34,7 @@ VerboseRestartScheduleValueRemove = Removing value "{0}" from the "restartSchedu
 }
 
 # Writable properties except Ensure and Credential
-data PropertyList
+data PropertyData
 {
     @(
         # General
@@ -160,7 +161,7 @@ function Get-TargetResource
         Credential = $currentCredential
     }
 
-    $PropertyList.Where(
+    $PropertyData.Where(
         {
             $_.Name -notin @('restartSchedule')
         }
@@ -242,10 +243,10 @@ function Set-TargetResource
         [Boolean]
         $cpuSmpAffinitized,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $cpuSmpProcessorAffinityMask,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet('ApplicationPoolIdentity', 'LocalService', 'LocalSystem', 'NetworkService', 'SpecificUser')]
@@ -276,6 +277,7 @@ function Set-TargetResource
         [Boolean]
         $manualGroupMembership,
 
+        [ValidateRange(0, 2147483647)] # The value must be a valid integer between 0 and 2147483647.
         [UInt32]
         $maxProcesses,
 
@@ -315,12 +317,13 @@ function Set-TargetResource
         $loadBalancerCapabilities,
 
         [Boolean]
-        $rapidFailProtection = $true,
+        $rapidFailProtection,
 
         [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 1 to 144000.
         [String]
         $rapidFailProtectionInterval,
 
+        [ValidateRange(0, 2147483647)] # The value must be a valid integer between 0 and 2147483647.
         [UInt32]
         $rapidFailProtectionMaxCrashes,
 
@@ -339,22 +342,21 @@ function Set-TargetResource
         [String]
         $logEventOnRecycle,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartMemoryLimit,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartPrivateMemoryLimit,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartRequestsLimit,
 
         [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 432000.
         [String]
         $restartTimeLimit,
 
-        # Allow empty strings, so a single empty string '' can be used to ensure all the values are removed.
-        # The parameter is not added to $PSBoundParameters if its value is $null or is an empty array @() (DSC-specific behavior).
-        # TimeSpan values must be between 00:00:00 and 23:59:59 seconds inclusive, with a granularity of 60 seconds.
+        # Allow empty strings, so a single empty string '' can be used to ensure the 'recycling.periodicRestart.schedule' collection is empty.
+        # TimeSpan values must be between '00:00:00' and '23:59:59' seconds inclusive, with a granularity of 60 seconds.
         [ValidateScript({($_ -eq '') -or ([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})]
         [String[]]
         $restartSchedule
@@ -390,7 +392,7 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
 
-            $PropertyList.Where(
+            $PropertyData.Where(
                 {
                     ($_.Name -in $PSBoundParameters.Keys) -and
                     ($_.Name -notin @('State', 'restartSchedule'))
@@ -451,15 +453,15 @@ function Set-TargetResource
 
             if ($PSBoundParameters.ContainsKey('restartSchedule'))
             {
-                if ($restartSchedule.Contains(''))
-                {
-                    # Omit empty strings. They are only needed to support removal of all values from the collection.
-                    $restartSchedule = [String[]]@($restartSchedule.Where({$_ -ne ''}))
-                }
+                # Normalize the restartSchedule array values
+                $restartScheduleDesired = [String[]]@(
+                    $restartSchedule.Where({$_ -ne ''}).ForEach({[TimeSpan]::Parse($_).ToString('hh\:mm\:ss')}) |
+                    Select-Object -Unique
+                )
 
                 $restartScheduleCurrent = [String[]]@($AppPool.recycling.periodicRestart.schedule.Collection.ForEach('value'))
 
-                Compare-Object -ReferenceObject @($restartSchedule | Select-Object -Unique) -DifferenceObject @($restartScheduleCurrent) |
+                Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent) |
                 ForEach-Object -Process {
 
                     if ($_.SideIndicator -eq '<=') # Add value
@@ -613,10 +615,10 @@ function Test-TargetResource
         [Boolean]
         $cpuSmpAffinitized,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $cpuSmpProcessorAffinityMask,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet('ApplicationPoolIdentity', 'LocalService', 'LocalSystem', 'NetworkService', 'SpecificUser')]
@@ -647,6 +649,7 @@ function Test-TargetResource
         [Boolean]
         $manualGroupMembership,
 
+        [ValidateRange(0, 2147483647)] # The value must be a valid integer between 0 and 2147483647.
         [UInt32]
         $maxProcesses,
 
@@ -686,12 +689,13 @@ function Test-TargetResource
         $loadBalancerCapabilities,
 
         [Boolean]
-        $rapidFailProtection = $true,
+        $rapidFailProtection,
 
         [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 1 to 144000.
         [String]
         $rapidFailProtectionInterval,
 
+        [ValidateRange(0, 2147483647)] # The value must be a valid integer between 0 and 2147483647.
         [UInt32]
         $rapidFailProtectionMaxCrashes,
 
@@ -710,22 +714,21 @@ function Test-TargetResource
         [String]
         $logEventOnRecycle,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartMemoryLimit,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartPrivateMemoryLimit,
 
-        [UInt32]
+        [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartRequestsLimit,
 
         [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 432000.
         [String]
         $restartTimeLimit,
 
-        # Allow empty strings, so a single empty string '' can be used to ensure all the values are removed.
-        # The parameter is not added to $PSBoundParameters if its value is $null or is an empty array @() (DSC-specific behavior).
-        # TimeSpan values must be between 00:00:00 and 23:59:59 seconds inclusive, with a granularity of 60 seconds.
+        # Allow empty strings, so a single empty string '' can be used to ensure the 'recycling.periodicRestart.schedule' collection is empty.
+        # TimeSpan values must be between '00:00:00' and '23:59:59' seconds inclusive, with a granularity of 60 seconds.
         [ValidateScript({($_ -eq '') -or ([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})]
         [String[]]
         $restartSchedule
@@ -761,7 +764,7 @@ function Test-TargetResource
     {
         Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
 
-        $PropertyList.Where(
+        $PropertyData.Where(
             {
                 ($_.Name -in $PSBoundParameters.Keys) -and
                 ($_.Name -notin @('restartSchedule'))
@@ -821,15 +824,15 @@ function Test-TargetResource
 
         if ($PSBoundParameters.ContainsKey('restartSchedule'))
         {
-            if ($restartSchedule.Contains(''))
-            {
-                # Omit empty strings. They are allowed to support removal of all values from the 'schedule' collection.
-                $restartSchedule = [String[]]@($restartSchedule.Where({$_ -ne ''}))
-            }
+            # Normalize the restartSchedule array values
+            $restartScheduleDesired = [String[]]@(
+                $restartSchedule.Where({$_ -ne ''}).ForEach({[TimeSpan]::Parse($_).ToString('hh\:mm\:ss')}) |
+                Select-Object -Unique
+            )
 
             $restartScheduleCurrent = [String[]]@($AppPool.recycling.periodicRestart.schedule.Collection.ForEach('value'))
 
-            if (Compare-Object -ReferenceObject @($restartSchedule | Select-Object -Unique) -DifferenceObject @($restartScheduleCurrent))
+            if (Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent))
             {
                 $inDesiredState = $false
                 Write-Verbose -Message ($LocalizedData['VerbosePropertyNotInDesiredState'] -f 'restartSchedule', $Name)
@@ -853,22 +856,29 @@ function Test-TargetResource
 
 function Invoke-AppCmd
 {
+    [CmdletBinding()]
     param
     (
         [String[]]
         $ArgumentList,
 
         [String]
-        $Path = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+        $FilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
     )
 
-    if (Test-Path -Path $Path -PathType Leaf)
+    if (Test-Path -Path $FilePath -PathType Leaf)
     {
-        & $Path $ArgumentList
+        $(& $FilePath $ArgumentList) | Write-Verbose
+
+        if ($LASTEXITCODE -ne 0)
+        {
+            $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f ${LASTEXITCODE}
+            New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' -ErrorMessage $errorMessage -ErrorCategory 'InvalidResult'
+        }
     }
     else
     {
-        $errorMessage = $LocalizedData['ErrorAppCmdPathNotFound'] -f $Path
+        $errorMessage = $LocalizedData['ErrorAppCmdPathNotFound'] -f $FilePath
         New-TerminatingError -ErrorId 'ErrorAppCmdPathNotFound' -ErrorMessage $errorMessage -ErrorCategory 'ObjectNotFound'
     }
 }

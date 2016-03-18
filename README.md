@@ -45,13 +45,15 @@ Currently, only FastCgiModule is supported.
 * **cpuLimit** : Configures the maximum percentage of CPU time that the worker processes in an application pool are allowed to consume over a period of time as indicated by the resetInterval attribute.
     The value must be a valid integer between `0` and `100`.
 * **cpuResetInterval** : Indicates the reset period for CPU monitoring and throttling limits on an application pool.
-    The value must be a valid TimeSpan format string. The valid range (in minutes) is `0` to `1440`.
+    The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `0` to `1440`.
     Setting the value of this property to `0` disables CPU monitoring.
 * **cpuSmpAffinitized** : Indicates whether a particular worker process assigned to an application pool should also be assigned to a given CPU.
 * **cpuSmpProcessorAffinityMask** : Indicates the hexadecimal processor mask for multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound.
     Before this property takes effect, the **cpuSmpAffinitized** property must be set to `$true` for the application pool.
+    The value must be a valid integer between `0` and `4294967295`.
 * **cpuSmpProcessorAffinityMask2** : Indicates the high-order DWORD hexadecimal processor mask for 64-bit multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound.
     Before this property takes effect, the **cpuSmpAffinitized** property must be set to `$true` for the application pool.
+    The value must be a valid integer between `0` and `4294967295`.
 * **identityType** : Indicates the account identity under which the application pool runs.
     The values that are allowed for this property are: `ApplicationPoolIdentity`, `LocalService`, `LocalSystem`, `NetworkService`, and `SpecificUser`.
 * **Credential** : Indicates the custom account crededentials. This property is only valid when the **identityType** property is set to `SpecificUser`.
@@ -64,6 +66,7 @@ Currently, only FastCgiModule is supported.
 * **logonType** : Indicates the logon type for the process identity. The values that are allowed for this property are: `LogonBatch`, `LogonService`.
 * **manualGroupMembership** : Indicates whether the IIS_IUSRS group Security Identifier (SID) is added to the worker process token.
 * **maxProcesses** : Indicates the maximum number of worker processes that would be used for the application pool.
+    The value must be a valid integer between `0` and `2147483647`.
 * **pingingEnabled** : Indicates whether pinging (health monitoring) is enabled for the worker process(es) serving this application pool.
 * **pingInterval** : Indicates the period of time between health monitoring pings sent to the worker process(es) serving this application pool.
     The value must be a string representation of a TimeSpan value. The valid range (in seconds) is `1` to `4294967`.
@@ -85,6 +88,7 @@ Currently, only FastCgiModule is supported.
 * **rapidFailProtectionInterval** : Indicates the time interval during which the specified number of worker process crashes must occur before the application pool is shut down by rapid-fail protection.
     The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `1` to `144000`.
 * **rapidFailProtectionMaxCrashes** : Indicates the maximum number of worker process crashes permitted before the application pool is shut down by rapid-fail protection.
+    The value must be a valid integer between `0` and `2147483647`.
 * **autoShutdownExe** : Indicates an executable to run when an application pool is shut down by rapid-fail protection.
 * **autoShutdownParams** : Indicates parameters for the executable that is specified in the **autoShutdownExe** property.
 * **disallowOverlappingRotation** : Indicates whether the W3SVC service should start another worker process to replace the existing worker process while that process is shutting down.
@@ -93,10 +97,13 @@ Currently, only FastCgiModule is supported.
     If `$true`, the application pool will not recycle when its configuration is changed.
 * **logEventOnRecycle** : Indicates that IIS should generate an event log entry for each occurrence of the specified recycling events.
 * **restartMemoryLimit** : Indicates the maximum amount of virtual memory (in KB) a worker process can consume before causing the application pool to recycle.
+    The value must be a valid integer between `0` and `4294967295`.
     A value of `0` means there is no limit.
 * **restartPrivateMemoryLimit** : Indicates the maximum amount of private memory (in KB) a worker process can consume before causing the application pool to recycle.
+    The value must be a valid integer between `0` and `4294967295`.
     A value of `0` means there is no limit.
 * **restartRequestsLimit** : Indicates the maximum number of requests an application pool can process before it is recycled.
+    The value must be a valid integer between `0` and `4294967295`.
     A value of `0` means the application pool can process an unlimited number of requests.
 * **restartTimeLimit** : Indicates that the worker process should be recycled after a specified amount of time has elapsed.
     The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `0` to `432000`.
@@ -104,7 +111,7 @@ Currently, only FastCgiModule is supported.
 * **restartSchedule** : Indicates a set of specific local times, in 24 hour format, when the application pool is recycled.
     The value must be an array of string representations of TimeSpan values.
     TimeSpan values must be between `00:00:00` and `23:59:59` seconds inclusive, with a granularity of 60 seconds.
-    Setting the value of this property to `""` ensures that the collection is empty.
+    Setting the value of this property to `""` disables the schedule.
 
 ### xWebsite
 
@@ -160,9 +167,18 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
-* Fixed script analyzer failures in examples
-* **xWebsite**: Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
-* Changed PhysicalPath in xWebsite to be optional
+* Fixed script analyzer failures in examples.
+* **xWebsite** updates:
+    * Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
+    * Changed **PhysicalPath** to be optional.
+* **xWebAppPool** updates:
+    * Bug fixes, error handling and input validation improvements.
+    * The resource was updated to ensure a specific state only for the explicitly specified properties.
+    * The following properties were added: **idleTimeoutAction**, **logEventOnProcessModel**, **setProfileEnvironment**.
+    * The type of the following properties was changed to **Boolean**: **autoStart**, **enable32BitAppOnWin64**, **enableConfigurationOverride**,
+        **passAnonymousToken**, **cpuSmpAffinitized**, **loadUserProfile**, **manualGroupMembership**, **pingingEnabled**, **setProfileEnvironment**,
+        **orphanWorkerProcess**, **rapidFailProtection**, **disallowOverlappingRotation**, **disallowRotationOnConfigChange**.
+    * Unit and integration tests updated.
 
 ### 1.9.0.0
 

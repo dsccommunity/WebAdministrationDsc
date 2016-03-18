@@ -1718,7 +1718,7 @@ try
 
                     $errorId = 'ErrorStopAppPool'
                     $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData['ErrorStopAppPool'] -f $mockAppPool.Name, 'ScriptHalted'
+                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
                     $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                     $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
@@ -1734,7 +1734,7 @@ try
 
                     $errorId = 'ErrorRemoveAppPool'
                     $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData['ErrorRemoveAppPool'] -f $mockAppPool.Name, 'ScriptHalted'
+                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
                     $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                     $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
@@ -1772,7 +1772,7 @@ try
 
                     $errorId = 'ErrorRemoveAppPool'
                     $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData['ErrorRemoveAppPool'] -f $mockAppPool.Name, 'ScriptHalted'
+                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
                     $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                     $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
@@ -1808,7 +1808,7 @@ try
 
                     $errorId = 'ErrorNewAppPool'
                     $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData['ErrorNewAppPool'] -f $mockAppPool.Name, 'ScriptHalted'
+                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
                     $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                     $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
@@ -1982,7 +1982,7 @@ try
 
                     $errorId = 'ErrorStartAppPool'
                     $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData['ErrorStartAppPool'] -f $mockAppPool.Name, 'ScriptHalted'
+                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
                     $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                     $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
@@ -2014,7 +2014,7 @@ try
 
                     $errorId = 'ErrorStopAppPool'
                     $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData['ErrorStopAppPool'] -f $mockAppPool.Name, 'ScriptHalted'
+                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
                     $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                     $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
@@ -3295,19 +3295,32 @@ try
 
         Describe "$($Global:DSCResourceName)\Invoke-AppCmd" {
 
+            It 'Should throw if AppCmd.exe exits with non-zero exit code' {
+
+                $errorId = 'ErrorAppCmdNonZeroExitCode'
+                $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $errorMessage = $LocalizedData[$errorId] -f 1
+                $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
+                $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+
+                {Invoke-AppCmd -ArgumentList '/?'} |
+                Should Throw $errorRecord
+
+            }
+
             It 'Should throw if AppCmd.exe cannot be found' {
 
                 Mock Test-Path -MockWith {$false}
 
-                $mockPath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+                $mockFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
 
                 $errorId = 'ErrorAppCmdPathNotFound'
                 $errorCategory = [System.Management.Automation.ErrorCategory]::ObjectNotFound
-                $errorMessage = $LocalizedData['ErrorAppCmdPathNotFound'] -f $mockPath
+                $errorMessage = $LocalizedData[$errorId] -f $mockFilePath
                 $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
                 $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
 
-                {Invoke-AppCmd -Path $mockPath -ArgumentList '/?'} |
+                {Invoke-AppCmd -FilePath $mockFilePath -ArgumentList '/?'} |
                 Should Throw $errorRecord
 
             }
