@@ -1,4 +1,4 @@
-#requires -Version 4.0
+#requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
@@ -113,6 +113,7 @@ function Get-TargetResource
 
     Assert-Module
 
+    # XPath -Filter is case-sensitive. Use Where-Object to get the target application pool by name.
     $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
         Where-Object -FilterScript {$_.name -eq $Name}
 
@@ -161,7 +162,10 @@ function Get-TargetResource
         }
     )
 
-    $restartScheduleCurrent = [String[]]@(@($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
+    $restartScheduleCurrent = [String[]]@(
+        @($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value')
+    )
+
     $returnValue.Add('restartSchedule', $restartScheduleCurrent)
 
     return $returnValue
@@ -227,7 +231,7 @@ function Set-TargetResource
         [UInt32]
         $cpuLimit,
 
-        [ValidateScript({([ValidateRange(0, 1440)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 1440.
+        [ValidateScript({([ValidateRange(0, 1440)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 0 to 1440.
         [String]
         $cpuResetInterval,
 
@@ -247,7 +251,7 @@ function Set-TargetResource
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        [ValidateScript({([ValidateRange(0, 43200)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 43200.
+        [ValidateScript({([ValidateRange(0, 43200)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 0 to 43200.
         [String]
         $idleTimeout,
 
@@ -275,22 +279,22 @@ function Set-TargetResource
         [Boolean]
         $pingingEnabled,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingInterval,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingResponseTime,
 
         [Boolean]
         $setProfileEnvironment,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $shutdownTimeLimit,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $startupTimeLimit,
 
@@ -310,7 +314,7 @@ function Set-TargetResource
         [Boolean]
         $rapidFailProtection,
 
-        [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 1 to 144000.
+        [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 1 to 144000.
         [String]
         $rapidFailProtectionInterval,
 
@@ -342,13 +346,13 @@ function Set-TargetResource
         [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartRequestsLimit,
 
-        [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 432000.
+        [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 0 to 432000.
         [String]
         $restartTimeLimit,
 
         # Allow empty strings, so a single empty string '' can be used to ensure the 'recycling.periodicRestart.schedule' collection is empty.
         # TimeSpan values must be between '00:00:00' and '23:59:59' seconds inclusive, with a granularity of 60 seconds.
-        [ValidateScript({($_ -eq '') -or ([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})]
+        [ValidateScript({($_ -eq '') -or (& {([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})})]
         [String[]]
         $restartSchedule
     )
@@ -450,7 +454,9 @@ function Set-TargetResource
                     Select-Object -Unique
                 )
 
-                $restartScheduleCurrent = [String[]]@(@($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
+                $restartScheduleCurrent = [String[]]@(
+                    @($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value')
+                )
 
                 Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent) |
                 ForEach-Object -Process {
@@ -599,7 +605,7 @@ function Test-TargetResource
         [UInt32]
         $cpuLimit,
 
-        [ValidateScript({([ValidateRange(0, 1440)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 1440.
+        [ValidateScript({([ValidateRange(0, 1440)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 0 to 1440.
         [String]
         $cpuResetInterval,
 
@@ -619,7 +625,7 @@ function Test-TargetResource
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        [ValidateScript({([ValidateRange(0, 43200)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 43200.
+        [ValidateScript({([ValidateRange(0, 43200)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 0 to 43200.
         [String]
         $idleTimeout,
 
@@ -647,22 +653,22 @@ function Test-TargetResource
         [Boolean]
         $pingingEnabled,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingInterval,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $pingResponseTime,
 
         [Boolean]
         $setProfileEnvironment,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $shutdownTimeLimit,
 
-        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})] # The valid range (in seconds) is 1 to 4294967.
+        [ValidateScript({([ValidateRange(1, 4294967)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})] # The valid range (in seconds) is 1 to 4294967.
         [String]
         $startupTimeLimit,
 
@@ -682,7 +688,7 @@ function Test-TargetResource
         [Boolean]
         $rapidFailProtection,
 
-        [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 1 to 144000.
+        [ValidateScript({([ValidateRange(1, 144000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 1 to 144000.
         [String]
         $rapidFailProtectionInterval,
 
@@ -714,13 +720,13 @@ function Test-TargetResource
         [UInt32] # The value must be a valid integer between 0 and 4294967295.
         $restartRequestsLimit,
 
-        [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes)})] # The valid range (in minutes) is 0 to 432000.
+        [ValidateScript({([ValidateRange(0, 432000)]$ValueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?})] # The valid range (in minutes) is 0 to 432000.
         [String]
         $restartTimeLimit,
 
         # Allow empty strings, so a single empty string '' can be used to ensure the 'recycling.periodicRestart.schedule' collection is empty.
         # TimeSpan values must be between '00:00:00' and '23:59:59' seconds inclusive, with a granularity of 60 seconds.
-        [ValidateScript({($_ -eq '') -or ([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds)})]
+        [ValidateScript({($_ -eq '') -or (& {([ValidateRange(0, 86399)]$ValueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?})})]
         [String[]]
         $restartSchedule
     )
@@ -821,7 +827,9 @@ function Test-TargetResource
                 Select-Object -Unique
             )
 
-            $restartScheduleCurrent = [String[]]@(@($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value'))
+            $restartScheduleCurrent = [String[]]@(
+                @($appPool.recycling.periodicRestart.schedule.Collection).ForEach('value')
+            )
 
             if (Compare-Object -ReferenceObject @($restartScheduleDesired) -DifferenceObject @($restartScheduleCurrent))
             {

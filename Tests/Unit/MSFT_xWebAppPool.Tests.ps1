@@ -19,6 +19,7 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Unit
 #endregion
 
+# Begin Testing
 try
 {
     #region Pester Tests
@@ -324,7 +325,9 @@ try
 
                 It 'Should return the restartSchedule property' {
 
-                    $restartScheduleValues = [String[]]@($mockAppPool.recycling.periodicRestart.schedule.Collection.ForEach('value'))
+                    $restartScheduleValues = [String[]]@(
+                        @($mockAppPool.recycling.periodicRestart.schedule.Collection).ForEach('value')
+                    )
 
                     $compareSplat = @{
                         ReferenceObject = [String[]]@($result.restartSchedule)
@@ -482,7 +485,9 @@ try
                 $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
                 $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
-                $mockRestartSchedule = [String[]]@($mockAppPool.recycling.periodicRestart.schedule.Collection.ForEach('value'))
+                $mockRestartSchedule = [String[]]@(
+                    @($mockAppPool.recycling.periodicRestart.schedule.Collection).ForEach('value')
+                )
 
                 $testParamsSplat = @{
                     Name = $mockAppPool.Name
@@ -1323,7 +1328,7 @@ try
                 }
 
                 It 'Should return False when the property does not match the desired state' {
-                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanActionParams 'orphanActionParam1' |
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanActionParams '/orphanActionParam1' |
                     Should Be $false
                 }
 
@@ -1484,7 +1489,7 @@ try
                 }
 
                 It 'Should return False when the property does not match the desired state' {
-                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoShutdownParams 'autoShutdownParam1' |
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoShutdownParams '/autoShutdownParam1' |
                     Should Be $false
                 }
 
@@ -1578,7 +1583,7 @@ try
                 }
 
                 It 'Should return False when the property does not match the desired state' {
-                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartMemoryLimit 4294967 |
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartMemoryLimit 1048576 |
                     Should Be $false
                 }
 
@@ -1603,7 +1608,7 @@ try
                 }
 
                 It 'Should return False when the property does not match the desired state' {
-                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartPrivateMemoryLimit 4294967 |
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartPrivateMemoryLimit 1048576 |
                     Should Be $false
                 }
 
@@ -1933,19 +1938,19 @@ try
                     shutdownTimeLimit = '00:02:00'
                     startupTimeLimit = '00:02:00'
                     orphanActionExe = 'C:\inetpub\temp\orphanAction.exe'
-                    orphanActionParams = 'orphanActionParam1'
+                    orphanActionParams = '/orphanActionParam1'
                     orphanWorkerProcess = $true
                     loadBalancerCapabilities = 'TcpLevel'
                     rapidFailProtection = $false
                     rapidFailProtectionInterval = '00:10:00'
                     rapidFailProtectionMaxCrashes = 10
                     autoShutdownExe = 'C:\inetpub\temp\autoShutdown.exe'
-                    autoShutdownParams = 'autoShutdownParam1'
+                    autoShutdownParams = '/autoShutdownParam1'
                     disallowOverlappingRotation = $true
                     disallowRotationOnConfigChange = $true
                     logEventOnRecycle = 'Time,Memory,PrivateMemory'
-                    restartMemoryLimit = 4294967
-                    restartPrivateMemoryLimit = 4294967
+                    restartMemoryLimit = 1048576
+                    restartPrivateMemoryLimit = 1048576
                     restartRequestsLimit = 1000
                     restartTimeLimit = '2.10:00:00'
                     restartSchedule = @('06:00:00', '08:00:00')
@@ -2858,10 +2863,10 @@ try
                 $setParamsSplat = @{
                     Ensure = 'Present'
                     Name = $mockAppPool.name
-                    orphanActionParams = 'orphanActionParam1'
+                    orphanActionParams = '/orphanActionParam1'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanActionParams:orphanActionParam1'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanActionParams:/orphanActionParam1'}
 
                 Set-TargetResource @setParamsSplat
 
@@ -3048,10 +3053,10 @@ try
                 $setParamsSplat = @{
                     Ensure = 'Present'
                     Name = $mockAppPool.name
-                    autoShutdownParams = 'autoShutdownParam1'
+                    autoShutdownParams = '/autoShutdownParam1'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.autoShutdownParams:autoShutdownParam1'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.autoShutdownParams:/autoShutdownParam1'}
 
                 Set-TargetResource @setParamsSplat
 
@@ -3158,10 +3163,10 @@ try
                 $setParamsSplat = @{
                     Ensure = 'Present'
                     Name = $mockAppPool.name
-                    restartMemoryLimit = 4294967
+                    restartMemoryLimit = 1048576
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.memory:4294967'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.memory:1048576'}
 
                 Set-TargetResource @setParamsSplat
 
@@ -3187,10 +3192,10 @@ try
                 $setParamsSplat = @{
                     Ensure = 'Present'
                     Name = $mockAppPool.name
-                    restartPrivateMemoryLimit = 4294967
+                    restartPrivateMemoryLimit = 1048576
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.privateMemory:4294967'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.privateMemory:1048576'}
 
                 Set-TargetResource @setParamsSplat
 

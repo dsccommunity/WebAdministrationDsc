@@ -46,7 +46,7 @@ Currently, only FastCgiModule is supported.
     The value must be a valid integer between `0` and `100`.
 * **cpuResetInterval** : Indicates the reset period for CPU monitoring and throttling limits on an application pool.
     The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `0` to `1440`.
-    Setting the value of this property to `0` disables CPU monitoring.
+    Setting the value of this property to `00:00:00` disables CPU monitoring.
 * **cpuSmpAffinitized** : Indicates whether a particular worker process assigned to an application pool should also be assigned to a given CPU.
 * **cpuSmpProcessorAffinityMask** : Indicates the hexadecimal processor mask for multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound.
     Before this property takes effect, the **cpuSmpAffinitized** property must be set to `$true` for the application pool.
@@ -107,7 +107,7 @@ Currently, only FastCgiModule is supported.
     A value of `0` means the application pool can process an unlimited number of requests.
 * **restartTimeLimit** : Indicates that the worker process should be recycled after a specified amount of time has elapsed.
     The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `0` to `432000`.
-    A value of `0` means the application pool does not recycle on a regular interval.
+    A value of `00:00:00` means the application pool does not recycle on a regular interval.
 * **restartSchedule** : Indicates a set of specific local times, in 24 hour format, when the application pool is recycled.
     The value must be an array of string representations of TimeSpan values.
     TimeSpan values must be between `00:00:00` and `23:59:59` seconds inclusive, with a granularity of 60 seconds.
