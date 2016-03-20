@@ -53,6 +53,11 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartEnabled**: Enables Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
+* **AuthenticationInformation**: WebApplication's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+    * **Anonymous**: { true | false }
+    * **Basic**: { true | false }
+    * **Digest**: { true | false }
+    * **Windows**: { true | false }
 
 ### xWebApplication
 
@@ -65,6 +70,12 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartEnabled**: Enables Autostart on a Application
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
+* **AuthenticationInformation**: WebApplication's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+    * **Anonymous**: { true | false }
+    * **Basic**: { true | false }
+    * **Digest**: { true | false }
+    * **Windows**: { true | false }
+* **SslFlags**: SslFlags for the application: { Ssl | SslNegotiateCert | SslRequireCert }
 
 ### xWebVirtualDirectory
 
@@ -92,6 +103,9 @@ Currently, only FastCgiModule is supported.
 
 * Fixed script analyzer failures in examples
 * Added preload and ServiceAutoStart functionality to xWebsite and xWebApplication
+* Added SslFlags and AuthenticationInformation to xWebApplication
+* Added AuthenticationInformation to xWebsite
+
 
 ### 1.9.0.0
 
