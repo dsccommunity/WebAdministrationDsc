@@ -54,10 +54,10 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInformation**: WebApplication's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
-    * **Anonymous**: { true | false }
-    * **Basic**: { true | false }
-    * **Digest**: { true | false }
-    * **Windows**: { true | false }
+    * **Anonymous**: The acceptable values for this property are: `true`, `false`
+    * **Basic**: The acceptable values for this property are: `true`, `false`
+    * **Digest**: The acceptable values for this property are: `true`, `false`
+    * **Windows**: The acceptable values for this property are: `true`, `false`
 
 ### xWebApplication
 
@@ -71,11 +71,11 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInformation**: WebApplication's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
-    * **Anonymous**: { true | false }
-    * **Basic**: { true | false }
-    * **Digest**: { true | false }
-    * **Windows**: { true | false }
-* **SslFlags**: SslFlags for the application: { Ssl | SslNegotiateCert | SslRequireCert }
+    * **Anonymous**: The acceptable values for this property are: `true`, `false`
+    * **Basic**: The acceptable values for this property are: `true`, `false`
+    * **Digest**: The acceptable values for this property are: `true`, `false`
+    * **Windows**: The acceptable values for this property are: `true`, `false`
+* **SslFlags**: SslFlags for the application: The acceptable values for this property are: `Ssl`, `SslNegotiateCert`, `SslRequireCert`
 
 ### xWebVirtualDirectory
 
