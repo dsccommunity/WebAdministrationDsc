@@ -776,7 +776,7 @@ configuration Sample_IISServerDefaults
 
 ### Create and configure an application pool
 
-This example shows how to use the xWebAppPool DSC resource to create and configure an application pool.
+This example shows how to use the **xWebAppPool** DSC resource to create and configure an application pool.
 
 ```powershell
 Configuration Sample_xWebAppPool
