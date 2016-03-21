@@ -98,7 +98,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param
     (
         [parameter(Mandatory = $true)]
