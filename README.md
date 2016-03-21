@@ -49,8 +49,8 @@ Currently, only FastCgiModule is supported.
 * **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
-* **PreloadEnabled**: Allows WebSite to automatically start without a request
-* **ServiceAutoStartEnabled**: Enables Autostart on a Website
+* **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
+* **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInformation**: Website's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
@@ -66,8 +66,8 @@ Currently, only FastCgiModule is supported.
 * **WebAppPool**:  Web application’s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
 * **Ensure**: Ensures that the web application is **Present** or **Absent**.
-* **PreloadEnabled**: Allows Application to automatically start without a request
-* **ServiceAutoStartEnabled**: Enables Autostart on a Application
+* **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
+* **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInformation**: WebApplication's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:

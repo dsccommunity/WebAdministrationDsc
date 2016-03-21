@@ -32,8 +32,8 @@ class MSFT_xWebsite : OMI_BaseResource
     [Write] String DefaultPage[];
     [Write] String EnabledProtocols;
     [write, EmbeddedInstance("MSFT_xWebApplicationAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic, Digest, Windows)")] string AuthenticationInfo;
-    [Write, Description ("Allows the Website to automatically start without a request"), ValueMap{"true","false"},Values{"true","false"}] string PreloadEnabled;
-    [Write, Description ("Enables Autostart on a Website."), ValueMap{"true","false"},Values{"true","false"}] string ServiceAutoStartEnabled;
+    [Write, Description ("Allows the Website to automatically start without a request"), Boolean PreloadEnabled;
+    [Write, Description ("Enables Autostart on a Website."), Boolean ServiceAutoStartEnabled;
     [Write, Description ("Adds a AutostartProvider")] string ServiceAutoStartProvider;
     [Write, Description ("Adds a AutostartProvider ApplicationType")] string ApplicationType;
 };

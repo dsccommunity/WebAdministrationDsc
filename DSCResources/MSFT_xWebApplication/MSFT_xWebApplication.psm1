@@ -128,12 +128,10 @@ function Set-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
-        [ValidateSet('True','False')]
-        [String]
+        [Boolean]
         $PreloadEnabled,
         
-        [ValidateSet('True','False')]
-        [String]
+        [Boolean]
         $ServiceAutoStartEnabled,
 
         [String]
@@ -282,12 +280,10 @@ function Test-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
-        [ValidateSet('True','False')]
-        [String]
+        [Boolean]
         $preloadEnabled,
         
-        [ValidateSet('True','False')]
-        [String]
+        [Boolean]
         $serviceAutoStartEnabled,
 
         [String]

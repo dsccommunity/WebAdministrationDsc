@@ -361,7 +361,7 @@ try
                 $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                               -Name $MockParameters.Name `
                                               -PhysicalPath $MockParameters.PhysicalPath `
-                                              -Preload 'False' `
+                                              -Preload $False `
                                               -Verbose:$VerbosePreference
 
                 It 'should return False' {
@@ -377,7 +377,7 @@ try
                 $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                               -Name $MockParameters.Name `
                                               -PhysicalPath $MockParameters.PhysicalPath `
-                                              -ServiceAutoStartEnabled 'False' `
+                                              -ServiceAutoStartEnabled $False `
                                               -Verbose:$VerbosePreference
 
                 It 'should return False' {
@@ -436,9 +436,9 @@ try
                 BindingInfo              = $MockBindingInfo
                 DefaultPage              = @('index.html')
                 EnabledProtocols         = 'http'
-                Preload                  = 'True'
+                Preload                  = $True
                 ServiceAutoStartProvider = 'MockAutoStartProvider'
-                ServiceAutoStartEnabled  = 'True'
+                ServiceAutoStartEnabled  = $True
                 ApplicationType          = 'MockApplicationType'
             }
 
@@ -454,9 +454,9 @@ try
 
             $MockPreloadAndAutostartProviders = @(
                 @{
-                    Preload                  = 'True'
+                    Preload                  = $True
                     ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
-                    ServiceAutoStartEnabled  = 'True' 
+                    ServiceAutoStartEnabled  = $True 
                 }
 
             )
@@ -590,9 +590,9 @@ try
                     ApplicationPool          = 'MockPool'
                     Bindings                 = @{Collection = @($MockWebBinding)}
                     EnabledProtocols         = 'http'
-                    Preload                  = 'True'
+                    Preload                  = $True
                     ServiceAutoStartProvider = 'MockAutoStartProvider'
-                    ServiceAutoStartEnabled  = 'True'
+                    ServiceAutoStartEnabled  = $True
                     ApplicationType          = 'MockApplicationType'
                 }
 
@@ -634,9 +634,9 @@ try
                     ApplicationPool          = 'MockPool'
                     Bindings                 = @{Collection = @($MockWebBinding)}
                     EnabledProtocols         = 'http'
-                    Preload                  = 'True'
+                    Preload                  = $True
                     ServiceAutoStartProvider = 'MockAutoStartProvider'
-                    ServiceAutoStartEnabled  = 'True'
+                    ServiceAutoStartEnabled  = $True
                     ApplicationType          = 'MockApplicationType'
                 }
 

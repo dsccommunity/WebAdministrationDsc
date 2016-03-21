@@ -28,9 +28,9 @@ try
             WebAppPool               = 'MockPool'
             PhysicalPath             = 'C:\MockSite\MockApp'
             SSlFlags                 = 'Ssl'
-            PreloadEnabled           = 'True'
+            PreloadEnabled           = $True
             ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
-            ServiceAutoStartEnabled  = 'True'
+            ServiceAutoStartEnabled  = $True
             ApplicationType          = 'MockApplicationType'
         }
 
