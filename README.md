@@ -42,23 +42,23 @@ Currently, only FastCgiModule is supported.
 * **queueLength** : Indicates the maximum number of requests that HTTP.sys will queue for the application pool. The value must be a valid integer between `10` and `65535`.
 * **cpuAction** : Configures the action that IIS takes when a worker process exceeds its configured CPU limit.
     The values that are allowed for this property are: `NoAction`, `KillW3wp`, `Throttle`, and `ThrottleUnderLoad`.
-* **cpuLimit** : Configures the maximum percentage of CPU time that the worker processes in an application pool are allowed to consume over a period of time as indicated by the resetInterval attribute.
-    The value must be a valid integer between `0` and `100`.
-* **cpuResetInterval** : Indicates the reset period for CPU monitoring and throttling limits on an application pool.
+* **cpuLimit** : Configures the maximum percentage of CPU time (in 1/1000ths of one percent) that the worker processes in the application pool are allowed to consume over a period of time as indicated by the **cpuResetInterval** property.
+    The value must be a valid integer between `0` and `100000`.
+* **cpuResetInterval** : Indicates the reset period (in minutes) for CPU monitoring and throttling limits on the application pool.
     The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `0` to `1440`.
     Setting the value of this property to `00:00:00` disables CPU monitoring.
-* **cpuSmpAffinitized** : Indicates whether a particular worker process assigned to an application pool should also be assigned to a given CPU.
-* **cpuSmpProcessorAffinityMask** : Indicates the hexadecimal processor mask for multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound.
+* **cpuSmpAffinitized** : Indicates whether a particular worker process assigned to the application pool should also be assigned to a given CPU.
+* **cpuSmpProcessorAffinityMask** : Indicates the hexadecimal processor mask for multi-processor computers, which indicates to which CPU the worker processes in the application pool should be bound.
     Before this property takes effect, the **cpuSmpAffinitized** property must be set to `$true` for the application pool.
     The value must be a valid integer between `0` and `4294967295`.
-* **cpuSmpProcessorAffinityMask2** : Indicates the high-order DWORD hexadecimal processor mask for 64-bit multi-processor computers, which indicates to which CPU the worker processes in an application pool should be bound.
+* **cpuSmpProcessorAffinityMask2** : Indicates the high-order DWORD hexadecimal processor mask for 64-bit multi-processor computers, which indicates to which CPU the worker processes in the application pool should be bound.
     Before this property takes effect, the **cpuSmpAffinitized** property must be set to `$true` for the application pool.
     The value must be a valid integer between `0` and `4294967295`.
 * **identityType** : Indicates the account identity under which the application pool runs.
     The values that are allowed for this property are: `ApplicationPoolIdentity`, `LocalService`, `LocalSystem`, `NetworkService`, and `SpecificUser`.
 * **Credential** : Indicates the custom account crededentials. This property is only valid when the **identityType** property is set to `SpecificUser`.
-* **idleTimeout** : Indicates the amount of time a worker process will remain idle before it shuts down.
-    The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `0` to `43200`.
+* **idleTimeout** : Indicates the amount of time (in minutes) a worker process will remain idle before it shuts down.
+    The value must be a string representation of a TimeSpan value and must be less than the **restartTimeLimit** property value. The valid range (in minutes) is `0` to `43200`.
 * **idleTimeoutAction** : Indicates the action to perform when the idle timeout duration has been reached.
     The values that are allowed for this property are: `Terminate`, `Suspend`.
 * **loadUserProfile** : Indicates whether IIS loads the user profile for the application pool identity.
@@ -68,32 +68,32 @@ Currently, only FastCgiModule is supported.
 * **maxProcesses** : Indicates the maximum number of worker processes that would be used for the application pool.
     The value must be a valid integer between `0` and `2147483647`.
 * **pingingEnabled** : Indicates whether pinging (health monitoring) is enabled for the worker process(es) serving this application pool.
-* **pingInterval** : Indicates the period of time between health monitoring pings sent to the worker process(es) serving this application pool.
+* **pingInterval** : Indicates the period of time (in seconds) between health monitoring pings sent to the worker process(es) serving this application pool.
     The value must be a string representation of a TimeSpan value. The valid range (in seconds) is `1` to `4294967`.
-* **pingResponseTime** : Indicates the maximum time that a worker process is given to respond to a health monitoring ping.
+* **pingResponseTime** : Indicates the maximum time (in seconds) that a worker process is given to respond to a health monitoring ping.
     The value must be a string representation of a TimeSpan value. The valid range (in seconds) is `1` to `4294967`.
 * **setProfileEnvironment** : Indicates the environment to be set based on the user profile for the new process.
-* **shutdownTimeLimit** : Indicates the period of time a worker process is given to finish processing requests and shut down.
+* **shutdownTimeLimit** : Indicates the period of time (in seconds) a worker process is given to finish processing requests and shut down.
     The value must be a string representation of a TimeSpan value. The valid range (in seconds) is `1` to `4294967`.
-* **startupTimeLimit** : Indicates the period of time a worker process is given to start up and initialize.
+* **startupTimeLimit** : Indicates the period of time (in seconds) a worker process is given to start up and initialize.
     The value must be a string representation of a TimeSpan value. The valid range (in seconds) is `1` to `4294967`.
 * **orphanActionExe** : Indicates an executable to run when a worker process is orphaned.
 * **orphanActionParams** : Indicates parameters for the executable that is specified in the **orphanActionExe** property.
-* **orphanWorkerProcess** : Indicates whether to assign a worker process to an orphan state instead of terminating it when an application pool fails.
+* **orphanWorkerProcess** : Indicates whether to assign a worker process to an orphan state instead of terminating it when the application pool fails.
     If `$true`, an unresponsive worker process will be orphaned instead of terminated.
 * **loadBalancerCapabilities** : Indicates the response behavior of a service when it is unavailable. The values that are allowed for this property are: `HttpLevel`, `TcpLevel`.
     If set to `HttpLevel` and the application pool is stopped, HTTP.sys will return HTTP 503 error. If set to `TcpLevel`, HTTP.sys will reset the connection.
 * **rapidFailProtection** : Indicates whether rapid-fail protection is enabled.
     If `$true`, the application pool is shut down if there are a specified number of worker process crashes within a specified time period.
-* **rapidFailProtectionInterval** : Indicates the time interval during which the specified number of worker process crashes must occur before the application pool is shut down by rapid-fail protection.
+* **rapidFailProtectionInterval** : Indicates the time interval (in minutes) during which the specified number of worker process crashes must occur before the application pool is shut down by rapid-fail protection.
     The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `1` to `144000`.
 * **rapidFailProtectionMaxCrashes** : Indicates the maximum number of worker process crashes permitted before the application pool is shut down by rapid-fail protection.
     The value must be a valid integer between `0` and `2147483647`.
-* **autoShutdownExe** : Indicates an executable to run when an application pool is shut down by rapid-fail protection.
+* **autoShutdownExe** : Indicates an executable to run when the application pool is shut down by rapid-fail protection.
 * **autoShutdownParams** : Indicates parameters for the executable that is specified in the **autoShutdownExe** property.
 * **disallowOverlappingRotation** : Indicates whether the W3SVC service should start another worker process to replace the existing worker process while that process is shutting down.
     If `$true`, the application pool recycle will happen such that the existing worker process exits before another worker process is created.
-* **disallowRotationOnConfigChange** : Indicates whether the W3SVC service should rotate worker processes in an application pool when the configuration has changed.
+* **disallowRotationOnConfigChange** : Indicates whether the W3SVC service should rotate worker processes in the application pool when the configuration has changed.
     If `$true`, the application pool will not recycle when its configuration is changed.
 * **logEventOnRecycle** : Indicates that IIS should generate an event log entry for each occurrence of the specified recycling events.
 * **restartMemoryLimit** : Indicates the maximum amount of virtual memory (in KB) a worker process can consume before causing the application pool to recycle.
@@ -102,10 +102,10 @@ Currently, only FastCgiModule is supported.
 * **restartPrivateMemoryLimit** : Indicates the maximum amount of private memory (in KB) a worker process can consume before causing the application pool to recycle.
     The value must be a valid integer between `0` and `4294967295`.
     A value of `0` means there is no limit.
-* **restartRequestsLimit** : Indicates the maximum number of requests an application pool can process before it is recycled.
+* **restartRequestsLimit** : Indicates the maximum number of requests the application pool can process before it is recycled.
     The value must be a valid integer between `0` and `4294967295`.
     A value of `0` means the application pool can process an unlimited number of requests.
-* **restartTimeLimit** : Indicates that the worker process should be recycled after a specified amount of time has elapsed.
+* **restartTimeLimit** : Indicates the period of time (in minutes) after which the application pool will recycle.
     The value must be a string representation of a TimeSpan value. The valid range (in minutes) is `0` to `432000`.
     A value of `00:00:00` means the application pool does not recycle on a regular interval.
 * **restartSchedule** : Indicates a set of specific local times, in 24 hour format, when the application pool is recycled.
@@ -742,7 +742,7 @@ Sample_EndToEndxWebAdministration -ConfigurationData $config
 Start-DscConfiguration ./Sample_EndToEndxWebAdministration -wait -Verbose
 ```
 
-````powershell
+```powershell
 configuration Sample_IISServerDefaults
 {
     param
@@ -772,4 +772,77 @@ configuration Sample_IISServerDefaults
          }
     }
 }
-````
+```
+
+### Create and configure an application pool
+
+This example shows how to use the xWebAppPool DSC resource to create and configure an application pool.
+
+```powershell
+Configuration Sample_xWebAppPool
+{
+    param
+    (
+        [String[]]$NodeName = 'localhost'
+    )
+
+    Import-DscResource -ModuleName xWebAdministration
+
+    Node $NodeName
+    {
+        xWebAppPool SampleAppPool
+        {
+            Name                           = 'SampleAppPool'
+            Ensure                         = 'Present'
+            State                          = 'Started'
+            autoStart                      = $true
+            CLRConfigFile                  = ''
+            enable32BitAppOnWin64          = $false
+            enableConfigurationOverride    = $true
+            managedPipelineMode            = 'Integrated'
+            managedRuntimeLoader           = 'webengine4.dll'
+            managedRuntimeVersion          = 'v4.0'
+            passAnonymousToken             = $true
+            startMode                      = 'OnDemand'
+            queueLength                    = 1000
+            cpuAction                      = 'NoAction'
+            cpuLimit                       = 90000
+            cpuResetInterval               = (New-TimeSpan -Minutes 5).ToString()
+            cpuSmpAffinitized              = $false
+            cpuSmpProcessorAffinityMask    = 4294967295
+            cpuSmpProcessorAffinityMask2   = 4294967295
+            identityType                   = 'ApplicationPoolIdentity'
+            idleTimeout                    = (New-TimeSpan -Minutes 20).ToString()
+            idleTimeoutAction              = 'Terminate'
+            loadUserProfile                = $true
+            logEventOnProcessModel         = 'IdleTimeout'
+            logonType                      = 'LogonBatch'
+            manualGroupMembership          = $false
+            maxProcesses                   = 1
+            pingingEnabled                 = $true
+            pingInterval                   = (New-TimeSpan -Seconds 30).ToString()
+            pingResponseTime               = (New-TimeSpan -Seconds 90).ToString()
+            setProfileEnvironment          = $false
+            shutdownTimeLimit              = (New-TimeSpan -Seconds 90).ToString()
+            startupTimeLimit               = (New-TimeSpan -Seconds 90).ToString()
+            orphanActionExe                = ''
+            orphanActionParams             = ''
+            orphanWorkerProcess            = $false
+            loadBalancerCapabilities       = 'HttpLevel'
+            rapidFailProtection            = $true
+            rapidFailProtectionInterval    = (New-TimeSpan -Minutes 5).ToString()
+            rapidFailProtectionMaxCrashes  = 5
+            autoShutdownExe                = ''
+            autoShutdownParams             = ''
+            disallowOverlappingRotation    = $false
+            disallowRotationOnConfigChange = $false
+            logEventOnRecycle              = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
+            restartMemoryLimit             = 0
+            restartPrivateMemoryLimit      = 0
+            restartRequestsLimit           = 0
+            restartTimeLimit               = (New-TimeSpan -Minutes 1440).ToString()
+            restartSchedule                = @('00:00:00', '08:00:00', '16:00:00')
+        }
+    }
+}
+```

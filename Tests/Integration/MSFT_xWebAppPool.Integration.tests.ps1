@@ -1,3 +1,5 @@
+#requires -Version 4.0
+
 $Global:DSCModuleName   = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebAppPool'
 

@@ -1,3 +1,5 @@
+#requires -Version 4.0
+
 $Global:DSCModuleName   = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebAppPool'
 
@@ -820,7 +822,7 @@ try
                 }
 
                 It 'Should return False when the property does not match the desired state' {
-                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuLimit 90 |
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuLimit 90000 |
                     Should Be $false
                 }
 
@@ -1917,7 +1919,7 @@ try
                     startMode = 'AlwaysRunning'
                     queueLength = 2000
                     cpuAction = 'KillW3wp'
-                    cpuLimit = 90
+                    cpuLimit = 90000
                     cpuResetInterval = '00:10:00'
                     cpuSmpAffinitized = $true
                     cpuSmpProcessorAffinityMask = 1
@@ -2323,10 +2325,10 @@ try
                 $setParamsSplat = @{
                     Ensure = 'Present'
                     Name = $mockAppPool.name
-                    cpuLimit = 90
+                    cpuLimit = 90000
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.limit:90'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.limit:90000'}
 
                 Set-TargetResource @setParamsSplat
 

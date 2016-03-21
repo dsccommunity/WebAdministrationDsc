@@ -227,7 +227,7 @@ function Set-TargetResource
         [String]
         $cpuAction,
 
-        [ValidateRange(0, 100)] # The value must be a valid integer between 0 and 100.
+        [ValidateRange(0, 100000)] # The value must be a valid integer between 0 and 100000.
         [UInt32]
         $cpuLimit,
 
@@ -601,7 +601,7 @@ function Test-TargetResource
         [String]
         $cpuAction,
 
-        [ValidateRange(0, 100)] # The value must be a valid integer between 0 and 100.
+        [ValidateRange(0, 100000)] # The value must be a valid integer between 0 and 100000.
         [UInt32]
         $cpuLimit,
 
