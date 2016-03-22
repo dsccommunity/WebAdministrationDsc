@@ -65,7 +65,6 @@ Currently, only FastCgiModule is supported.
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is Present or Absent.
-* **State**: State of the application pool: { **Started** | **Stopped** }
 
 ### xWebConfigKeyValue
 
