@@ -14,10 +14,10 @@ class MSFT_xWebBindingInformation
 [ClassVersion("1.0.0")]
 class MSFT_xWebApplicationAuthenticationInformation
 {
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]string Anonymous;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]string Basic;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]string Digest;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]string Windows;
+    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Anonymous;
+    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Basic;
+    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Digest;
+    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Windows;
 };
 
 [ClassVersion("2.0.0"), FriendlyName("xWebsite")]
@@ -31,9 +31,9 @@ class MSFT_xWebsite : OMI_BaseResource
     [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.")] String BindingInfo[];
     [Write] String DefaultPage[];
     [Write] String EnabledProtocols;
-    [write, EmbeddedInstance("MSFT_xWebApplicationAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic, Digest, Windows)")] string AuthenticationInfo;
+    [write, EmbeddedInstance("MSFT_xWebApplicationAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic, Digest, Windows)")] String AuthenticationInfo;
     [Write, Description ("Allows the Website to automatically start without a request"), Boolean PreloadEnabled;
     [Write, Description ("Enables Autostart on a Website."), Boolean ServiceAutoStartEnabled;
-    [Write, Description ("Adds a AutostartProvider")] string ServiceAutoStartProvider;
-    [Write, Description ("Adds a AutostartProvider ApplicationType")] string ApplicationType;
+    [Write, Description ("Adds a AutostartProvider")] String ServiceAutoStartProvider;
+    [Write, Description ("Adds a AutostartProvider ApplicationType")] sSring ApplicationType;
 };
