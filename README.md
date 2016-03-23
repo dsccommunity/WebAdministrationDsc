@@ -61,7 +61,7 @@ Currently, only FastCgiModule is supported.
 ### xWebVirtualDirectory
 
 * **Website**: Name of website with which virtual directory is associated
-* **WebApplication**:  Web application name for the virtual directory
+* **WebApplication**:  The name of the containing web application or an empty string for the containing website
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is Present or Absent.
