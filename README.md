@@ -85,6 +85,7 @@ Currently, only FastCgiModule is supported.
 * Fixed script analyzer failures in examples
 * **xWebsite**: Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
 * Changed PhysicalPath in xWebsite to be optional
+* Changed WebApplication in xWebVirtualDirectory to accept empty strings for referring to the top-level IIS site
 
 ### 1.9.0.0
 
