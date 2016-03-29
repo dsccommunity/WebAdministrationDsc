@@ -24,10 +24,9 @@ function Get-TargetResource
     Write-Verbose "ConfigPath: $ConfigPath"
     
     $config = GetApplicationHostConfig $ConfigPath
-    $webFarm = GetWebsiteFarm $Name $config
+    $webFarm = GetWebfarm $Name $config
     GetTargetResourceFromConfigElement $webFarm    
 }
-
 
 # The Set-TargetResource cmdlet is used to create, delete or configuure a website on the target machine. 
 function Set-TargetResource 
@@ -63,7 +62,7 @@ function Set-TargetResource
     Write-Verbose "Get current webfarm state"
 
     $config = GetApplicationHostConfig $ConfigPath
-    $webFarm = GetWebsiteFarm $Name $config
+    $webFarm = GetWebfarm $Name $config
     $resource = GetTargetResourceFromConfigElement $webFarm
 
     Write-Verbose "Webfarm presence. From [$($resource.Ensure )] to [$Ensure]"
@@ -76,7 +75,7 @@ function Set-TargetResource
         Write-Verbose "Webfarm created: Name = $Name"
         
         $resource = GetTargetResourceFromConfigElement $webFarmElement
-        $webFarm = GetWebsiteFarm $Name $config
+        $webFarm = GetWebfarm $Name $config
     }elseif(($Ensure -eq "absent") -and ($resource.Ensure -eq "present")){
         $webFarmElement = $config.configuration.webFarms.webFarm | ? Name -eq $Name
         $config.configuration.webFarms.RemoveChild($webFarmElement)
@@ -144,7 +143,6 @@ function Set-TargetResource
     }
 }
 
-
 # The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
 function Test-TargetResource 
 {
@@ -178,7 +176,7 @@ function Test-TargetResource
     }
     
     $config = GetApplicationHostConfig $ConfigPath
-    $webFarm = GetWebsiteFarm $Name $config
+    $webFarm = GetWebfarm $Name $config
     $resource = GetTargetResourceFromConfigElement $webFarm
     
     Write-Verbose "Testing Ensures: Requested [$Ensure] Resource [$($resource.Ensure)]"
@@ -224,7 +222,7 @@ function Test-TargetResource
     $true
 }
 
-function GetWebsiteFarm{
+function GetWebfarm{
     param 
     (       
         [Parameter(Mandatory)]
