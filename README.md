@@ -61,7 +61,7 @@ Currently, only FastCgiModule is supported.
 ### xWebVirtualDirectory
 
 * **Website**: Name of website with which virtual directory is associated
-* **WebApplication**:  Web application name for the virtual directory
+* **WebApplication**:  The name of the containing web application or an empty string for the containing website
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is Present or Absent.
@@ -84,6 +84,7 @@ Currently, only FastCgiModule is supported.
 * Fixed script analyzer failures in examples
 * **xWebsite**: Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
 * Changed PhysicalPath in xWebsite to be optional
+* Changed WebApplication in xWebVirtualDirectory to accept empty strings for referring to the top-level IIS site
 
 ### 1.9.0.0
 

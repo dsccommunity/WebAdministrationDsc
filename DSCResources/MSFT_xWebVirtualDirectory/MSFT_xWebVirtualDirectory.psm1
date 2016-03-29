@@ -9,6 +9,7 @@ function Get-TargetResource
         $Website,
 
         [parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [System.String]
         $WebApplication,
 
@@ -23,7 +24,7 @@ function Get-TargetResource
 
     Test-Dependancies
 
-    $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
+    $virtualDirectory = Get-WebVirtualDirectory -Site $Website -Name $Name -Application $WebApplication
 
     $PhysicalPath = ''
     $Ensure = 'Absent'
@@ -55,6 +56,7 @@ function Set-TargetResource
         $Website,
 
         [parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [System.String]
         $WebApplication,
 
@@ -75,7 +77,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
-        $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
+        $virtualDirectory = Get-WebVirtualDirectory -Site $Website -Name $Name -Application $WebApplication
         if ($virtualDirectory.count -eq 0)
         {
             Write-Verbose "Creating new Web Virtual Directory $Name."
@@ -84,7 +86,17 @@ function Set-TargetResource
         else
         {
             Write-Verbose "Updating physical path for web virtual directory $Name."
-            Set-ItemProperty -Path IIS:Sites\$Website\$WebApplication\$Name -Name physicalPath -Value $PhysicalPath
+
+            if ($WebApplication.Length -gt 0)
+            {
+                $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
+            }
+            else
+            {
+                $ItemPath = "IIS:Sites\$Website\$Name"
+            }
+
+            Set-ItemProperty -Path $ItemPath -Name physicalPath -Value $PhysicalPath
         }
     }
 
@@ -106,6 +118,7 @@ function Test-TargetResource
         $Website,
 
         [parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [System.String]
         $WebApplication,
 
@@ -125,7 +138,7 @@ function Test-TargetResource
     Test-Dependancies
 
     Write-Verbose 'Checking the virtual directories for the website.'
-    $virtualDirectory = Get-WebVirtualDirectoryInternal -Site $Website -Name $Name -Application $WebApplication
+    $virtualDirectory = Get-WebVirtualDirectory -Site $Website -Name $Name -Application $WebApplication
 
     if ($virtualDirectory.Count -eq 1 -and $Ensure -eq 'Present')
     {
@@ -158,72 +171,6 @@ function Test-Dependancies
     {
         Throw 'Please ensure that WebAdministration module is installed.'
     }
-}
-
-function Get-WebVirtualDirectoryInternal
-{
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Name,
-
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Site,
-
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Application
-    )
-
-    if ((Test-ApplicationExists -Site $Site -Application $Application) -ne $true)
-    {
-        return Get-WebVirtualDirectory -Site $Site -Name $(Get-CompositeName -Name $Name -Application $Application)
-    }
-
-    return Get-WebVirtualDirectory -Site $Site -Application $Application -Name $Name
-}
-
-function Test-ApplicationExists
-{
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Site,
-
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Application
-    )
-
-    $WebApplication = Get-WebApplication -Site $Site -Name $Application
-
-    if ($WebApplication.Count -eq 1)
-    {
-        return $true
-    }
-
-    Write-Warning "Specified Web Application $Application does not exist."
-
-    return $false
-}
-
-function Get-CompositeName
-{
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Name,
-
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Application
-    )
-
-    return "$Application/$Name"
 }
 
 Export-ModuleMember -Function *-TargetResource
