@@ -34,8 +34,8 @@ function Get-TargetResource
         [String]$Name,
 
         [Parameter(Mandatory)]
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present"
+        [ValidateSet('Present', 'Absent')]
+        [string]$Ensure = 'Present'
     )
     
     # Check if WebAdministration module is present for IIS cmdlets
@@ -71,27 +71,27 @@ function Set-TargetResource
         [String]$Name,
 
         [Parameter(Mandatory)]
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present"
+        [ValidateSet('Present', 'Absent')]
+        [string]$Ensure = 'Present'
     )
 
         CheckIISPoshModule
 
-        [string]$psPathRoot = "MACHINE/WEBROOT/APPHOST"
-        [string]$sectionNode = "system.webServer/handlers"
+        [string]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
+        [string]$sectionNode = 'system.webServer/handlers'
 
         $handler = GetHandler -name $Name 
 
-        if ($handler -eq $null -and $Ensure -eq "Present")
+        if ($handler -eq $null -and $Ensure -eq 'Present')
         {
             # add the handler  
             AddHandler -name $Name    
             Write-Verbose($LocalizedData.AddingHandler -f $Name);
         }
-        elseif ($handler -ne $null -and $Ensure -eq "Absent")
+        elseif ($handler -ne $null -and $Ensure -eq 'Absent')
         {
             # remove the handler                      
-            Remove-WebConfigurationProperty -pspath $psPathRoot -filter $sectionNode -name "." -AtElement @{name="$Name"}
+            Remove-WebConfigurationProperty -pspath $psPathRoot -filter $sectionNode -name '.' -AtElement @{name="$Name"}
             Write-Verbose($LocalizedData.RemovingHandler -f $Name);
         }
 }
@@ -109,8 +109,8 @@ function Test-TargetResource
         [String]$Name,
 
         [Parameter(Mandatory)]
-        [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present"
+        [ValidateSet('Present', 'Absent')]
+        [string]$Ensure = 'Present'
     )
 
     [bool]$DesiredConfigurationMatch = $true;
@@ -119,16 +119,16 @@ function Test-TargetResource
 
     $handler = GetHandler -name $Name 
 
-    if (($handler -eq $null -and $Ensure -eq "Present") -or ($handler -ne $null -and $Ensure -eq "Absent"))
+    if (($handler -eq $null -and $Ensure -eq 'Present') -or ($handler -ne $null -and $Ensure -eq 'Absent'))
     {
         $DesiredConfigurationMatch = $false;
     }
-    elseif ($handler -ne $null -and $Ensure -eq "Present")
+    elseif ($handler -ne $null -and $Ensure -eq 'Present')
     {
         # Already there 
         Write-Verbose($LocalizedData.HandlerExists -f $Name);
     }
-    elseif ($handler -eq $null -and $Ensure -eq "Absent")
+    elseif ($handler -eq $null -and $Ensure -eq 'Absent')
     {
         # handler not there and shouldn't be there.
         Write-Verbose($LocalizedData.HandlerNotPresent -f $Name);
@@ -251,7 +251,7 @@ Function AddHandler([string]$name)
     if ($handlers.ContainsKey($name))
     {
         # add the new handler
-        Add-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.webServer/handlers" -name "." -value $handlers[$name]
+        Add-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter 'system.webServer/handlers' -name '.' -value $handlers[$name]
     }
     else
     {
