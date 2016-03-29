@@ -22,53 +22,53 @@ configuration Sample_xWebsite_NewWebsite
     )
 
     # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration
+    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
 
     Node $NodeName
     {
         # Install the IIS role
         WindowsFeature IIS
         {
-            Ensure          = "Present"
-            Name            = "Web-Server"
+            Ensure          = 'Present'
+            Name            = 'Web-Server'
         }
 
         # Install the ASP .NET 4.5 role
         WindowsFeature AspNet45
         {
-            Ensure          = "Present"
-            Name            = "Web-Asp-Net45"
+            Ensure          = 'Present'
+            Name            = 'Web-Asp-Net45'
         }
 
         # Stop the default website
         xWebsite DefaultSite 
         {
-            Ensure          = "Present"
-            Name            = "Default Web Site"
-            State           = "Stopped"
-            PhysicalPath    = "C:\inetpub\wwwroot"
-            DependsOn       = "[WindowsFeature]IIS"
+            Ensure          = 'Present'
+            Name            = 'Default Web Site'
+            State           = 'Stopped'
+            PhysicalPath    = 'C:\inetpub\wwwroot'
+            DependsOn       = '[WindowsFeature]IIS'
         }
 
         # Copy the website content
         File WebContent
         {
-            Ensure          = "Present"
+            Ensure          = 'Present'
             SourcePath      = $SourcePath
             DestinationPath = $DestinationPath
             Recurse         = $true
-            Type            = "Directory"
-            DependsOn       = "[WindowsFeature]AspNet45"
+            Type            = 'Directory'
+            DependsOn       = '[WindowsFeature]AspNet45'
         }       
 
         # Create the new Website
         xWebsite NewWebsite
         {
-            Ensure          = "Present"
+            Ensure          = 'Present'
             Name            = $WebSiteName
-            State           = "Started"
+            State           = 'Started'
             PhysicalPath    = $DestinationPath
-            DependsOn       = "[File]WebContent"
+            DependsOn       = '[File]WebContent'
         }
     }
 }

@@ -23,15 +23,15 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory)]
-        [ValidateSet("Machine")]
+        [ValidateSet('Machine')]
         [string]$ApplyTo
     )
     
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
 
-    return @{ManagedRuntimeVersion = (GetValue -Path "" -Name "managedRuntimeVersion")
-                                    IdentityType = ( GetValue -Path "processModel" -Name "identityType")}
+    return @{ManagedRuntimeVersion = (GetValue -Path '' -Name 'managedRuntimeVersion')
+                                    IdentityType = ( GetValue -Path 'processModel' -Name 'identityType')}
 }
 
 
@@ -40,21 +40,21 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (    
-        [ValidateSet("Machine")]
+        [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
         # in the future there will be another CLR version to be allowed 
-        [ValidateSet("","v2.0","v4.0")]
+        [ValidateSet('','v2.0','v4.0')]
         [string]$ManagedRuntimeVersion,
         # TODO: we currently don't allow a custom identity
-        [ValidateSet("ApplicationPoolIdentity","LocalService","LocalSystem","NetworkService")]
+        [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
         [string]$IdentityType
     )
 
         CheckIISPoshModule
 
-        SetValue -Path "" -Name "managedRuntimeVersion" -NewValue $ManagedRuntimeVersion
-        SetValue -Path "processModel" -Name "identityType" -NewValue $IdentityType
+        SetValue -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion
+        SetValue -Path 'processModel' -Name 'identityType' -NewValue $IdentityType
 }
 
 
@@ -64,23 +64,23 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (    
-        [ValidateSet("Machine")]
+        [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
-        [ValidateSet("","v2.0","v4.0")]
+        [ValidateSet('','v2.0','v4.0')]
         [string]$ManagedRuntimeVersion,
-        [ValidateSet("ApplicationPoolIdentity","LocalService","LocalSystem","NetworkService")]
+        [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
         [string]$IdentityType
     )
 
     CheckIISPoshModule
 
-    if (!(CheckValue -Path "" -Name "managedRuntimeVersion" -NewValue $ManagedRuntimeVersion)) 
+    if (!(CheckValue -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion)) 
     { 
         return $false
     }
 
-    if (!(CheckValue -Path "processModel" -Name "identityType" -NewValue $IdentityType)) 
+    if (!(CheckValue -Path 'processModel' -Name 'identityType' -NewValue $IdentityType)) 
     { 
         return $false 
     }
@@ -108,7 +108,7 @@ Function CheckValue([string]$path,[string]$name,[string]$newValue)
     }
     else
     {
-        $relPath = $path + "/" + $name
+        $relPath = $path + '/' + $name
         Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
         return $true
     }   
@@ -127,22 +127,22 @@ Function SetValue([string]$path,[string]$name,[string]$newValue)
     $existingValue = GetValue -Path $path -Name $name
     if ($existingValue -ne $newValue)
     {
-        if ($path -ne "")
+        if ($path -ne '')
         {
-            $path = "/" + $path
+            $path = '/' + $path
         }
 
         Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name -value "$newValue"
-        $relPath = $path + "/" + $name
+        $relPath = $path + '/' + $name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
     }    
 }
 
 Function GetValue([string]$path,[string]$name)
 {
-    if ($path -ne "")
+    if ($path -ne '')
     {
-        $path = "/" + $path
+        $path = '/' + $path
     }
 
     return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name
