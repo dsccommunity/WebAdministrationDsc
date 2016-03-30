@@ -26,14 +26,14 @@ Currently, only FastCgiModule is supported.
 
 * **Name**: The desired name of the web application pool
 * **Ensure**: Should the application pool be present or absent
-* **State**: State of the application pool â€“ started or stopped
+* **State**: State of the application pool – started or stopped
 
 ### xWebsite
 
 * **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
-* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class. **MSFT_xWebBindingInformation** properties:
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class that implements the following properties:
     * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
     * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
     * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
@@ -46,7 +46,7 @@ Currently, only FastCgiModule is supported.
         * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
         * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
         * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
-* **ApplicationPool**: The websiteâ€™s application pool.
+* **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
 
@@ -54,18 +54,17 @@ Currently, only FastCgiModule is supported.
 
 * **Website**: Name of website with which the web application is associated.
 * **Name**: The desired name of the web application.
-* **WebAppPool**:  Web applicationâ€™s application pool.
+* **WebAppPool**:  Web application’s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
 * **Ensure**: Ensures that the web application is **Present** or **Absent**.
 
 ### xWebVirtualDirectory
 
 * **Website**: Name of website with which virtual directory is associated
-* **WebApplication**:  Web application name for the virtual directory
+* **WebApplication**:  The name of the containing web application or an empty string for the containing website
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is Present or Absent.
-* **State**: State of the application pool: { **Started** | **Stopped** }
 
 ### xWebConfigKeyValue
 
@@ -81,6 +80,13 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+
+### 1.10.0.0
+
+* Fixed script analyzer failures in examples
+* **xWebsite**: Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
+* Changed PhysicalPath in xWebsite to be optional
+* Changed WebApplication in xWebVirtualDirectory to accept empty strings for referring to the top-level IIS site
 
 ### 1.9.0.0
 
@@ -360,7 +366,7 @@ Configuration Sample_xWebsite_StopDefault
 
 ### Create a new website
 
-While setting up IIS and stopping the default website is interesting, it isnâ€™t quite useful yet.
+While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet.
 After all, people typically use IIS to set up websites of their own with custom protocol and bindings.
 Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website.
 
@@ -455,7 +461,7 @@ Configuration Sample_xWebsite_NewWebsite
 
 ### Creating the default website using configuration data
 
-In this example, weâ€™ve moved the parameters used to generate the website into a configuration data file.
+In this example, we’ve moved the parameters used to generate the website into a configuration data file.
 All of the variant portions of the configuration are stored in a separate file.
 This can be a powerful tool when using DSC to configure a project that will be deployed to multiple environments.
 For example, users managing larger environments may want to test their configuration on a small number of machines before deploying it across many more machines in their production environment.

@@ -52,7 +52,7 @@ try
 
                 Mock -CommandName Get-Website
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should return Absent' {
                     $Result.Ensure | Should Be 'Absent'
@@ -77,7 +77,7 @@ try
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                    {Get-TargetResource -Name 'MockName' -PhysicalPath 'C:\NonExistent'} |
+                    {Get-TargetResource -Name 'MockName'} |
                     Should Throw $ErrorRecord
 
                 }
@@ -89,7 +89,7 @@ try
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
                 Mock -CommandName Get-WebConfiguration -MockWith {return @{value = 'index.html'}}
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should call Get-Website once' {
                     Assert-MockCalled -CommandName Get-Website -Exactly 1
@@ -1246,13 +1246,13 @@ try
                     } -ClientOnly
 
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol              = 'https'
+                        Protocol              = 'http'
                         IPAddress             = '*'
                         Port                  = 8080
                         HostName              = 'web01.contoso.com'
-                        CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
-                        CertificateStoreName  = 'WebHosting'
-                        SslFlags              = 1
+                        CertificateThumbprint = ''
+                        CertificateStoreName  = ''
+                        SslFlags              = 0
                     } -ClientOnly
                 )
 
@@ -1263,7 +1263,7 @@ try
 
             }
 
-            Context 'BindingInfo contains multiple items with the same Port' {
+            Context 'BindingInfo contains items that share the same Port but have different Protocols' {
 
                 $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{

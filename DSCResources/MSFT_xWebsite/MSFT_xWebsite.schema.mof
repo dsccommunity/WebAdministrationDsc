@@ -16,7 +16,7 @@ class MSFT_xWebsite : OMI_BaseResource
 {
     [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
     [Key] String Name;
-    [Required] String PhysicalPath;
+    [Write] String PhysicalPath;
     [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
     [Write] String ApplicationPool;
     [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.")] String BindingInfo[];
