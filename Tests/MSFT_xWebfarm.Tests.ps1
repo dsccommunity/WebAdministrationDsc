@@ -68,14 +68,14 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
+        $webFarm = Get-TargetResource -Ensure Absent -Name "SOMEFARMTHATDOESNOTEXISTS"
 
         $webFarm.Ensure | Should Be "Absent"
     }
     It "must return present if webfarm exists" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
-        $webFarm = Get-TargetResource -Name "SOMEENABLEDFARM"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEENABLEDFARM"
         $webFarm.Ensure | Should Be "Present"
     }        
 
@@ -84,7 +84,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
+        $webFarm = Get-TargetResource -Ensure Absent -Name "SOMEFARMTHATDOESNOTEXISTS"
 
         $webFarm.Enabled | Should Be $null
     }
@@ -92,7 +92,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEENABLEDFARM"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEENABLEDFARM"
 
         $webFarm.Enabled | Should Be $true
     }
@@ -100,7 +100,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEDISABLEDFARM"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEDISABLEDFARM"
 
         $webFarm.Enabled | Should Be $false
     }
@@ -110,7 +110,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
+        $webFarm = Get-TargetResource -Ensure Absent -Name "SOMEFARMTHATDOESNOTEXISTS"
 
         $webFarm.Algorithm | Should Be $null
     }
@@ -119,7 +119,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHOUTBALANCING"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHOUTBALANCING"
 
         $webFarm.Algorithm | Should Be "WeightedRoundRobin"        
     } 
@@ -127,7 +127,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHOUTBALANCING"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHOUTBALANCING"
 
         $webFarm.QueryString | Should Be $null
     }
@@ -135,7 +135,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHOUTBALANCING"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHOUTBALANCING"
 
         $webFarm.ServerVariable | Should Be $null
     }
@@ -145,7 +145,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHWeightedRoundRobin"
 
         $webFarm.Algorithm | Should Be "WeightedRoundRobin"        
     }   
@@ -153,7 +153,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHWeightedRoundRobin"
 
         $webFarm.QueryString | Should Be $null
     }  
@@ -161,7 +161,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHWeightedRoundRobin"
 
         $webFarm.ServerVariable | Should Be $null
     }
@@ -171,7 +171,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHash"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHash"
 
         $webFarm.Algorithm | Should Be "RequestHash"        
     }
@@ -179,7 +179,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHash"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHash"
 
         $webFarm.QueryString | Should Be $null
     }
@@ -187,7 +187,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHash"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHash"
 
         $webFarm.ServerVariable | Should Be $null
     }
@@ -197,7 +197,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashQueryString"
 
         $webFarm.Algorithm | Should Be "QueryString"        
     }
@@ -205,7 +205,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashQueryString"
 
         $webFarm.QueryString.Length | Should Be 2
         $webFarm.QueryString[0] | Should Be "q1"
@@ -215,7 +215,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashQueryString"
 
         $webFarm.ServerVariable | Should Be $null
     }
@@ -225,7 +225,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashServerVariable"
 
         $webFarm.Algorithm | Should Be "ServerVariable"        
     }
@@ -233,7 +233,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashServerVariable"
 
         $webFarm.ServerVariable.Length | Should Be 2
         $webFarm.ServerVariable[0] | Should Be "x1"
@@ -243,7 +243,7 @@ Describe "MSFT_xWebfarm.Get-TargetResource" {
         ResetAppHost
         Mock GetApplicationHostConfig { return $fakeapphost1 } -ModuleName MSFT_xWebfarm
 
-        $webFarm = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
+        $webFarm = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashServerVariable"
 
         $webFarm.QueryString | Should Be $null
     }
@@ -569,7 +569,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS" -Ensure Absent
 
-        $result = Get-TargetResource -Name "SOMEFARMTHATDOESNOTEXISTS"
+        $result = Get-TargetResource -Ensure Absent -Name "SOMEFARMTHATDOESNOTEXISTS"
         $result.Ensure | Should Be "Absent"        
     }
     It "must Create the webfarm if Request[Ensure=Present] and Resource[Ensure=Absent]" {
@@ -579,7 +579,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARM1" -Ensure Present
 
-        $result = Get-TargetResource -Name "SOMEFARM1"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARM1"
         $result.Ensure | Should Be "Present"        
     }    
     It "must delete the webfarm if Request[Ensure=Absent] and Resource[Ensure=Present]" {
@@ -589,7 +589,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Absent
 
-        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result = Get-TargetResource -Ensure Absent -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Absent"        
     }
 
@@ -600,7 +600,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARM1" -Ensure Present
 
-        $result = Get-TargetResource -Name "SOMEFARM1"        
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARM1"        
         $result.Enabled | Should Be $true
     }
     It "must Enable the webfarm if Request[Ensure=Present,Enabled=true] and Resource[Ensure=Absent]" {
@@ -610,7 +610,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARM1" -Ensure Present -Enabled $true
 
-        $result = Get-TargetResource -Name "SOMEFARM1"        
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARM1"        
         $result.Enabled | Should Be $true
     }
     It "must Disable the webfarm if Request[Ensure=Present,Enabled=false] and Resource[Ensure=Absent]" {
@@ -620,7 +620,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARM1" -Ensure Present -Enabled $false
 
-        $result = Get-TargetResource -Name "SOMEFARM1"        
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARM1"        
         $result.Enabled | Should Be $false
     }
 
@@ -631,7 +631,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $true
 
-        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
     }
@@ -642,7 +642,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $false
 
-        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
     }
@@ -653,7 +653,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEDISABLEDFARM" -Ensure Present -Enabled $true
 
-        $result = Get-TargetResource -Name "SOMEDISABLEDFARM"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEDISABLEDFARM"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
     }
@@ -664,7 +664,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEDISABLEDFARM" -Ensure Present -Enabled $false
 
-        $result = Get-TargetResource -Name "SOMEDISABLEDFARM"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEDISABLEDFARM"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $false
     }
@@ -676,7 +676,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMTHATEXISTS" -Ensure Present -Enabled $true -Algorithm "WeightedRoundRobin"
 
-        $result = Get-TargetResource -Name "SOMEFARMTHATEXISTS"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARMTHATEXISTS"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
         $result.Algorithm | Should Be "WeightedRoundRobin"
@@ -690,7 +690,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -Algorithm "WeightedRoundRobin"
 
-        $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $result = Get-TargetResource  -Ensure Present -Name "SOMEFARMWITHWeightedRoundRobin"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
         $result.Algorithm | Should Be "WeightedRoundRobin"
@@ -705,7 +705,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -Algorithm "QueryString" -QueryString "q1,q2"
 
-        $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHWeightedRoundRobin"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
         $result.Algorithm | Should Be "QueryString"
@@ -722,7 +722,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMWITHRequestHashQueryString" -Ensure Present -Enabled $true -Algorithm "QueryString" -QueryString "x1,x2"
 
-        $result = Get-TargetResource -Name "SOMEFARMWITHRequestHashQueryString"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashQueryString"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
         $result.Algorithm | Should Be "QueryString"
@@ -740,7 +740,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin" -Ensure Present -Enabled $true -Algorithm "ServerVariable" -ServerVariable "x"
 
-        $result = Get-TargetResource -Name "SOMEFARMWITHWeightedRoundRobin"
+        $result = Get-TargetResource -Ensure Present  -Name "SOMEFARMWITHWeightedRoundRobin"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
         $result.Algorithm | Should Be "ServerVariable"
@@ -754,7 +754,7 @@ Describe "MSFT_xWebfarm.Set-TargetResource"{
         
         Set-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable" -Ensure Present -Enabled $true -Algorithm "ServerVariable" -ServerVariable "a"
 
-        $result = Get-TargetResource -Name "SOMEFARMWITHRequestHashServerVariable"
+        $result = Get-TargetResource -Ensure Present -Name "SOMEFARMWITHRequestHashServerVariable"
         $result.Ensure | Should Be "Present"
         $result.Enabled | Should Be $true
         $result.Algorithm | Should Be "ServerVariable"

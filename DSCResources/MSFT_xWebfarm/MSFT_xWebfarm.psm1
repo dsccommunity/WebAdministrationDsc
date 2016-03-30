@@ -5,13 +5,15 @@ data LocalizedData
 $_xWebfarm_DefaultLoadBalancingAlgorithm = "WeightedRoundRobin"
 $_xWebfarm_DefaultApplicationHostConfig = "%windir%\system32\inetsrv\config\applicationhost.config"
 
-# The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
-# It gives the Website info of the requested role/feature on the target machine.  
 function Get-TargetResource 
 {
     [OutputType([System.Collections.Hashtable])]
     param 
     (   
+        [Parameter(Mandatory)]
+        [ValidateSet("Present", "Absent")]
+        [string]$Ensure,
+
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [string]$Name,
@@ -28,14 +30,14 @@ function Get-TargetResource
     GetTargetResourceFromConfigElement $webFarm    
 }
 
-# The Set-TargetResource cmdlet is used to create, delete or configuure a website on the target machine. 
 function Set-TargetResource 
 {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param 
     (       
+        [Parameter(Mandatory)]
         [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
+        [string]$Ensure,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -49,6 +51,8 @@ function Set-TargetResource
 
         [string]$ConfigPath
     )
+
+    #region
 
     Write-Verbose "xWebfarm/Set-TargetResource"
     Write-Verbose "Ensure: $Ensure"
@@ -77,7 +81,7 @@ function Set-TargetResource
         $resource = GetTargetResourceFromConfigElement $webFarmElement
         $webFarm = GetWebfarm $Name $config
     }elseif(($Ensure -eq "absent") -and ($resource.Ensure -eq "present")){
-        $webFarmElement = $config.configuration.webFarms.webFarm | ? Name -eq $Name
+        $webFarmElement = $config.configuration.webFarms.webFarm | Where-Object Name -eq $Name
         $config.configuration.webFarms.RemoveChild($webFarmElement)
 
         Write-Verbose "Webfarm deleted: Name = $Name"
@@ -94,7 +98,7 @@ function Set-TargetResource
                 
         if($Algorithm -eq $null){
             Write-Verbose "Webfarm configured: LoadBalancing from [$($resource.Algorithm)] to []"
-            if($webFarm.applicationRequestRouting -ne $null){
+            if($null -ne $webFarm.applicationRequestRouting){
                 $webFarm.RemoveChild($webFarm.applicationRequestRouting)
             }
         }else{
@@ -103,12 +107,12 @@ function Set-TargetResource
             $applicationRequestRoutingElement = $webFarm.applicationRequestRouting
             $loadBalancingElement = $webFarm.applicationRequestRouting.loadBalancing
 
-            if($webFarm.applicationRequestRouting -eq $null){
+            if($null -eq $webFarm.applicationRequestRouting){
                 $applicationRequestRoutingElement = $config.CreateElement("applicationRequestRouting")
                 $webFarm.AppendChild($applicationRequestRoutingElement)
             }
 
-            if($webFarm.applicationRequestRouting.loadBalancing -eq $null){
+            if($null -eq $webFarm.applicationRequestRouting.loadBalancing){
                 $loadBalancingElement = $config.CreateElement("loadBalancing")
                 $loadBalancingElement.SetAttribute("algorithm", $_xWebfarm_DefaultLoadBalancingAlgorithm)
                 $applicationRequestRoutingElement.AppendChild($loadBalancingElement)
@@ -137,22 +141,28 @@ function Set-TargetResource
         }
     }
 
-    if($config -ne $null){
-        Write-Verbose "Finished configuration. Saving the config."
-        SetApplicationHostConfig $ConfigPath $config
+    if($null -ne $config ){
+        Write-Verbose "Finished configuration."
+
+        if($pscmdlet.ShouldProcess($computername)){
+            Write-Verbose "Should process: true"
+            SetApplicationHostConfig $ConfigPath $config
+        }else{
+            Write-Verbose "Should process: false"
+        }        
     }
+
+    #endregion
 }
 
-# The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
 function Test-TargetResource 
 {
     [OutputType([System.Boolean])]
     param 
     (     
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]  
+        [Parameter(Mandatory)]        
         [ValidateSet("Present", "Absent")]
-        [string]$Ensure = "Present",
+        [string]$Ensure,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -166,6 +176,8 @@ function Test-TargetResource
 
         [string]$ConfigPath
     )
+
+    #region
 
     Write-Verbose "xWebfarm/Test-TargetResource"
     Write-Verbose "Name: $Name"
@@ -204,15 +216,15 @@ function Test-TargetResource
 
         if($Algorithm -eq "querystring"){
             if([System.String]::IsNullOrEmpty($QueryString) -eq $false){
-                $queryStringList1 = [System.String]::Join(",", ($QueryString.Split(",") | sort))
-                $queryStringList2 = [System.String]::Join(",", ($resource.QueryString | sort))
+                $queryStringList1 = [System.String]::Join(",", ($QueryString.Split(",") | Sort-Object))
+                $queryStringList2 = [System.String]::Join(",", ($resource.QueryString | Sort-Object))
             
                 return $queryStringList1 -eq $queryStringList2
             }
         }elseif($Algorithm -eq "servervariable"){
             if([System.String]::IsNullOrEmpty($ServerVariable) -eq $false){
-                $serverVariableList1 = [System.String]::Join(",", ($ServerVariable.Split(",") | sort))
-                $serverVariableList2 = [System.String]::Join(",", ($resource.ServerVariable | sort))
+                $serverVariableList1 = [System.String]::Join(",", ($ServerVariable.Split(",") | Sort-Object))
+                $serverVariableList2 = [System.String]::Join(",", ($resource.ServerVariable | Sort-Object))
             
                 return $serverVariableList1 -eq $serverVariableList2
             }
@@ -220,7 +232,11 @@ function Test-TargetResource
     }    
 
     $true
+
+    #endregion
 }
+
+#region private methods
 
 function GetWebfarm{
     param 
@@ -232,9 +248,7 @@ function GetWebfarm{
         [ValidateNotNullOrEmpty()]
         [xml]$Config
     )
-
-    $found = $false        
-    $farms = $Config.configuration.webFarms.webFarm | ? name -eq $Name
+    $farms = $Config.configuration.webFarms.webFarm | Where-Object name -eq $Name
     $measure = $farms | measure-object
     
     if($measure.Count -gt 1){
@@ -251,7 +265,7 @@ function GetTargetResourceFromConfigElement($webFarm){
         Ensure = "Absent"
     }
 
-    if($webFarm -ne $null){
+    if($null -ne $webFarm){
         $resource.Ensure = "Present"
 
         if([System.String]::IsNullOrEmpty($webFarm.enabled)){
@@ -261,15 +275,15 @@ function GetTargetResourceFromConfigElement($webFarm){
         }
 
         #dows this farm have the specific request routing element
-        if($webFarm.applicationRequestRouting -ne $null){
+        if($null -ne $webFarm.applicationRequestRouting){
             $resource.Algorithm = $webFarm.applicationRequestRouting.loadBalancing.algorithm
             
             if([System.String]::IsNullOrEmpty($resource.Algorithm)){
                 $resource.Algorithm = $_xWebfarm_DefaultLoadBalancingAlgorithm
             }
 
-            if($webFarm.applicationRequestRouting.loadBalancing -ne $null){
-                if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable -ne $null){
+            if($null -ne $webFarm.applicationRequestRouting.loadBalancing){
+                if($null -ne $webFarm.applicationRequestRouting.loadBalancing.hashServerVariable){
                     if($webFarm.applicationRequestRouting.loadBalancing.hashServerVariable -eq "query_string"){
                         $resource.Algorithm = "QueryString"
                         $resource.QueryString = $webFarm.applicationRequestRouting.loadBalancing.queryStringNames.Split(",")                
@@ -295,7 +309,7 @@ function GetApplicationHostConfig($ConfigPath){
 
     Write-Verbose "GetApplicationHostConfig $ConfigPath"
 
-    [xml](gc $ConfigPath)
+    [xml](Get-Content $ConfigPath)
 }
 
 function SetApplicationHostConfig{
