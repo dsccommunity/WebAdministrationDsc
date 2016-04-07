@@ -140,7 +140,7 @@ function Set-TargetResource
     .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine.
     #>
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param
     (
         [ValidateSet('Present', 'Absent')]

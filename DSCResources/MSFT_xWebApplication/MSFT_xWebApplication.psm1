@@ -6,7 +6,6 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-ErrorWebAdministrationModuleNotFound = Please ensure that WebAdministration module is installed.
 ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
 '@
 }
@@ -40,12 +39,10 @@ function Get-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
-        [ValidateSet('True','False')]
-        [String]
+        [Boolean]
         $PreloadEnabled,
         
-        [ValidateSet('True','False')]
-        [String]
+        [Boolean]
         $ServiceAutoStartEnabled,
 
         [String]
@@ -58,39 +55,27 @@ function Get-TargetResource
     CheckDependencies
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
-
     $AuthenticationInfo = Get-AuthenticationInfo -Site $Website -Name $Name
-
     $SslFlags = (Get-SslFlags -Location "${Website}/${Name}")
 
-    $PhysicalPath = ''
     $Ensure = 'Absent'
-    $WebAppPool = ''
 
-    if ($webApplication)
+    if ($webApplication.Count -eq 1)
     {
-        $PhysicalPath             = $webApplication.PhysicalPath
-        $WebAppPool               = $webApplication.applicationPool
-        $Authentication           = $AuthenticationInfo
-        $SSLSettings              = $SslFlags
-        $PreloadEnabled           = $webApplication.preloadEnabled
-        $ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
-        $ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
-        $Ensure                   = 'Present'
+        $Ensure = 'Present'
     }
 
     $returnValue = @{
         Website                  = $Website
         Name                     = $Name
-        WebAppPool               = $WebAppPool
-        PhysicalPath             = $PhysicalPath
-        Authentication           = $Authentication
-        SslFlags                 = $SSLSettings
-        PreloadEnabled           = $PreloadEnabled
-        ServiceAutoStartProvider = $ServiceAutoStartProvider
-        ServiceAutoStartEnabled  = $ServiceAutoStartEnabled
+        WebAppPool               = $webApplication.applicationPool
+        PhysicalPath             = $webApplication.PhysicalPath
+        Authentication           = $AuthenticationInfo
+        SSLSettings              = $SslFlags
+        PreloadEnabled           = $webApplication.preloadEnabled
+        ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
+        ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
         Ensure                   = $Ensure
-
     }
 
     return $returnValue
@@ -98,7 +83,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
-    [CmdletBinding(SupportsShouldProcess=$true)]
+    [CmdletBinding()]
     param
     (
         [parameter(Mandatory = $true)]
@@ -145,41 +130,37 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
-        $webApplication = Get-WebApplication -Site $Website -Name $Name
-
-        if ($AuthenticationInfo -eq $null) 
-        { 
-            $AuthenticationInfo = Get-DefaultAuthenticationInfo 
-        }
-
-        if ($webApplication.count -eq 0)
-        {
-            Write-Verbose "Creating new Web application $Name."
-            New-WebApplication -Site $Website -Name $Name -PhysicalPath $PhysicalPath -ApplicationPool $WebAppPool
-            
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo'))
+            $webApplication = Get-WebApplication -Site $Website -Name $Name
+ 
+            if ($AuthenticationInfo -eq $null)
             {
-                Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
+                $AuthenticationInfo = Get-DefaultAuthenticationInfo
             }
-
+ 
+            if ($webApplication.count -eq 0)
+            {
+                Write-Verbose "Creating new Web application $Name."
+                New-WebApplication -Site $Website -Name $Name -PhysicalPath $PhysicalPath -ApplicationPool $WebAppPool
+            }
+     
             # Update SslFlags if required
             if ($PSBoundParameters.ContainsKey('SslFlags'))
             {
                 Set-WebConfiguration -Location "${Website}/${Name}" -Filter 'system.webserver/security/access' -Value $SSlFlags
             }
-
+     
             # Update Preload if required
             if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $webApplication.preloadEnabled -ne $PreloadEnabled)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
             }
-                
+
             # Update AutoStart if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
             }
-                
+
             # Update AutoStartProviders if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
@@ -189,55 +170,8 @@ function Set-TargetResource
                         Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
                     }
             }
-
-        }
-        else
-        {
-            if ($webApplication.physicalPath -ne $PhysicalPath)
-            {
-                Write-Verbose "Updating physical path for Web application $Name."
-                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" -Name physicalPath -Value $PhysicalPath
-            }
-            
-            if ($webApplication.applicationPool -ne $WebAppPool)
-            {
-                Write-Verbose "Updating application pool for Web application $Name."
-                Set-WebConfigurationProperty -Filter $webApplication.ItemXPath -Name applicationPool -Value $WebAppPool
-            }
-
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo'))
-            {
-                Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
-            }
-            # Update SslFlags if required
-
-            if ($PSBoundParameters.ContainsKey('SslFlags'))
-            {
-                Set-WebConfiguration -Location "${Website}/${Name}" -Filter 'system.webserver/security/access' -Value $SSlFlags
-            }
-
-            # Update Preload if required
-            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $webApplication.preloadEnabled -ne $PreloadEnabled)
-            {
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
-            }  
-                          
-            # Update AutoStart if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
-            {
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
-            }
-                
-            # Update AutoStartProviders if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
-            {
-                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
-                    {
-                        Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
-                        Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
-                    }
-            }
-        }
+            # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
+            Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
     }
 
     if ($Ensure -eq 'Absent')
@@ -304,12 +238,20 @@ function Test-TargetResource
         $AuthenticationInfo = Get-DefaultAuthenticationInfo 
     }
     
-    if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') {
+    if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') 
+    {
         Write-Verbose "Web application $Name is absent and should not absent."
         return $false
     }
+
+    if ($webApplication.count -eq 1 -and $Ensure -eq 'Absent') 
+    {
+        Write-Verbose "Web application $Name should be absent and is not absent."
+        return $false
+    }
     
-    if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') {
+    if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') 
+    {
         if ($webApplication.physicalPath -ne $PhysicalPath)
         {
             Write-Verbose "Physical path for web application $Name does not match desired state."
@@ -360,26 +302,11 @@ function Test-TargetResource
         }
     }
 
-    if ($webApplication.count -eq 1 -and $Ensure -eq 'Absent') {
-        Write-Verbose "Web application $Name should be absent and is not absent."
-        return $false
-    }
-
     return $true
 }
 
 #region Helper Functions
 
-function CheckDependencies
-{
-    Write-Verbose 'Checking whether WebAdministration is there in the machine or not.'
-    # Check if WebAdministration module is present for IIS cmdlets
-    if(!(Get-Module -ListAvailable -Name WebAdministration))
-    {
-        $ErrorMessage = $LocalizedData.ErrorWebAdministrationModuleNotFound
-        New-TerminatingError -ErrorId 'ErrorWebAdministrationModuleNotFound' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
-    }
-}
 
 function Confirm-UniqueServiceAutoStartProviders
 {
@@ -412,90 +339,30 @@ function Confirm-UniqueServiceAutoStartProviders
 
 $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
-$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $serviceAutoStartProvider | Select-Object Name,Type
+$ExistingObject = $WebSiteAutoStartProviders | `
+    Where-Object -Property Name -eq -Value $serviceAutoStartProvider | `
+    Select-Object Name,Type
 
 $ProposedObject = @(New-Object -TypeName PSObject -Property @{
-                                                                name   = $ServiceAutoStartProvider
-                                                                type   = $ApplicationType
-                                                             })
-
-$Result = $true
+    name   = $ServiceAutoStartProvider
+    type   = $ApplicationType
+})
 
 if(-not $ExistingObject)
     {
-        $Result = $false
-        return $Result
+        return $false
     }
 
 if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
     {
         if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
-        {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
-        New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
-        }
+            {
+                $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
+                New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+            }
     }
 
-return $Result
-
-}
-
-function Confirm-UniqueSASP
-{
-    <#
-    .SYNOPSIS
-        Helper function used to validate that the AutoStartProviders is unique to other websites.
-        Returns False if the AutoStartProviders exist.
-    .PARAMETER serviceAutoStartProvider
-        Specifies the name of the AutoStartProviders.
-    .PARAMETER ExcludeStopped
-        Specifies the name of the Application Type for the AutoStartProvider.
-    .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
-        need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
-        Name is passed in to bubble to any error messages during the test.
-    #>
-    
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $ServiceAutoStartProvider,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $ApplicationType
-    )
-
-$WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
-
-$ExistingObject = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $serviceAutoStartProvider | Select-Object Name,Type
-
-$ProposedObject = @(New-Object -TypeName PSObject -Property @{
-                                                                name   = $ServiceAutoStartProvider
-                                                                type   = $ApplicationType
-                                                             })
-
-$Result = $true
-
-if(-not $ExistingObject)
-    {
-        $Result = $false
-        return $Result
-    }
-
-if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
-    {
-        if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
-        {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
-        New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
-        }
-    }
-
-return $Result
+return $true
 
 }
 
@@ -526,7 +393,9 @@ function Get-AuthenticationInfo
         $authenticationProperties[$type] = [string](Test-AuthenticationEnabled -Site $Site -Name $Name -Type $type)
     }
 
-    return New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation -ClientOnly -Property $authenticationProperties
+    return New-CimInstance `
+            -ClassName MSFT_xWebApplicationAuthenticationInformation `
+            -ClientOnly -Property $authenticationProperties
 }
 
 function Get-DefaultAuthenticationInfo
