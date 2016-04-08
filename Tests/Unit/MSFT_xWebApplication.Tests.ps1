@@ -45,7 +45,7 @@ try
                 }
             )
 
-        Describe "$Global:DSCResourceName\CheckDependencies" {
+        Describe "$Global:DSCResourceName\Assert-Module" {
             
             Context 'WebAdminstration module is not installed' {
                 Mock -CommandName Get-Module -MockWith {
@@ -54,7 +54,7 @@ try
 
                 It 'should throw an error' {
                     {
-                        CheckDependencies
+                        Assert-Module
                     } | Should Throw 'Please ensure that WebAdministration module is installed.'
  
                 }

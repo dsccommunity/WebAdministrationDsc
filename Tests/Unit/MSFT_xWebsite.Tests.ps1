@@ -26,6 +26,24 @@ try
 
     InModuleScope -ModuleName $Global:DSCResourceName -ScriptBlock {
 
+        Describe "$Global:DSCResourceName\Assert-Module" {
+            
+            Context 'WebAdminstration module is not installed' {
+                Mock -CommandName Get-Module -MockWith {
+                    return $null
+                }
+
+                It 'should throw an error' {
+                    {
+                        Assert-Module
+                    } | Should Throw 'Please ensure that WebAdministration module is installed.'
+ 
+                }
+ 
+            }
+  
+        }
+
         Describe "how $Global:DSCResourceName\Get-TargetResource responds" {
 
         Function Get-WebConfiguration ($filter) {}
