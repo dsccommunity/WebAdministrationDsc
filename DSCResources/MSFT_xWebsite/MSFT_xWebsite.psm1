@@ -675,6 +675,64 @@ function Confirm-UniqueBinding
     return $Result
 }
 
+function Confirm-UniqueServiceAutoStartProviders
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other websites.
+        returns False if the AutoStartProviders exist.
+    .PARAMETER serviceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+    .PARAMETER ExcludeStopped
+        Specifies the name of the Application Type for the AutoStartProvider.
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
+        need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
+    #>
+    
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ServiceAutoStartProvider,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ApplicationType
+    )
+
+    $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+
+    $ExistingObject = $WebSiteAutoStartProviders | `
+        Where-Object -Property Name -eq -Value $serviceAutoStartProvider | `
+        Select-Object Name,Type
+
+    $ProposedObject = @(New-Object -TypeName PSObject -Property @{
+        name   = $ServiceAutoStartProvider
+        type   = $ApplicationType
+    })
+
+    if(-not $ExistingObject)
+        {
+            return $false
+        }
+
+    if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+        {
+            if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
+                {
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
+                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                }
+        }
+
+    return $true
+
+}
+
 function ConvertTo-CimBinding
 {
     <#
@@ -959,6 +1017,181 @@ function Format-IPAddressString
     }
 
     return $OutputString
+}
+
+function Get-AuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
+    Param
+    (
+        [parameter(Mandatory = $true)]
+        [String]$Site
+    )
+
+    $authenticationProperties = @{}
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
+    {
+        $authenticationProperties[$type] = [String](Test-AuthenticationEnabled -Site $Site -Type $type)
+    }
+
+    return New-CimInstance `
+            -ClassName MSFT_xWebApplicationAuthenticationInformation `
+            -ClientOnly -Property $authenticationProperties
+}
+
+function Get-DefaultAuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to build a default CimInstance for AuthenticationInformation
+    #>
+
+    New-CimInstance -ClassName SEEK_cWebAuthenticationInformation `
+        -ClientOnly `
+        -Property @{Anonymous='false';Basic='false';Digest='false';Windows='false'}
+}
+
+function Set-Authentication
+{
+    <#
+    .SYNOPSIS
+        Helper function used to set authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .PARAMETER Enabled
+        Whether the Authentication is enabled or not.
+    #>
+
+    [CmdletBinding()]
+    Param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory = $true)]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
+        [System.String]$Type,
+
+        [System.Boolean]$Enabled
+    )
+
+    Set-WebConfigurationProperty `
+        -Filter /system.WebServer/security/authentication/${Type}Authentication `
+        -Name enabled `
+        -Value $Enabled `
+        -Location $Site
+}
+
+function Set-AuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter()]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+    )
+
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
+    {
+        $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
+        Set-Authentication -Site $Site -Type $type -Enabled $enabled
+    }
+}
+
+function Test-AuthenticationEnabled
+{
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that value which will either [string]True or [String]False
+    .PARAMETER Site
+        Specifies the name of the Website.
+   .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    #>
+
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    Param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory = $true)]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
+        [System.String]$Type
+    )
+
+
+    $prop = Get-WebConfigurationProperty `
+        -Filter /system.WebServer/security/authentication/${Type}Authentication `
+        -Name enabled `
+        -Location $Site
+    return $prop.Value
+}
+
+function Test-AuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that result which will either [boolean]$True or [boolean]$False for use in Test-TargetResource.
+        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break this function out.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]$Site,
+
+        [parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+    )
+
+    $result = $true
+
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
+    {
+        $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
+        $actual = Test-AuthenticationEnabled -Site $Site -Type $type
+        if ($expected -ne $actual)
+        {
+            $result = $false
+            break
+        }
+    }
+
+    return $result
 }
 
 function Test-BindingInfo
