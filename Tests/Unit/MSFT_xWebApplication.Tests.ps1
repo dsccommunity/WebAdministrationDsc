@@ -27,7 +27,7 @@ try
             Name                     = 'MockApp'
             WebAppPool               = 'MockPool'
             PhysicalPath             = 'C:\MockSite\MockApp'
-            SSlFlags                 = 'Ssl'
+            SslFlags                 = 'Ssl'
             PreloadEnabled           = $True
             ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
             ServiceAutoStartEnabled  = $True
@@ -38,7 +38,7 @@ try
                 @{
                     SectionPath = 'MockSectionPath'
                     PSPath      = 'MockPSPath'
-                    sslFlags    = 'ssl'
+                    SslFlags    = 'Ssl'
                     Collection  = @(
                                 [PSCustomObject]@{Name = 'MockServiceAutoStartProvider' ;Type = 'MockApplicationType'}   
                     )
@@ -46,6 +46,8 @@ try
             )
 
         Describe "$Global:DSCResourceName\Assert-Module" {
+
+            #function Get-WebConfigurationProperty {}
             
             Context 'WebAdminstration module is not installed' {
                 Mock -CommandName Get-Module -MockWith {
@@ -74,7 +76,9 @@ try
                     return $null
                 }
 
-                Mock -CommandName Get-WebConfiguration -MockWith {$GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
 
                 It 'should return Absent' {
                     $Result = Get-TargetResource @MockParameters
@@ -166,12 +170,14 @@ try
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
                         ApplicationType          = $MockParameters.ApplicationType
-                        Count = 1
+                        Count                    = 1
                     }
  
                 }
 
-                Mock Get-WebConfiguration -MockWith { $GetWebConfigurationOutput }
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
 
                 It 'should return True' {
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
@@ -189,7 +195,7 @@ try
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
                         ApplicationType          = $MockParameters.ApplicationType
-                        Count = 1
+                        Count                    = 1
                     }
  
                 }
@@ -327,7 +333,6 @@ try
                 Mock -CommandName New-WebApplication
                 Mock -CommandName Set-ItemProperty
                 Mock -CommandName Add-WebConfiguration
-                #Mock -CommandName Confirm-UniqueServiceAutoStartProviders {return $false}
 
                 It 'should call expected mocks' {
                     $Result = Set-TargetResource -Ensure 'Present' @MockParameters
@@ -335,7 +340,6 @@ try
                     Assert-MockCalled -CommandName New-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                    #Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
                 }
 
             }
@@ -353,6 +357,10 @@ try
                         Count = 1
                     }
   
+                }
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
                 }
 
                 Mock -CommandName Set-WebConfigurationProperty
@@ -383,6 +391,10 @@ try
  
                 }
 
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
                 Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Add-WebConfiguration
 
@@ -394,6 +406,39 @@ try
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                 }
  
+            }
+
+            Context 'Web Application exists but has different SslFlags' {
+            
+                Mock -CommandName Get-WebApplication -MockWith {
+                    return @{
+                        ApplicationPool          = $MockParameters.WebAppPool
+                        PhysicalPath             =  $MockParameters.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        PreloadEnabled           = 'false'
+                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
+                        ApplicationType          = $MockParameters.ApplicationType
+                        Count = 1
+                    }
+
+                }
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Set-ItemProperty
+
+                It 'should call expected mocks' {
+
+                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+
+                    Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
+                }
+            
             }
 
             Context 'Web Application exists but has Preload not set' {
@@ -440,6 +485,10 @@ try
                     }
  
                 }
+                        
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
 
                 Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Set-ItemProperty
@@ -461,6 +510,7 @@ try
                     @{
                         SectionPath = 'MockSectionPath'
                         PSPath      = 'MockPSPath'
+                        SslFlags    = 'Ssl'
                         Collection  = @(
                                     [PSCustomObject]@{Name = 'OtherMockServiceAutoStartProvider' ;Type = 'OtherMockApplicationType'}   
                         )
@@ -475,14 +525,16 @@ try
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         ServiceAutoStartProvider = 'OtherServiceAutoStartProvider'
-                        ApplicationType          = 'OtherApplicationType'
-                        
+                        ApplicationType          = 'OtherApplicationType'                      
                         Count = 1
                     }
 
                 }
+   
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
 
-                Mock -CommandName Get-WebConfiguration -MockWith {return $GetWebConfigurationOutput}
                 Mock -CommandName Set-ItemProperty
                 Mock -CommandName Add-WebConfiguration
                 
@@ -921,8 +973,71 @@ try
             }     
   
         }
+
+        Describe "$Global:DSCResourceName\Test-SslFlags" {
+        
+        Context 'Expected behavior' {
+
+            function Get-WebConfiguration {}
+
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
+            It 'should not throw an error' {
+                    { Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  }|
+                    Should Not Throw
+                }
+
+            It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }    
  
+            }
+
+        Context 'Return False when SslFlags are not correct' {
+
+                $GetWebConfigurationOutput = @(
+                    @{
+                        SslFlags    = ''
+                    }
+                )
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
+                
+                It 'should return false' {
+                    Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags | Should be False
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+  
+            }
+
+        Context 'Return True when SslFlags are correct' {
+                
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+     
+                It 'should return true' {
+                    Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  | Should be True
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+  
+            }
+        
+        }     
+    
     }
+
 }
 finally
 {

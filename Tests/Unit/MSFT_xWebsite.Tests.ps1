@@ -27,6 +27,8 @@ try
     InModuleScope -ModuleName $Global:DSCResourceName -ScriptBlock {
 
         Describe "$Global:DSCResourceName\Assert-Module" {
+
+        Function Get-Module {}
             
             Context 'WebAdminstration module is not installed' {
                 Mock -CommandName Get-Module -MockWith {
