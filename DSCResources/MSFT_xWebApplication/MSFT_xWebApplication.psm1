@@ -19,12 +19,12 @@ VerboseSetTargetAutoStartProviders = Updating AutoStartProviders for Web applica
 VerboseTestTargetFalseAbsent = Web application "{0}" is absent and should not absent.
 VerboseTestTargetFalsePresent = Web application $Name should be absent and is not absent.
 VerboseTestTargetFalsePhysicalPath = Physical path for web application "{0}" does not match desired state.
-VerboseTestTargetFalseWebAppPool = Web application pool for web application "{0}" does not match desired state."
-VerboseTestTargetFalseSslFlags = SslFlags for web application "{0}" are not in the desired state'
-VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for web application "{0}" is not in the desired state'
-VerboseTestTargetFalsePreload = Preload for web application "{0}" is not in the desired state'
-VerboseTestTargetFalseAutostart = Autostart for web application "{0}" is not in the desired state'
-VerboseTestTargetFalseAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state'
+VerboseTestTargetFalseWebAppPool = Web application pool for web application "{0}" does not match desired state.
+VerboseTestTargetFalseSslFlags = SslFlags for web application "{0}" are not in the desired state.
+VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for web application "{0}" is not in the desired state.
+VerboseTestTargetFalsePreload = Preload for web application "{0}" is not in the desired state.
+VerboseTestTargetFalseAutostart = Autostart for web application "{0}" is not in the desired state.
+VerboseTestTargetFalseAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
 '@
 }
 
@@ -35,19 +35,19 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Website,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Name,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $WebAppPool,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $PhysicalPath,
         
         [ValidateNotNull()]
@@ -105,23 +105,23 @@ function Set-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Website,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Name,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $WebAppPool,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $PhysicalPath,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
+        [String]
         $Ensure = 'Present',
 
         [ValidateNotNull()]
@@ -229,23 +229,23 @@ function Test-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Website,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Name,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $WebAppPool,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $PhysicalPath,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
+        [String]
         $Ensure = 'Present',
 
         [ValidateNotNull()]

@@ -1076,13 +1076,13 @@ function Set-Authentication
     Param
     (
         [parameter(Mandatory = $true)]
-        [System.String]$Site,
+        [String]$Site,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [System.String]$Type,
+        [String]$Type,
 
-        [System.Boolean]$Enabled
+        [Boolean]$Enabled
     )
 
     Set-WebConfigurationProperty `
@@ -1107,7 +1107,7 @@ function Set-AuthenticationInfo
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]$Site,
+        [String]$Site,
 
         [parameter()]
         [ValidateNotNullOrEmpty()]
@@ -1134,15 +1134,15 @@ function Test-AuthenticationEnabled
     #>
 
     [CmdletBinding()]
-    [OutputType([System.Boolean])]
+    [OutputType([Boolean])]
     Param
     (
         [parameter(Mandatory = $true)]
-        [System.String]$Site,
+        [String]$Site,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [System.String]$Type
+        [String]$Type
     )
 
 
@@ -1167,11 +1167,11 @@ function Test-AuthenticationInfo
     #>
 
     [CmdletBinding()]
-    [OutputType([System.Boolean])]
+    [OutputType([Boolean])]
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]$Site,
+        [String]$Site,
 
         [parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
