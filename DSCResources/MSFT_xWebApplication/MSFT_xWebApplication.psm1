@@ -6,7 +6,7 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
 VerboseSetTargetAbsent = Removing existing Web Application "{0}".
 VerboseSetTargetPresent = Creating new Web application "{0}".
 VerboseSetTargetPhysicalPath = Updating physical path for Web application "{0}".
@@ -89,7 +89,7 @@ function Get-TargetResource
         WebAppPool               = $webApplication.applicationPool
         PhysicalPath             = $webApplication.PhysicalPath
         Authentication           = $AuthenticationInfo
-        SSLSettings              = $SslFlags
+        SslSettings              = $SslFlags
         PreloadEnabled           = $webApplication.preloadEnabled
         ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled

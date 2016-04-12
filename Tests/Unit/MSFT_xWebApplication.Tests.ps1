@@ -46,18 +46,16 @@ try
             )
 
         Describe "$Global:DSCResourceName\Assert-Module" {
-
-            #function Get-WebConfigurationProperty {}
             
             Context 'WebAdminstration module is not installed' {
+                
                 Mock -CommandName Get-Module -MockWith {
                     return $null
                 }
 
                 It 'should throw an error' {
-                    {
-                        Assert-Module
-                    } | Should Throw 'Please ensure that WebAdministration module is installed.'
+                    { Assert-Module } | 
+                    Should Throw 'Please ensure that the PowerShell module for role WebAdministration is installed.'
  
                 }
  

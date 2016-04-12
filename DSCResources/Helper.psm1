@@ -3,8 +3,7 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-    RoleNotFound    =   Please ensure that the PowerShell module for role {0} is installed
-    ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+    ModuleNotFound = Please ensure that the PowerShell module for role {0} is installed.
 '@
 }
 
@@ -15,18 +14,18 @@ function New-TerminatingError
     param
     (
         [Parameter(Mandatory)]
-        [String] $ErrorId,
+        [String]$ErrorId,
 
         [Parameter(Mandatory)]
-        [String] $ErrorMessage,
+        [String]$ErrorMessage,
 
         [Parameter(Mandatory)]
-        [System.Management.Automation.ErrorCategory] $ErrorCategory
+        [System.Management.Automation.ErrorCategory]$ErrorCategory
     )
 
-    $exception = New-Object System.InvalidOperationException $errorMessage
-    $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $errorId, $errorCategory, $null
-    throw $errorRecord
+    $Exception = New-Object System.InvalidOperationException $ErrorMessage
+    $ErrorRecord = New-Object System.Management.Automation.ErrorRecord $Exception, $ErrorId, $ErrorCategory, $null
+    throw $ErrorRecord
 }
 
 # Internal function to assert if the role specific module is installed or not
@@ -35,12 +34,12 @@ function Assert-Module
     [CmdletBinding()]
     param
     (
-        [String] $moduleName = 'WebAdministration'
+        [String]$ModuleName = 'WebAdministration'
     )
 
-    if(-not (Get-Module -Name $moduleName -ListAvailable))
+    if(-not(Get-Module -Name $ModuleName -ListAvailable))
     {
-        $errorMsg = $($LocalizedData.RoleNotFound) -f $moduleName
-        New-TerminatingError -ErrorId 'ModuleNotFound' -ErrorMessage $errorMsg -ErrorCategory ObjectNotFound
+        $ErrorMsg = $($LocalizedData.ModuleNotFound) -f $ModuleName
+        New-TerminatingError -ErrorId 'ModuleNotFound' -ErrorMessage $ErrorMsg -ErrorCategory ObjectNotFound
     }
 }

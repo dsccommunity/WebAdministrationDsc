@@ -36,9 +36,8 @@ try
                 }
 
                 It 'should throw an error' {
-                    {
-                        Assert-Module
-                    } | Should Throw 'Please ensure that WebAdministration module is installed.'
+                    { Assert-Module } | 
+                    Should Throw 'Please ensure that WebAdministration module is installed.'
  
                 }
  
