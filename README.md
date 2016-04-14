@@ -24,7 +24,6 @@ Currently, only FastCgiModule is supported.
 
 ### xWebAppPool
 
-<<<<<<< HEAD
 * **Name** : Indicates the application pool name. The value must contain between `1` and `64` characters.
 * **Ensure** : Indicates if the application pool exists. Set this property to `Absent` to ensure that the application pool does not exist.
     Setting it to `Present` (the default value) ensures that the application pool exists.
@@ -113,11 +112,6 @@ Currently, only FastCgiModule is supported.
     The value must be an array of string representations of TimeSpan values.
     TimeSpan values must be between `00:00:00` and `23:59:59` seconds inclusive, with a granularity of 60 seconds.
     Setting the value of this property to `""` disables the schedule.
-=======
-* **Name**: The desired name of the web application pool
-* **Ensure**: Should the application pool be present or absent
-* **State**: State of the application pool – started or stopped
->>>>>>> refs/remotes/PowerShell/dev
 
 ### xWebsite
 
@@ -137,7 +131,7 @@ Currently, only FastCgiModule is supported.
         * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
         * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
         * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
-* **ApplicationPool**: The website’s application pool.
+* **ApplicationPool**: The websiteâ€™s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
 
@@ -145,7 +139,7 @@ Currently, only FastCgiModule is supported.
 
 * **Website**: Name of website with which the web application is associated.
 * **Name**: The desired name of the web application.
-* **WebAppPool**:  Web application’s application pool.
+* **WebAppPool**:  Web applicationâ€™s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
 * **Ensure**: Ensures that the web application is **Present** or **Absent**.
 
@@ -172,11 +166,6 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
-<<<<<<< HEAD
-* Fixed script analyzer failures in examples.
-* **xWebsite** updates:
-    * Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
-    * Changed **PhysicalPath** to be optional.
 * **xWebAppPool** updates:
     * Bug fixes, error handling and input validation improvements.
     * The resource was updated to ensure a specific state only for the explicitly specified properties.
@@ -185,14 +174,13 @@ Currently, only FastCgiModule is supported.
         **passAnonymousToken**, **cpuSmpAffinitized**, **loadUserProfile**, **manualGroupMembership**, **pingingEnabled**, **setProfileEnvironment**,
         **orphanWorkerProcess**, **rapidFailProtection**, **disallowOverlappingRotation**, **disallowRotationOnConfigChange**.
     * Unit and integration tests updated.
-=======
+
 ### 1.10.0.0
 
 * Fixed script analyzer failures in examples
 * **xWebsite**: Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
 * Changed PhysicalPath in xWebsite to be optional
 * Changed WebApplication in xWebVirtualDirectory to accept empty strings for referring to the top-level IIS site
->>>>>>> refs/remotes/PowerShell/dev
 
 ### 1.9.0.0
 
@@ -472,7 +460,7 @@ Configuration Sample_xWebsite_StopDefault
 
 ### Create a new website
 
-While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet.
+While setting up IIS and stopping the default website is interesting, it isnâ€™t quite useful yet.
 After all, people typically use IIS to set up websites of their own with custom protocol and bindings.
 Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website.
 
@@ -567,7 +555,7 @@ Configuration Sample_xWebsite_NewWebsite
 
 ### Creating the default website using configuration data
 
-In this example, we’ve moved the parameters used to generate the website into a configuration data file.
+In this example, weâ€™ve moved the parameters used to generate the website into a configuration data file.
 All of the variant portions of the configuration are stored in a separate file.
 This can be a powerful tool when using DSC to configure a project that will be deployed to multiple environments.
 For example, users managing larger environments may want to test their configuration on a small number of machines before deploying it across many more machines in their production environment.

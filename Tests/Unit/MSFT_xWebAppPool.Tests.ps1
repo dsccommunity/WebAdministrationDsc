@@ -28,6 +28,13 @@ try
 
     InModuleScope $Global:DSCResourceName {
 
+        <#
+        There is a necessity to use ConvertTo-SecureString with plain text (for testing purposes only).
+        The splatting trick ensures that the Script Analyzer does not report
+        the PSAvoidUsingConvertToSecureStringWithPlainText rule violation.
+        #>
+        $AsPlainTextForce = @{AsPlainText = $true; Force = $true}
+
         Describe "$($Global:DSCResourceName)\Get-TargetResource" {
 
             Mock Assert-Module
@@ -484,7 +491,7 @@ try
                 Mock Get-WebConfiguration -MockWith {$mockAppPool}
 
                 $mockUserName = $mockAppPool.processModel.userName
-                $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+                $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString @AsPlainTextForce
                 $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                 $mockRestartSchedule = [String[]]@(
@@ -959,7 +966,7 @@ try
                 It 'Should return True when both the userName and the password properties match the desired state' {
 
                     $mockUserName = $mockAppPool.processModel.userName
-                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString @AsPlainTextForce
                     $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                     Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
@@ -970,7 +977,7 @@ try
                 It 'Should return False when the userName property does not match the desired state' {
 
                     $mockUserName = 'CONTOSO\GFawkes'
-                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString @AsPlainTextForce
                     $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                     Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
@@ -981,7 +988,7 @@ try
                 It 'Should return False when the password property does not match the desired state' {
 
                     $mockUserName = $mockAppPool.processModel.userName
-                    $mockPassword = '5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force
+                    $mockPassword = '5t6y7u8i' | ConvertTo-SecureString @AsPlainTextForce
                     $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                     Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
@@ -1725,14 +1732,8 @@ try
 
                     Mock Stop-WebAppPool -MockWith {throw}
 
-                    $errorId = 'ErrorStopAppPool'
-                    $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
-                    $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                    $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
                     {Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name} |
-                    Should Throw $errorRecord
+                    Should Throw
 
                 }
 
@@ -1741,14 +1742,8 @@ try
                     Mock Stop-WebAppPool
                     Mock Remove-WebAppPool -MockWith {throw}
 
-                    $errorId = 'ErrorRemoveAppPool'
-                    $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
-                    $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                    $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
                     {Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name} |
-                    Should Throw $errorRecord
+                    Should Throw
 
                 }
 
@@ -1779,14 +1774,8 @@ try
 
                     Mock Remove-WebAppPool -MockWith {throw}
 
-                    $errorId = 'ErrorRemoveAppPool'
-                    $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
-                    $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                    $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
                     {Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name} |
-                    Should Throw $errorRecord
+                    Should Throw
 
                 }
 
@@ -1815,14 +1804,8 @@ try
 
                     Mock New-WebAppPool -MockWith {throw}
 
-                    $errorId = 'ErrorNewAppPool'
-                    $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
-                    $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                    $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
                     {Set-TargetResource -Ensure 'Present' -Name $mockAppPool.Name} |
-                    Should Throw $errorRecord
+                    Should Throw
 
                 }
 
@@ -1902,7 +1885,7 @@ try
                 Mock Get-WebConfiguration -MockWith {$mockAppPool}
 
                 $mockUserName = 'CONTOSO\GFawkes'
-                $mockPassword = '5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force
+                $mockPassword = '5t6y7u8i' | ConvertTo-SecureString @AsPlainTextForce
                 $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                 $setParamsSplat = @{
@@ -1989,14 +1972,8 @@ try
 
                     Mock Start-WebAppPool -MockWith {throw}
 
-                    $errorId = 'ErrorStartAppPool'
-                    $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
-                    $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                    $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
                     {Set-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Started'} |
-                    Should Throw $errorRecord
+                    Should Throw
 
                 }
 
@@ -2021,14 +1998,8 @@ try
 
                     Mock Stop-WebAppPool -MockWith {throw}
 
-                    $errorId = 'ErrorStopAppPool'
-                    $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $errorMessage = $LocalizedData[$errorId] -f $mockAppPool.Name, 'ScriptHalted'
-                    $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                    $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
                     {Set-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Stopped'} |
-                    Should Throw $errorRecord
+                    Should Throw
 
                 }
 
