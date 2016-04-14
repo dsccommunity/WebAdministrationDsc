@@ -103,8 +103,7 @@ function Get-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateLength(1, 64)]
-        [String]
-        $Name
+        [String] $Name
     )
 
     Assert-Module
@@ -171,196 +170,146 @@ function Set-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateLength(1, 64)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [ValidateSet('Present', 'Absent')]
-        [String]
-        $Ensure = 'Present',
+        [String] $Ensure = 'Present',
 
         [ValidateSet('Started', 'Stopped')]
-        [String]
-        $State,
+        [String] $State,
 
-        [Boolean]
-        $autoStart,
+        [Boolean] $autoStart,
 
-        [String]
-        $CLRConfigFile,
+        [String] $CLRConfigFile,
 
-        [Boolean]
-        $enable32BitAppOnWin64,
+        [Boolean] $enable32BitAppOnWin64,
 
-        [Boolean]
-        $enableConfigurationOverride,
+        [Boolean] $enableConfigurationOverride,
 
         [ValidateSet('Integrated', 'Classic')]
-        [String]
-        $managedPipelineMode,
+        [String] $managedPipelineMode,
 
-        [String]
-        $managedRuntimeLoader,
+        [String] $managedRuntimeLoader,
 
         [ValidateSet('v4.0', 'v2.0', '')]
-        [String]
-        $managedRuntimeVersion,
+        [String] $managedRuntimeVersion,
 
-        [Boolean]
-        $passAnonymousToken,
+        [Boolean] $passAnonymousToken,
 
         [ValidateSet('OnDemand', 'AlwaysRunning')]
-        [String]
-        $startMode,
+        [String] $startMode,
 
         [ValidateRange(10, 65535)]
-        [UInt32]
-        $queueLength,
+        [UInt32] $queueLength,
 
         [ValidateSet('NoAction', 'KillW3wp', 'Throttle', 'ThrottleUnderLoad')]
-        [String]
-        $cpuAction,
+        [String] $cpuAction,
 
         [ValidateRange(0, 100000)]
-        [UInt32]
-        $cpuLimit,
+        [UInt32] $cpuLimit,
 
         [ValidateScript({
             ([ValidateRange(0, 1440)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $cpuResetInterval,
+        [String] $cpuResetInterval,
 
-        [Boolean]
-        $cpuSmpAffinitized,
+        [Boolean] $cpuSmpAffinitized,
 
-        [UInt32]
-        $cpuSmpProcessorAffinityMask,
+        [UInt32] $cpuSmpProcessorAffinityMask,
 
-        [UInt32]
-        $cpuSmpProcessorAffinityMask2,
+        [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
             'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
             'NetworkService', 'SpecificUser'
         )]
-        [String]
-        $identityType,
+        [String] $identityType,
 
-        [System.Management.Automation.PSCredential]
-        $Credential,
+        [System.Management.Automation.PSCredential] $Credential,
 
         [ValidateScript({
             ([ValidateRange(0, 43200)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $idleTimeout,
+        [String] $idleTimeout,
 
         [ValidateSet('Terminate', 'Suspend')]
-        [String]
-        $idleTimeoutAction,
+        [String] $idleTimeoutAction,
 
-        [Boolean]
-        $loadUserProfile,
+        [Boolean] $loadUserProfile,
 
-        [String]
-        $logEventOnProcessModel,
+        [String] $logEventOnProcessModel,
 
         [ValidateSet('LogonBatch', 'LogonService')]
-        [String]
-        $logonType,
+        [String] $logonType,
 
-        [Boolean]
-        $manualGroupMembership,
+        [Boolean] $manualGroupMembership,
 
         [ValidateRange(0, 2147483647)]
-        [UInt32]
-        $maxProcesses,
+        [UInt32] $maxProcesses,
 
-        [Boolean]
-        $pingingEnabled,
+        [Boolean] $pingingEnabled,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $pingInterval,
+        [String] $pingInterval,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $pingResponseTime,
+        [String] $pingResponseTime,
 
-        [Boolean]
-        $setProfileEnvironment,
+        [Boolean] $setProfileEnvironment,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $shutdownTimeLimit,
+        [String] $shutdownTimeLimit,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $startupTimeLimit,
+        [String] $startupTimeLimit,
 
-        [String]
-        $orphanActionExe,
+        [String] $orphanActionExe,
 
-        [String]
-        $orphanActionParams,
+        [String] $orphanActionParams,
 
-        [Boolean]
-        $orphanWorkerProcess,
+        [Boolean] $orphanWorkerProcess,
 
         [ValidateSet('HttpLevel', 'TcpLevel')]
-        [String]
-        $loadBalancerCapabilities,
+        [String] $loadBalancerCapabilities,
 
-        [Boolean]
-        $rapidFailProtection,
+        [Boolean] $rapidFailProtection,
 
         [ValidateScript({
             ([ValidateRange(1, 144000)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $rapidFailProtectionInterval,
+        [String] $rapidFailProtectionInterval,
 
         [ValidateRange(0, 2147483647)]
-        [UInt32]
-        $rapidFailProtectionMaxCrashes,
+        [UInt32] $rapidFailProtectionMaxCrashes,
 
-        [String]
-        $autoShutdownExe,
+        [String] $autoShutdownExe,
 
-        [String]
-        $autoShutdownParams,
+        [String] $autoShutdownParams,
 
-        [Boolean]
-        $disallowOverlappingRotation,
+        [Boolean] $disallowOverlappingRotation,
 
-        [Boolean]
-        $disallowRotationOnConfigChange,
+        [Boolean] $disallowRotationOnConfigChange,
 
-        [String]
-        $logEventOnRecycle,
+        [String] $logEventOnRecycle,
 
-        [UInt32]
-        $restartMemoryLimit,
+        [UInt32] $restartMemoryLimit,
 
-        [UInt32]
-        $restartPrivateMemoryLimit,
+        [UInt32] $restartPrivateMemoryLimit,
 
-        [UInt32]
-        $restartRequestsLimit,
+        [UInt32] $restartRequestsLimit,
 
         [ValidateScript({
             ([ValidateRange(0, 432000)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $restartTimeLimit,
+        [String] $restartTimeLimit,
 
         [ValidateScript({
             ($_ -eq '') -or
@@ -368,8 +317,7 @@ function Set-TargetResource
                 ([ValidateRange(0, 86399)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
             })
         })]
-        [String[]]
-        $restartSchedule
+        [String[]] $restartSchedule
     )
 
     if (-not $PSCmdlet.ShouldProcess($Name))
@@ -581,196 +529,146 @@ function Test-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateLength(1, 64)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [ValidateSet('Present', 'Absent')]
-        [String]
-        $Ensure = 'Present',
+        [String] $Ensure = 'Present',
 
         [ValidateSet('Started', 'Stopped')]
-        [String]
-        $State,
+        [String] $State,
 
-        [Boolean]
-        $autoStart,
+        [Boolean] $autoStart,
 
-        [String]
-        $CLRConfigFile,
+        [String] $CLRConfigFile,
 
-        [Boolean]
-        $enable32BitAppOnWin64,
+        [Boolean] $enable32BitAppOnWin64,
 
-        [Boolean]
-        $enableConfigurationOverride,
+        [Boolean] $enableConfigurationOverride,
 
         [ValidateSet('Integrated', 'Classic')]
-        [String]
-        $managedPipelineMode,
+        [String] $managedPipelineMode,
 
-        [String]
-        $managedRuntimeLoader,
+        [String] $managedRuntimeLoader,
 
         [ValidateSet('v4.0', 'v2.0', '')]
-        [String]
-        $managedRuntimeVersion,
+        [String] $managedRuntimeVersion,
 
-        [Boolean]
-        $passAnonymousToken,
+        [Boolean] $passAnonymousToken,
 
         [ValidateSet('OnDemand', 'AlwaysRunning')]
-        [String]
-        $startMode,
+        [String] $startMode,
 
         [ValidateRange(10, 65535)]
-        [UInt32]
-        $queueLength,
+        [UInt32] $queueLength,
 
         [ValidateSet('NoAction', 'KillW3wp', 'Throttle', 'ThrottleUnderLoad')]
-        [String]
-        $cpuAction,
+        [String] $cpuAction,
 
         [ValidateRange(0, 100000)]
-        [UInt32]
-        $cpuLimit,
+        [UInt32] $cpuLimit,
 
         [ValidateScript({
             ([ValidateRange(0, 1440)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $cpuResetInterval,
+        [String] $cpuResetInterval,
 
-        [Boolean]
-        $cpuSmpAffinitized,
+        [Boolean] $cpuSmpAffinitized,
 
-        [UInt32]
-        $cpuSmpProcessorAffinityMask,
+        [UInt32] $cpuSmpProcessorAffinityMask,
 
-        [UInt32]
-        $cpuSmpProcessorAffinityMask2,
+        [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
             'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
             'NetworkService', 'SpecificUser'
         )]
-        [String]
-        $identityType,
+        [String] $identityType,
 
-        [System.Management.Automation.PSCredential]
-        $Credential,
+        [System.Management.Automation.PSCredential] $Credential,
 
         [ValidateScript({
             ([ValidateRange(0, 43200)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $idleTimeout,
+        [String] $idleTimeout,
 
         [ValidateSet('Terminate', 'Suspend')]
-        [String]
-        $idleTimeoutAction,
+        [String] $idleTimeoutAction,
 
-        [Boolean]
-        $loadUserProfile,
+        [Boolean] $loadUserProfile,
 
-        [String]
-        $logEventOnProcessModel,
+        [String] $logEventOnProcessModel,
 
         [ValidateSet('LogonBatch', 'LogonService')]
-        [String]
-        $logonType,
+        [String] $logonType,
 
-        [Boolean]
-        $manualGroupMembership,
+        [Boolean] $manualGroupMembership,
 
         [ValidateRange(0, 2147483647)]
-        [UInt32]
-        $maxProcesses,
+        [UInt32] $maxProcesses,
 
-        [Boolean]
-        $pingingEnabled,
+        [Boolean] $pingingEnabled,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $pingInterval,
+        [String] $pingInterval,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $pingResponseTime,
+        [String] $pingResponseTime,
 
-        [Boolean]
-        $setProfileEnvironment,
+        [Boolean] $setProfileEnvironment,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $shutdownTimeLimit,
+        [String] $shutdownTimeLimit,
 
         [ValidateScript({
             ([ValidateRange(1, 4294967)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
         })]
-        [String]
-        $startupTimeLimit,
+        [String] $startupTimeLimit,
 
-        [String]
-        $orphanActionExe,
+        [String] $orphanActionExe,
 
-        [String]
-        $orphanActionParams,
+        [String] $orphanActionParams,
 
-        [Boolean]
-        $orphanWorkerProcess,
+        [Boolean] $orphanWorkerProcess,
 
         [ValidateSet('HttpLevel', 'TcpLevel')]
-        [String]
-        $loadBalancerCapabilities,
+        [String] $loadBalancerCapabilities,
 
-        [Boolean]
-        $rapidFailProtection,
+        [Boolean] $rapidFailProtection,
 
         [ValidateScript({
             ([ValidateRange(1, 144000)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $rapidFailProtectionInterval,
+        [String] $rapidFailProtectionInterval,
 
         [ValidateRange(0, 2147483647)]
-        [UInt32]
-        $rapidFailProtectionMaxCrashes,
+        [UInt32] $rapidFailProtectionMaxCrashes,
 
-        [String]
-        $autoShutdownExe,
+        [String] $autoShutdownExe,
 
-        [String]
-        $autoShutdownParams,
+        [String] $autoShutdownParams,
 
-        [Boolean]
-        $disallowOverlappingRotation,
+        [Boolean] $disallowOverlappingRotation,
 
-        [Boolean]
-        $disallowRotationOnConfigChange,
+        [Boolean] $disallowRotationOnConfigChange,
 
-        [String]
-        $logEventOnRecycle,
+        [String] $logEventOnRecycle,
 
-        [UInt32]
-        $restartMemoryLimit,
+        [UInt32] $restartMemoryLimit,
 
-        [UInt32]
-        $restartPrivateMemoryLimit,
+        [UInt32] $restartPrivateMemoryLimit,
 
-        [UInt32]
-        $restartRequestsLimit,
+        [UInt32] $restartRequestsLimit,
 
         [ValidateScript({
             ([ValidateRange(0, 432000)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
         })]
-        [String]
-        $restartTimeLimit,
+        [String] $restartTimeLimit,
 
         [ValidateScript({
             ($_ -eq '') -or
@@ -778,8 +676,7 @@ function Test-TargetResource
                 ([ValidateRange(0, 86399)]$valueInSeconds = [TimeSpan]::Parse($_).TotalSeconds); $?
             })
         })]
-        [String[]]
-        $restartSchedule
+        [String[]] $restartSchedule
     )
 
     Assert-Module
@@ -944,11 +841,9 @@ function Invoke-AppCmd
     [CmdletBinding()]
     param
     (
-        [String[]]
-        $ArgumentList,
+        [String[]] $ArgumentList,
 
-        [String]
-        $FilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+        [String] $FilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
     )
 
     if (Test-Path -Path $FilePath -PathType Leaf)

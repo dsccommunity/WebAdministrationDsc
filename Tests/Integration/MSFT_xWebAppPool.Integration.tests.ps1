@@ -44,8 +44,12 @@ try
 
         It 'Should be able to compile and apply without throwing' {
             {
-                Invoke-Expression -Command ('{0}_Config -OutputPath $TestEnvironment.WorkingFolder -ConfigurationData $ConfigData -ErrorAction Stop' -f $Global:DSCResourceName)
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName 'localhost' -Force -Wait -Verbose
+                Invoke-Expression -Command (
+                    '{0}_Config -OutputPath $TestEnvironment.WorkingFolder -ConfigurationData $ConfigData -ErrorAction Stop' -f
+                    $Global:DSCResourceName
+                )
+
+                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Force -Wait -Verbose
             } | Should Not Throw
         }
 
@@ -59,23 +63,27 @@ try
 
         It 'Should have set the resource and all the parameters should match' {
 
-            $Current = Get-DscConfiguration
+            $currentConfiguration = Get-DscConfiguration
 
-            foreach ($Parameter in $TestParameters.GetEnumerator())
+            foreach ($parameter in $TestParameters.GetEnumerator())
             {
-                Write-Verbose -Message "The $($Parameter.Name) property should be set."
+                Write-Verbose -Message "The $($parameter.Name) property should be set."
 
-                if ($Parameter.Name -eq 'Credential')
+                if ($parameter.Name -eq 'Credential')
                 {
-                    $AppPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
+                    $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
                         Where-Object -FilterScript {$_.name -eq $TestParameters['Name']}
 
-                    $AppPool.processModel.userName | Should Be $TestParameters['Credential'].UserName
-                    $AppPool.processModel.password | Should Be $TestParameters['Credential'].GetNetworkCredential().Password
+                    $appPool.processModel.userName |
+                    Should Be $TestParameters['Credential'].UserName
+
+                    $appPool.processModel.password |
+                    Should Be $TestParameters['Credential'].GetNetworkCredential().Password
                 }
                 else
                 {
-                    $Current."$($Parameter.Name)" | Should Be $TestParameters[$Parameter.Name]
+                    $currentConfiguration."$($parameter.Name)" |
+                    Should Be $TestParameters[$parameter.Name]
                 }
             }
 
