@@ -26,7 +26,7 @@ Currently, only FastCgiModule is supported.
 
 * **Name**: The desired name of the web application pool
 * **Ensure**: Should the application pool be present or absent
-* **State**: State of the application pool – started or stopped
+* **State**: State of the application pool ï¿½ started or stopped
 
 ### xWebsite
 
@@ -46,7 +46,7 @@ Currently, only FastCgiModule is supported.
         * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
         * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
         * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
-* **ApplicationPool**: The website’s application pool.
+* **ApplicationPool**: The websiteï¿½s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
 
@@ -54,7 +54,7 @@ Currently, only FastCgiModule is supported.
 
 * **Website**: Name of website with which the web application is associated.
 * **Name**: The desired name of the web application.
-* **WebAppPool**:  Web application’s application pool.
+* **WebAppPool**:  Web applicationï¿½s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
 * **Ensure**: Ensures that the web application is **Present** or **Absent**.
 
@@ -366,7 +366,7 @@ Configuration Sample_xWebsite_StopDefault
 
 ### Create a new website
 
-While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet.
+While setting up IIS and stopping the default website is interesting, it isnï¿½t quite useful yet.
 After all, people typically use IIS to set up websites of their own with custom protocol and bindings.
 Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website.
 
@@ -461,7 +461,7 @@ Configuration Sample_xWebsite_NewWebsite
 
 ### Creating the default website using configuration data
 
-In this example, we’ve moved the parameters used to generate the website into a configuration data file.
+In this example, weï¿½ve moved the parameters used to generate the website into a configuration data file.
 All of the variant portions of the configuration are stored in a separate file.
 This can be a powerful tool when using DSC to configure a project that will be deployed to multiple environments.
 For example, users managing larger environments may want to test their configuration on a small number of machines before deploying it across many more machines in their production environment.
@@ -681,3 +681,6 @@ configuration Sample_IISServerDefaults
     }
 }
 ````
+
+
+

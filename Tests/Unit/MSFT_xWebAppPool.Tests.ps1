@@ -1,3 +1,8 @@
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+param
+(
+) 
+
 $global:DSCModuleName = 'xWebAdministration'
 $global:DSCResourceName = 'MSFT_xWebAppPool'
 
