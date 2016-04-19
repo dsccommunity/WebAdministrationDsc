@@ -69,6 +69,7 @@ data LocalizedData
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
     param
     (
         [Parameter(Mandatory)]
