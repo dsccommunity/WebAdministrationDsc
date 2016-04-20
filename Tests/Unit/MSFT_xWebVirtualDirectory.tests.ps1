@@ -8,10 +8,7 @@ $global:DSCResourceName = 'MSFT_xWebVirtualDirectory'
 {
     & git @('clone','https://github.com/PowerShell/DscResource.Tests.git')
 }
-else
-{
-    & git @('-C',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'),'pull')
-}
+
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $Global:DSCModuleName `
