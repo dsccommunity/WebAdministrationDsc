@@ -1,3 +1,8 @@
+#requires -Version 4.0
+
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+param ()
+
 $ConfigData = @{
     AllNodes = @(
         @{
@@ -10,16 +15,9 @@ $ConfigData = @{
     )
 }
 
-<#
-There is a necessity to use ConvertTo-SecureString with plain text (for testing purposes only).
-The splatting trick ensures that the Script Analyzer does not report
-the PSAvoidUsingConvertToSecureStringWithPlainText rule violation.
-#>
-$AsPlainTextForce = @{AsPlainText = $true; Force = $true}
-
 $TestCredential = New-Object -TypeName PSCredential -ArgumentList (
     'CONTOSO\JDoe',
-    ('5t6y7u8i' | ConvertTo-SecureString @AsPlainTextForce)
+    ('5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force)
 )
 
 $TestParameters = [Ordered]@{

@@ -1,17 +1,10 @@
-<<<<<<< HEAD
 #requires -Version 4.0
+
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+param ()
 
 $Global:DSCModuleName   = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebAppPool'
-=======
-[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
-param
-(
-) 
-
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xWebAppPool'
->>>>>>> refs/remotes/PowerShell/dev
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -37,13 +30,6 @@ try
     #region Pester Tests
 
     InModuleScope $Global:DSCResourceName {
-
-        <#
-        There is a necessity to use ConvertTo-SecureString with plain text (for testing purposes only).
-        The splatting trick ensures that the Script Analyzer does not report
-        the PSAvoidUsingConvertToSecureStringWithPlainText rule violation.
-        #>
-        $AsPlainTextForce = @{AsPlainText = $true; Force = $true}
 
         Describe "$($Global:DSCResourceName)\Get-TargetResource" {
 
@@ -501,7 +487,7 @@ try
                 Mock Get-WebConfiguration -MockWith {$mockAppPool}
 
                 $mockUserName = $mockAppPool.processModel.userName
-                $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString @AsPlainTextForce
+                $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
                 $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                 $mockRestartSchedule = [String[]]@(
@@ -976,7 +962,7 @@ try
                 It 'Should return True when both the userName and the password properties match the desired state' {
 
                     $mockUserName = $mockAppPool.processModel.userName
-                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString @AsPlainTextForce
+                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
                     $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                     Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
@@ -987,7 +973,7 @@ try
                 It 'Should return False when the userName property does not match the desired state' {
 
                     $mockUserName = 'CONTOSO\GFawkes'
-                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString @AsPlainTextForce
+                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
                     $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                     Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
@@ -998,7 +984,7 @@ try
                 It 'Should return False when the password property does not match the desired state' {
 
                     $mockUserName = $mockAppPool.processModel.userName
-                    $mockPassword = '5t6y7u8i' | ConvertTo-SecureString @AsPlainTextForce
+                    $mockPassword = '5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force
                     $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                     Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
@@ -1895,7 +1881,7 @@ try
                 Mock Get-WebConfiguration -MockWith {$mockAppPool}
 
                 $mockUserName = 'CONTOSO\GFawkes'
-                $mockPassword = '5t6y7u8i' | ConvertTo-SecureString @AsPlainTextForce
+                $mockPassword = '5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force
                 $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
 
                 $setParamsSplat = @{
