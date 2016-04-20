@@ -1,7 +1,17 @@
+<<<<<<< HEAD
 #requires -Version 4.0
 
 $Global:DSCModuleName   = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebAppPool'
+=======
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+param
+(
+) 
+
+$global:DSCModuleName = 'xWebAdministration'
+$global:DSCResourceName = 'MSFT_xWebAppPool'
+>>>>>>> refs/remotes/PowerShell/dev
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))

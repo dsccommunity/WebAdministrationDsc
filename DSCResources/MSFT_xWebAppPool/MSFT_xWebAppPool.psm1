@@ -99,6 +99,7 @@ function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([Hashtable])]
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
     param
     (
         [Parameter(Mandatory = $true)]
