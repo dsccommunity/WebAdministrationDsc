@@ -22,6 +22,7 @@ function Get-TargetResource
     )
 
     CheckDependencies
+	$Name = Get-WebApplicationNameFixed $Name
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
@@ -75,6 +76,7 @@ function Set-TargetResource
     )
 
     CheckDependencies
+	$Name = Get-WebApplicationNameFixed $Name
 
     if ($Ensure -eq 'Present')
     {
@@ -135,6 +137,7 @@ function Test-TargetResource
     )
 
     CheckDependencies
+	$Name = Get-WebApplicationNameFixed $Name
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
@@ -172,6 +175,20 @@ function CheckDependencies
     {
         Throw 'Please ensure that WebAdministration module is installed.'
     }
+}
+
+function Get-WebApplicationNameFixed
+{
+    [CmdletBinding()]
+    [OutputType([string])]
+	param(
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Name
+	)
+
+	# back slash is replaced by iis with a forward slash. for compatibility we do the same
+	$Name -replace '\\', '/'
 }
 
 Export-ModuleMember -Function *-TargetResource
