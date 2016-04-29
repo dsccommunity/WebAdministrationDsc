@@ -22,7 +22,7 @@ configuration Sample_xWebsite_NewWebsite
     )
 
     # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration
+    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
 
     Node $NodeName
     {
@@ -71,7 +71,7 @@ configuration Sample_xWebsite_NewWebsite
             State           = "Started"
             PhysicalPath    = $DestinationPath
             DependsOn       = "[File]WebContent"
-            BindingInfo     = MSFT_cWebBindingInformation
+            BindingInfo     = MSFT_xWebBindingInformation
             {
                 Protocol              = 'https'
                 Port                  = '443'

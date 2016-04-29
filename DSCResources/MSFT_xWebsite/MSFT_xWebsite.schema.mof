@@ -1,27 +1,25 @@
 [ClassVersion("1.0.0")]
-Class MSFT_xWebBindingInformation
+class MSFT_xWebBindingInformation
 {
-    [write]UInt16 Port;
-    [Write,ValueMap{"http", "https"},Values{"http", "https"}] string Protocol;
-    [write]String IPAddress;
-    [write]String HostName;
-    [write]String CertificateThumbprint;
-    [write,ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] string CertificateStoreName;
-    [write,ValueMap{"0","1","2","3"},Values{"0","1","2","3"}] string SSLFlags;
+    [Required,ValueMap{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"},Values{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"}] String Protocol;
+    [Write] String BindingInformation;
+    [Write] String IPAddress;
+    [Write] UInt16 Port;
+    [Write] String HostName;
+    [Write] String CertificateThumbprint;
+    [Write,ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] String CertificateStoreName;
+    [Write,ValueMap{"0","1","2","3"},Values{"0","1","2","3"}] String SslFlags;
 };
-
 
 [ClassVersion("2.0.0"), FriendlyName("xWebsite")]
 class MSFT_xWebsite : OMI_BaseResource
 {
-  [Key] string Name;
-  [Required] string PhysicalPath;
-  [write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
-  [write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] string State;
-  [write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Hashtable containing binding information (Port, Protocol, IPAddress, HostName, CertificateThumbPrint, CertificateStore)")] string BindingInfo[];
-  [write] string ApplicationPool;
-  [read] string Id;
-  [write, Description("The default pages for the website")] String DefaultPage[];
+    [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
+    [Key] String Name;
+    [Write] String PhysicalPath;
+    [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
+    [Write] String ApplicationPool;
+    [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.")] String BindingInfo[];
+    [Write] String DefaultPage[];
+    [Write] String EnabledProtocols;
 };
-
-

@@ -1,4 +1,4 @@
-ï»¿[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
 # xWebAdministration
 
@@ -26,33 +26,45 @@ Currently, only FastCgiModule is supported.
 
 * **Name**: The desired name of the web application pool
 * **Ensure**: Should the application pool be present or absent
-* **State**: State of the application pool â€“ started or stopped
+* **State**: State of the application pool – started or stopped
 
 ### xWebsite
 
 * **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
-* **State**: State of the website: { Started | Stopped }
-* **BindingInfo**: Website's binding information.
-* **ApplicationPool**: The websiteâ€™s application pool.
+* **State**: The state of the website: { Started | Stopped }
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class that implements the following properties:
+    * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
+    * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
+    * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
+    * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
+    * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
+    * **CertificateThumbprint**: The thumbprint of the certificate. This property is only applicable for `https` bindings.
+    * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
+    * **SslFlags**: The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for `https` bindings. The acceptable values for this property are:
+        * **0**: The default value. The secure connection be made using an IP/Port combination. Only one certificate can be bound to a combination of IP address and the port.
+        * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
+        * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
+        * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
+* **ApplicationPool**: The website’s application pool.
+* **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
 
 ### xWebApplication
 
 * **Website**: Name of website with which the web application is associated.
 * **Name**: The desired name of the web application.
-* **WebAppPool**:  Web applicationâ€™s application pool.
+* **WebAppPool**:  Web application’s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
 * **Ensure**: Ensures that the web application is **Present** or **Absent**.
 
 ### xWebVirtualDirectory
 
 * **Website**: Name of website with which virtual directory is associated
-* **WebApplication**:  Web application name for the virtual directory
+* **WebApplication**:  The name of the containing web application or an empty string for the containing website
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is Present or Absent.
-* **State**: State of the application pool: { **Started** | **Stopped** }
 
 ### xWebConfigKeyValue
 
@@ -60,10 +72,39 @@ Currently, only FastCgiModule is supported.
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
 * **KeyValuePair**: Key value pair for AppSettings (ItemCollection format).
 
+### xSSLSettings
+* **Name**: The Name of website in which to modify the SSL Settings
+* **Bindings**: The SSL bindings to implement.
+* **Ensure**: Ensures if the bindings are Present or Absent.
 
 ## Versions
 
 ### Unreleased
+
+### 1.10.0.0
+
+* Fixed script analyzer failures in examples
+* **xWebsite**: Fixed an issue in BindingInfo validation that caused multiple bindings with the same port and protocol treated as invalid.
+* Changed PhysicalPath in xWebsite to be optional
+* Changed WebApplication in xWebVirtualDirectory to accept empty strings for referring to the top-level IIS site
+
+### 1.9.0.0
+
+* Added the following resources:
+    * xSSLSettings
+* Fixed an issue in xWebApplication where Set-TargetResource attempted to modify a folder instead of an application.
+    * Added Tests to xWebApplication which will allow more changes if desired.
+* Modified README.MD to clean up Code Formatting
+* Modified all unit/integration tests to utilize template system.
+* xWebAppPool is now has feature parity to cWebAppPool - should now support most changes.
+* Added Unit tests to IISFeatureDelegation, general script clean up
+* Refactored xIisHandle to load script variables once, added unit tests.
+* xWebsite updated:
+    * Added support for the following binding protocols: `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
+    * Added support for setting the `EnabledProtocols` property.
+    * Fixed an issue in bindings comparison which was causing bindings to be reassigned on every consistency check.
+    * Fixed an issue where binding conflict was not properly detected and handled. Stopped websites will not be checked for conflicting bindings anymore.
+    * The qualifier for the Protocol property of the MSFT_xWebBindingInformation CIM class was changed from Write to Required.
 
 ### 1.8.0.0
 
@@ -81,11 +122,11 @@ Currently, only FastCgiModule is supported.
 ### 1.7.0.0
 
 * Added following resources:
-	* xIisHandler
-	* xIisFeatureDelegation
-	* xIisMimeTypeMapping
-	* xWebAppPoolDefaults
-	* xWebSiteDefaults
+    * xIisHandler
+    * xIisFeatureDelegation
+    * xIisMimeTypeMapping
+    * xWebAppPoolDefaults
+    * xWebSiteDefaults
 * Modified xWebsite schema to make PhysicalPath required
 
 ### 1.6.0.0
@@ -157,7 +198,7 @@ Please see the [Composite Configuration Blog](http://blogs.msdn.com/b/powershell
 # Composite configuration to install the IIS pre-requisites for PHP
 Configuration IisPreReqs_php
 {
-param
+    param
     (
         [Parameter(Mandatory = $true)]
         [Validateset("Present","Absent")]
@@ -165,7 +206,7 @@ param
         $Ensure
     )
     foreach ($Feature in @("Web-Server","Web-Mgmt-Tools","web-Default-Doc", `
-"Web-Dir-Browsing","Web-Http-Errors","Web-Static-Content",`
+            "Web-Dir-Browsing","Web-Http-Errors","Web-Static-Content",`
             "Web-Http-Logging","web-Stat-Compression","web-Filtering",`
             "web-CGI","web-ISAPI-Ext","web-ISAPI-Filter"))
     {
@@ -176,10 +217,12 @@ param
         }
     }
 }
+
 # Composite configuration to install PHP on IIS
 configuration xPhp
 {
-    param(
+    param
+    (
         [Parameter(Mandatory = $true)]
         [switch] $installMySqlExt,
         [Parameter(Mandatory = $true)]
@@ -198,10 +241,11 @@ configuration xPhp
         {
             Ensure = "Present"
             # Removed because this dependency does not work in
-     # Windows Server 2012 R2 and below
+            # Windows Server 2012 R2 and below
             # This should work in WMF v5 and above
             # DependsOn = "[File]PackagesFolder"
         }
+
         # Download and install Visual C Redist2012 from chocolatey.org
         Package vcRedist
         {
@@ -210,19 +254,23 @@ configuration xPhp
             Name = "Microsoft Visual C++ 2012 x64 Minimum Runtime - 11.0.61030"
             Arguments = "/install /passive /norestart"
         }
+
         $phpZip = Join-Path $PackageFolder "php.zip"
+
         # Make sure the PHP archine is in the package folder
         xRemoteFile phpArchive
         {
             uri = $DownloadURI
             DestinationPath = $phpZip
         }
+
         # Make sure the content of the PHP archine are in the PHP path
         Archive php
         {
             Path = $phpZip
             Destination  = $DestinationPath
         }
+
         if ($installMySqlExt )
         {
             # Make sure the MySql extention for PHP is in the main PHP path
@@ -236,28 +284,30 @@ configuration xPhp
             }
         }
 
-            # Make sure the php.ini is in the Php folder
-            File PhpIni
-            {
-                SourcePath = $ConfigurationPath
-                DestinationPath = "$($DestinationPath)\php.ini"
-                DependsOn = @("[Archive]PHP")
-                MatchSource = $true
-            }
-            # Make sure the php cgi module is registered with IIS
-            xIisModule phpHandler
-            {
-               Name = "phpFastCgi"
-               Path = "$($DestinationPath)\php-cgi.exe"
-               RequestPath = "*.php"
-               Verb = "*"
-               Ensure = "Present"
-               DependsOn = @("[Package]vcRedist","[File]PhpIni")
-               # Removed because this dependency does not work in
- # Windows Server 2012 R2 and below
+        # Make sure the php.ini is in the Php folder
+        File PhpIni
+        {
+            SourcePath = $ConfigurationPath
+            DestinationPath = "$($DestinationPath)\php.ini"
+            DependsOn = @("[Archive]PHP")
+            MatchSource = $true
+        }
+
+        # Make sure the php cgi module is registered with IIS
+        xIisModule phpHandler
+        {
+            Name = "phpFastCgi"
+            Path = "$($DestinationPath)\php-cgi.exe"
+            RequestPath = "*.php"
+            Verb = "*"
+            Ensure = "Present"
+            DependsOn = @("[Package]vcRedist","[File]PhpIni")
+            # Removed because this dependency does not work in
+            # Windows Server 2012 R2 and below
             # This should work in WMF v5 and above
-                # "[IisPreReqs_php]Iis"
-            }
+            # "[IisPreReqs_php]Iis"
+        }
+
         # Make sure the php binary folder is in the path
         Environment PathPhp
         {
@@ -268,6 +318,7 @@ configuration xPhp
             DependsOn = "[Archive]PHP"
         }
 }
+
 xPhp -PackageFolder "C:\packages" `
     -DownloadUri  -DownloadUri "http://windows.php.net/downloads/releases/php-5.5.13-Win32-VC11-x64.zip" `
     -Vc2012RedistDownloadUri "http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x64.exe" `
@@ -315,7 +366,7 @@ Configuration Sample_xWebsite_StopDefault
 
 ### Create a new website
 
-While setting up IIS and stopping the default website is interesting, it isnâ€™t quite useful yet.
+While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet.
 After all, people typically use IIS to set up websites of their own with custom protocol and bindings.
 Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website.
 
@@ -339,6 +390,7 @@ Configuration Sample_xWebsite_NewWebsite
         [ValidateNotNullOrEmpty()]
         [String]$DestinationPath
     )
+
     # Import the module that defines custom resources
     Import-DscResource -Module xWebAdministration
     Node $NodeName
@@ -349,12 +401,14 @@ Configuration Sample_xWebsite_NewWebsite
             Ensure          = "Present"
             Name            = "Web-Server"
         }
+
         # Install the ASP .NET 4.5 role
         WindowsFeature AspNet45
         {
             Ensure          = "Present"
             Name            = "Web-Asp-Net45"
         }
+
         # Stop the default website
         xWebsite DefaultSite
         {
@@ -364,6 +418,7 @@ Configuration Sample_xWebsite_NewWebsite
             PhysicalPath    = "C:\inetpub\wwwroot"
             DependsOn       = "[WindowsFeature]IIS"
         }
+
         # Copy the website content
         File WebContent
         {
@@ -374,6 +429,7 @@ Configuration Sample_xWebsite_NewWebsite
             Type            = "Directory"
             DependsOn       = "[WindowsFeature]AspNet45"
         }
+
         # Create the new Website with HTTPS
         xWebsite NewWebsite
         {
@@ -381,13 +437,22 @@ Configuration Sample_xWebsite_NewWebsite
             Name            = $WebSiteName
             State           = "Started"
             PhysicalPath    = $DestinationPath
-            BindingInfo     = MSFT_xWebBindingInformation
-                             {
-                               Protocol              = "HTTPS"
-                               Port                  = 8443
-                               CertificateThumbprint ="71AD93562316F21F74606F1096B85D66289ED60F"
-                               CertificateStoreName  = "WebHosting"
-                             }
+            BindingInfo     = @(
+                MSFT_xWebBindingInformation
+                {
+                    Protocol              = "HTTPS"
+                    Port                  = 8443
+                    CertificateThumbprint = "71AD93562316F21F74606F1096B85D66289ED60F"
+                    CertificateStoreName  = "WebHosting"
+                },
+                MSFT_xWebBindingInformation
+                {
+                    Protocol              = "HTTPS"
+                    Port                  = 8444
+                    CertificateThumbprint = "DEDDD963B28095837F558FE14DA1FDEFB7FA9DA7"
+                    CertificateStoreName  = "MY"
+                }
+            )
             DependsOn       = "[File]WebContent"
         }
     }
@@ -396,7 +461,7 @@ Configuration Sample_xWebsite_NewWebsite
 
 ### Creating the default website using configuration data
 
-In this example, weâ€™ve moved the parameters used to generate the website into a configuration data file.
+In this example, we’ve moved the parameters used to generate the website into a configuration data file.
 All of the variant portions of the configuration are stored in a separate file.
 This can be a powerful tool when using DSC to configure a project that will be deployed to multiple environments.
 For example, users managing larger environments may want to test their configuration on a small number of machines before deploying it across many more machines in their production environment.
@@ -409,6 +474,7 @@ Configuration Sample_xWebsite_FromConfigurationData
 {
     # Import the module that defines custom resources
     Import-DscResource -Module xWebAdministration
+
     # Dynamically find the applicable nodes from configuration data
     Node $AllNodes.where{$_.Role -eq "Web"}.NodeName
     {
@@ -418,12 +484,14 @@ Configuration Sample_xWebsite_FromConfigurationData
             Ensure          = "Present"
             Name            = "Web-Server"
         }
+
         # Install the ASP .NET 4.5 role
         WindowsFeature AspNet45
         {
             Ensure          = "Present"
             Name            = "Web-Asp-Net45"
         }
+
         # Stop an existing website (set up in Sample_xWebsite_Default)
         xWebsite DefaultSite
         {
@@ -433,6 +501,7 @@ Configuration Sample_xWebsite_FromConfigurationData
             PhysicalPath    = $Node.DefaultWebSitePath
             DependsOn       = "[WindowsFeature]IIS"
         }
+
         # Copy the website content
         File WebContent
         {
@@ -443,6 +512,7 @@ Configuration Sample_xWebsite_FromConfigurationData
             Type            = "Directory"
             DependsOn       = "[WindowsFeature]AspNet45"
         }
+
         # Create a new website
         xWebsite BakeryWebSite
         {
@@ -454,6 +524,7 @@ Configuration Sample_xWebsite_FromConfigurationData
         }
     }
 }
+
 # Content of configuration data file (e.g. ConfigurationData.psd1) could be:
 # Hashtable to define the environmental data
 @{
@@ -505,9 +576,10 @@ configuration Sample_EndToEndxWebAdministration
             Name   = $Node.WebSiteName
             Ensure = "Present"
             BindingInfo = MSFT_xWebBindingInformation
-                        {
-                            Port = $Node.Port
-                        }
+            {
+                Port = $Node.Port
+            }
+
             PhysicalPath = $Node.PhysicalPathWebSite
             State = "Started"
             DependsOn = @("[xWebAppPool]NewWebAppPool")
@@ -537,22 +609,22 @@ configuration Sample_EndToEndxWebAdministration
 
         File CreateWebConfig
         {
-         DestinationPath = $Node.PhysicalPathWebSite + "\web.config"
-         Contents = "&amp;amp;amp;amp;lt;?xml version=`"1.0`" encoding=`"UTF-8`"?&amp;amp;amp;amp;gt;
-                        &amp;amp;amp;amp;lt;configuration&amp;amp;amp;amp;gt;
-                        &amp;amp;amp;amp;lt;/configuration&amp;amp;amp;amp;gt;"
-                Ensure = "Present"
-         DependsOn = @("[xWebVirtualDirectory]NewVirtualDir")
+             DestinationPath = $Node.PhysicalPathWebSite + "\web.config"
+             Contents = "&amp;amp;amp;amp;lt;?xml version=`"1.0`" encoding=`"UTF-8`"?&amp;amp;amp;amp;gt;
+                            &amp;amp;amp;amp;lt;configuration&amp;amp;amp;amp;gt;
+                            &amp;amp;amp;amp;lt;/configuration&amp;amp;amp;amp;gt;"
+                    Ensure = "Present"
+             DependsOn = @("[xWebVirtualDirectory]NewVirtualDir")
         }
 
         xWebConfigKeyValue ModifyWebConfig
         {
-          Ensure = "Present"
-          ConfigSection = "AppSettings"
-          KeyValuePair = @{key="key1";value="value1"}
-          IsAttribute = $false
-          WebsitePath = "IIS:\sites\" + $Node.WebsiteName
-          DependsOn = @("[File]CreateWebConfig")
+            Ensure = "Present"
+            ConfigSection = "AppSettings"
+            KeyValuePair = @{key="key1";value="value1"}
+            IsAttribute = $false
+            WebsitePath = "IIS:\sites\" + $Node.WebsiteName
+            DependsOn = @("[File]CreateWebConfig")
         }
     }
 }
@@ -570,10 +642,42 @@ $Config = @{
             WebVirtualDirectoryName = "TestVirtualDir";
             PhysicalPathVirtualDir = "C:\web\virtualDir";
             Port = 100
-          }
-      )
-   }
+        }
+    )
+}
 
 Sample_EndToEndxWebAdministration -ConfigurationData $config
 Start-DscConfiguration ./Sample_EndToEndxWebAdministration -wait -Verbose
 ```
+
+````powershell
+configuration Sample_IISServerDefaults
+{
+    param
+    (
+        # Target nodes to apply the configuration
+        [string[]]$NodeName = 'localhost'
+    )
+
+    # Import the module that defines custom resources
+    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
+
+    Node $NodeName
+    {
+         xWebSiteDefaults SiteDefaults
+         {
+            ApplyTo = 'Machine'
+            LogFormat = 'IIS'
+            AllowSubDirConfig = 'true'
+         }
+
+
+         xWebAppPoolDefaults PoolDefaults
+         {
+            ApplyTo = 'Machine'
+            ManagedRuntimeVersion = 'v4.0'
+            IdentityType = 'ApplicationPoolIdentity'
+         }
+    }
+}
+````
