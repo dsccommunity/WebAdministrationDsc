@@ -57,9 +57,9 @@ function Set-TargetResource
         # TODO: we currently don't allow a custom identity
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
         [string]$IdentityType,
-        [ValidateSet('True','False')]
+        [ValidateSet('true','false')]
         [string] $autoStart,
-        [ValidateSet('True','False')]
+        [ValidateSet('true','false')]
         [string] $enable32BitAppOnWin64,
         [ValidateSet('Classic','Integrated')]
         [string] $managedPipelineMode,
@@ -102,9 +102,9 @@ function Test-TargetResource
         [string]$ManagedRuntimeVersion,
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
         [string]$IdentityType,
-        [ValidateSet('True','False')]
+        [ValidateSet('true','false')]
         [string] $autoStart,
-        [ValidateSet('True','False')]
+        [ValidateSet('true','false')]
         [string] $enable32BitAppOnWin64,
         [ValidateSet('Classic','Integrated')]
         [string] $managedPipelineMode,
