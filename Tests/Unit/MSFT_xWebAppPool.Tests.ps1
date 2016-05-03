@@ -1,15 +1,15 @@
-[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
-param
-(
-) 
+#requires -Version 4.0
 
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xWebAppPool'
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+param ()
+
+$Global:DSCModuleName   = 'xWebAdministration'
+$Global:DSCResourceName = 'MSFT_xWebAppPool'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
- if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+     (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
     & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
@@ -20,1183 +20,3288 @@ $TestEnvironment = Initialize-TestEnvironment `
     -DSCResourceName $Global:DSCResourceName `
     -TestType Unit
 #endregion
+
+# Begin Testing
 try
 {
     #region Pester Tests
 
-    # The InModuleScope command allows you to perform white-box unit testing on the internal
-    # (non-exported) code of a Script Module.
     InModuleScope $Global:DSCResourceName {
-        #region Function Get-TargetResource
-        Describe "$($Global:DSCResourceName)\Get-TargetResource" {
-            [xml] $PoolCfg = '
-            <add name="DefaultAppPool"
-                queueLength="1000"
-                autoStart="true"
-                enable32BitAppOnWin64="false"
-                managedRuntimeVersion="v4.0"
-                managedRuntimeLoader="webengine4.dll"
-                enableConfigurationOverride="true"
-                managedPipelineMode="Integrated"
-                CLRConfigFile=""
-                passAnonymousToken="true"
-                startMode="OnDemand">
-                <processModel
-                    identityType="SpecificUser"
-                    userName="username"
-                    password="password"
-                    loadUserProfile="true"
-                    setProfileEnvironment="true"
-                    logonType="LogonBatch"
-                    manualGroupMembership="false"
-                    idleTimeout="00:20:00"
-                    idleTimeoutAction="Terminate"
-                    maxProcesses="1"
-                    shutdownTimeLimit="00:01:30"
-                    startupTimeLimit="00:01:30"
-                    pingingEnabled="true"
-                    pingInterval="00:00:30"
-                    pingResponseTime="00:01:30"
-                    logEventOnProcessModel="IdleTimeout"/>
-                <recycling
-                    disallowOverlappingRotation="false"
-                    disallowRotationOnConfigChange="false"
-                    logEventOnRecycle="Time, Memory, PrivateMemory">
-                    <periodicRestart
-                        memory="0"
-                        privateMemory="0"
-                        requests="0"
-                        time="1.05:00:00">
-                        <schedule>
-                            <add value = "00:00:00" />
-                            <add value = "01:00:00" />
-                        </schedule>
-                    </periodicRestart>
-                </recycling>
-                <failure
-                    loadBalancerCapabilities="HttpLevel"
-                    orphanWorkerProcess="false"
-                    orphanActionExe=""
-                    orphanActionParams=""
-                    rapidFailProtection="true"
-                    rapidFailProtectionInterval="00:05:00"
-                    rapidFailProtectionMaxCrashes="5"
-                    autoShutdownExe=""
-                    autoShutdownParams=""/>
-                <cpu limit="0"
-                    action="NoAction"
-                    resetInterval="00:05:00"
-                    smpAffinitized="false"
-                    smpProcessorAffinityMask="4294967295"
-                    smpProcessorAffinityMask2="4294967295"
-                    processorGroup="0"
-                    numaNodeAssignment="MostAvailableMemory"
-                    numaNodeAffinityMode="Soft" />
-            </add>'
 
-            Context 'AppPool is not found' {
-                It 'Should return Enusre = "Absent" ' {
-                    Mock Assert-Module
-                    Mock Invoke-AppCmd
-                    $result = Get-TargetResource -Name 'NonExistantPool'
+        Describe "$($Global:DSCResourceName)\Get-TargetResource" {
+
+            Mock Assert-Module
+
+            Context 'Application pool does not exist' {
+
+                Mock Get-WebConfiguration
+
+                $result = Get-TargetResource -Name 'NonExistent'
+
+                It 'Should return the Ensure property set to Absent' {
                     $result.Ensure | Should Be 'Absent'
                 }
+
             }
-            Context 'Multiple App Pools contain the same name' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 2}}
 
-                $Name = 'MultiplePools'
+            Context 'Application pool exists' {
 
-                $errorId = 'AppPoolDiscoveryFailure';
-                $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $errorMessage = $($LocalizedData.AppPoolDiscoveryFailure) -f ${Name}
-                $exception = New-Object System.InvalidOperationException $errorMessage
-                $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, $errorId, $errorCategory, $null
-
-                It 'should throw the right error record' {
-                    { Get-TargetResource -Name $Name } | Should Throw $ErrorRecord
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Started'
+                    autoStart = $true
+                    CLRConfigFile = ''
+                    enable32BitAppOnWin64 = $false
+                    enableConfigurationOverride = $true
+                    managedPipelineMode = 'Integrated'
+                    managedRuntimeLoader = 'webengine4.dll'
+                    managedRuntimeVersion = 'v4.0'
+                    passAnonymousToken = $true
+                    startMode = 'OnDemand'
+                    queueLength = 1000
+                    cpu = @{
+                        action = 'NoAction'
+                        limit = 0
+                        resetInterval = '00:05:00'
+                        smpAffinitized = $false
+                        smpProcessorAffinityMask = 4294967295
+                        smpProcessorAffinityMask2 = 4294967295
+                    }
+                    processModel = @{
+                        identityType = 'SpecificUser'
+                        idleTimeout = '00:20:00'
+                        idleTimeoutAction = 'Terminate'
+                        loadUserProfile = $true
+                        logEventOnProcessModel = 'IdleTimeout'
+                        logonType = 'LogonBatch'
+                        manualGroupMembership = $false
+                        maxProcesses = 1
+                        password = 'P@$$w0rd'
+                        pingingEnabled = $true
+                        pingInterval = '00:00:30'
+                        pingResponseTime = '00:01:30'
+                        setProfileEnvironment = $false
+                        shutdownTimeLimit = '00:01:30'
+                        startupTimeLimit = '00:01:30'
+                        userName = 'CONTOSO\JDoe'
+                    }
+                    failure = @{
+                        orphanActionExe = ''
+                        orphanActionParams = ''
+                        orphanWorkerProcess = $false
+                        loadBalancerCapabilities = 'HttpLevel'
+                        rapidFailProtection = $true
+                        rapidFailProtectionInterval = '00:05:00'
+                        rapidFailProtectionMaxCrashes = 5
+                        autoShutdownExe = ''
+                        autoShutdownParams = ''
+                    }
+                    recycling = @{
+                        disallowOverlappingRotation = $false
+                        disallowRotationOnConfigChange = $false
+                        logEventOnRecycle = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
+                        periodicRestart = @{
+                            memory = 0
+                            privateMemory = 0
+                            requests = 0
+                            time = '1.05:00:00'
+                            schedule = @{
+                                Collection = @(
+                                    @{value = '04:00:00'}
+                                    @{value = '08:00:00'}
+                                )
+                            }
+                        }
+                    }
                 }
-            }
-            Context 'App Pool is discovered' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
 
-                $AppPoolPassword = $PoolCfg.add.processModel.password | ConvertTo-SecureString -AsPlainText -Force
-                $AppPoolCred = New-Object `
-                    -TypeName System.Management.Automation.PSCredential `
-                    -ArgumentList $($PoolCfg.add.processModel.userName, $AppPoolPassword)
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
 
-                $result = Get-TargetResource -Name 'DefaultAppPool'
+                $result = Get-TargetResource -Name $mockAppPool.Name
 
-                It 'Should return the correct values' {
-                    $result.Name                                       | Should Be 'DefaultAppPool'
-                    $result.Ensure                                     | Should Be 'Present'
-                    $result.State                                      | Should Be 'Started'
-                    $result.autoStart                                  | Should Be $PoolCfg.add.autoStart
-                    $result.managedRuntimeVersion                      | Should Be $PoolCfg.add.managedRuntimeVersion
-                    $result.managedPipelineMode                        | Should Be $PoolCfg.add.managedPipelineMode
-                    $result.startMode                                  | Should Be $PoolCfg.add.startMode
-                    $result.identityType                               | Should Be $PoolCfg.add.processModel.identityType
-                    $result.Credential.userName                        | Should Be $PoolCfg.add.processModel.userName
-                    $result.Credential.GetNetworkCredential().Password | Should Be $PoolCfg.add.processModel.password
-                    $result.loadUserProfile                            | Should Be $PoolCfg.add.processModel.loadUserProfile
-                    $result.queueLength                                | Should Be $PoolCfg.add.queueLength
-                    $result.enable32BitAppOnWin64                      | Should Be $PoolCfg.add.enable32BitAppOnWin64
-                    $result.managedRuntimeLoader                       | Should Be $PoolCfg.add.managedRuntimeLoader
-                    $result.enableConfigurationOverride                | Should Be $PoolCfg.add.enableConfigurationOverride
-                    $result.CLRConfigFile                              | Should Be $PoolCfg.add.CLRConfigFile
-                    $result.passAnonymousToken                         | Should Be $PoolCfg.add.passAnonymousToken
-                    $result.logonType                                  | Should Be $PoolCfg.add.processModel.logonType
-                    $result.manualGroupMembership                      | Should Be $PoolCfg.add.processModel.manualGroupMembership
-                    $result.idleTimeout                                | Should Be $PoolCfg.add.processModel.idleTimeout
-                    $result.maxProcesses                               | Should Be $PoolCfg.add.processModel.maxProcesses
-                    $result.shutdownTimeLimit                          | Should Be $PoolCfg.add.processModel.shutdownTimeLimit
-                    $result.startupTimeLimit                           | Should Be $PoolCfg.add.processModel.startupTimeLimit
-                    $result.pingingEnabled                             | Should Be $PoolCfg.add.processModel.pingingEnabled
-                    $result.pingInterval                               | Should Be $PoolCfg.add.processModel.pingInterval
-                    $result.pingResponseTime                           | Should Be $PoolCfg.add.processModel.pingResponseTime
-                    $result.disallowOverlappingRotation                | Should Be $PoolCfg.add.recycling.disallowOverlappingRotation
-                    $result.disallowRotationOnConfigChange             | Should Be $PoolCfg.add.recycling.disallowRotationOnConfigChange
-                    $result.logEventOnRecycle                          | Should Be $PoolCfg.add.recycling.logEventOnRecycle
-                    $result.restartMemoryLimit                         | Should Be $PoolCfg.add.recycling.periodicRestart.memory
-                    $result.restartPrivateMemoryLimit                  | Should Be $PoolCfg.add.recycling.periodicRestart.privateMemory
-                    $result.restartRequestsLimit                       | Should Be $PoolCfg.add.recycling.periodicRestart.requests
-                    $result.restartTimeLimit                           | Should Be $PoolCfg.add.recycling.periodicRestart.time
-                    $result.restartSchedule                            | Should Be @($PoolCfg.add.recycling.periodicRestart.schedule.add.value)
-                    $result.loadBalancerCapabilities                   | Should Be $PoolCfg.add.failure.loadBalancerCapabilities
-                    $result.orphanWorkerProcess                        | Should Be $PoolCfg.add.failure.orphanWorkerProcess
-                    $result.orphanActionExe                            | Should Be $PoolCfg.add.failure.orphanActionExe
-                    $result.orphanActionParams                         | Should Be $PoolCfg.add.failure.orphanActionParams
-                    $result.rapidFailProtection                        | Should Be $PoolCfg.add.failure.rapidFailProtection
-                    $result.rapidFailProtectionInterval                | Should Be $PoolCfg.add.failure.rapidFailProtectionInterval
-                    $result.rapidFailProtectionMaxCrashes              | Should Be $PoolCfg.add.failure.rapidFailProtectionMaxCrashes
-                    $result.autoShutdownExe                            | Should Be $PoolCfg.add.failure.autoShutdownExe
-                    $result.autoShutdownParams                         | Should Be $PoolCfg.add.failure.autoShutdownParams
-                    $result.cpuLimit                                   | Should Be $PoolCfg.add.cpu.limit
-                    $result.cpuAction                                  | Should Be $PoolCfg.add.cpu.action
-                    $result.cpuResetInterval                           | Should Be $PoolCfg.add.cpu.resetInterval
-                    $result.cpuSmpAffinitized                          | Should Be $PoolCfg.add.cpu.smpAffinitized
-                    $result.cpuSmpProcessorAffinityMask                | Should Be $PoolCfg.add.cpu.smpProcessorAffinityMask
-                    $result.cpuSmpProcessorAffinityMask2               | Should Be $PoolCfg.add.cpu.smpProcessorAffinityMask2
+                It 'Should return the Ensure property set to Present' {
+                    $result.Ensure | Should Be 'Present'
                 }
+
+                It 'Should return the Name property' {
+                    $result.Name | Should Be $mockAppPool.name
+                }
+
+                It 'Should return the State property' {
+                    $result.State | Should Be $mockAppPool.state
+                }
+
+                It 'Should return the autoStart property' {
+                    $result.autoStart | Should Be $mockAppPool.autoStart
+                }
+
+                It 'Should return the CLRConfigFile property' {
+                    $result.CLRConfigFile | Should Be $mockAppPool.CLRConfigFile
+                }
+
+                It 'Should return the enable32BitAppOnWin64 property' {
+                    $result.enable32BitAppOnWin64 | Should Be $mockAppPool.enable32BitAppOnWin64
+                }
+
+                It 'Should return the enableConfigurationOverride property' {
+                    $result.enableConfigurationOverride | Should Be $mockAppPool.enableConfigurationOverride
+                }
+
+                It 'Should return the managedPipelineMode property' {
+                    $result.managedPipelineMode | Should Be $mockAppPool.managedPipelineMode
+                }
+
+                It 'Should return the managedRuntimeLoader property' {
+                    $result.managedRuntimeLoader | Should Be $mockAppPool.managedRuntimeLoader
+                }
+
+                It 'Should return the managedRuntimeVersion property' {
+                    $result.managedRuntimeVersion | Should Be $mockAppPool.managedRuntimeVersion
+                }
+
+                It 'Should return the passAnonymousToken property' {
+                    $result.passAnonymousToken | Should Be $mockAppPool.passAnonymousToken
+                }
+
+                It 'Should return the startMode property' {
+                    $result.startMode | Should Be $mockAppPool.startMode
+                }
+
+                It 'Should return the queueLength property' {
+                    $result.queueLength | Should Be $mockAppPool.queueLength
+                }
+
+                It 'Should return the cpuAction property' {
+                    $result.cpuAction | Should Be $mockAppPool.cpu.action
+                }
+
+                It 'Should return the cpuLimit property' {
+                    $result.cpuLimit | Should Be $mockAppPool.cpu.limit
+                }
+
+                It 'Should return the cpuResetInterval property' {
+                    $result.cpuResetInterval | Should Be $mockAppPool.cpu.resetInterval
+                }
+
+                It 'Should return the cpuSmpAffinitized property' {
+                    $result.cpuSmpAffinitized | Should Be $mockAppPool.cpu.smpAffinitized
+                }
+
+                It 'Should return the cpuSmpProcessorAffinityMask property' {
+                    $result.cpuSmpProcessorAffinityMask | Should Be $mockAppPool.cpu.smpProcessorAffinityMask
+                }
+
+                It 'Should return the cpuSmpProcessorAffinityMask2 property' {
+                    $result.cpuSmpProcessorAffinityMask2 | Should Be $mockAppPool.cpu.smpProcessorAffinityMask2
+                }
+
+                It 'Should return the identityType property' {
+                    $result.identityType | Should Be $mockAppPool.processModel.identityType
+                }
+
+                It 'Should return the Credential (userName) property' {
+                    # Get-DscConfiguration returns MSFT_Credential with empty UserName
+                    $result.Credential.userName | Should Be $mockAppPool.processModel.userName
+                }
+
+                It 'Should return the Credential (password) property' {
+                    # Get-DscConfiguration returns MSFT_Credential with empty Password
+                    $result.Credential.Password | Should Be $mockAppPool.processModel.password
+                }
+
+                It 'Should return the idleTimeout property' {
+                    $result.idleTimeout | Should Be $mockAppPool.processModel.idleTimeout
+                }
+
+                It 'Should return the idleTimeoutAction property' {
+                    $result.idleTimeoutAction | Should Be $mockAppPool.processModel.idleTimeoutAction
+                }
+
+                It 'Should return the loadUserProfile property' {
+                    $result.loadUserProfile | Should Be $mockAppPool.processModel.loadUserProfile
+                }
+
+                It 'Should return the logonType property' {
+                    $result.logonType | Should Be $mockAppPool.processModel.logonType
+                }
+
+                It 'Should return the logEventOnProcessModel property' {
+                    $result.logEventOnProcessModel | Should Be $mockAppPool.processModel.logEventOnProcessModel
+                }
+
+                It 'Should return the manualGroupMembership property' {
+                    $result.manualGroupMembership | Should Be $mockAppPool.processModel.manualGroupMembership
+                }
+
+                It 'Should return the maxProcesses property' {
+                    $result.maxProcesses | Should Be $mockAppPool.processModel.maxProcesses
+                }
+
+                It 'Should return the pingingEnabled property' {
+                    $result.pingingEnabled | Should Be $mockAppPool.processModel.pingingEnabled
+                }
+
+                It 'Should return the pingInterval property' {
+                    $result.pingInterval | Should Be $mockAppPool.processModel.pingInterval
+                }
+
+                It 'Should return the pingResponseTime property' {
+                    $result.pingResponseTime | Should Be $mockAppPool.processModel.pingResponseTime
+                }
+
+                It 'Should return the setProfileEnvironment property' {
+                    $result.setProfileEnvironment | Should Be $mockAppPool.processModel.setProfileEnvironment
+                }
+
+                It 'Should return the shutdownTimeLimit property' {
+                    $result.shutdownTimeLimit | Should Be $mockAppPool.processModel.shutdownTimeLimit
+                }
+
+                It 'Should return the startupTimeLimit property' {
+                    $result.startupTimeLimit | Should Be $mockAppPool.processModel.startupTimeLimit
+                }
+
+                It 'Should return the orphanActionExe property' {
+                    $result.orphanActionExe | Should Be $mockAppPool.failure.orphanActionExe
+                }
+
+                It 'Should return the orphanActionParams property' {
+                    $result.orphanActionParams | Should Be $mockAppPool.failure.orphanActionParams
+                }
+
+                It 'Should return the orphanWorkerProcess property' {
+                    $result.orphanWorkerProcess | Should Be $mockAppPool.failure.orphanWorkerProcess
+                }
+
+                It 'Should return the loadBalancerCapabilities property' {
+                    $result.loadBalancerCapabilities | Should Be $mockAppPool.failure.loadBalancerCapabilities
+                }
+
+                It 'Should return the rapidFailProtection property' {
+                    $result.rapidFailProtection | Should Be $mockAppPool.failure.rapidFailProtection
+                }
+
+                It 'Should return the rapidFailProtectionInterval property' {
+                    $result.rapidFailProtectionInterval | Should Be $mockAppPool.failure.rapidFailProtectionInterval
+                }
+
+                It 'Should return the rapidFailProtectionMaxCrashes property' {
+                    $result.rapidFailProtectionMaxCrashes | Should Be $mockAppPool.failure.rapidFailProtectionMaxCrashes
+                }
+
+                It 'Should return the autoShutdownExe property' {
+                    $result.autoShutdownExe | Should Be $mockAppPool.failure.autoShutdownExe
+                }
+
+                It 'Should return the autoShutdownParams property' {
+                    $result.autoShutdownParams | Should Be $mockAppPool.failure.autoShutdownParams
+                }
+
+                It 'Should return the disallowOverlappingRotation property' {
+                    $result.disallowOverlappingRotation | Should Be $mockAppPool.recycling.disallowOverlappingRotation
+                }
+
+                It 'Should return the disallowRotationOnConfigChange property' {
+                    $result.disallowRotationOnConfigChange | Should Be $mockAppPool.recycling.disallowRotationOnConfigChange
+                }
+
+                It 'Should return the logEventOnRecycle property' {
+                    $result.logEventOnRecycle | Should Be $mockAppPool.recycling.logEventOnRecycle
+                }
+
+                It 'Should return the restartMemoryLimit property' {
+                    $result.restartMemoryLimit | Should Be $mockAppPool.recycling.periodicRestart.memory
+                }
+
+                It 'Should return the restartPrivateMemoryLimit property' {
+                    $result.restartPrivateMemoryLimit | Should Be $mockAppPool.recycling.periodicRestart.privateMemory
+                }
+
+                It 'Should return the restartRequestsLimit property' {
+                    $result.restartRequestsLimit | Should Be $mockAppPool.recycling.periodicRestart.requests
+                }
+
+                It 'Should return the restartTimeLimit property' {
+                    $result.restartTimeLimit | Should Be $mockAppPool.recycling.periodicRestart.time
+                }
+
+                It 'Should return the restartSchedule property' {
+
+                    $restartScheduleValues = [String[]]@(
+                        @($mockAppPool.recycling.periodicRestart.schedule.Collection).ForEach('value')
+                    )
+
+                    $compareSplat = @{
+                        ReferenceObject = [String[]]@($result.restartSchedule)
+                        DifferenceObject = $restartScheduleValues
+                        ExcludeDifferent = $true
+                        IncludeEqual = $true
+                    }
+
+                    $compareResult = Compare-Object @compareSplat
+
+                    $compareResult.Count -eq $restartScheduleValues.Count | Should Be $true
+
+                }
+
             }
+
         }
-        #endregion
 
-        #region Function Test-TargetResource
-        Describe "$($Global:DSCResourceName)\Test-TargetResource" {
-            [xml] $PoolCfg = '
-            <add name="DefaultAppPool"
-                queueLength="1000"
-                autoStart="true"
-                enable32BitAppOnWin64="false"
-                managedRuntimeVersion="v4.0"
-                managedRuntimeLoader="webengine4.dll"
-                enableConfigurationOverride="true"
-                managedPipelineMode="Integrated"
-                CLRConfigFile=""
-                passAnonymousToken="true"
-                startMode="OnDemand">
-                <processModel
-                    identityType="ApplicationPoolIdentity"
-                    userName=""
-                    password=""
-                    loadUserProfile="true"
-                    setProfileEnvironment="true"
-                    logonType="LogonBatch"
-                    manualGroupMembership="false"
-                    idleTimeout="00:20:00"
-                    idleTimeoutAction="Terminate"
-                    maxProcesses="1"
-                    shutdownTimeLimit="00:01:30"
-                    startupTimeLimit="00:01:30"
-                    pingingEnabled="true"
-                    pingInterval="00:00:30"
-                    pingResponseTime="00:01:30"
-                    logEventOnProcessModel="IdleTimeout"/>
-                <recycling
-                    disallowOverlappingRotation="false"
-                    disallowRotationOnConfigChange="false"
-                    logEventOnRecycle="Time, Memory, PrivateMemory">
-                    <periodicRestart
-                        memory="0"
-                        privateMemory="0"
-                        requests="0"
-                        time="1.05:00:00">
-                        <schedule>
-                        </schedule>
-                    </periodicRestart>
-                </recycling>
-                <failure
-                    loadBalancerCapabilities="HttpLevel"
-                    orphanWorkerProcess="false"
-                    orphanActionExe=""
-                    orphanActionParams=""
-                    rapidFailProtection="true"
-                    rapidFailProtectionInterval="00:05:00"
-                    rapidFailProtectionMaxCrashes="5"
-                    autoShutdownExe=""
-                    autoShutdownParams=""/>
-                <cpu limit="0"
-                    action="NoAction"
-                    resetInterval="00:05:00"
-                    smpAffinitized="false"
-                    smpProcessorAffinityMask="4294967295"
-                    smpProcessorAffinityMask2="4294967295"
-                    processorGroup="0"
-                    numaNodeAssignment="MostAvailableMemory"
-                    numaNodeAffinityMode="Soft" />
-            </add>'
+        Describe "how '$($Global:DSCResourceName)\Test-TargetResource' responds to Ensure = 'Absent'" {
 
-            $Name = 'DefaultAppPool'
+            Mock Assert-Module
 
-            Context 'App Pool is not Present and is supposed to be' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {}
-                $result = Test-TargetResource -Name $Name -Verbose 4>&1
+            Context 'Application pool does not exist' {
 
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestEnsureState'] -f $Name)
+                Mock Get-WebConfiguration
+
+                It 'Should return True' {
+                    Test-TargetResource -Ensure 'Absent' -Name 'NonExistent' |
+                    Should Be $true
                 }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
+
             }
 
-            Context 'State is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
+            Context 'Application pool exists' {
 
-                $result = Test-TargetResource -Name $Name -State 'Stopped' -Verbose 4>&1
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                }
 
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestStateConfig'] -f $Name)
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return False' {
+                    Test-TargetResource -Ensure 'Absent' -Name $mockAppPool.name |
+                    Should Be $false
                 }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
+
             }
 
-            Context 'autoStart is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -autoStart 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestautoStartConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'managedRuntimeVersion is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $managedRuntimeVersion = 'v2.0'
-                $result = Test-TargetResource -Name $Name -managedRuntimeVersion 'v2.0' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestmanagedRuntimeVersionConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'managedPipelineMode is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $managedPipelineMode = 'Classic'
-                $result = Test-TargetResource -Name $Name -managedPipelineMode $managedPipelineMode -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestmanagedPipelineModeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'startMode is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $startMode = 'AlwaysRunning'
-                $result = Test-TargetResource -Name $Name -startMode $startMode -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TeststartModeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'identityType is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $identityType = 'NetworkService'
-                $result = Test-TargetResource -Name $Name -identityType 'NetworkService' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestidentityTypeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'userName is not the same' {
-                $UserNameTest = $PoolCfg.Clone()
-                $UserNameTest.add.processModel.identityType = 'SpecificUser'
-                $UserNameTest.add.processModel.userName = 'username'
-                $UserNameTest.add.processModel.password = 'password'
-
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $UserNameTest} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $AppPoolPassword = 'NotPassword' | ConvertTo-SecureString -AsPlainText -Force
-                $AppPoolCred = New-Object `
-                    -TypeName System.Management.Automation.PSCredential `
-                    -ArgumentList $('NotUserName', $AppPoolPassword)
-
-                $result = Test-TargetResource -Name $Name -IdentityType 'SpecificUser' -Credential $AppPoolCred -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestuserNameConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'Password is not the same' {
-                $UserNameTest = $PoolCfg.Clone()
-                $UserNameTest.add.processModel.identityType = 'SpecificUser'
-                $UserNameTest.add.processModel.userName = 'username'
-                $UserNameTest.add.processModel.password = 'password'
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $UserNameTest} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $AppPoolPassword = 'NotPassword' | ConvertTo-SecureString -AsPlainText -Force
-                $AppPoolCred = New-Object `
-                    -TypeName System.Management.Automation.PSCredential `
-                    -ArgumentList $('username', $AppPoolPassword)
-
-                $result = Test-TargetResource -Name $Name -IdentityType 'SpecificUser' -Credential $AppPoolCred -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestPasswordConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'LoadUserProfile is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -LoadUserProfile 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestLoadUserProfileConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'queueLength is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -queueLength '1' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestqueueLengthConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'enable32BitAppOnWin64 is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -enable32BitAppOnWin64 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['Testenable32BitAppOnWin64Config'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'managedRuntimeLoader is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -managedRuntimeLoader 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestmanagedRuntimeLoaderConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'enableConfigurationOverride is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -enableConfigurationOverride 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestenableConfigurationOverrideConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'enableConfigurationOverride is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -enableConfigurationOverride 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestenableConfigurationOverrideConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'CLRConfigFile is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -CLRConfigFile 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testCLRConfigFileConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'passAnonymousToken is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -passAnonymousToken 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testpassAnonymousTokenconfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'logonType is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -logonType 'LogonService' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testlogonTypeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'manualGroupMembership is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -manualGroupMembership 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testmanualGroupMembershipConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'idleTimeout is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -idleTimeout '00:10:00' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testidleTimeoutConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'maxProcesses is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -maxProcesses '2' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testmaxProcessesConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'shutdownTimeLimit is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -shutdownTimeLimit '00:02:00' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testshutdownTimeLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'startupTimeLimit is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -startupTimeLimit '00:02:00' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['teststartupTimeLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'pingingEnabled is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -pingingEnabled 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testpingingEnabledConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'pingInterval is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -pingInterval '00:01:00' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testpingIntervalConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'pingResponseTime is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -pingResponseTime '00:01:00' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testpingResponseTimeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'disallowOverlappingRotation is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -disallowOverlappingRotation 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testdisallowOverlappingRotationConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'disallowRotationOnConfigChange is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -disallowRotationOnConfigChange 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testdisallowRotationOnConfigChangeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'logEventOnRecycle is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -logEventOnRecycle 'Memory, Time, PrivateMemory' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testlogEventOnRecycleConfig'] -f $name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'restartMemoryLimit is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -restartMemoryLimit '1' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testrestartMemoryLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'restartPrivateMemoryLimit is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -restartPrivateMemoryLimit '1' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testrestartPrivateMemoryLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'restartRequestsLimit is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -restartRequestsLimit 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testrestartRequestsLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'restartTimeLimit is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -restartTimeLimit '1.00:00:00' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testrestartTimeLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'restartSchedule is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -restartSchedule @('00:00:00', '01:00:00') -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['TestrestartTimeLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'loadBalancerCapabilities is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -loadBalancerCapabilities 'TcpLevel' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testloadBalancerCapabilitiesConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'orphanWorkerProcess is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -orphanWorkerProcess 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testorphanWorkerProcessConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'orphanActionExe is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -orphanActionExe 'C:\pathto\some.exe' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testorphanActionExeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'orphanActionParams is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -orphanActionParams '/some /parameters' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testorphanActionParamsConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'rapidFailProtection is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -rapidFailProtection 'false' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testrapidFailProtectionConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'rapidFailProtectionInterval is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -rapidFailProtectionInterval '00:20:00' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testrapidFailProtectionIntervalConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'rapidFailProtectionMaxCrashes is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -rapidFailProtectionMaxCrashes '1' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testrapidFailProtectionMaxCrashesConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'autoShutdownExe is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -autoShutdownExe 'C:\autoshutdown.exe' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testautoShutdownExeConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'autoShutdownParams is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -autoShutdownParams '/params' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testautoShutdownParamsConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'cpuLimit is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -cpuLimit '1' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testcpuLimitConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'cpuAction is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -cpuAction 'KillW3wp' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testcpuActionConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'cpuSmpAffinitized is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -cpuSmpAffinitized 'true' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testcpuSmpAffinitizedConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'cpuSmpProcessorAffinityMask is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -cpuSmpProcessorAffinityMask '1' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testcpuSmpProcessorAffinityMaskConfig'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
-
-            Context 'cpuSmpProcessorAffinityMask2 is not the same' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return @{Count = 1}}
-                Mock Invoke-AppCmd {return 'Started' } -ParameterFilter {$Arguments.Contains('/text:state')}
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')}
-
-                $result = Test-TargetResource -Name $Name -cpuSmpProcessorAffinityMask2 '1' -Verbose 4>&1
-
-                It 'should return the correct verbose message' {
-                    $result[0] | Should be $($LocalizedData['testcpuSmpProcessorAffinityMask2Config'] -f $Name)
-                }
-                It 'Should return false' {
-                    $result[1] | Should be $false
-                }
-            }
         }
-        #endregion
 
-        #region Function Set-TargetResource
-        Describe "$($Global:DSCResourceName)\Set-TargetResource" {
-            [xml] $PoolCfg = '
-            <add name="DefaultAppPool"
-                queueLength="1000"
-                autoStart="true"
-                enable32BitAppOnWin64="false"
-                managedRuntimeVersion="v4.0"
-                managedRuntimeLoader="webengine4.dll"
-                enableConfigurationOverride="true"
-                managedPipelineMode="Integrated"
-                CLRConfigFile=""
-                passAnonymousToken="true"
-                startMode="OnDemand">
-                <processModel
-                    identityType="ApplicationPoolIdentity"
-                    userName=""
-                    password=""
-                    loadUserProfile="true"
-                    setProfileEnvironment="true"
-                    logonType="LogonBatch"
-                    manualGroupMembership="false"
-                    idleTimeout="00:20:00"
-                    idleTimeoutAction="Terminate"
-                    maxProcesses="1"
-                    shutdownTimeLimit="00:01:30"
-                    startupTimeLimit="00:01:30"
-                    pingingEnabled="true"
-                    pingInterval="00:00:30"
-                    pingResponseTime="00:01:30"
-                    logEventOnProcessModel="IdleTimeout"/>
-                <recycling
-                    disallowOverlappingRotation="false"
-                    disallowRotationOnConfigChange="false"
-                    logEventOnRecycle="Time, Memory, PrivateMemory">
-                    <periodicRestart
-                        memory="0"
-                        privateMemory="0"
-                        requests="0"
-                        time="1.05:00:00">
-                        <schedule>
-                        </schedule>
-                    </periodicRestart>
-                </recycling>
-                <failure
-                    loadBalancerCapabilities="HttpLevel"
-                    orphanWorkerProcess="false"
-                    orphanActionExe=""
-                    orphanActionParams=""
-                    rapidFailProtection="true"
-                    rapidFailProtectionInterval="00:05:00"
-                    rapidFailProtectionMaxCrashes="5"
-                    autoShutdownExe=""
-                    autoShutdownParams=""/>
-                <cpu limit="0"
-                    action="NoAction"
-                    resetInterval="00:05:00"
-                    smpAffinitized="false"
-                    smpProcessorAffinityMask="4294967295"
-                    smpProcessorAffinityMask2="4294967295"
-                    processorGroup="0"
-                    numaNodeAssignment="MostAvailableMemory"
-                    numaNodeAffinityMode="Soft" />
-            </add>'
+        Describe "how '$($Global:DSCResourceName)\Test-TargetResource' responds to Ensure = 'Present'" {
 
-            $Name = 'DefaultAppPool'
+            Mock Assert-Module
 
-            Context 'AppPool does not Exist, so Create it' {
-                Mock New-WebAppPool -Verifiable
-                Mock Stop-WebAppPool -Verifiable
-                Mock Start-WebAppPool -Verifiable
-                Mock Invoke-AppCmd -Verifiable
+            Context 'Application pool does not exist' {
+
+                Mock Get-WebConfiguration
+
+                It 'Should return False' {
+                    Test-TargetResource -Ensure 'Present' -Name 'NonExistent' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Application pool exists' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name |
+                    Should Be $true
+                }
+
+            }
+
+            Context 'All the properties match the desired state' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Started'
+                    autoStart = $true
+                    CLRConfigFile = ''
+                    enable32BitAppOnWin64 = $false
+                    enableConfigurationOverride = $true
+                    managedPipelineMode = 'Integrated'
+                    managedRuntimeLoader = 'webengine4.dll'
+                    managedRuntimeVersion = 'v4.0'
+                    passAnonymousToken = $true
+                    startMode = 'OnDemand'
+                    queueLength = 1000
+                    cpu = @{
+                        action = 'NoAction'
+                        limit = 0
+                        resetInterval = '00:05:00'
+                        smpAffinitized = $false
+                        smpProcessorAffinityMask = 4294967295
+                        smpProcessorAffinityMask2 = 4294967295
+                    }
+                    processModel = @{
+                        identityType = 'SpecificUser'
+                        idleTimeout = '00:20:00'
+                        idleTimeoutAction = 'Terminate'
+                        loadUserProfile = $true
+                        logEventOnProcessModel = 'IdleTimeout'
+                        logonType = 'LogonBatch'
+                        manualGroupMembership = $false
+                        maxProcesses = 1
+                        password = 'P@$$w0rD'
+                        pingingEnabled = $true
+                        pingInterval = '00:00:30'
+                        pingResponseTime = '00:01:30'
+                        setProfileEnvironment = $false
+                        shutdownTimeLimit = '00:01:30'
+                        startupTimeLimit = '00:01:30'
+                        userName = 'CONTOSO\JDoe'
+                    }
+                    failure = @{
+                        orphanActionExe = ''
+                        orphanActionParams = ''
+                        orphanWorkerProcess = $false
+                        loadBalancerCapabilities = 'HttpLevel'
+                        rapidFailProtection = $true
+                        rapidFailProtectionInterval = '00:05:00'
+                        rapidFailProtectionMaxCrashes = 5
+                        autoShutdownExe = ''
+                        autoShutdownParams = ''
+                    }
+                    recycling = @{
+                        disallowOverlappingRotation = $false
+                        disallowRotationOnConfigChange = $false
+                        logEventOnRecycle = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
+                        periodicRestart = @{
+                            memory = 0
+                            privateMemory = 0
+                            requests = 0
+                            time = '1.05:00:00'
+                            schedule = @{
+                                Collection = @(
+                                    @{value = '04:00:00'}
+                                    @{value = '08:00:00'}
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $mockUserName = $mockAppPool.processModel.userName
+                $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+                $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
+
+                $mockRestartSchedule = [String[]]@(
+                    @($mockAppPool.recycling.periodicRestart.schedule.Collection).ForEach('value')
+                )
+
+                $testParamsSplat = @{
+                    Name = $mockAppPool.Name
+                    State = $mockAppPool.state
+                    autoStart = $mockAppPool.autoStart
+                    CLRConfigFile = $mockAppPool.CLRConfigFile
+                    enable32BitAppOnWin64 = $mockAppPool.enable32BitAppOnWin64
+                    enableConfigurationOverride = $mockAppPool.enableConfigurationOverride
+                    managedPipelineMode = $mockAppPool.managedPipelineMode
+                    managedRuntimeLoader = $mockAppPool.managedRuntimeLoader
+                    managedRuntimeVersion = $mockAppPool.managedRuntimeVersion
+                    passAnonymousToken = $mockAppPool.passAnonymousToken
+                    startMode = $mockAppPool.startMode
+                    queueLength = $mockAppPool.queueLength
+                    cpuAction = $mockAppPool.cpu.action
+                    cpuLimit = $mockAppPool.cpu.limit
+                    cpuResetInterval = $mockAppPool.cpu.resetInterval
+                    cpuSmpAffinitized = $mockAppPool.cpu.smpAffinitized
+                    cpuSmpProcessorAffinityMask = $mockAppPool.cpu.smpProcessorAffinityMask
+                    cpuSmpProcessorAffinityMask2 = $mockAppPool.cpu.smpProcessorAffinityMask2
+                    identityType = $mockAppPool.processModel.identityType
+                    Credential = $mockCredential
+                    idleTimeout = $mockAppPool.processModel.idleTimeout
+                    idleTimeoutAction = $mockAppPool.processModel.idleTimeoutAction
+                    loadUserProfile = $mockAppPool.processModel.loadUserProfile
+                    logEventOnProcessModel = $mockAppPool.processModel.logEventOnProcessModel
+                    logonType = $mockAppPool.processModel.logonType
+                    manualGroupMembership = $mockAppPool.processModel.manualGroupMembership
+                    maxProcesses = $mockAppPool.processModel.maxProcesses
+                    pingingEnabled = $mockAppPool.processModel.pingingEnabled
+                    pingInterval = $mockAppPool.processModel.pingInterval
+                    pingResponseTime = $mockAppPool.processModel.pingResponseTime
+                    setProfileEnvironment = $mockAppPool.processModel.setProfileEnvironment
+                    shutdownTimeLimit = $mockAppPool.processModel.shutdownTimeLimit
+                    startupTimeLimit = $mockAppPool.processModel.startupTimeLimit
+                    orphanActionExe = $mockAppPool.failure.orphanActionExe
+                    orphanActionParams = $mockAppPool.failure.orphanActionParams
+                    orphanWorkerProcess = $mockAppPool.failure.orphanWorkerProcess
+                    loadBalancerCapabilities = $mockAppPool.failure.loadBalancerCapabilities
+                    rapidFailProtection = $mockAppPool.failure.rapidFailProtection
+                    rapidFailProtectionInterval = $mockAppPool.failure.rapidFailProtectionInterval
+                    rapidFailProtectionMaxCrashes = $mockAppPool.failure.rapidFailProtectionMaxCrashes
+                    autoShutdownExe = $mockAppPool.failure.autoShutdownExe
+                    autoShutdownParams = $mockAppPool.failure.autoShutdownParams
+                    disallowOverlappingRotation = $mockAppPool.recycling.disallowOverlappingRotation
+                    disallowRotationOnConfigChange = $mockAppPool.recycling.disallowRotationOnConfigChange
+                    logEventOnRecycle = $mockAppPool.recycling.logEventOnRecycle
+                    restartMemoryLimit = $mockAppPool.recycling.periodicRestart.memory
+                    restartPrivateMemoryLimit = $mockAppPool.recycling.periodicRestart.privateMemory
+                    restartRequestsLimit = $mockAppPool.recycling.periodicRestart.requests
+                    restartTimeLimit = $mockAppPool.recycling.periodicRestart.time
+                    restartSchedule = $mockRestartSchedule
+                }
+
+                It 'Should return True' {
+                    Test-TargetResource -Ensure 'Present' @testParamsSplat |
+                    Should Be $true
+                }
+
+            }
+
+            Context 'Test the State property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    State = 'Started'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Started' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Stopped' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the autoStart property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    autoStart = $true
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoStart $true |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoStart $false |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the CLRConfigFile property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    CLRConfigFile = ''
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -CLRConfigFile '' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -CLRConfigFile 'C:\inetpub\temp\aspnet.config' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the enable32BitAppOnWin64 property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    enable32BitAppOnWin64 = $false
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -enable32BitAppOnWin64 $false |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -enable32BitAppOnWin64 $true |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the enableConfigurationOverride property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    enableConfigurationOverride = $true
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -enableConfigurationOverride $true |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -enableConfigurationOverride $false |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the managedPipelineMode property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    managedPipelineMode = 'Integrated'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -managedPipelineMode 'Integrated' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -managedPipelineMode 'Classic' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the managedRuntimeLoader property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    managedRuntimeLoader = 'webengine4.dll'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -managedRuntimeLoader 'webengine4.dll' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -managedRuntimeLoader '' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the managedRuntimeVersion property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    managedRuntimeVersion = 'v4.0'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -managedRuntimeVersion 'v4.0' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -managedRuntimeVersion 'v2.0' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the passAnonymousToken property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    passAnonymousToken = $true
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -passAnonymousToken $true |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -passAnonymousToken $false |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the startMode property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    startMode = 'OnDemand'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -startMode 'OnDemand' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -startMode 'AlwaysRunning' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the queueLength property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    queueLength = 1000
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -queueLength 1000 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -queueLength 2000 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the cpuAction property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        action = 'NoAction'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuAction 'NoAction' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuAction 'KillW3wp' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the cpuLimit property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        limit = 0
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuLimit 0 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuLimit 90000 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the cpuResetInterval property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        resetInterval = '00:05:00'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuResetInterval '00:05:00' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuResetInterval '00:10:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the cpuSmpAffinitized property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        smpAffinitized = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuSmpAffinitized $false |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuSmpAffinitized $true |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the cpuSmpProcessorAffinityMask property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        smpProcessorAffinityMask = 4294967295
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuSmpProcessorAffinityMask 4294967295 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuSmpProcessorAffinityMask 1 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the cpuSmpProcessorAffinityMask2 property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        smpProcessorAffinityMask2 = 4294967295
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuSmpProcessorAffinityMask2 4294967295 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -cpuSmpProcessorAffinityMask2 1 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the identityType property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        identityType = 'ApplicationPoolIdentity'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'ApplicationPoolIdentity' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'NetworkService' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the Credential property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        identityType = 'SpecificUser'
+                        password = '1q2w3e4r'
+                        userName = 'CONTOSO\JDoe'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when both the userName and the password properties match the desired state' {
+
+                    $mockUserName = $mockAppPool.processModel.userName
+                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+                    $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
+
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
+                    Should Be $true
+
+                }
+
+                It 'Should return False when the userName property does not match the desired state' {
+
+                    $mockUserName = 'CONTOSO\GFawkes'
+                    $mockPassword = $mockAppPool.processModel.password | ConvertTo-SecureString -AsPlainText -Force
+                    $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
+
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
+                    Should Be $false
+
+                }
+
+                It 'Should return False when the password property does not match the desired state' {
+
+                    $mockUserName = $mockAppPool.processModel.userName
+                    $mockPassword = '5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force
+                    $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
+
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -identityType 'SpecificUser' -Credential $mockCredential |
+                    Should Be $false
+
+                }
+
+            }
+
+            Context 'Test the idleTimeout property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        idleTimeout = '00:20:00'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -idleTimeout '00:20:00' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -idleTimeout '00:15:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the idleTimeoutAction property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        idleTimeoutAction = 'Terminate'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -idleTimeoutAction 'Terminate' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -idleTimeoutAction 'Suspend' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the loadUserProfile property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        loadUserProfile = $true
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -loadUserProfile $true |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -loadUserProfile $false |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the logEventOnProcessModel property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        logEventOnProcessModel = 'IdleTimeout'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logEventOnProcessModel 'IdleTimeout' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logEventOnProcessModel '' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the logonType property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        logonType = 'LogonBatch'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logonType 'LogonBatch' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logonType 'LogonService' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the manualGroupMembership property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        manualGroupMembership = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -manualGroupMembership $false |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -manualGroupMembership $true |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the maxProcesses property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        maxProcesses = 1
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -maxProcesses 1 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -maxProcesses 2 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the pingingEnabled property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        pingingEnabled = $true
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -pingingEnabled $true |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -pingingEnabled $false |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the pingInterval property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        pingInterval = '00:00:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -pingInterval '00:00:30' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -pingInterval '00:01:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the pingResponseTime property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        pingResponseTime = '00:01:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -pingResponseTime '00:01:30' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -pingResponseTime '00:02:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the setProfileEnvironment property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        setProfileEnvironment = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -setProfileEnvironment $false |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -setProfileEnvironment $true |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the shutdownTimeLimit property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        shutdownTimeLimit = '00:01:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -shutdownTimeLimit '00:01:30' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -shutdownTimeLimit '00:02:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the startupTimeLimit property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        startupTimeLimit = '00:01:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -startupTimeLimit '00:01:30' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -startupTimeLimit '00:02:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the orphanActionExe property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        orphanActionExe = ''
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanActionExe '' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanActionExe 'C:\inetpub\temp\orphanAction.exe' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the orphanActionParams property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        orphanActionParams = ''
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanActionParams '' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanActionParams '/orphanActionParam1' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the orphanWorkerProcess property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        orphanWorkerProcess = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanWorkerProcess $false |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -orphanWorkerProcess $true |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the loadBalancerCapabilities property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        loadBalancerCapabilities = 'HttpLevel'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -loadBalancerCapabilities 'HttpLevel' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -loadBalancerCapabilities 'TcpLevel' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the rapidFailProtection property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        rapidFailProtection = $true
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -rapidFailProtection $true |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -rapidFailProtection $false |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the rapidFailProtectionInterval property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        rapidFailProtectionInterval = '00:05:00'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -rapidFailProtectionInterval '00:05:00' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -rapidFailProtectionInterval '00:10:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the rapidFailProtectionMaxCrashes property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        rapidFailProtectionMaxCrashes = 5
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -rapidFailProtectionMaxCrashes 5 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -rapidFailProtectionMaxCrashes 10 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the autoShutdownExe property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        autoShutdownExe = ''
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoShutdownExe '' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoShutdownExe 'C:\inetpub\temp\autoShutdown.exe' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the autoShutdownParams property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        autoShutdownParams = ''
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoShutdownParams '' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -autoShutdownParams '/autoShutdownParam1' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the disallowOverlappingRotation property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        disallowOverlappingRotation = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -disallowOverlappingRotation $false |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -disallowOverlappingRotation $true |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the disallowRotationOnConfigChange property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        disallowRotationOnConfigChange = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -disallowRotationOnConfigChange $false |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -disallowRotationOnConfigChange $true |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the logEventOnRecycle property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        logEventOnRecycle = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logEventOnRecycle 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logEventOnRecycle 'Time,Memory,PrivateMemory' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the restartMemoryLimit property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            memory = 0
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartMemoryLimit 0 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartMemoryLimit 1048576 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the restartPrivateMemoryLimit property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            privateMemory = 0
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartPrivateMemoryLimit 0 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartPrivateMemoryLimit 1048576 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the restartRequestsLimit property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            requests = 0
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartRequestsLimit 0 |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartRequestsLimit 1000 |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the restartTimeLimit property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            time = '1.05:00:00'
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartTimeLimit '1.05:00:00' |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartTimeLimit '2.10:00:00' |
+                    Should Be $false
+                }
+
+            }
+
+            Context 'Test the restartSchedule property' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            schedule = @{
+                                Collection = @(
+                                    @{value = '04:00:00'}
+                                    @{value = '08:00:00'}
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should return True when the property matches the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartSchedule @('04:00:00', '08:00:00') |
+                    Should Be $true
+                }
+
+                It 'Should return False when the property does not match the desired state' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -restartSchedule @('') |
+                    Should Be $false
+                }
+
+            }
+
+        }
+
+        Describe "how '$($Global:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Absent'" {
+
+            Context 'Application pool exists and is started' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Started'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+                Mock Stop-WebAppPool
+                Mock Remove-WebAppPool
+
+                Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name
+
+                It 'Should call Stop-WebAppPool' {
+                    Assert-MockCalled Stop-WebAppPool -Exactly 1
+                }
+
+                It 'Should call Remove-WebAppPool' {
+                    Assert-MockCalled Remove-WebAppPool -Exactly 1
+                }
+
+                It 'Should throw if Stop-WebAppPool fails' {
+
+                    Mock Stop-WebAppPool -MockWith {throw}
+
+                    {Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name} |
+                    Should Throw
+
+                }
+
+                It 'Should throw if Remove-WebAppPool fails' {
+
+                    Mock Stop-WebAppPool
+                    Mock Remove-WebAppPool -MockWith {throw}
+
+                    {Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name} |
+                    Should Throw
+
+                }
+
+            }
+
+            Context 'Application pool exists and is stopped' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Stopped'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+                Mock Stop-WebAppPool
+                Mock Remove-WebAppPool
+
+                Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name
+
+                It 'Should not call Stop-WebAppPool' {
+                    Assert-MockCalled Stop-WebAppPool -Exactly 0
+                }
+
+                It 'Should call Remove-WebAppPool' {
+                    Assert-MockCalled Remove-WebAppPool -Exactly 1
+                }
+
+                It 'Should throw if Remove-WebAppPool fails' {
+
+                    Mock Remove-WebAppPool -MockWith {throw}
+
+                    {Set-TargetResource -Ensure 'Absent' -Name $mockAppPool.name} |
+                    Should Throw
+
+                }
+
+            }
+
+        }
+
+        Describe "how '$($Global:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Present'" {
+
+            Context 'Application pool does not exist' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                }
+
+                Mock Get-WebConfiguration
+                Mock New-WebAppPool -MockWith {$mockAppPool}
+                Mock Start-Sleep
+
+                It 'Should call New-WebAppPool' {
+                    Set-TargetResource -Ensure 'Present' -Name $mockAppPool.Name
+                    Assert-MockCalled New-WebAppPool -Exactly 1
+                }
+
+                It 'Should throw if New-WebAppPool fails' {
+
+                    Mock New-WebAppPool -MockWith {throw}
+
+                    {Set-TargetResource -Ensure 'Present' -Name $mockAppPool.Name} |
+                    Should Throw
+
+                }
+
+            }
+
+            Context 'All the properties need to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Started'
+                    autoStart = $true
+                    CLRConfigFile = ''
+                    enable32BitAppOnWin64 = $false
+                    enableConfigurationOverride = $true
+                    managedPipelineMode = 'Integrated'
+                    managedRuntimeLoader = 'webengine4.dll'
+                    managedRuntimeVersion = 'v4.0'
+                    passAnonymousToken = $true
+                    startMode = 'OnDemand'
+                    queueLength = 1000
+                    cpu = @{
+                        action = 'NoAction'
+                        limit = 0
+                        resetInterval = '00:05:00'
+                        smpAffinitized = $false
+                        smpProcessorAffinityMask = 4294967295
+                        smpProcessorAffinityMask2 = 4294967295
+                    }
+                    processModel = @{
+                        identityType = 'ApplicationPoolIdentity'
+                        idleTimeout = '00:20:00'
+                        idleTimeoutAction = 'Terminate'
+                        loadUserProfile = $true
+                        logEventOnProcessModel = 'IdleTimeout'
+                        logonType = 'LogonBatch'
+                        manualGroupMembership = $false
+                        maxProcesses = 1
+                        password = ''
+                        pingingEnabled = $true
+                        pingInterval = '00:00:30'
+                        pingResponseTime = '00:01:30'
+                        setProfileEnvironment = $false
+                        shutdownTimeLimit = '00:01:30'
+                        startupTimeLimit = '00:01:30'
+                        userName = ''
+                    }
+                    failure = @{
+                        orphanActionExe = ''
+                        orphanActionParams = ''
+                        orphanWorkerProcess = $false
+                        loadBalancerCapabilities = 'HttpLevel'
+                        rapidFailProtection = $true
+                        rapidFailProtectionInterval = '00:05:00'
+                        rapidFailProtectionMaxCrashes = 5
+                        autoShutdownExe = ''
+                        autoShutdownParams = ''
+                    }
+                    recycling = @{
+                        disallowOverlappingRotation = $false
+                        disallowRotationOnConfigChange = $false
+                        logEventOnRecycle = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
+                        periodicRestart = @{
+                            memory = 0
+                            privateMemory = 0
+                            requests = 0
+                            time = '1.05:00:00'
+                            schedule = @{
+                                Collection = @(
+                                    @{value = '02:00:00'}
+                                    @{value = '04:00:00'}
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $mockUserName = 'CONTOSO\GFawkes'
+                $mockPassword = '5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force
+                $mockCredential = New-Object -TypeName PSCredential -ArgumentList $mockUserName, $mockPassword
+
+                $setParamsSplat = @{
+                    Name = $mockAppPool.name
+                    State = 'Stopped'
+                    autoStart = $false
+                    CLRConfigFile = 'C:\inetpub\temp\aspnet.config'
+                    enable32BitAppOnWin64 = $true
+                    enableConfigurationOverride = $false
+                    managedPipelineMode = 'Classic'
+                    managedRuntimeLoader = ''
+                    managedRuntimeVersion = 'v2.0'
+                    passAnonymousToken = $false
+                    startMode = 'AlwaysRunning'
+                    queueLength = 2000
+                    cpuAction = 'KillW3wp'
+                    cpuLimit = 90000
+                    cpuResetInterval = '00:10:00'
+                    cpuSmpAffinitized = $true
+                    cpuSmpProcessorAffinityMask = 1
+                    cpuSmpProcessorAffinityMask2 = 1
+                    identityType = 'SpecificUser'
+                    Credential = $mockCredential
+                    idleTimeout = '00:15:00'
+                    idleTimeoutAction = 'Suspend'
+                    loadUserProfile = $false
+                    logEventOnProcessModel = ''
+                    logonType = 'LogonService'
+                    manualGroupMembership = $true
+                    maxProcesses = 2
+                    pingingEnabled = $false
+                    pingInterval = '00:01:00'
+                    pingResponseTime = '00:02:00'
+                    setProfileEnvironment = $true
+                    shutdownTimeLimit = '00:02:00'
+                    startupTimeLimit = '00:02:00'
+                    orphanActionExe = 'C:\inetpub\temp\orphanAction.exe'
+                    orphanActionParams = '/orphanActionParam1'
+                    orphanWorkerProcess = $true
+                    loadBalancerCapabilities = 'TcpLevel'
+                    rapidFailProtection = $false
+                    rapidFailProtectionInterval = '00:10:00'
+                    rapidFailProtectionMaxCrashes = 10
+                    autoShutdownExe = 'C:\inetpub\temp\autoShutdown.exe'
+                    autoShutdownParams = '/autoShutdownParam1'
+                    disallowOverlappingRotation = $true
+                    disallowRotationOnConfigChange = $true
+                    logEventOnRecycle = 'Time,Memory,PrivateMemory'
+                    restartMemoryLimit = 1048576
+                    restartPrivateMemoryLimit = 1048576
+                    restartRequestsLimit = 1000
+                    restartTimeLimit = '2.10:00:00'
+                    restartSchedule = @('06:00:00', '08:00:00')
+                }
+
+                Mock Stop-WebAppPool
+                Mock Invoke-AppCmd
+
+                Set-TargetResource -Ensure 'Present' @setParamsSplat
 
                 It 'Should call all the mocks' {
-                    $result = Set-TargetResource -Name $Name
-                    Assert-VerifiableMocks
+                    Assert-MockCalled Stop-WebAppPool -Exactly 1
+                    Assert-MockCalled Invoke-AppCmd -Exactly 52
                 }
+
             }
 
-            Context 'AppPool Exists so modify it' {
-                Mock Assert-Module
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('set')} -Verifiable
-                Mock Invoke-AppCmd {return $PoolCfg} -ParameterFilter {$Arguments.Contains('/config:*')} -Verifiable
-                Mock Stop-WebAppPool
+            Context 'The State property needs to be set to Started' {
 
-                $AppPoolPassword = 'NotPassword' | ConvertTo-SecureString -AsPlainText -Force
-                $AppPoolCred = New-Object `
-                    -TypeName System.Management.Automation.PSCredential `
-                    -ArgumentList $('NotUserName', $AppPoolPassword)
-
-                $params = @{
-                    Name   = 'PesterAppPool';
-                    Ensure = 'Present';
-                    state = 'Stopped';
-                    autoStart = 'false';
-                    managedRuntimeVersion = 'v2.0';
-                    managedPipelineMode = 'Classic';
-                    startMode = 'AlwaysRunning';
-                    identityType = 'SpecificUser';
-                    Credential = $AppPoolCred;
-                    loadUserProfile = 'false';
-                    queueLength = '10';
-                    enable32BitAppOnWin64 = 'true';
-                    managedRuntimeLoader = 'somedll.dll';
-                    enableConfigurationOverride = 'false';
-                    CLRConfigFile = 'CLRConfigFile';
-                    passAnonymousToken = 'false';
-                    logonType = 'LogonService';
-                    manualGroupMembership = 'true';
-                    idleTimeout = '00:10:00';
-                    maxProcesses = '10';
-                    shutdownTimeLimit = '00:10:30';
-                    startupTimeLimit = '00:10:30';
-                    pingingEnabled = 'false';
-                    pingInterval = '00:10:30';
-                    pingResponseTime = '00:11:30';
-                    disallowOverlappingRotation = 'true';
-                    disallowRotationOnConfigChange = 'true';
-                    logEventOnRecycle = 'Time, Memory, PrivateMemory, PrivateMemory';
-                    restartMemoryLimit = '1';
-                    restartPrivateMemoryLimit = '1';
-                    restartRequestsLimit = '1';
-                    restartTimeLimit = '1.15:00:00';
-                    restartSchedule = @('00:00:00','01:00:00');
-                    loadBalancerCapabilities = 'TcpLevel';
-                    orphanWorkerProcess = 'false';
-                    orphanActionExe = 'orphanActionExe.exe';
-                    orphanActionParams = '/some params';
-                    rapidFailProtection = 'false';
-                    rapidFailProtectionInterval = '00:15:00';
-                    rapidFailProtectionMaxCrashes = '15';
-                    autoShutdownExe = 'autoShutdownExe';
-                    autoShutdownParams = '/autoShutdownParams';
-                    cpuLimit = '1';
-                    cpuAction = 'KillW3wp';
-                    cpuResetInterval = '00:15:00';
-                    cpuSmpAffinitized = 'true';
-                    cpuSmpProcessorAffinityMask = '1';
-                    cpuSmpProcessorAffinityMask2 = '2';
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Stopped'
                 }
 
-                It 'should not throw' {
-                    {Set-TargetResource @params} | Should Not Throw
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should call Start-WebAppPool' {
+                    Mock Start-WebAppPool
+                    Set-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Started'
+                    Assert-MockCalled Start-WebAppPool -Exactly 1
                 }
 
-                It 'Should call all the Mocks' {
-                    Assert-VerifiableMocks
+                It 'Should throw if Start-WebAppPool fails' {
 
-                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$Arguments.Contains('set')} -Times 44
+                    Mock Start-WebAppPool -MockWith {throw}
+
+                    {Set-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Started'} |
+                    Should Throw
+
                 }
+
             }
+
+            Context 'The State property needs to be set to Stopped' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Started'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                It 'Should call Stop-WebAppPool' {
+                    Mock Stop-WebAppPool
+                    Set-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Stopped'
+                    Assert-MockCalled Stop-WebAppPool -Exactly 1
+                }
+
+                It 'Should throw if Stop-WebAppPool fails' {
+
+                    Mock Stop-WebAppPool -MockWith {throw}
+
+                    {Set-TargetResource -Ensure 'Present' -Name $mockAppPool.name -State 'Stopped'} |
+                    Should Throw
+
+                }
+
+            }
+
+            Context 'The autoStart property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    autoStart = $true
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    autoStart = $false
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/autoStart:False'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The CLRConfigFile property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    CLRConfigFile = ''
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    CLRConfigFile = 'C:\inetpub\temp\aspnet.config'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/CLRConfigFile:C:\inetpub\temp\aspnet.config'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The enable32BitAppOnWin64 property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    enable32BitAppOnWin64 = $false
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    enable32BitAppOnWin64 = $true
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/enable32BitAppOnWin64:True'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The enableConfigurationOverride property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    enableConfigurationOverride = $true
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    enableConfigurationOverride = $false
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/enableConfigurationOverride:False'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The managedPipelineMode property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    managedPipelineMode = 'Integrated'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    managedPipelineMode = 'Classic'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/managedPipelineMode:Classic'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The managedRuntimeLoader property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    managedRuntimeLoader = 'webengine4.dll'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    managedRuntimeLoader = ''
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/managedRuntimeLoader:'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The managedRuntimeVersion property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    managedRuntimeVersion = 'v4.0'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    managedRuntimeVersion = 'v2.0'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/managedRuntimeVersion:v2.0'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The passAnonymousToken property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    passAnonymousToken = $true
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    passAnonymousToken = $false
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/passAnonymousToken:False'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The startMode property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    startMode = 'OnDemand'
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    startMode = 'AlwaysRunning'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/startMode:AlwaysRunning'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The queueLength property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    queueLength = 1000
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    queueLength = 2000
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/queueLength:2000'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The cpuAction property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        action = 'NoAction'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    cpuAction = 'KillW3wp'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.action:KillW3wp'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The cpuLimit property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        limit = 0
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    cpuLimit = 90000
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.limit:90000'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The cpuResetInterval property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        resetInterval = '00:05:00'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    cpuResetInterval = '00:10:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.resetInterval:00:10:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The cpuSmpAffinitized property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        smpAffinitized = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    cpuSmpAffinitized = $true
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.smpAffinitized:True'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The cpuSmpProcessorAffinityMask property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        smpProcessorAffinityMask = 4294967295
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    cpuSmpProcessorAffinityMask = 1
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.smpProcessorAffinityMask:1'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The cpuSmpProcessorAffinityMask2 property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    cpu = @{
+                        smpProcessorAffinityMask2 = 4294967295
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    cpuSmpProcessorAffinityMask2 = 1
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.smpProcessorAffinityMask2:1'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The identityType property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        identityType = 'ApplicationPoolIdentity'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    identityType = 'SpecificUser'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.identityType:SpecificUser'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The idleTimeout property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        idleTimeout = '00:20:00'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    idleTimeout = '00:15:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.idleTimeout:00:15:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The idleTimeoutAction property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        idleTimeoutAction = 'Terminate'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    idleTimeoutAction = 'Suspend'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.idleTimeoutAction:Suspend'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The loadUserProfile property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        loadUserProfile = $true
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    loadUserProfile = $false
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.loadUserProfile:False'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The logEventOnProcessModel property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        logEventOnProcessModel = 'IdleTimeout'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    logEventOnProcessModel = ''
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.logEventOnProcessModel:'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The logonType property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        logonType = 'LogonBatch'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    logonType = 'LogonService'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.logonType:LogonService'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The manualGroupMembership property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        manualGroupMembership = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    manualGroupMembership = $true
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.manualGroupMembership:True'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The maxProcesses property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        maxProcesses = 1
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    maxProcesses = 2
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.maxProcesses:2'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The pingingEnabled property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        pingingEnabled = $true
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    pingingEnabled = $false
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.pingingEnabled:False'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The pingInterval property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        pingInterval = '00:00:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    pingInterval = '00:01:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.pingInterval:00:01:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The pingResponseTime property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        pingResponseTime = '00:01:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    pingResponseTime = '00:02:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.pingResponseTime:00:02:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The setProfileEnvironment property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        setProfileEnvironment = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    setProfileEnvironment = $true
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.setProfileEnvironment:True'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The shutdownTimeLimit property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        shutdownTimeLimit = '00:01:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    shutdownTimeLimit = '00:02:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.shutdownTimeLimit:00:02:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The startupTimeLimit property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    processModel = @{
+                        startupTimeLimit = '00:01:30'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    startupTimeLimit = '00:02:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.startupTimeLimit:00:02:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The orphanActionExe property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        orphanActionExe = ''
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    orphanActionExe = 'C:\inetpub\temp\orphanAction.exe'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanActionExe:C:\inetpub\temp\orphanAction.exe'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The orphanActionParams property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        orphanActionParams = ''
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    orphanActionParams = '/orphanActionParam1'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanActionParams:/orphanActionParam1'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The orphanWorkerProcess property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        orphanWorkerProcess = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    orphanWorkerProcess = $true
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanWorkerProcess:True'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The loadBalancerCapabilities property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        loadBalancerCapabilities = 'HttpLevel'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    loadBalancerCapabilities = 'TcpLevel'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.loadBalancerCapabilities:TcpLevel'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The rapidFailProtection property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        rapidFailProtection = $true
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    rapidFailProtection = $false
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.rapidFailProtection:False'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The rapidFailProtectionInterval property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        rapidFailProtectionInterval = '00:05:00'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    rapidFailProtectionInterval = '00:10:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.rapidFailProtectionInterval:00:10:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The rapidFailProtectionMaxCrashes property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        rapidFailProtectionMaxCrashes = 5
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    rapidFailProtectionMaxCrashes = 10
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.rapidFailProtectionMaxCrashes:10'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The autoShutdownExe property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        autoShutdownExe = ''
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    autoShutdownExe = 'C:\inetpub\temp\autoShutdown.exe'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.autoShutdownExe:C:\inetpub\temp\autoShutdown.exe'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The autoShutdownParams property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    failure = @{
+                        autoShutdownParams = ''
+                    }
+
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    autoShutdownParams = '/autoShutdownParam1'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.autoShutdownParams:/autoShutdownParam1'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The disallowOverlappingRotation property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        disallowOverlappingRotation = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    disallowOverlappingRotation = $true
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.disallowOverlappingRotation:True'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The disallowRotationOnConfigChange property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        disallowRotationOnConfigChange = $false
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    disallowRotationOnConfigChange = $true
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.disallowRotationOnConfigChange:True'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The logEventOnRecycle property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        logEventOnRecycle = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    logEventOnRecycle = 'Time,Memory,PrivateMemory'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.logEventOnRecycle:Time,Memory,PrivateMemory'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The restartMemoryLimit property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            memory = 0
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    restartMemoryLimit = 1048576
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.memory:1048576'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The restartPrivateMemoryLimit property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            privateMemory = 0
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    restartPrivateMemoryLimit = 1048576
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.privateMemory:1048576'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The restartRequestsLimit property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            requests = 0
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    restartRequestsLimit = 1000
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.requests:1000'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The restartTimeLimit property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            time = '1.05:00:00'
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    restartTimeLimit = '2.10:00:00'
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.time:2.10:00:00'}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -Exactly 1
+                }
+
+            }
+
+            Context 'The restartSchedule property needs to be set' {
+
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    recycling = @{
+                        periodicRestart = @{
+                            schedule = @{
+                                Collection = @(
+                                    @{value = '04:00:00'}
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+
+                $setParamsSplat = @{
+                    Ensure = 'Present'
+                    Name = $mockAppPool.name
+                    restartSchedule = @('08:00:00')
+                }
+
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/-recycling.periodicRestart.schedule.[value='04:00:00']"}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/+recycling.periodicRestart.schedule.[value='08:00:00']"}
+
+                Set-TargetResource @setParamsSplat
+
+                It 'Should call Invoke-AppCmd' {
+                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/-recycling.periodicRestart.schedule.[value='04:00:00']"} -Exactly 1
+                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/+recycling.periodicRestart.schedule.[value='08:00:00']"} -Exactly 1
+                }
+
+            }
+
         }
-        #endregion
+
+        Describe "$($Global:DSCResourceName)\Invoke-AppCmd" {
+
+            It 'Should throw if AppCmd.exe exits with non-zero exit code' {
+
+                $errorId = 'ErrorAppCmdNonZeroExitCode'
+                $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $errorMessage = $LocalizedData[$errorId] -f 1
+                $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
+                $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+
+                {Invoke-AppCmd -ArgumentList '/?'} |
+                Should Throw $errorRecord
+
+            }
+
+            It 'Should throw if AppCmd.exe cannot be found' {
+
+                Mock Test-Path -MockWith {$false}
+
+                $mockFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+
+                $errorId = 'ErrorAppCmdPathNotFound'
+                $errorCategory = [System.Management.Automation.ErrorCategory]::ObjectNotFound
+                $errorMessage = $LocalizedData[$errorId] -f $mockFilePath
+                $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
+                $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
+
+                {Invoke-AppCmd -FilePath $mockFilePath -ArgumentList '/?'} |
+                Should Throw $errorRecord
+
+            }
+
+        }
+
     }
+
     #endregion
 }
 finally
