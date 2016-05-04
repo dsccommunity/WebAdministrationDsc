@@ -722,7 +722,10 @@ function ConvertTo-WebBinding
                         $CertificateStoreName = $Binding.CertificateStoreName
                     }
 
-                    $OutputObject.Add('certificateHash',      [String]$Binding.CertificateThumbprint)
+                    # Remove the Left-to-Right Mark character
+                    $CertificateHash = $Binding.CertificateThumbprint -replace '^\u200E'
+
+                    $OutputObject.Add('certificateHash',      [String]$CertificateHash)
                     $OutputObject.Add('certificateStoreName', [String]$CertificateStoreName)
 
                     if ([Environment]::OSVersion.Version -ge '6.2')

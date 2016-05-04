@@ -1055,6 +1055,39 @@ try
 
             }
 
+            Context 'Protocol is HTTPS and CertificateThumbprint contains the Left-to-Right Mark character' {
+
+                $MockThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+
+                $AsciiEncoding = [System.Text.Encoding]::ASCII
+                $UnicodeEncoding = [System.Text.Encoding]::Unicode
+
+                $AsciiBytes = $AsciiEncoding.GetBytes($MockThumbprint)
+                $UnicodeBytes = [System.Text.Encoding]::Convert($AsciiEncoding, $UnicodeEncoding, $AsciiBytes)
+                $LrmCharBytes = $UnicodeEncoding.GetBytes([Char]0x200E)
+
+                # Prepend the Left-to-Right Mark character to CertificateThumbprint
+                $MockThumbprintWithLrmChar = $UnicodeEncoding.GetString(($LrmCharBytes + $UnicodeBytes))
+
+                $MockBindingInfo = @(
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                        Protocol              = 'https'
+                        CertificateThumbprint = $MockThumbprintWithLrmChar
+                        CertificateStoreName  = 'MY'
+                    } -ClientOnly
+                )
+
+                It 'Input - CertificateThumbprint should contain the Left-to-Right Mark character' {
+                    $MockBindingInfo[0].CertificateThumbprint -match '^\u200E' | Should Be $true
+                }
+
+                It 'Output - certificateHash should not contain the Left-to-Right Mark character' {
+                    $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
+                    $Result.certificateHash -match '^\u200E' | Should Be $false
+                }
+
+            }
+
             Context 'Protocol is HTTPS and CertificateThumbprint is not specified' {
 
                 $MockBindingInfo = @(
