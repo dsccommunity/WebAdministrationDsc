@@ -722,7 +722,7 @@ function ConvertTo-WebBinding
                         $CertificateStoreName = $Binding.CertificateStoreName
                     }
 
-                    # Remove an invisible Unicode "LEFT-TO-RIGHT MARK" character
+                    # Remove the Left-to-Right Mark character
                     $CertificateHash = $Binding.CertificateThumbprint -replace '^\u200E'
 
                     $OutputObject.Add('certificateHash',      [String]$CertificateHash)
