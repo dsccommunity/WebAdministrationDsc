@@ -28,16 +28,15 @@ try
 
         Describe "$Global:DSCResourceName\Assert-Module" {
 
-        Function Get-Module {}
             
             Context 'WebAdminstration module is not installed' {
-                Mock -CommandName Get-Module -MockWith {
+                Mock -ModuleName Helper -CommandName Get-Module -MockWith {
                     return $null
                 }
 
                 It 'should throw an error' {
                     { Assert-Module } | 
-                    Should Throw 'Please ensure that WebAdministration module is installed.'
+                    Should Throw
  
                 }
  
@@ -46,10 +45,6 @@ try
         }
 
         Describe "how $Global:DSCResourceName\Get-TargetResource responds" {
-
-        Function Get-WebConfiguration ($filter) {}
-        Function Get-WebConfigurationProperty {}
-        Function Get-Website {}
 
             $MockWebBinding = @(
                 @{
@@ -70,7 +65,7 @@ try
 
             )
 
-             $GetWebConfigurationOutput = @(
+             $MockWebConfiguration = @(
                 @{
                     SectionPath = 'MockSectionPath'
                     PSPath      = 'MockPSPath'
@@ -78,6 +73,15 @@ try
                                 [PSCustomObject]@{Name = 'MockServiceAutoStartProvider' ;Type = 'MockApplicationType'}   
                     )
                 }
+            )
+
+            $MockAuthenticationInfo = @(
+                New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                    Anonymous = 'true'
+                    Basic     = 'false'
+                    Digest    = 'false'
+                    Windows   = 'false'
+                } -ClientOnly
             )
 
             $MockWebsite = @{
@@ -132,6 +136,7 @@ try
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '//defaultDocument/files/*'} -MockWith {return @{value = 'index.html'}}
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'} -MockWith { [PSCustomObject]@{Name = 'MockServiceAutoStartProvider'; Type = 'MockApplicationType'}}
+                Mock -CommandName Get-WebConfigurationProperty  -MockWith {return $MockAuthenticationInfo}
 
                 $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
 
@@ -203,9 +208,6 @@ try
         }
 
         Describe "how $Global:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
-
-            Function Get-WebConfiguration {}
-            Function Get-Website {}
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -425,14 +427,6 @@ try
         }
 
         Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
-
-        Function Get-WebConfiguration {}
-        Function Get-Website {}
-        Function Add-WebConfiguration {}
-        Function Start-Website {}
-        Function Stop-Website {}
-        Function New-Website {}
-        Function Remove-Website {}
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -710,10 +704,6 @@ try
 
         Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
 
-        Function Get-WebConfiguration {}
-        Function Get-Website {}
-        Function Remove-Website {}
-
             $MockParameters = @{
                 Ensure       = 'Absent'
                 Name         = 'MockName'
@@ -751,8 +741,6 @@ try
         }
 
         Describe "$Global:DSCResourceName\Confirm-UniqueBinding" {
-
-        Function Get-Website {}
 
             $MockParameters = @{
                 Name = 'MockSite'
@@ -979,8 +967,6 @@ try
 
         Describe "$Global:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
         
-        Function Get-WebConfiguration {}
-        
             $MockParameters = @{
                 Name = 'MockServiceAutoStartProvider'
                 Type = 'MockApplicationType'
@@ -988,7 +974,7 @@ try
 
             Context 'Expected behavior' {
 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         SectionPath = 'MockSectionPath'
                         PSPath      = 'MockPSPath'
@@ -998,7 +984,7 @@ try
                     }
                 )
 
-                Mock -CommandName Get-WebConfiguration -MockWith {return $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfiguration -MockWith {return $MockWebConfiguration}
 
                 It 'should not throw an error' {
                     {Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $MockParameters.Name -ApplicationType $MockParameters.Type} |
@@ -1013,7 +999,7 @@ try
 
             Context 'Conflicting Global Property' {
                                      
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         SectionPath = 'MockSectionPath'
                         PSPath      = 'MockPSPath'
@@ -1023,7 +1009,7 @@ try
                     }
                 )
 
-                Mock -CommandName Get-WebConfiguration -MockWith {return $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfiguration -MockWith {return $MockWebConfiguration}
 
                 It 'should return Throw' {
 
@@ -1041,7 +1027,7 @@ try
 
             Context 'ServiceAutoStartProvider does not exist' {
 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         Name = ''
                         Type = ''
@@ -1049,7 +1035,7 @@ try
                     }
                 )
 
-                Mock -CommandName Get-WebConfiguration  -MockWith {return $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfiguration  -MockWith {return $MockWebConfiguration}
 
                 It 'should return False' {
                     Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $MockParameters.Name -ApplicationType $MockParameters.Type |
@@ -1060,7 +1046,7 @@ try
 
             Context 'ServiceAutoStartProvider does exist' {
 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         SectionPath = 'MockSectionPath'
                         PSPath      = 'MockPSPath'
@@ -1070,7 +1056,7 @@ try
                     }
                 )
                 
-                Mock -CommandName Get-WebConfiguration -MockWith {return $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfiguration -MockWith {return $MockWebConfiguration}
 
                 It 'should return True' {
                     Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $MockParameters.Name -ApplicationType $MockParameters.Type |
@@ -1485,7 +1471,6 @@ try
         }
 
         Describe "$Global:DSCResourceName\Get-AuthenticationInfo" {      
-           function Get-WebConfigurationProperty {}
 
             $MockWebsite = @{
                 Name                 = 'MockName'
@@ -1514,13 +1499,13 @@ try
 
             Context 'AuthenticationInfo is false' {
 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         Value = 'False'
                     }
                 )
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
 
                 
                 It 'should all be false' {
@@ -1538,13 +1523,13 @@ try
 
             Context 'AuthenticationInfo is true' {
                 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         Value = 'True'
                     }
                 )
                 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
      
                 It 'should all be true' {
                     $result = Get-AuthenticationInfo -site $MockWebsite.Name 
@@ -1586,7 +1571,6 @@ try
         Describe "$Global:DSCResourceName\Set-Authentication" {
 
         Context 'Expected behavior' {
-            Function Set-WebConfigurationProperty {}
 
             $MockWebsite = @{
                 Name                 = 'MockName'
@@ -1615,7 +1599,6 @@ try
         Describe "$Global:DSCResourceName\Set-AuthenticationInfo" {
         
         Context 'Expected behavior' {
-            Function Set-WebConfigurationProperty {}
 
             $MockWebsite = @{
                 Name                 = 'MockName'
@@ -1660,14 +1643,13 @@ try
         
         Context 'Expected behavior' {
 
-            $GetWebConfigurationOutput = @(
+            $MockWebConfiguration = @(
                     @{
                         Value = 'False'
                     }
                 )
-            Function Get-WebConfigurationProperty {}
 
-            Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+            Mock -CommandName Get-WebConfigurationProperty -MockWith {$MockWebConfiguration}
 
             It 'should not throw an error' {
                     { Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic'}|
@@ -1681,13 +1663,13 @@ try
         
         Context 'AuthenticationInfo is false' {
 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         Value = 'False'
                     }
                 )
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
 
                 
                 It 'should return false' {
@@ -1701,13 +1683,13 @@ try
         
         Context 'AuthenticationInfo is true' {
                 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         Value = 'True'
                     }
                 )
                 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
      
                 It 'should all be true' {
                     Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic' | Should be True
@@ -1721,9 +1703,7 @@ try
         
         Describe "$Global:DSCResourceName\Test-AuthenticationInfo" {
 
-        Function Get-WebConfigurationProperty {}
-
-        Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+        Mock -CommandName Get-WebConfigurationProperty -MockWith {$MockWebConfiguration}
 
         $MockWebsite = @{
                 Name                 = 'MockName'
@@ -1736,7 +1716,7 @@ try
                 Count                = 1         
             }
 
-        $GetWebConfigurationOutput = @(
+        $MockWebConfiguration = @(
                     @{
                         Value = 'False'
                     }
@@ -1761,7 +1741,7 @@ try
 
         Context 'Return False when AuthenticationInfo is not correct' {
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
 
                 
                 It 'should return false' {
@@ -1775,7 +1755,7 @@ try
 
         Context 'Return True when AuthenticationInfo is correct' {
                 
-                $GetWebConfigurationOutput = @(
+                $MockWebConfiguration = @(
                     @{
                         Value = 'True'
                     }
@@ -1785,7 +1765,7 @@ try
                                     -ClientOnly `
                                     -Property @{Anonymous='true';Basic='true';Digest='true';Windows='true'}
                 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
      
                 It 'should return true' {
                     Test-AuthenticationInfo -Site $MockWebsite.Name -AuthenticationInfo $AuthenticationInfo | Should be True
@@ -1960,8 +1940,6 @@ try
         }
 
         Describe "$Global:DSCResourceName\Test-WebsiteBinding" {
-
-        function Get-WebSite {}
 
             $MockWebBinding = @(
                 @{
@@ -2384,9 +2362,6 @@ try
 
         Describe "$Global:DSCResourceName\Update-DefaultPage" {
 
-        function Get-WebConfiguration {}
-        function Add-WebConfiguration {}
-
             $MockWebsite = @{
                 Ensure             = 'Present'
                 Name               = 'MockName'
@@ -2414,10 +2389,6 @@ try
         }
 
         Describe "$Global:DSCResourceName\Update-WebsiteBinding" {
-
-        function Get-WebConfiguration ($filter) {}
-        function Clear-WebConfiguration {}
-        function Add-WebConfiguration ($Filter) {}
 
             $MockWebsite = @{
                 Name      = 'MockSite'

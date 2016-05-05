@@ -42,4 +42,5 @@ function Assert-Module
         $ErrorMsg = $($LocalizedData.ModuleNotFound) -f $ModuleName
         New-TerminatingError -ErrorId 'ModuleNotFound' -ErrorMessage $ErrorMsg -ErrorCategory ObjectNotFound
     }
+
 }

@@ -73,7 +73,7 @@ function Get-TargetResource
     Assert-Module
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
-    $AuthenticationInfo = Get-AuthenticationInfo -Site $Website -Name $Name
+    $CimAuthentication = Get-AuthenticationInfo -Site $Name -Name $Name
     $SslFlags = (Get-SslFlags -Location "${Website}/${Name}")
 
     $Ensure = 'Absent'
@@ -88,8 +88,8 @@ function Get-TargetResource
         Name                     = $Name
         WebAppPool               = $webApplication.applicationPool
         PhysicalPath             = $webApplication.PhysicalPath
-        Authentication           = $AuthenticationInfo
-        SslSettings              = $SslFlags
+        AuthenticationInfo       = $CimAuthentication
+        SslFlags                 = $SslFlags
         PreloadEnabled           = $webApplication.preloadEnabled
         ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
@@ -172,7 +172,7 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('WebAppPool') -and ($webApplication.applicationPool -ne $WebAppPool))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebAppPool -f $Name)
-                Set-WebConfigurationProperty -Filter $webApplication.ItemXPath -Name applicationPool -Value $WebAppPool
+                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" -Name applicationPool -Value $WebAppPool
             }
      
             # Update SslFlags if required
@@ -397,8 +397,8 @@ function Confirm-UniqueServiceAutoStartProviders
         {
             if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
                 {
-                    $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                    $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure
+                    New-TerminatingError -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
                 }
         }
 
@@ -563,7 +563,7 @@ function Test-AuthenticationEnabled
     .PARAMETER Name
         Specifies the name of the Application.
    .PARAMETER Type
-        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+        Specifies the type of Authentication, limited to the set: ('Anonymous','Basic','Digest','Windows').
     #>
 
     [CmdletBinding()]

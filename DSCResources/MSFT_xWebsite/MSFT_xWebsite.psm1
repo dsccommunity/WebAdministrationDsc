@@ -124,9 +124,9 @@ function Get-TargetResource
         ApplicationPool          = $Website.ApplicationPool
         BindingInfo              = $CimBindings
         DefaultPage              = $AllDefaultPages
-        Authentication           = $CimAuthentication
         EnabledProtocols         = $Website.EnabledProtocols
-        Preload                  = $Website.applicationDefaults.preloadEnabled
+        AuthenticationInfo       = $CimAuthentication
+        PreloadEnabled           = $Website.applicationDefaults.preloadEnabled
         ServiceAutoStartProvider = $Website.applicationDefaults.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
         ApplicationType          = $WebConfiguration.Type
