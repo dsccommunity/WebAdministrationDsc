@@ -24,10 +24,14 @@ if ((Get-Service -Name 'W3SVC').Status -ne 'Running')
     Start-Service -Name 'W3SVC'
 }
 
+$tempBackupName = "$($Global:DSCResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+
+# Using try/finally to always cleanup even if something awful happens.
+
 try
 {
     # Create configuration backup
-    $tempBackupName = "$($Global:DSCResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+    
     Backup-WebConfiguration -Name $tempBackupName | Out-Null
 
     #region Integration Tests
