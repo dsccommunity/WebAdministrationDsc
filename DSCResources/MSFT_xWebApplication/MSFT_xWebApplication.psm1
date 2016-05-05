@@ -34,25 +34,25 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $Website,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $WebAppPool,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $PhysicalPath,
         
         [ValidateNotNull()]
         [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [string[]]$SslFlags = '',
+        [String[]]$SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
@@ -104,19 +104,19 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $Website,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $WebAppPool,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $PhysicalPath,
 
@@ -126,7 +126,7 @@ function Set-TargetResource
 
         [ValidateNotNull()]
         [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [string[]]$SslFlags = '',
+        [String[]]$SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
@@ -228,19 +228,19 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $Website,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $WebAppPool,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]
         $PhysicalPath,
 
@@ -250,7 +250,7 @@ function Test-TargetResource
 
         [ValidateNotNull()]
         [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [string[]]$SslFlags = '',
+        [String[]]$SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
@@ -419,12 +419,12 @@ function Get-AuthenticationInfo
 
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-    Param
+    param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Name
     )
 
@@ -463,10 +463,10 @@ function Get-SslFlags
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Location
     )
-    `
+    
     $SslFlags = Get-WebConfiguration `
                 -PSPath IIS:\Sites `
                 -Location $Location `
@@ -497,15 +497,15 @@ function Set-Authentication
     #>
 
     [CmdletBinding()]
-    Param
+    param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String]$Type,
 
@@ -534,13 +534,13 @@ function Set-AuthenticationInfo
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Name,
 
-        [parameter()]
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
     )
@@ -568,15 +568,15 @@ function Test-AuthenticationEnabled
 
     [CmdletBinding()]
     [OutputType([System.Boolean])]
-    Param
+    param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String]$Type
     )
@@ -609,13 +609,13 @@ function Test-AuthenticationInfo
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Name,
 
-        [parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
     )
@@ -654,7 +654,7 @@ function Test-SslFlags
         [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
         [String[]]$SslFlags = '',
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Location
     )
 

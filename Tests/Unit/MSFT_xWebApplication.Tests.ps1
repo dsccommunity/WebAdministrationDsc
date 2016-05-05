@@ -39,8 +39,7 @@ try
             ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
             ServiceAutoStartEnabled  = $True
             ApplicationType          = 'MockApplicationType'
-            #AuthenticationInfo       = @{Collection = @($MockAuthenticationInfo)}
-            
+           
         }
 
         $GetWebConfigurationOutput = @(

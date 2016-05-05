@@ -298,7 +298,7 @@ function Set-TargetResource
         else # Create website if it does not exist
         {
             if ([string]::IsNullOrEmpty($PhysicalPath)) {
-                throw "The PhysicalPath parameter must be provided for a website to be created"
+                throw "The PhysicalPath Parameter must be provided for a website to be created"
             }
 
             try
@@ -313,7 +313,7 @@ function Set-TargetResource
                     $NewWebsiteSplat.Add($_.Key, $_.Value)
                 }
 
-                # If there are no other websites, specify the Id parameter for the new website.
+                # If there are no other websites, specify the Id Parameter for the new website.
                 # Otherwise an error can occur on systems running Windows Server 2008 R2.
                 if (-not (Get-Website))
                 {
@@ -1029,9 +1029,9 @@ function Get-AuthenticationInfo
 
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-    Param
+    param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site
     )
 
@@ -1072,12 +1072,12 @@ function Set-Authentication
     #>
 
     [CmdletBinding()]
-    Param
+    param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String]$Type,
 
@@ -1105,10 +1105,10 @@ function Set-AuthenticationInfo
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter()]
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
     )
@@ -1125,7 +1125,7 @@ function Test-AuthenticationEnabled
     <#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
-        Will return that value which will either [string]True or [String]False
+        Will return that value which will either [String]True or [String]False
     .PARAMETER Site
         Specifies the name of the Website.
    .PARAMETER Type
@@ -1134,12 +1134,12 @@ function Test-AuthenticationEnabled
 
     [CmdletBinding()]
     [OutputType([Boolean])]
-    Param
+    param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String]$Type
     )
@@ -1169,10 +1169,10 @@ function Test-AuthenticationInfo
     [OutputType([Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String]$Site,
 
-        [parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
     )
