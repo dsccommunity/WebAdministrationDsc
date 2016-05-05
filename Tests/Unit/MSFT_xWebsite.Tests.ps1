@@ -8,10 +8,7 @@ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource
 {
     & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
-else
-{
-    & git @('-C',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'),'pull')
-}
+
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $Global:DSCModuleName `
@@ -99,7 +96,7 @@ try
 
                 Mock -CommandName Get-Website
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should return Absent' {
                     $Result.Ensure | Should Be 'Absent'
@@ -124,7 +121,7 @@ try
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                    {Get-TargetResource -Name 'MockName' -PhysicalPath 'C:\NonExistent'} |
+                    {Get-TargetResource -Name 'MockName'} |
                     Should Throw $ErrorRecord
 
                 }
@@ -138,7 +135,7 @@ try
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'} -MockWith { [PSCustomObject]@{Name = 'MockServiceAutoStartProvider'; Type = 'MockApplicationType'}}
                 Mock -CommandName Get-WebConfigurationProperty  -MockWith {return $MockAuthenticationInfo}
 
-                $Result = Get-TargetResource -Name $MockWebsite.Name -PhysicalPath $MockWebsite.PhysicalPath
+                $Result = Get-TargetResource -Name $MockWebsite.Name
 
                 It 'should call Get-Website once' {
                     Assert-MockCalled -CommandName Get-Website -Exactly 1
@@ -1329,6 +1326,39 @@ try
 
             }
 
+            Context 'Protocol is HTTPS and CertificateThumbprint contains the Left-to-Right Mark character' {
+
+                $MockThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+
+                $AsciiEncoding = [System.Text.Encoding]::ASCII
+                $UnicodeEncoding = [System.Text.Encoding]::Unicode
+
+                $AsciiBytes = $AsciiEncoding.GetBytes($MockThumbprint)
+                $UnicodeBytes = [System.Text.Encoding]::Convert($AsciiEncoding, $UnicodeEncoding, $AsciiBytes)
+                $LrmCharBytes = $UnicodeEncoding.GetBytes([Char]0x200E)
+
+                # Prepend the Left-to-Right Mark character to CertificateThumbprint
+                $MockThumbprintWithLrmChar = $UnicodeEncoding.GetString(($LrmCharBytes + $UnicodeBytes))
+
+                $MockBindingInfo = @(
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                        Protocol              = 'https'
+                        CertificateThumbprint = $MockThumbprintWithLrmChar
+                        CertificateStoreName  = 'MY'
+                    } -ClientOnly
+                )
+
+                It 'Input - CertificateThumbprint should contain the Left-to-Right Mark character' {
+                    $MockBindingInfo[0].CertificateThumbprint -match '^\u200E' | Should Be $true
+                }
+
+                It 'Output - certificateHash should not contain the Left-to-Right Mark character' {
+                    $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
+                    $Result.certificateHash -match '^\u200E' | Should Be $false
+                }
+
+            }
+
             Context 'Protocol is HTTPS and CertificateThumbprint is not specified' {
 
                 $MockBindingInfo = @(
@@ -1826,13 +1856,13 @@ try
                     } -ClientOnly
 
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
-                        Protocol              = 'https'
+                        Protocol              = 'http'
                         IPAddress             = '*'
                         Port                  = 8080
                         HostName              = 'web01.contoso.com'
-                        CertificateThumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
-                        CertificateStoreName  = 'WebHosting'
-                        SslFlags              = 1
+                        CertificateThumbprint = ''
+                        CertificateStoreName  = ''
+                        SslFlags              = 0
                     } -ClientOnly
                 )
 
@@ -1843,7 +1873,7 @@ try
 
             }
 
-            Context 'BindingInfo contains multiple items with the same Port' {
+            Context 'BindingInfo contains items that share the same Port but have different Protocols' {
 
                 $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{

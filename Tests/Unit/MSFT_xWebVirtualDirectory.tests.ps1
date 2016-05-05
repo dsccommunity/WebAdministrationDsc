@@ -2,16 +2,14 @@ $global:DSCModuleName = 'xWebAdministration'
 $global:DSCResourceName = 'MSFT_xWebVirtualDirectory'
 
 #region HEADER
-if ( (-not (Test-Path -Path '.\DSCResource.Tests\')) -or `
-     (-not (Test-Path -Path '.\DSCResource.Tests\TestHelper.psm1')) )
+[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
+ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+      (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git')
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
-else
-{
-    & git @('-C',(Join-Path -Path (Get-Location) -ChildPath '\DSCResource.Tests\'),'pull')
-}
-Import-Module .\DSCResource.Tests\TestHelper.psm1 -Force
+
+Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $Global:DSCModuleName `
     -DSCResourceName $global:DSCResourceName `
@@ -44,7 +42,7 @@ try
             }
             Context 'Directory is Present and PhysicalPath is Correct' {
                 It 'should return true' {
-                    Mock Get-WebVirtualDirectoryInternal { return $virtualDir }
+                    Mock Get-WebVirtualDirectory { return $virtualDir }
                     Test-TargetResource -Website $MockSite.Website -WebApplication $MockSite.WebApplication -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -Ensure $MockSite.Ensure | Should Be $true
                 }
             }
@@ -57,7 +55,7 @@ try
                         Count = 1
                     }
 
-                    Mock Get-WebVirtualDirectoryInternal { return $virtualDir }
+                    Mock Get-WebVirtualDirectory { return $virtualDir }
                     Test-TargetResource -Website $MockSite.Website -WebApplication $MockSite.WebApplication -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -Ensure $MockSite.Ensure | Should Be $false
                 }
             }
@@ -70,7 +68,7 @@ try
                         Count = 1
                     }
 
-                    Mock Get-WebVirtualDirectoryInternal { return $virtualDir }
+                    Mock Get-WebVirtualDirectory { return $virtualDir }
                     Test-TargetResource -Website $MockSite.Website -WebApplication $MockSite.WebApplication -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -Ensure $MockSite.Ensure | Should Be $false
                 }
             }
@@ -87,7 +85,7 @@ try
                         Ensure = 'Absent'
                     }
                     Mock Test-Dependancies { return $null }
-                    Mock Get-WebVirtualDirectoryInternal { return $null }
+                    Mock Get-WebVirtualDirectory { return $null }
                     $result = Get-TargetResource -Website $returnSite.Website -WebApplication $returnSite.WebApplication -Name $returnSite.Name -PhysicalPath $returnSite.PhysicalPath
 
                     $result.Name | Should Be $returnSite.Name
@@ -113,7 +111,7 @@ try
                 }
 
                 Mock Test-Dependancies { return $null }
-                Mock Get-WebVirtualDirectoryInternal { return $returnObj }
+                Mock Get-WebVirtualDirectory { return $returnObj }
                 $result = Get-TargetResource -Website $returnSite.Website -WebApplication $returnSite.WebApplication -Name $returnSite.Name -PhysicalPath $returnSite.PhysicalPath
 
                 $result.Name | Should Be $returnSite.Name
@@ -152,7 +150,7 @@ try
                     }
 
                     Mock Test-Dependancies { return $null }
-                    Mock Get-WebVirtualDirectoryInternal { return $mockSite }
+                    Mock Get-WebVirtualDirectory { return $mockSite }
                     Mock Set-ItemProperty { return $null }
                     $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Present'
                     Assert-MockCalled Set-ItemProperty -Exactly 1
@@ -173,69 +171,6 @@ try
                     Mock Remove-WebVirtualDirectory { return $null }
                     $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Absent'
                     Assert-MockCalled Remove-WebVirtualDirectory -Exactly 1
-                }
-            }
-        }
-
-        Describe "$global:DSCResourceName\Get-WebVirtualDirectoryInternal" {
-            $MockSite = @{
-                Website        = 'contoso.com'
-                WebApplication = 'contosoapp'
-                Name           = 'shared_directory'
-                PhysicalPath   = 'C:\inetpub\wwwroot\shared'
-                Ensure         = 'Present'
-            }
-
-            Context 'Test-ApplicationExists returns false' {
-                Mock Test-ApplicationExists { return $false }
-                Mock Get-WebVirtualDirectory { return $Name }
-                It 'return the correct string' {
-                    Get-WebVirtualDirectoryInternal -Name $MockSite.Name -Site $MockSite.Website -Application $MockSite.WebApplication | should be "$($MockSite.WebApplication)/$($MockSite.Name)"
-                }
-            }
-
-            Context 'Test-ApplicationExists returns true' {
-                $returnObj = @{
-                    'Name' = $MockSite.Name
-                    'Physical Path' = $MockSite.PhysicalPath
-                }
-                Mock Test-ApplicationExists { return $false }
-                Mock Get-WebVirtualDirectory { return $returnObj }
-
-                It 'return the correct string' {
-                    Get-WebVirtualDirectoryInternal -Name $MockSite.Name -Site $MockSite.Website -Application $MockSite.WebApplication | should be $returnObj
-                }
-            }
-        }
-
-        Describe "$global:DSCResourceName\Test-ApplicationExists" {
-            $MockSite = @{
-                Website        = 'contoso.com'
-                WebApplication = 'contosoapp'
-                Name           = 'shared_directory'
-                PhysicalPath   = 'C:\inetpub\wwwroot\shared'
-                Ensure         = 'Present'
-            }
-
-            Context 'Get-WebApplication returns a value' {
-                It 'should return true' {
-                    Mock Get-WebApplication { return @{Count = 1} }
-                    Test-ApplicationExists -Site $MockSite.Website -Application $MockSite.WebApplication | should be $true
-                }
-            }
-
-            Context 'Get-WebApplication returns no value' {
-                It 'should return false' {
-                    Mock Get-WebApplication { return @{Count = 0} }
-                    Test-ApplicationExists -Site $MockSite.Website -Application $MockSite.WebApplication | should be $false
-                }
-            }
-        }
-
-        Describe "$global:DSCResourceName\Get-CompositeName" {
-            Context 'data is passed in' {
-                It 'should return the correct string' {
-                    Get-CompositeName -Name 'Name' -Application 'Application' | should be 'Application/Name'
                 }
             }
         }

@@ -58,7 +58,7 @@ VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignor
 VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
 VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
 VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
-VerboseTestBindingInfoSamePort = BindingInfo contains multiple items with the same Port.
+VerboseTestBindingInfoSamePortDifferentProtocol = BindingInfo contains items that share the same Port but have different Protocols.
 VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
 VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
 VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
@@ -79,12 +79,7 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $PhysicalPath
+        $Name
     )
 
     Assert-Module
@@ -152,7 +147,6 @@ function Set-TargetResource
         [String]
         $Name,
 
-        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
         $PhysicalPath,
@@ -199,7 +193,7 @@ function Set-TargetResource
         if ($Website -ne $null)
         {
             # Update Physical Path if required
-            if ($Website.PhysicalPath -ne $PhysicalPath)
+            if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name physicalPath -Value $PhysicalPath -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedPhysicalPath -f $Name, $PhysicalPath)
@@ -303,6 +297,10 @@ function Set-TargetResource
         }
         else # Create website if it does not exist
         {
+            if ([string]::IsNullOrEmpty($PhysicalPath)) {
+                throw "The PhysicalPath parameter must be provided for a website to be created"
+            }
+
             try
             {
                 $PSBoundParameters.GetEnumerator() |
@@ -441,8 +439,6 @@ function Test-TargetResource
         [String]
         $Name,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
         [String]
         $PhysicalPath,
 
@@ -496,7 +492,7 @@ function Test-TargetResource
     if ($Ensure -eq 'Present' -and $Website -ne $null)
     {
         # Check Physical Path property
-        if ($Website.PhysicalPath -ne $PhysicalPath)
+        if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)
@@ -922,7 +918,10 @@ function ConvertTo-WebBinding
                         $CertificateStoreName = $Binding.CertificateStoreName
                     }
 
-                    $OutputObject.Add('certificateHash',      [String]$Binding.CertificateThumbprint)
+                    # Remove the Left-to-Right Mark character
+                    $CertificateHash = $Binding.CertificateThumbprint -replace '^\u200E'
+
+                    $OutputObject.Add('certificateHash',      [String]$CertificateHash)
                     $OutputObject.Add('certificateStoreName', [String]$CertificateStoreName)
 
                     if ([Environment]::OSVersion.Version -ge '6.2')
@@ -1227,11 +1226,15 @@ function Test-BindingInfo
                 Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
             }
 
-            # A single port can only be used by a single binding, regardless of the protocol used
-            if (($StandardBindings | Group-Object -Property Port) | Where-Object -FilterScript {$_.Count -ne 1})
+            # A single port cannot be simultaneously specified for bindings with different protocols
+            foreach ($GroupByPort in ($StandardBindings | Group-Object -Property Port))
             {
-                $IsValid = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSamePort)
+                if (($GroupByPort.Group | Group-Object -Property Protocol).Length -ne 1)
+                {
+                    $IsValid = $false
+                    Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSamePortDifferentProtocol)
+                    break
+                }
             }
         }
 
