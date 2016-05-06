@@ -298,7 +298,7 @@ function Set-TargetResource
         else # Create website if it does not exist
         {
             if ([string]::IsNullOrEmpty($PhysicalPath)) {
-                throw "The PhysicalPath Parameter must be provided for a website to be created"
+                throw "The PhysicalPath parameter must be provided for a website to be created"
             }
 
             try
@@ -313,7 +313,7 @@ function Set-TargetResource
                     $NewWebsiteSplat.Add($_.Key, $_.Value)
                 }
 
-                # If there are no other websites, specify the Id Parameter for the new website.
+                # If there are no other websites, specify the Id parameter for the new website.
                 # Otherwise an error can occur on systems running Windows Server 2008 R2.
                 if (-not (Get-Website))
                 {
@@ -548,7 +548,7 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('SSlFlags') -and (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)) 
+        if ($PSBoundParameters.ContainsKey('SslFlags') -and (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)) 
         { 
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
             return $false
@@ -1053,7 +1053,7 @@ function Get-DefaultAuthenticationInfo
         Helper function used to build a default CimInstance for AuthenticationInformation
     #>
 
-    New-CimInstance -ClassName SEEK_cWebAuthenticationInformation `
+    New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
         -ClientOnly `
         -Property @{Anonymous='false';Basic='false';Digest='false';Windows='false'}
 }
