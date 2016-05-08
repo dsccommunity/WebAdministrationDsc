@@ -73,7 +73,7 @@ function Get-TargetResource
     Assert-Module
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
-    $CimAuthentication = Get-AuthenticationInfo -Site $Name -Name $Name
+    $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
     $SslFlags = (Get-SslFlags -Location "${Website}/${Name}")
 
     $Ensure = 'Absent'
@@ -97,6 +97,7 @@ function Get-TargetResource
     }
 
     return $returnValue
+
 }
 
 function Set-TargetResource
@@ -183,10 +184,10 @@ function Set-TargetResource
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-            if ($PSBoundParameters.ContainsKey('SslFlags') -and (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo))
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo -f $Name)
-                Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
+                Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop -Verbose
             }
 
             # Update Preload if required
@@ -220,6 +221,7 @@ function Set-TargetResource
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetAbsent -f $Name)
         Remove-WebApplication -Site $Website -Name $Name
     }
+
 }
 
 function Test-TargetResource
@@ -314,7 +316,7 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo) 
+        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)))
         { 
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
             return $false
@@ -342,10 +344,13 @@ function Test-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProviders -f $Name)
                 return $false     
             }
+        
         }
+    
     }
-
+    
     return $true
+    
 }
 
 function Confirm-UniqueServiceAutoStartProviders
@@ -437,6 +442,7 @@ function Get-AuthenticationInfo
     return New-CimInstance `
             -ClassName MSFT_xWebApplicationAuthenticationInformation `
             -ClientOnly -Property $authenticationProperties
+            
 }
 
 function Get-DefaultAuthenticationInfo
@@ -448,7 +454,7 @@ function Get-DefaultAuthenticationInfo
 
     New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
         -ClientOnly `
-        -Property @{Anonymous='false';Basic='false';Digest='false';Windows='false'}
+        -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
 }
 
 function Get-SslFlags
@@ -479,6 +485,7 @@ function Get-SslFlags
         } 
 
     return $SslFlags
+    
 }
 
 function Set-Authentication
@@ -515,7 +522,8 @@ function Set-Authentication
     Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/${Type}Authentication `
         -Name enabled `
         -Value $Enabled `
-        -Location "${Site}/${Name}"
+        -Location "${Site}/${Name}" 
+
 }
 
 function Set-AuthenticationInfo
@@ -588,6 +596,7 @@ function Test-AuthenticationEnabled
             -Location "${Site}/${Name}"
     
     return $prop.Value
+    
 }
 
 function Test-AuthenticationInfo
@@ -632,6 +641,7 @@ function Test-AuthenticationInfo
     }
 
     return $true
+    
 }
 
 function Test-SslFlags
@@ -665,9 +675,9 @@ function Test-SslFlags
         {
             return $false
         }
-
+        
     return $true
-
+    
 }
 
 Export-ModuleMember -Function *-TargetResource

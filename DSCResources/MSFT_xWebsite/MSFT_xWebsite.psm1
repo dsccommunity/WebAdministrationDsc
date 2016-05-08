@@ -268,7 +268,7 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState -f $Name, $State)
             }
 
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo'))
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -AuthenticationInfo $AuthenticationInfo)))
             {
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
             }
@@ -298,7 +298,7 @@ function Set-TargetResource
         else # Create website if it does not exist
         {
             if ([string]::IsNullOrEmpty($PhysicalPath)) {
-                throw "The PhysicalPath Parameter must be provided for a website to be created"
+                throw 'The PhysicalPath Parameter must be provided for a website to be created'
             }
 
             try
@@ -377,7 +377,8 @@ function Set-TargetResource
                 }
             }
 
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo'))
+            # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -AuthenticationInfo $AuthenticationInfo)))
             {
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
             }
@@ -548,10 +549,10 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('SSlFlags') -and (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)) 
+        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -AuthenticationInfo $AuthenticationInfo)))
         { 
+            $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
-            return $false
         } 
         
         #Check Preload
@@ -1053,9 +1054,9 @@ function Get-DefaultAuthenticationInfo
         Helper function used to build a default CimInstance for AuthenticationInformation
     #>
 
-    New-CimInstance -ClassName SEEK_cWebAuthenticationInformation `
+    New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
         -ClientOnly `
-        -Property @{Anonymous='false';Basic='false';Digest='false';Windows='false'}
+        -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
 }
 
 function Set-Authentication

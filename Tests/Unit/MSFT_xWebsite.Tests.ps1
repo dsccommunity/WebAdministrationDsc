@@ -73,7 +73,7 @@ try
             )
 
             $MockAuthenticationInfo = @(
-                New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
+                New-CimInstance -ClassName MSFT_xWebAuthenticationInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
                     Anonymous = 'true'
                     Basic     = 'false'
                     Digest    = 'false'
@@ -371,6 +371,38 @@ try
                 }
 
             }
+
+            Context 'Check AuthenticationInfo is different' { 
+            
+            Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+            
+                $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
+                                            -ClientOnly `
+                                            -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
+            
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                                              -Name $MockParameters.Name `
+                                              -PhysicalPath $MockParameters.PhysicalPath `
+                                              -AuthenticationInfo $MockAuthenticationInfo `
+                                              -Verbose:$VerbosePreference
+                
+                It 'should return False' {
+                    $Result | Should Be $false
+                }
+
+            }
             
             Context 'Check Preload is different' {
 
@@ -424,6 +456,10 @@ try
         }
 
         Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
+
+            $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                            -ClientOnly `
+                            -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation -Namespace root/microsoft/Windows/DesiredStateConfiguration -Property @{
@@ -483,27 +519,44 @@ try
 
             Context 'All properties need to be updated and website must be started' {
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
-                Mock -CommandName Set-ItemProperty
                 Mock -CommandName Add-WebConfiguration
-                Mock -CommandName Test-WebsiteBinding -MockWith {return $false}
-                Mock -CommandName Update-WebsiteBinding
-                Mock -CommandName Update-DefaultPage
                 Mock -CommandName Confirm-UniqueBinding -MockWith {return $true}
                 Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $false}
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Test-WebsiteBinding -MockWith {return $false}
                 Mock -CommandName Start-Website
+                Mock -CommandName Set-ItemProperty
+                Mock -CommandName Set-WebConfiguration
+                Mock -CommandName Set-Authentication
+                Mock -CommandName Update-WebsiteBinding
+                Mock -CommandName Update-DefaultPage
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
 
-                $Result = Set-TargetResource @MockParameters
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+                $Result = Set-TargetResource @MockParameters -AuthenticationInfo $MockAuthenticationInfo
 
                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 5
+
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                    Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
-                    Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                    Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
                     Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
+                    Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
+                    Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
+                    Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
+                    Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1      
+                    Assert-MockCalled -CommandName Set-Authentication -Exactly 4
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 5
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
+
                 }
 
             }

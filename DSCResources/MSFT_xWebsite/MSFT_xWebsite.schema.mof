@@ -14,10 +14,10 @@ class MSFT_xWebBindingInformation
 [ClassVersion("1.0.0")]
 class MSFT_xWebAuthenticationInformation
 {
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Anonymous;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Basic;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Digest;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Windows;
+    [Write]Boolean Anonymous;
+    [Write]Boolean Basic;
+    [Write]Boolean Digest;
+    [Write]Boolean Windows;
 };
 
 [ClassVersion("2.0.0"), FriendlyName("xWebsite")]

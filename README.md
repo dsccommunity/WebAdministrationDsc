@@ -139,10 +139,10 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInformation**: Website's authentication information in the form of an array of embedded instances of the **MSFT_xWebAuthenticationInformation** CIM class. **MSFT_xWebAuthenticationInformation** take the following properties:
-    * **Anonymous**: The acceptable values for this property are: `true`, `false`
-    * **Basic**: The acceptable values for this property are: `true`, `false`
-    * **Digest**: The acceptable values for this property are: `true`, `false`
-    * **Windows**: The acceptable values for this property are: `true`, `false`
+    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+    * **Basic**: The acceptable values for this property are: `$true`, `$false`
+    * **Digest**: The acceptable values for this property are: `$true`, `$false`
+    * **Windows**: The acceptable values for this property are: `$true`, `$false`
 
 ### xWebApplication
 
@@ -156,10 +156,10 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
-    * **Anonymous**: The acceptable values for this property are: `true`, `false`
-    * **Basic**: The acceptable values for this property are: `true`, `false`
-    * **Digest**: The acceptable values for this property are: `true`, `false`
-    * **Windows**: The acceptable values for this property are: `true`, `false`
+    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+    * **Basic**: The acceptable values for this property are: `$true`, `$false`
+    * **Digest**: The acceptable values for this property are: `$true`, `$false`
+    * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `Ssl`, `SslNegotiateCert`, `SslRequireCert`
 
 ### xWebVirtualDirectory
@@ -194,9 +194,9 @@ Currently, only FastCgiModule is supported.
         **orphanWorkerProcess**, **rapidFailProtection**, **disallowOverlappingRotation**, **disallowRotationOnConfigChange**.
     * Unit and integration tests updated.
 * **xWebsite** updated to remove invisible Unicode "LEFT-TO-RIGHT MARK" character from the **CertificateThumbprint** property value.
-* Added preload and ServiceAutoStart functionality to xWebsite and xWebApplication
-* Added SslFlags and AuthenticationInformation to xWebApplication
-* Added AuthenticationInformation to xWebsite
+* Added Preload and ServiceAutoStart functionality to xWebsite and xWebApplication
+* Added AuthenticationInformation to xWebsite and xWebApplication
+* Added SslFlags to xWebApplication
 
 ### 1.10.0.0
 

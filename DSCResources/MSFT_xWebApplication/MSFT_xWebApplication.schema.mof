@@ -1,10 +1,10 @@
 [ClassVersion("1.0.0")]
 class MSFT_xWebApplicationAuthenticationInformation
 {
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Anonymous;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Basic;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Digest;
-    [write,ValueMap{"true", "false"},Values{"true", "false"}]String Windows;
+    [Write]Boolean Anonymous;
+    [Write]Boolean Basic;
+    [Write]Boolean Digest;
+    [Write]Boolean Windows;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("xWebApplication")]
