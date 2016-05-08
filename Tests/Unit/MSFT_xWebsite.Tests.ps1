@@ -55,7 +55,7 @@ try
 
             $MockPreloadAndAutostartProviders = @(
                 @{
-                    Preload                  = 'True'
+                    preloadEnabled           = 'True'
                     ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
                     ServiceAutoStartEnabled  = 'True' 
                 }
@@ -88,7 +88,7 @@ try
                 ApplicationPool      = 'MockPool'
                 Bindings             = @{Collection = @($MockWebBinding)}
                 EnabledProtocols     = 'http'
-                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
+                ApplicationDefaults  = $MockPreloadAndAutostartProviders
                 Count                = 1         
             }
 
@@ -132,8 +132,19 @@ try
 
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '//defaultDocument/files/*'} -MockWith {return @{value = 'index.html'}}
-                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'} -MockWith { [PSCustomObject]@{Name = 'MockServiceAutoStartProvider'; Type = 'MockApplicationType'}}
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'} -MockWith { return $MockWebConfiguration}
                 Mock -CommandName Get-WebConfigurationProperty  -MockWith {return $MockAuthenticationInfo}
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
 
                 $Result = Get-TargetResource -Name $MockWebsite.Name
 
@@ -183,21 +194,28 @@ try
                 It 'should return EnabledProtocols' {
                     $Result.EnabledProtocols | Should Be $MockWebsite.EnabledProtocols
                 }
-                
+
+                It 'should return AuthenticationInfo' {
+                    $Result.AuthenticationInfo.CimInstanceProperties['Anonymous'].Value | Should Be 'true'
+                    $Result.AuthenticationInfo.CimInstanceProperties['Basic'].Value | Should Be 'false'
+                    $Result.AuthenticationInfo.CimInstanceProperties['Digest'].Value | Should Be 'false'
+                    $Result.AuthenticationInfo.CimInstanceProperties['Windows'].Value | Should Be 'true'
+                }
+   
                 It 'should return Preload' {
-                    $Result.ApplicationDefaults.Preload | Should Be $MockPreloadAndAutostartProvider.Preload
+                    $Result.PreloadEnabled | Should Be $MockWebsite.ApplicationDefaults.PreloadEnabled
                 }
                                 
                 It 'should return ServiceAutoStartProvider' {
-                    $Result.ApplicationDefaults.ServiceAutoStartProvider | Should Be $MockPreloadAndAutostartProvider.ServiceAutoStartProvider
+                    $Result.ServiceAutoStartProvider | Should Be $MockWebsite.ApplicationDefaults.ServiceAutoStartProvider
                 }
                     
                 It 'should return ServiceAutoStartEnabled' {
-                    $Result.ApplicationDefaults.ServiceAutoStartEnabled | Should Be $MockPreloadAndAutostartProvider.ServiceAutoStartEnabled
+                    $Result.ServiceAutoStartEnabled | Should Be $MockWebsite.ApplicationDefaults.ServiceAutoStartEnabled
                 }
 
                 It 'should return ApplicationType' {
-                    $Result.ApplicationDefaults.ApplicationType | Should Be $MockPreloadAndAutostartProvider.ApplicationType
+                    $Result.ApplicationType | Should Be $MockPreloadAndAutostartProvider.ApplicationType
                 }
 
             }
@@ -486,6 +504,7 @@ try
                 ServiceAutoStartProvider = 'MockAutoStartProvider'
                 ServiceAutoStartEnabled  = $True
                 ApplicationType          = 'MockApplicationType'
+                AuthenticationInfo       = $MockAuthenticationInfo
             }
 
             $MockWebBinding = @(
@@ -542,7 +561,7 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                $Result = Set-TargetResource @MockParameters -AuthenticationInfo $MockAuthenticationInfo
+                $Result = Set-TargetResource @MockParameters
 
                 It 'should call all the mocks' {
 
@@ -629,7 +648,20 @@ try
                 Mock -CommandName Test-WebsiteBinding -MockWith {return $false}
                 Mock -CommandName Update-WebsiteBinding
                 Mock -CommandName Update-DefaultPage
+                Mock -CommandName Set-Authentication
                 Mock -CommandName Stop-Website
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
 
                 $Result = Set-TargetResource @MockParameters
 
@@ -639,6 +671,7 @@ try
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
+                    Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Stop-Website -Exactly 1
                 }
 
@@ -669,7 +702,20 @@ try
                 Mock -CommandName Update-DefaultPage
                 Mock -CommandName Confirm-UniqueBinding -MockWith {return $true}
                 Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $false}
+                Mock -CommandName Set-Authentication
                 Mock -CommandName Start-Website
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
 
                 $Result = Set-TargetResource @MockParameters
 
@@ -683,6 +729,7 @@ try
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
+                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                      Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
 
