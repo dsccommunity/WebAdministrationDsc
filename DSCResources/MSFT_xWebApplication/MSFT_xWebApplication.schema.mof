@@ -1,10 +1,10 @@
 [ClassVersion("1.0.0")]
 class MSFT_xWebApplicationAuthenticationInformation
 {
-    [Write]Boolean Anonymous;
-    [Write]Boolean Basic;
-    [Write]Boolean Digest;
-    [Write]Boolean Windows;
+    [Write] Boolean Anonymous;
+    [Write] Boolean Basic;
+    [Write] Boolean Digest;
+    [Write] Boolean Windows;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("xWebApplication")]
