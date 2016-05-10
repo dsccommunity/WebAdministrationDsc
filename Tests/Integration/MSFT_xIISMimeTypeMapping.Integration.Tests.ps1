@@ -16,6 +16,8 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
+[string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+
 # Using try/finally to always cleanup even if something awful happens.
 try
 {
@@ -23,7 +25,6 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    [string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
     $null = Backup-WebConfiguration -Name $tempName
 
     Describe "$($Global:DSCResourceName)_Integration" {
