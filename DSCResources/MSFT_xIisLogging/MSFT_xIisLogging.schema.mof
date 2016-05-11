@@ -1,0 +1,6 @@
+[ClassVersion("1.0.0"), FriendlyName("xIisLogging")] 
+class MSFT_xIisLogging : OMI_BaseResource
+{
+  [Key] string LogPath;
+  [Required,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string LogFlags;
+};
