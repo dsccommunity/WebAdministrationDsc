@@ -185,6 +185,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+### 1.11.0.0
+
 * **xWebAppPool** updates:
     * Bug fixes, error handling and input validation improvements.
     * The resource was updated to ensure a specific state only for the explicitly specified properties.
