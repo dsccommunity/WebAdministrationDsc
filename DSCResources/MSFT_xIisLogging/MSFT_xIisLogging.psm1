@@ -1,4 +1,4 @@
-﻿#requires -Version 4.0 -Modules CimCmdlets
+#requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
@@ -8,7 +8,11 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-
+VerboseSetTargetAbsent = LogPath does not match and will be updated.
+VerboseSetTargetAbsent = LogFlags do not match and will be updated.
+VerboseTestTargetFalseLogPath = LogPath does match desired state.
+VerboseTestTargetFalseLogFlags = LogFlags do not match desired state.
+ErrorWebsiteLogPath = LogPath specifed does not exist.
 '@
 }
 
@@ -18,34 +22,34 @@ function Get-TargetResource
 	[OutputType([System.Collections.Hashtable])]
 	param
 	(
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory = $true)]
 		[System.String]
 		$LogPath
 
 	)
-        Write-Verbose -Message 'Checking Current Log Path'
+
         $CurrentLogPath = (Get-WebConfigurationProperty -filter '/system.applicationHost/sites/siteDefaults' -name logfile.directory).Value
         $CurrentLogFlags = Get-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name LogExtFileFlags
-
 
         return @{
             LogPath   = $CurrentLogPath
             LogFlags  = $CurrentLogFlags
         }
-}
 
+}
 
 function Set-TargetResource
 {
 	[CmdletBinding()]
 	param
 	(
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory = $true)]
 		[System.String]
 		$LogPath,
 
-		[parameter()]
+		[Parameter()]
 		[System.String]
+        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
 		$LogFlags
 	)
     
@@ -53,16 +57,16 @@ function Set-TargetResource
 
     if ($LogPath -ne $CurrentPath.LogPath) 
         {
-            Write-Verbose -Message 'Setting Log Path'
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults' -name logfile.directory -value $LogPath
         }
     if (Compare-LogFlags -LogFlags $LogFlags)  
         {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name LogExtFileFlags -Value $LogFlags
         }
-    Write-Verbose 'Done'
-}
 
+}
 
 function Test-TargetResource
 {
@@ -70,12 +74,13 @@ function Test-TargetResource
 	[OutputType([System.Boolean])]
 	param
 	(
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory = $true)]
 		[System.String]
 		$LogPath,
 
-		[parameter()]
+		[Parameter()]
 		[System.String]
+        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
 		$LogFlags
 	)
 
@@ -83,18 +88,22 @@ function Test-TargetResource
 
         if (-not (Test-path $LogPath))
         {
-            Write-Verbose -Message 'Logfile Path does not exist'
+            $ErrorMessage = $LocalizedData.ErrorWebsiteLogPath -f $Name, $_.Exception.Message
+            New-TerminatingError -ErrorId 'LogPathFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
         }
         if ($LogPath -ne $CurrentPath.Path) 
         { 
-            Write-Verbose -Message 'LogPath Does Not Match'
-            Return $False 
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath -f $Name, $State)
+            return $False 
         }
         if (Compare-LogFlags -LogFlags $LogFlags)
         {
-            Return $False
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags -f $Name, $State)
+            return $False
         }
-        Return $true
+        
+        return $true
+
 }
 
 #region Helper Functions
@@ -104,8 +113,9 @@ Function Compare-LogFlags
 
     param
 	(
-        [parameter()]
+        [Parameter()]
         [System.String]
+        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags
     )
 
@@ -114,9 +124,10 @@ Function Compare-LogFlags
 
     if (Compare-Object -ReferenceObject $CurrentLogFlags -DifferenceObject $ProposedLogFlags)
     {
-        Return $false
+        return $false
     }
-    Return $true
+    
+    return $true
 
 }
 
