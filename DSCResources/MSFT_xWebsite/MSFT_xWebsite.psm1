@@ -22,6 +22,10 @@ ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property val
 ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
 ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
 ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
+ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
+ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
+ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
+ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
 VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
@@ -30,6 +34,12 @@ VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}"
 VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
 VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
 VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
+VerboseSetTargetWebsitePreloadEnabled = Successfully enabled Preload on website "{0}"
+VerboseSetTargetWebsitePreloadRemoved = Successfully disabled Preload on website "{0}"
+VerboseSetTargetWebsiteAutoStartEnabled = Successfully enabled AutoStart on website "{0}"
+VerboseSetTargetWebsiteAutoStartRemoved = Successfully disabled AutoStart on website "{0}"
+VerboseSetTargetWebsiteAutoStartProviderAdded = Successfully added AutoStartProvider on website "{0}"
+VerboseSetTargetWebsiteAutoStartProviderRemoved = Successfully removed AutoStartProvider on website "{0}"
 VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
 VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
 VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
@@ -39,6 +49,11 @@ VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" do 
 VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
 VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
 VerboseTestTargetFalseResult = The target resource is not in the desired state.
+VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
+VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
+VerboseTestTargetFalseAutoStartProvider = AutoStartProvider for website "{0}" does not match the desired state.
+VerboseTestTargetFalseSSLFlags = SSLFlags are not in the desired state.
+VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo is not in the desired state.
 VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
 VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
 VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
@@ -70,7 +85,7 @@ function Get-TargetResource
     Assert-Module
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-
+    
     if ($Website.Count -eq 0) # No Website exists with this name
     {
         $EnsureResult = 'Absent'
@@ -85,6 +100,9 @@ function Get-TargetResource
             Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
             ForEach-Object -Process {Write-Output -InputObject $_.value}
         )
+        $CimAuthentication = Get-AuthenticationInfo -Site $Name
+        $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+        $WebConfiguration = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select-Object Name,Type
     }
     else # Multiple websites with the same name exist. This is not supported and is an error
     {
@@ -94,24 +112,30 @@ function Get-TargetResource
 
     # Add all website properties to the hash table
     return @{
-        Ensure           = $EnsureResult
-        Name             = $Name
-        PhysicalPath     = $Website.PhysicalPath
-        State            = $Website.State
-        ApplicationPool  = $Website.ApplicationPool
-        BindingInfo      = $CimBindings
-        DefaultPage      = $AllDefaultPages
-        EnabledProtocols = $Website.EnabledProtocols
+        Ensure                   = $EnsureResult
+        Name                     = $Name
+        PhysicalPath             = $Website.PhysicalPath
+        State                    = $Website.State
+        ApplicationPool          = $Website.ApplicationPool
+        BindingInfo              = $CimBindings
+        DefaultPage              = $AllDefaultPages
+        EnabledProtocols         = $Website.EnabledProtocols
+        AuthenticationInfo       = $CimAuthentication
+        PreloadEnabled           = $Website.applicationDefaults.preloadEnabled
+        ServiceAutoStartProvider = $Website.applicationDefaults.serviceAutoStartProvider
+        ServiceAutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
+        ApplicationType          = $WebConfiguration.Type
+        
     }
 }
 
 function Set-TargetResource
-{
+{ 
     <#
     .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine.
     #>
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param
     (
         [ValidateSet('Present', 'Absent')]
@@ -142,7 +166,22 @@ function Set-TargetResource
         $DefaultPage,
 
         [String]
-        $EnabledProtocols
+        $EnabledProtocols,
+
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo,
+        
+        [Boolean]
+        $PreloadEnabled,
+        
+        [Boolean]
+        $ServiceAutoStartEnabled,
+
+        [String]
+        $ServiceAutoStartProvider,
+        
+        [String]
+        $ApplicationType
     )
 
     Assert-Module
@@ -228,11 +267,38 @@ function Set-TargetResource
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState -f $Name, $State)
             }
+
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
+            {
+                Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
+            }
+           
+            # Update Preload if required
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+            {
+               Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStartProviders if required
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider)
+            {
+                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+                {
+                    Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                }
+            }
         }
         else # Create website if it does not exist
         {
             if ([string]::IsNullOrEmpty($PhysicalPath)) {
-                throw "The PhysicalPath parameter must be provided for a website to be created"
+                throw 'The PhysicalPath Parameter must be provided for a website to be created'
             }
 
             try
@@ -247,7 +313,7 @@ function Set-TargetResource
                     $NewWebsiteSplat.Add($_.Key, $_.Value)
                 }
 
-                # If there are no other websites, specify the Id parameter for the new website.
+                # If there are no other websites, specify the Id Parameter for the new website.
                 # Otherwise an error can occur on systems running Windows Server 2008 R2.
                 if (-not (Get-Website))
                 {
@@ -310,6 +376,34 @@ function Set-TargetResource
                     New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
                 }
             }
+
+            # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
+            {
+                Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
+            }
+
+            # Update Preload if required
+            if ($PSBoundParameters.ContainsKey('preloadEnabled'))
+            {
+               Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled'))
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+            }
+            
+            # Update AutoStartProviders if required
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider'))
+            {
+                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+                {
+                    Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                }
+            }
         }
     }
     else # Remove website
@@ -364,7 +458,22 @@ function Test-TargetResource
         $DefaultPage,
 
         [String]
-        $EnabledProtocols
+        $EnabledProtocols,
+
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo,
+        
+        [Boolean]
+        $PreloadEnabled,
+        
+        [Boolean]
+        $ServiceAutoStartEnabled,
+
+        [String]
+        $ServiceAutoStartProvider,
+        
+        [String]
+        $ApplicationType
     )
 
     Assert-Module
@@ -372,7 +481,7 @@ function Test-TargetResource
     $InDesiredState = $true
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-
+    
     # Check Ensure
     if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
     {
@@ -439,6 +548,36 @@ function Test-TargetResource
             }
         }
 
+        #Check AuthenticationInfo
+        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -AuthenticationInfo $AuthenticationInfo)))
+        { 
+            $InDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
+        } 
+        
+        #Check Preload
+        if($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+        {
+            $InDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
+        } 
+              
+        #Check AutoStartEnabled
+        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and $Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+        {
+            $InDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart -f $Name)
+        }
+        
+        #Check AutoStartProviders 
+        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and $Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+        {
+            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+            {
+                $InDesiredState = $false
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProvider)     
+            }
+        }
     }
 
     if ($InDesiredState -eq $true)
@@ -531,6 +670,64 @@ function Confirm-UniqueBinding
     }
 
     return $Result
+}
+
+function Confirm-UniqueServiceAutoStartProviders
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other websites.
+        returns False if the AutoStartProviders exist.
+    .PARAMETER serviceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+    .PARAMETER ExcludeStopped
+        Specifies the name of the Application Type for the AutoStartProvider.
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
+        need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
+    #>
+    
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ServiceAutoStartProvider,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ApplicationType
+    )
+
+    $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+
+    $ExistingObject = $WebSiteAutoStartProviders | `
+        Where-Object -Property Name -eq -Value $serviceAutoStartProvider | `
+        Select-Object Name,Type
+
+    $ProposedObject = @(New-Object -TypeName PSObject -Property @{
+        name   = $ServiceAutoStartProvider
+        type   = $ApplicationType
+    })
+
+    if(-not $ExistingObject)
+        {
+            return $false
+        }
+
+    if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+        {
+            if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
+                {
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
+                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                }
+        }
+
+    return $true
+
 }
 
 function ConvertTo-CimBinding
@@ -722,7 +919,10 @@ function ConvertTo-WebBinding
                         $CertificateStoreName = $Binding.CertificateStoreName
                     }
 
-                    $OutputObject.Add('certificateHash',      [String]$Binding.CertificateThumbprint)
+                    # Remove the Left-to-Right Mark character
+                    $CertificateHash = $Binding.CertificateThumbprint -replace '^\u200E'
+
+                    $OutputObject.Add('certificateHash',      [String]$CertificateHash)
                     $OutputObject.Add('certificateStoreName', [String]$CertificateStoreName)
 
                     if ([Environment]::OSVersion.Version -ge '6.2')
@@ -817,6 +1017,181 @@ function Format-IPAddressString
     }
 
     return $OutputString
+}
+
+function Get-AuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site
+    )
+
+    $authenticationProperties = @{}
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
+    {
+        $authenticationProperties[$type] = [String](Test-AuthenticationEnabled -Site $Site -Type $type)
+    }
+
+    return New-CimInstance `
+            -ClassName MSFT_xWebApplicationAuthenticationInformation `
+            -ClientOnly -Property $authenticationProperties
+}
+
+function Get-DefaultAuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to build a default CimInstance for AuthenticationInformation
+    #>
+
+    New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
+        -ClientOnly `
+        -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
+}
+
+function Set-Authentication
+{
+    <#
+    .SYNOPSIS
+        Helper function used to set authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .PARAMETER Enabled
+        Whether the Authentication is enabled or not.
+    #>
+
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
+        [String]$Type,
+
+        [Boolean]$Enabled
+    )
+
+    Set-WebConfigurationProperty `
+        -Filter /system.WebServer/security/authentication/${Type}Authentication `
+        -Name enabled `
+        -Value $Enabled `
+        -Location $Site
+}
+
+function Set-AuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+    )
+
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
+    {
+        $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
+        Set-Authentication -Site $Site -Type $type -Enabled $enabled
+    }
+}
+
+function Test-AuthenticationEnabled
+{
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that value which will either [String]True or [String]False
+    .PARAMETER Site
+        Specifies the name of the Website.
+   .PARAMETER Type
+        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    #>
+
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Anonymous','Basic','Digest','Windows')]
+        [String]$Type
+    )
+
+
+    $prop = Get-WebConfigurationProperty `
+        -Filter /system.WebServer/security/authentication/${Type}Authentication `
+        -Name enabled `
+        -Location $Site
+    return $prop.Value
+}
+
+function Test-AuthenticationInfo
+{
+    <#
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that result which will either [boolean]$True or [boolean]$False for use in Test-TargetResource.
+        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break this function out.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+    )
+
+    $result = $true
+
+    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
+    {
+        $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
+        $actual = Test-AuthenticationEnabled -Site $Site -Type $type
+        if ($expected -ne $actual)
+        {
+            $result = $false
+            break
+        }
+    }
+
+    return $result
 }
 
 function Test-BindingInfo
@@ -1090,3 +1465,9 @@ function Update-WebsiteBinding
 }
 
 #endregion
+
+Export-ModuleMember -Function *-TargetResource
+
+
+
+
