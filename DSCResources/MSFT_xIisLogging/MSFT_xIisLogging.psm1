@@ -8,8 +8,8 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-VerboseSetTargetAbsent = LogPath does not match and will be updated.
-VerboseSetTargetAbsent = LogFlags do not match and will be updated.
+VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated.
+VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated.
 VerboseTestTargetFalseLogPath = LogPath does match desired state.
 VerboseTestTargetFalseLogFlags = LogFlags do not match desired state.
 ErrorWebsiteLogPath = LogPath specifed does not exist.
@@ -24,9 +24,15 @@ function Get-TargetResource
 	(
 		[Parameter(Mandatory = $true)]
 		[System.String]
-		$LogPath
-
+		$LogPath,
+        
+        [Parameter()]
+		[System.String[]]
+        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
+		$LogFlags
 	)
+
+    Assert-Module
 
         $CurrentLogPath = (Get-WebConfigurationProperty -filter '/system.applicationHost/sites/siteDefaults' -name logfile.directory).Value
         $CurrentLogFlags = Get-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name LogExtFileFlags
@@ -48,19 +54,23 @@ function Set-TargetResource
 		$LogPath,
 
 		[Parameter()]
-		[System.String]
+		[System.String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
 		$LogFlags
 	)
     
+    Assert-Module
+    
     $CurrentPath = Get-TargetResource -LogPath $LogPath
-
-    if ($LogPath -ne $CurrentPath.LogPath) 
+    
+    if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentPath.LogPath))
         {
+            
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults' -name logfile.directory -value $LogPath
         }
-    if (Compare-LogFlags -LogFlags $LogFlags)  
+        
+    if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -LogFlags $LogFlags))) 
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name LogExtFileFlags -Value $LogFlags
@@ -79,26 +89,30 @@ function Test-TargetResource
 		$LogPath,
 
 		[Parameter()]
-		[System.String]
+		[System.String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags
+		$LogFlags       
 	)
+    
+        Assert-Module
 
         $CurrentPath = Get-TargetResource -LogPath $LogPath
-
-        if (-not (Test-path $LogPath))
-        {
-            $ErrorMessage = $LocalizedData.ErrorWebsiteLogPath -f $Name, $_.Exception.Message
-            New-TerminatingError -ErrorId 'LogPathFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
-        }
-        if ($LogPath -ne $CurrentPath.Path) 
+        
+        if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentPath.LogPath))
         { 
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath -f $Name, $State)
+            if (-not (Test-path $LogPath))
+            {
+                $ErrorMsg = ($LocalizedData.ErrorWebsiteLogPath)
+                New-TerminatingError -ErrorId 'LogPathFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+            }
+
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath)
             return $False 
         }
-        if (Compare-LogFlags -LogFlags $LogFlags)
+        
+        if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -LogFlags $LogFlags)))  
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags -f $Name, $State)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
             return $False
         }
         
@@ -114,7 +128,7 @@ Function Compare-LogFlags
     param
 	(
         [Parameter()]
-        [System.String]
+        [System.String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags
     )
