@@ -6,25 +6,39 @@ $global:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
 $repoSource = (Get-Module -Name $global:DSCModuleName -ListAvailable)
 
-if ($repoSource.RepositorySourceLocation.Host -eq 'www.powershellgallery.com') {
-    if ( -not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DscResourceTestHelper')) ) {
-        #install test folders from gallery
-        Save-Module -Name 'DscResourceTestHelper' -Path $moduleRoot
+if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -eq 'www.powershellgallery.com'))
+{
+    if ( -not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests\DscResourceTestHelper')) )
+    {
+
+        $choice = read-host "In order to run this test you need to install a helper module, continue with installation? (Y/N)"
+
+        if ($choice -eq "y"){
+            #install test folders from gallery
+            Save-Module -Name 'DscResourceTestHelper' -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests')
+        }
+    
+        else 
+        {
+            Write-Host "Unable to run tests without the required helper module - Exiting test"
+            return
+        }
+        
     }
 
-    $testModuleVer = '0.2.0.0'
-    Import-Module (Join-Path -Path $moduleRoot -ChildPath "DscResourceTestHelper\$testModuleVer\TestHelper.psm1") -Force
+    $testModule = Get-Module -Name 'DscResourceTestHelper' -ListAvailable
+    $testModuleVer = $testModule[0].Version
+    Import-Module (Join-Path -Path $moduleRoot -ChildPath "Tests\DscResourceTestHelper\$testModuleVer\TestHelper.psm1") -Force
 } 
-elseif ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DscResource.Tests'))) -or `
-        (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DscResource.Tests\DscResourceTestHelper'))) -or `
-       (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DscResource.Tests\DscResourceTestHelper\TestHelper.psm1'))) ) {
-    #clone test folders from gitHub
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DscResource.Tests\'))
+else
+{
+    if (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1')))
+    {
+        #clone test folders from gitHub
+        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests'))
+    }
 
-    Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DscResource.Tests\DscResourceTestHelper\TestHelper.psm1') -Force
-}
-else {
-    Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DscResource.Tests\DscResourceTestHelper\TestHelper.psm1') -Force
+    Import-Module (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1') -Force
 }
 
 
