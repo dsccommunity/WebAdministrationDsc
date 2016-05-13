@@ -549,7 +549,7 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -AuthenticationInfo $AuthenticationInfo)))
+        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
         { 
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
