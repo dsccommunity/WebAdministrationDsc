@@ -35,7 +35,12 @@ else
     if (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1')))
     {
         #clone test folders from gitHub
-        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests'))
+        $dscResourceTestsPath = Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests'
+        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',$dscResourceTestsPath)
+        Push-Location
+        cd $dscResourceTestsPath
+        & git checkout gitDependency
+        Pop-Location
     }
 
     Import-Module (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1') -Force
