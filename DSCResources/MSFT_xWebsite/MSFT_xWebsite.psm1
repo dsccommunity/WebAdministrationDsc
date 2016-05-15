@@ -201,20 +201,20 @@ function Set-TargetResource
         [String]
         $ApplicationType,
 
-		[String]
-		$LogPath,
+        [String]
+        $LogPath,
 
-		[String[]]
+        [String]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags,
+        $LogFlags,
         
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-		$LogPeriod,
+        $LogPeriod,
         
-		[String]
+        [String]
         [ValidateRange('1048576','4294967295')]
-		$LogTruncateSize,
+        $LogTruncateSize,
         
         [String]
         $LoglocalTimeRollover
@@ -595,18 +595,21 @@ function Test-TargetResource
         
         [String]
         $ApplicationType,
-
-		[String[]]
+        
+        [String]
+        $LogPath,
+        
+        [String]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags,
+        $LogFlags,
         
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-		$LogPeriod,
+        $LogPeriod,
         
-		[String]
+        [String]
         [ValidateRange('1048576','4294967295')]
-		$LogTruncateSize,
+        $LogTruncateSize,
         
         [String]
         $LoglocalTimeRollover
@@ -780,7 +783,7 @@ Function Compare-LogFlags
 {
 
     param
-	(
+    (
         [Parameter(Mandatory = $true)]
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
