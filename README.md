@@ -199,6 +199,11 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+* Added xIISLogging resource
+* Added IIS Logging to xWebsite
+
+### 1.11.0.0
+
 * **xWebAppPool** updates:
     * Bug fixes, error handling and input validation improvements.
     * The resource was updated to ensure a specific state only for the explicitly specified properties.
@@ -211,7 +216,6 @@ Currently, only FastCgiModule is supported.
 * Added Preload and ServiceAutoStart functionality to xWebsite and xWebApplication
 * Added AuthenticationInformation to xWebsite and xWebApplication
 * Added SslFlags to xWebApplication
-* Added xIISLogging resource
 
 ### 1.10.0.0
 
