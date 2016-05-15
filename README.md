@@ -23,13 +23,12 @@ Currently, only FastCgiModule is supported.
 * **Ensure**: Ensures that the module is **Present** or **Absent**.
 
 ### xIISLogging
-**Note** This will set the logfile settings for *all* websites; for individual websites use the Log options under *xWebsite*
+**Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebsite**
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`
 * **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295(4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover.
-};
 
 ### xWebAppPool
 
