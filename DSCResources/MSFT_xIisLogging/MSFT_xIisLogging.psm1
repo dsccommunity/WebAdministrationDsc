@@ -25,34 +25,34 @@ ErrorWebsiteLogFormat = LogFields are not possible when LogFormat is not W3C.
 
 function Get-TargetResource
 {
-	[CmdletBinding()]
-	[OutputType([System.Collections.Hashtable])]
-	param
-	(
-		[Parameter(Mandatory = $true)]
-		[String]
-		$LogPath,
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $LogPath,
         
         [Parameter()]
-		[String[]]
+        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags,
+        $LogFlags,
         
         [Parameter()]
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-		$LogPeriod,
+        $LogPeriod,
         
         [Parameter()]
-		[String]
+        [String]
         [ValidateRange('1048576','4294967295')]
-		$LogTruncateSize,
+        $LogTruncateSize,
         
         [Parameter()]
         [String]
         $LoglocalTimeRollover
         
-	)
+    )
 
     Assert-Module
 
@@ -71,32 +71,32 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
-	[CmdletBinding()]
-	param
-	(
-		[Parameter(Mandatory = $true)]
-		[String]
-		$LogPath,
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $LogPath,
 
-		[Parameter()]
-		[String[]]
+        [Parameter()]
+        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags,
+        $LogFlags,
         
         [Parameter()]
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-		$LogPeriod,
+        $LogPeriod,
         
         [Parameter()]
-		[String]
+        [String]
         [ValidateRange('1048576','4294967295')]
-		$LogTruncateSize,
+        $LogTruncateSize,
         
         [Parameter()]
         [String]
         $LoglocalTimeRollover
-	)
+    )
     
         Assert-Module
     
@@ -143,33 +143,33 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
-	[CmdletBinding()]
-	[OutputType([System.Boolean])]
-	param
-	(
-		[Parameter(Mandatory = $true)]
-		[String]
-		$LogPath,
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $LogPath,
 
-		[Parameter()]
-		[String[]]
+        [Parameter()]
+        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags,
+        $LogFlags,
         
         [Parameter()]
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-		$LogPeriod,
+        $LogPeriod,
         
         [Parameter()]
-		[String]
+        [String]
         [ValidateRange('1048576','4294967295')]
-		$LogTruncateSize,
+        $LogTruncateSize,
         
         [Parameter()]
         [String]
         $LoglocalTimeRollover
-	)
+    )
     
         Assert-Module
 
@@ -226,7 +226,7 @@ Function Compare-LogFlags
 {
 
     param
-	(
+    (
         [Parameter()]
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
