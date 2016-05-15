@@ -204,7 +204,7 @@ function Set-TargetResource
         [String]
         $LogPath,
 
-        [String]
+        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
         
@@ -599,7 +599,7 @@ function Test-TargetResource
         [String]
         $LogPath,
         
-        [String]
+        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
         
