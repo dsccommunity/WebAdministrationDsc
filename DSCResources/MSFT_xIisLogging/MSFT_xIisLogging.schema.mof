@@ -1,4 +1,4 @@
-﻿[ClassVersion("1.0.0"), FriendlyName("xIisLogging")] 
+[ClassVersion("1.0.0"), FriendlyName("xIisLogging")] 
 class MSFT_xIisLogging : OMI_BaseResource
 {
     [Key, Description ("The directory to be used for logfiles")] string LogPath;

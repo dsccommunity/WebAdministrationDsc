@@ -139,7 +139,6 @@ function Get-TargetResource
         ApplicationType          = $WebConfiguration.Type
         LogPath                  = $Website.logfile.directory
         LogFlags                 = $Website.logfile.LogExtFileFlags
-        LogFormat                = $Website.logfile.logFormat
         LogPeriod                = $Website.logfile.period
         LogtruncateSize          = $Website.logfile.truncateSize
         LoglocalTimeRollover     = $Website.logfile.localTimeRollover
