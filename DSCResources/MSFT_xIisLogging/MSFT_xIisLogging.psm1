@@ -10,9 +10,16 @@ data LocalizedData
     ConvertFrom-StringData -StringData @'
 VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated.
 VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated.
+VerboseSetTargetUpdateLogPeriod = LogPeriod does not match and will be updated.
+VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated.
+VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated.
 VerboseTestTargetFalseLogPath = LogPath does match desired state.
-VerboseTestTargetFalseLogFlags = LogFlags do not match desired state.
-ErrorWebsiteLogPath = LogPath specifed does not exist.
+VerboseTestTargetFalseLogFlags = LogFlags does not match desired state.
+VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state.
+VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state.
+VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
+WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state.
+ErrorWebsiteLogFormat = LogFields are not possible when LogFormat is not W3C.
 '@
 }
 
@@ -23,23 +30,41 @@ function Get-TargetResource
 	param
 	(
 		[Parameter(Mandatory = $true)]
-		[System.String]
+		[String]
 		$LogPath,
         
         [Parameter()]
-		[System.String[]]
+		[String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags
+		$LogFlags,
+        
+        [Parameter()]
+        [String]
+        [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
+		$LogPeriod,
+        
+        [Parameter()]
+		[String]
+        [ValidateRange('1048576','4294967295')]
+		$LogTruncateSize,
+        
+        [Parameter()]
+        [String]
+        $LoglocalTimeRollover
+        
 	)
 
     Assert-Module
 
-        $CurrentLogPath = (Get-WebConfigurationProperty -filter '/system.applicationHost/sites/siteDefaults' -name logfile.directory).Value
-        $CurrentLogFlags = Get-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name LogExtFileFlags
+        $CurrentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
 
         return @{
-            LogPath   = $CurrentLogPath
-            LogFlags  = $CurrentLogFlags
+            LogPath              = $CurrentLogSettings.directory
+            LogFlags             = $CurrentLogSettings.LogExtFileFlags
+            LogFormat            = $CurrentLogSettings.logFormat
+            LogPeriod            = $CurrentLogSettings.period
+            LogtruncateSize      = $CurrentLogSettings.truncateSize
+            LoglocalTimeRollover = $CurrentLogSettings.localTimeRollover
         }
 
 }
@@ -50,31 +75,69 @@ function Set-TargetResource
 	param
 	(
 		[Parameter(Mandatory = $true)]
-		[System.String]
+		[String]
 		$LogPath,
 
 		[Parameter()]
-		[System.String[]]
+		[String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags
+		$LogFlags,
+        
+        [Parameter()]
+        [String]
+        [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
+		$LogPeriod,
+        
+        [Parameter()]
+		[String]
+        [ValidateRange('1048576','4294967295')]
+		$LogTruncateSize,
+        
+        [Parameter()]
+        [String]
+        $LoglocalTimeRollover
 	)
     
-    Assert-Module
+        Assert-Module
     
-    $CurrentPath = Get-TargetResource -LogPath $LogPath
+        $CurrentLogState = Get-TargetResource -LogPath $LogPath
     
-    if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentPath.LogPath))
+        if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentLogState.LogPath))
         {
             
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath)
-            Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults' -name logfile.directory -value $LogPath
+            Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' -name directory -value $LogPath
         }
         
-    if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -LogFlags $LogFlags))) 
+        if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -LogFlags $LogFlags))) 
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name LogExtFileFlags -Value $LogFlags
         }
+        
+        if ($PSBoundParameters.ContainsKey('LogPeriod') -and ($LogPeriod -ne $CurrentLogState.LogPeriod))
+        {
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
+                {
+                    Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
+                }
+              
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
+            Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name period -Value $LogPeriod
+        }
+        
+        if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and ($LogTruncateSize -ne $CurrentLogState.LogTruncateSize))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize)
+            Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name truncateSize -Value $LogTruncateSize
+            Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name period -Value 'MaxSize'
+        }
+
+        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $CurrentLogState.LoglocalTimeRollover))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
+            Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name localTimeRollover -Value $LoglocalTimeRollover
+        }    
 
 }
 
@@ -85,35 +148,72 @@ function Test-TargetResource
 	param
 	(
 		[Parameter(Mandatory = $true)]
-		[System.String]
+		[String]
 		$LogPath,
 
 		[Parameter()]
-		[System.String[]]
+		[String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-		$LogFlags       
+		$LogFlags,
+        
+        [Parameter()]
+        [String]
+        [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
+		$LogPeriod,
+        
+        [Parameter()]
+		[String]
+        [ValidateRange('1048576','4294967295')]
+		$LogTruncateSize,
+        
+        [Parameter()]
+        [String]
+        $LoglocalTimeRollover
 	)
     
         Assert-Module
 
-        $CurrentPath = Get-TargetResource -LogPath $LogPath
-        
-        if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentPath.LogPath))
+        $CurrentLogState = Get-TargetResource -LogPath $LogPath
+               
+        if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentLogState.LogPath))
         { 
-            if (-not (Test-path $LogPath))
-            {
-                $ErrorMsg = ($LocalizedData.ErrorWebsiteLogPath)
-                New-TerminatingError -ErrorId 'LogPathFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
-            }
-
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath)
-            return $False 
+            return $false 
         }
         
         if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -LogFlags $LogFlags)))  
         {
+            if ($CurrentLogState.logFormat -ne 'W3C')
+            {
+                    $ErrorMessage = ($LocalizedData.ErrorWebsiteLogFormat)
+                    New-TerminatingError -ErrorId 'LogFormatFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+            }
+            
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
-            return $False
+            return $false
+        }
+        
+        if ($PSBoundParameters.ContainsKey('LogPeriod') -and ($LogPeriod -ne $CurrentLogState.LogPeriod))
+        {
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
+            {
+                Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
+            }
+               
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPeriod)
+            return $false   
+        }
+        
+        if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and ($LogTruncateSize -ne $CurrentLogState.LogTruncateSize))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize)
+            return $false
+        }
+        
+        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $CurrentLogState.LoglocalTimeRollover))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover)
+            return $false
         }
         
         return $true
@@ -128,7 +228,7 @@ Function Compare-LogFlags
     param
 	(
         [Parameter()]
-        [System.String[]]
+        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags
     )

@@ -25,14 +25,22 @@ try
         
         $MockLogParameters =
             @{
-                LogPath  = 'C:\MockLogLocation'
-                LogFlags = @('Date','Time','ClientIP','UserName','ServerIP')
+                LogPath              = 'C:\MockLogLocation'
+                LogFlags             = 'Date','Time','ClientIP','UserName','ServerIP'
+                LogPeriod            = 'Hourly'
+                LogTruncateSize      = '2097152'
+                LoglocalTimeRollover = 'True'
+
             }
                 
         $MockLogOutput = 
             @{
-                LogPath  = @([PSCustomObject]@{Value = '%SystemDrive%\inetpub\logs\LogFiles'})
-                LogFlags = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','TimeTaken','HttpStatus','Win32Status','ServerPort','UserAgent','HttpSubStatus','Referer'
+                directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                logFormat         = 'W3C'
+                period            = 'Daily'     
+                truncateSize      = '1048576'
+                localTimeRollover = 'False'
             }
         
 
@@ -56,22 +64,33 @@ try
         Describe "$global:DSCResourceName\Get-TargetResource" {
             Context 'Correct hashtable is returned' {
                 
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
-                
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput} 
                     
-                $result = Get-TargetResource -LogPath $MockLogOutput.LogPath.Value
-                
-                It 'should return correct LogPath' {
-                    $Result.LogPath | Should Be $MockLogOutput.LogPath.Value
+                $result = Get-TargetResource -LogPath $MockLogParameters.LogPath
+               
+                It 'should call Get-WebConfiguration once' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
                 }
                 
-                It 'should return correct LogFlags' {
-                    $Result.LogFlags | Should Be $MockLogOutput.LogFlags
+                It 'should return LogPath' {
+                    $Result.LogPath | Should Be $MockLogOutput.directory
+                }
+                
+                It 'should return LogFlags' {
+                    $Result.LogFlags | Should Be $MockLogOutput.logExtFileFlags
+                }
+
+                It 'should return LogPeriod' {
+                    $Result.LogPeriod | Should Be $MockLogOutput.period
+                }
+
+                It 'should return LogTruncateSize' {
+                    $Result.LogTruncateSize | Should Be $MockLogOutput.truncateSize
+                }
+
+                It 'should return LoglocalTimeRollover' {
+                    $Result.LoglocalTimeRollover | Should Be $MockLogOutput.localTimeRollover
                 }
                 
             }
@@ -83,20 +102,22 @@ try
 
                 $MockLogOutput = 
                     @{
-                        LogPath  = @([PSCustomObject]@{Value = 'C:\MockLogLocation'})
-                        LogFlags = 'Date','Time','ClientIP','UserName','ServerIP'
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     }
                 
 
                 Mock -CommandName Test-Path -MockWith {Return $true}
             
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -105,17 +126,16 @@ try
                 }
                       
             }
+            
             Context 'All Settings are incorrect' {
             
                 Mock -CommandName Test-Path -MockWith {Return $true}
             
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput} 
+
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
-                
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
                 
@@ -125,87 +145,176 @@ try
 
             }
 
-            Context 'Path does not exist' {
-
-             $MockLogOutput = 
-                    @{
-                        LogPath  = @([PSCustomObject]@{Value = 'C:\MockLogLocation2'})
-                        LogFlags = 'Date','Time','ClientIP','UserName','ServerIP'
-                    }
-                    
-                Mock -CommandName Test-Path -MockWith {Return $false}
-            
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
-                
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
-
-                $ErrorId = 'ErrorWebsiteLogPath'
-                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $ErrorMessage = $LocalizedData.ErrorWebsiteLogPath
-                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-               
-                It 'Should throw when path does not exist' { 
-                   { Test-TargetResource @MockLogParameters } | 
-                   Should Throw $ErrorRecord
-                }
-            
-            }
-
-            Context 'LogPath is incorrect' {
-
-                $MockLogOutput =
-                    @{
-                        LogPath  = @([PSCustomObject]@{Value = 'C:\MockLogLocation2'})
-                        LogFlags = 'Date','Time','ClientIP','UserName','ServerIP'
-                    }
-                
-            
-                Mock -CommandName Test-Path -MockWith {Return $true}
-            
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
-                
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
-                
-                $result = Test-TargetResource @MockLogParameters
-
-                It 'Should return false' { 
-                    $result | Should be $false
-                }
-            
-            }
-
-            Context 'LogFlags are incorrect' {
+            Context 'Check LogPath should return false' {
 
                 $MockLogOutput = 
                     @{
-                        LogPath  = @([PSCustomObject]@{Value = 'C:\MockLogLocation'})
-                        LogFlags = 'Date','Time','ClientIP','UserName'
+                        directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     }
                 
             
                 Mock -CommandName Test-Path -MockWith {Return $true}
             
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
-                
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
                 It 'Should return false' { 
                     $result | Should be $false
+                }
+            
+            }
+
+            Context 'Check LogFlags should return false' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    }
+                           
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+                
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                $result = Test-TargetResource @MockLogParameters
+
+                It 'Should return false' { 
+                    $result | Should be $false
+                }
+
+            }
+
+            Context 'Check LogPeriod should return false' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = 'Daily'     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    }
+                            
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+                
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                $result = Test-TargetResource @MockLogParameters
+
+                It 'Should return false' { 
+                    $result | Should be $false
+                }
+
+            }
+
+            Context 'Check LogTruncateSize should return false' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = '1048576'
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    }
+            
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+                                
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                $result = Test-TargetResource @MockLogParameters
+
+                It 'Should return false' { 
+                    $result | Should be $false
+                }
+
+            }
+
+            Context 'Check LoglocalTimeRollover should return false' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = 'False'
+                    }
+            
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+                                
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                $result = Test-TargetResource @MockLogParameters
+
+                It 'Should return false' { 
+                    $result | Should be $false
+                }
+
+            }
+
+            Context 'Check LogFormat should throw when not W3C' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                        logFormat         = 'IIS'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    }
+            
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+                                
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                $ErrorId = 'ErrorWebsiteLogFormat'
+                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
+                $ErrorMessage = $LocalizedData.ErrorWebsiteLogFormat
+                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                It 'Should throw when LogFLags are passed in and LogFormat is not W3C' { 
+                   { Test-TargetResource @MockLogParameters } | 
+                   Should Throw $ErrorRecord
                 }
 
             }
@@ -218,42 +327,38 @@ try
             
                 Mock -CommandName Test-Path -MockWith {Return $true}
             
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
-                
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput} 
 
                 Mock -CommandName Set-WebConfigurationProperty
                 
                 $result = Set-TargetResource @MockLogParameters
 
                 It 'should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
-                     }
+                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 6
+                }
 
             }
 
-             Context 'LogPath is incorrect' {
+            Context 'LogPath is incorrect' {
 
                 $MockLogOutput = 
                     @{
-                        LogPath  = @([PSCustomObject]@{Value = 'C:\MockLogLocation2'})
-                        LogFlags = 'Date','Time','ClientIP','UserName','ServerIP'
+                        directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     }
-                
             
                 Mock -CommandName Test-Path -MockWith {Return $true}
             
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -261,7 +366,7 @@ try
 
                 It 'should call all the mocks' {
                      Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
-                     }
+                }
             
             }
 
@@ -269,20 +374,21 @@ try
 
                 $MockLogOutput = 
                     @{
-                        LogPath  = @([PSCustomObject]@{Value = 'C:\MockLogLocation'})
-                        LogFlags = 'Date','Time','ClientIP','UserName'
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     }
-                
             
                 Mock -CommandName Test-Path -MockWith {Return $true}
             
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.applicationHost/sites/siteDefaults'} `
-                    -MockWith {return $MockLogOutput.LogPath} 
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
                 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -290,7 +396,97 @@ try
 
                 It 'should call all the mocks' {
                      Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
-                     }
+                }
+
+            }
+
+            Context 'LogPeriod is incorrect' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = 'Daily'  
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    }
+                            
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                Mock -CommandName Set-WebConfigurationProperty
+                
+                $result = Set-TargetResource @MockLogParameters
+
+                It 'should call all the mocks' {
+                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                }
+
+            }
+
+            Context 'LogTruncateSize is incorrect' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = '1048576'
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    }
+            
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                Mock -CommandName Set-WebConfigurationProperty
+                
+                $result = Set-TargetResource @MockLogParameters
+
+                It 'should call all the mocks' {
+                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                }
+
+            }
+
+            Context 'LoglocalTimeRollover is incorrect' {
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = 'False'
+                    }
+            
+                Mock -CommandName Test-Path -MockWith {Return $true}
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith {return $MockLogOutput}
+                
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                
+                Mock -CommandName Set-WebConfigurationProperty
+                
+                $result = Set-TargetResource @MockLogParameters
+
+                It 'should call all the mocks' {
+                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                }
 
             }
         
@@ -302,13 +498,16 @@ try
                
                 $MockLogOutput = 
                     @{
-                        LogPath  = @([PSCustomObject]@{Value = 'C:\MockLogLocation'})
-                        LogFlags = 'Date','Time','ClientIP','UserName'
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     }
-
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                
+                 Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
                 
                 $result = Compare-LogFlags $MockLogParameters.LogFlags
 
@@ -319,15 +518,19 @@ try
             }
 
             Context 'Returns true when LogFlags are correct' {
+               
+               $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        logFormat         = 'W3C'
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = $MockLogParameters.LogTruncateSize
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    }
 
-                 $MockLogParameters = @{
-                    LogPath  = @([PSCustomObject]@{Value = '%SystemDrive%\inetpub\logs\LogFiles'})
-                    LogFlags = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','TimeTaken','HttpStatus','Win32Status','ServerPort','UserAgent','HttpSubStatus','Referer'
-                }
-                                        
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -ParameterFilter {$filter -eq '/system.Applicationhost/Sites/SiteDefaults/logfile'} `
-                    -MockWith {return $MockLogOutput.LogFlags}
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
                 
                 $result = Compare-LogFlags $MockLogParameters.LogFlags
 
@@ -340,10 +543,10 @@ try
          }
     
      }
+
     #endregion
 }
 
-    
 finally
 {
     #region FOOTER
