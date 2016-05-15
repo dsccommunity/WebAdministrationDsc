@@ -48,8 +48,8 @@ function Get-TargetResource
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
         
-        [Parameter()]
         [String]
+        [ValidateSet('True', 'False')]
         $LoglocalTimeRollover
         
     )
@@ -93,8 +93,8 @@ function Set-TargetResource
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
         
-        [Parameter()]
         [String]
+        [ValidateSet('True', 'False')]
         $LoglocalTimeRollover
     )
     
@@ -166,8 +166,8 @@ function Test-TargetResource
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
         
-        [Parameter()]
         [String]
+        [ValidateSet('True', 'False')]
         $LoglocalTimeRollover
     )
     

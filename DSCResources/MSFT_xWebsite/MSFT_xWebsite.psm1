@@ -216,6 +216,7 @@ function Set-TargetResource
         $LogTruncateSize,
         
         [String]
+        [ValidateSet('True', 'False')]
         $LoglocalTimeRollover
     )
 
@@ -611,6 +612,7 @@ function Test-TargetResource
         $LogTruncateSize,
         
         [String]
+        [ValidateSet('True', 'False')]
         $LoglocalTimeRollover
     )
 
