@@ -350,7 +350,7 @@ function Set-TargetResource
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
-                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
+                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
                     }              
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.period -Value $LogPeriod
@@ -503,7 +503,7 @@ function Set-TargetResource
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
-                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
+                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
                     }
               
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
