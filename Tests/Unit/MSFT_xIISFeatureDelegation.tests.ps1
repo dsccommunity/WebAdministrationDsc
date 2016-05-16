@@ -10,40 +10,48 @@ if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -
 {
     if ( -not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests\DscResourceTestHelper')) )
     {
-
+        # Module was installed from the gallery - so user does not need git in order to run tests
         $choice = read-host "In order to run this test you need to install a helper module, continue with installation? (Y/N)"
 
         if ($choice -eq "y"){
-            #install test folders from gallery
+            # Install test folders from gallery
             Save-Module -Name 'DscResourceTestHelper' -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests')
         }
     
         else 
         {
-            Write-Host "Unable to run tests without the required helper module - Exiting test"
+            Write-Error "Unable to run tests without the required helper module - Exiting test"
             return
         }
         
     }
-
-    $testModule = Get-Module -Name 'DscResourceTestHelper' -ListAvailable
-    $testModuleVer = $testModule[0].Version
+    Push-Location
+    cd (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResourceTestHelper')
+    $verFolder = Get-ChildItem
+    Pop-Location
+    $testModuleVer = $verFolder.Name
+    Write-Host "testModule = $verFolder, version = $testModuleVer"
     Import-Module (Join-Path -Path $moduleRoot -ChildPath "Tests\DscResourceTestHelper\$testModuleVer\TestHelper.psm1") -Force
 } 
 else
 {
-    if (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1')))
+    # User cloned the module from github so get common tests and test helpers from gitHub rather than installing them from the gallery
+    # This ensures that developers always have access to the most recent DscResource.Tests folder 
+    $testHelperPath = (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1')
+    if (-not (Test-Path -Path $testHelperPath))
     {
         #clone test folders from gitHub
         $dscResourceTestsPath = Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests'
         & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',$dscResourceTestsPath)
+
+        #TODO get rid of this section once we update all other resources and merge the gitDependency branch with the main branch on DscResource.Tests
         Push-Location
         cd $dscResourceTestsPath
         & git checkout gitDependency
         Pop-Location
     }
 
-    Import-Module (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1') -Force
+    Import-Module $testHelperPath -Force
 }
 
 
