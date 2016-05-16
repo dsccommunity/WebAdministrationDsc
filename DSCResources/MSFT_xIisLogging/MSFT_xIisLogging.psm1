@@ -19,7 +19,6 @@ VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state.
 VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state.
 VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
 WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state.
-ErrorWebsiteLogFormat = LogFields are not possible when LogFormat is not W3C.
 '@
 }
 
@@ -37,7 +36,7 @@ function Get-TargetResource
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
-        
+               
         [Parameter()]
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
@@ -61,7 +60,6 @@ function Get-TargetResource
         return @{
             LogPath              = $CurrentLogSettings.directory
             LogFlags             = $CurrentLogSettings.LogExtFileFlags
-            LogFormat            = $CurrentLogSettings.logFormat
             LogPeriod            = $CurrentLogSettings.period
             LogtruncateSize      = $CurrentLogSettings.truncateSize
             LoglocalTimeRollover = $CurrentLogSettings.localTimeRollover
@@ -101,7 +99,8 @@ function Set-TargetResource
         Assert-Module
     
         $CurrentLogState = Get-TargetResource -LogPath $LogPath
-    
+        
+        #Update LogPath if needed
         if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentLogState.LogPath))
         {
             
@@ -109,30 +108,34 @@ function Set-TargetResource
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' -name directory -value $LogPath
         }
         
+        #Update Logflags if needed; also sets logformat to W3C
         if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -LogFlags $LogFlags))) 
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags)
-            Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name LogExtFileFlags -Value $LogFlags
+            Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name logFormat -Value 'W3C'
+            Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name logExtFileFlags -Value ($LogFlags -join ',')
         }
         
+        #Update Log Period if needed
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and ($LogPeriod -ne $CurrentLogState.LogPeriod))
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                 {
                     Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
-                }
-              
+                }              
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name period -Value $LogPeriod
         }
         
+        #Update LogTruncateSize if needed
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and ($LogTruncateSize -ne $CurrentLogState.LogTruncateSize))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name truncateSize -Value $LogTruncateSize
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name period -Value 'MaxSize'
         }
-
+        
+        #Update LoglocalTimeRollover if needed
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $CurrentLogState.LoglocalTimeRollover))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
@@ -155,7 +158,7 @@ function Test-TargetResource
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
-        
+              
         [Parameter()]
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
@@ -174,25 +177,22 @@ function Test-TargetResource
         Assert-Module
 
         $CurrentLogState = Get-TargetResource -LogPath $LogPath
-               
+        
+        #Check LogPath
         if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentLogState.LogPath))
         { 
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath)
             return $false 
         }
         
+        #Check LogFlags
         if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -LogFlags $LogFlags)))  
         {
-            if ($CurrentLogState.logFormat -ne 'W3C')
-            {
-                    $ErrorMessage = ($LocalizedData.ErrorWebsiteLogFormat)
-                    New-TerminatingError -ErrorId 'LogFormatFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
-            }
-            
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
             return $false
         }
         
+        #Check LogPeriod
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and ($LogPeriod -ne $CurrentLogState.LogPeriod))
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
@@ -204,12 +204,14 @@ function Test-TargetResource
             return $false   
         }
         
+        #Check LogTruncateSize
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and ($LogTruncateSize -ne $CurrentLogState.LogTruncateSize))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize)
             return $false
         }
         
+        #Check LoglocalTimeRollover
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $CurrentLogState.LoglocalTimeRollover))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover)
@@ -224,7 +226,15 @@ function Test-TargetResource
 
 Function Compare-LogFlags
 {
-
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the logflags status.
+        Returns False if the loglfags do not match and true if they do
+    .PARAMETER LogFlags
+        Specifies flags to check
+    #>
+    [CmdletBinding()]
+    [OutputType([Boolean])]
     param
     (
         [Parameter()]

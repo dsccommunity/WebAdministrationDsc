@@ -38,11 +38,10 @@ try
                 directory         = '%SystemDrive%\inetpub\logs\LogFiles'
                 logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                 logFormat         = 'W3C'
-                period            = 'Daily'     
+                period            = 'Daily'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
-            }
-        
+            }       
 
         Describe "$Global:DSCResourceName\Assert-Module" {
            
@@ -285,57 +284,27 @@ try
                 }
 
             }
-
-            Context 'Check LogFormat should throw when not W3C' {
-
-                $MockLogOutput = 
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
-                        logFormat         = 'IIS'
-                        period            = $MockLogParameters.LogPeriod     
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                    }
-            
-                Mock -CommandName Test-Path -MockWith {Return $true}
-            
-                Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
-                                
-                Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
-                
-                $ErrorId = 'ErrorWebsiteLogFormat'
-                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $ErrorMessage = $LocalizedData.ErrorWebsiteLogFormat
-                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                It 'Should throw when LogFLags are passed in and LogFormat is not W3C' { 
-                   { Test-TargetResource @MockLogParameters } | 
-                   Should Throw $ErrorRecord
-                }
-
-            }
        
         }
 
         Describe "$global:DSCResourceName\Set-TargetResource" {
         
             Context 'All Settings are incorrect' {
-            
+
                 Mock -CommandName Test-Path -MockWith {Return $true}
             
                 Mock -CommandName Get-WebConfiguration `
                     -MockWith {return $MockLogOutput} 
 
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags} 
+                
                 Mock -CommandName Set-WebConfigurationProperty
                 
                 $result = Set-TargetResource @MockLogParameters
 
                 It 'should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 6
+                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 7
                 }
 
             }
@@ -395,7 +364,7 @@ try
                 $result = Set-TargetResource @MockLogParameters
 
                 It 'should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
 
             }

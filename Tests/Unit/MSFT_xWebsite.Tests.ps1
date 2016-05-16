@@ -674,53 +674,6 @@ try
 
             }
 
-            Context 'Check LogFormat is not W3C' {
-
-                $MockLogOutput = 
-                    @{
-                        directory         = $MockParameters.LogPath
-                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
-                        logFormat         = 'IIS'
-                        period            = $MockParameters.LogPeriod     
-                        truncateSize      = $MockParameters.LogTruncateSize
-                        localTimeRollover = $MockParameters.LoglocalTimeRollover
-                    }
-
-                $MockWebsite = @{
-                    Name                 = 'MockName'
-                    PhysicalPath         = 'C:\NonExistent'
-                    State                = 'Started'
-                    ApplicationPool      = 'MockPool'
-                    Bindings             = @{Collection = @($MockWebBinding)}
-                    EnabledProtocols     = 'http'
-                    ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                    LogFile              = $MockLogOutput
-                    Count                = 1
-                }
-            
-                Mock -CommandName Test-Path -MockWith {Return $true}
-            
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
-                                                
-                $ErrorId = 'ErrorWebsiteLogFormat'
-                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $ErrorMessage = $LocalizedData.ErrorWebsiteLogFormat
-                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
-
-                It 'Should throw when LogFLags are passed in and LogFormat is not W3C' { 
-                   { $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
-                        -Name $MockParameters.Name `
-                        -PhysicalPath $MockParameters.PhysicalPath `
-                        -LogFlags 'Date','Time','ClientIP','UserName','ServerIP' `
-                        -LoglocalTimeRollover 'True' `
-                        -Verbose:$VerbosePreference
-                    } | 
-                   Should Throw $ErrorRecord
-                }
-
-            }
-
         }
 
         Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
@@ -839,7 +792,7 @@ try
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1      
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
 
                 }
@@ -931,7 +884,7 @@ try
                 $Result = Set-TargetResource @MockParameters
 
                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -986,7 +939,7 @@ try
                      Assert-MockCalled -CommandName Stop-Website -Exactly 1
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1

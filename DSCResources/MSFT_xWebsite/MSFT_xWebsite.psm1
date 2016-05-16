@@ -26,7 +26,6 @@ ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1
 ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
 ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
 ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
-ErrorWebsiteLogFormat = LogFields are not possible when LogFormat is not W3C on Website "{0}".
 VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
@@ -206,7 +205,7 @@ function Set-TargetResource
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
-        
+                       
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         $LogPeriod,
@@ -333,8 +332,7 @@ function Set-TargetResource
 
             # Update LogPath if required
             if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $Website.logfile.LogPath))
-            {
-            
+            {            
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.directory -value $LogPath
             }
@@ -343,6 +341,7 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags))) 
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.logFormat -Value 'W3C'
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.LogExtFileFlags -Value $LogFlags
             }
             
@@ -352,8 +351,7 @@ function Set-TargetResource
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
                         Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
-                    }
-              
+                    }              
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.period -Value $LogPeriod
             }
@@ -492,11 +490,12 @@ function Set-TargetResource
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.directory -value $LogPath
             }
             
-            #Update LogFlags if required
+            #Update LogFlags if required; also sets logformat to W3C
             if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags))) 
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.LogExtFileFlags -Value $LogFlags
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.logFormat -Value 'W3C'
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
             }
             
             #Update LogPeriod if needed
@@ -602,7 +601,7 @@ function Test-TargetResource
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
-        
+                       
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         $LogPeriod,
@@ -782,7 +781,17 @@ function Test-TargetResource
 
 Function Compare-LogFlags
 {
-
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the logflags status.
+        Returns False if the loglfags do not match and true if they do
+    .PARAMETER LogFlags
+        Specifies flags to check
+    .PARAMETER Name
+        Specifies website to check the flags on
+    #>
+    [CmdletBinding()]
+    [OutputType([Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
