@@ -6,7 +6,6 @@ configuration MSFT_xIisLogging_Rollover
     {
         LogPath = 'C:\IISLogFiles'
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
-        LogFormat = 'W3C'
         LoglocalTimeRollover = 'True'
         LogPeriod = 'Hourly'
     }
@@ -20,7 +19,6 @@ configuration MSFT_xIisLogging_Truncate
     {
         LogPath = 'C:\IISLogFiles'
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
-        LogFormat = 'W3C'
         LoglocalTimeRollover = 'True'
         LogTruncateSize = '2097152'
     }
