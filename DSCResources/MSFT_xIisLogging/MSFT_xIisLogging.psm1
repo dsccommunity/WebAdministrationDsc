@@ -1,7 +1,7 @@
 #requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
@@ -31,18 +31,15 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [String]
         $LogPath,
-        
-        [Parameter()]
+                
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
-               
-        [Parameter()]
+                       
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         $LogPeriod,
-        
-        [Parameter()]
+                
         [String]
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
@@ -59,9 +56,9 @@ function Get-TargetResource
 
         return @{
             LogPath              = $CurrentLogSettings.directory
-            LogFlags             = $CurrentLogSettings.LogExtFileFlags
+            LogFlags             = @($CurrentLogSettings.LogExtFileFlags)
             LogPeriod            = $CurrentLogSettings.period
-            LogtruncateSize      = $CurrentLogSettings.truncateSize
+            LogTruncateSize      = $CurrentLogSettings.truncateSize
             LoglocalTimeRollover = $CurrentLogSettings.localTimeRollover
         }
 
@@ -75,18 +72,15 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [String]
         $LogPath,
-
-        [Parameter()]
+        
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
-        
-        [Parameter()]
+                
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         $LogPeriod,
-        
-        [Parameter()]
+                
         [String]
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
@@ -153,18 +147,15 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [String]
         $LogPath,
-
-        [Parameter()]
+       
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags,
-              
-        [Parameter()]
+                     
         [String]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         $LogPeriod,
-        
-        [Parameter()]
+                
         [String]
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
@@ -237,7 +228,6 @@ Function Compare-LogFlags
     [OutputType([Boolean])]
     param
     (
-        [Parameter()]
         [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         $LogFlags
