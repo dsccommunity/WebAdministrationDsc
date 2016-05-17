@@ -25,12 +25,7 @@ if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -
         }
         
     }
-    Push-Location
-    cd (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResourceTestHelper')
-    $verFolder = Get-ChildItem
-    Pop-Location
-    $testModuleVer = $verFolder.Name
-    Write-Host "testModule = $verFolder, version = $testModuleVer"
+    $testModuleVer = Get-ChildItem -Path (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResourceTestHelper')
     Import-Module (Join-Path -Path $moduleRoot -ChildPath "Tests\DscResourceTestHelper\$testModuleVer\TestHelper.psm1") -Force
 } 
 else

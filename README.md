@@ -185,6 +185,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+* Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
+
 ### 1.11.0.0
 
 * **xWebAppPool** updates:
