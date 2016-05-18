@@ -12,8 +12,8 @@ if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -
     {
         # Module was installed from the gallery - so user does not need git in order to run tests
         $choice = read-host "In order to run this test you need to install a helper module, continue with installation? (Y/N)"
-
-        if ($env:getDscTestHelper -eq $true){
+        if ($env:getDscTestHelper -ne $true)
+        {
             # Install test folders from gallery
             Save-Module -Name 'DscResourceTestHelper' -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests')
         }
