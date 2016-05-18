@@ -284,7 +284,7 @@ try
                 LogFlags                 = 'Date','Time','ClientIP','UserName','ServerIP'
                 LogPeriod                = 'Hourly'
                 LogTruncateSize          = '2000000'
-                LoglocalTimeRollover     = 'True'
+                LoglocalTimeRollover     = $True
             }
 
             $MockWebBinding = @(
@@ -665,7 +665,7 @@ try
                 $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
                     -Name $MockParameters.Name `
                     -PhysicalPath $MockParameters.PhysicalPath `
-                    -LoglocalTimeRollover 'True' `
+                    -LoglocalTimeRollover $True `
                     -Verbose:$VerbosePreference
 
                 It 'Should return false' { 
@@ -712,7 +712,7 @@ try
                 LogFlags                 = 'Date','Time','ClientIP','UserName','ServerIP'
                 LogPeriod                = 'Hourly'
                 LogTruncateSize          = '2000000'
-                LoglocalTimeRollover     = 'True'
+                LoglocalTimeRollover     = $True
             }
 
             $MockWebBinding = @(

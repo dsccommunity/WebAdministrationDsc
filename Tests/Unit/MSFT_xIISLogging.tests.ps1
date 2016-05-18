@@ -29,7 +29,7 @@ try
                 LogFlags             = 'Date','Time','ClientIP','UserName','ServerIP'
                 LogPeriod            = 'Hourly'
                 LogTruncateSize      = '2097152'
-                LoglocalTimeRollover = 'True'
+                LoglocalTimeRollover = $True
 
             }
                 

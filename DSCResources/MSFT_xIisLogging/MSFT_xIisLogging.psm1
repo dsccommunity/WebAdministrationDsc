@@ -44,13 +44,12 @@ function Get-TargetResource
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
         
-        [String]
-        [ValidateSet('True', 'False')]
+        [Boolean]
         $LoglocalTimeRollover
         
     )
 
-    Assert-Module
+        Assert-Module
 
         $CurrentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
 
@@ -84,9 +83,8 @@ function Set-TargetResource
         [String]
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
-        
-        [String]
-        [ValidateSet('True', 'False')]
+
+        [Boolean]
         $LoglocalTimeRollover
     )
     
@@ -130,7 +128,7 @@ function Set-TargetResource
         }
         
         #Update LoglocalTimeRollover if needed
-        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $CurrentLogState.LoglocalTimeRollover))
+        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' -Name localTimeRollover -Value $LoglocalTimeRollover
@@ -160,8 +158,7 @@ function Test-TargetResource
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
         
-        [String]
-        [ValidateSet('True', 'False')]
+        [Boolean]
         $LoglocalTimeRollover
     )
     
@@ -203,7 +200,7 @@ function Test-TargetResource
         }
         
         #Check LoglocalTimeRollover
-        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $CurrentLogState.LoglocalTimeRollover))
+        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover)
             return $false

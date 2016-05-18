@@ -214,8 +214,7 @@ function Set-TargetResource
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
         
-        [String]
-        [ValidateSet('True', 'False')]
+        [Boolean]
         $LoglocalTimeRollover
     )
 
@@ -365,7 +364,7 @@ function Set-TargetResource
             }
 
             #Update LoglocalTimeRollover if neeed
-            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $Website.logfile.LoglocalTimeRollover))
+            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
@@ -519,7 +518,7 @@ function Set-TargetResource
             }
 
             #Update LoglocalTimeRollover if neeed
-            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $Website.logfile.LoglocalTimeRollover))
+            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
@@ -610,8 +609,7 @@ function Test-TargetResource
         [ValidateRange('1048576','4294967295')]
         $LogTruncateSize,
         
-        [String]
-        [ValidateSet('True', 'False')]
+        [Boolean]
         $LoglocalTimeRollover
     )
 
@@ -758,7 +756,7 @@ function Test-TargetResource
         }
         
         #Check LoglocalTimeRollover
-        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne $Website.logfile.LoglocalTimeRollover))
+        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover -f $Name)
             return $false

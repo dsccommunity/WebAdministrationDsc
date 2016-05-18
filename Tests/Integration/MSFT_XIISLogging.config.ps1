@@ -6,7 +6,7 @@ configuration MSFT_xIisLogging_Rollover
     {
         LogPath = 'C:\IISLogFiles'
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
-        LoglocalTimeRollover = 'True'
+        LoglocalTimeRollover = $True
         LogPeriod = 'Hourly'
     }
 }
@@ -19,7 +19,7 @@ configuration MSFT_xIisLogging_Truncate
     {
         LogPath = 'C:\IISLogFiles'
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
-        LoglocalTimeRollover = 'True'
+        LoglocalTimeRollover = $True
         LogTruncateSize = '2097152'
     }
 }

@@ -40,5 +40,5 @@ class MSFT_xWebsite : OMI_BaseResource
     [Write, Description ("The W3C logging fields"), ValueMap{"Date","Time","ClientIP","UserName","SiteName","ComputerName","ServerIP","Method","UriStem","UriQuery","HttpStatus","Win32Status","BytesSent","BytesRecv","TimeTaken","ServerPort","UserAgent","Cookie","Referer","ProtocolVersion","Host","HttpSubStatus"},Values{"Date","Time","ClientIP","UserName","SiteName","ComputerName","ServerIP","Method","UriStem","UriQuery","HttpStatus","Win32Status","BytesSent","BytesRecv","TimeTaken","ServerPort","UserAgent","Cookie","Referer","ProtocolVersion","Host","HttpSubStatus"}] string LogFlags[];
     [Write, Description ("How often the log file should rollover"), ValueMap{"Hourly","Daily","Weekly","Monthly","MaxSize"},Values{"Hourly","Daily","Weekly","Monthly","MaxSize"}] string LogPeriod;
     [Write, Description ("How large the file should be before it is truncated")] String LogTruncateSize;
-    [Write, Description ("Use the localtime for file naming and rollover"), ValueMap{"True", "False"},Values{"True", "False"}] String LoglocalTimeRollover;
+    [Write, Description ("Use the localtime for file naming and rollover")] Boolean LoglocalTimeRollover;
 };
