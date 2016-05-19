@@ -16,6 +16,7 @@
             Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
             LoglocalTimeRollover = $True
             LogTruncateSize = '2097152'
+            LogFormat = 'W3C'
         }
     }
 }

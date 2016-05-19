@@ -16,6 +16,7 @@
             Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
             LoglocalTimeRollover = $True
             LogPeriod = 'Hourly'
+            LogFormat = 'W3C'
         }
     }
 }

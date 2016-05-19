@@ -51,6 +51,7 @@ try {
             $CurrentLogSettings.logformat | Should Be 'W3C'
             $CurrentLogSettings.period | Should Be 'Hourly'
             $CurrentLogSettings.localTimeRollover | Should Be 'True'
+            $CurrentLogSettings.logformat | Should be 'W3C'
         }
     }    
     
@@ -78,7 +79,8 @@ try {
             $CurrentLogSettings.logExtFileFlags | Should Be 'Date,Time,ClientIP,UserName,ServerIP'
             $CurrentLogSettings.logformat | Should Be 'W3C'
             $CurrentLogSettings.TruncateSize | Should Be '2097152'
-            $CurrentLogSettings.localTimeRollover | Should Be 'True'       
+            $CurrentLogSettings.localTimeRollover | Should Be 'True'
+            $CurrentLogSettings.logformat | Should be 'W3C'    
         }
     }
 }

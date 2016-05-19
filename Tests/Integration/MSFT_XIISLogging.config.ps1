@@ -8,6 +8,7 @@ configuration MSFT_xIisLogging_Rollover
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
         LoglocalTimeRollover = $True
         LogPeriod = 'Hourly'
+        LogFormat = 'W3C'
     }
 }
 
@@ -21,5 +22,6 @@ configuration MSFT_xIisLogging_Truncate
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
         LoglocalTimeRollover = $True
         LogTruncateSize = '2097152'
+        LogFormat = 'W3C'
     }
 }

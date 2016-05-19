@@ -7,7 +7,6 @@ The **xWebAdministration** module contains the **xIISModule**, **xWebAppPool**, 
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
-
 ## Resources
 
 ### xIISModule
@@ -29,6 +28,7 @@ Currently, only FastCgiModule is supported.
 * **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
+* **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA` 
 
 ### xWebAppPool
 
@@ -156,6 +156,7 @@ Currently, only FastCgiModule is supported.
 * **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
+* **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA` 
 
 ### xWebApplication
 
@@ -198,8 +199,20 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
-* Added xIISLogging resource
-* Added IIS Logging to xWebsite
+* Added **xIISLogging** resource which supports
+    * LogPath
+    * LogFlags
+    * LogPeriod
+    * LogTruncateSize
+    * LoglocalTimeRollover
+    * LogFormat
+* Added IIS Logging to **xWebsite** which support
+    * LogPath
+    * LogFlags
+    * LogPeriod
+    * LogTruncateSize
+    * LoglocalTimeRollover
+    * LogFormat
 
 ### 1.11.0.0
 
@@ -212,9 +225,9 @@ Currently, only FastCgiModule is supported.
         **orphanWorkerProcess**, **rapidFailProtection**, **disallowOverlappingRotation**, **disallowRotationOnConfigChange**.
     * Unit and integration tests updated.
 * **xWebsite** updated to remove invisible Unicode "LEFT-TO-RIGHT MARK" character from the **CertificateThumbprint** property value.
-* Added Preload and ServiceAutoStart functionality to xWebsite and xWebApplication
-* Added AuthenticationInformation to xWebsite and xWebApplication
-* Added SslFlags to xWebApplication
+* Added Preload and ServiceAutoStart functionality to **xWebsite** and **xWebApplication**
+* Added AuthenticationInformation to **xWebsite** and **xWebApplication**
+* Added SslFlags to **xWebApplication**
 
 ### 1.10.0.0
 
