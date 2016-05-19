@@ -187,6 +187,8 @@ Currently, only FastCgiModule is supported.
 * **xWebsite** updates:
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo 
 
+* Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
+
 ### 1.11.0.0
 
 * **xWebAppPool** updates:
