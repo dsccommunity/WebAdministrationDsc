@@ -184,6 +184,8 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+* **xWebsite** updates:
+    * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo 
 
 ### 1.11.0.0
 
