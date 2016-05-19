@@ -12,7 +12,9 @@ if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -
     {
         # Module was installed from the gallery - so user does not need git in order to run tests
         $choice = 'y'
-        if ($env:getDscTestHelper -eq $false)
+
+        # If user wants to skip prompt - set this environment variale equal to 'true'
+        if ($env:getDscTestHelper -ne $true)
         {
             $choice = read-host "In order to run this test you need to install a helper module, continue with installation? (Y/N)"
         }
