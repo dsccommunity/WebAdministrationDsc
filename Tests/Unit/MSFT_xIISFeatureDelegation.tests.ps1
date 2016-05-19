@@ -6,11 +6,11 @@ $global:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
 $repoSource = (Get-Module -Name $global:DSCModuleName -ListAvailable)
 
+# If module was obtained from the gallery install test folder from the gallery instead of cloning from git
 if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -eq 'www.powershellgallery.com'))
 {
     if ( -not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests\DscResourceTestHelper')) )
     {
-        # Module was installed from the gallery - so user does not need git in order to run tests
         $choice = 'y'
 
         # If user wants to skip prompt - set this environment variale equal to 'true'
@@ -21,9 +21,10 @@ if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -
 
         if ($choice -eq 'y')
         {
-             # Install test folders from gallery
+            # Install test folders from gallery
             Save-Module -Name 'DscResourceTestHelper' -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests')
         }
+
         else 
         {
             Write-Error "Unable to run tests without the required helper module - Exiting test"
@@ -31,21 +32,23 @@ if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -
         }
         
     }
+
     $testModuleVer = Get-ChildItem -Path (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResourceTestHelper')
     Import-Module (Join-Path -Path $moduleRoot -ChildPath "Tests\DscResourceTestHelper\$testModuleVer\TestHelper.psm1") -Force
 } 
+# Otherwise module was cloned from github
 else
 {
-    # User cloned the module from github so get common tests and test helpers from gitHub rather than installing them from the gallery
+    # Get common tests and test helpers from gitHub rather than installing them from the gallery
     # This ensures that developers always have access to the most recent DscResource.Tests folder 
     $testHelperPath = (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1')
     if (-not (Test-Path -Path $testHelperPath))
     {
-        #clone test folders from gitHub
+        # Clone test folders from gitHub
         $dscResourceTestsPath = Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests'
         & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',$dscResourceTestsPath)
-
-        #TODO get rid of this section once we update all other resources and merge the gitDependency branch with the main branch on DscResource.Tests
+        
+        # TODO get rid of this section once we update all other resources and merge the gitDependency branch with the main branch on DscResource.Tests
         Push-Location
         cd $dscResourceTestsPath
         & git checkout gitDependency
