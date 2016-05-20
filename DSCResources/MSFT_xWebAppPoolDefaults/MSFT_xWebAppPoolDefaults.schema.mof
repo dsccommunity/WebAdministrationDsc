@@ -5,4 +5,12 @@ class MSFT_xWebAppPoolDefaults : OMI_BaseResource
     [Key, Description("Dummy value because we need a key, always 'Machine'"), ValueMap{"Machine"}, Values{"Machine"}] string ApplyTo;
     [write, Description("applicationPools/applicationPoolDefaults/managedRuntimeVersion"), ValueMap{"","v2.0","v4.0"}, Values{"","v2.0","v4.0"}] string ManagedRuntimeVersion;
     [write, Description("applicationPools/applicationPoolDefaults/processModel/identityType"), ValueMap{"ApplicationPoolIdentity","LocalService","LocalSystem","NetworkService"}, Values{"ApplicationPoolIdentity","LocalService","LocalSystem","NetworkService"}] string IdentityType;
+    [write, Description("When true, indicates to the World Wide Web Publishing Service (W3SVC) that the application pool should be automatically started when it is created or when IIS is started."), ValueMap{"true","false"},Values{"true","false"}] string autoStart;
+    [write, Description("When true, enables a 32-bit application to run on a computer that runs a 64-bit version of Windows."), ValueMap{"true","false"},Values{"true","false"}] string enable32BitAppOnWin64;
+    [write, Description("Specifies the request-processing mode that is used to process requests for managed content."), ValueMap{"Integrated","Classic"},Values{"Integrated","Classic"}] string managedPipelineMode;
+    [write, Description("The period of time a worker process should run if no new requests are received and the worker process is not processing requests.")] string idleTimeout;
+    [write, Description("The period of time that IIS waits for requests to finish running in a worker process before IIS terminates the worker process.")] string shutdownTimeLimit;
+    [write, Description("Specifies that IIS should log an event when an application pool is recycled. The logEventOnRecycle property must have a bit set corresponding to the reason for the recycle if IIS is to log the event.")] string logEventOnRecycle;
+    [write, Description("Restart app pool when memory exceeds this limit")] string restartMemoryLimit;
+    [write, Description("Specifies that the worker process should be recycled after a specified amount of time has elapsed.")] string restartTimeLimit;
 };

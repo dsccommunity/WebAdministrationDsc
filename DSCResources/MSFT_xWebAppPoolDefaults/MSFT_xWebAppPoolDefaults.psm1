@@ -31,7 +31,15 @@ function Get-TargetResource
     CheckIISPoshModule
 
     return @{ManagedRuntimeVersion = (GetValue -Path '' -Name 'managedRuntimeVersion')
-                                    IdentityType = ( GetValue -Path 'processModel' -Name 'identityType')}
+                                    IdentityType = ( GetValue -Path 'processModel' -Name 'identityType')
+                                    autoStart = ( GetValue -Path '' -Name 'autoStart')
+                                    enable32BitAppOnWin64 = ( GetValue -Path '' -Name 'enable32BitAppOnWin64')
+                                    managedPipelineMode = ( GetValue -Path '' -Name 'managedPipelineMode')
+                                    idleTimeout = ( GetValue -Path 'processModel' -Name 'idleTimeout')
+                                    shutdownTimeLimit = ( GetValue -Path 'processModel' -Name 'shutdownTimeLimit')
+                                    logEventOnRecycle = ( GetValue -Path 'recycling' -Name 'logEventOnRecycle')
+                                    restartMemoryLimit = ( GetValue -Path 'recycling/periodicRestart' -Name 'memory')
+                                    restartTimeLimit = ( GetValue -Path 'recycling/periodicRestart' -Name 'time')}
 }
 
 
@@ -48,13 +56,36 @@ function Set-TargetResource
         [string]$ManagedRuntimeVersion,
         # TODO: we currently don't allow a custom identity
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [string]$IdentityType
+        [string]$IdentityType,
+        [ValidateSet('true','false')]
+        [string] $autoStart,
+        [ValidateSet('true','false')]
+        [string] $enable32BitAppOnWin64,
+        [ValidateSet('Classic','Integrated')]
+        [string] $managedPipelineMode,
+        #Format 00:20:00
+        [string] $idleTimeout,
+        #Format 00:20:00
+        [string] $shutdownTimeLimit,
+        [string] $logEventOnRecycle,
+        [string] $restartMemoryLimit,
+        [string] $restartTimeLimit
     )
 
         CheckIISPoshModule
 
         SetValue -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion
         SetValue -Path 'processModel' -Name 'identityType' -NewValue $IdentityType
+
+        SetValue -Path '' -Name 'autoStart' -NewValue $autoStart
+        SetValue -Path '' -Name 'enable32BitAppOnWin64' -NewValue 'false'
+        SetValue -Path '' -Name 'managedPipelineMode' -NewValue $managedPipelineMode
+        SetValue -Path 'processModel' -Name 'idleTimeout' -NewValue $idleTimeout
+        SetValue -Path 'processModel' -Name 'shutdownTimeLimit' -NewValue $shutdownTimeLimit
+        SetValue -Path 'recycling' -Name 'logEventOnRecycle' -NewValue $logEventOnRecycle
+
+        SetValue -Path 'recycling/periodicRestart' -Name 'memory' -NewValue $restartMemoryLimit
+        SetValue -Path 'recycling/periodicRestart' -Name 'time' -NewValue $restartTimeLimit
 }
 
 
@@ -70,7 +101,20 @@ function Test-TargetResource
         [ValidateSet('','v2.0','v4.0')]
         [string]$ManagedRuntimeVersion,
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [string]$IdentityType
+        [string]$IdentityType,
+        [ValidateSet('true','false')]
+        [string] $autoStart,
+        [ValidateSet('true','false')]
+        [string] $enable32BitAppOnWin64,
+        [ValidateSet('Classic','Integrated')]
+        [string] $managedPipelineMode,
+        #Format 00:20:00
+        [string] $idleTimeout = '00:00:00',
+        #Format 00:20:00
+        [string] $shutdownTimeLimit,
+        [string] $logEventOnRecycle,
+        [string] $restartMemoryLimit,
+        [string] $restartTimeLimit
     )
 
     CheckIISPoshModule
@@ -81,6 +125,46 @@ function Test-TargetResource
     }
 
     if (!(CheckValue -Path 'processModel' -Name 'identityType' -NewValue $IdentityType)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path '' -Name 'autoStart' -NewValue $autoStart)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path '' -Name 'enable32BitAppOnWin64' -NewValue $enable32BitAppOnWin64)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path '' -Name 'managedPipelineMode' -NewValue $managedPipelineMode)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path 'processModel' -Name 'idleTimeout' -NewValue $idleTimeout)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path 'processModel' -Name 'shutdownTimeLimit' -NewValue $shutdownTimeLimit)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path 'recycling' -Name 'logEventOnRecycle' -NewValue $logEventOnRecycle)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path 'recycling/periodicRestart' -Name 'memory' -NewValue $restartMemoryLimit)) 
+    { 
+        return $false 
+    }
+
+    if (!(CheckValue -Path 'recycling/periodicRestart' -Name 'time' -NewValue $restartTimeLimit)) 
     { 
         return $false 
     }
@@ -123,16 +207,30 @@ Function SetValue([string]$path,[string]$name,[string]$newValue)
     {
         return
     }
-
+    
     $existingValue = GetValue -Path $path -Name $name
+    
     if ($existingValue -ne $newValue)
     {
+        
         if ($path -ne '')
         {
             $path = '/' + $path
         }
 
-        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name -value "$newValue"
+        $existingValueType = GetValueType -path $path -name $name
+        
+        if ($existingValueType -eq 'System.Boolean') {
+        
+            $setNewValue = $newValue
+        
+        } else {
+            
+            $setNewValue = $newValue -as $existingValueType.ToString()
+            
+        }    
+        
+        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name -value $setNewValue
         $relPath = $path + '/' + $name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
     }    
@@ -146,6 +244,25 @@ Function GetValue([string]$path,[string]$name)
     }
 
     return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name
+}
+
+Function GetValueType([string]$path,[string]$name)
+{
+    if ($path -ne '')
+    {
+        $path = '/' + $path
+    }
+
+    $existingValue = Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name
+    
+    if ($existingValue.TypeName) {
+        return $existingValue.TypeName
+    } elseif ($existingValue.GetTypeCode()) {
+        return $existingValue.GetTypeCode()
+    } else {
+        return ($existingValue.value.GetType()).Name
+    }
+
 }
 
 Function CheckIISPoshModule
