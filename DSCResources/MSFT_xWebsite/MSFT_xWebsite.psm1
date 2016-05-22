@@ -34,12 +34,11 @@ VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}"
 VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
 VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
 VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
-VerboseSetTargetWebsitePreloadEnabled = Successfully enabled Preload on website "{0}"
-VerboseSetTargetWebsitePreloadRemoved = Successfully disabled Preload on website "{0}"
-VerboseSetTargetWebsiteAutoStartEnabled = Successfully enabled AutoStart on website "{0}"
-VerboseSetTargetWebsiteAutoStartRemoved = Successfully disabled AutoStart on website "{0}"
-VerboseSetTargetWebsiteAutoStartProviderAdded = Successfully added AutoStartProvider on website "{0}"
-VerboseSetTargetWebsiteAutoStartProviderRemoved = Successfully removed AutoStartProvider on website "{0}"
+VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
+VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
+VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
+VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
+VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
 VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
 VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
 VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
@@ -51,9 +50,9 @@ VerboseTestTargetTrueResult = The target resource is already in the desired stat
 VerboseTestTargetFalseResult = The target resource is not in the desired state.
 VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
 VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
-VerboseTestTargetFalseAutoStartProvider = AutoStartProvider for website "{0}" does not match the desired state.
-VerboseTestTargetFalseSSLFlags = SSLFlags are not in the desired state.
-VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo is not in the desired state.
+VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
+VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
+VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
 VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
 VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
 VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
@@ -268,31 +267,37 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState -f $Name, $State)
             }
 
+            # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
             {
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated -f $Name)
             }
            
             # Update Preload if required
-            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and ($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
             {
                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+               Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated -f $Name)
             }
             
             # Update AutoStart if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and ($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated -f $Name)
             }
             
             # Update AutoStartProviders if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider)
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and ($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                 {
-                    Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
                     Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated -f $Name)
             }
         }
         else # Create website if it does not exist
@@ -381,28 +386,33 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
             {
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated -f $Name)
             }
-
+           
             # Update Preload if required
-            if ($PSBoundParameters.ContainsKey('preloadEnabled'))
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and ($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
             {
                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+               Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated -f $Name)
             }
             
             # Update AutoStart if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled'))
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and ($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated -f $Name)
             }
             
             # Update AutoStartProviders if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider'))
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and ($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                 {
-                    Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
                     Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated -f $Name)
             }
         }
     }
@@ -575,8 +585,10 @@ function Test-TargetResource
             if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
             {
                 $InDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProvider)     
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProvider)     
             }
+            $InDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebsiteAutoStartProvider -f $Name)
         }
     }
 
@@ -1043,7 +1055,7 @@ function Get-AuthenticationInfo
     }
 
     return New-CimInstance `
-            -ClassName MSFT_xWebApplicationAuthenticationInformation `
+            -ClassName MSFT_xWebAuthenticationInformation `
             -ClientOnly -Property $authenticationProperties
 }
 
