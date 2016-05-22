@@ -216,9 +216,9 @@ try
 finally
 {
     #region FOOTER
-    #Restore-WebConfiguration -Name $tempName
-    #Remove-WebConfigurationBackup -Name $tempName
+    Restore-WebConfiguration -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName
 
-   # Restore-TestEnvironment -TestEnvironment $TestEnvironment
+    Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion
 }
