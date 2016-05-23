@@ -2,7 +2,7 @@
 
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIisModule**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
 
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
@@ -134,6 +134,15 @@ Currently, only FastCgiModule is supported.
 * **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
+* **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
+* **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
+* **ServiceAutoStartProvider**: Adds a AutostartProvider
+* **ApplicationType**: Adds a AutostartProvider ApplicationType
+* **AuthenticationInformation**: Website's authentication information in the form of an array of embedded instances of the **MSFT_xWebAuthenticationInformation** CIM class. **MSFT_xWebAuthenticationInformation** take the following properties:
+    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+    * **Basic**: The acceptable values for this property are: `$true`, `$false`
+    * **Digest**: The acceptable values for this property are: `$true`, `$false`
+    * **Windows**: The acceptable values for this property are: `$true`, `$false`
 
 ### xWebApplication
 
@@ -142,6 +151,16 @@ Currently, only FastCgiModule is supported.
 * **WebAppPool**:  Web application’s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
 * **Ensure**: Ensures that the web application is **Present** or **Absent**.
+* **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
+* **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
+* **ServiceAutoStartProvider**: Adds a AutostartProvider
+* **ApplicationType**: Adds a AutostartProvider ApplicationType
+* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+    * **Basic**: The acceptable values for this property are: `$true`, `$false`
+    * **Digest**: The acceptable values for this property are: `$true`, `$false`
+    * **Windows**: The acceptable values for this property are: `$true`, `$false`
+* **SslFlags**: SslFlags for the application: The acceptable values for this property are: `Ssl`, `SslNegotiateCert`, `SslRequireCert`
 
 ### xWebVirtualDirectory
 
@@ -166,6 +185,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+### 1.11.0.0
+
 * **xWebAppPool** updates:
     * Bug fixes, error handling and input validation improvements.
     * The resource was updated to ensure a specific state only for the explicitly specified properties.
@@ -175,6 +196,9 @@ Currently, only FastCgiModule is supported.
         **orphanWorkerProcess**, **rapidFailProtection**, **disallowOverlappingRotation**, **disallowRotationOnConfigChange**.
     * Unit and integration tests updated.
 * **xWebsite** updated to remove invisible Unicode "LEFT-TO-RIGHT MARK" character from the **CertificateThumbprint** property value.
+* Added Preload and ServiceAutoStart functionality to xWebsite and xWebApplication
+* Added AuthenticationInformation to xWebsite and xWebApplication
+* Added SslFlags to xWebApplication
 
 ### 1.10.0.0
 
