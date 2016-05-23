@@ -15,7 +15,8 @@ VerboseSetTargetSslFlags = Updating SslFlags for Web application "{0}".
 VerboseSetTargetAuthenticationInfo = Updating AuthenticationInfo for Web application "{0}".
 VerboseSetTargetPreload = Updating Preload for Web application "{0}".
 VerboseSetTargetAutostart = Updating AutoStart for Web application "{0}".
-VerboseSetTargetAutoStartProviders = Updating AutoStartProviders for Web application "{0}". 
+VerboseSetTargetIISAutoStartProviders = Updating AutoStartProviders for IIS.
+VerboseSetTargetWebApplicationAutoStartProviders = Updating AutoStartProviders for Web application "{0}". 
 VerboseTestTargetFalseAbsent = Web application "{0}" is absent and should not absent.
 VerboseTestTargetFalsePresent = Web application $Name should be absent and is not absent.
 VerboseTestTargetFalsePhysicalPath = Physical path for web application "{0}" does not match desired state.
@@ -25,6 +26,8 @@ VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for web applicatio
 VerboseTestTargetFalsePreload = Preload for web application "{0}" is not in the desired state.
 VerboseTestTargetFalseAutostart = Autostart for web application "{0}" is not in the desired state.
 VerboseTestTargetFalseAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
+VerboseTestTargetFalseIISAutoStartProviders = AutoStartProviders for IIS are not in the desired state.
+VerboseTestTargetFalseWebApplicationAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
 '@
 }
 
@@ -48,33 +51,14 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [String]
-        $PhysicalPath,
-        
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [String[]]$SslFlags = '',
-
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $AuthenticationInfo,
-
-        [Boolean]
-        $PreloadEnabled,
-        
-        [Boolean]
-        $ServiceAutoStartEnabled,
-
-        [String]
-        $ServiceAutoStartProvider,
-        
-        [String]
-        $ApplicationType
+        $PhysicalPath
     )
 
     Assert-Module
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
-    $SslFlags = (Get-SslFlags -Location "${Website}/${Name}")
+    $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${Name}")
 
     $Ensure = 'Absent'
 
@@ -89,7 +73,7 @@ function Get-TargetResource
         WebAppPool               = $webApplication.applicationPool
         PhysicalPath             = $webApplication.PhysicalPath
         AuthenticationInfo       = $CimAuthentication
-        SslFlags                 = $SslFlags
+        SslFlags                 = @($CurrentSslFlags)
         PreloadEnabled           = $webApplication.preloadEnabled
         ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
@@ -177,10 +161,17 @@ function Set-TargetResource
             }
      
             # Update SslFlags if required
-            if ($PSBoundParameters.ContainsKey('SslFlags') -and (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags))
+            if ($PSBoundParameters.ContainsKey('SslFlags') -and (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAbsent -f $Name)
-                Set-WebConfiguration -Location "${Website}/${Name}" -Filter 'system.webserver/security/access' -Value $SslFlags
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetSslFlags -f $Name)
+                $params = @{
+                    PSPath   = 'MACHINE/WEBROOT/APPHOST'
+                    Location = "${Website}/${Name}"
+                    Filter   = 'system.webServer/security/access'
+                    Name     = 'sslFlags'
+                    Value    = [string]$sslflags
+                }
+                Set-WebConfigurationProperty @params
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
@@ -208,11 +199,12 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
-                    {
-                        Write-Verbose -Message ($LocalizedData.VerboseSetTargetAutoStartProviders -f $Name)
-                        Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
-                        Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
-                    }
+                {
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
+                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                }
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
             }
     }
 
@@ -341,10 +333,11 @@ function Test-TargetResource
         {
             if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProviders -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProviders)
                 return $false     
             }
-        
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebApplicationAutoStartProviders -f $Name)
+            return $false      
         }
     
     }
