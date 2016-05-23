@@ -67,8 +67,10 @@ try
             
             $DefaultPages = Get-WebConfiguration `
                 -Filter '//defaultDocument/files/*' `
-                -PSPath "IIS:\Sites\Website" |
+                -PSPath 'IIS:\Sites\Website' |
                 ForEach-Object -Process {Write-Output -InputObject $_.value}
+
+            $ServiceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
             # Test Website basic settings are correct
             $Result.Name             | Should Be $DSCConfig.AllNodes.Website
@@ -87,7 +89,10 @@ try
             $Result.ApplicationDefaults.PreloadEnabled           | Should Be $DSCConfig.AllNodes.PreloadEnabled
             $Result.ApplicationDefaults.ServiceAutoStartProvider | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
             $Result.ApplicationDefaults.ServiceAutoStartEnabled  | Should Be $DSCConfig.AllNodes.ServiceAutoStartEnabled
-            $Result.ApplicationType                              | Should Be $MockPreloadAndAutostartProvider.ApplicationType
+            
+            # Test the serviceAutoStartProviders are present in IIS config
+            $ServiceAutoStartProviders.Name | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
+            $ServiceAutoStartProviders.Type | Should Be $DSCConfig.AllNodes.ApplicationType
 
             # Test bindings are correct
             $Result.bindings.Collection.Protocol                | Should Match $DSCConfig.AllNodes.HTTPProtocol
@@ -130,7 +135,7 @@ try
             
             $DefaultPages = Get-WebConfiguration `
                 -Filter '//defaultDocument/files/*' `
-                -PSPath "IIS:\Sites\Website" |
+                -PSPath 'IIS:\Sites\Website' |
                 ForEach-Object -Process {Write-Output -InputObject $_.value}
 
             # Test Website basic settings are correct
