@@ -24,7 +24,7 @@ function Get-TargetResource
 
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
-        [ValidateSet('', 'Ssl','SslNegotiateCert','SslRequireCert')]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert')]
         [string[]] $Bindings = ''
     )
 
