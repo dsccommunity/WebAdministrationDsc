@@ -109,8 +109,8 @@ function Set-TargetResource
         [String]
         $Ensure = 'Present',
 
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [AllowEmptyString()]
+        [ValidateSet('', 'Ssl','SslNegotiateCert','SslRequireCert')]
         [String[]]$SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
@@ -242,8 +242,8 @@ function Test-TargetResource
         [String]
         $Ensure = 'Present',
 
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [AllowEmptyString()]
+        [ValidateSet('', 'Ssl','SslNegotiateCert','SslRequireCert')]
         [String[]]$SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
@@ -653,8 +653,8 @@ function Test-SslFlags
     [OutputType([Boolean])]
     param
     (
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [AllowEmptyString()]
+        [ValidateSet('', 'Ssl','SslNegotiateCert','SslRequireCert')]
         [String[]]$SslFlags = '',
 
         [Parameter(Mandatory = $true)]
