@@ -160,7 +160,7 @@ Currently, only FastCgiModule is supported.
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
     * **Digest**: The acceptable values for this property are: `$true`, `$false`
     * **Windows**: The acceptable values for this property are: `$true`, `$false`
-* **SslFlags**: SslFlags for the application: The acceptable values for this property are: `Ssl`, `SslNegotiateCert`, `SslRequireCert`
+* **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
 
 ### xWebVirtualDirectory
 
