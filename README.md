@@ -203,14 +203,14 @@ Currently, only FastCgiModule is supported.
 
 * Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
 
-* Added **xIISLogging** resource which supports
+* Added **xIISLogging** resource which supports for the following options:
     * LogPath
     * LogFlags
     * LogPeriod
     * LogTruncateSize
     * LoglocalTimeRollover
     * LogFormat
-* Added IIS Logging to **xWebsite** which support
+* Added IIS Logging to **xWebsite** which support for the following options:
     * LogPath
     * LogFlags
     * LogPeriod
