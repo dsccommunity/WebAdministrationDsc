@@ -65,7 +65,7 @@ function Get-IisHandler
     )
 
     Trace-Message "Getting Handler for $Name in Site $SiteName"
-    return get-webconfiguration -Filter 'System.WebServer/handlers/*' -PSPath (Get-IisSitePath -SiteName $SiteName) | ?{$_.Name -ieq $Name}
+    return get-webconfiguration -Filter 'System.WebServer/handlers/*' -PSPath (Get-IisSitePath -SiteName $SiteName) | Where-Object{$_.Name -ieq $Name}
 }
 
 # Remove an IIS Handler
@@ -125,7 +125,6 @@ function Get-TargetResource
 
         $currentVerbs = @()
         $Ensure = 'Absent'
-        $getTargetResourceResult = $null;
 
         $modulePresent = $false;
 
@@ -148,7 +147,7 @@ function Get-TargetResource
         # bug(TBD) deal with this better, maybe a seperate resource....
         If($handler.Modules -eq 'FastCgiModule')
         {
-            $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* -PSPath (Get-IisSitePath -SiteName $SiteName) | ?{$_.FullPath -ieq $handler.ScriptProcessor}
+            $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* -PSPath (Get-IisSitePath -SiteName $SiteName) | Where-Object{$_.FullPath -ieq $handler.ScriptProcessor}
             if($fastCgi)
             {
                 $fastCgiSetup = $true
@@ -323,7 +322,7 @@ function Test-TargetResource
 function Test-TargetResourceImpl
 {
     [CmdletBinding()]
-    [OutputType([System.Boolean])]
+    [OutputType([System.Collections.Hashtable])]
     param
     (
         [parameter(Mandatory = $true)]

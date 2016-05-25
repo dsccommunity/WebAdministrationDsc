@@ -19,7 +19,7 @@ function Get-TargetResource
     )
 
     $existingvalue = Get-ItemValue -key $Key -isAttribute $false -websitePath $WebsitePath -configSection $ConfigSection
-    if($existingvalue -eq $null)
+    if($null -eq $existingvalue)
     {
         $existingvalue = Get-ItemValue -key $Key -isAttribute $true -websitePath $WebsitePath -configSection $ConfigSection
     }
@@ -74,7 +74,7 @@ function Set-TargetResource
     {
         $existingvalue = Get-ItemValue -key $Key -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
 
-        if((!$IsAttribute -and ($existingvalue -eq $null)) -or ($IsAttribute -and ($existingvalue.Length -eq 0)))
+        if((!$IsAttribute -and ($null -eq $existingvalue)) -or ($IsAttribute -and ($existingvalue.Length -eq 0)))
         {
             Add-Item -key $Key -value $Value -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
         }
@@ -85,7 +85,7 @@ function Set-TargetResource
             {
                 $propertyName = $Key
             }
-            Modify-Item -propertyName $propertyName -oldValue $existingvalue -newValue $Value -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
+            Edit-Item -propertyName $propertyName -oldValue $existingvalue -newValue $Value -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
         }
     }
     else
@@ -135,7 +135,7 @@ function Test-TargetResource
     {
         if(!$IsAttribute)
         {
-            if(($existingvalue -eq $null) -or ($existingvalue -ne $Value))
+            if(($null -eq $existingvalue) -or ($existingvalue -ne $Value))
             {
                 return $false
             }
@@ -160,7 +160,7 @@ function Test-TargetResource
     {
         if(!$IsAttribute)
         {
-            if(($existingvalue -eq $null))
+            if(($null -eq $existingvalue))
             {
                 return $true
             }
@@ -200,7 +200,7 @@ function Add-item([string]$key, [string]$value, [Boolean]$isAttribute, [string]$
     }
 }
 
-function Modify-Item([string]$propertyName, [string]$oldValue, [string]$newValue, [Boolean]$isAttribute, [string]$websitePath, [string]$configSection)
+function Edit-Item([string]$propertyName, [string]$oldValue, [string]$newValue, [Boolean]$isAttribute, [string]$websitePath, [string]$configSection)
 {
     $defaultFilter = $configSection
 

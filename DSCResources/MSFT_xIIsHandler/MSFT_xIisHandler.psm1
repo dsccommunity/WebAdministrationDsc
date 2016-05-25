@@ -810,7 +810,7 @@ function Get-TargetResource
 
     $handler = Get-Handler -Name $Name
 
-    if ($handler -eq $null)
+    if ($null -eq $handler)
     {
         return @{
             Ensure = 'Absent'
@@ -848,13 +848,13 @@ function Set-TargetResource
 
     $handler = Get-Handler -Name $Name
 
-    if ($handler -eq $null -and $Ensure -eq 'Present')
+    if ($null -eq $handler -and $Ensure -eq 'Present')
     {
         # add the handler
         Add-Handler -Name $Name
         Write-Verbose -Message ($LocalizedData.AddingHandler -f $Name)
     }
-    elseif ($handler -ne $null -and $Ensure -eq 'Absent')
+    elseif ($null -ne $handler -and $Ensure -eq 'Absent')
     {
         # remove the handler
         Remove-WebConfigurationProperty -PSPath $psPathRoot -Filter $sectionNode -Name '.' -AtElement @{name="$Name"}
@@ -882,11 +882,11 @@ function Test-TargetResource
 
     $handler = Get-Handler -Name $Name
 
-    if (($handler -eq $null -and $Ensure -eq 'Present') -or ($handler -ne $null -and $Ensure -eq 'Absent'))
+    if (($null -eq $handler -and $Ensure -eq 'Present') -or ($null -ne $handler -and $Ensure -eq 'Absent'))
     {
         return $false;
     }
-    elseif ($handler -ne $null -and $Ensure -eq 'Present')
+    elseif ($null -ne $handler -and $Ensure -eq 'Present')
     {
         # Handler is present
         Write-Verbose -Message ($LocalizedData.HandlerExists -f $Name);
