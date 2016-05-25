@@ -22,6 +22,7 @@ ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property val
 ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
 ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
 ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
+ErrorWebBindingMissingSniHostName = The HostName property is required for use with Server Name Indication.
 ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
 ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
 ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
@@ -85,7 +86,7 @@ function Get-TargetResource
     Assert-Module
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-    
+
     if ($Website.Count -eq 0) # No Website exists with this name
     {
         $EnsureResult = 'Absent'
@@ -125,12 +126,12 @@ function Get-TargetResource
         ServiceAutoStartProvider = $Website.applicationDefaults.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
         ApplicationType          = $WebConfiguration.Type
-        
+
     }
 }
 
 function Set-TargetResource
-{ 
+{
     <#
     .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine.
@@ -170,16 +171,16 @@ function Set-TargetResource
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
-        
+
         [Boolean]
         $PreloadEnabled,
-        
+
         [Boolean]
         $ServiceAutoStartEnabled,
 
         [String]
         $ServiceAutoStartProvider,
-        
+
         [String]
         $ApplicationType
     )
@@ -272,19 +273,19 @@ function Set-TargetResource
             {
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
             }
-           
+
             # Update Preload if required
             if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
             {
                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
             }
-            
+
             # Update AutoStart if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
             }
-            
+
             # Update AutoStartProviders if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
@@ -388,13 +389,13 @@ function Set-TargetResource
             {
                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
             }
-            
+
             # Update AutoStart if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled'))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
             }
-            
+
             # Update AutoStartProviders if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider'))
             {
@@ -462,16 +463,16 @@ function Test-TargetResource
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
-        
+
         [Boolean]
         $PreloadEnabled,
-        
+
         [Boolean]
         $ServiceAutoStartEnabled,
 
         [String]
         $ServiceAutoStartProvider,
-        
+
         [String]
         $ApplicationType
     )
@@ -481,7 +482,7 @@ function Test-TargetResource
     $InDesiredState = $true
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-    
+
     # Check Ensure
     if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
     {
@@ -550,32 +551,32 @@ function Test-TargetResource
 
         #Check AuthenticationInfo
         if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
-        { 
+        {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
-        } 
-        
+        }
+
         #Check Preload
         if($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
-        } 
-              
+        }
+
         #Check AutoStartEnabled
         if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and $Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart -f $Name)
         }
-        
-        #Check AutoStartProviders 
+
+        #Check AutoStartProviders
         if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and $Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
             if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
             {
                 $InDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProvider)     
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProvider)
             }
         }
     }
@@ -687,7 +688,7 @@ function Confirm-UniqueServiceAutoStartProviders
         need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
         Name is passed in to bubble to any error messages during the test.
     #>
-    
+
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -927,7 +928,15 @@ function ConvertTo-WebBinding
 
                     if ([Environment]::OSVersion.Version -ge '6.2')
                     {
-                        $OutputObject.Add('sslFlags', [Int64]$Binding.SslFlags)
+                        $SslFlags = [Int64]$Binding.SslFlags
+
+                        if ($SslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($Binding.HostName))
+                        {
+                            $ErrorMessage = $LocalizedData.ErrorWebBindingMissingSniHostName
+                            New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
+                        }
+
+                        $OutputObject.Add('sslFlags', $SslFlags)
                     }
                 }
                 else
@@ -1125,7 +1134,7 @@ function Test-AuthenticationEnabled
 {
     <#
     .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application. 
+        Helper function used to test the authenticationProperties state for an Application.
         Will return that value which will either [String]True or [String]False
     .PARAMETER Site
         Specifies the name of the Website.
@@ -1157,7 +1166,7 @@ function Test-AuthenticationInfo
 {
     <#
     .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application. 
+        Helper function used to test the authenticationProperties state for an Application.
         Will return that result which will either [boolean]$True or [boolean]$False for use in Test-TargetResource.
         Uses Test-AuthenticationEnabled to determine this. First incorrect result will break this function out.
     .PARAMETER Site
@@ -1467,7 +1476,3 @@ function Update-WebsiteBinding
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
-
-
-
-
