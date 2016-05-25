@@ -198,6 +198,10 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+* **xWebsite** updates:
+    * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo 
+
+* Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
 
 * Added **xIISLogging** resource which supports
     * LogPath

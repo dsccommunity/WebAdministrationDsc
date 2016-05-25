@@ -6,9 +6,10 @@ os: WMF 5
 version: 1.11.{build}.0
 install:
   - cinst -y pester
+  - ps: Push-Location
+  - cd Tests
   - git clone https://github.com/PowerShell/DscResource.Tests
   - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
-  - ps: Push-Location
   - cd DscResource.Tests
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location

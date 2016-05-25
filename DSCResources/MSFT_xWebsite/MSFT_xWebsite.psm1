@@ -472,21 +472,18 @@ function Set-TargetResource
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
             {
-                Write-Verbose -Message 'DefaultAuthenticationInfo'
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
             }
 
             # Update Preload if required
             if ($PSBoundParameters.ContainsKey('preloadEnabled'))
             {
-               Write-Verbose -Message 'Preload'
                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
             }
             
             # Update AutoStart if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled'))
             {
-                Write-Verbose 'Autostart'
                 Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
             }
             
@@ -495,7 +492,6 @@ function Set-TargetResource
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
                 {
-                    Write-Verbose 'Autostart Proidors'
                     Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartEnabled -ErrorAction Stop
                     Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
                 }
