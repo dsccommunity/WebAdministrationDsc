@@ -147,21 +147,27 @@ function Set-TargetResource
             }
 
             #Update Physical Path if required
-            if (($PSBoundParameters.ContainsKey('PhysicalPath') -and $webApplication.physicalPath -ne $PhysicalPath))
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetPhysicalPath -f $Name)
-                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" -Name physicalPath -Value $PhysicalPath
-            }
+			if (($PSBoundParameters.ContainsKey('PhysicalPath') -and `
+				$webApplication.physicalPath -ne $PhysicalPath))
+			{
+				Write-Verbose -Message ($LocalizedData.VerboseSetTargetPhysicalPath -f $Name)
+				Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
+											 -Name physicalPath `
+											 -Value $PhysicalPath
+			}
 
             # Update AppPool if required
-            if ($PSBoundParameters.ContainsKey('WebAppPool') -and ($webApplication.applicationPool -ne $WebAppPool))
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebAppPool -f $Name)
-                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" -Name applicationPool -Value $WebAppPool
-            }
+			if ($PSBoundParameters.ContainsKey('WebAppPool') -and `
+				($webApplication.applicationPool -ne $WebAppPool))
+			{
+				Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebAppPool -f $Name)
+				Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
+											 -Name applicationPool -Value $WebAppPool
+			}
      
             # Update SslFlags if required
-            if ($PSBoundParameters.ContainsKey('SslFlags') -and (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
+            if ($PSBoundParameters.ContainsKey('SslFlags') -and `
+				(-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetSslFlags -f $Name)
                 $params = @{
@@ -175,37 +181,56 @@ function Set-TargetResource
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)))
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo -f $Name)
-                Set-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop -Verbose
-            }
+			if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+				(-not (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)))
+			{
+				Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo -f $Name)
+				Set-AuthenticationInfo -Site $Website `
+									   -Name $Name `
+									   -AuthenticationInfo $AuthenticationInfo `
+									   -ErrorAction Stop 
+									   -Verbose `
+			}
 
             # Update Preload if required
-            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $webApplication.preloadEnabled -ne $PreloadEnabled)
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetPreload -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name preloadEnabled -Value $preloadEnabled -ErrorAction Stop
-            }
+			if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $webApplication.preloadEnabled -ne $PreloadEnabled)
+			{
+				Write-Verbose -Message ($LocalizedData.VerboseSetTargetPreload -f $Name)
+				Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
+								 -Name preloadEnabled `
+								 -Value $preloadEnabled `
+								 -ErrorAction Stop
+			}
 
             # Update AutoStart if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAutostart -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartEnabled -Value $serviceAutoStartEnabled -ErrorAction Stop
-            }
+			if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
+				$webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+			{
+				Write-Verbose -Message ($LocalizedData.VerboseSetTargetAutostart -f $Name)
+				Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
+								 -Name serviceAutoStartEnabled `
+								 -Value $serviceAutoStartEnabled `
+								 -ErrorAction Stop
+			}
 
             # Update AutoStartProviders if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
-            {
-                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
-                {
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
-                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
-                }
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" -Name serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
-            }
+			if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
+				$webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+			{
+				if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider `
+																  -ApplicationType $ApplicationType))
+				{
+					Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
+					Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
+										 -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
+										 -ErrorAction Stop
+				}
+				Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
+				Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
+								 -Name serviceAutoStartProvider `
+								 -Value $ServiceAutoStartProvider `
+								 -ErrorAction Stop
+			}
     }
 
     if ($Ensure -eq 'Absent')
@@ -301,37 +326,43 @@ function Test-TargetResource
         }
         
         #Check SslFlags
-        if ($PSBoundParameters.ContainsKey('SslFlags') -and (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
+        if ($PSBoundParameters.ContainsKey('SslFlags') -and `
+			(-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSslFlags -f $Name)
             return $false
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)))
+        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+			(-not (Test-AuthenticationInfo -Site $Website -Name $Name -AuthenticationInfo $AuthenticationInfo)))
         { 
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
             return $false
         }       
         
         #Check Preload
-        if ($PSBoundParameters.ContainsKey('preloadEnabled') -and $webApplication.preloadEnabled -ne $PreloadEnabled)
+        if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
+			$webApplication.preloadEnabled -ne $PreloadEnabled)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
             return $false
         } 
              
         #Check AutoStartEnabled
-        if($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+        if($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
+			$webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutostart -f $Name)
             return $false
         }
         
         #Check AutoStartProviders 
-        if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+        if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
+			$webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
-            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider `
+															  -ApplicationType $ApplicationType))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProviders)
                 return $false     
@@ -396,7 +427,9 @@ function Confirm-UniqueServiceAutoStartProviders
             if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
                 {
                     $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                    New-TerminatingError -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' `
+										 -ErrorMessage $ErrorMessage `
+										 -ErrorCategory 'InvalidResult'
                 }
         }
 
