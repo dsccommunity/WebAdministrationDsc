@@ -814,7 +814,7 @@ function Confirm-UniqueServiceAutoStartProviders
 							  -Property type)
                 {
                     $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure'` 
+                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' `
 										 -ErrorMessage $ErrorMessage `
 										 -ErrorCategory 'InvalidResult'`
                 }
