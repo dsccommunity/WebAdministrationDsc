@@ -839,7 +839,7 @@ try
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1      
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 13
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
 
                 }
@@ -931,7 +931,7 @@ try
                 $Result = Set-TargetResource @MockParameters
 
                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 13
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
