@@ -206,23 +206,23 @@ function Set-TargetResource
         [String]
         $LogPath,
 
-        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
+        [String[]]
         $LogFlags,
-                       
-        [String]
+                
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        $LogPeriod,
-        
         [String]
+        $LogPeriod,
+                
         [ValidateRange('1048576','4294967295')]
+        [String]
         $LogTruncateSize,
-        
+
         [Boolean]
         $LoglocalTimeRollover,
         
-        [String]
         [ValidateSet('IIS','W3C','NCSA')]
+        [String]
         $LogFormat
     )
 
@@ -339,51 +339,67 @@ function Set-TargetResource
             }
             
             # Update LogFormat if Needed
-            if ($PSBoundParameters.ContainsKey('LogFormat') -and ($LogFormat -ne $Website.logfile.LogFormat))
+            if ($PSBoundParameters.ContainsKey('LogFormat') -and `
+                ($LogFormat -ne $Website.logfile.LogFormat))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.logFormat -value $LogFormat
-            }
-
-            # Update LogFlags if required
-            if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags))) 
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.logFormat -Value 'W3C'
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.LogExtFileFlags -Value $LogFlags
+                Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
+                    -name logFormat `
+                    -value $LogFormat
             }
             
-            #  Update LogPath if required
+            # Update LogFlags if required
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+                (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags))) 
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.logFormat -Value 'W3C'
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+            }
+                        
+            # Update LogPath if required
             if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $Website.logfile.LogPath))
-            {            
+            {
+            
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.directory -value $LogPath
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.directory -value $LogPath
             }
             
             # Update LogPeriod if needed
-            if ($PSBoundParameters.ContainsKey('LogPeriod') -and ($LogPeriod -ne $Website.logfile.LogPeriod))
+            if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
+                ($LogPeriod -ne $Website.logfile.LogPeriod))
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
                         Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
-                    }              
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.period -Value $LogPeriod
+                    }
+              
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value $LogPeriod
             }
             
             # Update LogTruncateSize if needed
-            if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
+                ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.truncateSize -Value $LogTruncateSize
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.period -Value 'MaxSize'
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.truncateSize -Value $LogTruncateSize
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value 'MaxSize'
             }
 
             # Update LoglocalTimeRollover if neeed
-            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
+                ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }    
 
         }
@@ -498,18 +514,24 @@ function Set-TargetResource
             }
             
             # Update LogFormat if Needed
-            if ($PSBoundParameters.ContainsKey('LogFormat') -and ($LogFormat -ne $Website.logfile.LogFormat))
+            if ($PSBoundParameters.ContainsKey('LogFormat') -and `
+                ($LogFormat -ne $Website.logfile.LogFormat))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
-                Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' -name logFormat -value $LogFormat
+                Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
+                    -name logFormat `
+                    -value $LogFormat
             }
             
             # Update LogFlags if required
-            if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags))) 
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+                (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags))) 
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.logFormat -Value 'W3C'
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.logFormat -Value 'W3C'
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
             }
                         
             # Update LogPath if required
@@ -517,11 +539,13 @@ function Set-TargetResource
             {
             
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.directory -value $LogPath
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.directory -value $LogPath
             }
             
             # Update LogPeriod if needed
-            if ($PSBoundParameters.ContainsKey('LogPeriod') -and ($LogPeriod -ne $Website.logfile.LogPeriod))
+            if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
+                ($LogPeriod -ne $Website.logfile.LogPeriod))
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
@@ -529,22 +553,28 @@ function Set-TargetResource
                     }
               
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.period -Value $LogPeriod
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value $LogPeriod
             }
             
             # Update LogTruncateSize if needed
-            if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
+                ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.truncateSize -Value $LogTruncateSize
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.period -Value 'MaxSize'
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.truncateSize -Value $LogTruncateSize
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value 'MaxSize'
             }
 
             # Update LoglocalTimeRollover if neeed
-            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
+                ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }    
         }
     }
@@ -620,23 +650,23 @@ function Test-TargetResource
         [String]
         $LogPath,
         
-        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
+        [String[]]
         $LogFlags,
-                       
-        [String]
+                
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        $LogPeriod,
-        
         [String]
+        $LogPeriod,
+                
         [ValidateRange('1048576','4294967295')]
+        [String]
         $LogTruncateSize,
-        
+
         [Boolean]
         $LoglocalTimeRollover,
         
-        [String]
         [ValidateSet('IIS','W3C','NCSA')]
+        [String]
         $LogFormat
     )
 
@@ -765,21 +795,24 @@ function Test-TargetResource
         }
         
         # Check LogFlags
-        if ($PSBoundParameters.ContainsKey('LogFlags') -and (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))  
+        if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+            (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))  
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
             return $false
         }
         
         # Check LogPath
-        if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $Website.logfile.LogPath))
+        if ($PSBoundParameters.ContainsKey('LogPath') -and `
+            ($LogPath -ne $Website.logfile.LogPath))
         { 
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath -f $Name)
             return $false 
         }
 
         # Check LogPeriod
-        if ($PSBoundParameters.ContainsKey('LogPeriod') -and ($LogPeriod -ne $Website.logfile.LogPeriod))
+        if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
+            ($LogPeriod -ne $Website.logfile.LogPeriod))
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
             {
@@ -791,14 +824,16 @@ function Test-TargetResource
         }
         
         # Check LogTruncateSize
-        if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
+        if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
+            ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize -f $Name)
             return $false
         }
         
         # Check LoglocalTimeRollover
-        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
+            ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover -f $Name)
             return $false
