@@ -188,8 +188,8 @@ function Set-TargetResource
 				Set-AuthenticationInfo -Site $Website `
 									   -Name $Name `
 									   -AuthenticationInfo $AuthenticationInfo `
-									   -ErrorAction Stop 
-									   -Verbose `
+									   -ErrorAction Stop `
+									   -Verbose
 			}
 
             # Update Preload if required
