@@ -85,29 +85,33 @@ function Get-TargetResource
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
     
-    if ($Website.Count -eq 0) # No Website exists with this name
-    {
-        $EnsureResult = 'Absent'
-    }
-    elseif ($Website.Count -eq 1) # A single Website exists with this name
-    {
-        $EnsureResult = 'Present'
+	if ($Website.Count -eq 0) # No Website exists with this name
+	{
+		$EnsureResult = 'Absent'
+	}
+	elseif ($Website.Count -eq 1) # A single Website exists with this name
+	{
+		$EnsureResult = 'Present'
 
-        $CimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
+		$CimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
 
-        $AllDefaultPages = @(
-            Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
-            ForEach-Object -Process {Write-Output -InputObject $_.value}
-        )
-        $CimAuthentication = Get-AuthenticationInfo -Site $Name
-        $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
-        $WebConfiguration = $WebSiteAutoStartProviders |  Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | Select-Object Name,Type
-    }
-    else # Multiple websites with the same name exist. This is not supported and is an error
-    {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f $Name
-        New-TerminatingError -ErrorId 'WebsiteDiscoveryFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
-    }
+		$AllDefaultPages = @(
+			Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
+			ForEach-Object -Process {Write-Output -InputObject $_.value}
+		)
+		$CimAuthentication = Get-AuthenticationInfo -Site $Name
+		$WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+		$WebConfiguration = $WebSiteAutoStartProviders | `
+								Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | ` 
+								Select-Object Name,Type
+	}
+	else # Multiple websites with the same name exist. This is not supported and is an error
+	{
+		$ErrorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f $Name
+		New-TerminatingError -ErrorId 'WebsiteDiscoveryFailure' `
+							 -ErrorMessage $ErrorMessage `
+							 -ErrorCategory 'InvalidResult'
+	}
 
     # Add all website properties to the hash table
     return @{
@@ -194,23 +198,31 @@ function Set-TargetResource
             # Update Physical Path if required
             if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name physicalPath -Value $PhysicalPath -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+								 -Name physicalPath `
+								 -Value $PhysicalPath `
+								 -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedPhysicalPath -f $Name, $PhysicalPath)
             }
 
             # Update Application Pool if required
             if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool -ne $ApplicationPool)
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationPool -Value $ApplicationPool -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+								 -Name applicationPool `
+								 -Value $ApplicationPool `
+								 -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedApplicationPool -f $Name, $ApplicationPool)
             }
 
             # Update Bindings if required
             if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
             {
-                if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
+                if (-not (Test-WebsiteBinding -Name $Name `
+											  -BindingInfo $BindingInfo))
                 {
-                    Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
+                    Update-WebsiteBinding -Name $Name `
+										  -BindingInfo $BindingInfo
                     Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo -f $Name)
                 }
             }
@@ -218,14 +230,18 @@ function Set-TargetResource
             # Update Enabled Protocols if required
             if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols -Value $EnabledProtocols -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+								 -Name enabledProtocols `
+								 -Value $EnabledProtocols `
+								 -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols -f $Name, $EnabledProtocols)
             }
 
             # Update Default Pages if required
             if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
             {
-                Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
+                Update-DefaultPage -Name $Name `
+								   -DefaultPage $DefaultPage
             }
 
             # Update State if required
@@ -234,11 +250,14 @@ function Set-TargetResource
                 if ($State -eq 'Started')
                 {
                     # Ensure that there are no other running websites with binding information that will conflict with this website before starting
-                    if (-not (Confirm-UniqueBinding -Name $Name -ExcludeStopped))
+                    if (-not (Confirm-UniqueBinding -Name $Name `
+													-ExcludeStopped))
                     {
                         # Return error and do not start the website
                         $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
-                        New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                        New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' `
+											 -ErrorMessage $ErrorMessage `
+											 -ErrorCategory 'InvalidResult'
                     }
 
                     try
@@ -248,7 +267,9 @@ function Set-TargetResource
                     catch
                     {
                         $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
-                        New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+                        New-TerminatingError -ErrorId 'WebsiteStateFailure' `
+											 -ErrorMessage $ErrorMessage `
+											 -ErrorCategory 'InvalidOperation'
                     }
                 }
                 else
@@ -260,7 +281,9 @@ function Set-TargetResource
                     catch
                     {
                         $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
-                        New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+                        New-TerminatingError -ErrorId 'WebsiteStateFailure' `
+											 -ErrorMessage $ErrorMessage `
+											 -ErrorCategory 'InvalidOperation'
                     }
                 }
 
@@ -268,35 +291,50 @@ function Set-TargetResource
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+				(-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
             {
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated -f $Name)
             }
            
             # Update Preload if required
-            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and ($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
+				($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
             {
-               Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+               Set-ItemProperty -Path "IIS:\Sites\$Name" `
+								-Name applicationDefaults.preloadEnabled `
+								-Value $PreloadEnabled `
+								-ErrorAction Stop
                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated -f $Name)
             }
             
             # Update AutoStart if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and ($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
+				($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+								 -Name applicationDefaults.serviceAutoStartEnabled `
+								 -Value $ServiceAutoStartEnabled `
+								 -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated -f $Name)
             }
             
             # Update AutoStartProviders if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and ($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
+				($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
             {
-                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+                if (-not (Confirm-UniqueServiceAutoStartProviders `
+							-ServiceAutoStartProvider $ServiceAutoStartProvider `
+							-ApplicationType $ApplicationType))
                 {
-                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
+										 -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
+										 -ErrorAction Stop
                     Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider `
+								 -Value $ServiceAutoStartProvider -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated -f $Name)
             }
         }
@@ -331,7 +369,9 @@ function Set-TargetResource
             catch
             {
                 $ErrorMessage = $LocalizedData.ErrorWebsiteCreationFailure -f $Name, $_.Exception.Message
-                New-TerminatingError -ErrorId 'WebsiteCreationFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+                New-TerminatingError -ErrorId 'WebsiteCreationFailure' `
+									 -ErrorMessage $ErrorMessage `
+									 -ErrorCategory 'InvalidOperation'
             }
 
             Stop-Website -Name $Website.Name -ErrorAction Stop
@@ -339,7 +379,8 @@ function Set-TargetResource
             # Clear default bindings if new bindings defined and are different
             if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
             {
-                if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
+                if (-not (Test-WebsiteBinding -Name $Name `
+											  -BindingInfo $BindingInfo))
                 {
                     Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
                     Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo -f $Name)
@@ -349,14 +390,17 @@ function Set-TargetResource
             # Update Enabled Protocols if required
             if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols -Value $EnabledProtocols -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols `
+														  -Value $EnabledProtocols `
+														  -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols -f $Name, $EnabledProtocols)
             }
 
             # Update Default Pages if required
             if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
             {
-                Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
+                Update-DefaultPage -Name $Name `
+								   -DefaultPage $DefaultPage
             }
 
             # Start website if required
@@ -367,7 +411,9 @@ function Set-TargetResource
                 {
                     # Return error and do not start the website
                     $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
-                    New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                    New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' `
+										 -ErrorMessage $ErrorMessage `
+										 -ErrorCategory 'InvalidResult'
                 }
 
                 try
@@ -378,40 +424,57 @@ function Set-TargetResource
                 catch
                 {
                     $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
-                    New-TerminatingError -ErrorId 'WebsiteStateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+                    New-TerminatingError -ErrorId 'WebsiteStateFailure' `
+										 -ErrorMessage $ErrorMessage `
+										 -ErrorCategory 'InvalidOperation'
                 }
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+				(-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
             {
                 Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated -f $Name)
             }
            
             # Update Preload if required
-            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and ($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
+				($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
             {
-               Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.preloadEnabled -Value $PreloadEnabled -ErrorAction Stop
+               Set-ItemProperty -Path "IIS:\Sites\$Name" `
+								-Name applicationDefaults.preloadEnabled `
+								-Value $PreloadEnabled `
+								-ErrorAction Stop
                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated -f $Name)
             }
             
             # Update AutoStart if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and ($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
+				($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartEnabled -Value $ServiceAutoStartEnabled -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+								 -Name applicationDefaults.serviceAutoStartEnabled `
+								 -Value $ServiceAutoStartEnabled `
+								 -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated -f $Name)
             }
             
             # Update AutoStartProviders if required
-            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and ($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
+				($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
             {
-                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+                if (-not (Confirm-UniqueServiceAutoStartProviders `
+							-ServiceAutoStartProvider $ServiceAutoStartProvider `
+							-ApplicationType $ApplicationType))
                 {
-                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} -ErrorAction Stop
+                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
+										 -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
+										 -ErrorAction Stop
                     Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider `
+								 -Value $ServiceAutoStartProvider -ErrorAction Stop
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated -f $Name)
             }
         }
@@ -426,7 +489,9 @@ function Set-TargetResource
         catch
         {
             $ErrorMessage = $LocalizedData.ErrorWebsiteRemovalFailure -f $Name, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebsiteRemovalFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+            New-TerminatingError -ErrorId 'WebsiteRemovalFailure' `
+								 -ErrorMessage $ErrorMessage `
+								 -ErrorCategory 'InvalidOperation'
         }
     }
 }
@@ -493,7 +558,8 @@ function Test-TargetResource
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
     
     # Check Ensure
-    if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
+    if (($Ensure -eq 'Present' -and $Website -eq $null) -or `
+		($Ensure -eq 'Absent' -and $Website -ne $null))
     {
         $InDesiredState = $false
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnsure -f $Name)
@@ -503,7 +569,8 @@ function Test-TargetResource
     if ($Ensure -eq 'Present' -and $Website -ne $null)
     {
         # Check Physical Path property
-        if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
+        if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
+			$Website.PhysicalPath -ne $PhysicalPath)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)
@@ -517,7 +584,8 @@ function Test-TargetResource
         }
 
         # Check Application Pool property
-        if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool -ne $ApplicationPool)
+        if ($PSBoundParameters.ContainsKey('ApplicationPool') -and `
+			$Website.ApplicationPool -ne $ApplicationPool)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseApplicationPool -f $Name)
@@ -534,7 +602,8 @@ function Test-TargetResource
         }
 
         # Check Enabled Protocols
-        if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
+        if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and `
+			$Website.EnabledProtocols -ne $EnabledProtocols)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnabledProtocols -f $Name)
@@ -559,30 +628,37 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and (-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
+        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+			(-not (Test-AuthenticationInfo -Site $Name `
+										   -AuthenticationInfo $AuthenticationInfo)))
         { 
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
         } 
         
         #Check Preload
-        if($PSBoundParameters.ContainsKey('preloadEnabled') -and $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+        if($PSBoundParameters.ContainsKey('preloadEnabled') -and `
+			$Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
         } 
               
         #Check AutoStartEnabled
-        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and $Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and `
+			$Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart -f $Name)
         }
         
         #Check AutoStartProviders 
-        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and $Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and `
+			$Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
-            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider -ApplicationType $ApplicationType))
+            if (-not (Confirm-UniqueServiceAutoStartProviders `
+						-serviceAutoStartProvider $ServiceAutoStartProvider `
+						-ApplicationType $ApplicationType))
             {
                 $InDesiredState = $false
                 Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProvider)     
@@ -729,12 +805,18 @@ function Confirm-UniqueServiceAutoStartProviders
             return $false
         }
 
-    if(-not (Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property name))
+    if(-not (Compare-Object -ReferenceObject $ExistingObject `
+							-DifferenceObject $ProposedObject `
+							-Property name))
         {
-            if(Compare-Object -ReferenceObject $ExistingObject -DifferenceObject $ProposedObject -Property type)
+            if(Compare-Object -ReferenceObject $ExistingObject `
+							  -DifferenceObject $ProposedObject `
+							  -Property type)
                 {
                     $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure'` 
+										 -ErrorMessage $ErrorMessage `
+										 -ErrorCategory 'InvalidResult'`
                 }
         }
 
