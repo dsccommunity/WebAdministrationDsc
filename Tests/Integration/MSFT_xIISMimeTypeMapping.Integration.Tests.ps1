@@ -1,3 +1,7 @@
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
 $Global:DSCModuleName      = 'xWebAdministration'
 $Global:DSCResourceName    = 'MSFT_xIISMimeTypeMapping'
 
@@ -42,7 +46,7 @@ try
         #endregion
 
         It 'Adding an existing MimeType' {
-            $node = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select -First 1
+            $node = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
 
             $env:PesterFileExtension2 = $node.fileExtension
             $env:PesterMimeType2 = $node.mimeType
@@ -53,13 +57,13 @@ try
             } | Should not throw
 
             [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension2 + "' and @mimeType='" + "$env:PesterMimeType2" + "']"
-            $expected = ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure).Count
+            $expected = ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count
 
             $expected | should be 1
         }
 
         It 'Removing a MimeType' {
-            $node = (Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select -First 1
+            $node = (Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
             $env:PesterFileExtension = $node.fileExtension
             $env:PesterMimeType = $node.mimeType
 
@@ -69,7 +73,7 @@ try
             } | Should not throw
 
             [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension + "' and @mimeType='" + "$env:PesterMimeType" + "']"
-            ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure).Count | should be 0
+            ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count | should be 0
         }
 
         It 'Removing a non existing MimeType' {

@@ -1,5 +1,9 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xIISFeatureDelegation'
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
+$Global:DSCModuleName = 'xWebAdministration'
+$Global:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -85,7 +89,7 @@ try
 
             # Now lets try to add a new default document on site level, this should fail
             # get the first site, it doesn't matter which one, it should fail.
-            $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
+            $siteName = (Get-ChildItem iis:\sites | Select-Object -First 1).Name
             Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -value @{value='pesterpage.cgi'}
 
             # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.

@@ -3,7 +3,8 @@
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param ()
 
-$ConfigData = @{
+#TODO: Delete or Uncomment - Is this needed? PSScriptAnalyzer says it's never used.
+<#$ConfigData = @{
     AllNodes = @(
         @{
             NodeName = '*'
@@ -13,7 +14,7 @@ $ConfigData = @{
             NodeName = 'localhost'
         }
     )
-}
+}#>
 
 $TestCredential = New-Object -TypeName PSCredential -ArgumentList (
     'CONTOSO\JDoe',

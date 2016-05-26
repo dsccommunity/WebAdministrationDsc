@@ -1,5 +1,7 @@
 #requires -Version 4.0
 
+# Suppressing these rules because the globals are appropriate for tests and IIS requires PlainText for one of the functions used in this test
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param ()
 

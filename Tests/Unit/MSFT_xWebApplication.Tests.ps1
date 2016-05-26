@@ -1,4 +1,8 @@
-﻿$Global:DSCModuleName = 'xWebAdministration'
+﻿# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
+$Global:DSCModuleName = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebApplication'
 
 #region HEADER
@@ -18,7 +22,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 try
 {
-    InModuleScope -ModuleName $global:DSCResourceName -ScriptBlock {
+    InModuleScope -ModuleName $Global:DSCResourceName -ScriptBlock {
         
         $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                             -ClientOnly `

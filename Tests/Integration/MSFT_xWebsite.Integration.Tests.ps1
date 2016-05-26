@@ -1,3 +1,7 @@
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
 $Global:DSCModuleName   = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebsite'
 
@@ -45,7 +49,9 @@ try
         # Directly interacting with Cim classes is not supported by PowerShell DSC
         # it is being done here explicitly for the purpose of testing. Please do not
         # do this in actual resource code
-        $xWebBindingInforationClass = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation')
+        
+        #TODO: Delete or Uncomment - Is this needed? PSScriptAnalyzer says it's never used.
+        #$xWebBindingInforationClass = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation')
         $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
 
         foreach ($storeName in $storeNames)

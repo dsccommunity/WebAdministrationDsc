@@ -1,5 +1,9 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xSSLSettings'
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
+$Global:DSCModuleName = 'xWebAdministration'
+$Global:DSCResourceName = 'MSFT_xSSLSettings'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -24,7 +28,7 @@ try
 
     InModuleScope $DSCResourceName {
 
-        Describe "$global:DSCResourceName\Test-TargetResource" {
+        Describe "$Global:DSCResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {
                 Mock Get-TargetResource -Verifiable {return @{
                     Name = 'Test'
@@ -74,7 +78,7 @@ try
             }
         }
 
-        Describe "$global:DSCResourceName\Get-TargetResource" {
+        Describe "$Global:DSCResourceName\Get-TargetResource" {
             Context 'Command finds SSL Settings' {
                 Mock Assert-Module -Verifiable { }
                 Mock Get-WebConfigurationProperty -Verifiable {return 'SSL'}
@@ -120,7 +124,7 @@ try
             }
         }
 
-        Describe "$global:DSCResourceName\Set-TargetResource" {
+        Describe "$Global:DSCResourceName\Set-TargetResource" {
             Context 'SSL Bindings set to none' {
                 Mock Assert-Module -Verifiable { }
                 Mock Set-WebConfigurationProperty -Verifiable {}

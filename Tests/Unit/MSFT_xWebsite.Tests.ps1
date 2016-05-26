@@ -1,3 +1,7 @@
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
 $Global:DSCModuleName   = 'xWebAdministration'
 $Global:DSCResourceName = 'MSFT_xWebsite'
 

@@ -1,5 +1,9 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xWebVirtualDirectory'
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
+$Global:DSCModuleName = 'xWebAdministration'
+$Global:DSCResourceName = 'MSFT_xWebVirtualDirectory'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -12,14 +16,14 @@ $global:DSCResourceName = 'MSFT_xWebVirtualDirectory'
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $global:DSCResourceName `
+    -DSCResourceName $Global:DSCResourceName `
     -TestType Unit
 #endregion
 
 try
 {
-    InModuleScope $global:DSCResourceName {
-        Describe "$global:DSCResourceName\Test-TargetResource" {
+    InModuleScope $Global:DSCResourceName {
+        Describe "$Global:DSCResourceName\Test-TargetResource" {
             $MockSite = @{
                 Website        = 'contoso.com'
                 WebApplication = 'contosoapp'
@@ -74,7 +78,7 @@ try
             }
         }
 
-        Describe "$global:DSCResourceName\Get-TargetResource" {
+        Describe "$Global:DSCResourceName\Get-TargetResource" {
             Context 'Ensure = Absent and virtual directory does not exist' {
                 It 'should return the correct values' {
                     $returnSite = @{
@@ -122,7 +126,7 @@ try
             }
         }
 
-        Describe "$global:DSCResourceName\Set-TargetResource" {
+        Describe "$Global:DSCResourceName\Set-TargetResource" {
             Context 'Ensure = Present and virtual directory does not exist' {
                 It 'should call New-WebVirtualDirectory' {
                     $mockSite = @{

@@ -1,3 +1,7 @@
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
 $Global:DSCModuleName      = 'xWebAdministration'
 $Global:DSCResourceName    = 'MSFT_xIISHandler'
 
@@ -53,7 +57,7 @@ try
             }  | should not throw
 
             [string]$filter = "system.webServer/handlers/Add[@Name='WebDAV']"
-            ((Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 1
+            ((Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure-Object).Count | should be 1
         }
 
         It 'StaticFile handler' {
@@ -64,7 +68,7 @@ try
             }  | should not throw
 
             [string]$filter = "system.webServer/handlers/Add[@Name='StaticFile']"
-            ((Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure).Count | should be 1
+            ((Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .) | Measure-Object).Count | should be 1
         }
     }
     #endregion

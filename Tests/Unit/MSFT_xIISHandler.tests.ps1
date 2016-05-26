@@ -1,5 +1,9 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xIISHandler'
+# Suppressing this rule because the globals are appropriate for tests
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+param ()
+
+$Global:DSCModuleName = 'xWebAdministration'
+$Global:DSCResourceName = 'MSFT_xIISHandler'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
