@@ -395,7 +395,8 @@ function Set-TargetResource
 
             # Update LoglocalTimeRollover if neeed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
-                ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+                ($LoglocalTimeRollover -ne `
+                 ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -570,7 +571,8 @@ function Set-TargetResource
 
             # Update LoglocalTimeRollover if neeed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
-                ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+                ($LoglocalTimeRollover -ne `
+                 ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `

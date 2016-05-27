@@ -147,7 +147,8 @@ function Set-TargetResource
         
         # Update LoglocalTimeRollover if needed
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
-            ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
+            ($LoglocalTimeRollover -ne `
+             ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
@@ -253,7 +254,8 @@ function Test-TargetResource
         
         # Check LoglocalTimeRollover
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
-            ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
+            ($LoglocalTimeRollover -ne `
+             ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover)
             return $false
