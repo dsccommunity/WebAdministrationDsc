@@ -3,12 +3,13 @@
 #---------------------------------#
 # This is necessary to use WMF5
 os: WMF 5
-version: 1.10.{build}.0
+version: 1.11.{build}.0
 install:
   - cinst -y pester
+  - ps: Push-Location
+  - cd Tests
   - git clone https://github.com/PowerShell/DscResource.Tests
   - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
-  - ps: Push-Location
   - cd DscResource.Tests
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location
@@ -44,7 +45,7 @@ deploy_script:
       # Creating project artifact
       $stagingDirectory = (Resolve-Path ..).Path
       $manifest = Join-Path $pwd "xWebAdministration.psd1"
-      (Get-Content $manifest -Raw).Replace("1.10.0.0", $env:APPVEYOR_BUILD_VERSION) | Out-File $manifest
+      (Get-Content $manifest -Raw).Replace("1.11.0.0", $env:APPVEYOR_BUILD_VERSION) | Out-File $manifest
       $zipFilePath = Join-Path $stagingDirectory "$(Split-Path $pwd -Leaf).zip"
       Add-Type -assemblyname System.IO.Compression.FileSystem
       [System.IO.Compression.ZipFile]::CreateFromDirectory($pwd, $zipFilePath)

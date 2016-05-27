@@ -1,26 +1,14 @@
-<#
-.Synopsis
-   Template for creating DSC Resource Integration Tests
-.DESCRIPTION
-   To Use:
-     1. Copy to \Tests\Integration\ folder and rename MSFT_x<ResourceName>.Integration.tests.ps1
-     2. Customize TODO sections.
-     3. Create test DSC Configurtion file MSFT_x<ResourceName>.config.ps1 from integration_config_template.ps1 file.
+#requires -Version 4.0
 
-.NOTES
-   Code in HEADER, FOOTER and DEFAULT TEST regions are standard and may be moved into
-   DSCResource.Tools in Future and therefore should not be altered if possible.
-#>
-
-$Global:DSCModuleName      = 'xWebAdministration'
-$Global:DSCResourceName    = 'MSFT_xWebAppPool'
+$Global:DSCModuleName   = 'xWebAdministration'
+$Global:DSCResourceName = 'MSFT_xWebAppPool'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
 if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
      (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git')
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
@@ -31,55 +19,90 @@ $TestEnvironment = Initialize-TestEnvironment `
 #endregion
 
 # Test Setup
-if ((Get-Service w3svc) -ne 'Running')
+if ((Get-Service -Name 'W3SVC').Status -ne 'Running')
 {
-    Get-Service w3svc | Start-Service
+    Start-Service -Name 'W3SVC'
 }
 
+$tempBackupName = "$($Global:DSCResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+
 # Using try/finally to always cleanup even if something awful happens.
+
 try
 {
+    # Create configuration backup
+    
+    Backup-WebConfiguration -Name $tempBackupName | Out-Null
+
     #region Integration Tests
+
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    [string] $tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
-    $null = Backup-WebConfiguration -Name $tempName
-
     Describe "$($Global:DSCResourceName)_Integration" {
-        #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+
+        #region Default Tests
+
+        It 'Should be able to compile and apply without throwing' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder -ConfigurationData `$ConfigData -ErrorAction:Stop"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
-                    -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+                Invoke-Expression -Command (
+                    '{0}_Config -OutputPath $TestEnvironment.WorkingFolder -ConfigurationData $ConfigData -ErrorAction Stop' -f
+                    $Global:DSCResourceName
+                )
+
+                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Force -Wait -Verbose
+            } | Should Not Throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
-            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+        It 'Should be able to call Get-DscConfiguration without throwing' {
+            {
+                Get-DscConfiguration -Verbose -ErrorAction Stop
+            } | Should Not Throw
         }
+
         #endregion
 
         It 'Should have set the resource and all the parameters should match' {
-            # TODO: Validate the Config was Set Correctly Here...
-            $results = Get-DscConfiguration
 
-            foreach ($rule in $rules.GetEnumerator())
+            $currentConfiguration = Get-DscConfiguration
+
+            foreach ($parameter in $TestParameters.GetEnumerator())
             {
-                Write-Verbose -Message "Parameter $($rule.Name) with value $($results.$($Rule.Name)) Should Be $($rules[$rule.Name])"
-                $results.$($Rule.Name) | Should Be $rules[$rule.Name]
-            }
-        }
-    }
-    #endregion
+                Write-Verbose -Message "The $($parameter.Name) property should be set."
 
+                if ($parameter.Name -eq 'Credential')
+                {
+                    $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
+                        Where-Object -FilterScript {$_.name -eq $TestParameters['Name']}
+
+                    $appPool.processModel.userName |
+                    Should Be $TestParameters['Credential'].UserName
+
+                    $appPool.processModel.password |
+                    Should Be $TestParameters['Credential'].GetNetworkCredential().Password
+                }
+                else
+                {
+                    $currentConfiguration."$($parameter.Name)" |
+                    Should Be $TestParameters[$parameter.Name]
+                }
+            }
+
+        }
+
+        It 'Actual configuration should match the desired configuration' {
+            Test-DscConfiguration -Verbose | Should Be $true
+        }
+
+    }
+
+    #endregion
 }
 finally
 {
     #region FOOTER
-    Restore-WebConfiguration -Name $tempName
-    Remove-WebConfigurationBackup -Name $tempName
+    Restore-WebConfiguration -Name $tempBackupName
+    Remove-WebConfigurationBackup -Name $tempBackupName
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion
