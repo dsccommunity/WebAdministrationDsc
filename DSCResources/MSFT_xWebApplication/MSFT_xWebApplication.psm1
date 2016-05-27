@@ -70,8 +70,9 @@ function Get-TargetResource
         $ApplicationType
     )
 
+    Assert-Module
+    
     $Name = Get-WebApplicationNameFixed $Name
-
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
     $SslFlags = (Get-SslFlags -Location "${Website}/${Name}")
@@ -145,6 +146,8 @@ function Set-TargetResource
         $ApplicationType
     )
 
+    Assert-Module
+    
     $Name = Get-WebApplicationNameFixed $Name
 
     if ($Ensure -eq 'Present')
@@ -270,8 +273,9 @@ function Test-TargetResource
         $ApplicationType
     )
 
+    Assert-Module
+    
     $Name = Get-WebApplicationNameFixed $Name
-
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
