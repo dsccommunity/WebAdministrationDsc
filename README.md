@@ -189,7 +189,7 @@ Currently, only FastCgiModule is supported.
 
 * Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
 * Added **xWebApplication** integration tests
-* Added fixes to **xWebApplication**
+* Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags  
 
 ### 1.11.0.0
 
