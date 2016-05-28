@@ -44,7 +44,7 @@ function Get-TargetResource
 
         return @{
             LogPath              = $CurrentLogSettings.directory
-            LogFlags             = @($CurrentLogSettings.LogExtFileFlags)
+            LogFlags             = $CurrentLogSettings.LogExtFileFlags
             LogPeriod            = $CurrentLogSettings.period
             LogTruncateSize      = $CurrentLogSettings.truncateSize
             LoglocalTimeRollover = $CurrentLogSettings.localTimeRollover
