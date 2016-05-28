@@ -140,7 +140,7 @@ function Get-TargetResource
         ServiceAutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
         ApplicationType          = $WebConfiguration.Type
         LogPath                  = $Website.logfile.directory
-        LogFlags                 = $Website.logfile.LogExtFileFlags
+        LogFlags                 = [Array]$Website.logfile.LogExtFileFlags
         LogPeriod                = $Website.logfile.period
         LogtruncateSize          = $Website.logfile.truncateSize
         LoglocalTimeRollover     = $Website.logfile.localTimeRollover
