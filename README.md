@@ -189,7 +189,7 @@ Currently, only FastCgiModule is supported.
 
 * Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
 * Added **xSSLSettings** integration tests
-* Added fixes to **xSSLSettings**
+* Added fixes to **xSSLSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
 
 ### 1.11.0.0
 
