@@ -29,7 +29,7 @@ $resources += New-xDscResourceProperty -Name EndPointSetup -Type Boolean -Attrib
 
 
 
-Write-Verbose updating...
+Write-Verbose "updating..."
 
 # Create a New template resource to a temporary folder
 New-xDscResource -Property $resources -ClassVersion $classVersion -Name $resourceName -Path $moduleRoot -FriendlyName $friendlyName
