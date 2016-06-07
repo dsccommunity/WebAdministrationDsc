@@ -1,3 +1,7 @@
+# Suppressing this rule because Write-Verbose is appropriately used in Helper function
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSDSCUseVerboseMessageInDSCResource', '')]
+param ()
+
 data LocalizedData
 {
     # culture="en-US"
