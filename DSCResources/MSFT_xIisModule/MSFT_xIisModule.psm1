@@ -94,6 +94,8 @@ function Remove-IisHandler
 }
 
 #EndRegion
+
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -148,7 +150,7 @@ function Get-TargetResource
         # bug(TBD) deal with this better, maybe a seperate resource....
         If($handler.Modules -eq 'FastCgiModule')
         {
-            $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* ` 
+            $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* `
                        -PSPath (Get-IisSitePath -SiteName $SiteName) | `
                        Where-Object{$_.FullPath -ieq $handler.ScriptProcessor}
             if($fastCgi)
@@ -179,7 +181,10 @@ function Get-TargetResource
     
 }
 
-# From the parameter hashtable of a function, return the parameter hashtable to call Get-TargetResource
+<#
+    .SYNOPSIS
+    From the parameter hashtable of a function, return the parameter hashtable to call Get-TargetResource
+#>
 function Get-GetParameters
 {
     param
@@ -201,7 +206,10 @@ function Get-GetParameters
     return $getParameters
 }
 
-# Make the IisModule consistent with the properties provided.
+<#
+    .SYNOPSIS
+    Make the IisModule consistent with the properties provided.
+#>
 function Set-TargetResource
 {
     [CmdletBinding()]

@@ -1,3 +1,7 @@
+# Suppressing this rule because this isn't a module manifest
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSMissingModuleManifestField', '')]
+param()
+
 # Hashtable to define the environmental data
 @{
     # Node specific data

@@ -790,7 +790,6 @@ $script:handlers = @{
 
 #endregion
 
-#region Get-TargetResource
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
@@ -825,9 +824,7 @@ function Get-TargetResource
         }
     }
 }
-#endregion
 
-#region Set-TargetResource
 function Set-TargetResource
 {
     param
@@ -861,9 +858,7 @@ function Set-TargetResource
         Write-Verbose -Message ($LocalizedData.RemovingHandler -f $Name)
     }
 }
-#endregion
 
-#region Test-TargetResource
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -899,9 +894,9 @@ function Test-TargetResource
         return $true;
     }
 }
-#endregion
 
 #region Helper Functions
+
 function Get-Handler
 {
     param

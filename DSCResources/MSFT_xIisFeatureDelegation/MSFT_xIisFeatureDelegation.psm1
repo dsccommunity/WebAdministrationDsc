@@ -14,10 +14,6 @@ data LocalizedData
 '@
 }
 
-<#
-    The Get-TargetResource cmdlet.
-    This function will get the Mime type for a file extension
-#>
 function Get-TargetResource
 {
   [OutputType([Hashtable])]
@@ -51,10 +47,6 @@ function Get-TargetResource
     }
 }
 
-<#
-    The Set-TargetResource cmdlet.
-    This function set the OverrideMode for a given section if not already correct
-#>
 function Set-TargetResource
 {
     param
@@ -73,10 +65,6 @@ function Set-TargetResource
      Set-WebConfiguration -Location '' -Filter "/system.webServer/$SectionName" -PSPath 'machine/webroot/apphost' -Metadata overrideMode -Value $OverrideMode
 }
 
-<#
-    The Test-TargetResource cmdlet.
-    This will test if the given section has the required OverrideMode
-#>
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -131,4 +119,4 @@ Function Get-OverrideMode
 }
 
 #  FUNCTIONS TO BE EXPORTED
-Export-ModuleMember -function Get-TargetResource, Set-TargetResource, Test-TargetResource
+Export-ModuleMember -Function *-TargetResource

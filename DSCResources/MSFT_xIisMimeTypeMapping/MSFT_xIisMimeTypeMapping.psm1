@@ -14,10 +14,10 @@ TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
 '@
 }
 
-######################################################################################
-# The Get-TargetResource cmdlet.
-# This function will get the Mime type for a file extension
-######################################################################################
+<#
+    .SYNOPSIS
+    This function will get the Mime type for a file extension
+#>
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
@@ -59,10 +59,10 @@ function Get-TargetResource
     }
 }
 
-######################################################################################
-# The Set-TargetResource cmdlet.
-# This function will add or remove a MIME type mapping
-######################################################################################
+<#
+    .SYNOPSIS
+    This function will add or remove a MIME type mapping
+#>
 function Set-TargetResource
 {
     param
@@ -101,10 +101,10 @@ function Set-TargetResource
         }
 }
 
-######################################################################################
-# The Test-TargetResource cmdlet.
-# This will test if the given MIME type mapping has the desired state, Present or Absent
-######################################################################################
+<#
+    .SYNOPSIS
+    This will test if the given MIME type mapping has the desired state, Present or Absent
+#>
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -168,4 +168,4 @@ Function GetMapping([string]$extension,[string]$type)
 }
 
 #  FUNCTIONS TO BE EXPORTED 
-Export-ModuleMember -function Get-TargetResource, Set-TargetResource, Test-TargetResource
+Export-ModuleMember -Function *-TargetResource

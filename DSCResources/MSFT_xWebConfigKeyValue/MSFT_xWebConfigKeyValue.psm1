@@ -77,7 +77,7 @@ function Set-TargetResource
 
         if((!$IsAttribute -and ($null -eq $existingvalue)) -or ($IsAttribute -and ($existingvalue.Length -eq 0)))
         {
-            Add-Item -key $Key -value $Value -isAttribute $IsAttribute ` 
+            Add-Item -key $Key -value $Value -isAttribute $IsAttribute `
                      -websitePath $WebsitePath -configSection $ConfigSection
         }
         else
@@ -203,7 +203,7 @@ function Add-item([string]$key, [string]$value, [Boolean]$isAttribute, [string]$
     }
 }
 
-function Edit-Item([string]$propertyName, [string]$oldValue, [string]$newValue, ` 
+function Edit-Item([string]$propertyName, [string]$oldValue, [string]$newValue, `
                    [Boolean]$isAttribute, [string]$websitePath, [string]$configSection)
 {
     $defaultFilter = $configSection

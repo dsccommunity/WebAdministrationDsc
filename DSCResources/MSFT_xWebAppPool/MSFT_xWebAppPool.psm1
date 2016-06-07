@@ -870,3 +870,5 @@ function Invoke-AppCmd
 }
 
 #endregion Helper Functions
+
+Export-ModuleMember -Function *-TargetResource
