@@ -721,7 +721,7 @@ function Test-TargetResource
             {
                 $propertyName = $_.Name
                 $propertyPath = $_.Path
-                $appPoolPropertyPath = &($appPool.$propertyPath)
+                $appPoolPropertyPath = Invoke-Command $appPool.$propertyPath
 
                 if (
                     $PSBoundParameters[$propertyName] -ne $appPoolPropertyPath
