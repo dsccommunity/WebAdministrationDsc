@@ -229,7 +229,7 @@ function Set-TargetResource
         [String] $identityType,
 
         [System.Management.Automation.PSCredential]
-        [System.Management.Automation.CredentialAttribute] 
+        [System.Management.Automation.Credential()] 
         $Credential,
 
         [ValidateScript({
@@ -589,7 +589,7 @@ function Test-TargetResource
         [String] $identityType,
 
         [System.Management.Automation.PSCredential]
-        [System.Management.Automation.CredentialAttribute]
+        [System.Management.Automation.Credential()]
         $Credential,
 
         [ValidateScript({
