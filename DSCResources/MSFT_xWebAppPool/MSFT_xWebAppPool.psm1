@@ -150,7 +150,7 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $returnValue.Add($_.Name, $appPool.($_.Path))
+            $returnValue.Add($_.Name, $($appPool.($_.Path)))
         }
     )
 
@@ -225,7 +225,9 @@ function Set-TargetResource
         )]
         [String] $identityType,
 
-        [System.Management.Automation.PSCredential] $PSCredential,
+        [System.Management.Automation.PSCredential] 
+        [System.Management.Automation.CredentialAttribute()]
+        $Credential,
 
         [ValidateScript({
             ([ValidateRange(0, 43200)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
@@ -357,8 +359,7 @@ function Set-TargetResource
                     $propertyPath = $_.Path
 
                     if (
-                        $PSBoundParameters[$propertyName] -ne
-                        (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                        $PSBoundParameters[$propertyName] -ne $appPool.$propertyPath
                     )
                     {
                         Write-Verbose -Message (
@@ -376,18 +377,18 @@ function Set-TargetResource
             {
                 if ($PSBoundParameters['identityType'] -eq 'SpecificUser')
                 {
-                    if ($appPool.processModel.userName -ne $PSCredential.UserName)
+                    if ($appPool.processModel.userName -ne $Credential.UserName)
                     {
                         Write-Verbose -Message (
                             $LocalizedData['VerboseSetProperty'] -f 'Credential (userName)', $Name
                         )
 
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
-                            '/processModel.userName:{0}' -f $PSCredential.UserName
+                            '/processModel.userName:{0}' -f $Credential.UserName
                         )
                     }
 
-                    $clearTextPassword = $PSCredential.GetNetworkCredential().Password
+                    $clearTextPassword = $Credential.GetNetworkCredential().Password
 
                     if ($appPool.processModel.password -cne $clearTextPassword)
                     {
@@ -584,7 +585,9 @@ function Test-TargetResource
         )]
         [String] $identityType,
 
-        [System.Management.Automation.PSCredential] $PSCredential,
+        [System.Management.Automation.PSCredential]
+        [System.Management.Automation.CredentialAttribute()] 
+        $Credential,
 
         [ValidateScript({
             ([ValidateRange(0, 43200)]$valueInMinutes = [TimeSpan]::Parse($_).TotalMinutes); $?
@@ -720,8 +723,7 @@ function Test-TargetResource
                 $propertyPath = $_.Path
 
                 if (
-                    $PSBoundParameters[$propertyName] -ne
-                    (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    $PSBoundParameters[$propertyName] -ne $appPool.$propertyPath
                 )
                 {
                     Write-Verbose -Message (
@@ -737,7 +739,7 @@ function Test-TargetResource
         {
             if ($PSBoundParameters['identityType'] -eq 'SpecificUser')
             {
-                if ($appPool.processModel.userName -ne $PSCredential.UserName)
+                if ($appPool.processModel.userName -ne $Credential.UserName)
                 {
                     Write-Verbose -Message (
                         $LocalizedData['VerbosePropertyNotInDesiredState'] -f
@@ -747,7 +749,7 @@ function Test-TargetResource
                     $inDesiredState = $false
                 }
 
-                $clearTextPassword = $PSCredential.GetNetworkCredential().Password
+                $clearTextPassword = $Credential.GetNetworkCredential().Password
 
                 if ($appPool.processModel.password -cne $clearTextPassword)
                 {
