@@ -39,7 +39,7 @@ try
             {
                 It 'Allow Feature Delegation'{
                     {
-                        Invoke-Expression -Command "$($Global:DSCResourceName)_AllowDelegation -OutputPath `$TestEnvironment.WorkingFolder"
+                        &($Global:DSCResourceName + '_AllowDelegation') -OutputPath $TestEnvironment.WorkingFolder
                         Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
                     } | Should not throw
 
