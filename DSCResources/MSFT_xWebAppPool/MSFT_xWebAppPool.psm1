@@ -721,11 +721,10 @@ function Test-TargetResource
             {
                 $propertyName = $_.Name
                 $propertyPath = $_.Path
-                $appPoolPropertyPath = Invoke-Command $appPool.$propertyPath
 
                 if (
-                    $PSBoundParameters[$propertyName] -ne $appPoolPropertyPath
-                    #(Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    $PSBoundParameters[$propertyName] -ne
+                    (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
                 )
                 {
                     Write-Verbose -Message (
