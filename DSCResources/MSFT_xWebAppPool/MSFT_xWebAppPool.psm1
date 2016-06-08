@@ -357,9 +357,10 @@ function Set-TargetResource
                 {
                     $propertyName = $_.Name
                     $propertyPath = $_.Path
+                    $appPoolPropertyPath = &($appPool.$propertyPath)
 
-                    if (
-                        $PSBoundParameters[$propertyName] -ne $appPool.$propertyPath
+                    if ( 
+                        $PSBoundParameters[$propertyName] -ne $appPoolPropertyPath
                     )
                     {
                         Write-Verbose -Message (
