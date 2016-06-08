@@ -150,10 +150,7 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $path = ($_.Path).Split('.')
-            $resultPath = $appPool
-            foreach ($subPath in $path) { $resultPath = $resultPath[$subPath] }
-            $returnValue.Add($_.Name, $resultPath)
+            $returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
         }
     )
 
@@ -362,7 +359,8 @@ function Set-TargetResource
                     $propertyPath = $_.Path
 
                     if (
-                        $PSBoundParameters[$propertyName] -ne $appPool.$propertyPath
+                        $PSBoundParameters[$propertyName] -ne
+                        (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
                     )
                     {
                         Write-Verbose -Message (
@@ -726,7 +724,8 @@ function Test-TargetResource
                 $propertyPath = $_.Path
 
                 if (
-                    $PSBoundParameters[$propertyName] -ne $appPool.$propertyPath
+                    $PSBoundParameters[$propertyName] -ne
+                    (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
                 )
                 {
                     Write-Verbose -Message (
