@@ -359,8 +359,7 @@ function Set-TargetResource
                     $propertyPath = $_.Path
 
                     if (
-                        $PSBoundParameters[$propertyName] -ne
-                        (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                        $PSBoundParameters[$propertyName] -ne $appPool.$propertyPath
                     )
                     {
                         Write-Verbose -Message (
@@ -724,8 +723,7 @@ function Test-TargetResource
                 $propertyPath = $_.Path
 
                 if (
-                    $PSBoundParameters[$propertyName] -ne
-                    (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    $PSBoundParameters[$propertyName] -ne $appPool.$propertyPath
                 )
                 {
                     Write-Verbose -Message (
