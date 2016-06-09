@@ -8,6 +8,7 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
+VerboseGetTargetResult = Get-Taget has been run.
 VerboseSetTargetUpdateLogPath = LogPath is not in the desired state and will be updated.
 VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated.
 VerboseSetTargetUpdateLogPeriod = LogPeriod is not in the desired state and will be updated.
@@ -50,6 +51,8 @@ function Get-TargetResource
             LoglocalTimeRollover = $CurrentLogSettings.localTimeRollover
             LogFormat            = $CurrentLogSettings.logFormat
         }
+        
+        Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
 
 }
 
@@ -270,11 +273,11 @@ function Test-TargetResource
 Function Compare-LogFlags
 {
     <#
-    .SYNOPSIS
-        Helper function used to validate that the logflags status.
-        Returns False if the loglfags do not match and true if they do
-    .PARAMETER LogFlags
-        Specifies flags to check
+            .SYNOPSIS
+            Helper function used to validate that the logflags status.
+            Returns False if the loglfags do not match and true if they do
+            .PARAMETER LogFlags
+            Specifies flags to check
     #>
     [CmdletBinding()]
     [OutputType([Boolean])]
