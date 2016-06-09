@@ -449,7 +449,7 @@ function Set-TargetResource
                 if (-not (Confirm-UniqueBinding -Name $Name -ExcludeStopped))
                 {
                     # Return error and do not start the website
-                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart 
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart `
                                     -f $Name
                     New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' `
                                          -ErrorMessage $ErrorMessage `
@@ -541,11 +541,13 @@ function Set-TargetResource
         try
         {
             Remove-Website -Name $Name -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteRemoved -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteRemoved `
+                                    -f $Name)
         }
         catch
         {
-            $ErrorMessage = $LocalizedData.ErrorWebsiteRemovalFailure -f $Name, $_.Exception.Message
+            $ErrorMessage = $LocalizedData.ErrorWebsiteRemovalFailure `
+                            -f $Name, $_.Exception.Message
             New-TerminatingError -ErrorId 'WebsiteRemovalFailure' `
                                  -ErrorMessage $ErrorMessage `
                                  -ErrorCategory 'InvalidOperation'
