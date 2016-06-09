@@ -9,7 +9,7 @@ install:
   - ps: Push-Location
   - cd Tests
   - git clone https://github.com/PowerShell/DscResource.Tests
-  - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+  - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server','SMTP-Server'
   - cd DscResource.Tests
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location
