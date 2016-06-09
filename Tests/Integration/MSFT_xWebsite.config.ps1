@@ -18,13 +18,14 @@ configuration MSFT_xWebsite_Present_Started
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
-            AuthenticationInfo = MSFT_xWebAuthenticationInformation
+            AuthenticationInfo = 
+            MSFT_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
                     Digest    = $Node.AuthenticationInfoDigest
                     Windows   = $Node.AuthenticationInfoWindows
-            }
+                }
             BindingInfo = @(MSFT_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
@@ -48,7 +49,7 @@ configuration MSFT_xWebsite_Present_Started
                     CertificateThumbprint = $CertificateThumbprint
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
-            })
+                })
             DefaultPage = $Node.DefaultPage
             EnabledProtocols = $Node.EnabledProtocols
             PhysicalPath = $Node.PhysicalPath
@@ -79,14 +80,16 @@ configuration MSFT_xWebsite_Present_Stopped
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
-            AuthenticationInfo = MSFT_xWebAuthenticationInformation
+            AuthenticationInfo = 
+                MSFT_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
                     Digest    = $Node.AuthenticationInfoDigest
                     Windows   = $Node.AuthenticationInfoWindows
             }
-            BindingInfo = @(MSFT_xWebBindingInformation
+            BindingInfo = @(
+                MSFT_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort

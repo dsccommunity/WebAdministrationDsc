@@ -68,8 +68,8 @@ function Get-TargetResource
 {
     <#
     .SYNOPSYS
-        The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target machine.
-        It gives the Website info of the requested role/feature on the target machine.
+        The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target 
+        machine. It gives the Website info of the requested role/feature on the target machine.
     #>
     [CmdletBinding()]
     [OutputType([Hashtable])]
@@ -85,33 +85,34 @@ function Get-TargetResource
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
     
-	if ($Website.Count -eq 0) # No Website exists with this name
-	{
-		$EnsureResult = 'Absent'
-	}
-	elseif ($Website.Count -eq 1) # A single Website exists with this name
-	{
-		$EnsureResult = 'Present'
+    if ($Website.Count -eq 0) # No Website exists with this name
+    {
+        $EnsureResult = 'Absent'
+    }
+    elseif ($Website.Count -eq 1) # A single Website exists with this name
+    {
+        $EnsureResult = 'Present'
 
-		$CimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
+        $CimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
 
-		$AllDefaultPages = @(
-			Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
-			ForEach-Object -Process {Write-Output -InputObject $_.value}
-		)
-		$CimAuthentication = Get-AuthenticationInfo -Site $Name
-		$WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
-		$WebConfiguration = $WebSiteAutoStartProviders | `
-								Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | ` 
-								Select-Object Name,Type
-	}
-	else # Multiple websites with the same name exist. This is not supported and is an error
-	{
-		$ErrorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f $Name
-		New-TerminatingError -ErrorId 'WebsiteDiscoveryFailure' `
-							 -ErrorMessage $ErrorMessage `
-							 -ErrorCategory 'InvalidResult'
-	}
+        $AllDefaultPages = @(
+            Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
+            ForEach-Object -Process {Write-Output -InputObject $_.value}
+        )
+        $CimAuthentication = Get-AuthenticationInfo -Site $Name
+        $WebSiteAutoStartProviders = (Get-WebConfiguration `
+            -filter /system.applicationHost/serviceAutoStartProviders).Collection
+        $WebConfiguration = $WebSiteAutoStartProviders | `
+                                Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | ` 
+                                Select-Object Name,Type
+    }
+    else # Multiple websites with the same name exist. This is not supported and is an error
+    {
+        $ErrorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f $Name
+        New-TerminatingError -ErrorId 'WebsiteDiscoveryFailure' `
+                             -ErrorMessage $ErrorMessage `
+                             -ErrorCategory 'InvalidResult'
+    }
 
     # Add all website properties to the hash table
     return @{
@@ -136,7 +137,8 @@ function Set-TargetResource
 { 
     <#
     .SYNOPSYS
-        The Set-TargetResource cmdlet is used to create, delete or configure a website on the target machine.
+        The Set-TargetResource cmdlet is used to create, delete or configure a website on the 
+        target machine.
     #>
     [CmdletBinding()]
     param
@@ -196,52 +198,61 @@ function Set-TargetResource
         if ($Website -ne $null)
         {
             # Update Physical Path if required
-            if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
+            if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false `
+                                                       -and $Website.PhysicalPath `
+                                                       -ne $PhysicalPath)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-								 -Name physicalPath `
-								 -Value $PhysicalPath `
-								 -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedPhysicalPath -f $Name, $PhysicalPath)
+                                 -Name physicalPath `
+                                 -Value $PhysicalPath `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedPhysicalPath `
+                                        -f $Name, $PhysicalPath)
             }
 
             # Update Application Pool if required
-            if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool -ne $ApplicationPool)
+            if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool `
+                                                                  -ne $ApplicationPool)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-								 -Name applicationPool `
-								 -Value $ApplicationPool `
-								 -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedApplicationPool -f $Name, $ApplicationPool)
+                                 -Name applicationPool `
+                                 -Value $ApplicationPool `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedApplicationPool `
+                                        -f $Name, $ApplicationPool)
             }
 
             # Update Bindings if required
-            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo `
+                                                               -ne $null)
             {
                 if (-not (Test-WebsiteBinding -Name $Name `
-											  -BindingInfo $BindingInfo))
+                                              -BindingInfo $BindingInfo))
                 {
                     Update-WebsiteBinding -Name $Name `
-										  -BindingInfo $BindingInfo
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo -f $Name)
+                                          -BindingInfo $BindingInfo
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo `
+                                            -f $Name)
                 }
             }
 
             # Update Enabled Protocols if required
-            if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
+            if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols `
+                                                                   -ne $EnabledProtocols)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-								 -Name enabledProtocols `
-								 -Value $EnabledProtocols `
-								 -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols -f $Name, $EnabledProtocols)
+                                 -Name enabledProtocols `
+                                 -Value $EnabledProtocols `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols `
+                                        -f $Name, $EnabledProtocols)
             }
 
             # Update Default Pages if required
             if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
             {
                 Update-DefaultPage -Name $Name `
-								   -DefaultPage $DefaultPage
+                                   -DefaultPage $DefaultPage
             }
 
             # Update State if required
@@ -249,15 +260,17 @@ function Set-TargetResource
             {
                 if ($State -eq 'Started')
                 {
-                    # Ensure that there are no other running websites with binding information that will conflict with this website before starting
+                    # Ensure that there are no other running websites with binding information that 
+                    # will conflict with this website before starting
                     if (-not (Confirm-UniqueBinding -Name $Name `
-													-ExcludeStopped))
+                                                    -ExcludeStopped))
                     {
                         # Return error and do not start the website
-                        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart `
+                                        -f $Name
                         New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' `
-											 -ErrorMessage $ErrorMessage `
-											 -ErrorCategory 'InvalidResult'
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidResult'
                     }
 
                     try
@@ -266,10 +279,11 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure `
+                                        -f $Name, $_.Exception.Message
                         New-TerminatingError -ErrorId 'WebsiteStateFailure' `
-											 -ErrorMessage $ErrorMessage `
-											 -ErrorCategory 'InvalidOperation'
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidOperation'
                     }
                 }
                 else
@@ -280,62 +294,77 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
+                        $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure `
+                                        -f $Name, $_.Exception.Message
                         New-TerminatingError -ErrorId 'WebsiteStateFailure' `
-											 -ErrorMessage $ErrorMessage `
-											 -ErrorCategory 'InvalidOperation'
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidOperation'
                     }
                 }
 
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState -f $Name, $State)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState `
+                                        -f $Name, $State)
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-				(-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
+                (-not (Test-AuthenticationInfo -Site $Name `
+                                               -AuthenticationInfo $AuthenticationInfo)))
             {
-                Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated -f $Name)
+                Set-AuthenticationInfo -Site $Name `
+                                       -AuthenticationInfo $AuthenticationInfo `
+                                       -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
+                                        -f $Name)
             }
            
             # Update Preload if required
             if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
-				($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
+                ($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
             {
                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-								-Name applicationDefaults.preloadEnabled `
-								-Value $PreloadEnabled `
-								-ErrorAction Stop
-               Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated -f $Name)
+                                -Name applicationDefaults.preloadEnabled `
+                                -Value $PreloadEnabled `
+                                -ErrorAction Stop
+               Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated `
+                                       -f $Name)
             }
             
             # Update AutoStart if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
-				($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
+                ($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-								 -Name applicationDefaults.serviceAutoStartEnabled `
-								 -Value $ServiceAutoStartEnabled `
-								 -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated -f $Name)
+                                 -Name applicationDefaults.serviceAutoStartEnabled `
+                                 -Value $ServiceAutoStartEnabled `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                                        -f $Name)
             }
             
             # Update AutoStartProviders if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
-				($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
+               ($Website.applicationDefaults.ServiceAutoStartProvider -ne `
+                $ServiceAutoStartProvider))
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders `
-							-ServiceAutoStartProvider $ServiceAutoStartProvider `
-							-ApplicationType $ApplicationType))
+                            -ServiceAutoStartProvider $ServiceAutoStartProvider `
+                            -ApplicationType $ApplicationType))
                 {
                     Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
-										 -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
-										 -ErrorAction Stop
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
+                                         -Value @{
+                                            name=$ServiceAutoStartProvider
+                                            type=$ApplicationType} `
+                                         -ErrorAction Stop
+                    Write-Verbose -Message `
+                                    ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider `
-								 -Value $ServiceAutoStartProvider -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name applicationDefaults.serviceAutoStartProvider `
+                                 -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Write-Verbose -Message `
+                                ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated `
+                                -f $Name)
             }
         }
         else # Create website if it does not exist
@@ -348,7 +377,8 @@ function Set-TargetResource
             {
                 $PSBoundParameters.GetEnumerator() |
                 Where-Object -FilterScript {
-                    $_.Key -in (Get-Command -Name New-Website -Module WebAdministration).Parameters.Keys
+                    $_.Key -in (Get-Command -Name New-Website `
+                                            -Module WebAdministration).Parameters.Keys
                 } |
                 ForEach-Object -Begin {
                     $NewWebsiteSplat = @{}
@@ -368,10 +398,11 @@ function Set-TargetResource
             }
             catch
             {
-                $ErrorMessage = $LocalizedData.ErrorWebsiteCreationFailure -f $Name, $_.Exception.Message
+                $ErrorMessage = $LocalizedData.ErrorWebsiteCreationFailure `
+                                -f $Name, $_.Exception.Message
                 New-TerminatingError -ErrorId 'WebsiteCreationFailure' `
-									 -ErrorMessage $ErrorMessage `
-									 -ErrorCategory 'InvalidOperation'
+                                     -ErrorMessage $ErrorMessage `
+                                     -ErrorCategory 'InvalidOperation'
             }
 
             Stop-Website -Name $Website.Name -ErrorAction Stop
@@ -380,102 +411,128 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
             {
                 if (-not (Test-WebsiteBinding -Name $Name `
-											  -BindingInfo $BindingInfo))
+                                              -BindingInfo $BindingInfo))
                 {
                     Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo -f $Name)
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo `
+                                            -f $Name)
                 }
             }
 
             # Update Enabled Protocols if required
-            if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols -ne $EnabledProtocols)
+            if ($PSBoundParameters.ContainsKey('EnabledProtocols') `
+                -and $Website.EnabledProtocols `
+                -ne $EnabledProtocols)
             {
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name enabledProtocols `
-														  -Value $EnabledProtocols `
-														  -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols -f $Name, $EnabledProtocols)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name enabledProtocols `
+                                 -Value $EnabledProtocols `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols `
+                                        -f $Name, $EnabledProtocols)
             }
 
             # Update Default Pages if required
-            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
+            if ($PSBoundParameters.ContainsKey('DefaultPage') `
+                -and $DefaultPage `
+                -ne $null)
             {
                 Update-DefaultPage -Name $Name `
-								   -DefaultPage $DefaultPage
+                                   -DefaultPage $DefaultPage
             }
 
             # Start website if required
             if ($State -eq 'Started')
             {
-                # Ensure that there are no other running websites with binding information that will conflict with this website before starting
+                # Ensure that there are no other running websites with binding information that
+                # will conflict with this website before starting
                 if (-not (Confirm-UniqueBinding -Name $Name -ExcludeStopped))
                 {
                     # Return error and do not start the website
-                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $Name
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart 
+                                    -f $Name
                     New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' `
-										 -ErrorMessage $ErrorMessage `
-										 -ErrorCategory 'InvalidResult'
+                                         -ErrorMessage $ErrorMessage `
+                                         -ErrorCategory 'InvalidResult'
                 }
 
                 try
                 {
                     Start-Website -Name $Name -ErrorAction Stop
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteStarted -f $Name)
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteStarted `
+                                            -f $Name)
                 }
                 catch
                 {
-                    $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure -f $Name, $_.Exception.Message
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteStateFailure `
+                                    -f $Name, $_.Exception.Message
                     New-TerminatingError -ErrorId 'WebsiteStateFailure' `
-										 -ErrorMessage $ErrorMessage `
-										 -ErrorCategory 'InvalidOperation'
+                                         -ErrorMessage $ErrorMessage `
+                                         -ErrorCategory 'InvalidOperation'
                 }
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-				(-not (Test-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo)))
+                (-not (Test-AuthenticationInfo -Site $Name `
+                                               -AuthenticationInfo $AuthenticationInfo)))
             {
-                Set-AuthenticationInfo -Site $Name -AuthenticationInfo $AuthenticationInfo -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated -f $Name)
+                Set-AuthenticationInfo -Site $Name `
+                                       -AuthenticationInfo $AuthenticationInfo `
+                                       -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
+                                        -f $Name)
             }
            
             # Update Preload if required
             if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
-				($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
+                ($Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
             {
                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-								-Name applicationDefaults.preloadEnabled `
-								-Value $PreloadEnabled `
-								-ErrorAction Stop
-               Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated -f $Name)
+                                -Name applicationDefaults.preloadEnabled `
+                                -Value $PreloadEnabled `
+                                -ErrorAction Stop
+               Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated `
+                                       -f $Name)
             }
             
             # Update AutoStart if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
-				($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
+                ($Website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-								 -Name applicationDefaults.serviceAutoStartEnabled `
-								 -Value $ServiceAutoStartEnabled `
-								 -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated -f $Name)
+                                 -Name applicationDefaults.serviceAutoStartEnabled `
+                                 -Value $ServiceAutoStartEnabled `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                                        -f $Name)
             }
             
             # Update AutoStartProviders if required
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
-				($Website.applicationDefaults.ServiceAutoStartProvider -ne $ServiceAutoStartProvider))
+                ($Website.applicationDefaults.ServiceAutoStartProvider `
+                -ne $ServiceAutoStartProvider))
             {
                 if (-not (Confirm-UniqueServiceAutoStartProviders `
-							-ServiceAutoStartProvider $ServiceAutoStartProvider `
-							-ApplicationType $ApplicationType))
+                            -ServiceAutoStartProvider $ServiceAutoStartProvider `
+                            -ApplicationType $ApplicationType))
                 {
                     Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
-										 -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
-										 -ErrorAction Stop
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
+                                         -Value @{
+                                            name=$ServiceAutoStartProvider; 
+                                            type=$ApplicationType
+                                          } `
+                                         -ErrorAction Stop
+                    Write-Verbose -Message `
+                                    ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
-                Set-ItemProperty -Path "IIS:\Sites\$Name" -Name applicationDefaults.serviceAutoStartProvider `
-								 -Value $ServiceAutoStartProvider -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name applicationDefaults.serviceAutoStartProvider `
+                                 -Value $ServiceAutoStartProvider `
+                                 -ErrorAction Stop
+                Write-Verbose -Message `
+                                ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated `
+                                -f $Name)
             }
         }
     }
@@ -490,8 +547,8 @@ function Set-TargetResource
         {
             $ErrorMessage = $LocalizedData.ErrorWebsiteRemovalFailure -f $Name, $_.Exception.Message
             New-TerminatingError -ErrorId 'WebsiteRemovalFailure' `
-								 -ErrorMessage $ErrorMessage `
-								 -ErrorCategory 'InvalidOperation'
+                                 -ErrorMessage $ErrorMessage `
+                                 -ErrorCategory 'InvalidOperation'
         }
     }
 }
@@ -500,7 +557,8 @@ function Test-TargetResource
 {
     <#
     .SYNOPSYS
-        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as expected in the instance document.
+        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as 
+        expected in the instance document.
     #>
     [CmdletBinding()]
     [OutputType([Boolean])]
@@ -559,7 +617,7 @@ function Test-TargetResource
     
     # Check Ensure
     if (($Ensure -eq 'Present' -and $Website -eq $null) -or `
-		($Ensure -eq 'Absent' -and $Website -ne $null))
+        ($Ensure -eq 'Absent' -and $Website -ne $null))
     {
         $InDesiredState = $false
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnsure -f $Name)
@@ -570,25 +628,28 @@ function Test-TargetResource
     {
         # Check Physical Path property
         if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
-			$Website.PhysicalPath -ne $PhysicalPath)
+            $Website.PhysicalPath -ne $PhysicalPath)
         {
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath `
+                                    -f $Name)
         }
 
         # Check State
         if ($PSBoundParameters.ContainsKey('State') -and $Website.State -ne $State)
         {
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseState -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseState `
+                                    -f $Name)
         }
 
         # Check Application Pool property
         if ($PSBoundParameters.ContainsKey('ApplicationPool') -and `
-			$Website.ApplicationPool -ne $ApplicationPool)
+            $Website.ApplicationPool -ne $ApplicationPool)
         {
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseApplicationPool -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseApplicationPool `
+                                    -f $Name)
         }
 
         # Check Binding properties
@@ -597,23 +658,26 @@ function Test-TargetResource
             if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
             {
                 $InDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseBindingInfo -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseBindingInfo `
+                                        -f $Name)
             }
         }
 
         # Check Enabled Protocols
         if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and `
-			$Website.EnabledProtocols -ne $EnabledProtocols)
+            $Website.EnabledProtocols -ne $EnabledProtocols)
         {
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnabledProtocols -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnabledProtocols `
+                                    -f $Name)
         }
 
         # Check Default Pages
         if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
         {
             $AllDefaultPages = @(
-                Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
+                Get-WebConfiguration -Filter '//defaultDocument/files/*' `
+                                     -PSPath "IIS:\Sites\$Name" |
                 ForEach-Object -Process {Write-Output -InputObject $_.value}
             )
 
@@ -622,15 +686,16 @@ function Test-TargetResource
                 if ($AllDefaultPages -inotcontains $Page)
                 {
                     $InDesiredState = $false
-                    Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseDefaultPage -f $Name)
+                    Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseDefaultPage `
+                                            -f $Name)
                 }
             }
         }
 
         #Check AuthenticationInfo
         if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-			(-not (Test-AuthenticationInfo -Site $Name `
-										   -AuthenticationInfo $AuthenticationInfo)))
+            (-not (Test-AuthenticationInfo -Site $Name `
+                                           -AuthenticationInfo $AuthenticationInfo)))
         { 
             $InDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
@@ -638,33 +703,36 @@ function Test-TargetResource
         
         #Check Preload
         if($PSBoundParameters.ContainsKey('preloadEnabled') -and `
-			$Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
+            $Website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
         {
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload `
+                                    -f $Name)
         } 
               
         #Check AutoStartEnabled
         if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and `
-			$Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
+            $Website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart `
+                                    -f $Name)
         }
         
         #Check AutoStartProviders 
         if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and `
-			$Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
+            $Website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
             if (-not (Confirm-UniqueServiceAutoStartProviders `
-						-serviceAutoStartProvider $ServiceAutoStartProvider `
-						-ApplicationType $ApplicationType))
+                        -serviceAutoStartProvider $ServiceAutoStartProvider `
+                        -ApplicationType $ApplicationType))
             {
                 $InDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProvider)     
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProvider)
             }
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebsiteAutoStartProvider -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebsiteAutoStartProvider `
+                                    -f $Name)
         }
     }
 
@@ -686,15 +754,17 @@ function Confirm-UniqueBinding
 {
     <#
     .SYNOPSIS
-        Helper function used to validate that the website's binding information is unique to other websites.
-        Returns False if at least one of the bindings is already assigned to another website.
+        Helper function used to validate that the website's binding information is unique to other 
+        websites. Returns False if at least one of the bindings is already assigned to another 
+        website.
     .PARAMETER Name
         Specifies the name of the website.
     .PARAMETER ExcludeStopped
         Omits stopped websites.
     .NOTES
         This function tests standard ('http' and 'https') bindings only.
-        It is technically possible to assign identical non-standard bindings (such as 'net.tcp') to different websites.
+        It is technically possible to assign identical non-standard bindings (such as 'net.tcp') 
+        to different websites.
     #>
     [CmdletBinding()]
     [OutputType([Boolean])]
@@ -714,8 +784,11 @@ function Confirm-UniqueBinding
 
     if (-not $Website)
     {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound -f $Name
-        New-TerminatingError -ErrorId 'WebsiteNotFound' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound `
+                        -f $Name
+        New-TerminatingError -ErrorId 'WebsiteNotFound' `
+                             -ErrorMessage $ErrorMessage `
+                             -ErrorCategory 'InvalidResult'
     }
 
     $ReferenceObject = @(
@@ -771,8 +844,9 @@ function Confirm-UniqueServiceAutoStartProviders
     .PARAMETER ExcludeStopped
         Specifies the name of the Application Type for the AutoStartProvider.
     .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
-        need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
+        This tests for the existance of a AutoStartProviders which is globally assigned. 
+        As AutoStartProviders need to be uniquely named it will check for this and error out if 
+        attempting to add a duplicatly named AutoStartProvider.
         Name is passed in to bubble to any error messages during the test.
     #>
     
@@ -789,9 +863,10 @@ function Confirm-UniqueServiceAutoStartProviders
         $ApplicationType
     )
 
-    $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+    $WebSiteASP = (Get-WebConfiguration `
+                   -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
-    $ExistingObject = $WebSiteAutoStartProviders | `
+    $ExistingObject = $WebSiteASP | `
         Where-Object -Property Name -eq -Value $serviceAutoStartProvider | `
         Select-Object Name,Type
 
@@ -806,17 +881,17 @@ function Confirm-UniqueServiceAutoStartProviders
         }
 
     if(-not (Compare-Object -ReferenceObject $ExistingObject `
-							-DifferenceObject $ProposedObject `
-							-Property name))
+                            -DifferenceObject $ProposedObject `
+                            -Property name))
         {
             if(Compare-Object -ReferenceObject $ExistingObject `
-							  -DifferenceObject $ProposedObject `
-							  -Property type)
+                              -DifferenceObject $ProposedObject `
+                              -Property type)
                 {
                     $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
                     New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' `
-										 -ErrorMessage $ErrorMessage `
-										 -ErrorCategory 'InvalidResult'`
+                                         -ErrorMessage $ErrorMessage `
+                                         -ErrorCategory 'InvalidResult'`
                 }
         }
 
@@ -856,7 +931,8 @@ function ConvertTo-CimBinding
 
             if ($Binding.Protocol -in @('http', 'https'))
             {
-                if ($Binding.bindingInformation -match '^\[(.*?)\]\:(.*?)\:(.*?)$') # Extract IPv6 address
+                # Extract IPv6 address
+                if ($Binding.bindingInformation -match '^\[(.*?)\]\:(.*?)\:(.*?)$') 
                 {
                     $IPAddress = $Matches[1]
                     $Port      = $Matches[2]
@@ -891,7 +967,10 @@ function ConvertTo-CimBinding
             $CimProperties.Add('CertificateThumbprint', [String]$Binding.certificateHash)
             $CimProperties.Add('CertificateStoreName',  [String]$Binding.certificateStoreName)
 
-            New-CimInstance -ClassName $CimClassName -Namespace $CimNamespace -Property $CimProperties -ClientOnly
+            New-CimInstance -ClassName $CimClassName `
+                            -Namespace $CimNamespace `
+                            -Property $CimProperties `
+                            -ClientOnly
         }
     }
 }
@@ -900,7 +979,8 @@ function ConvertTo-WebBinding
 {
     <#
     .SYNOPSIS
-        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding> element representation.
+        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding> 
+        element representation.
     .LINK
         https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
     #>
@@ -933,7 +1013,9 @@ function ConvertTo-WebBinding
                         )
                         {
                             $IsJoinRequired = $true
-                            Write-Verbose -Message ($LocalizedData.VerboseConvertToWebBindingIgnoreBindingInformation -f $Binding.Protocol)
+                            Write-Verbose -Message `
+                                ($LocalizedData.VerboseConvertToWebBindingIgnoreBindingInformation `
+                                -f $Binding.Protocol)
                         }
                         else
                         {
@@ -948,7 +1030,8 @@ function ConvertTo-WebBinding
                     # Construct the bindingInformation attribute
                     if ($IsJoinRequired -eq $true)
                     {
-                        $IPAddressString = Format-IPAddressString -InputString $Binding.IPAddress -ErrorAction Stop
+                        $IPAddressString = Format-IPAddressString -InputString $Binding.IPAddress `
+                                                                   -ErrorAction Stop
 
                         if ([String]::IsNullOrEmpty($Binding.Port))
                         {
@@ -958,7 +1041,9 @@ function ConvertTo-WebBinding
                                 'https' {$PortNumberString = '443'}
                             }
 
-                            Write-Verbose -Message ($LocalizedData.VerboseConvertToWebBindingDefaultPort -f $Binding.Protocol, $PortNumberString)
+                            Write-Verbose -Message `
+                                ($LocalizedData.VerboseConvertToWebBindingDefaultPort `
+                                -f $Binding.Protocol, $PortNumberString)
                         }
                         else
                         {
@@ -968,12 +1053,17 @@ function ConvertTo-WebBinding
                             }
                             else
                             {
-                                $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidPort -f $Binding.Port
-                                New-TerminatingError -ErrorId 'WebBindingInvalidPort' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
+                                $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidPort `
+                                                -f $Binding.Port
+                                New-TerminatingError -ErrorId 'WebBindingInvalidPort' `
+                                                     -ErrorMessage $ErrorMessage `
+                                                     -ErrorCategory 'InvalidArgument'
                             }
                         }
 
-                        $BindingInformation = $IPAddressString, $PortNumberString, $Binding.HostName -join ':'
+                        $BindingInformation = $IPAddressString, `
+                                              $PortNumberString, `
+                                              $Binding.HostName -join ':'
                         $OutputObject.Add('bindingInformation', [String]$BindingInformation)
                     }
                     else
@@ -985,8 +1075,11 @@ function ConvertTo-WebBinding
                 {
                     if ([String]::IsNullOrEmpty($Binding.BindingInformation))
                     {
-                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation -f $Binding.Protocol
-                        New-TerminatingError -ErrorId 'WebBindingMissingBindingInformation' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
+                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation `
+                                        -f $Binding.Protocol
+                        New-TerminatingError -ErrorId 'WebBindingMissingBindingInformation' `
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidArgument'
                     }
                     else
                     {
@@ -999,14 +1092,19 @@ function ConvertTo-WebBinding
                 {
                     if ([String]::IsNullOrEmpty($Binding.CertificateThumbprint))
                     {
-                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint -f $Binding.Protocol
-                        New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
+                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint `
+                                        -f $Binding.Protocol
+                        New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' `
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidArgument'
                     }
 
                     if ([String]::IsNullOrEmpty($Binding.CertificateStoreName))
                     {
                         $CertificateStoreName = 'MY'
-                        Write-Verbose -Message ($LocalizedData.VerboseConvertToWebBindingDefaultCertificateStoreName -f $CertificateStoreName)
+                        Write-Verbose -Message `
+                            ($LocalizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
+                            -f $CertificateStoreName)
                     }
                     else
                     {
@@ -1039,14 +1137,18 @@ function ConvertTo-WebBinding
             else
             {
                 <#
-                    WebAdministration can throw the following exception if there are non-standard bindings (such as 'net.tcp'):
-                    'The data is invalid. (Exception from HRESULT: 0x8007000D)'
+                    WebAdministration can throw the following exception if there are non-standard 
+                    bindings (such as 'net.tcp'): 'The data is invalid. 
+                    (Exception from HRESULT: 0x8007000D)'
 
                     Steps to reproduce:
                     1) Add 'net.tcp' binding
-                    2) Execute {Get-Website | ForEach-Object {$_.bindings.Collection} | Select-Object *}
+                    2) Execute {Get-Website | `
+                                ForEach-Object {$_.bindings.Collection} | `
+                                Select-Object *}
 
-                    Workaround is to create a new custom object and use dot notation to access binding properties.
+                    Workaround is to create a new custom object and use dot notation to
+                    access binding properties.
                 #>
 
                 $OutputObject.Add('bindingInformation',   [String]$Binding.bindingInformation)
@@ -1105,8 +1207,11 @@ function Format-IPAddressString
         }
         catch
         {
-            $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress -f $InputString, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
+            $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress `
+                            -f $InputString, $_.Exception.Message
+            New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' `
+                                 -ErrorMessage $ErrorMessage `
+                                 -ErrorCategory 'InvalidArgument'
         }
     }
 
@@ -1133,7 +1238,8 @@ function Get-AuthenticationInfo
     $authenticationProperties = @{}
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
-        $authenticationProperties[$type] = [String](Test-AuthenticationEnabled -Site $Site -Type $type)
+        $authenticationProperties[$type] = [String](Test-AuthenticationEnabled -Site $Site `
+                                                                               -Type $type)
     }
 
     return New-CimInstance `
@@ -1161,7 +1267,8 @@ function Set-Authentication
     .PARAMETER Site
         Specifies the name of the Website.
     .PARAMETER Type
-        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+        Specifies the type of Authentication.
+        Limited to the set: ('Anonymous','Basic','Digest','Windows').
     .PARAMETER Enabled
         Whether the Authentication is enabled or not.
     #>
@@ -1224,7 +1331,8 @@ function Test-AuthenticationEnabled
     .PARAMETER Site
         Specifies the name of the Website.
    .PARAMETER Type
-        Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
+        Specifies the type of Authentication.
+        Limited to the set: ('Anonymous','Basic','Digest','Windows').
     #>
 
     [CmdletBinding()]
@@ -1252,8 +1360,9 @@ function Test-AuthenticationInfo
     <#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
-        Will return that result which will either [boolean]$True or [boolean]$False for use in Test-TargetResource.
-        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break this function out.
+        Will return that result which will either [boolean]$True or [boolean]$False for use 
+        in Test-TargetResource. Uses Test-AuthenticationEnabled to determine this. 
+        First incorrect result will break this function out.
     .PARAMETER Site
         Specifies the name of the Website.
     .PARAMETER AuthenticationInfo
@@ -1292,7 +1401,8 @@ function Test-BindingInfo
 {
     <#
     .SYNOPSYS
-        Validates the desired binding information (i.e. no duplicate IP address, port, and host name combinations).
+        Validates the desired binding information (i.e. no duplicate IP address, port, and 
+        host name combinations).
     #>
     [CmdletBinding()]
     [OutputType([Boolean])]
@@ -1309,16 +1419,20 @@ function Test-BindingInfo
     {
         # Normalize the input (helper functions will perform additional validations)
         $Bindings = @(ConvertTo-WebBinding -InputObject $BindingInfo | ConvertTo-CimBinding)
-        $StandardBindings = @($Bindings | Where-Object -FilterScript {$_.Protocol -in @('http', 'https')})
-        $NonStandardBindings = @($Bindings | Where-Object -FilterScript {$_.Protocol -notin @('http', 'https')})
+        $StandardBindings = @($Bindings | `
+                                Where-Object -FilterScript {$_.Protocol -in @('http', 'https')})
+        $NonStandardBindings = @($Bindings | `
+                                 Where-Object -FilterScript {$_.Protocol -notin @('http', 'https')})
 
         if ($StandardBindings.Count -ne 0)
         {
             # IP address, port, and host name combination must be unique
-            if (($StandardBindings | Group-Object -Property IPAddress, Port, HostName) | Where-Object -FilterScript {$_.Count -ne 1})
+            if (($StandardBindings | Group-Object -Property IPAddress, Port, HostName) | `
+                                     Where-Object -FilterScript {$_.Count -ne 1})
             {
                 $IsValid = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
+                Write-Verbose -Message `
+                    ($LocalizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
             }
 
             # A single port cannot be simultaneously specified for bindings with different protocols
@@ -1327,7 +1441,8 @@ function Test-BindingInfo
                 if (($GroupByPort.Group | Group-Object -Property Protocol).Length -ne 1)
                 {
                     $IsValid = $false
-                    Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSamePortDifferentProtocol)
+                    Write-Verbose -Message `
+                        ($LocalizedData.VerboseTestBindingInfoSamePortDifferentProtocol)
                     break
                 }
             }
@@ -1335,17 +1450,21 @@ function Test-BindingInfo
 
         if ($NonStandardBindings.Count -ne 0)
         {
-            if (($NonStandardBindings | Group-Object -Property Protocol, BindingInformation) | Where-Object -FilterScript {$_.Count -ne 1})
+            if (($NonStandardBindings | `
+                Group-Object -Property Protocol, BindingInformation) | `
+                Where-Object -FilterScript {$_.Count -ne 1})
             {
                 $IsValid = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoSameProtocolBindingInformation)
+                Write-Verbose -Message `
+                    ($LocalizedData.VerboseTestBindingInfoSameProtocolBindingInformation)
             }
         }
     }
     catch
     {
         $IsValid = $false
-        Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoInvalidCatch -f $_.Exception.Message)
+        Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoInvalidCatch `
+                                -f $_.Exception.Message)
     }
 
     return $IsValid
@@ -1404,11 +1523,15 @@ function Test-WebsiteBinding
 
     $InDesiredState = $true
 
-    # Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and host name combinations).
+    # Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and 
+    # host name combinations).
     if (-not (Test-BindingInfo -BindingInfo $BindingInfo))
     {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation -f $Name
-        New-TerminatingError -ErrorId 'WebsiteBindingInputInvalidation' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation `
+                        -f $Name
+        New-TerminatingError -ErrorId 'WebsiteBindingInputInvalidation' `
+                             -ErrorMessage $ErrorMessage `
+                             -ErrorCategory 'InvalidResult'
     }
 
     try
@@ -1416,10 +1539,15 @@ function Test-WebsiteBinding
         $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
         # Normalize binding objects to ensure they have the same representation
-        $CurrentBindings = @(ConvertTo-WebBinding -InputObject $Website.bindings.Collection -Verbose:$false)
-        $DesiredBindings = @(ConvertTo-WebBinding -InputObject $BindingInfo -Verbose:$false)
+        $CurrentBindings = @(ConvertTo-WebBinding -InputObject $Website.bindings.Collection `
+                                                   -Verbose:$false)
+        $DesiredBindings = @(ConvertTo-WebBinding -InputObject $BindingInfo `
+                                                  -Verbose:$false)
 
-        $PropertiesToCompare = 'protocol', 'bindingInformation', 'certificateHash', 'certificateStoreName'
+        $PropertiesToCompare = 'protocol', `
+                               'bindingInformation', `
+                               'certificateHash', `
+                               'certificateStoreName'
 
         # The sslFlags attribute was added in IIS 8.0.
         # This check is needed for backwards compatibility with Windows Server 2008 R2.
@@ -1428,15 +1556,20 @@ function Test-WebsiteBinding
             $PropertiesToCompare += 'sslFlags'
         }
 
-        if (Compare-Object -ReferenceObject $CurrentBindings -DifferenceObject $DesiredBindings -Property $PropertiesToCompare)
+        if (Compare-Object -ReferenceObject $CurrentBindings `
+                           -DifferenceObject $DesiredBindings `
+                           -Property $PropertiesToCompare)
         {
             $InDesiredState = $false
         }
     }
     catch
     {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteCompareFailure -f $Name, $_.Exception.Message
-        New-TerminatingError -ErrorId 'WebsiteCompareFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+        $ErrorMessage = $LocalizedData.ErrorWebsiteCompareFailure `
+                         -f $Name, $_.Exception.Message
+        New-TerminatingError -ErrorId 'WebsiteCompareFailure' `
+                             -ErrorMessage $ErrorMessage `
+                             -ErrorCategory 'InvalidResult'
     }
 
     return $InDesiredState
@@ -1461,7 +1594,8 @@ function Update-DefaultPage
     )
 
     $AllDefaultPages = @(
-        Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
+        Get-WebConfiguration -Filter '//defaultDocument/files/*' `
+                             -PSPath "IIS:\Sites\$Name" |
         ForEach-Object -Process {Write-Output -InputObject $_.value}
     )
 
@@ -1469,8 +1603,11 @@ function Update-DefaultPage
     {
         if ($AllDefaultPages -inotcontains $Page)
         {
-            Add-WebConfiguration -Filter '//defaultDocument/files' -PSPath "IIS:\Sites\$Name" -Value @{value = $Page}
-            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated -f $Name, $Page)
+            Add-WebConfiguration -Filter '//defaultDocument/files' `
+                                 -PSPath "IIS:\Sites\$Name" `
+                                 -Value @{value = $Page}
+            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
+                                    -f $Name, $Page)
         }
     }
 }
@@ -1501,8 +1638,11 @@ function Update-WebsiteBinding
 
     if (-not $Website)
     {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound -f $Name
-        New-TerminatingError -ErrorId 'WebsiteNotFound' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound `
+                        -f $Name
+        New-TerminatingError -ErrorId 'WebsiteNotFound' `
+                             -ErrorMessage $ErrorMessage `
+                             -ErrorCategory 'InvalidResult'
     }
 
     ConvertTo-WebBinding -InputObject $BindingInfo -ErrorAction Stop |
@@ -1523,8 +1663,11 @@ function Update-WebsiteBinding
         }
         catch
         {
-            $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure -f $Name, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+            $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
+                            -f $Name, $_.Exception.Message
+            New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' `
+                                 -ErrorMessage $ErrorMessage `
+                                 -ErrorCategory 'InvalidResult'
         }
 
         if ($Properties.protocol -eq 'https')
@@ -1533,24 +1676,40 @@ function Update-WebsiteBinding
             {
                 try
                 {
-                    Set-WebConfigurationProperty -Filter "$($Website.ItemXPath)/bindings/binding[last()]" -Name sslFlags -Value $Properties.sslFlags -Force -ErrorAction Stop
+                    Set-WebConfigurationProperty `
+                        -Filter "$($Website.ItemXPath)/bindings/binding[last()]" `
+                        -Name sslFlags `
+                        -Value $Properties.sslFlags `
+                        -Force `
+                        -ErrorAction Stop
                 }
                 catch
                 {
-                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure -f $Name, $_.Exception.Message
-                    New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidResult'
+                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
+                                    -f $Name, $_.Exception.Message
+                    New-TerminatingError `
+                        -ErrorId 'WebsiteBindingUpdateFailure' `
+                        -ErrorMessage $ErrorMessage `
+                        -ErrorCategory 'InvalidResult'
                 }
             }
 
             try
             {
-                $Binding = Get-WebConfiguration -Filter "$($Website.ItemXPath)/bindings/binding[last()]" -ErrorAction Stop
-                $Binding.AddSslCertificate($Properties.certificateHash, $Properties.certificateStoreName)
+                $Binding = Get-WebConfiguration `
+                            -Filter "$($Website.ItemXPath)/bindings/binding[last()]" `
+                            -ErrorAction Stop
+                $Binding.AddSslCertificate($Properties.certificateHash, `
+                                           $Properties.certificateStoreName)
             }
             catch
             {
-                $ErrorMessage = $LocalizedData.ErrorWebBindingCertificate -f $Properties.certificateHash, $_.Exception.Message
-                New-TerminatingError -ErrorId 'WebBindingCertificate' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidOperation'
+                $ErrorMessage = $LocalizedData.ErrorWebBindingCertificate `
+                                -f $Properties.certificateHash, $_.Exception.Message
+                New-TerminatingError `
+                    -ErrorId 'WebBindingCertificate' `
+                    -ErrorMessage $ErrorMessage `
+                    -ErrorCategory 'InvalidOperation'
             }
         }
 
