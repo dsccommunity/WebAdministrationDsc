@@ -21,19 +21,19 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 try
 {
+    $null = Backup-WebConfiguration -Name $tempName
+    
     # Now that xWebAdministration should be discoverable load the configuration data
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
     . $ConfigFile
-
-    $null = Backup-WebConfiguration -Name $tempName
 
     $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($Global:DSCResourceName).config.psd1"
 
     #region HelperFunctions
 
     # Function needed to test AuthenticationInfo
-    Function Get-AuthenticationInfo ($Type, $Website, $WebApplication) {
-
+    Function Get-AuthenticationInfo ($Type, $Website, $WebApplication) 
+    {
         (Get-WebConfigurationProperty `
             -Filter /system.WebServer/security/authentication/${Type}Authentication `
             -Name enabled `
@@ -41,8 +41,8 @@ try
     }
 
     # Function needed to test SslFlags
-    Function Get-SslFlags ($Website, $WebApplication) { 
-        
+    Function Get-SslFlags ($Website, $WebApplication) 
+    { 
         Get-WebConfiguration `
                 -PSPath IIS:\Sites `
                 -Location "${Website}/${WebApplication}" `
