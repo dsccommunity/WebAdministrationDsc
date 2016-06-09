@@ -25,7 +25,7 @@ function Get-TargetResource
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings = ''
+        [string[]] $Bindings
     )
 
     Assert-Module
@@ -76,7 +76,7 @@ function Set-TargetResource
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings ='',
+        [string[]] $Bindings,
 
         [ValidateSet('Present','Absent')]
         [System.String]
@@ -130,7 +130,7 @@ function Test-TargetResource
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings = '',
+        [string[]] $Bindings,
 
         [ValidateSet('Present','Absent')]
         [System.String]
