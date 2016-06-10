@@ -34,71 +34,6 @@ Function Trace-Message
 }
 #endregion
 
-#IIS Helpers
-
-# Get the IIS Site Path
-function Get-IisSitePath
-{
-    param
-    (
-
-        [string]$SiteName
-    )
-
-    if(-not $SiteName)
-    {
-        return 'IIS:\'
-    }
-    else
-    {
-        return Join-Path 'IIS:\sites\' $SiteName
-    }
-}
-
-#Get a list on IIS handlers
-function Get-IisHandler
-{
-    param
-    (
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-
-        [string]$Name,
-
-        [string]$SiteName
-    )
-
-    Trace-Message "Getting Handler for $Name in Site $SiteName"
-    return get-webconfiguration -Filter 'System.WebServer/handlers/*' `
-                  -PSPath (Get-IisSitePath -SiteName $SiteName) | Where-Object{$_.Name -ieq $Name}
-}
-
-# Remove an IIS Handler
-function Remove-IisHandler
-{
-    param
-    (
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-
-        [string]$Name,
-
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-
-        [string]$SiteName
-    )
-
-    $handler = Get-IisHandler @PSBoundParameters
-
-    if($handler)
-    {
-        Clear-WebConfiguration -PSPath $handler.PSPath -Filter $handler.ItemXPath -Location $handler.Location
-    }
-}
-
-#EndRegion
-
 
 function Get-TargetResource
 {
@@ -425,8 +360,71 @@ function Test-TargetResourceImpl
     }
 }
 
+
+#IIS Helpers
+
+# Get the IIS Site Path
+function Get-IisSitePath
+{
+    param
+    (
+
+        [string]$SiteName
+    )
+
+    if(-not $SiteName)
+    {
+        return 'IIS:\'
+    }
+    else
+    {
+        return Join-Path 'IIS:\sites\' $SiteName
+    }
+}
+
+# Get a list on IIS handlers
+function Get-IisHandler
+{
+    param
+    (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+
+        [string]$Name,
+
+        [string]$SiteName
+    )
+
+    Trace-Message "Getting Handler for $Name in Site $SiteName"
+    return get-webconfiguration -Filter 'System.WebServer/handlers/*' `
+                  -PSPath (Get-IisSitePath -SiteName $SiteName) | Where-Object{$_.Name -ieq $Name}
+}
+
+# Remove an IIS Handler
+function Remove-IisHandler
+{
+    param
+    (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+
+        [string]$Name,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+
+        [string]$SiteName
+    )
+
+    $handler = Get-IisHandler @PSBoundParameters
+
+    if($handler)
+    {
+        Clear-WebConfiguration -PSPath $handler.PSPath -Filter $handler.ItemXPath -Location $handler.Location
+    }
+}
+
+#EndRegion
+
 Export-ModuleMember -Function *-TargetResource
-
-
-
 
