@@ -171,6 +171,7 @@ function Test-TargetResource
 function Test-Dependancies
 {
     Write-Verbose 'Checking whether WebAdministration is there in the machine or not.'
+
     # Check if WebAdministration module is present for IIS cmdlets
     if(!(Get-Module -ListAvailable -Name WebAdministration))
     {
@@ -179,7 +180,5 @@ function Test-Dependancies
 }
 
 Export-ModuleMember -Function *-TargetResource
-
-
 
 

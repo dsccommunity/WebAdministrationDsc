@@ -6,20 +6,21 @@
 # We try to cover the most common use cases
 # We have a single parameter for each setting
 ######################################################################################
+
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-SettingValue=Changing default value '{0}' to '{1}'
-ValueOk=Default value '{0}' is already '{1}'
+        NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
+        SettingValue=Changing default value '{0}' to '{1}'
+        ValueOk=Default value '{0}' is already '{1}'
 '@
 }
 
-######################################################################################
-# The Get-TargetResource cmdlet.
-# This function will get all supported site default values
-######################################################################################
+<#
+    .SYNOPSIS
+    This function will get all supported site default values
+#>
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -42,10 +43,10 @@ function Get-TargetResource
                                     LogDirectory = (GetValue 'siteDefaults/logFile' 'directory')}    
 }
 
-######################################################################################
-# The Set-TargetResource cmdlet.
-# This function will change a default setting if not already set
-######################################################################################
+<#
+    .SYNOPSIS
+    This function will change a default setting if not already set
+#>
 function Set-TargetResource
 {
     param
@@ -71,10 +72,10 @@ function Set-TargetResource
         SetValue 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
 }
 
-######################################################################################
-# The Test-TargetResource cmdlet.
-# This will test whether all given values are already set in the current configuration
-######################################################################################
+<#
+    .SYNOPSIS
+    This will test whether all given values are already set in the current configuration
+#>
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -125,9 +126,7 @@ function Test-TargetResource
     return $true
 }
 
-######################################################################################
-# Helper Functions
-######################################################################################
+#region Helper Functions
 
 Function CheckValue([string]$path,[string]$name,[string]$newValue)
 {
@@ -184,5 +183,7 @@ Function CheckIISPoshModule
     }
 }
 
-#  FUNCTIONS TO BE EXPORTED 
+# Endregion
+
+#  Functions to be exported
 Export-ModuleMember -Function *-TargetResource

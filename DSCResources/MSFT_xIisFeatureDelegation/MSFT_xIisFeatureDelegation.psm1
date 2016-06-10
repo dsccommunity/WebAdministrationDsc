@@ -130,5 +130,5 @@ Function Get-OverrideMode
     return $oMode
 }
 
-#  FUNCTIONS TO BE EXPORTED
+#  Functions to be exported
 Export-ModuleMember -Function *-TargetResource

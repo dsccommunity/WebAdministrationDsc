@@ -238,8 +238,8 @@ function Remove-Item([string]$key, [Boolean]$isAttribute, [string]$websitePath, 
         $filter = "$defaultFilter/@$key"
 
         # this is a workaround to ensure if appSettings has no collection and we try to delete the only attribute, the entire node is not deleted.
-        # if we try removing the only attribute even if there is one collection item, the node is preserved. I am not able to find a way to do this
-        #using clear-webconfiguration alone.
+        # if we try removing the only attribute even if there is one collection item, the node is preserved. There doesn't seem to be a way to do this
+        # using clear-webconfiguration alone.
         Add-item -key 'dummyKey' -value 'dummyValue' -isAttribute $false -websitePath $websitePath -configSection $configSection
 
         clear-WebConfiguration -filter $filter -PSPath $websitePath -WarningAction Stop
@@ -269,7 +269,4 @@ function Get-ItemValue([string]$key, [Boolean]$isAttribute, [string]$websitePath
 }
 
 Export-ModuleMember -Function *-TargetResource
-
-
-
 

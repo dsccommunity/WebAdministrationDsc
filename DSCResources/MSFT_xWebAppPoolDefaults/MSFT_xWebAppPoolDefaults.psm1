@@ -10,9 +10,9 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-SettingValue=Changing default value '{0}' to '{1}'
-ValueOk=Default value '{0}' is already '{1}'
+        NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
+        SettingValue=Changing default value '{0}' to '{1}'
+        ValueOk=Default value '{0}' is already '{1}'
 '@
 }
 
@@ -114,7 +114,7 @@ Function CheckValue([string]$path,[string]$name,[string]$newValue)
     }   
 }
 
-# some internal helper function to do the actual work:
+#region Helper Functions
 
 Function SetValue([string]$path,[string]$name,[string]$newValue)
 {
@@ -156,5 +156,7 @@ Function CheckIISPoshModule
         Throw $LocalizedData.NoWebAdministrationModule
     }
 }
+
+#endregion Helper Functions
 
 Export-ModuleMember -Function *-TargetResource
