@@ -150,7 +150,7 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $returnValue.Add($_.Name, ('{0}.{1}' -f $appPool.ToString(), $_.Path))
+            $returnValue.Add($_.Name, $('{0}.{1}' -f $appPool.ToString(), $_.Path))
             #$returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
         }
     )
