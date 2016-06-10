@@ -152,6 +152,7 @@ function Get-TargetResource
         {
             #$command = '{0}.{1}' -f $appPool.ToString(), $_.Path
             $command = '$appPool.{0}' -f $_.Path
+            Write-Verbose $command -Verbose
             $result = & "$command"
             $returnValue.Add($_.Name, $result)
             #$returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
