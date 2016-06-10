@@ -5,12 +5,12 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-AddingType=Adding MIMEType '{0}' for extension '{1}'
-RemovingType=Removing MIMEType '{0}' for extension '{1}'
-TypeExists=MIMEType '{0}' for extension '{1}' already exist
-TypeNotPresent=MIMEType '{0}' for extension '{1}' is not present as requested
-TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
+        NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
+        AddingType=Adding MIMEType '{0}' for extension '{1}'
+        RemovingType=Removing MIMEType '{0}' for extension '{1}'
+        TypeExists=MIMEType '{0}' for extension '{1}' already exist
+        TypeNotPresent=MIMEType '{0}' for extension '{1}' is not present as requested
+        TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
 '@
 }
 

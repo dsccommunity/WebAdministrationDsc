@@ -6,25 +6,25 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
-VerboseSetTargetAbsent = Removing existing Web Application "{0}".
-VerboseSetTargetPresent = Creating new Web application "{0}".
-VerboseSetTargetPhysicalPath = Updating physical path for Web application "{0}".
-VerboseSetTargetWebAppPool = Updating application pool for Web application "{0}".
-VerboseSetTargetSslFlags = Updating SslFlags for Web application "{0}".
-VerboseSetTargetAuthenticationInfo = Updating AuthenticationInfo for Web application "{0}".
-VerboseSetTargetPreload = Updating Preload for Web application "{0}".
-VerboseSetTargetAutostart = Updating AutoStart for Web application "{0}".
-VerboseSetTargetAutoStartProviders = Updating AutoStartProviders for Web application "{0}". 
-VerboseTestTargetFalseAbsent = Web application "{0}" is absent and should not absent.
-VerboseTestTargetFalsePresent = Web application $Name should be absent and is not absent.
-VerboseTestTargetFalsePhysicalPath = Physical path for web application "{0}" does not match desired state.
-VerboseTestTargetFalseWebAppPool = Web application pool for web application "{0}" does not match desired state.
-VerboseTestTargetFalseSslFlags = SslFlags for web application "{0}" are not in the desired state.
-VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for web application "{0}" is not in the desired state.
-VerboseTestTargetFalsePreload = Preload for web application "{0}" is not in the desired state.
-VerboseTestTargetFalseAutostart = Autostart for web application "{0}" is not in the desired state.
-VerboseTestTargetFalseAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
+        ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+        VerboseSetTargetAbsent = Removing existing Web Application "{0}".
+        VerboseSetTargetPresent = Creating new Web application "{0}".
+        VerboseSetTargetPhysicalPath = Updating physical path for Web application "{0}".
+        VerboseSetTargetWebAppPool = Updating application pool for Web application "{0}".
+        VerboseSetTargetSslFlags = Updating SslFlags for Web application "{0}".
+        VerboseSetTargetAuthenticationInfo = Updating AuthenticationInfo for Web application "{0}".
+        VerboseSetTargetPreload = Updating Preload for Web application "{0}".
+        VerboseSetTargetAutostart = Updating AutoStart for Web application "{0}".
+        VerboseSetTargetAutoStartProviders = Updating AutoStartProviders for Web application "{0}". 
+        VerboseTestTargetFalseAbsent = Web application "{0}" is absent and should not absent.
+        VerboseTestTargetFalsePresent = Web application $Name should be absent and is not absent.
+        VerboseTestTargetFalsePhysicalPath = Physical path for web application "{0}" does not match desired state.
+        VerboseTestTargetFalseWebAppPool = Web application pool for web application "{0}" does not match desired state.
+        VerboseTestTargetFalseSslFlags = SslFlags for web application "{0}" are not in the desired state.
+        VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for web application "{0}" is not in the desired state.
+        VerboseTestTargetFalsePreload = Preload for web application "{0}" is not in the desired state.
+        VerboseTestTargetFalseAutostart = Autostart for web application "{0}" is not in the desired state.
+        VerboseTestTargetFalseAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
 '@
 }
 
@@ -353,9 +353,7 @@ function Test-TargetResource
     
 }
 
-function Confirm-UniqueServiceAutoStartProviders
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate that the AutoStartProviders is unique to other websites.
         returns False if the AutoStartProviders exist.
@@ -367,8 +365,9 @@ function Confirm-UniqueServiceAutoStartProviders
         This tests for the existance of a AutoStartProviders which is globally assigned. As AutoStartProviders
         need to be uniquely named it will check for this and error out if attempting to add a duplicatly named AutoStartProvider.
         Name is passed in to bubble to any error messages during the test.
-    #>
-    
+#>
+function Confirm-UniqueServiceAutoStartProviders
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -411,17 +410,16 @@ function Confirm-UniqueServiceAutoStartProviders
 
 }
 
-function Get-AuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate that the authenticationProperties for an Application.
     .PARAMETER Site
         Specifies the name of the Website.
     .PARAMETER Name
         Specifies the name of the Application.
-    #>
-
+#>
+function Get-AuthenticationInfo
+{
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     param
@@ -445,27 +443,25 @@ function Get-AuthenticationInfo
             
 }
 
-function Get-DefaultAuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to build a default CimInstance for AuthenticationInformation
-    #>
-
+#>
+function Get-DefaultAuthenticationInfo
+{
     New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
         -ClientOnly `
         -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
 }
 
-function Get-SslFlags
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to return the SSLFlags on an Application.
     .PARAMETER Location
         Specifies the path in the IIS: PSDrive to the Application
-    #>
-    
+#>
+function Get-SslFlags
+{
     [CmdletBinding()]
     [OutputType([System.String])]
     param
@@ -489,9 +485,7 @@ function Get-SslFlags
     
 }
 
-function Set-Authentication
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to set authenticationProperties for an Application.
     .PARAMETER Site
@@ -502,8 +496,9 @@ function Set-Authentication
         Specifies the type of Authentication, Limited to the set: ('Anonymous','Basic','Digest','Windows').
     .PARAMETER Enabled
         Whether the Authentication is enabled or not.
-    #>
-
+#>
+function Set-Authentication
+{
     [CmdletBinding()]
     param
     (
@@ -527,9 +522,7 @@ function Set-Authentication
 
 }
 
-function Set-AuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate that the authenticationProperties for an Application.
     .PARAMETER Site
@@ -538,8 +531,9 @@ function Set-AuthenticationInfo
         Specifies the name of the Application.
     .PARAMETER AuthenticationInfo
         A CimInstance of what state the AuthenticationInfo should be.
-    #>
-
+#>
+function Set-AuthenticationInfo
+{
     [CmdletBinding()]
     param
     (
@@ -561,9 +555,7 @@ function Set-AuthenticationInfo
     }
 }
 
-function Test-AuthenticationEnabled
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
         Will return that value which will either [String]True or [String]False
@@ -573,8 +565,9 @@ function Test-AuthenticationEnabled
         Specifies the name of the Application.
    .PARAMETER Type
         Specifies the type of Authentication, limited to the set: ('Anonymous','Basic','Digest','Windows').
-    #>
-
+#>
+function Test-AuthenticationEnabled
+{
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -600,9 +593,7 @@ function Test-AuthenticationEnabled
     
 }
 
-function Test-AuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
         Will return that result which will either [boolean]$True or [boolean]$False for use in Test-TargetResource.
@@ -613,8 +604,9 @@ function Test-AuthenticationInfo
         Specifies the name of the Application.
     .PARAMETER AuthenticationInfo
         A CimInstance of what state the AuthenticationInfo should be.
-    #>
-
+#>
+function Test-AuthenticationInfo
+{
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -645,9 +637,7 @@ function Test-AuthenticationInfo
     
 }
 
-function Test-SslFlags
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to test the SSLFlags on an Application. 
         Will return $true if they match and $false if they do not.
@@ -655,8 +645,9 @@ function Test-SslFlags
         Specifies the SslFlags to Test
     .PARAMETER Location
         Specifies the path in the IIS: PSDrive to the Application
-    #>
-
+#>
+function Test-SslFlags
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -682,7 +673,5 @@ function Test-SslFlags
 }
 
 Export-ModuleMember -Function *-TargetResource
-
-
 
 

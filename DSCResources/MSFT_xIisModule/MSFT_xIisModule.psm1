@@ -6,19 +6,19 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-SetTargetResourceInstallwhatIfMessage=Trying to create website "{0}".
-SetTargetResourceUnInstallwhatIfMessage=Trying to remove website "{0}".
-WebsiteNotFoundError=The requested website "{0}" is not found on the target machine.
-WebsiteDiscoveryFailureError=Failure to get the requested website "{0}" information from the target machine.
-WebsiteCreationFailureError=Failure to successfully create the website "{0}".
-WebsiteRemovalFailureError=Failure to successfully remove the website "{0}".
-WebsiteUpdateFailureError=Failure to successfully update the properties for website "{0}".
-WebsiteBindingUpdateFailureError=Failure to successfully update the bindings for website "{0}".
-WebsiteBindingInputInvalidationError=Desired website bindings not valid for website "{0}".
-WebsiteCompareFailureError=Failure to successfully compare properties for website "{0}".
-WebBindingCertifcateError=Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid.
-WebsiteStateFailureError=Failure to successfully set the state of the website {0}.
-WebsiteBindingConflictOnStartError = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+        SetTargetResourceInstallwhatIfMessage=Trying to create website "{0}".
+        SetTargetResourceUnInstallwhatIfMessage=Trying to remove website "{0}".
+        WebsiteNotFoundError=The requested website "{0}" is not found on the target machine.
+        WebsiteDiscoveryFailureError=Failure to get the requested website "{0}" information from the target machine.
+        WebsiteCreationFailureError=Failure to successfully create the website "{0}".
+        WebsiteRemovalFailureError=Failure to successfully remove the website "{0}".
+        WebsiteUpdateFailureError=Failure to successfully update the properties for website "{0}".
+        WebsiteBindingUpdateFailureError=Failure to successfully update the bindings for website "{0}".
+        WebsiteBindingInputInvalidationError=Desired website bindings not valid for website "{0}".
+        WebsiteCompareFailureError=Failure to successfully compare properties for website "{0}".
+        WebBindingCertifcateError=Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid.
+        WebsiteStateFailureError=Failure to successfully set the state of the website {0}.
+        WebsiteBindingConflictOnStartError = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
 '@
 }
 
