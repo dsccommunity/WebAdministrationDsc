@@ -16,7 +16,7 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
-[string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 
 try {
@@ -56,7 +56,7 @@ try {
             Invoke-Expression -Command "$($Global:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
             Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
 
-            $changedValue = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/sites/virtualDirectoryDefaults" -name 'allowSubDirConfig').Value
+            $changedValue = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -filter 'system.applicationHost/sites/virtualDirectoryDefaults' -name 'allowSubDirConfig').Value
             $changedValue | should be $env:PesterVirtualDirectoryDefaults
         }
     }
