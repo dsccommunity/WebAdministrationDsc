@@ -1,7 +1,7 @@
 #requires -Version 4.0
 
-$Global:DSCModuleName   = 'xWebAdministration'
-$Global:DSCResourceName = 'MSFT_xWebAppPool'
+$script:DSCModuleName   = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xWebAppPool'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -13,8 +13,8 @@ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Integration
 #endregion
 
@@ -24,7 +24,7 @@ if ((Get-Service -Name 'W3SVC').Status -ne 'Running')
     Start-Service -Name 'W3SVC'
 }
 
-$tempBackupName = "$($Global:DSCResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+$tempBackupName = "$($script:DSCResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
 
 # Using try/finally to always cleanup even if something awful happens.
 
@@ -36,10 +36,10 @@ try
 
     #region Integration Tests
 
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    Describe "$($Global:DSCResourceName)_Integration" {
+    Describe "$($script:DSCResourceName)_Integration" {
 
         #region Default Tests
 
@@ -47,7 +47,7 @@ try
             {
                 Invoke-Expression -Command (
                     '{0}_Config -OutputPath $TestEnvironment.WorkingFolder -ConfigurationData $ConfigData -ErrorAction Stop' -f
-                    $Global:DSCResourceName
+                    $script:DSCResourceName
                 )
 
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Force -Wait -Verbose

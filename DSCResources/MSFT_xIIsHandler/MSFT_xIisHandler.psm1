@@ -790,7 +790,6 @@ $script:handlers = @{
 
 #endregion
 
-#region Get-TargetResource
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
@@ -810,7 +809,7 @@ function Get-TargetResource
 
     $handler = Get-Handler -Name $Name
 
-    if ($handler -eq $null)
+    if ($null -eq $handler)
     {
         return @{
             Ensure = 'Absent'
@@ -825,9 +824,7 @@ function Get-TargetResource
         }
     }
 }
-#endregion
 
-#region Set-TargetResource
 function Set-TargetResource
 {
     param
@@ -848,22 +845,20 @@ function Set-TargetResource
 
     $handler = Get-Handler -Name $Name
 
-    if ($handler -eq $null -and $Ensure -eq 'Present')
+    if ($null -eq $handler -and $Ensure -eq 'Present')
     {
         # add the handler
         Add-Handler -Name $Name
         Write-Verbose -Message ($LocalizedData.AddingHandler -f $Name)
     }
-    elseif ($handler -ne $null -and $Ensure -eq 'Absent')
+    elseif ($null -ne $handler -and $Ensure -eq 'Absent')
     {
         # remove the handler
         Remove-WebConfigurationProperty -PSPath $psPathRoot -Filter $sectionNode -Name '.' -AtElement @{name="$Name"}
         Write-Verbose -Message ($LocalizedData.RemovingHandler -f $Name)
     }
 }
-#endregion
 
-#region Test-TargetResource
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -882,11 +877,11 @@ function Test-TargetResource
 
     $handler = Get-Handler -Name $Name
 
-    if (($handler -eq $null -and $Ensure -eq 'Present') -or ($handler -ne $null -and $Ensure -eq 'Absent'))
+    if (($null -eq $handler -and $Ensure -eq 'Present') -or ($null -ne $handler -and $Ensure -eq 'Absent'))
     {
         return $false;
     }
-    elseif ($handler -ne $null -and $Ensure -eq 'Present')
+    elseif ($null -ne $handler -and $Ensure -eq 'Present')
     {
         # Handler is present
         Write-Verbose -Message ($LocalizedData.HandlerExists -f $Name);
@@ -899,9 +894,9 @@ function Test-TargetResource
         return $true;
     }
 }
-#endregion
 
 #region Helper Functions
+
 function Get-Handler
 {
     param

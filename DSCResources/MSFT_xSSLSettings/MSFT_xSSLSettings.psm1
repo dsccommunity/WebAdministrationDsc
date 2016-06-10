@@ -136,7 +136,7 @@ function Test-TargetResource
     if ($Ensure -eq 'Present' -and $sslSettings.Ensure -eq 'Present')
     {
         $sslComp = Compare-Object -ReferenceObject $Bindings -DifferenceObject $sslSettings.Bindings -PassThru
-        if ($sslComp -eq $null)
+        if ($null -eq $sslComp)
         {
             Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
                 $($LocalizedData.SSLBindingsCorrect) -f $Name

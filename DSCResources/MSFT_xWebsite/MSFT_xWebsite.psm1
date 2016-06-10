@@ -190,7 +190,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
-        if ($Website -ne $null)
+        if ($null -ne $Website)
         {
             # Update Physical Path if required
             if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
@@ -207,7 +207,7 @@ function Set-TargetResource
             }
 
             # Update Bindings if required
-            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $null -ne $BindingInfo)
             {
                 if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
                 {
@@ -224,7 +224,7 @@ function Set-TargetResource
             }
 
             # Update Default Pages if required
-            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
+            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $null -ne $DefaultPage)
             {
                 Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
             }
@@ -332,7 +332,7 @@ function Set-TargetResource
             Stop-Website -Name $Website.Name -ErrorAction Stop
 
             # Clear default bindings if new bindings defined and are different
-            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $null -ne $BindingInfo)
             {
                 if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
                 {
@@ -349,7 +349,7 @@ function Set-TargetResource
             }
 
             # Update Default Pages if required
-            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
+            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $null -ne $DefaultPage)
             {
                 Update-DefaultPage -Name $Name -DefaultPage $DefaultPage
             }
@@ -483,14 +483,14 @@ function Test-TargetResource
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
     
     # Check Ensure
-    if (($Ensure -eq 'Present' -and $Website -eq $null) -or ($Ensure -eq 'Absent' -and $Website -ne $null))
+    if (($Ensure -eq 'Present' -and $null -eq $Website) -or ($Ensure -eq 'Absent' -and $null -ne $Website))
     {
         $InDesiredState = $false
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnsure -f $Name)
     }
 
     # Only check properties if website exists
-    if ($Ensure -eq 'Present' -and $Website -ne $null)
+    if ($Ensure -eq 'Present' -and $null -ne $Website)
     {
         # Check Physical Path property
         if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and $Website.PhysicalPath -ne $PhysicalPath)
@@ -514,7 +514,7 @@ function Test-TargetResource
         }
 
         # Check Binding properties
-        if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+        if ($PSBoundParameters.ContainsKey('BindingInfo') -and $null -ne $BindingInfo)
         {
             if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
             {
@@ -531,7 +531,7 @@ function Test-TargetResource
         }
 
         # Check Default Pages
-        if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
+        if ($PSBoundParameters.ContainsKey('DefaultPage') -and $null -ne $DefaultPage)
         {
             $AllDefaultPages = @(
                 Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |

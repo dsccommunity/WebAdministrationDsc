@@ -1,13 +1,14 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xIISFeatureDelegation'
+
+$script:DSCModuleName = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 
 #region HEADER
 
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
-$repoSource = (Get-Module -Name $global:DSCModuleName -ListAvailable)
+$repoSource = (Get-Module -Name $script:DSCModuleName -ListAvailable)
 
 # If module was obtained from the gallery install test folder from the gallery instead of cloning from git
-if (($repoSource -ne $null) -and ($repoSource[0].RepositorySourceLocation.Host -eq 'www.powershellgallery.com'))
+if (($null -ne $repoSource) -and ($repoSource[0].RepositorySourceLocation.Host -eq 'www.powershellgallery.com'))
 {
     if ( -not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests\DscResourceTestHelper')) )
     {
@@ -50,7 +51,7 @@ else
         
         # TODO get rid of this section once we update all other resources and merge the gitDependency branch with the main branch on DscResource.Tests
         Push-Location
-        cd $dscResourceTestsPath
+        Set-Location $dscResourceTestsPath
         & git checkout gitDependency
         Pop-Location
     }
@@ -60,8 +61,8 @@ else
 
 
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Unit
 #endregion
 

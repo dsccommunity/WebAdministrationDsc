@@ -467,6 +467,7 @@ function Get-SslFlags
     #>
     
     [CmdletBinding()]
+    [OutputType([System.String])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -479,7 +480,7 @@ function Get-SslFlags
                 -Filter 'system.webserver/security/access' | `
                  ForEach-Object { $_.sslFlags }
 
-    if ($SslFlags -eq $null) 
+    if ($null -eq $SslFlags) 
         { 
             [String]::Empty
         } 
