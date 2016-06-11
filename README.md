@@ -31,7 +31,7 @@ Currently, only FastCgiModule is supported.
 * **autoStart** : When set to `$true`, indicates to the World Wide Web Publishing Service (W3SVC) that the application pool should be automatically started when it is created or when IIS is started.
 * **CLRConfigFile** : Indicates the .NET configuration file for the application pool.
 * **enable32BitAppOnWin64** : When set to `$true`, enables a 32-bit application to run on a computer that runs a 64-bit version of Windows.
-* **enableConfigurationOverride** : When set to `$true`, indicates that delegated settings in Web.config files will processed for applications within this application pool.
+* **enableConfigurationOverride** : When set to `$true`, indicates that delegated settings in Web.config files will be processed for applications within this application pool.
     When set to `$false`, all settings in Web.config files will be ignored for this application pool.
 * **managedPipelineMode** : Indicates the request-processing mode that is used to process requests for managed content. The values that are allowed for this property are: `Integrated`, `Classic`.
 * **managedRuntimeLoader** : Indicates the managed loader to use for pre-loading the application pool.
@@ -186,7 +186,7 @@ Currently, only FastCgiModule is supported.
 ### Unreleased
 * **xWebsite** updates:
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo 
-
+    * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`). 
 * Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
 
 ### 1.11.0.0
