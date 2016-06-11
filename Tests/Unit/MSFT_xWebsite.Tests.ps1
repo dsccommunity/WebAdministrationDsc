@@ -81,6 +81,15 @@ try
                     -ClientOnly
             )
 
+            $MockLogOutput = @{
+                directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                logFormat         = $MockParameters.LogFormat
+                period            = 'Daily'
+                truncateSize      = '1048576'
+                localTimeRollover = 'False'
+            }
+
             $MockWebsite = @{
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
@@ -89,6 +98,7 @@ try
                 Bindings             = @{Collection = @($MockWebBinding)}
                 EnabledProtocols     = 'http'
                 ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                LogFile              = $MockLogOutput
                 Count                = 1
             }
 
@@ -222,6 +232,30 @@ try
                 It 'should return ApplicationType' {
                     $Result.ApplicationType | Should Be $MockPreloadAndAutostartProvider.ApplicationType
                 }
+
+                It 'should return correct LogPath' {
+                    $Result.LogPath | Should Be $MockWebsite.Logfile.directory
+                }
+
+                It 'should return LogFlags' {
+                    $Result.LogFlags | Should Be $MockWebsite.Logfile.logExtFileFlags
+                }
+
+                It 'should return LogPeriod' {
+                    $Result.LogPeriod | Should Be $MockWebsite.Logfile.period
+                }
+
+                It 'should return LogTruncateSize' {
+                    $Result.LogTruncateSize | Should Be $MockWebsite.Logfile.truncateSize
+                }
+
+                It 'should return LoglocalTimeRollover' {
+                    $Result.LoglocalTimeRollover | Should Be $MockWebsite.Logfile.localTimeRollover
+                }
+
+                It 'should return LogFormat' {
+                    $Result.logFormat | Should Be $MockWebsite.Logfile.logFormat
+                }
             }
         }
 
@@ -253,6 +287,11 @@ try
                 ServiceAutoStartProvider = 'MockAutoStartProvider'
                 ServiceAutoStartEnabled  = 'True'
                 ApplicationType          = 'MockApplicationType'
+                LogPath                  = 'C:\MockLogLocation'
+                LogFlags                 = 'Date','Time','ClientIP','UserName','ServerIP'
+                LogPeriod                = 'Hourly'
+                LogTruncateSize          = '2000000'
+                LoglocalTimeRollover     = $True
             }
 
             $MockWebBinding = @(
@@ -273,6 +312,15 @@ try
                 }
             )
 
+            $MockLogOutput = @{
+                directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                logFormat         = $MockParameters.LogFormat
+                period            = 'Daily'
+                truncateSize      = '1048576'
+                localTimeRollover = 'False'
+            }
+
             $MockWebsite = @{
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
@@ -280,8 +328,9 @@ try
                 ApplicationPool      = 'MockPool'
                 Bindings             = @{ Collection = @($MockWebBinding) }
                 EnabledProtocols     = 'http'
-                Count                = 1
                 ApplicationDefaults  = @{ Collection = @($MockPreloadAndAutostartProviders) }
+                LogFile              = $MockLogOutput
+                Count                = 1
             }
 
             Context 'Website does not exist' {
@@ -455,13 +504,194 @@ try
                     $Result | Should Be $false
                 }
             }
+
+            Context 'Check LogPath is different' {
+                $MockLogOutput =
+                    @{
+                        directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                        logExtFileFlags   = $MockParameters.LogFlags
+                        logFormat         = $MockParameters.LogFormat
+                        period            = $MockParameters.LogPeriod
+                        truncateSize      = $MockParameters.LogTruncateSize
+                        localTimeRollover = $MockParameters.LoglocalTimeRollover
+                    }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                                -Name $MockParameters.Name `
+                                -PhysicalPath $MockParameters.PhysicalPath `
+                                -LogPath 'C:\MockLogPath2' `
+                                -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
+
+            Context 'Check LogFlags are different' {
+                $MockLogOutput = @{
+                    directory         = $MockParameters.LogPath
+                    logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                    logFormat         = $MockParameters.LogFormat
+                    period            = $MockParameters.LogPeriod
+                    truncateSize      = $MockParameters.LogTruncateSize
+                    localTimeRollover = $MockParameters.LoglocalTimeRollover
+                }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogFlags 'Date','Time','ClientIP','UserName','ServerIP' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
+
+            Context 'Check LogPeriod is different' {
+                $MockLogOutput = @{
+                        directory         = $MockParameters.LogPath
+                        logExtFileFlags   = $MockParameters.LogFlags
+                        logFormat         = $MockParameters.LogFormat
+                        period            = 'Daily'
+                        truncateSize      = $MockParameters.LogTruncateSize
+                        localTimeRollover = $MockParameters.LoglocalTimeRollover
+                    }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogPeriod 'Hourly' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
+
+            Context 'Check LogTruncateSize is different' {
+                $MockLogOutput = @{
+                    directory         = $MockParameters.LogPath
+                    logExtFileFlags   = $MockParameters.LogFlags
+                    logFormat         = $MockParameters.LogFormat
+                    period            = $MockParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockParameters.LoglocalTimeRollover
+                }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogTruncateSize '2000000' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
+
+            Context 'Check LoglocalTimeRollover is different' {
+                $MockLogOutput = @{
+                    directory         = $MockParameters.LogPath
+                    logExtFileFlags   = $MockParameters.LogFlags
+                    logFormat         = $MockParameters.LogFormat
+                    period            = $MockParameters.LogPeriod
+                    truncateSize      = $MockParameters.LogTruncateSize
+                    localTimeRollover = 'False'
+                }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LoglocalTimeRollover $True `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
+
+            Context 'Check LogFormat is different' {
+                $MockLogOutput = @{
+                        directory         = $MockParameters.LogPath
+                        logExtFileFlags   = $MockParameters.LogFlags
+                        logFormat         = 'IIS'
+                        period            = $MockParameters.LogPeriod
+                        truncateSize      = $MockParameters.LogTruncateSize
+                        localTimeRollover = $MockParameters.LoglocalTimeRollover
+                    }
+
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    PhysicalPath         = 'C:\NonExistent'
+                    State                = 'Started'
+                    ApplicationPool      = 'MockPool'
+                    Bindings             = @{Collection = @($MockWebBinding)}
+                    EnabledProtocols     = 'http'
+                    ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                    LogFile              = $MockLogOutput
+                    Count                = 1
+                }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogFormat 'W3C' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
         }
 
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
             $MockAuthenticationInfo = New-CimInstance  `
-                                        -ClassName MSFT_xWebApplicationAuthenticationInformation `
-                                        -ClientOnly `
-                                        -Property @{ Anonymous=$true; Basic=$false; Digest=$false; Windows=$true }
+                -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                -ClientOnly `
+                -Property @{ Anonymous=$true; Basic=$false; Digest=$false; Windows=$true }
 
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation `
@@ -491,6 +721,12 @@ try
                 ServiceAutoStartEnabled  = $True
                 ApplicationType          = 'MockApplicationType'
                 AuthenticationInfo       = $MockAuthenticationInfo
+                LogPath                  = 'C:\MockLogLocation'
+                LogFlags                 = 'Date','Time','ClientIP','UserName','ServerIP'
+                LogPeriod                = 'Hourly'
+                LogTruncateSize          = '2000000'
+                LoglocalTimeRollover     = $True
+                LogFormat                = 'W3C'
             }
 
             $MockWebBinding = @(
@@ -511,6 +747,16 @@ try
                 }
             )
 
+            $MockLogOutput =
+                @{
+                    directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                    logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                    logFormat         = 'IIS'
+                    period            = 'Daily'
+                    truncateSize      = '1048576'
+                    localTimeRollover = 'False'
+                }
+
             $MockWebsite = @{
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\Different'
@@ -519,6 +765,7 @@ try
                 Bindings             = @{ Collection = @($MockWebBinding) }
                 EnabledProtocols     = 'http'
                 ApplicationDefaults  = @{ Collection = @($MockPreloadAndAutostartProviders) }
+                LogFile              = $MockLogOutput
             }
 
             Context 'All properties need to be updated and website must be started' {
@@ -567,7 +814,7 @@ try
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 5
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
             }
@@ -662,7 +909,7 @@ try
                 $Result = Set-TargetResource @MockParameters
 
                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 5
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -680,10 +927,8 @@ try
                     ApplicationPool          = 'MockPool'
                     Bindings                 = @{Collection = @($MockWebBinding)}
                     EnabledProtocols         = 'http'
-                    Preload                  = $True
-                    ServiceAutoStartProvider = 'MockAutoStartProvider'
-                    ServiceAutoStartEnabled  = $True
-                    ApplicationType          = 'MockApplicationType'
+                    ApplicationDefaults      = @{Collection = @($MockPreloadAndAutostartProviders)}
+                    LogFile                  = $MockLogOutput
                 }
 
                 Mock -CommandName Get-Website
@@ -722,7 +967,6 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-
                 $Result = Set-TargetResource @MockParameters
 
                 It 'should call all the mocks' {
@@ -730,7 +974,7 @@ try
                      Assert-MockCalled -CommandName Stop-Website -Exactly 1
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
@@ -843,6 +1087,53 @@ try
 
                 {Set-TargetResource @MockParameters} | Should Throw $ErrorRecord
             }
+        }
+
+        Describe "$script:DSCResourceName\Confirm-UniqueBinding" {
+            Context 'Returns false when LogFlags are incorrect' {
+
+                $MockLogOutput = @{
+                    logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                }
+
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    LogFile              = $MockLogOutput
+                }
+
+                 Mock -CommandName Get-WebSite `
+                    -MockWith { return $MockWebsite }
+
+                $result = Compare-LogFlags -Name 'MockWebsite' -LogFlags 'Date','Time','ClientIP','UserName','ServerIP'
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+
+            }
+
+            Context 'Returns true when LogFlags are correct' {
+
+                $MockLogOutput = @{
+                    logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP'
+                }
+
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    LogFile              = $MockLogOutput
+                }
+
+                 Mock -CommandName Get-WebSite `
+                    -MockWith { return $MockWebsite }
+
+                $result = Compare-LogFlags -Name $MockWebsite.Name -LogFlags 'Date','Time','ClientIP','UserName','ServerIP'
+
+                It 'Should return true' {
+                    $result | Should be $true
+                }
+
+            }
+
         }
 
         Describe "$script:DSCResourceName\Confirm-UniqueBinding" {
