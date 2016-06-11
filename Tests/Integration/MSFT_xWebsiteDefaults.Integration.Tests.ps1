@@ -19,13 +19,12 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 [string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
-
-try {
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $ConfigFile
-
+try
+{
     $null = Backup-WebConfiguration -Name $tempName
 
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    . $ConfigFile
 
     Describe "$($script:DSCResourceName)_Integration" {
         #region DEFAULT TESTS
@@ -57,7 +56,7 @@ try {
             Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
             Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
 
-            $changedValue = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/sites/virtualDirectoryDefaults" -name 'allowSubDirConfig').Value
+            $changedValue = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -filter 'system.applicationHost/sites/virtualDirectoryDefaults' -name 'allowSubDirConfig').Value
             $changedValue | should be $env:PesterVirtualDirectoryDefaults
         }
     }
