@@ -59,7 +59,6 @@ else
     Import-Module $testHelperPath -Force
 }
 
-
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
