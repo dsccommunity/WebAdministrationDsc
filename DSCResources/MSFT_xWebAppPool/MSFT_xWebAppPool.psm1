@@ -150,11 +150,13 @@ function Get-TargetResource
         }
     ).ForEach(
         {
+
+            $returnValue.Add($_.Name, ($appPool.($_.Path)))
             #$command = '{0}.{1}' -f $appPool.ToString(), $_.Path
-            $command = '$appPool.{0}' -f $_.Path
-            Write-Verbose $command -Verbose
-            $result = & "$command"
-            $returnValue.Add($_.Name, $result)
+            #$command = '$appPool.{0}' -f $_.Path
+            #Write-Verbose $command -Verbose
+            #$result = & "$command"
+            #$returnValue.Add($_.Name, $result)
             #$returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
             #$returnValue.Add($_.Name, & "('{0}.{1}' -f $appPool.ToString(), $_.Path)")
             #$returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
