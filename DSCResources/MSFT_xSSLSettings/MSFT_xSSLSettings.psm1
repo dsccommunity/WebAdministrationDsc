@@ -1,16 +1,17 @@
-Import-Module $PSScriptRoot\..\Helper.psm1 -Verbose:$false
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-        UnableToFindConfig = Unable to find {0} in AppHost Config
-        SettingSSLConfig   = Setting {0} SSL binding to {1}
-        SSLBindingsCorrect = SSL Bindings for {0} are correct
-        SSLBindingsAbsent  = SSL Bidnings for {0} are Absent
+UnableToFindConfig = Unable to find {0} in AppHost Config.
+SettingSSLConfig   = Setting {0} SSL binding to {1}.
+SSLBindingsCorrect = SSL Bindings for {0} are correct.
+SSLBindingsAbsent  = SSL Bindings for {0} are Absent.
 '@
 }
-
 
 function Get-TargetResource
 {
@@ -22,13 +23,14 @@ function Get-TargetResource
         [string] $Name,
 
         [parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [string[]] $Bindings
     )
 
     Assert-Module
 
     $Ensure = 'Absent'
-    $Bindings = 'None'
 
     try
     {
@@ -72,11 +74,13 @@ function Set-TargetResource
         [string] $Name,
 
         [parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [string[]] $Bindings,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present"
+        $Ensure = 'Present'
     )
 
     Assert-Module
@@ -124,11 +128,13 @@ function Test-TargetResource
         [string] $Name,
 
         [parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [string[]] $Bindings,
 
-        [ValidateSet("Present","Absent")]
+        [ValidateSet('Present','Absent')]
         [System.String]
-        $Ensure = "Present"
+        $Ensure = 'Present'
     )
 
     $sslSettings = Get-TargetResource -Name $Name -Bindings $Bindings

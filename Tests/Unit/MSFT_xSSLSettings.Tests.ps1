@@ -24,16 +24,18 @@ try
     #region Pester Tests
 
     InModuleScope $DSCResourceName {
+    $script:DSCModuleName = 'xWebAdministration'
+    $script:DSCResourceName = 'MSFT_xSSLSettings'
 
         Describe "$script:DSCResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {
                 Mock Get-TargetResource -Verifiable {return @{
                     Name = 'Test'
-                    Bindings = @('SSL')
+                    Bindings = @('Ssl')
                     Ensure = 'Present'
                 }}
 
-                $result = Test-TargetResource -Name 'Test' -Ensure 'Present' -Bindings 'SSL'
+                $result = Test-TargetResource -Name 'Test' -Ensure 'Present' -Bindings 'Ssl'
 
                 Assert-VerifiableMocks
 
@@ -42,14 +44,14 @@ try
                 }
             }
 
-            Context 'Ensure is Absent and SSLSettings is Absent' {
+            Context 'Ensure is Absent and SslSettings is Absent' {
                 Mock Get-TargetResource {return @{
                     Name = 'Test'
-                    Bindings = @('SSL')
+                    Bindings = @('Ssl')
                     Ensure = 'Absent'
                 }}
 
-                $result = Test-TargetResource -Name 'Test' -Ensure 'Absent' -Bindings 'SSL'
+                $result = Test-TargetResource -Name 'Test' -Ensure 'Absent' -Bindings 'Ssl'
 
                 Assert-VerifiableMocks
 
@@ -58,14 +60,14 @@ try
                 }
             }
 
-            Context 'Ensure is Present and SSLSettings is Absent' {
+            Context 'Ensure is Present and SslSettings is Absent' {
                 Mock Get-TargetResource {return @{
                     Name = 'Test'
-                    Bindings = @('SSL')
+                    Bindings = @('Ssl')
                     Ensure = 'Absent'
                 }}
 
-                $result = Test-TargetResource -Name 'Test' -Ensure 'Present' -Bindings 'SSL'
+                $result = Test-TargetResource -Name 'Test' -Ensure 'Present' -Bindings 'Ssl'
 
                 Assert-VerifiableMocks
 
@@ -78,12 +80,12 @@ try
         Describe "$script:DSCResourceName\Get-TargetResource" {
             Context 'Command finds SSL Settings' {
                 Mock Assert-Module -Verifiable { }
-                Mock Get-WebConfigurationProperty -Verifiable {return 'SSL'}
+                Mock Get-WebConfigurationProperty -Verifiable {return 'Ssl'}
 
-                $result = Get-TargetResource -Name 'Name' -Bindings 'Test'
+                $result = Get-TargetResource -Name 'Name' -Bindings 'Ssl'
                 $expected = @{
                     Name = 'Name'
-                    Bindings = 'SSL'
+                    Bindings = 'Ssl'
                     Ensure = 'Present'
                 }
 
@@ -98,14 +100,14 @@ try
                 }
             }
 
-            Context 'Command does not find SSL Settings' {
+            Context 'Command does not find Ssl Settings' {
                 Mock Assert-Module -Verifiable { }
                 Mock Get-WebConfigurationProperty -Verifiable {return $false}
 
-                $result = Get-TargetResource -Name 'Name' -Bindings 'Test'
+                $result = Get-TargetResource -Name 'Name' -Bindings 'Ssl'
                 $expected = @{
                     Name = 'Name'
-                    Bindings = 'None'
+                    Bindings = 'Ssl'
                     Ensure = 'Absent'
                 }
 
@@ -126,8 +128,8 @@ try
                 Mock Assert-Module -Verifiable { }
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
-                $result = (Set-TargetResource -Name 'Name' -Bindings 'None' -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', 'None'
+                $result = (Set-TargetResource -Name 'Name' -Bindings '' -Ensure 'Present' -Verbose) 4>&1
+                $string = $LocalizedData.SettingSSLConfig -f 'Name', ''
                 $expected = "Set-TargetResource: $string"
 
                 Assert-VerifiableMocks
@@ -137,12 +139,12 @@ try
                 }
             }
 
-            Context 'SSL Bindings set to SSL' {
+            Context 'Ssl Bindings set to Ssl' {
                 Mock Assert-Module -Verifiable { }
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
-                $result = (Set-TargetResource -Name 'Name' -Bindings 'SSL' -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', 'SSL'
+                $result = (Set-TargetResource -Name 'Name' -Bindings 'Ssl' -Ensure 'Present' -Verbose) 4>&1
+                $string = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
                 $expected = "Set-TargetResource: $string"
 
                 Assert-VerifiableMocks
@@ -152,7 +154,7 @@ try
                 }
             }
 
-            Context 'SSL Bindings set to Ssl,SslNegotiateCert,SslRequireCert' {
+            Context 'Ssl Bindings set to Ssl,SslNegotiateCert,SslRequireCert' {
                 Mock Assert-Module -Verifiable { }
                 Mock Set-WebConfigurationProperty -Verifiable {}
 

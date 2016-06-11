@@ -202,6 +202,8 @@ Currently, only FastCgiModule is supported.
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo 
     * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`). 
 * Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
+* Added **xSSLSettings** integration tests
+* Added fixes to **xSSLSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
 
 * Added **xIISLogging** resource which supports for the following options:
     * LogPath
