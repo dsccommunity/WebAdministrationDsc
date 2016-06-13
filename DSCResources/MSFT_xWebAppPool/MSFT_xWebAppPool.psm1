@@ -150,14 +150,13 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-
-            $returnValue.Add($_.Name, ($appPool.($_.Path)))
+            $property = get-property($appPool, $_.Path)
+            $returnValue.Add($_.Name, $property)
             #$command = '{0}.{1}' -f $appPool.ToString(), $_.Path
             #$command = '$appPool.{0}' -f $_.Path
             #Write-Verbose $command -Verbose
             #$result = & "$command"
             #$returnValue.Add($_.Name, $result)
-            #$returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
             #$returnValue.Add($_.Name, & "('{0}.{1}' -f $appPool.ToString(), $_.Path)")
             #$returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
         }
@@ -171,6 +170,34 @@ function Get-TargetResource
 
     return $returnValue
 }
+
+function get-property 
+{
+    param ($object,
+        [string] $propertyname)
+
+    $parts = $propertyname.Split('.')
+    $firstPart = $parts[0]
+
+    $value = $object.$firstPart
+    if($parts.Count -gt 1)
+    {
+        $newParts = @()
+        1..($parts.Count -1) | %{
+            Write-Verbose "i: $_" -Verbose
+            $newParts += $parts[$_]
+        }
+
+        $newName = ($newParts -join '.')
+        Write-Verbose $newName -Verbose
+        return get-property -object $value -propertyname ($newParts -join '.')
+    }
+    else
+    {
+        return $value
+    }
+} 
+
 
 function Set-TargetResource
 {
