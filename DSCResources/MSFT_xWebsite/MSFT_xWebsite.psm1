@@ -27,6 +27,8 @@ ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error:
 ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
 ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
 VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
+VerboseGetTargetAbsent = No Website exists with this name.
+VerboseGetTargetPresent = A single Website exists with this name
 VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
 VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
 VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" have been updated to "{1}".
@@ -85,12 +87,14 @@ function Get-TargetResource
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
     
-    if ($Website.Count -eq 0) # No Website exists with this name
+    if ($Website.Count -eq 0)
     {
+        Write-Verbose -Message ($LocalizedData.VerboseGetTargetAbsent)
         $EnsureResult = 'Absent'
     }
-    elseif ($Website.Count -eq 1) # A single Website exists with this name
+    elseif ($Website.Count -eq 1)
     {
+        Write-Verbose -Message ($LocalizedData.VerboseGetTargetPresent)
         $EnsureResult = 'Present'
 
         $CimBindings = @(ConvertTo-CimBinding -InputObject $Website.bindings.Collection)
