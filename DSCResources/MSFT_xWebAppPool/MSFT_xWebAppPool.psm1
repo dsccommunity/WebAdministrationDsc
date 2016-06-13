@@ -358,9 +358,10 @@ function Set-TargetResource
                 {
                     $propertyName = $_.Name
                     $propertyPath = $_.Path
+                    $property = Get-Property -object $appPool -propertyname $propertyPath
 
                     if ( 
-                        $PSBoundParameters[$propertyName] -ne (Get-Property -object $appPool -propertyname -$propertyPath)
+                        $PSBoundParameters[$propertyName] -ne $property
                     )
                     {
                         Write-Verbose -Message (
@@ -722,11 +723,10 @@ function Test-TargetResource
             {
                 $propertyName = $_.Name
                 $propertyPath = $_.Path
+                $property = Get-Property -object $appPool -propertyname $propertyPath
 
                 if (
-                    #$property = Get-Property -object $appPool -propertyname -$propertyPath
-                    $PSBoundParameters[$propertyName] -ne (Get-Property -object $appPool -propertyname -$propertyPath)
-                    #(Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    $PSBoundParameters[$propertyName] -ne $property
                 )
                 {
                     Write-Verbose -Message (
