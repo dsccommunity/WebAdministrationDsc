@@ -858,7 +858,7 @@ function Get-Property
         }
 
         $newName = ($newParts -join '.')
-        return get-property -object $value -propertyname ($newParts -join '.')
+        return get-property -object $value -propertyname $newName
     }
     else
     {
