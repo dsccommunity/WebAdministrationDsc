@@ -853,7 +853,7 @@ function Get-Property
     if($parts.Count -gt 1)
     {
         $newParts = @()
-        1..($parts.Count -1) | %{
+        1..($parts.Count -1) | ForEach-Object{
             $newParts += $parts[$_]
         }
 
