@@ -150,7 +150,7 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $property = Get-Property $appPool -propertyname $_.Path
+            $property = Get-Property -object $appPool -propertyname $_.Path
             $returnValue.Add($_.Name, $property)
         }
     )
