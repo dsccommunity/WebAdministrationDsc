@@ -853,12 +853,10 @@ function Get-Property
     {
         $newParts = @()
         1..($parts.Count -1) | %{
-            Write-Verbose "i: $_" -Verbose
             $newParts += $parts[$_]
         }
 
         $newName = ($newParts -join '.')
-        Write-Verbose $newName -Verbose
         return get-property -object $value -propertyname ($newParts -join '.')
     }
     else
