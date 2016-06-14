@@ -185,7 +185,7 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }

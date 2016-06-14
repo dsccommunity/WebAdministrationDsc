@@ -244,9 +244,8 @@ function Set-TargetResource
         if ($null -ne $Website)
         {
             # Update Physical Path if required
-            if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false `
-                                                       -and $Website.PhysicalPath `
-                                                       -ne $PhysicalPath)
+            if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
+                $Website.PhysicalPath -ne $PhysicalPath)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                                  -Name physicalPath `
@@ -257,8 +256,8 @@ function Set-TargetResource
             }
 
             # Update Application Pool if required
-            if ($PSBoundParameters.ContainsKey('ApplicationPool') -and $Website.ApplicationPool `
-                                                                  -ne $ApplicationPool)
+            if ($PSBoundParameters.ContainsKey('ApplicationPool') -and `
+                $Website.ApplicationPool -ne $ApplicationPool)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                                  -Name applicationPool `
@@ -269,8 +268,8 @@ function Set-TargetResource
             }
 
             # Update Bindings if required
-            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo `
-                                                               -ne $null)
+            if ($PSBoundParameters.ContainsKey('BindingInfo') -and `
+                $BindingInfo -ne $null)
             {
                 if (-not (Test-WebsiteBinding -Name $Name `
                                               -BindingInfo $BindingInfo))
@@ -283,8 +282,8 @@ function Set-TargetResource
             }
 
             # Update Enabled Protocols if required
-            if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and $Website.EnabledProtocols `
-                                                                   -ne $EnabledProtocols)
+            if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and `
+                $Website.EnabledProtocols -ne $EnabledProtocols)
             {
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                                  -Name enabledProtocols `
@@ -295,14 +294,16 @@ function Set-TargetResource
             }
 
             # Update Default Pages if required
-            if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
+            if ($PSBoundParameters.ContainsKey('DefaultPage') -and `
+                $DefaultPage -ne $null)
             {
                 Update-DefaultPage -Name $Name `
                                    -DefaultPage $DefaultPage
             }
 
             # Update State if required
-            if ($PSBoundParameters.ContainsKey('State') -and $Website.State -ne $State)
+            if ($PSBoundParameters.ContainsKey('State') -and 
+                $Website.State -ne $State)
             {
                 if ($State -eq 'Started')
                 {
@@ -417,7 +418,8 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('LogFormat') -and `
                 ($LogFormat -ne $Website.logfile.LogFormat))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat `
+                                        -f $Name)
                 Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
                     -name logFormat `
                     -value $LogFormat
@@ -427,7 +429,8 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.logFormat -Value 'W3C'
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -435,10 +438,12 @@ function Set-TargetResource
             }
 
             # Update LogPath if required
-            if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $Website.logfile.LogPath))
+            if ($PSBoundParameters.ContainsKey('LogPath') -and `
+                ($LogPath -ne $Website.logfile.LogPath))
             {
 
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.directory -value $LogPath
             }
@@ -461,7 +466,8 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
                 ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.truncateSize -Value $LogTruncateSize
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -473,7 +479,8 @@ function Set-TargetResource
                 ($LoglocalTimeRollover -ne `
                  ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }
@@ -506,7 +513,8 @@ function Set-TargetResource
                 }
 
                 $Website = New-Website @NewWebsiteSplat -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated `
+                                        -f $Name)
             }
             catch
             {
@@ -520,7 +528,8 @@ function Set-TargetResource
             Stop-Website -Name $Website.Name -ErrorAction Stop
 
             # Clear default bindings if new bindings defined and are different
-            if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+            if ($PSBoundParameters.ContainsKey('BindingInfo') -and `
+                $BindingInfo -ne $null)
             {
                 if (-not (Test-WebsiteBinding -Name $Name `
                                               -BindingInfo $BindingInfo))
@@ -654,7 +663,8 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.logFormat -Value 'W3C'
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -662,10 +672,12 @@ function Set-TargetResource
             }
 
             # Update LogPath if required
-            if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $Website.logfile.LogPath))
+            if ($PSBoundParameters.ContainsKey('LogPath') -and `
+                ($LogPath -ne $Website.logfile.LogPath))
             {
 
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.directory -value $LogPath
             }
@@ -676,7 +688,8 @@ function Set-TargetResource
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
-                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
+                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod `
+                                                -f $Name)
                     }
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
@@ -688,7 +701,8 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
                 ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.truncateSize -Value $LogTruncateSize
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -700,7 +714,8 @@ function Set-TargetResource
                 ($LoglocalTimeRollover -ne `
                  ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
+                                        -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }
@@ -814,11 +829,13 @@ function Test-TargetResource
         ($Ensure -eq 'Absent' -and $Website -ne $null))
     {
         $InDesiredState = $false
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnsure -f $Name)
+        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnsure `
+                                -f $Name)
     }
 
     # Only check properties if website exists
-    if ($Ensure -eq 'Present' -and $Website -ne $null)
+    if ($Ensure -eq 'Present' -and `
+        $Website -ne $null)
     {
         # Check Physical Path property
         if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
@@ -847,7 +864,8 @@ function Test-TargetResource
         }
 
         # Check Binding properties
-        if ($PSBoundParameters.ContainsKey('BindingInfo') -and $BindingInfo -ne $null)
+        if ($PSBoundParameters.ContainsKey('BindingInfo') -and `
+            $BindingInfo -ne $null)
         {
             if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
             {
@@ -867,7 +885,8 @@ function Test-TargetResource
         }
 
         # Check Default Pages
-        if ($PSBoundParameters.ContainsKey('DefaultPage') -and $DefaultPage -ne $null)
+        if ($PSBoundParameters.ContainsKey('DefaultPage') -and `
+            $DefaultPage -ne $null)
         {
             $AllDefaultPages = @(
                 Get-WebConfiguration -Filter '//defaultDocument/files/*' `
@@ -922,7 +941,7 @@ function Test-TargetResource
                         -ApplicationType $ApplicationType))
             {
                 $InDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProvider)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
             }
         }
 
@@ -930,19 +949,24 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFormat'))
         {
             # Warn if LogFlags are passed in and Current LogFormat is not W3C
-            if ($PSBoundParameters.ContainsKey('LogFlags') -and $LogFormat -ne 'W3C')
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+                $LogFormat -ne 'W3C')
             {
-                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat -f $Name)
+                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat `
+                                        -f $Name)
             }
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
-            if($PSBoundParameters.ContainsKey('LogFlags') -and $Website.logfile.LogFormat -ne 'W3C')
+            if($PSBoundParameters.ContainsKey('LogFlags') -and `
+                $Website.logfile.LogFormat -ne 'W3C')
             {
-                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat -f $Name)
+                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat `
+                                        -f $Name)
             }
             # Check Log Format
             if ($LogFormat -ne $Website.logfile.LogFormat)
             {
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFormat -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFormat `
+                                        -f $Name)
                 return $false
             }
         }
@@ -959,7 +983,8 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $Website.logfile.LogPath))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath `
+                                    -f $Name)
             return $false
         }
 
@@ -969,10 +994,12 @@ function Test-TargetResource
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
             {
-                Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
+                Write-Verbose -Message ($LocalizedData.WarningLogPeriod `
+                                        -f $Name)
             }
 
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPeriod -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPeriod `
+                                    -f $Name)
             return $false
         }
 
@@ -980,15 +1007,18 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize `
+                                    -f $Name)
             return $false
         }
 
         # Check LoglocalTimeRollover
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
-            ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+            ($LoglocalTimeRollover -ne `
+            ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover `
+                                    -f $Name)
             return $false
         }
     }
@@ -1419,7 +1449,9 @@ function ConvertTo-WebBinding
                         if ($SslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($Binding.HostName))
                         {
                             $ErrorMessage = $LocalizedData.ErrorWebBindingMissingSniHostName
-                            New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
+                            New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' `
+                                                 -ErrorMessage $ErrorMessage `
+                                                 -ErrorCategory 'InvalidArgument'
                         }
 
                         $OutputObject.Add('sslFlags', $SslFlags)
