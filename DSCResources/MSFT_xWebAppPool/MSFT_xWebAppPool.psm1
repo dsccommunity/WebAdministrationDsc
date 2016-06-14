@@ -150,7 +150,7 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $property = Get-Property -object $appPool -propertyname $_.Path
+            $property = Get-Property -Object $appPool -PropertyName $_.Path
             $returnValue.Add($_.Name, $property)
         }
     )
@@ -358,7 +358,7 @@ function Set-TargetResource
                 {
                     $propertyName = $_.Name
                     $propertyPath = $_.Path
-                    $property = Get-Property -object $appPool -propertyname $propertyPath
+                    $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
                     if ( 
                         $PSBoundParameters[$propertyName] -ne $property
@@ -723,7 +723,7 @@ function Test-TargetResource
             {
                 $propertyName = $_.Name
                 $propertyPath = $_.Path
-                $property = Get-Property -object $appPool -propertyname $propertyPath
+                $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
                 if (
                     $PSBoundParameters[$propertyName] -ne $property
@@ -843,13 +843,15 @@ function Test-TargetResource
 
 function Get-Property 
 {
-    param ($object,
-        [string] $propertyname)
+    param 
+    (
+        [object] $Object,
+        [string] $PropertyName)
 
-    $parts = $propertyname.Split('.')
+    $parts = $PropertyName.Split('.')
     $firstPart = $parts[0]
 
-    $value = $object.$firstPart
+    $value = $Object.$firstPart
     if($parts.Count -gt 1)
     {
         $newParts = @()
@@ -858,7 +860,7 @@ function Get-Property
         }
 
         $newName = ($newParts -join '.')
-        return get-property -object $value -propertyname $newName
+        return Get-Property -Object $value -PropertyName $newName
     }
     else
     {
