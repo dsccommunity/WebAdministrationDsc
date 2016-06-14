@@ -1386,6 +1386,7 @@ try
                 }
 
             }
+        
         }
                
         Describe -Name "$Global:DSCResourceName\Test-EmailAddress" -Fixture {
@@ -1403,9 +1404,9 @@ try
                                        | should Throw
                     
                 }
+            
             }
-        
-        
+
         }
         
         Describe -Name "$Global:DSCResourceName\Test-SMTPBindings" -Fixture {
@@ -1431,9 +1432,13 @@ try
                     { Test-SMTPBindings -ServerBindings @('192.168.0.1:100000') } `
                                         | should Throw
                 }
+            
             }
+        
         }
+    
     }
+
 }
 
 finally
