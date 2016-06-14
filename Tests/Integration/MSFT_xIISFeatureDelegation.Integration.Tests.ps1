@@ -1,5 +1,6 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xIISFeatureDelegation'
+
+$script:DSCModuleName = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -11,22 +12,22 @@ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Integration
 #endregion
 
-[string] $tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
 try
 {
     # Now that xWebAdministration should be discoverable load the configuration data
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    Describe "$($Global:DSCResourceName)_Integration" {
+    Describe "$($script:DSCResourceName)_Integration" {
         # Allow Feature Delegation
         # for this test we are using the anonymous Authentication feature, which is installed by default, but has Feature Delegation set to denied by default
         if ((Get-WindowsOptionalFeature –Online | Where-Object {$_.FeatureName -eq "IIS-Security" -and $_.State -eq "Enabled"}).Count -eq 1)
@@ -35,7 +36,7 @@ try
             {
                 It 'Allow Feature Delegation'{
                     {
-                        Invoke-Expression -Command "$($Global:DSCResourceName)_AllowDelegation -OutputPath `$TestEnvironment.WorkingFolder"
+                        &($script:DSCResourceName + '_AllowDelegation') -OutputPath $TestEnvironment.WorkingFolder
                         Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
                     } | Should not throw
 
@@ -51,7 +52,7 @@ try
         #         # well it doesn't test the Set Method, but does test the Test method
         #         # What if the default document module is not installed?
 
-        #         Invoke-Expression -Command "$($Global:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
+        #         Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
         #         Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
 
         #         # Now lets try to add a new default document on site level, this should fail
@@ -80,12 +81,12 @@ try
             # well it doesn't test the Set Method, but does test the Test method
             # What if the default document module is not installed?
 
-            Invoke-Expression -Command "$($Global:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
+            Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
             Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
 
             # Now lets try to add a new default document on site level, this should fail
             # get the first site, it doesn't matter which one, it should fail.
-            $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
+            $siteName = (Get-ChildItem iis:\sites | Select-Object -First 1).Name
             Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter "system.webServer/defaultDocument/files" -name "." -value @{value='pesterpage.cgi'}
 
             # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.

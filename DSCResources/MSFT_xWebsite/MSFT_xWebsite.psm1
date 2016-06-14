@@ -22,6 +22,7 @@ ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property val
 ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
 ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
 ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
+ErrorWebBindingMissingSniHostName = The HostName property is required for use with Server Name Indication.
 ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
 ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
 ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
@@ -41,6 +42,12 @@ VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website 
 VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
 VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
 VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
+VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated on Website "{0}".
+VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated on Website "{0}".
+VerboseSetTargetUpdateLogPeriod = LogPeriod does not match and will be updated on Website "{0}".
+VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
+VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
+VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
 VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
 VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
 VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
@@ -55,6 +62,12 @@ VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the d
 VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
 VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
 VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
+VerboseTestTargetFalseLogPath = LogPath does match desired state on Website "{0}".
+VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
+VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
+VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
+VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
+VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
 VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
 VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
 VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
@@ -63,6 +76,8 @@ VerboseTestBindingInfoSamePortDifferentProtocol = BindingInfo contains items tha
 VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
 VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
 VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
+WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
+WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
 '@
 }
 
@@ -133,12 +148,17 @@ function Get-TargetResource
         ServiceAutoStartProvider = $Website.applicationDefaults.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $Website.applicationDefaults.serviceAutoStartEnabled
         ApplicationType          = $WebConfiguration.Type
-        
+        LogPath                  = $Website.logfile.directory
+        LogFlags                 = [Array]$Website.logfile.LogExtFileFlags
+        LogPeriod                = $Website.logfile.period
+        LogtruncateSize          = $Website.logfile.truncateSize
+        LoglocalTimeRollover     = $Website.logfile.localTimeRollover
+        LogFormat                = $Website.logfile.logFormat
     }
 }
 
 function Set-TargetResource
-{ 
+{
     <#
     .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the 
@@ -179,18 +199,40 @@ function Set-TargetResource
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
-        
+
         [Boolean]
         $PreloadEnabled,
-        
+
         [Boolean]
         $ServiceAutoStartEnabled,
 
         [String]
         $ServiceAutoStartProvider,
-        
+
         [String]
-        $ApplicationType
+        $ApplicationType,
+
+        [String]
+        $LogPath,
+
+        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
+        [String[]]
+        $LogFlags,
+
+        [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
+        [String]
+        $LogPeriod,
+
+        [ValidateRange('1048576','4294967295')]
+        [String]
+        $LogTruncateSize,
+
+        [Boolean]
+        $LoglocalTimeRollover,
+
+        [ValidateSet('IIS','W3C','NCSA')]
+        [String]
+        $LogFormat
     )
 
     Assert-Module
@@ -199,7 +241,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
-        if ($Website -ne $null)
+        if ($null -ne $Website)
         {
             # Update Physical Path if required
             if ([string]::IsNullOrEmpty($PhysicalPath) -eq $false `
@@ -370,6 +412,72 @@ function Set-TargetResource
                                 ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated `
                                 -f $Name)
             }
+
+            # Update LogFormat if Needed
+            if ($PSBoundParameters.ContainsKey('LogFormat') -and `
+                ($LogFormat -ne $Website.logfile.LogFormat))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
+                Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
+                    -name logFormat `
+                    -value $LogFormat
+            }
+
+            # Update LogFlags if required
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+                (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.logFormat -Value 'W3C'
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+            }
+
+            # Update LogPath if required
+            if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $Website.logfile.LogPath))
+            {
+
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.directory -value $LogPath
+            }
+
+            # Update LogPeriod if needed
+            if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
+                ($LogPeriod -ne $Website.logfile.LogPeriod))
+            {
+                if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
+                    {
+                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
+                    }
+
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value $LogPeriod
+            }
+
+            # Update LogTruncateSize if needed
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
+                ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.truncateSize -Value $LogTruncateSize
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value 'MaxSize'
+            }
+
+            # Update LoglocalTimeRollover if neeed
+            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
+                ($LoglocalTimeRollover -ne `
+                 ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
+            }
+
         }
         else # Create website if it does not exist
         {
@@ -530,13 +638,71 @@ function Set-TargetResource
                     Write-Verbose -Message `
                                     ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
+            }
+
+            # Update LogFormat if Needed
+            if ($PSBoundParameters.ContainsKey('LogFormat') -and `
+                ($LogFormat -ne $Website.logfile.LogFormat))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
+                Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
+                    -name logFormat `
+                    -value $LogFormat
+            }
+
+            # Update LogFlags if required
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+                (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                                 -Name applicationDefaults.serviceAutoStartProvider `
-                                 -Value $ServiceAutoStartProvider `
-                                 -ErrorAction Stop
-                Write-Verbose -Message `
-                                ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated `
-                                -f $Name)
+                    -Name LogFile.logFormat -Value 'W3C'
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+            }
+
+            # Update LogPath if required
+            if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $Website.logfile.LogPath))
+            {
+
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.directory -value $LogPath
+            }
+
+            # Update LogPeriod if needed
+            if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
+                ($LogPeriod -ne $Website.logfile.LogPeriod))
+            {
+                if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
+                    {
+                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
+                    }
+
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value $LogPeriod
+            }
+
+            # Update LogTruncateSize if needed
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
+                ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.truncateSize -Value $LogTruncateSize
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value 'MaxSize'
+            }
+
+            # Update LoglocalTimeRollover if neeed
+            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
+                ($LoglocalTimeRollover -ne `
+                 ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }
         }
     }
@@ -612,7 +778,29 @@ function Test-TargetResource
         $ServiceAutoStartProvider,
         
         [String]
-        $ApplicationType
+        $ApplicationType,
+
+        [String]
+        $LogPath,
+
+        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
+        [String[]]
+        $LogFlags,
+
+        [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
+        [String]
+        $LogPeriod,
+
+        [ValidateRange('1048576','4294967295')]
+        [String]
+        $LogTruncateSize,
+
+        [Boolean]
+        $LoglocalTimeRollover,
+
+        [ValidateSet('IIS','W3C','NCSA')]
+        [String]
+        $LogFormat
     )
 
     Assert-Module
@@ -734,11 +922,74 @@ function Test-TargetResource
                         -ApplicationType $ApplicationType))
             {
                 $InDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProvider)
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProvider)
             }
-            $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebsiteAutoStartProvider `
-                                    -f $Name)
+        }
+
+        # Check LogFormat
+        if ($PSBoundParameters.ContainsKey('LogFormat'))
+        {
+            # Warn if LogFlags are passed in and Current LogFormat is not W3C
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and $LogFormat -ne 'W3C')
+            {
+                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat -f $Name)
+            }
+            # Warn if LogFlags are passed in and Desired LogFormat is not W3C
+            if($PSBoundParameters.ContainsKey('LogFlags') -and $Website.logfile.LogFormat -ne 'W3C')
+            {
+                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat -f $Name)
+            }
+            # Check Log Format
+            if ($LogFormat -ne $Website.logfile.LogFormat)
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFormat -f $Name)
+                return $false
+            }
+        }
+
+        # Check LogFlags
+        if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+            (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
+            return $false
+        }
+
+        # Check LogPath
+        if ($PSBoundParameters.ContainsKey('LogPath') -and `
+            ($LogPath -ne $Website.logfile.LogPath))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath -f $Name)
+            return $false
+        }
+
+        # Check LogPeriod
+        if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
+            ($LogPeriod -ne $Website.logfile.LogPeriod))
+        {
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
+            {
+                Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
+            }
+
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPeriod -f $Name)
+            return $false
+        }
+
+        # Check LogTruncateSize
+        if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
+            ($LogTruncateSize -ne $Website.logfile.LogTruncateSize))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize -f $Name)
+            return $false
+        }
+
+        # Check LoglocalTimeRollover
+        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
+            ($LoglocalTimeRollover -ne ([System.Convert]::ToBoolean($Website.logfile.LoglocalTimeRollover))))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover -f $Name)
+            return $false
         }
     }
 
@@ -756,6 +1007,44 @@ function Test-TargetResource
 
 #region Helper Functions
 
+Function Compare-LogFlags
+{
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the logflags status.
+        Returns False if the loglfags do not match and true if they do
+    .PARAMETER LogFlags
+        Specifies flags to check
+    .PARAMETER Name
+        Specifies website to check the flags on
+    #>
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String[]]
+        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
+        $LogFlags,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Name
+
+    )
+
+    $CurrentLogFlags = (Get-Website -Name $Name).logfile.logExtFileFlags -split ',' | Sort-Object
+    $ProposedLogFlags = $LogFlags -split ',' | Sort-Object
+
+    if (Compare-Object -ReferenceObject $CurrentLogFlags -DifferenceObject $ProposedLogFlags)
+    {
+        return $false
+    }
+
+    return $true
+
+}
 function Confirm-UniqueBinding
 {
     <#
@@ -1125,7 +1414,15 @@ function ConvertTo-WebBinding
 
                     if ([Environment]::OSVersion.Version -ge '6.2')
                     {
-                        $OutputObject.Add('sslFlags', [Int64]$Binding.SslFlags)
+                        $SslFlags = [Int64]$Binding.SslFlags
+
+                        if ($SslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($Binding.HostName))
+                        {
+                            $ErrorMessage = $LocalizedData.ErrorWebBindingMissingSniHostName
+                            New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' -ErrorMessage $ErrorMessage -ErrorCategory 'InvalidArgument'
+                        }
+
+                        $OutputObject.Add('sslFlags', $SslFlags)
                     }
                 }
                 else
