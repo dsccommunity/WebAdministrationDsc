@@ -3,6 +3,7 @@ $script:DSCModuleName      = 'xWebAdministration'
 $script:DSCResourceName    = 'MSFT_xWebAppPoolDefaults'
 
 #region HEADER
+# Integration Test Template Version: 1.1.0
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
 if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
      (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
@@ -26,8 +27,8 @@ try
 
     # some constants
     [string]$constPsPath = 'MACHINE/WEBROOT/APPHOST'
-    [string]$constAPDFilter = "system.applicationHost/applicationPools/applicationPoolDefaults"
-    [string]$constSiteFilter = "system.applicationHost/sites/"
+    [string]$constAPDFilter = 'system.applicationHost/applicationPools/applicationPoolDefaults'
+    [string]$constSiteFilter = 'system.applicationHost/sites/'
 
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
@@ -61,13 +62,13 @@ try
                 # We are using environment variables here, because a inline PowerShell variable was empty after executing  Start-DscConfiguration
 
                 # change the value to something else
-                if ($originalValue -eq "v4.0")
+                if ($originalValue -eq 'v4.0')
                 {
-                    $env:PesterManagedRuntimeVersion =  "v2.0"
+                    $env:PesterManagedRuntimeVersion =  'v2.0'
                 }
                 else
                 {
-                    $env:PesterManagedRuntimeVersion =  "v4.0"
+                    $env:PesterManagedRuntimeVersion =  'v4.0'
                 }
 
                 Invoke-Expression -Command "$($script:DSCResourceName)_ManagedRuntimeVersion -OutputPath `$TestEnvironment.WorkingFolder"
@@ -110,7 +111,7 @@ try
 
 
         It 'Changing LogFormat' {
-            [string] $originalValue = Get-SiteValue "logFile" "logFormat"
+            [string] $originalValue = Get-SiteValue 'logFile' 'logFormat'
 
             if ($originalValue -eq 'W3C')
             {
@@ -127,7 +128,7 @@ try
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
-            $changedValue = Get-SiteValue "logFile" "logFormat"
+            $changedValue = Get-SiteValue 'logFile' 'logFormat'
 
             $changedValue | Should Be $env:PesterALogFormat
         }
@@ -135,16 +136,16 @@ try
         It 'Changing Default AppPool' {
             # get the current value
 
-            [string] $originalValue = Get-SiteValue "applicationDefaults" "applicationPool"
+            [string] $originalValue = Get-SiteValue 'applicationDefaults' 'applicationPool'
 
-            $env:PesterDefaultPool =  "fooBar"
+            $env:PesterDefaultPool =  'DefaultAppPool'
             # Compile the MOF File
             {
                 Invoke-Expression -Command "$($script:DSCResourceName)_DefaultPool -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
-            $changedValue = Get-SiteValue "applicationDefaults" "applicationPool"
+            $changedValue = Get-SiteValue 'applicationDefaults' 'applicationPool'
             $changedValue | should be $env:PesterDefaultPool
         }
 

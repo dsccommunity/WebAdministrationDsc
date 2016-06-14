@@ -70,6 +70,13 @@ try
 
         Describe "$script:DSCResourceName\Get-TargetResource" {
 
+            $MockParameters = @{
+                Website                  = 'MockSite'
+                Name                     = 'MockApp'
+                WebAppPool               = 'MockPool'
+                PhysicalPath             = 'C:\MockSite\MockApp'          
+            }
+
             Context 'Absent should return correctly' {
                 Mock -CommandName Get-WebApplication -MockWith {
                     return $null
@@ -85,6 +92,7 @@ try
 
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Anonymous') }
+                    
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
@@ -516,10 +524,11 @@ try
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
+                Mock Test-SslFlags { return $null }
+
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
                 Mock -CommandName Set-WebConfigurationProperty
-                Mock -CommandName Set-WebConfiguration
                 Mock -CommandName Set-ItemProperty
                 Mock -CommandName Set-Authentication
                 
@@ -530,8 +539,7 @@ try
                     Assert-MockCalled -CommandName New-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
-                    Assert-MockCalled -CommandName Set-WebConfiguration -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
                     Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
 
