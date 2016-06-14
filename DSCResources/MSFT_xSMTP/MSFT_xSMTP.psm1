@@ -9,7 +9,10 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
 ErrorSMTPDiscoveryFailure = No SMTP Virutal server found.
-IPAddressFailure = Invalid IP address, please verifiy the IP addresse(s) are valid
+ErrorLogFileDirectoryFailure = Invalid LogFileDirectory provided.
+ErrorBadMailDirectoryFailure  = Invalid BadMailDirectory provided.
+IPAddressFailure = Invalid IP address(s), please verifiy the IP addresse(s) are valid
+EmailAddressFailure = Invalid Email address(s), please verifiy the Email addresse(s) are valid 
 ErrorBindingsPortFailure = Invalid Port Range, please verifiy the port(s) are valid.
 VerboseTestTargetFalseAuthFlags = AuthFlags is not in the desired state.
 VerboseTestTargetFalseBadMailDirectory = BadMailDirectory is not in the desired state.
@@ -263,6 +266,13 @@ function Set-TargetResource
     if (($PSBoundParameters.ContainsKey('BadMailDirectory') -and `
     $Result.BadMailDirectory -ne $BadMailDirectory))
     {
+        if(-not (Test-Path -Path $BadMailDirectory))
+        {
+            $ErrorMessage = $LocalizedData.ErrorBadMailDirectoryFailure
+            New-TerminatingError -ErrorId 'BadMailDirectoryFailure' `
+                                 -ErrorMessage $ErrorMessage `
+                                 -ErrorCategory 'InvalidResult'
+        }
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetBadMailDirectory)
         Set-SMTPSettings -Name $Name `
                          -setting 'BadMailDirectory' `
@@ -313,6 +323,13 @@ function Set-TargetResource
     if (($PSBoundParameters.ContainsKey('LogFileDirectory') -and `
     $Result.LogFileDirectory -ne $LogFileDirectory))
     {
+        if(-not (Test-Path -Path $LogFileDirectory))
+        {
+            $ErrorMessage = $LocalizedData.ErrorLogFileDirectoryFailure
+            New-TerminatingError -ErrorId 'LogFileDirectoryFailure' `
+                                 -ErrorMessage $ErrorMessage `
+                                 -ErrorCategory 'InvalidResult'
+        }
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetLogFileDirectory)
         Set-SMTPSettings -Name $Name `
                          -setting 'LogFileDirectory' `
@@ -473,10 +490,13 @@ function Set-TargetResource
     if (($PSBoundParameters.ContainsKey('SendNdrTo') -and `
     $Result.SendNdrTo -ne $SendNdrTo))
     {
-        Write-Verbose -Message ($LocalizedData.VerboseSetTargetSendNdrTo)
-        Set-SMTPSettings -Name $Name `
+        if(-not(Test-EmailAddress -Email $SendNdrTo))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetSendNdrTo)
+            Set-SMTPSettings -Name $Name `
                          -setting 'SendNdrTo' `
                          -value $SendNdrTo
+        }
     }
 
     #Update ServerBindings if required
@@ -704,6 +724,13 @@ function Test-TargetResource
     if (($PSBoundParameters.ContainsKey('BadMailDirectory') -and 
     $Result.BadMailDirectory -ne $BadMailDirectory))
     {
+        if(-not (Test-Path -Path $BadMailDirectory))
+        {
+            $ErrorMessage = $LocalizedData.ErrorBadMailDirectoryFailure
+            New-TerminatingError -ErrorId 'BadMailDirectoryFailure' `
+                                 -ErrorMessage $ErrorMessage `
+                                 -ErrorCategory 'InvalidResult'
+        }
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseBadMailDirectory)
         return $False
     }
@@ -744,6 +771,13 @@ function Test-TargetResource
     if (($PSBoundParameters.ContainsKey('LogFileDirectory') -and 
     $Result.LogFileDirectory -ne $LogFileDirectory))
     {
+        if(-not (Test-Path -Path $LogFileDirectory))
+        {
+            $ErrorMessage = $LocalizedData.ErrorLogFileDirectoryFailure
+            New-TerminatingError -ErrorId 'LogFileDirectoryFailure' `
+                                 -ErrorMessage $ErrorMessage `
+                                 -ErrorCategory 'InvalidResult'
+        }
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFileDirectory)
         return $False
     }
@@ -872,8 +906,11 @@ function Test-TargetResource
     if (($PSBoundParameters.ContainsKey('SendNdrTo') -and 
     $Result.SendNdrTo -ne $SendNdrTo))
     {
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSendNdrTo)
-        return $False
+        if(-not(Test-EmailAddress -Email $SendNdrTo))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSendNdrTo)
+            return $False
+        }
     }
 
     #Update ServerBindings if required
@@ -969,6 +1006,18 @@ function Test-TargetResource
 
 Function Confirm-UnqiueBindings
 {
+    <#
+    .SYNOPSIS
+        Helper function used to validate that the SMTP's binding information is unique.
+        Returns False if bindings are not unique and True if they are
+    .PARAMETER ExistingBindings
+        Specifies existing SMTP bindings
+    .PARAMETER ProposedBindings
+        Specifies desired SMTP bindings.
+    .NOTES
+        The existing bindings are a [String] where are the desired are a [Array] so we 
+        need to do some magic to make sure the compare works.
+    #>
 
     [CmdletBinding()]
     [OutputType([Boolean])]
@@ -1014,6 +1063,15 @@ Function Confirm-UnqiueBindings
 
 Function Get-SMTPSettings
 {
+    <#
+    .SYNOPSIS
+        Helper function used to get the SMTP server.
+    .PARAMETER ID
+        Specifies the ID of the SMTP virtual server. 1 is the default SMTP server.
+    .NOTES
+        All it does is wrap a [ASDI] call
+    #>
+
     [CmdletBinding()]
     param
     ( 
@@ -1027,6 +1085,19 @@ Function Get-SMTPSettings
 
 Function Set-SMTPSettings
 {
+    <#
+    .SYNOPSIS
+        Helper function used to set the SMTP server settings.
+    .PARAMETER ID
+        Specifies the ID of the SMTP virtual server. 1 is the default SMTP server.
+    .PARAMETER Settigng
+        Specifies the setting of the SMTP virtual server to be changed.
+    .PARAMETER Value
+        Specifies the value of the SMTP virtual server setting to be changed.
+    .NOTES
+        All it does is wrap a [ASDI] call. Also this is used to allow pester to mock this call
+    #>
+
     [CmdletBinding()]
     param
     (
@@ -1048,8 +1119,56 @@ Function Set-SMTPSettings
     $SMTPSite.SetInfo()
 }
 
+Function Test-EmailAddress
+{
+        <#
+    .SYNOPSIS
+        Tests that an email address is valid when used as input.
+    .PARAMETER Email
+        Specifies the  desired email address.
+    .NOTES
+        Simple function which casts an email address to [Net.Mail.MailAddress] to see if it 
+        is valid are not. If not valid it will error, if vaild will return True
+    #>
+
+    [CmdletBinding()]
+    param(
+        
+        [OutputType([Boolean])]
+        [Parameter(Mandatory = $true)]
+        [String[]]
+        $Email
+    )
+    
+    if($Email)
+    {
+        if (-not($Email -as [Net.Mail.MailAddress]))
+        {
+            $ErrorMessage = $LocalizedData.ErrorEmailAddressFailure
+            New-TerminatingError -ErrorId 'EmailAddressFailure' `
+                                    -ErrorMessage $ErrorMessage `
+                                    -ErrorCategory 'InvalidResult'
+        }
+    }
+    
+    return $true
+}
+
 Function Test-SMTPBindings
 {
+    <#
+        <#
+    .SYNOPSIS
+        Tests that an server bindings are valid when used as input.
+    .PARAMETER ServerBindings
+        Specifies the  desired server bindings.
+    .NOTES
+        Simple function which casts an IP  address to [ipaddress] to see if it 
+        is valid are not. If not valid it will error, if vaild will return True.
+        Does the same for the port but uses regex to check if valid in the correct
+        port range.
+    #>
+
     [CmdletBinding()]
     param(
         
