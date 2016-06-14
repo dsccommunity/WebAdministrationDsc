@@ -18,8 +18,7 @@ configuration MSFT_xWebsite_Present_Started
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
-            AuthenticationInfo = 
-            MSFT_xWebAuthenticationInformation
+            AuthenticationInfo = MSFT_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic

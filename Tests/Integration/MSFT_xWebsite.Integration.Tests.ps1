@@ -1,4 +1,3 @@
-
 $script:DSCModuleName   = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebsite'
 
@@ -17,7 +16,7 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
-[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
 {
@@ -185,7 +184,7 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -209,7 +208,7 @@ try
 
     }
 
-    Describe 'MSFT_xWebBindingInformation' {
+   Describe 'MSFT_xWebBindingInformation' {
         # Directly interacting with Cim classes is not supported by PowerShell DSC
         # it is being done here explicitly for the purpose of testing. Please do not
         # do this in actual resource code
