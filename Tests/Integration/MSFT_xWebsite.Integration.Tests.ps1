@@ -208,7 +208,7 @@ try
 
     }
 
-   Describe 'MSFT_xWebBindingInformation' {
+    Describe 'MSFT_xWebBindingInformation' {
         # Directly interacting with Cim classes is not supported by PowerShell DSC
         # it is being done here explicitly for the purpose of testing. Please do not
         # do this in actual resource code
