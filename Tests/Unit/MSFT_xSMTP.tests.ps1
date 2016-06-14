@@ -351,7 +351,9 @@ try
             }
 
             Context 'Check BadMailDirectory is different' {
-
+            
+                Mock -CommandName Test-Path {Return $true}
+            
                 Mock -CommandName Get-SMTPSettings -MockWith {
                     return $MockSMTP
                 }
@@ -421,6 +423,8 @@ try
             }
 
             Context 'Check LogFileDirectory is different' {
+
+                Mock -CommandName Test-Path {Return $true}
 
                 Mock -CommandName Get-SMTPSettings -MockWith {
                     return $MockSMTP
@@ -789,7 +793,9 @@ try
 
         Describe -Name "how $global:DSCResourceName\Set-TargetResource" -Fixture {
         
-            Context 'All Settings need to b updated' {
+            Context 'All Settings need to be updated' {
+
+                Mock -CommandName Test-Path {Return $true}
 
                 Mock -CommandName Get-SMTPSettings -MockWith {
                     return $MockSMTP
@@ -824,6 +830,8 @@ try
             }
 
             Context 'BadMailDirectory exists but needs to be updated' {
+
+                Mock -CommandName Test-Path {Return $true}
 
                 Mock -CommandName Get-SMTPSettings -MockWith {
                     return $MockSMTP
@@ -909,6 +917,8 @@ try
             }
 
             Context 'LogFileDirectory exists but needs to be updated' {
+
+                Mock -CommandName Test-Path {Return $true}
 
                 Mock -CommandName Get-SMTPSettings -MockWith {
                     return $MockSMTP
@@ -1351,6 +1361,77 @@ try
 
             }
 
+        }
+        
+        Describe -Name "$Global:DSCResourceName\Confirm-UnqiueBindings" -Fixture {
+            Context 'Returns true when settings match' {
+
+                It 'Returns true when settings match' {
+
+                    Confirm-UnqiueBindings -ExistingBindings ':25:' `
+                                           -ProposedBindings @(':25') `
+                                           | Should be $true
+                    
+                }
+
+            }
+            
+            Context 'Returns false when settings do match' {
+
+                It 'Returns false when settings do match' {
+                    
+                    Confirm-UnqiueBindings -ExistingBindings ':25:' `
+                                           -ProposedBindings @('server:25') `
+                                           | Should be $false
+                }
+
+            }
+        }
+               
+        Describe -Name "$Global:DSCResourceName\Test-EmailAddress" -Fixture {
+        
+            Context 'Returns true when email address is valid' {
+
+                It 'Returns true when email address is valid' {
+                    Test-EmailAddress -Email 'user@domain.com' `
+                                      | should be $true
+                }
+
+                It 'Throws when email address is not vaild' {
+
+                   { Test-EmailAddress -Email 'user.domain.com' } `
+                        | should Throw
+                    
+                }
+            }
+        
+        
+        }
+        
+        Describe -Name "$Global:DSCResourceName\Test-SMTPBindings" -Fixture {
+        
+            Context 'Returns true when IP and Ports are valid' {
+
+                It 'Returns true when IP address is valid' {
+                    Test-SMTPBindings -ServerBindings @('192.168.0.1:25') `
+                                      | should be $true
+                }
+
+                It 'Throws when IP address is not vaild' {
+                    { Test-SMTPBindings -ServerBindings @('300.168.0.1:25') } `
+                    | should Throw
+                }
+
+                It 'Returns true when port is valid' {
+                    Test-SMTPBindings -ServerBindings @(':25') `
+                    | should be $true
+                }
+
+                It 'Throws when Port is not vaild' {
+                    { Test-SMTPBindings -ServerBindings @('192.168.0.1:100000') } `
+                    | should Throw
+                }
+            }
         }
     }
 }

@@ -11,8 +11,8 @@ data LocalizedData
 ErrorSMTPDiscoveryFailure = No SMTP Virutal server found.
 ErrorLogFileDirectoryFailure = Invalid LogFileDirectory provided.
 ErrorBadMailDirectoryFailure  = Invalid BadMailDirectory provided.
-IPAddressFailure = Invalid IP address(s), please verifiy the IP addresse(s) are valid
-EmailAddressFailure = Invalid Email address(s), please verifiy the Email addresse(s) are valid 
+ErrorIPAddressFailure = Invalid IP address(s), please verifiy the IP addresse(s) are valid
+ErrorEmailAddressFailure = Invalid Email address(s), please verifiy the Email addresse(s) are valid 
 ErrorBindingsPortFailure = Invalid Port Range, please verifiy the port(s) are valid.
 VerboseTestTargetFalseAuthFlags = AuthFlags is not in the desired state.
 VerboseTestTargetFalseBadMailDirectory = BadMailDirectory is not in the desired state.
@@ -490,7 +490,7 @@ function Set-TargetResource
     if (($PSBoundParameters.ContainsKey('SendNdrTo') -and `
     $Result.SendNdrTo -ne $SendNdrTo))
     {
-        if(-not(Test-EmailAddress -Email $SendNdrTo))
+        if(Test-EmailAddress -Email $SendNdrTo)
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetSendNdrTo)
             Set-SMTPSettings -Name $Name `
@@ -906,7 +906,7 @@ function Test-TargetResource
     if (($PSBoundParameters.ContainsKey('SendNdrTo') -and 
     $Result.SendNdrTo -ne $SendNdrTo))
     {
-        if(-not(Test-EmailAddress -Email $SendNdrTo))
+        if(Test-EmailAddress -Email $SendNdrTo)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSendNdrTo)
             return $False
@@ -1035,7 +1035,7 @@ Function Confirm-UnqiueBindings
     $InputToCheck = @()
     foreach ($ProposedBinding in $ProposedBindings)
     { 
-        $BindingAddition = $Binding + ':'
+        $BindingAddition = $ProposedBinding + ':'
         $InputToCheck += $BindingAddition
     }
 
@@ -1136,7 +1136,7 @@ Function Test-EmailAddress
         
         [OutputType([Boolean])]
         [Parameter(Mandatory = $true)]
-        [String[]]
+        [String]
         $Email
     )
     
