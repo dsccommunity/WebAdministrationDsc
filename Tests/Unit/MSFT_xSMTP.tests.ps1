@@ -1400,7 +1400,7 @@ try
                 It 'Throws when email address is not vaild' {
 
                    { Test-EmailAddress -Email 'user.domain.com' } `
-                        | should Throw
+                                       | should Throw
                     
                 }
             }
@@ -1419,17 +1419,17 @@ try
 
                 It 'Throws when IP address is not vaild' {
                     { Test-SMTPBindings -ServerBindings @('300.168.0.1:25') } `
-                    | should Throw
+                                        | should Throw
                 }
 
                 It 'Returns true when port is valid' {
                     Test-SMTPBindings -ServerBindings @(':25') `
-                    | should be $true
+                                      | should be $true
                 }
 
                 It 'Throws when Port is not vaild' {
                     { Test-SMTPBindings -ServerBindings @('192.168.0.1:100000') } `
-                    | should Throw
+                                        | should Throw
                 }
             }
         }
