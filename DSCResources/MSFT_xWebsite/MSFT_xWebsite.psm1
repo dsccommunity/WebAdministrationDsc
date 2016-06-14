@@ -302,7 +302,7 @@ function Set-TargetResource
             }
 
             # Update State if required
-            if ($PSBoundParameters.ContainsKey('State') -and 
+            if ($PSBoundParameters.ContainsKey('State') -and `
                 $Website.State -ne $State)
             {
                 if ($State -eq 'Started')
@@ -554,9 +554,8 @@ function Set-TargetResource
             }
 
             # Update Default Pages if required
-            if ($PSBoundParameters.ContainsKey('DefaultPage') `
-                -and $DefaultPage `
-                -ne $null)
+            if ($PSBoundParameters.ContainsKey('DefaultPage') -and `
+                $DefaultPage -ne $null)
             {
                 Update-DefaultPage -Name $Name `
                                    -DefaultPage $DefaultPage
