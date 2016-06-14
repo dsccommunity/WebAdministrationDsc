@@ -1,6 +1,10 @@
 ######################################################################################
 # DSC Resource for IIS Server level MIME Type mappings
 ######################################################################################
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
@@ -11,6 +15,8 @@ RemovingType=Removing MIMEType '{0}' for extension '{1}'
 TypeExists=MIMEType '{0}' for extension '{1}' already exist
 TypeNotPresent=MIMEType '{0}' for extension '{1}' is not present as requested
 TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
+VerboseGetTargetPresent = MIMEType is present
+VerboseGetTargetAbsent = MIMEType is absent
 '@
 }
 
@@ -43,6 +49,7 @@ function Get-TargetResource
 
     if ($null -eq $mt)
     {
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         return @{
             Ensure = 'Absent'
             Extension = $null
@@ -51,6 +58,7 @@ function Get-TargetResource
     }
     else
     {
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
         return @{
             Ensure = 'Present'
             Extension = $mt.fileExtension

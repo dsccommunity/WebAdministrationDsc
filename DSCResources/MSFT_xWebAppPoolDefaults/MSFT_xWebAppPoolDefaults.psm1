@@ -6,6 +6,11 @@
 # We try to cover the most common use cases
 # We have a single parameter for each setting
 ######################################################################################
+
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
@@ -13,6 +18,7 @@ data LocalizedData
 NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
 SettingValue=Changing default value '{0}' to '{1}'
 ValueOk=Default value '{0}' is already '{1}'
+VerboseGetTagetResource   = Get-TargetResource has been run.
 '@
 }
 
@@ -29,6 +35,8 @@ function Get-TargetResource
     
     # Check if WebAdministration module is present for IIS cmdlets
     CheckIISPoshModule
+
+    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
 
     return @{ManagedRuntimeVersion = (GetValue -Path '' -Name 'managedRuntimeVersion')
                                     IdentityType = ( GetValue -Path 'processModel' -Name 'identityType')}

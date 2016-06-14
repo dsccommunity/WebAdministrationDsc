@@ -9,8 +9,9 @@
 ######################################################################################
 
 # Load the Helper Module
-Import-Module $PSScriptRoot\..\Helper.psm1 -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
@@ -21,6 +22,8 @@ data LocalizedData
         HandlerExists               =   Handler with name '{0}' already exist
         HandlerNotPresent           =   Handler with name '{0}' is not present as requested
         HandlerNotSupported         =   The handler with name '{0}' is not supported.
+        VerboseGetTargetPresent     =   Handler is present
+        VerboseGetTargetAbsent      =   Handler is absent
 '@
 }
 
@@ -812,6 +815,7 @@ function Get-TargetResource
 
     if ($null -eq $handler)
     {
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         return @{
             Ensure = 'Absent'
             Name   = $Name
@@ -819,6 +823,7 @@ function Get-TargetResource
     }
     else
     {
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
         return @{
             Ensure = 'Present'
             Name   = $Name

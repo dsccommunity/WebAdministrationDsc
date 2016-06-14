@@ -7,6 +7,7 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
 ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+VerboseGetTagetResource   = Get-TargetResource has been run.
 VerboseSetTargetAbsent = Removing existing Web Application "{0}".
 VerboseSetTargetPresent = Creating new Web application "{0}".
 VerboseSetTargetPhysicalPath = Updating physical path for Web application "{0}".
@@ -83,6 +84,8 @@ function Get-TargetResource
         $Ensure = 'Present'
     }
 
+    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    
     $returnValue = @{
         Website                  = $Website
         Name                     = $Name

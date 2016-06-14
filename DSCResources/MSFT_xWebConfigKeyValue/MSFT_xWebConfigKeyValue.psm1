@@ -1,3 +1,16 @@
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+
+# Localized messages
+data LocalizedData
+{
+    # culture="en-US"
+    ConvertFrom-StringData @'
+VerboseGetTargetPresent = MIMEType is present
+VerboseGetTargetAbsent = MIMEType is absent
+'@
+}
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -26,6 +39,7 @@ function Get-TargetResource
 
     if($existingvalue.Length -eq 0)
     {
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
          return @{
              Ensure = 'Absent'
              Key = $Key
@@ -33,6 +47,8 @@ function Get-TargetResource
         }
     }
 
+    Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
+    
     return @{
         Ensure = 'Present'
         Key = $Key

@@ -1,7 +1,12 @@
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
+VerboseGetTargetResource=Get-TargetResource has been run.
 SetTargetResourceInstallwhatIfMessage=Trying to create website "{0}".
 SetTargetResourceUnInstallwhatIfMessage=Trying to remove website "{0}".
 WebsiteNotFoundError=The requested website "{0}" is not found on the target machine.
@@ -154,25 +159,25 @@ function Get-TargetResource
             }
         }
 
-
         Trace-Message "Verb.Count: $($Verb.Count)"
         Trace-Message "handler.modules: $($handler.Modules)"
 
         #-and $Module -ieq $handler.Modules
 
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+        
+        $returnValue = @{
+            Path = $handler.ScriptProcessor
+            Name = $handler.Name
+            RequestPath = $handler.Path
+            Verb = $currentVerbs
+            SiteName = $SiteName
+            Ensure = $Ensure
+            ModuleType = $handler.Modules
+            EndPointSetup = $fastCgiSetup
+        }
 
-    $returnValue = @{
-        Path = $handler.ScriptProcessor
-        Name = $handler.Name
-        RequestPath = $handler.Path
-        Verb = $currentVerbs
-        SiteName = $SiteName
-        Ensure = $Ensure
-        ModuleType = $handler.Modules
-        EndPointSetup = $fastCgiSetup
-    }
-
-    $returnValue
+        $returnValue
     
 }
 

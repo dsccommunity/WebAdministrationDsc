@@ -2,8 +2,10 @@
 # DSC Resource for IIS Server level Feature Delegation
 ######################################################################################
 
-Import-Module $PSScriptRoot\..\Helper.psm1 -Verbose:$false
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
@@ -11,6 +13,8 @@ data LocalizedData
         NoWebAdministrationModule   =   Please ensure that WebAdministration module is installed.
         UnableToGetConfig           =   Unable to get configuration data for '{0}'
         ChangedMessage              =   Changed overrideMode for '{0}' to {1}
+        VerboseGetTargetPresent     =   OverrideMode is present
+        VerboseGetTargetAbsent      =   OvertideMode is absent
 '@
 }
 
@@ -37,10 +41,12 @@ function Get-TargetResource
 
     if ($oMode -eq $OverrideMode)
     {
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
         $ensureResult = 'Present'
     }
     else
     {
+        Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         $ensureResult = 'Absent'
     }
 

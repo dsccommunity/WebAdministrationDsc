@@ -1,13 +1,16 @@
-Import-Module $PSScriptRoot\..\Helper.psm1 -Verbose:$false
+# Load the Helper Module
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-        UnableToFindConfig = Unable to find {0} in AppHost Config
-        SettingSSLConfig   = Setting {0} SSL binding to {1}
-        SSLBindingsCorrect = SSL Bindings for {0} are correct
-        SSLBindingsAbsent  = SSL Bidnings for {0} are Absent
+        UnableToFindConfig         = Unable to find {0} in AppHost Config
+        SettingSSLConfig           = Setting {0} SSL binding to {1}
+        SSLBindingsCorrect         = SSL Bindings for {0} are correct
+        SSLBindingsAbsent          = SSL Bidnings for {0} are Absent
+        VerboseGetTargetResource   = Get-TargetResource has been run.
 '@
 }
 
@@ -52,10 +55,12 @@ function Get-TargetResource
     catch [Exception]
     {
         Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.UnableToFindConfig) -f $Name
+                $($LocalizedData.UnableToFindConfig) -f $Name
         ) -join '')
     }
 
+    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    
     return @{
         Name = $Name
         Bindings = $Bindings
