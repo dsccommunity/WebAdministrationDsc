@@ -647,6 +647,12 @@ function Set-TargetResource
                     Write-Verbose -Message `
                                     ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
                 }
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name applicationDefaults.serviceAutoStartProvider `
+                                 -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Write-Verbose -Message `
+                                ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated `
+                                -f $Name)
             }
 
             # Update LogFormat if Needed
