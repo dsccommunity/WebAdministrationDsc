@@ -18,7 +18,8 @@ configuration MSFT_xWebsite_Present_Started
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
-            AuthenticationInfo = MSFT_xWebAuthenticationInformation
+            AuthenticationInfo = `
+                MSFT_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -79,13 +80,14 @@ configuration MSFT_xWebsite_Present_Stopped
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
-            AuthenticationInfo = MSFT_xWebAuthenticationInformation
+            AuthenticationInfo = `
+                MSFT_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
                     Digest    = $Node.AuthenticationInfoDigest
                     Windows   = $Node.AuthenticationInfoWindows
-            }
+                }
             BindingInfo = @(
                 MSFT_xWebBindingInformation
                 {
