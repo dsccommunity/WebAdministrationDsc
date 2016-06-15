@@ -1,12 +1,3 @@
-######################################################################################
-# DSC Resource for IIS Server level Application Ppol Defaults
-# ApplicationHost.config: system.applicationHost/applicationPools
-#
-# only a limited number of settings are supported at this time
-# We try to cover the most common use cases
-# We have a single parameter for each setting
-######################################################################################
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
@@ -14,7 +5,7 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
+    ConvertFrom-StringData -StringData @'
 NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
 SettingValue=Changing default value '{0}' to '{1}'
 ValueOk=Default value '{0}' is already '{1}'
@@ -33,13 +24,14 @@ function Get-TargetResource
         [string]$ApplyTo
     )
     
-    # Check if WebAdministration module is present for IIS cmdlets
-    CheckIISPoshModule
+    Assert-Module
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
 
-    return @{ManagedRuntimeVersion = (GetValue -Path '' -Name 'managedRuntimeVersion')
-                                    IdentityType = ( GetValue -Path 'processModel' -Name 'identityType')}
+    return @{
+        ManagedRuntimeVersion = (Get-Value -Path '' -Name 'managedRuntimeVersion')
+        IdentityType          = ( Get-Value -Path 'processModel' -Name 'identityType')
+    }
 }
 
 
@@ -51,20 +43,19 @@ function Set-TargetResource
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
-        # in the future there will be another CLR version to be allowed 
+
         [ValidateSet('','v2.0','v4.0')]
         [string]$ManagedRuntimeVersion,
-        # TODO: we currently don't allow a custom identity
+
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
         [string]$IdentityType
     )
 
-        CheckIISPoshModule
+        Assert-Module
 
-        SetValue -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion
-        SetValue -Path 'processModel' -Name 'identityType' -NewValue $IdentityType
+        Set-Value -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion
+        Set-Value -Path 'processModel' -Name 'identityType' -NewValue $IdentityType
 }
-
 
 function Test-TargetResource
 {
@@ -81,14 +72,14 @@ function Test-TargetResource
         [string]$IdentityType
     )
 
-    CheckIISPoshModule
+    Assert-Module
 
-    if (!(CheckValue -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion)) 
+    if (!(Confirm-Value -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion)) 
     { 
         return $false
     }
 
-    if (!(CheckValue -Path 'processModel' -Name 'identityType' -NewValue $IdentityType)) 
+    if (!(Confirm-Value -Path 'processModel' -Name 'identityType' -NewValue $IdentityType)) 
     { 
         return $false 
     }
@@ -96,20 +87,27 @@ function Test-TargetResource
     return $true
 }
 
-######################################################################################
-# Helper Functions
-######################################################################################
+#region Helper Functions
 
-Function CheckValue([string]$path,[string]$name,[string]$newValue)
+Function Confirm-Value
 {
-
+    [CmdletBinding()]
+    param
+    (  
+        [string]$path,
+        
+        [string]$name,
+    
+        [string]$newValue
+    )
+    
     if (!$newValue)
     {
         # if no new value was specified, we assume this value is okay.        
         return $true
     }
 
-    $existingValue = GetValue -Path $path -Name $name
+    $existingValue = Get-Value -Path $path -Name $name
     if ($existingValue -ne $newValue)
     {
         return $false
@@ -122,17 +120,25 @@ Function CheckValue([string]$path,[string]$name,[string]$newValue)
     }   
 }
 
-# some internal helper function to do the actual work:
-
-Function SetValue([string]$path,[string]$name,[string]$newValue)
+Function Set-Value
 {
+        [CmdletBinding()]
+        param
+        (  
+            [string]$path,
+        
+            [string]$name,
+    
+            [string]$newValue
+        )
+
     # if the variable doesn't exist, the user doesn't want to change this value
     if (!$newValue)
     {
         return
     }
 
-    $existingValue = GetValue -Path $path -Name $name
+    $existingValue = Get-Value -Path $path -Name $name
     if ($existingValue -ne $newValue)
     {
         if ($path -ne '')
@@ -140,29 +146,45 @@ Function SetValue([string]$path,[string]$name,[string]$newValue)
             $path = '/' + $path
         }
 
-        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name -value "$newValue"
+        Set-WebConfigurationProperty `
+            -pspath 'MACHINE/WEBROOT/APPHOST' `
+            -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" `
+            -name $name `
+            -value "$newValue"
+        
         $relPath = $path + '/' + $name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
-    }    
-}
 
-Function GetValue([string]$path,[string]$name)
-{
-    if ($path -ne '')
-    {
-        $path = '/' + $path
     }
 
-    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" -name $name
 }
 
-Function CheckIISPoshModule
+Function Get-Value
 {
-    # Check if WebAdministration module is present for IIS cmdlets
-    if(!(Get-Module -ListAvailable -Name WebAdministration))
+    
+    [CmdletBinding()]
+    param
+    (  
+        [string]$path,
+    
+        [string]$name
+    )
+
     {
-        Throw $LocalizedData.NoWebAdministrationModule
+        if ($path -ne '')
+        {
+            $path = '/' + $path
+        }
+
+        return Get-WebConfigurationProperty `
+                -pspath 'MACHINE/WEBROOT/APPHOST' ``
+                -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" `
+                -name $name
+    
     }
+
 }
+
+#endregion
 
 Export-ModuleMember -Function *-TargetResource
