@@ -129,7 +129,10 @@ function Get-GetParameters
     return $getParameters
 }
 
-# Make the IisModule consistent with the properties provided.
+<#
+    .SYNOPSIS
+    Make the IisModule consistent with the properties provided.
+#>
 function Set-TargetResource
 {
     [CmdletBinding()]

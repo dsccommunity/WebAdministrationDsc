@@ -6,26 +6,28 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        ErrorTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
-        VerboseGetTagetResource                  = Get-TargetResource has been run.
-        VerboseSetTargetAbsent                   = Removing existing Web Application "{0}".
-        VerboseSetTargetPresent                  = Creating new Web application "{0}".
-        VerboseSetTargetPhysicalPath             = Updating physical path for Web application "{0}".
-        VerboseSetTargetWebAppPool               = Updating application pool for Web application "{0}".
-        VerboseSetTargetSslFlags                 = Updating SslFlags for Web application "{0}".
-        VerboseSetTargetAuthenticationInfo       = Updating AuthenticationInfo for Web application "{0}".
-        VerboseSetTargetPreload                  = Updating Preload for Web application "{0}".
-        VerboseSetTargetAutostart                = Updating AutoStart for Web application "{0}".
-        VerboseSetTargetAutoStartProviders       = Updating AutoStartProviders for Web application "{0}". 
-        VerboseTestTargetFalseAbsent             = Web application "{0}" is absent and should not absent.
-        VerboseTestTargetFalsePresent            = Web application $Name should be absent and is not absent.
-        VerboseTestTargetFalsePhysicalPath       = Physical path for web application "{0}" does not match desired state.
-        VerboseTestTargetFalseWebAppPool         = Web application pool for web application "{0}" does not match desired state.
-        VerboseTestTargetFalseSslFlags           = SslFlags for web application "{0}" are not in the desired state.
-        VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for web application "{0}" is not in the desired state.
-        VerboseTestTargetFalsePreload            = Preload for web application "{0}" is not in the desired state.
-        VerboseTestTargetFalseAutostart          = Autostart for web application "{0}" is not in the desired state.
-        VerboseTestTargetFalseAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
+ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+VerboseSetTargetAbsent = Removing existing Web Application "{0}".
+VerboseSetTargetPresent = Creating new Web application "{0}".
+VerboseSetTargetPhysicalPath = Updating physical path for Web application "{0}".
+VerboseSetTargetWebAppPool = Updating application pool for Web application "{0}".
+VerboseSetTargetSslFlags = Updating SslFlags for Web application "{0}".
+VerboseSetTargetAuthenticationInfo = Updating AuthenticationInfo for Web application "{0}".
+VerboseSetTargetPreload = Updating Preload for Web application "{0}".
+VerboseSetTargetAutostart = Updating AutoStart for Web application "{0}".
+VerboseSetTargetIISAutoStartProviders = Updating AutoStartProviders for IIS.
+VerboseSetTargetWebApplicationAutoStartProviders = Updating AutoStartProviders for Web application "{0}". 
+VerboseTestTargetFalseAbsent = Web application "{0}" is absent and should not absent.
+VerboseTestTargetFalsePresent = Web application $Name should be absent and is not absent.
+VerboseTestTargetFalsePhysicalPath = Physical path for web application "{0}" does not match desired state.
+VerboseTestTargetFalseWebAppPool = Web application pool for web application "{0}" does not match desired state.
+VerboseTestTargetFalseSslFlags = SslFlags for web application "{0}" are not in the desired state.
+VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for web application "{0}" is not in the desired state.
+VerboseTestTargetFalsePreload = Preload for web application "{0}" is not in the desired state.
+VerboseTestTargetFalseAutostart = Autostart for web application "{0}" is not in the desired state.
+VerboseTestTargetFalseAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
+VerboseTestTargetFalseIISAutoStartProviders = AutoStartProviders for IIS are not in the desired state.
+VerboseTestTargetFalseWebApplicationAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
 '@
 }
 
@@ -49,33 +51,14 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [String]
-        $PhysicalPath,
-        
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
-        [String[]]$SslFlags = '',
-
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $AuthenticationInfo,
-
-        [Boolean]
-        $PreloadEnabled,
-        
-        [Boolean]
-        $ServiceAutoStartEnabled,
-
-        [String]
-        $ServiceAutoStartProvider,
-        
-        [String]
-        $ApplicationType
+        $PhysicalPath
     )
 
     Assert-Module
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
-    $SslFlags = (Get-SslFlags -Location "${Website}/${Name}")
+    $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${Name}")
 
     $Ensure = 'Absent'
 
@@ -92,7 +75,7 @@ function Get-TargetResource
         WebAppPool               = $webApplication.applicationPool
         PhysicalPath             = $webApplication.PhysicalPath
         AuthenticationInfo       = $CimAuthentication
-        SslFlags                 = $SslFlags
+        SslFlags                 = @($CurrentSslFlags)
         PreloadEnabled           = $webApplication.preloadEnabled
         ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
@@ -128,8 +111,8 @@ function Set-TargetResource
         [String]
         $Ensure = 'Present',
 
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]]$SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
@@ -162,8 +145,7 @@ function Set-TargetResource
             if ($webApplication.count -eq 0)
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetPresent -f $Name)
-                New-WebApplication -Site $Website `
-                                   -Name $Name `
+                New-WebApplication -Site $Website -Name $Name `
                                    -PhysicalPath $PhysicalPath `
                                    -ApplicationPool $WebAppPool
             }
@@ -173,10 +155,9 @@ function Set-TargetResource
                 $webApplication.physicalPath -ne $PhysicalPath))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetPhysicalPath -f $Name)
-                Set-WebConfigurationProperty `
-                    -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
-                    -Name physicalPath `
-                    -Value $PhysicalPath
+                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
+                                             -Name physicalPath `
+                                             -Value $PhysicalPath
             }
 
             # Update AppPool if required
@@ -184,20 +165,23 @@ function Set-TargetResource
                 ($webApplication.applicationPool -ne $WebAppPool))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebAppPool -f $Name)
-                Set-WebConfigurationProperty 
-                    -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
-                    -Name applicationPool `
-                    -Value $WebAppPool
+                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
+                                             -Name applicationPool -Value $WebAppPool
             }
      
             # Update SslFlags if required
             if ($PSBoundParameters.ContainsKey('SslFlags') -and `
-                (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags))
+                (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAbsent -f $Name)
-                Set-WebConfiguration -Location "${Website}/${Name}" `
-                                     -Filter 'system.webserver/security/access' `
-                                     -Value $SslFlags
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetSslFlags -f $Name)
+                $params = @{
+                    PSPath   = 'MACHINE/WEBROOT/APPHOST'
+                    Location = "${Website}/${Name}"
+                    Filter   = 'system.webServer/security/access'
+                    Name     = 'sslFlags'
+                    Value    = [string]$sslflags
+                }
+                Set-WebConfigurationProperty @params
             }
 
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
@@ -240,21 +224,19 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
                 $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
-                if (-not (Confirm-UniqueServiceAutoStartProviders `
-                            -ServiceAutoStartProvider $ServiceAutoStartProvider `
-                            -ApplicationType $ApplicationType))
-                    {
-                        Write-Verbose -Message ($LocalizedData.VerboseSetTargetAutoStartProviders `
-                                                -f $Name)
-                        Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
-                                         -Name serviceAutoStartProvider `
-                                         -Value $ServiceAutoStartProvider .\.git
+                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider `
+                                                                  -ApplicationType $ApplicationType))
+                {
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
+                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
+                                         -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
                                          -ErrorAction Stop
-                        Add-WebConfiguration `
-                            -filter /system.applicationHost/serviceAutoStartProviders `
-                            -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
-                            -ErrorAction Stop
-                    }
+                }
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
+                                 -Name serviceAutoStartProvider `
+                                 -Value $ServiceAutoStartProvider `
+                                 -ErrorAction Stop
             }
     }
 
@@ -292,8 +274,8 @@ function Test-TargetResource
         [String]
         $Ensure = 'Present',
 
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]]$SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance]
@@ -389,15 +371,14 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
             $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
-            if (-not (Confirm-UniqueServiceAutoStartProviders `
-                        -serviceAutoStartProvider $ServiceAutoStartProvider `
-                        -ApplicationType $ApplicationType))
+            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider `
+                                                              -ApplicationType $ApplicationType))
             {
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStartProviders `
-                                        -f $Name)
+                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProviders)
                 return $false     
             }
-        
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebApplicationAutoStartProviders -f $Name)
+            return $false      
         }
     
     }
@@ -410,18 +391,18 @@ function Test-TargetResource
 function Confirm-UniqueServiceAutoStartProviders
 {
     <#
-    .SYNOPSIS
-        Helper function used to validate that the AutoStartProviders is unique to other websites.
-        returns False if the AutoStartProviders exist.
-    .PARAMETER serviceAutoStartProvider
-        Specifies the name of the AutoStartProviders.
-    .PARAMETER ExcludeStopped
-        Specifies the name of the Application Type for the AutoStartProvider.
-    .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned. 
-        As AutoStartProviders need to be uniquely named it will check for this and error out if 
-        attempting to add a duplicatly named AutoStartProvider.
-        Name is passed in to bubble to any error messages during the test.
+            .SYNOPSIS
+            Helper function used to validate that the AutoStartProviders is unique to other websites.
+            returns False if the AutoStartProviders exist.
+            .PARAMETER serviceAutoStartProvider
+            Specifies the name of the AutoStartProviders.
+            .PARAMETER ExcludeStopped
+            Specifies the name of the Application Type for the AutoStartProvider.
+            .NOTES
+            This tests for the existance of a AutoStartProviders which is globally assigned. 
+            As AutoStartProviders need to be uniquely named it will check for this and error out if 
+            attempting to add a duplicatly named AutoStartProvider.
+            Name is passed in to bubble to any error messages during the test.
     #>
     
     [CmdletBinding()]
@@ -445,8 +426,8 @@ function Confirm-UniqueServiceAutoStartProviders
         Select-Object Name,Type
 
     $ProposedObject = @(New-Object -TypeName PSObject -Property @{
-        name   = $ServiceAutoStartProvider
-        type   = $ApplicationType
+            name   = $ServiceAutoStartProvider
+            type   = $ApplicationType
     })
 
     if(-not $ExistingObject)
@@ -462,8 +443,8 @@ function Confirm-UniqueServiceAutoStartProviders
                               -DifferenceObject $ProposedObject `
                               -Property type)
                 {
-                    $ErrorMessage = $LocalizedData.ErrorTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorTestAutoStartProviderFailure' `
+                    $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure
+                    New-TerminatingError -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' `
                                          -ErrorMessage $ErrorMessage `
                                          -ErrorCategory 'InvalidResult'
                 }
@@ -639,7 +620,7 @@ function Test-AuthenticationEnabled
         Specifies the name of the Application.
    .PARAMETER Type
         Specifies the type of Authentication, 
-        Limited to the set: ('Anonymous','Basic','Digest','Windows').
+        limited to the set: ('Anonymous','Basic','Digest','Windows').
     #>
 
     [CmdletBinding()]
@@ -730,8 +711,8 @@ function Test-SslFlags
     [OutputType([Boolean])]
     param
     (
-        [ValidateNotNull()]
-        [ValidateSet('Ssl','SslNegotiateCert','SslRequireCert')]
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]]$SslFlags = '',
 
         [Parameter(Mandatory = $true)]

@@ -14,7 +14,6 @@ data LocalizedData
 '@
 }
 
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -25,13 +24,14 @@ function Get-TargetResource
         [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String[]] $Bindings
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
+        [string[]] $Bindings
     )
 
     Assert-Module
 
     $Ensure = 'Absent'
-    $Bindings = 'None'
 
     try
     {
@@ -77,7 +77,9 @@ function Set-TargetResource
         [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String[]] $Bindings,
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
+        [string[]] $Bindings,
 
         [ValidateSet('Present','Absent')]
         [String]
@@ -130,7 +132,9 @@ function Test-TargetResource
         [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String[]] $Bindings,
+        [AllowEmptyString()]
+        [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
+        [string[]] $Bindings,
 
         [ValidateSet('Present','Absent')]
         [String]
