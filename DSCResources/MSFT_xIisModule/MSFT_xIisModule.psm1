@@ -6,98 +6,22 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-VerboseGetTargetResource=Get-TargetResource has been run.
-SetTargetResourceInstallwhatIfMessage=Trying to create website "{0}".
-SetTargetResourceUnInstallwhatIfMessage=Trying to remove website "{0}".
-WebsiteNotFoundError=The requested website "{0}" is not found on the target machine.
-WebsiteDiscoveryFailureError=Failure to get the requested website "{0}" information from the target machine.
-WebsiteCreationFailureError=Failure to successfully create the website "{0}".
-WebsiteRemovalFailureError=Failure to successfully remove the website "{0}".
-WebsiteUpdateFailureError=Failure to successfully update the properties for website "{0}".
-WebsiteBindingUpdateFailureError=Failure to successfully update the bindings for website "{0}".
-WebsiteBindingInputInvalidationError=Desired website bindings not valid for website "{0}".
-WebsiteCompareFailureError=Failure to successfully compare properties for website "{0}".
-WebBindingCertifcateError=Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid.
-WebsiteStateFailureError=Failure to successfully set the state of the website {0}.
-WebsiteBindingConflictOnStartError = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+        VerboseGetTargetResource                = Get-TargetResource has been run.
+        SetTargetResourceInstallwhatIfMessage   = Trying to create website "{0}".
+        SetTargetResourceUnInstallwhatIfMessage = Trying to remove website "{0}".
+        WebsiteNotFoundError                    = The requested website "{0}" is not found on the target machine.
+        WebsiteDiscoveryFailureError            = Failure to get the requested website "{0}" information from the target machine.
+        WebsiteCreationFailureError             = Failure to successfully create the website "{0}".
+        WebsiteRemovalFailureError              = Failure to successfully remove the website "{0}".
+        WebsiteUpdateFailureError               = Failure to successfully update the properties for website "{0}".
+        WebsiteBindingUpdateFailureError        = Failure to successfully update the bindings for website "{0}".
+        WebsiteBindingInputInvalidationError    = Desired website bindings not valid for website "{0}".
+        WebsiteCompareFailureError              = Failure to successfully compare properties for website "{0}".
+        WebBindingCertifcateError               = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid.
+        WebsiteStateFailureError                = Failure to successfully set the state of the website {0}.
+        WebsiteBindingConflictOnStartError      = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
 '@
 }
-
-#region Tracing
-$Debug = $true
-Function Trace-Message
-{
-    param([string] $Message)
-    if($Debug)
-    {
-        Write-Verbose $Message
-    }
-}
-#endregion
-
-#IIS Helpers
-
-# Get the IIS Site Path
-function Get-IisSitePath
-{
-    param
-    (
-
-        [string]$SiteName
-    )
-
-    if(-not $SiteName)
-    {
-        return 'IIS:\'
-    }
-    else
-    {
-        return Join-Path 'IIS:\sites\' $SiteName
-    }
-}
-
-#Get a list on IIS handlers
-function Get-IisHandler
-{
-    param
-    (
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-
-        [string]$Name,
-
-        [string]$SiteName
-    )
-
-    Trace-Message "Getting Handler for $Name in Site $SiteName"
-    return get-webconfiguration -Filter 'System.WebServer/handlers/*' -PSPath (Get-IisSitePath -SiteName $SiteName) | Where-Object{$_.Name -ieq $Name}
-}
-
-# Remove an IIS Handler
-function Remove-IisHandler
-{
-    param
-    (
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-
-        [string]$Name,
-
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-
-        [string]$SiteName
-    )
-
-    $handler = Get-IisHandler @PSBoundParameters
-
-    if($handler)
-    {
-        Clear-WebConfiguration -PSPath $handler.PSPath -Filter $handler.ItemXPath -Location $handler.Location
-    }
-}
-
-#EndRegion
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -105,15 +29,15 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Path,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Name,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $RequestPath,
 
         [parameter(Mandatory = $true)]
@@ -121,10 +45,10 @@ function Get-TargetResource
         $Verb,
 
         [ValidateSet('FastCgiModule')]
-        [System.String]
+        [String]
         $ModuleType = 'FastCgiModule',
 
-        [System.String]
+        [String]
         $SiteName
     )
 
@@ -152,7 +76,10 @@ function Get-TargetResource
         # bug(TBD) deal with this better, maybe a seperate resource....
         If($handler.Modules -eq 'FastCgiModule')
         {
-            $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* -PSPath (Get-IisSitePath -SiteName $SiteName) | Where-Object{$_.FullPath -ieq $handler.ScriptProcessor}
+            $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* `
+                        -PSPath (Get-IisSitePath `
+                        -SiteName $SiteName) | `
+                        Where-Object{$_.FullPath -ieq $handler.ScriptProcessor}
             if($fastCgi)
             {
                 $fastCgiSetup = $true
@@ -181,7 +108,6 @@ function Get-TargetResource
     
 }
 
-# From the parameter hashtable of a function, return the parameter hashtable to call Get-TargetResource
 function Get-GetParameters
 {
     param
@@ -210,30 +136,30 @@ function Set-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Path,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Name,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $RequestPath,
 
         [parameter(Mandatory = $true)]
         [System.String[]]
         $Verb,
 
-        [System.String]
+        [String]
         $SiteName,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
+        [String]
         $Ensure,
 
         [ValidateSet('FastCgiModule')]
-        [System.String]
+        [String]
         $ModuleType = 'FastCgiModule'
     )
     $GetParameters = Get-GetParameters -functionParameters $PSBoundParameters
@@ -281,7 +207,6 @@ function Set-TargetResource
     }
 }
 
-
 function Test-TargetResource
 {
     [CmdletBinding()]
@@ -289,15 +214,15 @@ function Test-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Path,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Name,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $RequestPath,
 
         [parameter(Mandatory = $true)]
@@ -305,15 +230,15 @@ function Test-TargetResource
         $Verb,
 
 
-        [System.String]
+        [String]
         $SiteName,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
+        [String]
         $Ensure,
 
         [ValidateSet('FastCgiModule')]
-        [System.String]
+        [String]
         $ModuleType = 'FastCgiModule'
     )
 
@@ -323,6 +248,86 @@ function Test-TargetResource
     return (Test-TargetResourceImpl @PSBoundParameters -resourceStatus $resourceStatus).Result
 }
 
+#region Tracing
+$Debug = $true
+Function Trace-Message
+{
+    param
+    (
+        [String] $Message
+    )
+    
+    if($Debug)
+    {
+        Write-Verbose $Message
+    }
+}
+
+#endregion
+
+#region Helper Functions
+function Get-IisSitePath
+{
+    param
+    (
+        [String]$SiteName
+    )
+
+    if(-not $SiteName)
+    {
+        return 'IIS:\'
+    }
+    else
+    {
+        return Join-Path 'IIS:\sites\' $SiteName
+    }
+}
+
+#Get a list on IIS handlers
+function Get-IisHandler
+{
+    param
+    (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+
+        [String]$Name,
+
+        [String]$SiteName
+    )
+
+    Trace-Message "Getting Handler for $Name in Site $SiteName"
+    return get-webconfiguration -Filter 'System.WebServer/handlers/*' `
+                                -PSPath (Get-IisSitePath `
+                                -SiteName $SiteName) | `
+                                Where-Object{$_.Name -ieq $Name}
+}
+
+# Remove an IIS Handler
+function Remove-IisHandler
+{
+    param
+    (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+
+        [String]$Name,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+
+        [String]$SiteName
+    )
+
+    $handler = Get-IisHandler @PSBoundParameters
+
+    if($handler)
+    {
+        Clear-WebConfiguration -PSPath $handler.PSPath `
+                               -Filter $handler.ItemXPath `
+                               -Location $handler.Location
+    }
+}
 
 function Test-TargetResourceImpl
 {
@@ -331,30 +336,30 @@ function Test-TargetResourceImpl
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Path,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $Name,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $RequestPath,
 
         [parameter(Mandatory = $true)]
-        [System.String[]]
+        [String[]]
         $Verb,
 
         [ValidateSet('FastCgiModule')]
-        [System.String]
+        [String]
         $ModuleType = 'FastCgiModule',
 
-        [System.String]
+        [String]
         $SiteName,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
+        [String]
         $Ensure,
 
         [parameter(Mandatory = $true)]
@@ -390,7 +395,11 @@ function Test-TargetResourceImpl
     Trace-Message "resourceStatus.Path: $($resourceStatus.Path)"
 
     $moduleConfigured = $false
-    if($modulePresent -and $mismatchVerbs.Count -eq 0 -and $matchedVerbs.Count-eq  $Verb.Count -and $resourceStatus.Path -eq $Path -and $resourceStatus.RequestPath -eq $RequestPath)
+    if($modulePresent -and `
+        $mismatchVerbs.Count -eq 0 -and `
+        $matchedVerbs.Count-eq $Verb.Count -and `
+        $resourceStatus.Path -eq $Path -and `
+        $resourceStatus.RequestPath -eq $RequestPath)
     {
         $moduleConfigured = $true
     }
@@ -414,6 +423,9 @@ function Test-TargetResourceImpl
                 }
     }
 }
+
+
+#EndRegion
 
 Export-ModuleMember -Function *-TargetResource
 
