@@ -5,7 +5,7 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
+    ConvertFrom-StringData -StringData @'
         VerboseGetTargetResource                = Get-TargetResource has been run.
         SetTargetResourceInstallwhatIfMessage   = Trying to create website "{0}".
         SetTargetResourceUnInstallwhatIfMessage = Trying to remove website "{0}".

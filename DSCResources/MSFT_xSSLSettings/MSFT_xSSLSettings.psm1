@@ -5,7 +5,7 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
+    ConvertFrom-StringData -StringData @'
         UnableToFindConfig         = Unable to find {0} in AppHost Config
         SettingSslConfig           = Setting {0} Ssl binding to {1}
         SslBindingsCorrect         = Ssl Bindings for {0} are correct
