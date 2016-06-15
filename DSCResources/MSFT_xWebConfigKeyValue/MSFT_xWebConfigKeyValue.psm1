@@ -90,7 +90,7 @@ function Set-TargetResource
         [String]
         $Value,
 
-        [System.Boolean]
+        [Boolean]
         $IsAttribute
     )
 
@@ -162,7 +162,7 @@ function Test-TargetResource
         [String]
         $Value,
 
-        [System.Boolean]
+        [Boolean]
         $IsAttribute
     )
 
@@ -236,15 +236,15 @@ function Add-Item
     param
     
     (
-        [string]$key, 
+        [String]$key, 
     
-        [string]$value, 
+        [String]$value, 
     
         [Boolean]$isAttribute, 
     
-        [string]$websitePath, 
+        [String]$websitePath, 
     
-        [string]$configSection
+        [String]$configSection
     )
 
     $defaultFilter = $configSection
@@ -273,17 +273,17 @@ function Edit-Item
     [CmdletBinding()]
     param
     (
-        [string]$propertyName, 
+        [String]$propertyName, 
         
-        [string]$oldValue, 
+        [String]$oldValue, 
         
-        [string]$newValue, 
+        [String]$newValue, 
         
         [Boolean]$isAttribute, 
         
-        [string]$websitePath, 
+        [String]$websitePath, 
         
-        [string]$configSection
+        [String]$configSection
     )
 
     $defaultFilter = $configSection
@@ -322,13 +322,13 @@ function Remove-Item
     [CmdletBinding()]
     param
     (
-        [string]$key, 
+        [String]$key, 
     
         [Boolean]$isAttribute, 
     
-        [string]$websitePath, 
+        [String]$websitePath, 
     
-        [string]$configSection
+        [String]$configSection
     
     )
     $defaultFilter = $configSection
@@ -368,13 +368,13 @@ function Get-ItemValue
     [CmdletBinding()]
     param
     (
-        [string]$key, 
+        [String]$key, 
     
         [Boolean]$isAttribute, 
     
-        [string]$websitePath, 
+        [String]$websitePath, 
     
-        [string]$configSection
+        [String]$configSection
     
     )
     
