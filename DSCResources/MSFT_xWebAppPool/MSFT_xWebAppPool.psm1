@@ -150,7 +150,8 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
+            $property = Get-Property -Object $appPool -PropertyName $_.Path
+            $returnValue.Add($_.Name, $property)
         }
     )
 
@@ -357,10 +358,10 @@ function Set-TargetResource
                 {
                     $propertyName = $_.Name
                     $propertyPath = $_.Path
+                    $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
-                    if (
-                        $PSBoundParameters[$propertyName] -ne
-                        (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    if ( 
+                        $PSBoundParameters[$propertyName] -ne $property
                     )
                     {
                         Write-Verbose -Message (
@@ -722,10 +723,10 @@ function Test-TargetResource
             {
                 $propertyName = $_.Name
                 $propertyPath = $_.Path
+                $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
                 if (
-                    $PSBoundParameters[$propertyName] -ne
-                    (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    $PSBoundParameters[$propertyName] -ne $property
                 )
                 {
                     Write-Verbose -Message (
@@ -839,6 +840,33 @@ function Test-TargetResource
 }
 
 #region Helper Functions
+
+function Get-Property 
+{
+    param 
+    (
+        [object] $Object,
+        [string] $PropertyName)
+
+    $parts = $PropertyName.Split('.')
+    $firstPart = $parts[0]
+
+    $value = $Object.$firstPart
+    if($parts.Count -gt 1)
+    {
+        $newParts = @()
+        1..($parts.Count -1) | ForEach-Object{
+            $newParts += $parts[$_]
+        }
+
+        $newName = ($newParts -join '.')
+        return Get-Property -Object $value -PropertyName $newName
+    }
+    else
+    {
+        return $value
+    }
+} 
 
 function Invoke-AppCmd
 {

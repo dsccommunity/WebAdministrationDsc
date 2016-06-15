@@ -198,6 +198,9 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+* **xWebAppPool** updates:
+    * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
+    
 * **xWebsite** updates:
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
     * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).
