@@ -9,8 +9,7 @@ data LocalizedData
         NoWebAdministrationModule   =   Please ensure that WebAdministration module is installed.
         UnableToGetConfig           =   Unable to get configuration data for '{0}'
         ChangedMessage              =   Changed overrideMode for '{0}' to {1}
-        VerboseGetTargetPresent     =   OverrideMode is present
-        VerboseGetTargetAbsent      =   OvertideMode is absent
+        VerboseGetTargetResource    = Get-TargetResource has been run.
 '@
 }
 
@@ -29,23 +28,13 @@ function Get-TargetResource
         [String] $OverrideMode
     )
 
-    [string] $oMode = Get-OverrideMode -section $SectionName
+    [String] $oMode = Get-OverrideMode -section $SectionName
 
-    if ($oMode -eq $OverrideMode)
-    {
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
-        $ensureResult = 'Present'
-    }
-    else
-    {
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
-        $ensureResult = 'Absent'
-    }
+    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
 
     return @{
-        SectionName = $SectionName
+        SectionName  = $SectionName
         OverrideMode = $oMode
-        Ensure = $ensureResult
     }
 }
 
@@ -86,7 +75,7 @@ function Test-TargetResource
         [String]$OverrideMode
     )
 
-    [string] $oMode = Get-OverrideMode -Section $SectionName
+    [String] $oMode = Get-OverrideMode -Section $SectionName
 
     if ($oMode -eq $OverrideMode)
     {
@@ -112,7 +101,7 @@ Function Get-OverrideMode
 
     Assert-Module
 
-    [string] $oMode = ((Get-WebConfiguration -Location '' `
+    [String]$oMode = ((Get-WebConfiguration -Location '' `
                                              -Filter /system.webServer/$Section `
                                              -Metadata).Metadata).effectiveOverrideMode
 
