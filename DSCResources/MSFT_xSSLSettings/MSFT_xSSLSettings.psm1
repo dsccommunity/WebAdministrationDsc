@@ -7,9 +7,9 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData @'
         UnableToFindConfig         = Unable to find {0} in AppHost Config
-        SettingSSLConfig           = Setting {0} SSL binding to {1}
-        SSLBindingsCorrect         = SSL Bindings for {0} are correct
-        SSLBindingsAbsent          = SSL Bidnings for {0} are Absent
+        SettingSslConfig           = Setting {0} Ssl binding to {1}
+        SslBindingsCorrect         = Ssl Bindings for {0} are correct
+        SslBindingsAbsent          = Ssl Bidnings for {0} are Absent
         VerboseGetTargetResource   = Get-TargetResource has been run.
 '@
 }
@@ -22,10 +22,10 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [string] $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [string[]] $Bindings
+        [String[]] $Bindings
     )
 
     Assert-Module
@@ -39,16 +39,16 @@ function Get-TargetResource
             PSPath   = 'MACHINE/WEBROOT/APPHOST'
             Location = $Name
             Filter   = 'system.webServer/security/access'
-            Name     = 'sslFlags'
+            Name     = 'SslFlags'
         }
 
-        $sslSettings = Get-WebConfigurationProperty @params
+        $SslSettings = Get-WebConfigurationProperty @params
 
-        # If SSL is configured at all this will be a string else
+        # If Ssl is configured at all this will be a String else
         # it'll be a configuration object.
-        if ($sslSettings.GetType().FullName -eq 'System.String')
+        if ($SslSettings.GetType().FullName -eq 'System.String')
         {
-            $Bindings = $sslSettings.Split(',')
+            $Bindings = $SslSettings.Split(',')
             $Ensure = 'Present'
         }
     }
@@ -74,14 +74,14 @@ function Set-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [string] $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [string[]] $Bindings,
+        [String[]] $Bindings,
 
-        [ValidateSet("Present","Absent")]
-        [System.String]
-        $Ensure = "Present"
+        [ValidateSet('Present','Absent')]
+        [String]
+        $Ensure = 'Present'
     )
 
     Assert-Module
@@ -92,28 +92,29 @@ function Set-TargetResource
             PSPath   = 'MACHINE/WEBROOT/APPHOST'
             Location = $Name
             Filter   = 'system.webServer/security/access'
-            Name     = 'sslFlags'
+            Name     = 'SslFlags'
             Value    = ''
         }
 
         Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.SettingSSLConfig) -f $Name, 'None'
+                $($LocalizedData.SettingSslConfig) -f $Name, 'None'
         ) -join '')
         Set-WebConfigurationProperty @params
     }
+    
     else
     {
-        $sslBindings = $Bindings -join ','
+        $SslBindings = $Bindings -join ','
         $params = @{
             PSPath   = 'MACHINE/WEBROOT/APPHOST'
             Location = $Name
             Filter   = 'system.webServer/security/access'
-            Name     = 'sslFlags'
-            Value    = $sslBindings
+            Name     = 'SslFlags'
+            Value    = $SslBindings
         }
 
         Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.SettingSSLConfig) -f $Name, $params.Value
+                $($LocalizedData.SettingSslConfig) -f $Name, $params.Value
         ) -join '')
         Set-WebConfigurationProperty @params
     }
@@ -126,35 +127,37 @@ function Test-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [string] $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [string[]] $Bindings,
+        [String[]] $Bindings,
 
-        [ValidateSet("Present","Absent")]
-        [System.String]
-        $Ensure = "Present"
+        [ValidateSet('Present','Absent')]
+        [String]
+        $Ensure = 'Present'
     )
 
-    $sslSettings = Get-TargetResource -Name $Name -Bindings $Bindings
+    $SslSettings = Get-TargetResource -Name $Name -Bindings $Bindings
 
-    if ($Ensure -eq 'Present' -and $sslSettings.Ensure -eq 'Present')
+    if ($Ensure -eq 'Present' -and $SslSettings.Ensure -eq 'Present')
     {
-        $sslComp = Compare-Object -ReferenceObject $Bindings -DifferenceObject $sslSettings.Bindings -PassThru
-        if ($null -eq $sslComp)
+        $SslComp = Compare-Object -ReferenceObject $Bindings `
+                                  -DifferenceObject $SslSettings.Bindings `
+                                  -PassThru
+        if ($null -eq $SslComp)
         {
             Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-                $($LocalizedData.SSLBindingsCorrect) -f $Name
+                    $($LocalizedData.SslBindingsCorrect) -f $Name
             ) -join '')
 
             return $true;
         }
     }
 
-    if ($Ensure -eq 'Absent' -and $sslSettings.Ensure -eq 'Absent')
+    if ($Ensure -eq 'Absent' -and $SslSettings.Ensure -eq 'Absent')
     {
         Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.SSLBindingsAbsent) -f $Name
+            $($LocalizedData.SslBindingsAbsent) -f $Name
         ) -join '')
 
         return $true;
