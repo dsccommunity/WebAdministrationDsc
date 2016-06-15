@@ -1,13 +1,3 @@
-######################################################################################
-# DSC Resource for IIS Server level http handlers
-######################################################################################
-# There are a few limitations with this resource:
-# It only supports builtin handlers, that come with IIS, not third party ones.
-# Removing handlers should be no problem, but all new handlers are added at the
-# top of the list, meaning, they are tried first. There is no way of ordering the
-# handler list except for removing all and then adding them in the correct order.
-######################################################################################
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
@@ -792,8 +782,6 @@ $script:handlers = @{
 }
 
 #endregion
-
-#region Get-TargetResource
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
@@ -805,7 +793,7 @@ function Get-TargetResource
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [string]$Ensure
+        [String]$Ensure
     )
 
     # Check if WebAdministration module is present for IIS cmdlets
@@ -830,11 +818,16 @@ function Get-TargetResource
         }
     }
 }
-#endregion
-
-#region Set-TargetResource
 function Set-TargetResource
 {
+    <#
+    .NOTES
+         There are a few limitations with this resource:
+         It only supports builtin handlers, that come with IIS, not third party ones.
+         Removing handlers should be no problem, but all new handlers are added at the
+         top of the list, meaning, they are tried first. There is no way of ordering the
+         handler list except for removing all and then adding them in the correct order.
+    #>
     param
     (
         [Parameter(Mandatory)]
@@ -843,13 +836,13 @@ function Set-TargetResource
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [string]$Ensure
+        [String]$Ensure
     )
 
     Assert-Module
 
-    [string] $psPathRoot  = 'MACHINE/WEBROOT/APPHOST'
-    [string] $sectionNode = 'system.webServer/handlers'
+    [String] $psPathRoot  = 'MACHINE/WEBROOT/APPHOST'
+    [String] $sectionNode = 'system.webServer/handlers'
 
     $handler = Get-Handler -Name $Name
 
@@ -862,13 +855,13 @@ function Set-TargetResource
     elseif ($null -ne $handler -and $Ensure -eq 'Absent')
     {
         # remove the handler
-        Remove-WebConfigurationProperty -PSPath $psPathRoot -Filter $sectionNode -Name '.' -AtElement @{name="$Name"}
+        Remove-WebConfigurationProperty -PSPath $psPathRoot `
+                                        -Filter $sectionNode `
+                                        -Name '.' `
+                                        -AtElement @{name="$Name"}
         Write-Verbose -Message ($LocalizedData.RemovingHandler -f $Name)
     }
 }
-#endregion
-
-#region Test-TargetResource
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -880,14 +873,15 @@ function Test-TargetResource
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [string]$Ensure
+        [String]$Ensure
     )
 
     Assert-Module
 
     $handler = Get-Handler -Name $Name
 
-    if (($null -eq $handler -and $Ensure -eq 'Present') -or ($null -ne $handler -and $Ensure -eq 'Absent'))
+    if (($null -eq $handler -and $Ensure -eq 'Present') -or `
+        ($null -ne $handler -and $Ensure -eq 'Absent'))
     {
         return $false;
     }
@@ -904,40 +898,43 @@ function Test-TargetResource
         return $true;
     }
 }
-#endregion
 
 #region Helper Functions
 function Get-Handler
 {
     param
     (
-        [string] $Name
+        [String] $Name
     )
 
     [string] $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
-    return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
+    return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' `
+                                         -Filter $filter `
+                                         -Name .
 }
 
 function Add-Handler
 {
     param
     (
-        [string] $Name
+        [String] $Name
     )
 
     # check whether our dictionary has an item with the specified key
     if ($script:handlers.ContainsKey($name))
     {
         # add the new handler
-        Add-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter 'system.webServer/handlers' -Name '.' -Value $script:handlers[$Name]
+        Add-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' `
+                                     -Filter 'system.webServer/handlers' `
+                                     -Name '.' -Value $script:handlers[$Name]
     }
     else
     {
-        New-TerminatingError -ErrorId 'HandlerNotSupported' -ErrorMessage $($LocalizedData.HandlerNotSupported -f $Name) -ErrorCategory InvalidArgument
+        New-TerminatingError -ErrorId 'HandlerNotSupported' `
+                             -ErrorMessage $($LocalizedData.HandlerNotSupported -f $Name) `
+                             -ErrorCategory InvalidArgument
     }
 }
 #endregion
 
-
-#  FUNCTIONS TO BE EXPORTED
 Export-ModuleMember -Function *-TargetResource
