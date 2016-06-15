@@ -5,7 +5,7 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
+    ConvertFrom-StringData -StringData @'
         NoWebAdministrationModule   =   Please ensure that WebAdministration module is installed.
         AddingHandler               =   Adding handler '{0}'
         RemovingHandler             =   Removing handler '{0}'

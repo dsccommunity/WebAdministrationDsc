@@ -1,6 +1,3 @@
-######################################################################################
-# DSC Resource for IIS Server level MIME Type mappings
-######################################################################################
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
@@ -8,22 +5,18 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
-NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-AddingType=Adding MIMEType '{0}' for extension '{1}'
-RemovingType=Removing MIMEType '{0}' for extension '{1}'
-TypeExists=MIMEType '{0}' for extension '{1}' already exist
-TypeNotPresent=MIMEType '{0}' for extension '{1}' is not present as requested
-TypeStatusUnknown=MIMEType '{0}' for extension '{1}' is is an unknown status
-VerboseGetTargetPresent = MIMEType is present
-VerboseGetTargetAbsent = MIMEType is absent
+    ConvertFrom-StringData -StringData @'
+        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
+        AddingType                = Adding MIMEType '{0}' for extension '{1}'
+        RemovingType              = Removing MIMEType '{0}' for extension '{1}'
+        TypeExists                = MIMEType '{0}' for extension '{1}' already exist
+        TypeNotPresent            = MIMEType '{0}' for extension '{1}' is not present as requested
+        TypeStatusUnknown         = MIMEType '{0}' for extension '{1}' is is an unknown status
+        VerboseGetTargetPresent   = MIMEType is present
+        VerboseGetTargetAbsent    = MIMEType is absent
 '@
 }
 
-######################################################################################
-# The Get-TargetResource cmdlet.
-# This function will get the Mime type for a file extension
-######################################################################################
 function Get-TargetResource
 {
     [OutputType([Hashtable])]
@@ -39,45 +32,40 @@ function Get-TargetResource
 
         [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
-        [string]$Ensure
+        [String]$Ensure
     )
     
     # Check if WebAdministration module is present for IIS cmdlets
-    CheckIISPoshModule
+    Assert-Module
 
-    $mt = GetMapping -extension $Extension -type $MimeType 
+    $mt = Get-Mapping -extension $Extension -type $MimeType 
 
     if ($null -eq $mt)
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         return @{
-            Ensure = 'Absent'
+            Ensure    = 'Absent'
             Extension = $null
-            MimeType = $null
+            MimeType  = $null
         }
     }
     else
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
         return @{
-            Ensure = 'Present'
+            Ensure    = 'Present'
             Extension = $mt.fileExtension
-            MimeType = $mt.mimeType
+            MimeType  = $mt.mimeType
         }
     }
 }
-
-######################################################################################
-# The Set-TargetResource cmdlet.
-# This function will add or remove a MIME type mapping
-######################################################################################
 function Set-TargetResource
 {
     param
     (    
         [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
-        [string]$Ensure = 'Present',
+        [String]$Ensure = 'Present',
             
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -88,31 +76,33 @@ function Set-TargetResource
         [String]$MimeType
     )
 
-        CheckIISPoshModule
+        Assert-Module
 
         [string]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
         [string]$sectionNode = 'system.webServer/staticContent'
 
-        $mt = GetMapping -extension $Extension -type $MimeType 
+        $mt = Get-Mapping -extension $Extension -type $MimeType 
 
         if ($null -eq $mt -and $Ensure -eq 'Present')
         {
             # add the MimeType            
-            Add-WebConfigurationProperty -pspath $psPathRoot  -filter $sectionNode -name '.' -value @{fileExtension="$Extension";mimeType="$MimeType"}
-            Write-Verbose($LocalizedData.AddingType -f $MimeType,$Extension);
+            Add-WebConfigurationProperty -pspath $psPathRoot `
+                                        -filter $sectionNode `
+                                        -name '.' `
+                                        -value @{fileExtension="$Extension";mimeType="$MimeType"}
+            Write-Verbose -Message ($LocalizedData.AddingType -f $MimeType,$Extension);
         }
         elseif ($null -ne $mt -and $Ensure -eq 'Absent')
         {
             # remove the MimeType                      
-            Remove-WebConfigurationProperty -pspath $psPathRoot -filter $sectionNode -name '.' -AtElement @{fileExtension="$Extension"}
-            Write-Verbose($LocalizedData.RemovingType -f $MimeType,$Extension);
+            Remove-WebConfigurationProperty -pspath $psPathRoot `
+                                            -filter $sectionNode `
+                                            -name '.' `
+                                            -AtElement @{fileExtension="$Extension"}
+            Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension);
         }
 }
 
-######################################################################################
-# The Test-TargetResource cmdlet.
-# This will test if the given MIME type mapping has the desired state, Present or Absent
-######################################################################################
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -120,7 +110,7 @@ function Test-TargetResource
     (    
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [string]$Ensure = 'Present',
+        [String]$Ensure = 'Present',
     
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -133,9 +123,9 @@ function Test-TargetResource
 
     [bool]$DesiredConfigurationMatch = $true;
     
-    CheckIISPoshModule
+    Assert-Module
 
-    $mt = GetMapping -extension $Extension -type $MimeType 
+    $mt = Get-Mapping -extension $Extension -type $MimeType 
 
     if (($null -eq $mt -and $Ensure -eq 'Present') -or ($null -ne $mt -and $Ensure -eq 'Absent'))
     {
@@ -144,36 +134,40 @@ function Test-TargetResource
     elseif ($null -ne $mt -and $Ensure -eq 'Present')
     {
         # Already there 
-        Write-Verbose($LocalizedData.TypeExists -f $MimeType,$Extension);
+        Write-Verbose -Message ($LocalizedData.TypeExists -f $MimeType,$Extension);
     }
     elseif ($null -eq $mt -and $Ensure -eq 'Absent')
     {
         # TypeNotPresent
-        Write-Verbose($LocalizedData.TypeNotPresent -f $MimeType,$Extension);
+        Write-Verbose -Message ($LocalizedData.TypeNotPresent -f $MimeType,$Extension);
     }
     else
     {
         $DesiredConfigurationMatch = $false;
-        Write-Verbose($LocalizedData.TypeStatusUnknown -f $MimeType,$Extension);
+        Write-Verbose -Message ($LocalizedData.TypeStatusUnknown -f $MimeType,$Extension);
     }
     
     return $DesiredConfigurationMatch
 }
 
-Function CheckIISPoshModule
-{
-    # Check if WebAdministration module is present for IIS cmdlets
-    if(!(Get-Module -ListAvailable -Name WebAdministration))
-    {
-        Throw $LocalizedData.NoWebAdministrationModule
-    }
-}
+#region Helper Functions
 
-Function GetMapping([string]$extension,[string]$type)
+Function Get-Mapping
 {
-    [string]$filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $extension + "' and @mimeType='" + $type + "']"
+   
+    [CmdletBinding()]
+    param
+    (
+        [String]$extension,
+        
+        [String]$type
+    )
+
+    [String]$filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
+                       $extension + "' and @mimeType='" + $type + "']"
     return Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .
 }
 
-#  FUNCTIONS TO BE EXPORTED 
-Export-ModuleMember -function Get-TargetResource, Set-TargetResource, Test-TargetResource
+#endregion
+
+Export-ModuleMember -function *-TargetResource

@@ -5,7 +5,7 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
+    ConvertFrom-StringData -StringData @'
         NoWebAdministrationModule   =   Please ensure that WebAdministration module is installed.
         UnableToGetConfig           =   Unable to get configuration data for '{0}'
         ChangedMessage              =   Changed overrideMode for '{0}' to {1}
