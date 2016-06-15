@@ -1,11 +1,3 @@
-######################################################################################
-# DSC Resource for IIS Server level Web Site Defaults
-# ApplicationHost.config: system.applicationHost/sites/siteDefaults
-#
-# only a limited number of settings are supported at this time
-# We try to cover the most common use cases
-# We have a single parameter for each setting
-######################################################################################
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
@@ -14,17 +6,12 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
-NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-SettingValue=Changing default value '{0}' to '{1}'
-ValueOk=Default value '{0}' is already '{1}'
-VerboseGetTagetResource=Get-TargetResource has been run.
+        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
+        SettingValue              = Changing default value '{0}' to '{1}'
+        ValueOk                   = Default value '{0}' is already '{1}'
+        VerboseGetTagetResource   = Get-TargetResource has been run.
 '@
 }
-
-######################################################################################
-# The Get-TargetResource cmdlet.
-# This function will get all supported site default values
-######################################################################################
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -36,52 +23,59 @@ function Get-TargetResource
         [string]$ApplyTo
     )
     
-    # Check if WebAdministration module is present for IIS cmdlets
-    CheckIISPoshModule
+    Assert-Module
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
     
-    return @{LogFormat = (GetValue 'siteDefaults/logFile' 'logFormat')
-                                    TraceLogDirectory = ( GetValue 'siteDefaults/traceFailedRequestsLogging' 'directory')
-                                    DefaultApplicationPool = (GetValue 'applicationDefaults' 'applicationPool')
-                                    AllowSubDirConfig = (GetValue 'virtualDirectoryDefaults' 'allowSubDirConfig')
-                                    ApplyTo = 'Machine'
-                                    LogDirectory = (GetValue 'siteDefaults/logFile' 'directory')}    
+    return @{
+        LogFormat = (Get-Value 'siteDefaults/logFile' 'logFormat')
+        TraceLogDirectory = ( Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory')
+        DefaultApplicationPool = (Get-Value 'applicationDefaults' 'applicationPool')
+        AllowSubDirConfig = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig')
+        ApplyTo = 'Machine'
+        LogDirectory = (Get-Value 'siteDefaults/logFile' 'directory')
+    }    
+
 }
 
-######################################################################################
-# The Set-TargetResource cmdlet.
-# This function will change a default setting if not already set
-######################################################################################
 function Set-TargetResource
 {
+    <#
+        .NOTES
+        only a limited number of settings are supported at this time
+        We try to cover the most common use cases
+        We have a single parameter for each setting
+    #>
+    [CmdletBinding()]
     param
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
+        
         [ValidateSet('W3C','IIS','NCSA','Custom')]
         [string]$LogFormat,
+        
         [string]$LogDirectory,
+        
         [string]$TraceLogDirectory,
+        
         [string]$DefaultApplicationPool,
+        
         [ValidateSet('true','false')]
         [string]$AllowSubDirConfig
     )
 
-        CheckIISPoshModule
+        Assert-Module
 
-        SetValue 'siteDefaults/logFile' 'logFormat' $LogFormat
-        SetValue 'siteDefaults/logFile' 'directory' $LogDirectory
-        SetValue 'siteDefaults/traceFailedRequestsLogging' 'directory' $TraceLogDirectory
-        SetValue 'applicationDefaults' 'applicationPool' $DefaultApplicationPool
-        SetValue 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
+        Set-Value 'siteDefaults/logFile' 'logFormat' $LogFormat
+        Set-Value 'siteDefaults/logFile' 'directory' $LogDirectory
+        Set-Value 'siteDefaults/traceFailedRequestsLogging' 'directory' $TraceLogDirectory
+        Set-Value 'applicationDefaults' 'applicationPool' $DefaultApplicationPool
+        Set-Value 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
+
 }
 
-######################################################################################
-# The Test-TargetResource cmdlet.
-# This will test whether all given values are already set in the current configuration
-######################################################################################
 function Test-TargetResource
 {
     [OutputType([System.Boolean])]
@@ -90,61 +84,83 @@ function Test-TargetResource
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
         [string]$ApplyTo,
+        
         [ValidateSet('W3C','IIS','NCSA','Custom')]
         [string]$LogFormat,
+        
         [string]$LogDirectory,
+        
         [string]$TraceLogDirectory,
+        
         [string]$DefaultApplicationPool,
+        
         [ValidateSet('true','false')]
         [string]$AllowSubDirConfig
     )
 
-    CheckIISPoshModule
+    Assert-Module
 
     # check for the various given settings:
 
-    if (!(CheckValue -path 'virtualDirectoryDefaults' -name 'allowSubDirConfig' -newValue $AllowSubDirConfig)) 
+    if (-not(Confirm-Value -path 'virtualDirectoryDefaults' `
+                           -name 'allowSubDirConfig' `
+                           -newValue $AllowSubDirConfig)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path 'siteDefaults/logFile' -name 'logFormat' -newValue $LogFormat)) 
+    if (-not(Confirm-Value -path 'siteDefaults/logFile' `
+                           -name 'logFormat' `
+                           -newValue $LogFormat)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path 'siteDefaults/logFile' -name 'directory' -newValue $LogDirectory)) 
+    if (-not(Confirm-Value -path 'siteDefaults/logFile' `
+                           -name 'directory' `
+                           -newValue $LogDirectory)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path 'siteDefaults/traceFailedRequestsLogging' -name 'directory' -newValue $TraceLogDirectory)) 
+    if (-not(Confirm-Value -path 'siteDefaults/traceFailedRequestsLogging' `
+                           -name 'directory' `
+                           -newValue $TraceLogDirectory)) 
     { 
         return $false 
     }
 
-    if (!(CheckValue -path 'applicationDefaults' -name 'applicationPool' -newValue $DefaultApplicationPool)) 
+    if (-not(Confirm-Value -path 'applicationDefaults' `
+                           -name 'applicationPool' `
+                           -newValue $DefaultApplicationPool)) 
     { 
         return $false 
     }
 
-    # at this point all settings are ok and our desired state is met.
     return $true
+
 }
 
-######################################################################################
-# Helper Functions
-######################################################################################
-
-Function CheckValue([string]$path,[string]$name,[string]$newValue)
+#region Helper Functions
+Function Confirm-Value
 {
-    if (!$newValue)
+    [OutputType([System.Boolean])]
+    [CmdletBinding()]
+    param
+    (
+        [string]$path,
+
+        [string]$name,
+        
+        [string]$newValue
+    )
+    
+    if (-not($newValue))
     {
-        # if no new value was specified, we assume this value is okay.        
         return $true
     }
 
-    $existingValue = GetValue -Path $path -Name $name
+    $existingValue = Get-Value -Path $path -Name $name
     if ($existingValue -ne $newValue)
     {
         return $false
@@ -155,41 +171,56 @@ Function CheckValue([string]$path,[string]$name,[string]$newValue)
         Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
         return $true
     }   
+
 }
 
-# some internal helper function to do the actual work:
-
-Function SetValue([string]$path,[string]$name,[string]$newValue)
+Function Set-Value
 {
+    [CmdletBinding()]
+    param
+    (
+        [string]$path,
+
+        [string]$name,
+
+        [string]$newValue
+    )
+
     # if the variable doesn't exist, the user doesn't want to change this value
-    if (!$newValue)
+    if (-not($newValue))
     {
         return
     }
 
     # get the existing value to compare
-    $existingValue = GetValue -Path $path -Name $name
+    $existingValue = Get-Value -Path $path -Name $name
     if ($existingValue -ne $newValue)
     {
-        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/$path" -name $name -value "$newValue"
+        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
+                                     -filter "system.applicationHost/sites/$path" `
+                                     -name $name `
+                                     -value "$newValue"
         $relPath = $path + '/' + $name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
     }    
+
 }
 
-Function GetValue([string]$path,[string]$name)
+Function Get-Value
 {
-    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST'  -filter "system.applicationHost/sites/$path" -name $name
+    [CmdletBinding()]
+    param
+    (
+        [string]$path,
+    
+        [string]$name
+    )
+
+    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
+                                        -filter "system.applicationHost/sites/$path" `
+                                        -name $name
 }
 
-Function CheckIISPoshModule
-{
-    # Check if WebAdministration module is present for IIS cmdlets
-    if(!(Get-Module -ListAvailable -Name WebAdministration))
-    {
-        Throw $LocalizedData.NoWebAdministrationModule
-    }
-}
+#endregion
 
-#  FUNCTIONS TO BE EXPORTED 
-Export-ModuleMember -function Get-TargetResource, Set-TargetResource, Test-TargetResource
+Export-ModuleMember -function *-TargetResource
