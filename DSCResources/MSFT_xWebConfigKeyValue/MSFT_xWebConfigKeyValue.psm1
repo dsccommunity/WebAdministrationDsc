@@ -5,9 +5,9 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
-VerboseGetTargetPresent = MIMEType is present
-VerboseGetTargetAbsent = MIMEType is absent
+    ConvertFrom-StringData -StringData @'
+        VerboseGetTargetPresent = MIMEType is present
+        VerboseGetTargetAbsent = MIMEType is absent
 '@
 }
 
@@ -18,12 +18,12 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $WebsitePath,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
-        [System.String]
+        [String]
         $ConfigSection,
 
         [parameter(Mandatory = $true)]
@@ -31,10 +31,16 @@ function Get-TargetResource
         $Key
     )
 
-    $existingvalue = Get-ItemValue -key $Key -isAttribute $false -websitePath $WebsitePath -configSection $ConfigSection
+    $existingvalue = Get-ItemValue -key $Key `
+                                   -isAttribute $false `
+                                   -websitePath $WebsitePath `
+                                   -configSection $ConfigSection
     if($null -eq $existingvalue)
     {
-        $existingvalue = Get-ItemValue -key $Key -isAttribute $true -websitePath $WebsitePath -configSection $ConfigSection
+        $existingvalue = Get-ItemValue -key $Key `
+                                       -isAttribute $true `
+                                       -websitePath $WebsitePath `
+                                       -configSection $ConfigSection
     }
 
     if($existingvalue.Length -eq 0)
@@ -53,7 +59,9 @@ function Get-TargetResource
         Ensure = 'Present'
         Key = $Key
         Value = $existingvalue
+
     }
+
 }
 
 
@@ -63,16 +71,16 @@ function Set-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $WebsitePath,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
-        [System.String]
+        [String]
         $ConfigSection,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
+        [String]
         $Ensure = 'Present',
 
         [parameter(Mandatory = $true)]
@@ -88,11 +96,21 @@ function Set-TargetResource
 
     if($Ensure -eq 'Present')
     {
-        $existingvalue = Get-ItemValue -key $Key -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
+        $existingvalue = Get-ItemValue -key $Key `
+                                       -isAttribute $IsAttribute `
+                                       -websitePath $WebsitePath`
+                                       -configSection $ConfigSection
 
-        if((!$IsAttribute -and ($null -eq $existingvalue)) -or ($IsAttribute -and ($existingvalue.Length -eq 0)))
+        if((-not($IsAttribute -and `
+            ($null -eq $existingvalue)) -or `
+            ($IsAttribute -and `
+            ($existingvalue.Length -eq 0))))
         {
-            Add-Item -key $Key -value $Value -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
+            Add-Item -key $Key `
+                     -value $Value `
+                     -isAttribute $IsAttribute `
+                     -websitePath $WebsitePath `
+                     -configSection $ConfigSection
         }
         else
         {
@@ -101,12 +119,20 @@ function Set-TargetResource
             {
                 $propertyName = $Key
             }
-            Edit-Item -propertyName $propertyName -oldValue $existingvalue -newValue $Value -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
+            Edit-Item -propertyName $propertyName `
+                      -oldValue $existingvalue `
+                      -newValue $Value `
+                      -isAttribute $IsAttribute `
+                      -websitePath $WebsitePath `
+                      -configSection $ConfigSection
         }
     }
     else
     {
-        Remove-Item -key $Key -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
+        Remove-Item -key $Key `
+                    -isAttribute $IsAttribute `
+                    -websitePath $WebsitePath `
+                    -configSection $ConfigSection
     }
 }
 
@@ -117,16 +143,16 @@ function Test-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [System.String]
+        [String]
         $WebsitePath,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
-        [System.String]
+        [String]
         $ConfigSection,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
+        [String]
         $Ensure = 'Present',
 
         [parameter(Mandatory = $true)]
@@ -140,16 +166,19 @@ function Test-TargetResource
         $IsAttribute
     )
 
-    if(!$PSBoundParameters.ContainsKey('IsAttribute'))
+    if(-not($PSBoundParameters.ContainsKey('IsAttribute')))
     {
         $IsAttribute = $false
     }
 
-    $existingvalue = Get-ItemValue -key $Key -isAttribute $IsAttribute -websitePath $WebsitePath -configSection $ConfigSection
+    $existingvalue = Get-ItemValue -key $Key `
+                                   -isAttribute $IsAttribute `
+                                   -websitePath $WebsitePath `
+                                   -configSection $ConfigSection
     
     if($Ensure -eq 'Present')
     {
-        if(!$IsAttribute)
+        if(-not($IsAttribute))
         {
             if(($null -eq $existingvalue) -or ($existingvalue -ne $Value))
             {
@@ -172,9 +201,10 @@ function Test-TargetResource
             }
         }
     }
+    
     else
     {
-        if(!$IsAttribute)
+        if(-not($IsAttribute))
         {
             if(($null -eq $existingvalue))
             {
@@ -199,86 +229,177 @@ function Test-TargetResource
     }
 }
 
-function Add-item([string]$key, [string]$value, [Boolean]$isAttribute, [string]$websitePath, [string]$configSection)
+#region HelperFunctions
+function Add-Item
 {
+    [CmdletBinding()]
+    param
+    
+    (
+        [string]$key, 
+    
+        [string]$value, 
+    
+        [Boolean]$isAttribute, 
+    
+        [string]$websitePath, 
+    
+        [string]$configSection
+    )
 
     $defaultFilter = $configSection
 
     $itemCollection = @{key=$key;value=$value}
 
-    if(!$isAttribute)
+    if(-not($isAttribute))
     {
-        Add-WebConfigurationProperty -filter $defaultFilter -name '.' -value $itemCollection -PSPath $websitePath
+        Add-WebConfigurationProperty -filter $defaultFilter `
+                                     -name '.' `
+                                     -value $itemCollection `
+                                     -PSPath $websitePath
     }
     else
     {
-        Set-WebConfigurationProperty -filter $defaultFilter -PSPath $websitePath -name $key -value $value -WarningAction Stop 
+        Set-WebConfigurationProperty -filter $defaultFilter `
+                                     -PSPath $websitePath `
+                                     -name $key `
+                                     -value $value `
+                                     -WarningAction Stop 
     }
 }
 
-function Edit-Item([string]$propertyName, [string]$oldValue, [string]$newValue, [Boolean]$isAttribute, [string]$websitePath, [string]$configSection)
+function Edit-Item
 {
+    [CmdletBinding()]
+    param
+    (
+        [string]$propertyName, 
+        
+        [string]$oldValue, 
+        
+        [string]$newValue, 
+        
+        [Boolean]$isAttribute, 
+        
+        [string]$websitePath, 
+        
+        [string]$configSection
+    )
+
     $defaultFilter = $configSection
 
-    if(!$isAttribute)
+    if(-not($isAttribute))
     {
         $filter= "$defaultFilter/add[@$propertyName=`'$oldValue`']"
 
-        Set-WebConfigurationProperty -filter $filter -PSPath $websitePath -name $propertyName -value $newValue -WarningAction Stop
+        Set-WebConfigurationProperty -filter $filter `
+                                     -PSPath $websitePath `
+                                    - name $propertyName `
+                                     -value $newValue `
+                                     -WarningAction Stop
     }
+
     else
     {
-        Set-WebConfigurationProperty -Filter $defaultFilter -PSPath $websitePath -name $propertyName -value $newValue -WarningAction Stop
+        Set-WebConfigurationProperty -Filter $defaultFilter `
+                                     -PSPath $websitePath `
+                                     -name $propertyName `
+                                     -value $newValue `
+                                     -WarningAction Stop
     }
 }
 
-function Remove-Item([string]$key, [Boolean]$isAttribute, [string]$websitePath, [string]$configSection)
+function Remove-Item
 {
+    <#
+    .NOTES
+        this is a workaround to ensure if appSettings has no collection and we try to delete 
+        the only attribute, the entire node is not deleted.
+        If we try removing the only attribute even if there is one collection item, the node 
+        is preserved. I am not able to find a way to do this using clear-webconfiguration alone.
+
+    #>
+    [CmdletBinding()]
+    param
+    (
+        [string]$key, 
+    
+        [Boolean]$isAttribute, 
+    
+        [string]$websitePath, 
+    
+        [string]$configSection
+    
+    )
     $defaultFilter = $configSection
 
-    if(!$isAttribute)
+    if(-not($isAttribute))
     {
         $filter = "$defaultFilter/add[@key=`'$key`']"
 
-        Clear-WebConfiguration -Filter $filter -PSPath $websitePath -WarningAction Stop
+        Clear-WebConfiguration -Filter $filter `
+                               -PSPath $websitePath `
+                               -WarningAction Stop
     }
     else
     {
         $filter = "$defaultFilter/@$key"
 
-        # this is a workaround to ensure if appSettings has no collection and we try to delete the only attribute, the entire node is not deleted.
-        # if we try removing the only attribute even if there is one collection item, the node is preserved. I am not able to find a way to do this
-        #using clear-webconfiguration alone.
-        Add-item -key 'dummyKey' -value 'dummyValue' -isAttribute $false -websitePath $websitePath -configSection $configSection
 
-        clear-WebConfiguration -filter $filter -PSPath $websitePath -WarningAction Stop
+        Add-Item -key 'dummyKey' `
+                 -value 'dummyValue' `
+                 -isAttribute $false `
+                 -websitePath $websitePath `
+                 -configSection $configSection
 
-        Remove-Item -key 'dummyKey' -isAttribute $false -websitePath $websitePath -configSection $configSection
+        clear-WebConfiguration -filter $filter `
+                               -PSPath $websitePath `
+                               -WarningAction Stop
+
+        Remove-Item -key 'dummyKey' `
+                    -isAttribute $false `
+                    -websitePath $websitePath `
+                    -configSection $configSection
     }
 }
 
-function Get-ItemValue([string]$key, [Boolean]$isAttribute, [string]$websitePath, [string]$configSection)
+function Get-ItemValue
 {
+    [CmdletBinding()]
+    param
+    (
+        [string]$key, 
+    
+        [Boolean]$isAttribute, 
+    
+        [string]$websitePath, 
+    
+        [string]$configSection
+    
+    )
+    
     # if not present, $value.Value will be null
     $defaultFilter = $configSection
 
-    if(!$isAttribute)
+    if(-not($isAttribute))
     {
         $filter = "$defaultFilter/add[@key=`'$key`']"
 
-        $value = Get-WebConfigurationProperty -Filter $filter -Name 'value' -PSPath $websitePath
+        $value = Get-WebConfigurationProperty -Filter $filter `
+                                              -Name 'value' `
+                                              -PSPath $websitePath
  
     }
     else
     {
-        $value = Get-WebConfigurationProperty -filter $defaultFilter -name "$key" -PSPath $websitePath
+        $value = Get-WebConfigurationProperty -filter $defaultFilter `
+                                              -name "$key" `
+                                              -PSPath $websitePath
     }
   
     return $value.Value
 }
 
+#endregion
+
 Export-ModuleMember -Function *-TargetResource
-
-
-
-
