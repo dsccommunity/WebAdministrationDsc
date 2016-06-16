@@ -1,7 +1,7 @@
 #requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
@@ -97,6 +97,11 @@ data PropertyData
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -166,6 +171,11 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+    
     [CmdletBinding(SupportsShouldProcess = $true)]
     param
     (
@@ -221,8 +231,8 @@ function Set-TargetResource
         [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
-            'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
-            'NetworkService', 'SpecificUser'
+                'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
+                'NetworkService', 'SpecificUser'
         )]
         [String] $identityType,
 
@@ -527,6 +537,12 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This test the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+
     [OutputType([Boolean])]
     param
     (
@@ -582,8 +598,8 @@ function Test-TargetResource
         [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
-            'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
-            'NetworkService', 'SpecificUser'
+                'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
+                'NetworkService', 'SpecificUser'
         )]
         [String] $identityType,
 

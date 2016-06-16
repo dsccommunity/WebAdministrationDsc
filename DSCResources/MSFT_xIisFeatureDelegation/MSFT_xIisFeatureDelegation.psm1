@@ -15,6 +15,11 @@ data LocalizedData
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+    
     [OutputType([Hashtable])]
     param
     (
@@ -40,6 +45,11 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+    
     param
     (
         [Parameter(Mandatory)]
@@ -62,6 +72,12 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This test the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+    
     [OutputType([System.Boolean])]
     param
     (
@@ -94,6 +110,7 @@ Function Get-OverrideMode
         If $oMode is anything but Allow or Deny, we have a problem with our 
         Get-WebConfiguration call or the ApplicationHost.config file is corrupted.
     #>
+    
     param
     (
         [String] $Section

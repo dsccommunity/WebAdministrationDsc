@@ -33,6 +33,10 @@ VerboseTestTargetFalseWebApplicationAutoStartProviders = AutoStartProviders for 
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -84,6 +88,10 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
     [CmdletBinding()]
     param
     (
@@ -242,6 +250,12 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This test the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -375,18 +389,18 @@ function Test-TargetResource
 function Confirm-UniqueServiceAutoStartProviders
 {
     <#
-            .SYNOPSIS
-            Helper function used to validate that the AutoStartProviders is unique to other 
-            websites. Returns False if the AutoStartProviders exist.
-            .PARAMETER serviceAutoStartProvider
-            Specifies the name of the AutoStartProviders.
-            .PARAMETER ExcludeStopped
-            Specifies the name of the Application Type for the AutoStartProvider.
-            .NOTES
-            This tests for the existance of a AutoStartProviders which is globally assigned. 
-            As AutoStartProviders need to be uniquely named it will check for this and error out if 
-            attempting to add a duplicatly named AutoStartProvider.
-            Name is passed in to bubble to any error messages during the test.
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other 
+        websites. Returns False if the AutoStartProviders exist.
+    .PARAMETER serviceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+    .PARAMETER ExcludeStopped
+        Specifies the name of the Application Type for the AutoStartProvider.
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned. 
+        As AutoStartProviders need to be uniquely named it will check for this and error out if 
+        attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
     #>
     
     [CmdletBinding()]
@@ -475,8 +489,8 @@ function Get-AuthenticationInfo
 function Get-DefaultAuthenticationInfo
 {
     <#
-    .SYNOPSIS
-        Helper function used to build a default CimInstance for AuthenticationInformation
+            .SYNOPSIS
+            Helper function used to build a default CimInstance for AuthenticationInformation
     #>
 
     New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
@@ -595,12 +609,12 @@ function Test-AuthenticationEnabled
     <#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
-        Will return that value which will either [String]True or [String]False
+        Will return that value which will either [String] True or [String] False
     .PARAMETER Site
         Specifies the name of the Website.
     .PARAMETER Name
         Specifies the name of the Application.
-   .PARAMETER Type
+    .PARAMETER Type
         Specifies the type of Authentication, 
         limited to the set: ('Anonymous','Basic','Digest','Windows').
     #>

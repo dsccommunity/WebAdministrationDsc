@@ -28,6 +28,10 @@ WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not 
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -57,6 +61,10 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
     [CmdletBinding()]
     param
     (
@@ -156,6 +164,11 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This test the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -260,12 +273,13 @@ function Test-TargetResource
 Function Compare-LogFlags
 {
     <#
-            .SYNOPSIS
-            Helper function used to validate that the logflags status.
-            Returns False if the loglfags do not match and true if they do
-            .PARAMETER LogFlags
-            Specifies flags to check
+    .SYNOPSIS
+        Helper function used to validate that the logflags status.
+        Returns False if the loglfags do not match and true if they do
+        .PARAMETER LogFlags
+        Specifies flags to check
     #>
+
     [CmdletBinding()]
     [OutputType([Boolean])]
     param

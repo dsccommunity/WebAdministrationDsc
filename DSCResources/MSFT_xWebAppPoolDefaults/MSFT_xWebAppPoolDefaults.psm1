@@ -15,6 +15,11 @@ data LocalizedData
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+    
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -37,6 +42,11 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+    
     [CmdletBinding()]
     param
     (    
@@ -59,6 +69,12 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This test the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+    
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -152,7 +168,7 @@ function Set-Value
             -PSPath 'MACHINE/WEBROOT/APPHOST' `
             -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
             -Name $Name `
-            -value "$NewValue"
+            -Value "$NewValue"
         
         $relPath = $Path + '/' + $Name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);

@@ -24,6 +24,11 @@ data LocalizedData
 }
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -104,12 +109,13 @@ function Get-TargetResource
     
 }
 
-<#
-        .SYNOPSIS
-        Make the IisModule consistent with the properties provided.
-#>
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+
     [CmdletBinding()]
     param
     (
@@ -181,6 +187,12 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This test the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -211,24 +223,6 @@ function Test-TargetResource
 
     return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
 }
-
-#region Tracing
-$Debug = $true
-Function Trace-Message
-{
-    [CmdletBinding()]
-    param
-    (
-        [String] $Message
-    )
-    
-    if($Debug)
-    {
-        Write-Verbose $Message
-    }
-}
-
-#endregion
 
 #region Helper Functions
 function Get-GetParameters
