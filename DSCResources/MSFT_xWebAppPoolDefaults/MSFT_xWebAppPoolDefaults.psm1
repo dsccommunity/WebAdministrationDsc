@@ -9,7 +9,7 @@ data LocalizedData
         NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
         SettingValue              = Changing default value '{0}' to '{1}'
         ValueOk                   = Default value '{0}' is already '{1}'
-        VerboseGetTagetResource   = Get-TargetResource has been run.
+        VerboseGetTargetResource   = Get-TargetResource has been run.
 '@
 }
 

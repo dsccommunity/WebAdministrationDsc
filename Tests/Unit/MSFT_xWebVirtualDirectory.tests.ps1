@@ -20,6 +20,19 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     InModuleScope $script:DSCResourceName {
+        
+        Describe "$script:DSCResourceName\Assert-Module" {
+            Context 'WebAdminstration module is not installed' {
+                Mock -ModuleName Helper -CommandName Get-Module -MockWith {
+                    return $null
+                }
+
+                It 'should throw an error' {
+                    { Assert-Module } | Should Throw
+                }
+            }
+        }
+        
         Describe "$script:DSCResourceName\Test-TargetResource" {
             $MockSite = @{
                 Website        = 'contoso.com'
@@ -33,14 +46,7 @@ try
                 PhysicalPath = 'C:\inetpub\wwwroot\shared'
                 Count = 1
             }
-            Context 'WebAdminstration is not installed' {
-                It 'should throw an error if WebAdministration is not installed' {
-                    Mock Get-Module -ModuleName $ModuleName { return $null }
-                    {
-                        Test-TargetResource -Website $MockSite.Website -WebApplication $MockSite.WebApplication -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -Ensure $MockSite.Ensure
-                    } | Should Throw 'Please ensure that WebAdministration module is installed.'
-                }
-            }
+
             Context 'Directory is Present and PhysicalPath is Correct' {
                 It 'should return true' {
                     Mock Get-WebVirtualDirectory { return $virtualDir }
@@ -85,7 +91,7 @@ try
                         PhysicalPath = 'PhysicalPath'
                         Ensure = 'Absent'
                     }
-                    Mock Test-Dependancies { return $null }
+
                     Mock Get-WebVirtualDirectory { return $null }
                     $result = Get-TargetResource -Website $returnSite.Website -WebApplication $returnSite.WebApplication -Name $returnSite.Name -PhysicalPath $returnSite.PhysicalPath
 
@@ -111,7 +117,6 @@ try
                     'Count' = 1
                 }
 
-                Mock Test-Dependancies { return $null }
                 Mock Get-WebVirtualDirectory { return $returnObj }
                 $result = Get-TargetResource -Website $returnSite.Website -WebApplication $returnSite.WebApplication -Name $returnSite.Name -PhysicalPath $returnSite.PhysicalPath
 
@@ -133,7 +138,6 @@ try
                         PhysicalPath = 'PhysicalPath'
                     }
 
-                    Mock Test-Dependancies { return $null }
                     Mock New-WebVirtualDirectory { return $null }
                     $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Present'
                     Assert-MockCalled New-WebVirtualDirectory -Exactly 1
@@ -150,7 +154,6 @@ try
                         Count = 1
                     }
 
-                    Mock Test-Dependancies { return $null }
                     Mock Get-WebVirtualDirectory { return $mockSite }
                     Mock Set-ItemProperty { return $null }
                     $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Present'
@@ -168,7 +171,6 @@ try
                         Count = 1
                     }
 
-                    Mock Test-Dependancies { return $null }
                     Mock Remove-WebVirtualDirectory { return $null }
                     $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Absent'
                     Assert-MockCalled Remove-WebVirtualDirectory -Exactly 1

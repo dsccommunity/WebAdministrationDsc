@@ -3,6 +3,8 @@ $script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 
 #region HEADER
+
+# Integration Test Template Version: 1.1.0
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
 if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
      (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
@@ -14,10 +16,11 @@ Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHel
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
-    -TestType Integration
+    -TestType Integration 
+
 #endregion
 
-[string] $tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
 {
@@ -52,7 +55,7 @@ try
                   # well it doesn't test the Set Method, but does test the Test method
                   # What if the default document module is not installed?
 
-                  Invoke-Expression -Command "$($Global:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
+                  Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
                   Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
 
                   # Now lets try to add a new default document on site level, this should fail
