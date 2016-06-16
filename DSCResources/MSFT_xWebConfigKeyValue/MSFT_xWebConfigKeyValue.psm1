@@ -1,5 +1,5 @@
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
@@ -21,14 +21,14 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $WebsitePath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
         [String] $ConfigSection,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Key
     )
 
@@ -76,17 +76,17 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $WebsitePath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
         [String] $ConfigSection,
 
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present',
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Key,
 
         [String] $Value,
@@ -148,17 +148,17 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $WebsitePath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
         [String] $ConfigSection,
 
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present',
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Key,
 
         [String] $Value,

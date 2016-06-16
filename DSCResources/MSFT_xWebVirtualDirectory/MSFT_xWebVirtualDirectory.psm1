@@ -27,17 +27,17 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Website,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [String] $WebApplication,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $PhysicalPath
     )
 
@@ -82,17 +82,17 @@ function Set-TargetResource
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present',
         
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Website,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [String] $WebApplication,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $PhysicalPath
     )
 
@@ -154,17 +154,17 @@ function Test-TargetResource
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present',
         
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Website,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [String] $WebApplication,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $PhysicalPath
     )
 

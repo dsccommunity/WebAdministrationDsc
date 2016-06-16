@@ -1,5 +1,5 @@
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
@@ -60,7 +60,7 @@ function Set-TargetResource
     param
     (    
         [ValidateSet('Machine')]
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $ApplyTo,
         
         [ValidateSet('W3C','IIS','NCSA','Custom')]
@@ -98,7 +98,7 @@ function Test-TargetResource
     param
     (    
         [ValidateSet('Machine')]
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $ApplyTo,
         
         [ValidateSet('W3C','IIS','NCSA','Custom')]

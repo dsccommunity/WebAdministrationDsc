@@ -24,10 +24,10 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]] $Bindings
@@ -81,10 +81,10 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]] $Bindings,
@@ -141,10 +141,10 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]] $Bindings,

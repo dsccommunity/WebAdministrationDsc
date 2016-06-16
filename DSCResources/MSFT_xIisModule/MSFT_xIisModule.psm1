@@ -33,16 +33,16 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Path,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $RequestPath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
@@ -115,16 +115,16 @@ function Set-TargetResource
         [ValidateSet('Present','Absent')]
         [String] $Ensure,
         
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Path,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $RequestPath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
@@ -192,16 +192,16 @@ function Test-TargetResource
         [ValidateSet('Present','Absent')]
         [String] $Ensure,
         
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Path,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $RequestPath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
@@ -224,7 +224,7 @@ function Get-GetParameters
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [Hashtable] $functionParameters
     )
 
@@ -317,16 +317,16 @@ function Test-TargetResourceImpl
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Path,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $RequestPath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
@@ -337,7 +337,7 @@ function Test-TargetResourceImpl
         [ValidateSet('Present','Absent')]
         [String] $Ensure,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [HashTable] $resourceStatus
     )
 
@@ -385,7 +385,7 @@ function Test-TargetResourceImpl
     }
 
     Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModulePresent `
-                            -f $ModulePresent)
+                            -f $ModulePresent)S
     Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
                             -f $ModuleConfigured)
     if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
