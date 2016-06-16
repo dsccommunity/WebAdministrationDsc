@@ -56,7 +56,7 @@ function Get-TargetResource
         $Ensure = 'Present'
     }
 
-     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+     Write-Verbose -Message ($LocalizedData.VerboseGetTargetResource)
      
     $returnValue = @{
         Name           = $Name
@@ -105,7 +105,7 @@ function Set-TargetResource
                                                     -Application $WebApplication
         if ($virtualDirectory.count -eq 0)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetCreateVirtualDirectory -f $Name
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetCreateVirtualDirectory -f $Name)
             New-WebVirtualDirectory -Site $Website `
                                     -Application $WebApplication `
                                     -Name $Name `
@@ -113,7 +113,7 @@ function Set-TargetResource
         }
         else
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetPhysicalPath -f $Name
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetPhysicalPath -f $Name)
 
             if ($WebApplication.Length -gt 0)
             {
@@ -132,7 +132,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Absent')
     {
-        Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveVirtualDirectory -f $Name
+        Write-Verbose -Message ($LocalizedData.VerboseSetTargetRemoveVirtualDirectory -f $Name)
         Remove-WebVirtualDirectory -Site $Website `
                                    -Application $WebApplication `
                                    -Name $Name
@@ -178,19 +178,19 @@ function Test-TargetResource
     {
         if ($virtualDirectory.PhysicalPath -eq $PhysicalPath)
         {
-            Write-Verbose -Message $LocalizedData.VerboseTestTargetTrue
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetTrue)
             return $true
         }
         else
         {
-            Write-Verbose -Message $LocalizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
             return $false
         }
     }
 
     if ($virtualDirectory.count -eq 0 -and $Ensure -eq 'Absent')
     {
-        Write-Verbose -Message $LocalizedData.VerboseTestTargetAbsentTrue -f $Name
+        Write-Verbose -Message ($LocalizedData.VerboseTestTargetAbsentTrue -f $Name)
         return $true
     }
 
