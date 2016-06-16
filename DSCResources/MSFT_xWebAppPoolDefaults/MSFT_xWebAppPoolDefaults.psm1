@@ -71,7 +71,7 @@ function Test-TargetResource
 {
     <#
     .SYNOPSIS
-        This test the desired state. If the state is not correct it will return $false.
+        This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
     
@@ -98,7 +98,7 @@ function Test-TargetResource
     }
 
     if (!(Confirm-Value -Path 'processModel' -Name 'identityType' -NewValue $IdentityType)) 
-    { 
+    {
         return $false 
     }
     
@@ -113,9 +113,9 @@ function Confirm-Value
     param
     (  
         [String] $Path,
-        
+
         [String] $Name,
-    
+
         [String] $NewValue
     )
     
@@ -135,7 +135,7 @@ function Confirm-Value
         $relPath = $Path + '/' + $Name
         Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
         return $true
-    }   
+    }
 }
 
 function Set-Value

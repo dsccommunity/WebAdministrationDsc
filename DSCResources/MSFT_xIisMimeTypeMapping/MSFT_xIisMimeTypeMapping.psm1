@@ -86,8 +86,8 @@ function Set-TargetResource
 
         Assert-Module
 
-        [String]$PSPathRoot = 'MACHINE/WEBROOT/APPHOST'
-        [String]$SectionNode = 'system.webServer/staticContent'
+        [String]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
+        [String]$sectionNode = 'system.webServer/staticContent'
 
         $mt = Get-Mapping -extension $Extension -type $MimeType 
 
@@ -115,7 +115,7 @@ function Test-TargetResource
 {
     <#
     .SYNOPSIS
-        This test the desired state. If the state is not correct it will return $false.
+        This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
 
@@ -135,11 +135,11 @@ function Test-TargetResource
         [String] $Ensure
     )
 
-    [Boolean]$DesiredConfigurationMatch = $true;
+    [Boolean] $DesiredConfigurationMatch = $true;
     
     Assert-Module
 
-    $mt = Get-Mapping -extension $Extension -type $MimeType 
+    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
 
     if (($null -eq $mt -and $Ensure -eq 'Present') -or ($null -ne $mt -and $Ensure -eq 'Absent'))
     {

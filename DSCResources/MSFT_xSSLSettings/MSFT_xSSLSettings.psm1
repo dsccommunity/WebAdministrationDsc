@@ -48,7 +48,7 @@ function Get-TargetResource
 
         $sslSettings = Get-WebConfigurationProperty @params
 
-        # If ssl is configured at all this will be a String else
+        # If SSL is configured at all this will be a String else
         # it'll be a configuration object.
         if ($sslSettings.GetType().FullName -eq 'System.String')
         {
@@ -133,7 +133,7 @@ function Test-TargetResource
 {
     <#
     .SYNOPSIS
-        This test the desired state. If the state is not correct it will return $false.
+        This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
 

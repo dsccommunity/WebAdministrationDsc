@@ -785,8 +785,8 @@ $script:handlers = @{
 function Get-TargetResource
 {
     <#
-    .SYNOPSIS
-        This will return a hashtable of results 
+            .SYNOPSIS
+            This will return a hashtable of results 
     #>
 
     [OutputType([Hashtable])]
@@ -826,15 +826,15 @@ function Get-TargetResource
 function Set-TargetResource
 {
     <#
-    .SYNOPSIS
-        This will set the desired state
+            .SYNOPSIS
+            This will set the desired state
 
-    .NOTES
-        There are a few limitations with this resource:
-        It only supports builtin handlers, that come with IIS, not third party ones.
-        Removing handlers should be no problem, but all new handlers are added at the
-        top of the list, meaning, they are tried first. There is no way of ordering the
-        handler list except for removing all and then adding them in the correct order.
+            .NOTES
+            There are a few limitations with this resource:
+            It only supports builtin handlers, that come with IIS, not third party ones.
+            Removing handlers should be no problem, but all new handlers are added at the
+            top of the list, meaning, they are tried first. There is no way of ordering the
+            handler list except for removing all and then adding them in the correct order.
     #>
     
     param
@@ -874,9 +874,9 @@ function Set-TargetResource
 function Test-TargetResource
 {
     <#
-    .SYNOPSIS
-        This test the desired state. If the state is not correct it will return $false.
-        If the state is correct it will return $true
+            .SYNOPSIS
+            This tests the desired state. If the state is not correct it will return $false.
+            If the state is correct it will return $true
     #>
     
     [OutputType([System.Boolean])]
@@ -915,6 +915,7 @@ function Test-TargetResource
 }
 
 #region Helper Functions
+
 function Get-Handler
 {
     param
@@ -922,9 +923,9 @@ function Get-Handler
         [String] $Name
     )
 
-    [String] $Filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
+    [String] $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
     return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' `
-                                         -Filter $Filter `
+                                         -Filter $filter `
                                          -Name .
 }
 
@@ -936,12 +937,13 @@ function Add-Handler
     )
 
     # check whether our dictionary has an item with the specified key
-    if ($script:handlers.ContainsKey($name))
+    if ($script:handlers.ContainsKey($Name))
     {
         # add the new handler
         Add-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' `
                                      -Filter 'system.webServer/handlers' `
-                                     -Name '.' -Value $script:handlers[$Name]
+                                     -Name '.' `
+                                     -Value $script:handlers[$Name]
     }
     else
     {

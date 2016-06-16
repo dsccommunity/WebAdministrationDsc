@@ -74,7 +74,7 @@ function Test-TargetResource
 {
     <#
     .SYNOPSIS
-        This test the desired state. If the state is not correct it will return $false.
+        This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
     

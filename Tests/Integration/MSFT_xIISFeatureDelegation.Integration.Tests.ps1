@@ -47,54 +47,56 @@ try
                 }
             }
         }
+        #
+        # These test are broken and will be fixed under a future PR at https://github.com/PowerShell/xWebAdministration
+        #
+        # It 'Deny Feature Delegation' {
+        #     {
+        #         # this test doesn't really test the resource if it defaultDocument
+        #         # is already Deny (not the default)
+        #         # well it doesn't test the Set Method, but does test the Test method
+        #         # What if the default document module is not installed?
 
-        It 'Deny Feature Delegation' {
-        {
-                  # this test doesn't really test the resource if it defaultDocument
-                  # is already Deny (not the default)
-                  # well it doesn't test the Set Method, but does test the Test method
-                  # What if the default document module is not installed?
+        #         Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
+        #         Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
 
-                  Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
-                  Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+        #         # Now lets try to add a new default document on site level, this should fail
+        #         # get the first site, it doesn't matter which one, it should fail.
+        #         $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
+        #         Add-WebConfigurationProperty `
+        #             -PSPath "MACHINE/WEBROOT/APPHOST/$siteName" `
+        #             -Filter 'system.webServer/defaultDocument/files' `
+        #             -Name '.' `
+        #             -Value @{Value = 'pesterpage.cgi'}
 
-                  # Now lets try to add a new default document on site level, this should fail
-                  # get the first site, it doesn't matter which one, it should fail.
-                  $siteName = (Get-ChildItem iis:\sites | Select -First 1).Name
-                  Add-WebConfigurationProperty `
-                      -PSPath "MACHINE/WEBROOT/APPHOST/$siteName" `
-                      -Filter 'system.webServer/defaultDocument/files' `
-                      -Name '.' `
-                      -Value @{Value = 'pesterpage.cgi'}
+        #         # remove it again, should also fail, but if both work we at least cleaned it up,
+        #         # it would be better to backup and restore the web.config file.
+        #         Remove-WebConfigurationProperty  `
+        #             -PSPath "MACHINE/WEBROOT/APPHOST/$siteName" `
+        #             -Filter 'system.webServer/defaultDocument/files' `
+        #             -Name '.' `
+        #             -AtElement @{Value = 'pesterpage.cgi'}
+        #     } | Should Not Throw
+        # }
 
-                  # remove it again, should also fail, but if both work we at least cleaned it up,
-                  # it would be better to backup and restore the web.config file.
-                  Remove-WebConfigurationProperty  `
-                      -PSPath "MACHINE/WEBROOT/APPHOST/$siteName" `
-                      -Filter 'system.webServer/defaultDocument/files' `
-                      -Name '.' `
-                      -AtElement @{Value = 'pesterpage.cgi'}
-              } | Should Not Throw
-          }
+        #It 'Deny Feature Delegation' -test {
+        #{
+        #    # this test doesn't really test the resource if it defaultDocument
+        #    # is already Deny (not the default)
+        #    # well it doesn't test the Set Method, but does test the Test method
+        #    # What if the default document module is not installed?
 
-        It 'Deny Feature Delegation' -test {
-        {
-            # this test doesn't really test the resource if it defaultDocument
-            # is already Deny (not the default)
-            # well it doesn't test the Set Method, but does test the Test method
-            # What if the default document module is not installed?
+        #    Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
+        #    Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
-            Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+        #    # Now lets try to add a new default document on site level, this should fail
+        #    # get the first site, it doesn't matter which one, it should fail.
+        #    $siteName = (Get-ChildItem iis:\sites | Select-Object -First 1).Name
+        #    Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter 'system.webServer/defaultDocument/files' -name '.' -value @{value='pesterpage.cgi'}
 
-            # Now lets try to add a new default document on site level, this should fail
-            # get the first site, it doesn't matter which one, it should fail.
-            $siteName = (Get-ChildItem iis:\sites | Select-Object -First 1).Name
-            Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter 'system.webServer/defaultDocument/files' -name '.' -value @{value='pesterpage.cgi'}
-
-            # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.
-            Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter 'system.webServer/defaultDocument/files' -name '.' -AtElement @{value='pesterpage.cgi'} } | should throw
-        }
+        #    # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.
+        #    Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter 'system.webServer/defaultDocument/files' -name '.' -AtElement @{value='pesterpage.cgi'} } | should throw
+        #}
 
         #region DEFAULT TESTS
           It 'should be able to call Get-DscConfiguration without throwing' {

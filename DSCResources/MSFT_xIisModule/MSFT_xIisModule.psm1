@@ -25,8 +25,8 @@ data LocalizedData
 function Get-TargetResource
 {
     <#
-    .SYNOPSIS
-        This will return a hashtable of results 
+            .SYNOPSIS
+            This will return a hashtable of results 
     #>
 
     [CmdletBinding()]
@@ -105,8 +105,8 @@ function Get-TargetResource
 function Set-TargetResource
 {
     <#
-    .SYNOPSIS
-        This will set the desired state
+            .SYNOPSIS
+            This will set the desired state
     #>
 
     [CmdletBinding()]
@@ -133,7 +133,7 @@ function Set-TargetResource
         [String] $SiteName
     )
 
-    $GetParameters = Get-GetParameters -functionParameters $PSBoundParameters
+    $getParameters = Get-GetParameters -functionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
     $resourceTests = Test-TargetResourceImpl @PSBoundParameters -resourceStatus $resourceStatus
     if ($resourceTests.Result)
@@ -181,7 +181,7 @@ function Test-TargetResource
 {
     <#
             .SYNOPSIS
-            This test the desired state. If the state is not correct it will return $false.
+            This tests the desired state. If the state is not correct it will return $false.
             If the state is correct it will return $true
     #>
 
@@ -219,21 +219,23 @@ function Test-TargetResource
 }
 
 #region Helper Functions
+
 function Get-GetParameters
 {
     [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [Hashtable] $functionParameters
+        [Hashtable] $FunctionParameters
     )
 
-    $getParameters = @{}
-    foreach($key in $functionParameters.Keys)
+    [Hashtable] $getParameters = @{}
+    foreach($key in $FunctionParameters.Keys)
     {
         if($key -ine 'Ensure')
         {
-            $getParameters.Add($key, $functionParameters.$key) | Out-Null
+            $getParameters.Add($key, $FunctionParameters.$key) | Out-Null
         }
     }
 
@@ -261,8 +263,8 @@ function Get-IisSitePath
 function Get-IisHandler
 {
     <#
-    .NOTES
-        Get a list on IIS handlers
+            .NOTES
+            Get a list on IIS handlers
     #>
     [CmdletBinding()]
     param
@@ -285,8 +287,8 @@ function Get-IisHandler
 function Remove-IisHandler
 {
     <#
-    .NOTES
-        Remove an IIS Handler
+            .NOTES
+            Remove an IIS Handler
     #>
     param
     (
