@@ -347,14 +347,14 @@ function Test-TargetResourceImpl
     {
         if($Verb -icontains $thisVerb)
         {
-            Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplVerb `
-                            -f $Verb
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplVerb `
+                            -f $Verb)
             $matchedVerbs += $thisVerb
         }
         else
         {
-            Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplExtraVerb `
-                            -f $Verb
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplExtraVerb `
+                            -f $Verb)
             $mismatchVerbs += $thisVerb
         }
     }
@@ -365,14 +365,14 @@ function Test-TargetResourceImpl
         $modulePresent = $true
     }
 
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplRequestPath `
-                            -f $RequestPath
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplPath `
-                            -f $Path
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplresourceStatusRequestPath `
-                            -f $($resourceStatus.RequestPath)
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplresourceStatusPath `
-                            -f $($resourceStatus.Path)
+    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplRequestPath `
+                            -f $RequestPath)
+    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplPath `
+                            -f $Path)
+    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusRequestPath `
+                            -f $($resourceStatus.RequestPath))
+    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusPath `
+                            -f $($resourceStatus.Path))
 
     $moduleConfigured = $false
     if($modulePresent -and `
@@ -384,10 +384,10 @@ function Test-TargetResourceImpl
         $moduleConfigured = $true
     }
 
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplModulePresent `
-                            -f $ModulePresent
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
-                            -f $ModuleConfigured
+    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModulePresent `
+                            -f $ModulePresent)
+    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
+                            -f $ModuleConfigured)
     if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
     {
         return @{
