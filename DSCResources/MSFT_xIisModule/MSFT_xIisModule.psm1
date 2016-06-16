@@ -1,25 +1,25 @@
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResource                = Get-TargetResource has been run.
-        SetTargetResourceInstallwhatIfMessage   = Trying to create website "{0}".
-        SetTargetResourceUnInstallwhatIfMessage = Trying to remove website "{0}".
-        WebsiteNotFoundError                    = The requested website "{0}" is not found on the target machine.
-        WebsiteDiscoveryFailureError            = Failure to get the requested website "{0}" information from the target machine.
-        WebsiteCreationFailureError             = Failure to successfully create the website "{0}".
-        WebsiteRemovalFailureError              = Failure to successfully remove the website "{0}".
-        WebsiteUpdateFailureError               = Failure to successfully update the properties for website "{0}".
-        WebsiteBindingUpdateFailureError        = Failure to successfully update the bindings for website "{0}".
-        WebsiteBindingInputInvalidationError    = Desired website bindings not valid for website "{0}".
-        WebsiteCompareFailureError              = Failure to successfully compare properties for website "{0}".
-        WebBindingCertifcateError               = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid.
-        WebsiteStateFailureError                = Failure to successfully set the state of the website {0}.
-        WebsiteBindingConflictOnStartError      = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+        VerboseGetTargetResource                               = Get-TargetResource has been run.
+        VerboseSetTargetRemoveHandler                          = Removing handler
+        VerboseSetTargetAddHandler                             = Adding handler.
+        VerboseSetTargetAddfastCgi                             = Adding fastCgi.
+        VerboseTestTargetResource                              = Get-TargetResource has been run.
+        VerboseGetIisHandler                                   = Getting Handler for {0} in Site {1}
+        VerboseTestTargetResourceImplVerb                      = Matched Verb {0}
+        VerboseTestTargetResourceImplExtraVerb                 = Extra Verb {0}
+        VerboseTestTargetResourceImplRequestPath               = RequestPath is {0}
+        VerboseTestTargetResourceImplPath                      = Path is {0}
+        VerboseTestTargetResourceImplresourceStatusRequestPath = StatusRequestPath is {0}
+        VerboseTestTargetResourceImplresourceStatusPath        = StatusPath is {0}
+        VerboseTestTargetResourceImplModulePresent             = Module present is {0}
+        VerboseTestTargetResourceImplModuleConfigured          = ModuleConfigured is {0}
 '@
 }
 function Get-TargetResource
@@ -66,8 +66,6 @@ function Get-TargetResource
             $modulePresent = $true;
         }
 
-        Trace-Message "Got Handler $($handler.Name)"
-
         foreach($thisVerb  in $handler.Verb)
         {
             $currentVerbs += $thisVerb
@@ -87,21 +85,16 @@ function Get-TargetResource
             }
         }
 
-        Trace-Message "Verb.Count: $($Verb.Count)"
-        Trace-Message "handler.modules: $($handler.Modules)"
-
-        #-and $Module -ieq $handler.Modules
-
         Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
         
         $returnValue = @{
-            Path = $handler.ScriptProcessor
-            Name = $handler.Name
-            RequestPath = $handler.Path
-            Verb = $currentVerbs
-            SiteName = $SiteName
-            Ensure = $Ensure
-            ModuleType = $handler.Modules
+            Path          = $handler.ScriptProcessor
+            Name          = $handler.Name
+            RequestPath   = $handler.Path
+            Verb          = $currentVerbs
+            SiteName      = $SiteName
+            Ensure        = $Ensure
+            ModuleType    = $handler.Modules
             EndPointSetup = $fastCgiSetup
         }
 
@@ -148,39 +141,38 @@ function Set-TargetResource
         return
     }
 
-    Trace-Message 'Get complete'
-
     if($Ensure -eq 'Present')
     {
         if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
         {
-            Trace-Message 'Removing handler...'
+            Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler 
             Remove-IisHandler
         }
 
         if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
         {
-            Trace-Message 'Adding handler...'
-            add-webconfiguration /system.webServer/handlers iis:\ -value @{
-                name = $Name
-                path = $RequestPath
-                verb = $Verb -join ','
-                modules = $ModuleType
-                scriptProcessor = $Path
+            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler 
+            Add-webconfiguration /system.webServer/handlers iis:\ -Value @{
+                Name = $Name
+                Path = $RequestPath
+                Verb = $Verb -join ','
+                Module = $ModuleType
+                ScriptProcessor = $Path
             }
         }
 
         # bug(TBD) deal with this better, maybe a seperate resource....
         if(-not $resourceTests.EndPointSetup)
         {
-            Trace-Message 'Adding fastCgi...'
-            add-WebConfiguration /system.webServer/fastCgi iis:\ -value @{
-                fullPath = $Path
+            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddfastCgi
+            Add-WebConfiguration /system.webServer/fastCgi iis:\ -Value @{
+                FullPath = $Path
             }
         }
     }
-    else #Ensure is set to "Absent" so remove handler
+    else 
     {
+        Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
         Remove-IisHandler
     }
 }
@@ -188,9 +180,9 @@ function Set-TargetResource
 function Test-TargetResource
 {
     <#
-    .SYNOPSIS
-        This test the desired state. If the state is not correct it will return $false.
-        If the state is correct it will return $true
+            .SYNOPSIS
+            This test the desired state. If the state is not correct it will return $false.
+            If the state is correct it will return $true
     #>
 
     [CmdletBinding()]
@@ -221,6 +213,8 @@ function Test-TargetResource
     $GetParameters = Get-GetParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
 
+    Write-Verbose -Message $LocalizedData.VerboseTestTargetResource
+    
     return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
 }
 
@@ -267,8 +261,8 @@ function Get-IisSitePath
 function Get-IisHandler
 {
     <#
-            .NOTES
-            Get a list on IIS handlers
+    .NOTES
+        Get a list on IIS handlers
     #>
     [CmdletBinding()]
     param
@@ -281,7 +275,7 @@ function Get-IisHandler
         [String] $SiteName
     )
 
-    Trace-Message "Getting Handler for $Name in Site $SiteName"
+    Write-Verbose -Message $LocalizedData.VerboseGetIisHandler -f $Namme,$SiteName
     return Get-Webconfiguration -Filter 'System.WebServer/handlers/*' `
                                 -PSPath (Get-IisSitePath `
                                 -SiteName $SiteName) | `
@@ -291,8 +285,8 @@ function Get-IisHandler
 function Remove-IisHandler
 {
     <#
-            .NOTES
-            Remove an IIS Handler
+    .NOTES
+        Remove an IIS Handler
     #>
     param
     (
@@ -353,12 +347,14 @@ function Test-TargetResourceImpl
     {
         if($Verb -icontains $thisVerb)
         {
-            Trace-Message "Matched verb $Verb"
+            Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplVerb `
+                            -f $Verb
             $matchedVerbs += $thisVerb
         }
         else
         {
-            Trace-Message "Extra verb $Verb"
+            Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplExtraVerb `
+                            -f $Verb
             $mismatchVerbs += $thisVerb
         }
     }
@@ -369,10 +365,14 @@ function Test-TargetResourceImpl
         $modulePresent = $true
     }
 
-    Trace-Message "RequestPath: $($RequestPath)"
-    Trace-Message "Path: $($Path)"
-    Trace-Message "resourceStatus.RequestPath: $($resourceStatus.RequestPath)"
-    Trace-Message "resourceStatus.Path: $($resourceStatus.Path)"
+    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplRequestPath `
+                            -f $RequestPath
+    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplPath `
+                            -f $Path
+    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplresourceStatusRequestPath `
+                            -f $($resourceStatus.RequestPath)
+    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplresourceStatusPath `
+                            -f $($resourceStatus.Path)
 
     $moduleConfigured = $false
     if($modulePresent -and `
@@ -384,8 +384,10 @@ function Test-TargetResourceImpl
         $moduleConfigured = $true
     }
 
-    Trace-Message "ModulePresent: $ModulePresent"
-    Trace-Message "ModuleConfigured: $ModuleConfigured"
+    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplModulePresent `
+                            -f $ModulePresent
+    Write-Verbose -Message $LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
+                            -f $ModuleConfigured
     if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
     {
         return @{
