@@ -184,4 +184,4 @@ Function Get-Mapping
 
 #endregion
 
-Export-ModuleMember -function *-TargetResource
+Export-ModuleMember -Function *-TargetResource

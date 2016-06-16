@@ -334,7 +334,7 @@ function Remove-Item
 
     if(-not($IsAttribute))
     {
-        $Filter = "$defaultFilter/add[@key=`'$key`']"
+        $Filter = "$defaultFilter/add[@key=`'$Key`']"
 
         Clear-WebConfiguration -Filter $Filter `
                                -PSPath $WebsitePath `
@@ -381,7 +381,7 @@ function Get-ItemValue
 
     if(-not($IsAttribute))
     {
-        $Filter = "$defaultFilter/add[@key=`'$key`']"
+        $Filter = "$defaultFilter/add[@key=`'$Key`']"
 
         $Value = Get-WebConfigurationProperty -Filter $Filter `
                                               -Name 'Value' `

@@ -135,4 +135,4 @@ Function Get-OverrideMode
 
 #endregion
 
-Export-ModuleMember -function *-TargetResource
+Export-ModuleMember -Function *-TargetResource
