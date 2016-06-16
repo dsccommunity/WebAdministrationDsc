@@ -275,7 +275,7 @@ function Get-IisHandler
         [String] $SiteName
     )
 
-    Write-Verbose -Message $LocalizedData.VerboseGetIisHandler -f $Namme,$SiteName
+    Write-Verbose -Message $LocalizedData.VerboseGetIisHandler -f $Name,$SiteName
     return Get-Webconfiguration -Filter 'System.WebServer/handlers/*' `
                                 -PSPath (Get-IisSitePath `
                                 -SiteName $SiteName) | `
