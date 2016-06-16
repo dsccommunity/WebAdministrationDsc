@@ -23,21 +23,17 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String]
-        $Website,
+        [String] $Website,
 
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
-        [String]
-        $WebApplication,
+        [String] $WebApplication,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $PhysicalPath
+        [String] $PhysicalPath
     )
 
     Assert-Module
@@ -73,26 +69,21 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
+        [ValidateSet('Present','Absent')]
+        [String] $Ensure = 'Present',
+        
         [parameter(Mandatory = $true)]
-        [String]
-        $Website,
+        [String] $Website,
 
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
-        [String]
-        $WebApplication,
+        [String] $WebApplication,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $PhysicalPath,
-
-        [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure = 'Present'
+        [String] $PhysicalPath
     )
 
     Assert-Module
@@ -144,26 +135,21 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
+        [ValidateSet('Present','Absent')]
+        [String] $Ensure = 'Present',
+        
         [parameter(Mandatory = $true)]
-        [String]
-        $Website,
+        [String] $Website,
 
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
-        [String]
-        $WebApplication,
+        [String] $WebApplication,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $PhysicalPath,
-
-        [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure = 'Present'
+        [String] $PhysicalPath
     )
 
     Assert-Module

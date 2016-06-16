@@ -24,21 +24,21 @@ function Get-TargetResource
     (        
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$Extension,
+        [String] $Extension,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$MimeType,
+        [String] $MimeType,
 
         [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
-        [String]$Ensure
+        [String] $Ensure
     )
     
     # Check if WebAdministration module is present for IIS cmdlets
     Assert-Module
 
-    $mt = Get-Mapping -extension $Extension -type $MimeType 
+    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
 
     if ($null -eq $mt)
     {
@@ -63,41 +63,41 @@ function Set-TargetResource
 {
     param
     (    
-        [ValidateSet('Present', 'Absent')]
-        [Parameter(Mandatory)]
-        [String]$Ensure = 'Present',
-            
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$Extension,
+        [String] $Extension,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$MimeType
+        [String] $MimeType,
+
+        [ValidateSet('Present', 'Absent')]
+        [Parameter(Mandatory)]
+        [String] $Ensure
     )
 
         Assert-Module
 
-        [String]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
-        [String]$sectionNode = 'system.webServer/staticContent'
+        [String]$PSPathRoot = 'MACHINE/WEBROOT/APPHOST'
+        [String]$SectionNode = 'system.webServer/staticContent'
 
         $mt = Get-Mapping -extension $Extension -type $MimeType 
 
         if ($null -eq $mt -and $Ensure -eq 'Present')
         {
             # add the MimeType            
-            Add-WebConfigurationProperty -pspath $psPathRoot `
-                                        -filter $sectionNode `
-                                        -name '.' `
-                                        -value @{fileExtension="$Extension";mimeType="$MimeType"}
+            Add-WebConfigurationProperty -PSpath $psPathRoot `
+                                         -Filter $sectionNode `
+                                         -Name '.' `
+                                         -Value @{fileExtension="$Extension";mimeType="$MimeType"}
             Write-Verbose -Message ($LocalizedData.AddingType -f $MimeType,$Extension);
         }
         elseif ($null -ne $mt -and $Ensure -eq 'Absent')
         {
             # remove the MimeType                      
-            Remove-WebConfigurationProperty -pspath $psPathRoot `
-                                            -filter $sectionNode `
-                                            -name '.' `
+            Remove-WebConfigurationProperty -PSpath $psPathRoot `
+                                            -Filter $sectionNode `
+                                            -Name '.' `
                                             -AtElement @{fileExtension="$Extension"}
             Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension);
         }
@@ -109,16 +109,16 @@ function Test-TargetResource
     param
     (    
         [Parameter(Mandatory)]
-        [ValidateSet('Present', 'Absent')]
-        [String]$Ensure = 'Present',
-    
-        [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$Extension,
+        [String] $Extension,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$MimeType
+        [String] $MimeType,
+
+        [ValidateSet('Present', 'Absent')]
+        [Parameter(Mandatory)]
+        [String] $Ensure
     )
 
     [Boolean]$DesiredConfigurationMatch = $true;
@@ -158,14 +158,14 @@ Function Get-Mapping
     [CmdletBinding()]
     param
     (
-        [String]$Extension,
+        [String] $Extension,
         
-        [String]$Type
+        [String] $Type
     )
 
     [String]$Filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
                        $Extension + "' and @mimeType='" + $Type + "']"
-    return Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $Filter -Name .
+    return Get-WebConfigurationProperty  -PSpath 'MACHINE/WEBROOT/APPHOST' -Filter $Filter -Name .
 }
 
 #endregion

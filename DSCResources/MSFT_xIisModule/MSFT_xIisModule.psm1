@@ -29,27 +29,21 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String]
-        $Path,
+        [String] $Path,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $RequestPath,
+        [String] $RequestPath,
 
         [parameter(Mandatory = $true)]
-        [String[]]
-        $Verb,
+        [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
-        [String]
-        $ModuleType = 'FastCgiModule',
+        [String] $ModuleType = 'FastCgiModule',
 
-        [String]
-        $SiteName
+        [String] $SiteName
     )
 
         Assert-Module
@@ -119,33 +113,27 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
-        [String]
-        $Path,
-
-        [parameter(Mandatory = $true)]
-        [String]
-        $Name,
-
-        [parameter(Mandatory = $true)]
-        [String]
-        $RequestPath,
-
-        [parameter(Mandatory = $true)]
-        [System.String[]]
-        $Verb,
-
-        [String]
-        $SiteName,
-
         [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure,
+        [String] $Ensure,
+        
+        [parameter(Mandatory = $true)]
+        [String] $Path,
+
+        [parameter(Mandatory = $true)]
+        [String] $Name,
+
+        [parameter(Mandatory = $true)]
+        [String] $RequestPath,
+
+        [parameter(Mandatory = $true)]
+        [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
-        [String]
-        $ModuleType = 'FastCgiModule'
+        [String] $ModuleType = 'FastCgiModule',
+
+        [String] $SiteName
     )
+
     $GetParameters = Get-GetParameters -functionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
     $resourceTests = Test-TargetResourceImpl @PSBoundParameters -resourceStatus $resourceStatus
@@ -197,39 +185,31 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
-        [String]
-        $Path,
-
-        [parameter(Mandatory = $true)]
-        [String]
-        $Name,
-
-        [parameter(Mandatory = $true)]
-        [String]
-        $RequestPath,
-
-        [parameter(Mandatory = $true)]
-        [System.String[]]
-        $Verb,
-
-
-        [String]
-        $SiteName,
-
         [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure,
+        [String] $Ensure,
+        
+        [parameter(Mandatory = $true)]
+        [String] $Path,
+
+        [parameter(Mandatory = $true)]
+        [String] $Name,
+
+        [parameter(Mandatory = $true)]
+        [String] $RequestPath,
+
+        [parameter(Mandatory = $true)]
+        [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
-        [String]
-        $ModuleType = 'FastCgiModule'
+        [String] $ModuleType = 'FastCgiModule',
+
+        [String] $SiteName
     )
 
-    $GetParameters = Get-GetParameters -functionParameters $PSBoundParameters
+    $GetParameters = Get-GetParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
 
-    return (Test-TargetResourceImpl @PSBoundParameters -resourceStatus $resourceStatus).Result
+    return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
 }
 
 #region Tracing
@@ -257,8 +237,7 @@ function Get-GetParameters
     param
     (
         [parameter(Mandatory = $true)]
-        [Hashtable]
-        $functionParameters
+        [Hashtable] $functionParameters
     )
 
     $getParameters = @{}
@@ -278,7 +257,7 @@ function Get-IisSitePath
     [CmdletBinding()]
     param
     (
-        [String]$SiteName
+        [String] $SiteName
     )
 
     if(-not $SiteName)
@@ -303,9 +282,9 @@ function Get-IisHandler
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
 
-        [String]$Name,
+        [String] $Name,
 
-        [String]$SiteName
+        [String] $SiteName
     )
 
     Trace-Message "Getting Handler for $Name in Site $SiteName"
@@ -326,12 +305,12 @@ function Remove-IisHandler
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
 
-        [String]$Name,
+        [String] $Name,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
 
-        [String]$SiteName
+        [String] $SiteName
     )
 
     $handler = Get-IisHandler @PSBoundParameters
@@ -351,35 +330,27 @@ function Test-TargetResourceImpl
     param
     (
         [parameter(Mandatory = $true)]
-        [String]
-        $Path,
+        [String] $Path,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $RequestPath,
+        [String] $RequestPath,
 
         [parameter(Mandatory = $true)]
-        [String[]]
-        $Verb,
+        [String[]] $Verb,
 
         [ValidateSet('FastCgiModule')]
-        [String]
-        $ModuleType = 'FastCgiModule',
+        [String] $ModuleType = 'FastCgiModule',
 
-        [String]
-        $SiteName,
+        [String] $SiteName,
 
         [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure,
+        [String] $Ensure,
 
         [parameter(Mandatory = $true)]
-        [HashTable]
-        $resourceStatus
+        [HashTable] $resourceStatus
     )
 
     $matchedVerbs = @()

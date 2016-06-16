@@ -18,17 +18,14 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String]
-        $WebsitePath,
+        [String] $WebsitePath,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
-        [String]
-        $ConfigSection,
+        [String] $ConfigSection,
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Key
+        [String] $Key
     )
 
     $existingValue = Get-ItemValue -Key $Key `
@@ -71,27 +68,21 @@ function Set-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String]
-        $WebsitePath,
+        [String] $WebsitePath,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
-        [String]
-        $ConfigSection,
+        [String] $ConfigSection,
 
         [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure = 'Present',
+        [String] $Ensure = 'Present',
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Key,
+        [String] $Key,
 
-        [String]
-        $Value,
+        [String] $Value,
 
-        [Boolean]
-        $IsAttribute
+        [Boolean] $IsAttribute
     )
 
     if($Ensure -eq 'Present')
@@ -143,27 +134,21 @@ function Test-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String]
-        $WebsitePath,
+        [String] $WebsitePath,
 
         [parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
-        [String]
-        $ConfigSection,
+        [String] $ConfigSection,
 
         [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure = 'Present',
+        [String] $Ensure = 'Present',
 
         [parameter(Mandatory = $true)]
-        [String]
-        $Key,
+        [String] $Key,
 
-        [String]
-        $Value,
+        [String] $Value,
 
-        [Boolean]
-        $IsAttribute
+        [Boolean] $IsAttribute
     )
 
     if(-not($PSBoundParameters.ContainsKey('IsAttribute')))
@@ -237,20 +222,15 @@ function Add-Item
     param
     
     (
-        [String]
-        $Key, 
+        [String] $Key, 
     
-        [String]
-        $Value, 
+        [String] $Value, 
     
-        [Boolean]
-        $IsAttribute, 
+        [Boolean] $IsAttribute, 
     
-        [String]
-        $WebsitePath, 
+        [String] $WebsitePath, 
     
-        [String]
-        $ConfigSection
+        [String] $ConfigSection
     )
 
     $defaultFilter = $ConfigSection
@@ -279,23 +259,17 @@ function Edit-Item
     [CmdletBinding()]
     param
     (
-        [String]
-        $PropertyName, 
+        [String] $PropertyName, 
         
-        [String]
-        $OldValue, 
+        [String] $OldValue, 
         
-        [String]
-        $NewValue, 
+        [String] $NewValue, 
         
-        [Boolean]
-        $IsAttribute, 
+        [Boolean] $IsAttribute, 
         
-        [String]
-        $WebsitePath, 
+        [String] $WebsitePath, 
         
-        [String]
-        $ConfigSection
+        [String] $ConfigSection
     )
 
     $defaultFilter = $ConfigSection
@@ -334,18 +308,13 @@ function Remove-Item
     [CmdletBinding()]
     param
     (
-        [String]
-        $Key, 
+        [String] $Key, 
     
-        [Boolean]
-        $IsAttribute, 
+        [Boolean] $IsAttribute, 
     
-        [String]
-        $WebsitePath, 
+        [String] $WebsitePath, 
     
-        [String]
-        $ConfigSection
-    
+        [String] $ConfigSection
     )
     $defaultFilter = $ConfigSection
 
@@ -384,18 +353,13 @@ function Get-ItemValue
     [CmdletBinding()]
     param
     (
-        [String]
-        $Key, 
+        [String] $Key, 
     
-        [Boolean]
-        $IsAttribute, 
+        [Boolean] $IsAttribute, 
     
-        [String]
-        $WebsitePath, 
+        [String] $WebsitePath, 
     
-        [String]
-        $ConfigSection
-    
+        [String] $ConfigSection
     )
     
     # if not present, $Value.Value will be null

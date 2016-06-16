@@ -6,9 +6,9 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule   =   Please ensure that WebAdministration module is installed.
-        UnableToGetConfig           =   Unable to get configuration data for '{0}'
-        ChangedMessage              =   Changed overrideMode for '{0}' to {1}
+        NoWebAdministrationModule   = Please ensure that WebAdministration module is installed.
+        UnableToGetConfig           = Unable to get configuration data for '{0}'
+        ChangedMessage              = Changed overrideMode for '{0}' to {1}
         VerboseGetTargetResource    = Get-TargetResource has been run.
 '@
 }
@@ -67,12 +67,12 @@ function Test-TargetResource
     (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$SectionName,
+        [String] $SectionName,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('Allow', 'Deny')]
-        [String]$OverrideMode
+        [String] $OverrideMode
     )
 
     [String] $oMode = Get-OverrideMode -Section $SectionName
@@ -96,12 +96,12 @@ Function Get-OverrideMode
     #>
     param
     (
-        [string] $Section
+        [String] $Section
     )
 
     Assert-Module
 
-    [String]$oMode = ((Get-WebConfiguration -Location '' `
+    [String] $oMode = ((Get-WebConfiguration -Location '' `
                                              -Filter /system.webServer/$Section `
                                              -Metadata).Metadata).effectiveOverrideMode
 

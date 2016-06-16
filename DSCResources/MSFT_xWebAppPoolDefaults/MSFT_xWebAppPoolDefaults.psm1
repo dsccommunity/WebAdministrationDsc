@@ -21,8 +21,7 @@ function Get-TargetResource
     (
         [Parameter(Mandatory)]
         [ValidateSet('Machine')]
-        [String]
-        $ApplyTo
+        [String] $ApplyTo
     )
     
     Assert-Module
@@ -43,16 +42,13 @@ function Set-TargetResource
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [String]
-        $ApplyTo,
+        [String] $ApplyTo,
 
         [ValidateSet('','v2.0','v4.0')]
-        [String]
-        $ManagedRuntimeVersion,
+        [String] $ManagedRuntimeVersion,
 
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [String]
-        $IdentityType
+        [String] $IdentityType
     )
 
     Assert-Module
@@ -69,16 +65,13 @@ function Test-TargetResource
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [String]
-        $ApplyTo,
+        [String] $ApplyTo,
         
         [ValidateSet('','v2.0','v4.0')]
-        [String]
-        $ManagedRuntimeVersion,
+        [String] $ManagedRuntimeVersion,
         
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [String]
-        $IdentityType
+        [String] $IdentityType
     )
 
     Assert-Module
@@ -103,14 +96,11 @@ function Confirm-Value
     [CmdletBinding()]
     param
     (  
-        [String]
-        $Path,
+        [String] $Path,
         
-        [String]
-        $Name,
+        [String] $Name,
     
-        [String]
-        $NewValue
+        [String] $NewValue
     )
     
     if (!$NewValue)
@@ -137,14 +127,11 @@ function Set-Value
     [CmdletBinding()]
     param
     (  
-        [String]
-        $Path,
+        [String] $Path,
         
-        [String]
-        $Name,
+        [String] $Name,
     
-        [String]
-        $NewValue
+        [String] $NewValue
     )
 
     # if the variable doesn't exist, the user doesn't want to change this value
@@ -180,11 +167,9 @@ function Get-Value
     [CmdletBinding()]
     param
     (  
-        [String]
-        $Path,
-    
-        [String]
-        $Name
+        [String] $Path,
+        
+        [String] $Name
     )
 
     {

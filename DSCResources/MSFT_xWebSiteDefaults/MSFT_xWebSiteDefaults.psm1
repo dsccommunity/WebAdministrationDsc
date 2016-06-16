@@ -52,25 +52,19 @@ function Set-TargetResource
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [String]
-        $ApplyTo,
+        [String] $ApplyTo,
         
         [ValidateSet('W3C','IIS','NCSA','Custom')]
-        [String]
-        $LogFormat,
+        [String] $LogFormat,
         
-        [String]
-        $LogDirectory,
+        [String] $LogDirectory,
         
-        [String]
-        $TraceLogDirectory,
+        [String] $TraceLogDirectory,
         
-        [String]
-        $DefaultApplicationPool,
+        [String] $DefaultApplicationPool,
         
         [ValidateSet('true','false')]
-        [String]
-        $AllowSubDirConfig
+        [String] $AllowSubDirConfig
     )
 
     Assert-Module
@@ -90,25 +84,19 @@ function Test-TargetResource
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [String]
-        $ApplyTo,
+        [String] $ApplyTo,
         
         [ValidateSet('W3C','IIS','NCSA','Custom')]
-        [String]
-        $LogFormat,
+        [String] $LogFormat,
         
-        [String]
-        $LogDirectory,
+        [String] $LogDirectory,
         
-        [String]
-        $TraceLogDirectory,
+        [String] $TraceLogDirectory,
         
-        [String]
-        $DefaultApplicationPool,
+        [String] $DefaultApplicationPool,
         
         [ValidateSet('true','false')]
-        [String]
-        $AllowSubDirConfig
+        [String] $AllowSubDirConfig
     )
 
     Assert-Module
@@ -161,14 +149,11 @@ function Confirm-Value
     [CmdletBinding()]
     param
     (
-        [String]
-        $Path,
+        [String] $Path,
 
-        [String]
-        $Name,
+        [String] $Name,
         
-        [String]
-        $NewValue
+        [String] $NewValue
     )
     
     if (-not($NewValue))
@@ -195,14 +180,11 @@ function Set-Value
     [CmdletBinding()]
     param
     (
-        [String]
-        $Path,
+        [String] $Path,
 
-        [String]
-        $Name,
-
-        [String]
-        $NewValue
+        [String] $Name,
+        
+        [String] $NewValue
     )
 
     # if the variable doesn't exist, the user doesn't want to change this Value
@@ -230,11 +212,9 @@ function Get-Value
     [CmdletBinding()]
     param
     (
-        [String]
-        $Path,
-    
-        [String]
-        $Name
+        [String] $Path,
+
+        [String] $Name
     )
 
     return Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' `

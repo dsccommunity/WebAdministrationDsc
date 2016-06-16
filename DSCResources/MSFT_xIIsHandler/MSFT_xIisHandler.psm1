@@ -789,11 +789,11 @@ function Get-TargetResource
     (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$Name,
+        [String] $Name,
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [String]$Ensure
+        [String] $Ensure
     )
 
     # Check if WebAdministration module is present for IIS cmdlets
@@ -832,17 +832,17 @@ function Set-TargetResource
     (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$Name,
+        [String] $Name,
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [String]$Ensure
+        [String] $Ensure
     )
 
     Assert-Module
 
-    [String]$psPathRoot  = 'MACHINE/WEBROOT/APPHOST'
-    [String]$sectionNode = 'system.webServer/handlers'
+    [String] $psPathRoot  = 'MACHINE/WEBROOT/APPHOST'
+    [String] $sectionNode = 'system.webServer/handlers'
 
     $handler = Get-Handler -Name $Name
 
@@ -869,11 +869,11 @@ function Test-TargetResource
     (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$Name,
+        [String] $Name,
 
         [Parameter(Mandatory)]
         [ValidateSet('Present', 'Absent')]
-        [String]$Ensure
+        [String] $Ensure
     )
 
     Assert-Module
@@ -904,10 +904,10 @@ function Get-Handler
 {
     param
     (
-        [String]$Name
+        [String] $Name
     )
 
-    [String]$Filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
+    [String] $Filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
     return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' `
                                          -Filter $Filter `
                                          -Name .
@@ -917,7 +917,7 @@ function Add-Handler
 {
     param
     (
-        [String]$Name
+        [String] $Name
     )
 
     # check whether our dictionary has an item with the specified key

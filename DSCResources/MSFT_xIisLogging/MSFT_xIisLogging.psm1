@@ -33,8 +33,7 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $LogPath
+        [String] $LogPath
                        
     )
 
@@ -62,27 +61,21 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $LogPath,
+        [String] $LogPath,
         
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        [String[]]
-        $LogFlags,
+        [String[]] $LogFlags,
                 
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        [String]
-        $LogPeriod,
+        [String] $LogPeriod,
                 
         [ValidateRange('1048576','4294967295')]
-        [String]
-        $LogTruncateSize,
+        [String] $LogTruncateSize,
 
-        [Boolean]
-        $LoglocalTimeRollover,
+        [Boolean] $LoglocalTimeRollover,
         
         [ValidateSet('IIS','W3C','NCSA')]
-        [String]
-        $LogFormat
+        [String] $LogFormat
     )
     
         Assert-Module
@@ -168,27 +161,21 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $LogPath,
-       
+        [String] $LogPath,
+        
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        [String[]]
-        $LogFlags,
+        [String[]] $LogFlags,
                 
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        [String]
-        $LogPeriod,
+        [String] $LogPeriod,
                 
         [ValidateRange('1048576','4294967295')]
-        [String]
-        $LogTruncateSize,
+        [String] $LogTruncateSize,
 
-        [Boolean]
-        $LoglocalTimeRollover,
+        [Boolean] $LoglocalTimeRollover,
         
         [ValidateSet('IIS','W3C','NCSA')]
-        [String]
-        $LogFormat
+        [String] $LogFormat
     )
     
         Assert-Module
@@ -283,9 +270,8 @@ Function Compare-LogFlags
     [OutputType([Boolean])]
     param
     (
-        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        $LogFlags
+        [String[]] $LogFlags
     )
 
     $CurrentLogFlags = (Get-WebConfigurationProperty `
