@@ -78,8 +78,8 @@ function Set-TargetResource
 
         Assert-Module
 
-        [string]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
-        [string]$sectionNode = 'system.webServer/staticContent'
+        [String]$psPathRoot = 'MACHINE/WEBROOT/APPHOST'
+        [String]$sectionNode = 'system.webServer/staticContent'
 
         $mt = Get-Mapping -extension $Extension -type $MimeType 
 
@@ -121,7 +121,7 @@ function Test-TargetResource
         [String]$MimeType
     )
 
-    [bool]$DesiredConfigurationMatch = $true;
+    [Boolean]$DesiredConfigurationMatch = $true;
     
     Assert-Module
 
@@ -158,14 +158,14 @@ Function Get-Mapping
     [CmdletBinding()]
     param
     (
-        [String]$extension,
+        [String]$Extension,
         
-        [String]$type
+        [String]$Type
     )
 
-    [String]$filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
-                       $extension + "' and @mimeType='" + $type + "']"
-    return Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $filter -Name .
+    [String]$Filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
+                       $Extension + "' and @mimeType='" + $Type + "']"
+    return Get-WebConfigurationProperty  -pspath 'MACHINE/WEBROOT/APPHOST' -filter $Filter -Name .
 }
 
 #endregion

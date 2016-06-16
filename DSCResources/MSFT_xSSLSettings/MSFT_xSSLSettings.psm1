@@ -21,12 +21,14 @@ function Get-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String] $Name,
+        [String] 
+        $Name,
 
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings
+        [string[]] 
+        $Bindings
     )
 
     Assert-Module
@@ -74,12 +76,14 @@ function Set-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String] $Name,
+        [String] 
+        $Name,
 
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings,
+        [string[]] 
+        $Bindings,
 
         [ValidateSet('Present','Absent')]
         [String]
@@ -129,12 +133,14 @@ function Test-TargetResource
     param
     (
         [parameter(Mandatory = $true)]
-        [String] $Name,
+        [String] 
+        $Name,
 
         [parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings,
+        [string[]] 
+        $Bindings,
 
         [ValidateSet('Present','Absent')]
         [String]
@@ -161,7 +167,7 @@ function Test-TargetResource
     if ($Ensure -eq 'Absent' -and $SslSettings.Ensure -eq 'Absent')
     {
         Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.SslBindingsAbsent) -f $Name
+                $($LocalizedData.SslBindingsAbsent) -f $Name
         ) -join '')
 
         return $true;

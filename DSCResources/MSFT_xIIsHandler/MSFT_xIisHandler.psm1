@@ -841,8 +841,8 @@ function Set-TargetResource
 
     Assert-Module
 
-    [String] $psPathRoot  = 'MACHINE/WEBROOT/APPHOST'
-    [String] $sectionNode = 'system.webServer/handlers'
+    [String]$psPathRoot  = 'MACHINE/WEBROOT/APPHOST'
+    [String]$sectionNode = 'system.webServer/handlers'
 
     $handler = Get-Handler -Name $Name
 
@@ -904,12 +904,12 @@ function Get-Handler
 {
     param
     (
-        [String] $Name
+        [String]$Name
     )
 
-    [string] $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
+    [String]$Filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
     return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' `
-                                         -Filter $filter `
+                                         -Filter $Filter `
                                          -Name .
 }
 
@@ -917,7 +917,7 @@ function Add-Handler
 {
     param
     (
-        [String] $Name
+        [String]$Name
     )
 
     # check whether our dictionary has an item with the specified key

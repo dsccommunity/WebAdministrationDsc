@@ -41,7 +41,7 @@ function Get-TargetResource
         $RequestPath,
 
         [parameter(Mandatory = $true)]
-        [System.String[]]
+        [String[]]
         $Verb,
 
         [ValidateSet('FastCgiModule')]
@@ -52,6 +52,8 @@ function Get-TargetResource
         $SiteName
     )
 
+        Assert-Module
+        
         $currentVerbs = @()
         $Ensure = 'Absent'
 
@@ -108,30 +110,9 @@ function Get-TargetResource
     
 }
 
-function Get-GetParameters
-{
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [Hashtable]
-        $functionParameters
-    )
-
-    $getParameters = @{}
-    foreach($key in $functionParameters.Keys)
-    {
-        if($key -ine 'Ensure')
-        {
-            $getParameters.Add($key, $functionParameters.$key) | Out-Null
-        }
-    }
-
-    return $getParameters
-}
-
 <#
-    .SYNOPSIS
-    Make the IisModule consistent with the properties provided.
+        .SYNOPSIS
+        Make the IisModule consistent with the properties provided.
 #>
 function Set-TargetResource
 {
@@ -255,6 +236,7 @@ function Test-TargetResource
 $Debug = $true
 Function Trace-Message
 {
+    [CmdletBinding()]
     param
     (
         [String] $Message
@@ -269,8 +251,31 @@ Function Trace-Message
 #endregion
 
 #region Helper Functions
+function Get-GetParameters
+{
+    [CmdletBinding()]
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [Hashtable]
+        $functionParameters
+    )
+
+    $getParameters = @{}
+    foreach($key in $functionParameters.Keys)
+    {
+        if($key -ine 'Ensure')
+        {
+            $getParameters.Add($key, $functionParameters.$key) | Out-Null
+        }
+    }
+
+    return $getParameters
+}
+
 function Get-IisSitePath
 {
+    [CmdletBinding()]
     param
     (
         [String]$SiteName
@@ -286,9 +291,13 @@ function Get-IisSitePath
     }
 }
 
-#Get a list on IIS handlers
 function Get-IisHandler
 {
+    <#
+            .NOTES
+            Get a list on IIS handlers
+    #>
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory)]
@@ -300,15 +309,18 @@ function Get-IisHandler
     )
 
     Trace-Message "Getting Handler for $Name in Site $SiteName"
-    return get-webconfiguration -Filter 'System.WebServer/handlers/*' `
+    return Get-Webconfiguration -Filter 'System.WebServer/handlers/*' `
                                 -PSPath (Get-IisSitePath `
                                 -SiteName $SiteName) | `
                                 Where-Object{$_.Name -ieq $Name}
 }
 
-# Remove an IIS Handler
 function Remove-IisHandler
 {
+    <#
+            .NOTES
+            Remove an IIS Handler
+    #>
     param
     (
         [Parameter(Mandatory)]
@@ -428,10 +440,6 @@ function Test-TargetResourceImpl
 }
 
 
-#EndRegion
+#endregion
 
 Export-ModuleMember -Function *-TargetResource
-
-
-
-

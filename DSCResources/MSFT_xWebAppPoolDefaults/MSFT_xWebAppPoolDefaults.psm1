@@ -6,10 +6,10 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-NoWebAdministrationModule=Please ensure that WebAdministration module is installed.
-SettingValue=Changing default value '{0}' to '{1}'
-ValueOk=Default value '{0}' is already '{1}'
-VerboseGetTagetResource   = Get-TargetResource has been run.
+        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
+        SettingValue              = Changing default value '{0}' to '{1}'
+        ValueOk                   = Default value '{0}' is already '{1}'
+        VerboseGetTagetResource   = Get-TargetResource has been run.
 '@
 }
 
@@ -21,7 +21,8 @@ function Get-TargetResource
     (
         [Parameter(Mandatory)]
         [ValidateSet('Machine')]
-        [string]$ApplyTo
+        [String]
+        $ApplyTo
     )
     
     Assert-Module
@@ -42,19 +43,22 @@ function Set-TargetResource
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [string]$ApplyTo,
+        [String]
+        $ApplyTo,
 
         [ValidateSet('','v2.0','v4.0')]
-        [string]$ManagedRuntimeVersion,
+        [String]
+        $ManagedRuntimeVersion,
 
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [string]$IdentityType
+        [String]
+        $IdentityType
     )
 
-        Assert-Module
+    Assert-Module
 
-        Set-Value -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion
-        Set-Value -Path 'processModel' -Name 'identityType' -NewValue $IdentityType
+    Set-Value -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion
+    Set-Value -Path 'processModel' -Name 'identityType' -NewValue $IdentityType
 }
 
 function Test-TargetResource
@@ -65,11 +69,16 @@ function Test-TargetResource
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [string]$ApplyTo,
+        [String]
+        $ApplyTo,
+        
         [ValidateSet('','v2.0','v4.0')]
-        [string]$ManagedRuntimeVersion,
+        [String]
+        $ManagedRuntimeVersion,
+        
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [string]$IdentityType
+        [String]
+        $IdentityType
     )
 
     Assert-Module
@@ -89,97 +98,105 @@ function Test-TargetResource
 
 #region Helper Functions
 
-Function Confirm-Value
+function Confirm-Value
 {
     [CmdletBinding()]
     param
     (  
-        [string]$path,
+        [String]
+        $Path,
         
-        [string]$name,
+        [String]
+        $Name,
     
-        [string]$newValue
+        [String]
+        $NewValue
     )
     
-    if (!$newValue)
+    if (!$NewValue)
     {
-        # if no new value was specified, we assume this value is okay.        
+        # if no new value was specified, we assume this value is okay.
         return $true
     }
 
-    $existingValue = Get-Value -Path $path -Name $name
-    if ($existingValue -ne $newValue)
+    $existingValue = Get-Value -Path $Path -Name $Name
+    if ($existingValue -ne $NewValue)
     {
         return $false
     }
     else
     {
-        $relPath = $path + '/' + $name
-        Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
+        $relPath = $Path + '/' + $Name
+        Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
         return $true
     }   
 }
 
-Function Set-Value
+function Set-Value
 {
-        [CmdletBinding()]
-        param
-        (  
-            [string]$path,
+    [CmdletBinding()]
+    param
+    (  
+        [String]
+        $Path,
         
-            [string]$name,
+        [String]
+        $Name,
     
-            [string]$newValue
-        )
+        [String]
+        $NewValue
+    )
 
     # if the variable doesn't exist, the user doesn't want to change this value
-    if (!$newValue)
+    if (!$NewValue)
     {
         return
     }
 
-    $existingValue = Get-Value -Path $path -Name $name
-    if ($existingValue -ne $newValue)
+    $existingValue = Get-Value -Path $Path -Name $Name
+    if ($existingValue -ne $NewValue)
     {
-        if ($path -ne '')
+        if ($Path -ne '')
         {
-            $path = '/' + $path
+            $Path = '/' + $Path
         }
 
         Set-WebConfigurationProperty `
-            -pspath 'MACHINE/WEBROOT/APPHOST' `
-            -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" `
-            -name $name `
-            -value "$newValue"
+            -PSPath 'MACHINE/WEBROOT/APPHOST' `
+            -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
+            -Name $Name `
+            -value "$NewValue"
         
-        $relPath = $path + '/' + $name
-        Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
+        $relPath = $Path + '/' + $Name
+        Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
 
     }
 
 }
 
-Function Get-Value
+function Get-Value
 {
     
     [CmdletBinding()]
     param
     (  
-        [string]$path,
+        [String]
+        $Path,
     
-        [string]$name
+        [String]
+        $Name
     )
 
     {
-        if ($path -ne '')
+        if ($Path -ne '')
         {
-            $path = '/' + $path
+            $Path = '/' + $Path
         }
 
         return Get-WebConfigurationProperty `
-                -pspath 'MACHINE/WEBROOT/APPHOST' ``
-                -filter "system.applicationHost/applicationPools/applicationPoolDefaults$path" `
-                -name $name
+                -PSPath 'MACHINE/WEBROOT/APPHOST' `
+                -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
+                -Name $Name
     
     }
 

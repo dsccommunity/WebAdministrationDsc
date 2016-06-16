@@ -5,10 +5,10 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
+    ConvertFrom-StringData -StringData @'
         NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
-        SettingValue              = Changing default value '{0}' to '{1}'
-        ValueOk                   = Default value '{0}' is already '{1}'
+        SettingValue              = Changing default Value '{0}' to '{1}'
+        ValueOk                   = Default Value '{0}' is already '{1}'
         VerboseGetTagetResource   = Get-TargetResource has been run.
 '@
 }
@@ -20,7 +20,8 @@ function Get-TargetResource
     (
         [Parameter(Mandatory)]
         [ValidateSet('Machine')]
-        [String]$ApplyTo
+        [String]
+        $ApplyTo
     )
     
     Assert-Module
@@ -41,38 +42,44 @@ function Get-TargetResource
 function Set-TargetResource
 {
     <#
-        .NOTES
-        only a limited number of settings are supported at this time
-        We try to cover the most common use cases
-        We have a single parameter for each setting
+            .NOTES
+            only a limited number of settings are supported at this time
+            We try to cover the most common use cases
+            We have a single parameter for each setting
     #>
     [CmdletBinding()]
     param
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [String]$ApplyTo,
+        [String]
+        $ApplyTo,
         
         [ValidateSet('W3C','IIS','NCSA','Custom')]
-        [String]$LogFormat,
+        [String]
+        $LogFormat,
         
-        [String]$LogDirectory,
+        [String]
+        $LogDirectory,
         
-        [String]$TraceLogDirectory,
+        [String]
+        $TraceLogDirectory,
         
-        [String]$DefaultApplicationPool,
+        [String]
+        $DefaultApplicationPool,
         
         [ValidateSet('true','false')]
-        [String]$AllowSubDirConfig
+        [String]
+        $AllowSubDirConfig
     )
 
-        Assert-Module
+    Assert-Module
 
-        Set-Value 'siteDefaults/logFile' 'logFormat' $LogFormat
-        Set-Value 'siteDefaults/logFile' 'directory' $LogDirectory
-        Set-Value 'siteDefaults/traceFailedRequestsLogging' 'directory' $TraceLogDirectory
-        Set-Value 'applicationDefaults' 'applicationPool' $DefaultApplicationPool
-        Set-Value 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
+    Set-Value 'siteDefaults/logFile' 'logFormat' $LogFormat
+    Set-Value 'siteDefaults/logFile' 'directory' $LogDirectory
+    Set-Value 'siteDefaults/traceFailedRequestsLogging' 'directory' $TraceLogDirectory
+    Set-Value 'applicationDefaults' 'applicationPool' $DefaultApplicationPool
+    Set-Value 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
 
 }
 
@@ -83,56 +90,62 @@ function Test-TargetResource
     (    
         [ValidateSet('Machine')]
         [parameter(Mandatory = $true)]
-        [String]$ApplyTo,
+        [String]
+        $ApplyTo,
         
         [ValidateSet('W3C','IIS','NCSA','Custom')]
-        [String]$LogFormat,
+        [String]
+        $LogFormat,
         
-        [String]$LogDirectory,
+        [String]
+        $LogDirectory,
         
-        [String]$TraceLogDirectory,
+        [String]
+        $TraceLogDirectory,
         
-        [String]$DefaultApplicationPool,
+        [String]
+        $DefaultApplicationPool,
         
         [ValidateSet('true','false')]
-        [String]$AllowSubDirConfig
+        [String]
+        $AllowSubDirConfig
     )
 
     Assert-Module
 
     # check for the various given settings:
 
-    if (-not(Confirm-Value -path 'virtualDirectoryDefaults' `
-                           -name 'allowSubDirConfig' `
-                           -newValue $AllowSubDirConfig)) 
+    if (-not(Confirm-Value -Path 'virtualDirectoryDefaults' `
+                           -Name 'allowSubDirConfig' `
+                           -NewValue $AllowSubDirConfig)) 
     { 
         return $false 
     }
 
-    if (-not(Confirm-Value -path 'siteDefaults/logFile' `
-                           -name 'logFormat' `
-                           -newValue $LogFormat)) 
+    if (-not(Confirm-Value -Path 'siteDefaults/logFile' `
+                           -Name 'logFormat' `
+                           -NewValue $LogFormat)) 
     { 
         return $false 
     }
 
-    if (-not(Confirm-Value -path 'siteDefaults/logFile' `
-                           -name 'directory' `
-                           -newValue $LogDirectory)) 
+    if (-not(Confirm-Value -Path 'siteDefaults/logFile' `
+                           -Name 'directory' `
+                           -NewValue $LogDirectory)) 
     { 
         return $false 
     }
 
-    if (-not(Confirm-Value -path 'siteDefaults/traceFailedRequestsLogging' `
-                           -name 'directory' `
-                           -newValue $TraceLogDirectory)) 
+    if (-not(Confirm-Value -Path 'siteDefaults/traceFailedRequestsLogging' `
+                           -Name 'directory' `
+                           -NewValue $TraceLogDirectory)) 
     { 
         return $false 
     }
 
-    if (-not(Confirm-Value -path 'applicationDefaults' `
-                           -name 'applicationPool' `
-                           -newValue $DefaultApplicationPool)) 
+    if (-not(Confirm-Value -Path 'applicationDefaults' `
+                           -Name 'applicationPool' `
+                           -NewValue $DefaultApplicationPool)) 
     { 
         return $false 
     }
@@ -142,83 +155,91 @@ function Test-TargetResource
 }
 
 #region Helper Functions
-Function Confirm-Value
+function Confirm-Value
 {
     [OutputType([System.Boolean])]
     [CmdletBinding()]
     param
     (
-        [String]$path,
+        [String]
+        $Path,
 
-        [String]$name,
+        [String]
+        $Name,
         
-        [String]$newValue
+        [String]
+        $NewValue
     )
     
-    if (-not($newValue))
+    if (-not($NewValue))
     {
         return $true
     }
 
-    $existingValue = Get-Value -Path $path -Name $name
-    if ($existingValue -ne $newValue)
+    $existingValue = Get-Value -Path $Path -Name $Name
+    if ($existingValue -ne $NewValue)
     {
         return $false
     }
     else
     {
-        $relPath = $path + '/' + $name
-        Write-Verbose($LocalizedData.ValueOk -f $relPath,$newValue);
+        $relPath = $Path + '/' + $Name
+        Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
         return $true
     }   
 
 }
 
-Function Set-Value
+function Set-Value
 {
     [CmdletBinding()]
     param
     (
-        [String]$path,
+        [String]
+        $Path,
 
-        [String]$name,
+        [String]
+        $Name,
 
-        [String]$newValue
+        [String]
+        $NewValue
     )
 
-    # if the variable doesn't exist, the user doesn't want to change this value
-    if (-not($newValue))
+    # if the variable doesn't exist, the user doesn't want to change this Value
+    if (-not($NewValue))
     {
         return
     }
 
-    # get the existing value to compare
-    $existingValue = Get-Value -Path $path -Name $name
-    if ($existingValue -ne $newValue)
+    # get the existing Value to compare
+    $existingValue = Get-Value -Path $Path -Name $Name
+    if ($existingValue -ne $NewValue)
     {
-        Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
-                                     -filter "system.applicationHost/sites/$path" `
-                                     -name $name `
-                                     -value "$newValue"
-        $relPath = $path + '/' + $name
-        Write-Verbose($LocalizedData.SettingValue -f $relPath,$newValue);
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' `
+                                     -Filter "system.applicationHost/sites/$Path" `
+                                     -Name $Name `
+                                     -Value "$NewValue"
+        $relPath = $Path + '/' + $Name
+        Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
     }    
 
 }
 
-Function Get-Value
+function Get-Value
 {
     [CmdletBinding()]
     param
     (
-        [String]$path,
+        [String]
+        $Path,
     
-        [String]$name
+        [String]
+        $Name
     )
 
-    return Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' `
-                                        -filter "system.applicationHost/sites/$path" `
-                                        -name $name
+    return Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' `
+                                        -Filter "system.applicationHost/sites/$Path" `
+                                        -Name $Name
 }
 
 #endregion
