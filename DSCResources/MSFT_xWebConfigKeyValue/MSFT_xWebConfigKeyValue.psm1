@@ -42,25 +42,25 @@ function Get-TargetResource
     Write-Verbose `
         -Message ($LocalizedData.VerboseGetTargetCheckingTarget -f $Key, $ConfigSection, $WebsitePath )
 
-    $existingvalue = Get-ItemValue `
+    $existingValue = Get-ItemValue `
                         -Key $Key `
                         -IsAttribute $false `
                         -WebsitePath $WebsitePath `
                         -ConfigSection $ConfigSection
 
-    if ( $null -eq $existingvalue )
+    if ( $null -eq $existingValue )
     {
         Write-Verbose `
             -Message ($LocalizedData.VerboseGetTargetAttributeCheck -f $Key )
 
-        $existingvalue = Get-ItemValue `
+        $existingValue = Get-ItemValue `
                             -Key $Key `
                             -IsAttribute $true `
                             -WebsitePath $WebsitePath `
                             -ConfigSection $ConfigSection
     }
 
-    if ( $existingvalue.Length -eq 0 )
+    if ( $existingValue.Length -eq 0 )
     {
         Write-Verbose `
             -Message ($LocalizedData.VerboseGetTargetKeyNotFound -f $Key )
@@ -68,7 +68,7 @@ function Get-TargetResource
          return @{
              Ensure = 'Absent'
              Key = $Key
-             Value = $existingvalue
+             Value = $existingValue
         }
     }
 
@@ -78,7 +78,7 @@ function Get-TargetResource
     return @{
         Ensure = 'Present'
         Key = $Key
-        Value = $existingvalue
+        Value = $existingValue
     }
 }
 
@@ -114,14 +114,14 @@ function Set-TargetResource
         Write-Verbose `
             -Message ($LocalizedData.VerboseSetTargetCheckingKey -f $Key )
 
-        $existingvalue = Get-ItemValue `
+        $existingValue = Get-ItemValue `
                             -Key $Key `
                             -IsAttribute $IsAttribute `
                             -WebsitePath $WebsitePath `
                             -ConfigSection $ConfigSection
 
-        if ( (-not $IsAttribute -and ($null -eq $existingvalue) ) `
-                -or ( $IsAttribute -and ($existingvalue.Length -eq 0) ) )
+        if ( (-not $IsAttribute -and ($null -eq $existingValue) ) `
+                -or ( $IsAttribute -and ($existingValue.Length -eq 0) ) )
         {
             Write-Verbose `
                 -Message ($LocalizedData.VerboseSetTargetAddItem -f $Key )
@@ -147,7 +147,7 @@ function Set-TargetResource
 
             Edit-Item `
                 -PropertyName $propertyName `
-                -OldValue $existingvalue `
+                -OldValue $existingValue `
                 -NewValue $Value `
                 -IsAttribute $IsAttribute `
                 -WebsitePath $WebsitePath `
@@ -203,7 +203,7 @@ function Test-TargetResource
    Write-Verbose `
         -Message ($LocalizedData.VerboseTestTargetCheckingTarget -f $Key, $ConfigSection, $WebsitePath )
 
-    $existingvalue = Get-ItemValue `
+    $existingValue = Get-ItemValue `
                         -Key $Key `
                         -IsAttribute $IsAttribute `
                         -WebsitePath $WebsitePath `
@@ -211,8 +211,8 @@ function Test-TargetResource
 
     if ( $Ensure -eq 'Present' )
     {
-        if ( ( $null -eq $existingvalue ) -or ( $existingvalue -ne $Value ) `
-                -or ($existingvalue.Length -eq 0) )
+        if ( ( $null -eq $existingValue ) -or ( $existingValue -ne $Value ) `
+                -or ($existingValue.Length -eq 0) )
         {
             Write-Verbose `
                 -Message ($LocalizedData.VerboseTestTargetKeyNotFound -f $Key )
@@ -221,7 +221,7 @@ function Test-TargetResource
     }
     else
     {
-        if ( ( $null -ne $existingvalue ) -or ( $existingvalue.Length -ne 0 ) )
+        if ( ( $null -ne $existingValue ) -or ( $existingValue.Length -ne 0 ) )
         {
              Write-Verbose `
                 -Message ($LocalizedData.VerboseTestTargetKeyNotFound -f $Key )
@@ -254,8 +254,8 @@ function Add-Item
     )
 
     $itemCollection = @{
-        Key   = $key;
-        Value = $value;
+        Key   = $Key;
+        Value = $Value;
     }
 
     if ( -not $isAttribute )
@@ -264,15 +264,15 @@ function Add-Item
             -Filter $ConfigSection `
             -Name '.' `
             -Value $itemCollection `
-            -PSPath $websitePath
+            -PSPath $WebsitePath
     }
     else
     {
         Set-WebConfigurationProperty `
             -Filter $ConfigSection `
-            -PSPath $websitePath `
-            -Name $key `
-            -Value $value `
+            -PSPath $WebsitePath `
+            -Name $Key `
+            -Value $Value `
             -WarningAction Stop
     }
 }
@@ -338,7 +338,7 @@ function Remove-Item
     }
     else
     {
-        $filter = "$configSection/@$key"
+        $filter = "$ConfigSection/@$key"
 
         <#
             This is a workaround to ensure if appSettings has no collection
@@ -361,7 +361,7 @@ function Remove-Item
         Remove-Item `
             -Key 'dummyKey' `
             -IsAttribute $false `
-            -WebsitePath $websitePath `
+            -WebsitePath $WebsitePath `
             -ConfigSection $ConfigSection
     }
 }
@@ -374,26 +374,26 @@ function Get-ItemValue
 
         [Boolean] $isAttribute,
 
-        [string] $websitePath,
+        [string] $WebsitePath,
 
         # If this is null $value.Value will be null
-        [string] $configSection
+        [string] $ConfigSection
     )
 
     if (-not $isAttribute)
     {
-        $filter = "$configSection/add[@key=`'$key`']"
+        $filter = "$ConfigSection/add[@key=`'$key`']"
         $value = Get-WebConfigurationProperty `
                     -Filter $filter `
                     -Name 'value' `
-                    -PSPath $websitePath
+                    -PSPath $WebsitePath
     }
     else
     {
         $value = Get-WebConfigurationProperty `
-                    -Filter $configSection `
-                    -Name "$key" `
-                    -PSPath $websitePath
+                    -Filter $ConfigSection `
+                    -Name "$Key" `
+                    -PSPath $WebsitePath
     }
 
     return $value.Value
