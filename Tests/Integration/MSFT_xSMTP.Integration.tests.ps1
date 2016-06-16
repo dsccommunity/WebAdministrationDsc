@@ -1,5 +1,5 @@
-﻿$Global:DSCModuleName   = 'xWebAdministration'
-$Global:DSCResourceName = 'MSFT_xWebApplication'
+﻿$script:DSCModuleName   = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xWebApplication'
 
 #region HEADER
 # Integration Test Template Version: 1.1.0
@@ -12,28 +12,28 @@ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Integration 
 #endregion
 
-[string] $tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
 {
-    # Now that xWebAdministration should be discoverable load the configuration data
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
-    . $ConfigFile
-
     $null = Backup-WebConfiguration -Name $tempName
 
-    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($Global:DSCResourceName).config.psd1"
+    # Now that xWebAdministration should be discoverable load the configuration data
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    . $ConfigFile
 
-    Describe "$($Global:DSCResourceName)_Present" {
+    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
+
+    Describe "$($script:DSCResourceName)_Present" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -43,9 +43,9 @@ try
         }
         #endregion
 
-        It 'Should create a WebApplication with correct settings' -test {
-            
-            Invoke-Expression -Command "$($Global:DSCResourceName)_Present -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder"
+        It 'Should create a SMTP Virtual Server with correct settings' -test {
+
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder"
 
             # Build Results to test
             $Result = [ADSI]'IIS://localhost/smtpsvc/1'

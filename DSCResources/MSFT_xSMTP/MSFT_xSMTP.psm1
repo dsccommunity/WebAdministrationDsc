@@ -8,76 +8,76 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-ErrorSMTPDiscoveryFailure = No SMTP Virutal server found.
-ErrorLogFileDirectoryFailure = Invalid LogFileDirectory provided.
-ErrorBadMailDirectoryFailure  = Invalid BadMailDirectory provided.
-ErrorIPAddressFailure = Invalid IP address(s), please verifiy the IP addresse(s) are valid
-ErrorEmailAddressFailure = Invalid Email address(s), please verifiy the Email addresse(s) are valid 
-ErrorBindingsPortFailure = Invalid Port Range, please verifiy the port(s) are valid.
-VerboseTestTargetFalseAuthFlags = AuthFlags is not in the desired state.
-VerboseTestTargetFalseBadMailDirectory = BadMailDirectory is not in the desired state.
-VerboseTestTargetFalseConnectionTimeout = ConnectionTimeout is not in the desired state.
-VerboseTestTargetFalseEnableReverseDnsLookup = EnableReverseDnsLookup is not in the desired state.
-VerboseTestTargetFalseFullyQualifiedDomainName = FullyQualifiedDomainName is not in the desired state.
-VerboseTestTargetFalseHopCount = HopCount is not in the desired state.
-VerboseTestTargetFalseLogFileDirectory = LogFileDirectory is not in the desired state.
-VerboseTestTargetFalseLogFilePeriod = LogFilePeriod is not in the desired state.
-VerboseTestTargetFalseLogFileTruncateSize = LogFileTruncateSize is not in the desired state.
-VerboseTestTargetFalseLogType = LogType is not in the desired state.
-VerboseTestTargetFalseMasqueradeDomain = MasqueradeDomain is not in the desired state.
-VerboseTestTargetFalseMaxBatchedMessages = MaxBatchedMessages is not in the desired state.
-VerboseTestTargetFalseMaxConnections = MaxConnections is not in the desired state.
-VerboseTestTargetFalseMaxMessageSize = MaxMessageSize is not in the desired state.
-VerboseTestTargetFalseMaxOutConnections = MaxOutConnections is not in the desired state.
-VerboseTestTargetFalseMaxOutConnectionsPerDomain = MaxOutConnectionsPerDomain is not in the desired state.
-VerboseTestTargetFalseMaxRecipients = MaxRecipients is not in the desired state.
-VerboseTestTargetFalseMaxSessionSize = MaxSessionSize is not in the desired state.
-VerboseTestTargetFalseRelayForAuth = RelayForAuth is not in the desired state.
-VerboseTestTargetFalseRemoteSmtpPort = RemoteSmtpPort is not in the desired state.
-VerboseTestTargetFalseRemoteTimeout = RemoteTimeout is not in the desired state.
-VerboseTestTargetFalseSaslLogonDomain = SaslLogonDomain is not in the desired state.
-VerboseTestTargetFalseSendNdrTo = SendNdrTo is not in the desired state.
-VerboseTestTargetFalseServerBindings = ServerBindings is not in the desired state.
-VerboseTestTargetFalseSmartHost = SmartHost is not in the desired state.
-VerboseTestTargetFalseSmartHostType = SmartHostType is not in the desired state.
-VerboseTestTargetFalseSmtpInboundCommandSupportOptions = SmtpInboundCommandSupportOptions is not in the desired state.
-VerboseTestTargetFalseSmtpLocalDelayExpireMinutes = SmtpLocalDelayExpireMinutes is not in the desired state.
-VerboseTestTargetFalseSmtpLocalNDRExpireMinutes = SmtpLocalNDRExpireMinutes is not in the desired state.
-VerboseTestTargetFalseSmtpRemoteDelayExpireMinutes = SmtpRemoteDelayExpireMinutes is not in the desired state.
-VerboseTestTargetFalseSmtpRemoteNDRExpireMinutes = SmtpRemoteNDRExpireMinutes is not in the desired state.
-VerboseTestTargetFalseSmtpRemoteProgressiveRetry = SmtpRemoteProgressiveRetry is not in the desired state.
-VerboseSetTargetAuthFlags = Updated SMTP Setting AuthFlags.
-VerboseSetTargetBadMailDirectory = Updated SMTP Setting BadMailDirectory.
-VerboseSetTargetConnectionTimeout = Updated SMTP Setting ConnectionTimeout.
-VerboseSetTargetEnableReverseDnsLookup = Updated SMTP Setting EnableReverseDnsLookup.
-VerboseSetTargetFullyQualifiedDomainName = Updated SMTP Setting FullyQualifiedDomainName.
-VerboseSetTargetHopCount = Updated SMTP Setting HopCount.
-VerboseSetTargetLogFileDirectory = Updated SMTP Setting LogFileDirectory.
-VerboseSetTargetLogFilePeriod = Updated SMTP Setting LogFilePeriod.
-VerboseSetTargetLogFileTruncateSize = Updated SMTP Setting LogFileTruncateSize.
-VerboseSetTargetLogType = Updated SMTP Setting LogType.
-VerboseSetTargetMasqueradeDomain = Updated SMTP Setting MasqueradeDomain.
-VerboseSetTargetMaxBatchedMessages = Updated SMTP Setting MaxBatchedMessages.
-VerboseSetTargetMaxConnections = Updated SMTP Setting MaxConnections.
-VerboseSetTargetMaxMessageSize = Updated SMTP Setting MaxMessageSize.
-VerboseSetTargetMaxOutConnections = Updated SMTP Setting MaxOutConnections.
-VerboseSetTargetMaxOutConnectionsPerDomain = Updated SMTP Setting MaxOutConnectionsPerDomain.
-VerboseSetTargetMaxRecipients = Updated SMTP Setting MaxRecipients.
-VerboseSetTargetMaxSessionSize = Updated SMTP Setting MaxSessionSize.
-VerboseSetTargetRelayForAuth = Updated SMTP Setting RelayForAuth.
-VerboseSetTargetRemoteSmtpPort = Updated SMTP Setting RemoteSmtpPort.
-VerboseSetTargetRemoteTimeout = Updated SMTP Setting RemoteTimeout.
-VerboseSetTargetSaslLogonDomain = Updated SMTP Setting SaslLogonDomain.
-VerboseSetTargetSendNdrTo = Updated SMTP Setting SendNdrTo.
-VerboseSetTargetServerBindings = Updated SMTP Setting ServerBindings.
-VerboseSetTargetSmartHost = Updated SMTP Setting SmartHost.
-VerboseSetTargetSmartHostType = Updated SMTP Setting SmartHostType.
-VerboseSetTargetSmtpInboundCommandSupportOptions = Updated SMTP Setting SmtpInboundCommandSupportOptions.
-VerboseSetTargetSmtpLocalDelayExpireMinutes = Updated SMTP Setting SmtpLocalDelayExpireMinutes.
-VerboseSetTargetSmtpLocalNDRExpireMinutes = Updated SMTP Setting SmtpLocalNDRExpireMinutes.
-VerboseSetTargetSmtpRemoteDelayExpireMinutes = Updated SMTP Setting SmtpRemoteDelayExpireMinutes.
-VerboseSetTargetSmtpRemoteNDRExpireMinutes = Updated SMTP Setting SmtpRemoteNDRExpireMinutes.
-VerboseSetTargetSmtpRemoteProgressiveRetry = Updated SMTP Setting SmtpRemoteProgressiveRetry.
+        ErrorSMTPDiscoveryFailure = No SMTP Virutal server found.
+        ErrorLogFileDirectoryFailure = Invalid LogFileDirectory provided.
+        ErrorBadMailDirectoryFailure  = Invalid BadMailDirectory provided.
+        ErrorIPAddressFailure = Invalid IP address(s), please verifiy the IP addresse(s) are valid
+        ErrorEmailAddressFailure = Invalid Email address(s), please verifiy the Email addresse(s) are valid 
+        ErrorBindingsPortFailure = Invalid Port Range, please verifiy the port(s) are valid.
+        VerboseTestTargetFalseAuthFlags = AuthFlags is not in the desired state.
+        VerboseTestTargetFalseBadMailDirectory = BadMailDirectory is not in the desired state.
+        VerboseTestTargetFalseConnectionTimeout = ConnectionTimeout is not in the desired state.
+        VerboseTestTargetFalseEnableReverseDnsLookup = EnableReverseDnsLookup is not in the desired state.
+        VerboseTestTargetFalseFullyQualifiedDomainName = FullyQualifiedDomainName is not in the desired state.
+        VerboseTestTargetFalseHopCount = HopCount is not in the desired state.
+        VerboseTestTargetFalseLogFileDirectory = LogFileDirectory is not in the desired state.
+        VerboseTestTargetFalseLogFilePeriod = LogFilePeriod is not in the desired state.
+        VerboseTestTargetFalseLogFileTruncateSize = LogFileTruncateSize is not in the desired state.
+        VerboseTestTargetFalseLogType = LogType is not in the desired state.
+        VerboseTestTargetFalseMasqueradeDomain = MasqueradeDomain is not in the desired state.
+        VerboseTestTargetFalseMaxBatchedMessages = MaxBatchedMessages is not in the desired state.
+        VerboseTestTargetFalseMaxConnections = MaxConnections is not in the desired state.
+        VerboseTestTargetFalseMaxMessageSize = MaxMessageSize is not in the desired state.
+        VerboseTestTargetFalseMaxOutConnections = MaxOutConnections is not in the desired state.
+        VerboseTestTargetFalseMaxOutConnectionsPerDomain = MaxOutConnectionsPerDomain is not in the desired state.
+        VerboseTestTargetFalseMaxRecipients = MaxRecipients is not in the desired state.
+        VerboseTestTargetFalseMaxSessionSize = MaxSessionSize is not in the desired state.
+        VerboseTestTargetFalseRelayForAuth = RelayForAuth is not in the desired state.
+        VerboseTestTargetFalseRemoteSmtpPort = RemoteSmtpPort is not in the desired state.
+        VerboseTestTargetFalseRemoteTimeout = RemoteTimeout is not in the desired state.
+        VerboseTestTargetFalseSaslLogonDomain = SaslLogonDomain is not in the desired state.
+        VerboseTestTargetFalseSendNdrTo = SendNdrTo is not in the desired state.
+        VerboseTestTargetFalseServerBindings = ServerBindings is not in the desired state.
+        VerboseTestTargetFalseSmartHost = SmartHost is not in the desired state.
+        VerboseTestTargetFalseSmartHostType = SmartHostType is not in the desired state.
+        VerboseTestTargetFalseSmtpInboundCommandSupportOptions = SmtpInboundCommandSupportOptions is not in the desired state.
+        VerboseTestTargetFalseSmtpLocalDelayExpireMinutes = SmtpLocalDelayExpireMinutes is not in the desired state.
+        VerboseTestTargetFalseSmtpLocalNDRExpireMinutes = SmtpLocalNDRExpireMinutes is not in the desired state.
+        VerboseTestTargetFalseSmtpRemoteDelayExpireMinutes = SmtpRemoteDelayExpireMinutes is not in the desired state.
+        VerboseTestTargetFalseSmtpRemoteNDRExpireMinutes = SmtpRemoteNDRExpireMinutes is not in the desired state.
+        VerboseTestTargetFalseSmtpRemoteProgressiveRetry = SmtpRemoteProgressiveRetry is not in the desired state.
+        VerboseSetTargetAuthFlags = Updated SMTP Setting AuthFlags.
+        VerboseSetTargetBadMailDirectory = Updated SMTP Setting BadMailDirectory.
+        VerboseSetTargetConnectionTimeout = Updated SMTP Setting ConnectionTimeout.
+        VerboseSetTargetEnableReverseDnsLookup = Updated SMTP Setting EnableReverseDnsLookup.
+        VerboseSetTargetFullyQualifiedDomainName = Updated SMTP Setting FullyQualifiedDomainName.
+        VerboseSetTargetHopCount = Updated SMTP Setting HopCount.
+        VerboseSetTargetLogFileDirectory = Updated SMTP Setting LogFileDirectory.
+        VerboseSetTargetLogFilePeriod = Updated SMTP Setting LogFilePeriod.
+        VerboseSetTargetLogFileTruncateSize = Updated SMTP Setting LogFileTruncateSize.
+        VerboseSetTargetLogType = Updated SMTP Setting LogType.
+        VerboseSetTargetMasqueradeDomain = Updated SMTP Setting MasqueradeDomain.
+        VerboseSetTargetMaxBatchedMessages = Updated SMTP Setting MaxBatchedMessages.
+        VerboseSetTargetMaxConnections = Updated SMTP Setting MaxConnections.
+        VerboseSetTargetMaxMessageSize = Updated SMTP Setting MaxMessageSize.
+        VerboseSetTargetMaxOutConnections = Updated SMTP Setting MaxOutConnections.
+        VerboseSetTargetMaxOutConnectionsPerDomain = Updated SMTP Setting MaxOutConnectionsPerDomain.
+        VerboseSetTargetMaxRecipients = Updated SMTP Setting MaxRecipients.
+        VerboseSetTargetMaxSessionSize = Updated SMTP Setting MaxSessionSize.
+        VerboseSetTargetRelayForAuth = Updated SMTP Setting RelayForAuth.
+        VerboseSetTargetRemoteSmtpPort = Updated SMTP Setting RemoteSmtpPort.
+        VerboseSetTargetRemoteTimeout = Updated SMTP Setting RemoteTimeout.
+        VerboseSetTargetSaslLogonDomain = Updated SMTP Setting SaslLogonDomain.
+        VerboseSetTargetSendNdrTo = Updated SMTP Setting SendNdrTo.
+        VerboseSetTargetServerBindings = Updated SMTP Setting ServerBindings.
+        VerboseSetTargetSmartHost = Updated SMTP Setting SmartHost.
+        VerboseSetTargetSmartHostType = Updated SMTP Setting SmartHostType.
+        VerboseSetTargetSmtpInboundCommandSupportOptions = Updated SMTP Setting SmtpInboundCommandSupportOptions.
+        VerboseSetTargetSmtpLocalDelayExpireMinutes = Updated SMTP Setting SmtpLocalDelayExpireMinutes.
+        VerboseSetTargetSmtpLocalNDRExpireMinutes = Updated SMTP Setting SmtpLocalNDRExpireMinutes.
+        VerboseSetTargetSmtpRemoteDelayExpireMinutes = Updated SMTP Setting SmtpRemoteDelayExpireMinutes.
+        VerboseSetTargetSmtpRemoteNDRExpireMinutes = Updated SMTP Setting SmtpRemoteNDRExpireMinutes.
+        VerboseSetTargetSmtpRemoteProgressiveRetry = Updated SMTP Setting SmtpRemoteProgressiveRetry.
 '@
 }
 
@@ -89,8 +89,7 @@ function Get-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateSet('1')]
-        [String]
-        $Name
+        [String] $Name
     )
 
     $CurrentSMTP = Get-SMTPSettings -ID $Name
@@ -147,105 +146,71 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('1')]
-        [String]
-        $Name,
+        [String] $Name,
 
-        [Int]
-        $AuthFlags,
+        [String] $AuthFlags,
 
-        [String]
-        $BadMailDirectory,
+        [String] $BadMailDirectory,
 
-        [Int] 
-        $ConnectionTimeout,
+        [String] $ConnectionTimeout,
 
-        [Boolean]
-        $EnableReverseDnsLookup,
+        [Boolean] $EnableReverseDnsLookup,
 
-        [String]
-        $FullyQualifiedDomainName,
+        [String] $FullyQualifiedDomainName,
 
-        [Int]
-        $HopCount,
+        [String]  $HopCount,
 
-        [String]
-        $LogFileDirectory,
+        [String] $LogFileDirectory,
 
-        [Int] 
-        $LogFilePeriod,
+        [String] $LogFilePeriod,
 
-        [Int]  
-        $LogFileTruncateSize,
+        [String] $LogFileTruncateSize,
 
-        [Int]
-        $LogType,
+        [String] $LogType,
 
-        [String]
-        $MasqueradeDomain,
+        [String] $MasqueradeDomain,
 
-        [Int]
-        $MaxBatchedMessages,
+        [String] $MaxBatchedMessages,
 
-        [Int]
-        $MaxConnections,
+        [String] $MaxConnections,
 
-        [Int]
-        $MaxMessageSize,
+        [String] $MaxMessageSize,
 
-        [Int] 
-        $MaxOutConnections,
+        [String] $MaxOutConnections,
 
-        [Int]
-        $MaxOutConnectionsPerDomain,
+        [String] $MaxOutConnectionsPerDomain,
 
-        [Int]
-        $MaxRecipients,
+        [String] $MaxRecipients,
 
-        [Int]
-        $MaxSessionSize,
+        [String] $MaxSessionSize,
 
-        [Int]
-        $RelayForAuth,
+        [String] $RelayForAuth,
 
-        [Int]
-        $RemoteSmtpPort,
+        [String] $RemoteSmtpPort,
 
-        [Int] 
-        $RemoteTimeout,
+        [String] $RemoteTimeout,
 
-        [String]
-        $SaslLogonDomain,
+        [String] $SaslLogonDomain,
 
-        [String]
-        $SendNdrTo,
+        [String] $SendNdrTo,
 
-        [String[]]
-        $ServerBindings,
+        [String[]] $ServerBindings,
 
-        [String]
-        $SmartHost,
+        [String] $SmartHost,
 
-        [Int]
-        $SmartHostType,
+        [String] $SmartHostType,
 
-        [Int]
-        $SmtpInboundCommandSupportOptions,
+        [String] $SmtpInboundCommandSupportOptions,
 
-        [Int]
-        $SmtpLocalDelayExpireMinutes,
+        [String] $SmtpLocalDelayExpireMinutes,
 
-        [Int]
-        $SmtpLocalNDRExpireMinutes,
+        [String] $SmtpLocalNDRExpireMinutes,
 
-        [Int]
-        $SmtpRemoteDelayExpireMinutes,
+        [String] $SmtpRemoteDelayExpireMinutes,
 
-        [Int]
-        $SmtpRemoteNDRExpireMinutes,
+        [String] $SmtpRemoteNDRExpireMinutes,
 
-        [String]
-        $SmtpRemoteProgressiveRetry
+        [String] $SmtpRemoteProgressiveRetry
     )
     
     Assert-Module
@@ -598,105 +563,71 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('1')]
-        [String]
-        $Name,
-        
-        [Int]
-        $AuthFlags,
+        [String] $Name,
 
-        [String]
-        $BadMailDirectory,
+        [String] $AuthFlags,
 
-        [Int] 
-        $ConnectionTimeout,
+        [String] $BadMailDirectory,
 
-        [Boolean]
-        $EnableReverseDnsLookup,
+        [String] $ConnectionTimeout,
 
-        [String]
-        $FullyQualifiedDomainName,
+        [Boolean] $EnableReverseDnsLookup,
 
-        [Int]
-        $HopCount,
+        [String] $FullyQualifiedDomainName,
 
-        [String]
-        $LogFileDirectory,
+        [String]  $HopCount,
 
-        [Int] 
-        $LogFilePeriod,
+        [String] $LogFileDirectory,
 
-        [Int]  
-        $LogFileTruncateSize,
+        [String] $LogFilePeriod,
 
-        [Int]
-        $LogType,
+        [String] $LogFileTruncateSize,
 
-        [String]
-        $MasqueradeDomain,
+        [String] $LogType,
 
-        [Int]
-        $MaxBatchedMessages,
+        [String] $MasqueradeDomain,
 
-        [Int]
-        $MaxConnections,
+        [String] $MaxBatchedMessages,
 
-        [Int]
-        $MaxMessageSize,
+        [String] $MaxConnections,
 
-        [Int]
-        $MaxOutConnections,
+        [String] $MaxMessageSize,
 
-        [Int]
-        $MaxOutConnectionsPerDomain,
+        [String] $MaxOutConnections,
 
-        [Int]
-        $MaxRecipients,
+        [String] $MaxOutConnectionsPerDomain,
 
-        [Int]
-        $MaxSessionSize,
+        [String] $MaxRecipients,
 
-        [Int]
-        $RelayForAuth,
+        [String] $MaxSessionSize,
 
-        [Int]
-        $RemoteSmtpPort,
+        [String] $RelayForAuth,
 
-        [Int]
-        $RemoteTimeout,
+        [String] $RemoteSmtpPort,
 
-        [String]
-        $SaslLogonDomain,
+        [String] $RemoteTimeout,
 
-        [String]
-        $SendNdrTo,
+        [String] $SaslLogonDomain,
 
-        [String[]]
-        $ServerBindings,
+        [String] $SendNdrTo,
 
-        [String]
-        $SmartHost,
+        [String[]] $ServerBindings,
 
-        [Int]
-        $SmartHostType,
+        [String] $SmartHost,
 
-        [Int]
-        $SmtpInboundCommandSupportOptions,
+        [String] $SmartHostType,
 
-        [Int]
-        $SmtpLocalDelayExpireMinutes,
+        [String] $SmtpInboundCommandSupportOptions,
 
-        [Int]
-        $SmtpLocalNDRExpireMinutes,
+        [String] $SmtpLocalDelayExpireMinutes,
 
-        [Int]
-        $SmtpRemoteDelayExpireMinutes,
+        [String] $SmtpLocalNDRExpireMinutes,
 
-        [Int]
-        $SmtpRemoteNDRExpireMinutes,
+        [String] $SmtpRemoteDelayExpireMinutes,
 
-        [String]
-        $SmtpRemoteProgressiveRetry
+        [String] $SmtpRemoteNDRExpireMinutes,
+
+        [String] $SmtpRemoteProgressiveRetry
     )
     
     Assert-Module
@@ -714,7 +645,7 @@ function Test-TargetResource
 
     #Update AuthFlags if required
     if (($PSBoundParameters.ContainsKey('AuthFlags') -and 
-    $Result.AuthFlags -ne $AuthFlags))
+        $Result.AuthFlags -ne $AuthFlags))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthFlags)
         return $False
@@ -722,7 +653,7 @@ function Test-TargetResource
 
     #Update BadMailDirectory if required
     if (($PSBoundParameters.ContainsKey('BadMailDirectory') -and 
-    $Result.BadMailDirectory -ne $BadMailDirectory))
+        $Result.BadMailDirectory -ne $BadMailDirectory))
     {
         if(-not (Test-Path -Path $BadMailDirectory))
         {
@@ -737,7 +668,7 @@ function Test-TargetResource
 
     #Update ConnectionTimeout if required
     if (($PSBoundParameters.ContainsKey('ConnectionTimeout') -and 
-    $Result.ConnectionTimeout -ne $ConnectionTimeout))
+        $Result.ConnectionTimeout -ne $ConnectionTimeout))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseConnectionTimeout)
         return $False
@@ -745,7 +676,7 @@ function Test-TargetResource
 
     #Update EnableReverseDnsLookup if required
     if (($PSBoundParameters.ContainsKey('EnableReverseDnsLookup') -and 
-    $Result.EnableReverseDnsLookup -ne $EnableReverseDnsLookup))
+        $Result.EnableReverseDnsLookup -ne $EnableReverseDnsLookup))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnableReverseDnsLookup)
         return $False
@@ -753,7 +684,7 @@ function Test-TargetResource
 
     #Update FullyQualifiedDomainName if required
     if (($PSBoundParameters.ContainsKey('FullyQualifiedDomainName') -and 
-    $Result.FullyQualifiedDomainName -ne $FullyQualifiedDomainName))
+        $Result.FullyQualifiedDomainName -ne $FullyQualifiedDomainName))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseFullyQualifiedDomainName)
         return $False
@@ -761,7 +692,7 @@ function Test-TargetResource
 
     #Update HopCount if required
     if (($PSBoundParameters.ContainsKey('HopCount') -and 
-    $Result.HopCount -ne $HopCount))
+        $Result.HopCount -ne $HopCount))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseHopCount)
         return $False
@@ -769,7 +700,7 @@ function Test-TargetResource
 
     #Update LogFileDirectory if required
     if (($PSBoundParameters.ContainsKey('LogFileDirectory') -and 
-    $Result.LogFileDirectory -ne $LogFileDirectory))
+        $Result.LogFileDirectory -ne $LogFileDirectory))
     {
         if(-not (Test-Path -Path $LogFileDirectory))
         {
@@ -784,7 +715,7 @@ function Test-TargetResource
 
     #Update LogFilePeriod if required
     if (($PSBoundParameters.ContainsKey('LogFilePeriod') -and 
-    $Result.LogFilePeriod -ne $LogFilePeriod))
+        $Result.LogFilePeriod -ne $LogFilePeriod))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFilePeriod)
         return $False
@@ -792,7 +723,7 @@ function Test-TargetResource
 
     #Update LogFileTruncateSize if required
     if (($PSBoundParameters.ContainsKey('LogFileTruncateSize') -and 
-    $Result.LogFileTruncateSize -ne $LogFileTruncateSize))
+        $Result.LogFileTruncateSize -ne $LogFileTruncateSize))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFileTruncateSize)
         return $False
@@ -800,7 +731,7 @@ function Test-TargetResource
 
     #Update LogType if required
     if (($PSBoundParameters.ContainsKey('LogType') -and 
-    $Result.LogType -ne $LogType))
+        $Result.LogType -ne $LogType))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogType)
         return $False
@@ -808,7 +739,7 @@ function Test-TargetResource
 
     #Update MasqueradeDomain if required
     if (($PSBoundParameters.ContainsKey('MasqueradeDomain') -and 
-    $Result.MasqueradeDomain -ne $MasqueradeDomain))
+        $Result.MasqueradeDomain -ne $MasqueradeDomain))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMasqueradeDomain)
         return $False
@@ -816,7 +747,7 @@ function Test-TargetResource
 
     #Update MaxBatchedMessages if required
     if (($PSBoundParameters.ContainsKey('MaxBatchedMessages') -and 
-    $Result.MaxBatchedMessages -ne $MaxBatchedMessages))
+        $Result.MaxBatchedMessages -ne $MaxBatchedMessages))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMaxBatchedMessages)
         return $False
@@ -824,7 +755,7 @@ function Test-TargetResource
 
     #Update MaxConnections if required
     if (($PSBoundParameters.ContainsKey('MaxConnections') -and 
-    $Result.MaxConnections -ne $MaxConnections))
+        $Result.MaxConnections -ne $MaxConnections))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMaxConnections)
         return $False
@@ -832,7 +763,7 @@ function Test-TargetResource
 
     #Update MaxMessageSize if required
     if (($PSBoundParameters.ContainsKey('MaxMessageSize') -and 
-    $Result.MaxMessageSize -ne $MaxMessageSize))
+        $Result.MaxMessageSize -ne $MaxMessageSize))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMaxMessageSize)
         return $False
@@ -840,7 +771,7 @@ function Test-TargetResource
 
     #Update MaxOutConnections if required
     if (($PSBoundParameters.ContainsKey('MaxOutConnections') -and 
-    $Result.MaxOutConnections -ne $MaxOutConnections))
+        $Result.MaxOutConnections -ne $MaxOutConnections))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMaxOutConnections)
         return $False
@@ -848,7 +779,7 @@ function Test-TargetResource
 
     #Update MaxOutConnectionsPerDomain if required
     if (($PSBoundParameters.ContainsKey('MaxOutConnectionsPerDomain') -and 
-    $Result.MaxOutConnectionsPerDomain -ne $MaxOutConnectionsPerDomain))
+        $Result.MaxOutConnectionsPerDomain -ne $MaxOutConnectionsPerDomain))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMaxOutConnectionsPerDomain)
         return $False
@@ -856,7 +787,7 @@ function Test-TargetResource
 
     #Update MaxRecipients if required
     if (($PSBoundParameters.ContainsKey('MaxRecipients') -and 
-    $Result.MaxRecipients -ne $MaxRecipients))
+        $Result.MaxRecipients -ne $MaxRecipients))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMaxRecipients)
         return $False
@@ -864,7 +795,7 @@ function Test-TargetResource
 
     #Update MaxSessionSize if required
     if (($PSBoundParameters.ContainsKey('MaxSessionSize') -and 
-    $Result.MaxSessionSize -ne $MaxSessionSize))
+        $Result.MaxSessionSize -ne $MaxSessionSize))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseMaxSessionSize)
         return $False
@@ -872,7 +803,7 @@ function Test-TargetResource
 
     #Update RelayForAuth if required
     if (($PSBoundParameters.ContainsKey('RelayForAuth') -and 
-    $Result.RelayForAuth -ne $RelayForAuth))
+        $Result.RelayForAuth -ne $RelayForAuth))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseRelayForAuth)
         return $False
@@ -880,7 +811,7 @@ function Test-TargetResource
 
     #Update RemoteSmtpPort if required
     if (($PSBoundParameters.ContainsKey('RemoteSmtpPort') -and 
-    $Result.RemoteSmtpPort -ne $RemoteSmtpPort))
+        $Result.RemoteSmtpPort -ne $RemoteSmtpPort))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseRemoteSmtpPort)
         return $False
@@ -888,7 +819,7 @@ function Test-TargetResource
 
     #Update RemoteTimeout if required
     if (($PSBoundParameters.ContainsKey('RemoteTimeout') -and 
-    $Result.RemoteTimeout -ne $RemoteTimeout))
+        $Result.RemoteTimeout -ne $RemoteTimeout))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseRemoteTimeout)
         return $False
@@ -896,7 +827,7 @@ function Test-TargetResource
 
     #Update SaslLogonDomain if required
     if (($PSBoundParameters.ContainsKey('SaslLogonDomain') -and 
-    $Result.SaslLogonDomain -ne $SaslLogonDomain))
+        $Result.SaslLogonDomain -ne $SaslLogonDomain))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSaslLogonDomain)
         return $False
@@ -904,7 +835,7 @@ function Test-TargetResource
 
     #Update SendNdrTo if required
     if (($PSBoundParameters.ContainsKey('SendNdrTo') -and 
-    $Result.SendNdrTo -ne $SendNdrTo))
+        $Result.SendNdrTo -ne $SendNdrTo))
     {
         if(Test-EmailAddress -Email $SendNdrTo)
         {
@@ -915,7 +846,7 @@ function Test-TargetResource
 
     #Update ServerBindings if required
     if (($PSBoundParameters.ContainsKey('ServerBindings') -and 
-    $Result.ServerBindings -ne $ServerBindings))
+        $Result.ServerBindings -ne $ServerBindings))
     {
         # Test if the desired IP and/or port input is valid
         if (-not (Test-SMTPBindings -ServerBindings $ServerBindings))
@@ -936,7 +867,7 @@ function Test-TargetResource
 
     #Update SmartHost if required
     if (($PSBoundParameters.ContainsKey('SmartHost') -and 
-    $Result.SmartHost -ne $SmartHost))
+        $Result.SmartHost -ne $SmartHost))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSmartHost)
         return $False
@@ -944,7 +875,7 @@ function Test-TargetResource
 
     #Update SmartHostType if required
     if (($PSBoundParameters.ContainsKey('SmartHostType') -and 
-    $Result.SmartHostType -ne $SmartHostType))
+        $Result.SmartHostType -ne $SmartHostType))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSmartHostType)
         return $False
@@ -952,7 +883,7 @@ function Test-TargetResource
 
     #Update SmtpInboundCommandSupportOptions if required
     if (($PSBoundParameters.ContainsKey('SmtpInboundCommandSupportOptions') -and 
-    $Result.SmtpInboundCommandSupportOptions -ne $SmtpInboundCommandSupportOptions))
+        $Result.SmtpInboundCommandSupportOptions -ne $SmtpInboundCommandSupportOptions))
     {
         Write-Verbose `
             -Message ($LocalizedData.VerboseTestTargetFalseSmtpInboundCommandSupportOptions)
@@ -961,7 +892,7 @@ function Test-TargetResource
 
     #Update SmtpLocalDelayExpireMinutes if required
     if (($PSBoundParameters.ContainsKey('SmtpLocalDelayExpireMinutes') -and 
-    $Result.SmtpLocalDelayExpireMinutes -ne $SmtpLocalDelayExpireMinutes))
+        $Result.SmtpLocalDelayExpireMinutes -ne $SmtpLocalDelayExpireMinutes))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSmtpLocalDelayExpireMinutes)
         return $False
@@ -969,7 +900,7 @@ function Test-TargetResource
 
     #Update SmtpLocalNDRExpireMinutes if required
     if (($PSBoundParameters.ContainsKey('SmtpLocalNDRExpireMinutes') -and 
-    $Result.SmtpLocalNDRExpireMinutes -ne $SmtpLocalNDRExpireMinutes))
+        $Result.SmtpLocalNDRExpireMinutes -ne $SmtpLocalNDRExpireMinutes))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSmtpLocalNDRExpireMinutes)
         return $False
@@ -977,7 +908,7 @@ function Test-TargetResource
 
     #Update SmtpRemoteDelayExpireMinutes if required
     if (($PSBoundParameters.ContainsKey('SmtpRemoteDelayExpireMinutes') -and 
-    $Result.SmtpRemoteDelayExpireMinutes -ne $SmtpRemoteDelayExpireMinutes))
+        $Result.SmtpRemoteDelayExpireMinutes -ne $SmtpRemoteDelayExpireMinutes))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSmtpRemoteDelayExpireMinutes)
         return $False
@@ -985,7 +916,7 @@ function Test-TargetResource
 
     #Update SmtpRemoteNDRExpireMinutes if required
     if (($PSBoundParameters.ContainsKey('SmtpRemoteNDRExpireMinutes') -and 
-    $Result.SmtpRemoteNDRExpireMinutes -ne $SmtpRemoteNDRExpireMinutes))
+        $Result.SmtpRemoteNDRExpireMinutes -ne $SmtpRemoteNDRExpireMinutes))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSmtpRemoteNDRExpireMinutes)
         return $False
@@ -993,7 +924,7 @@ function Test-TargetResource
 
     #Update SmtpRemoteProgressiveRetry if required
     if (($PSBoundParameters.ContainsKey('SmtpRemoteProgressiveRetry') -and 
-    $Result.SmtpRemoteProgressiveRetry -ne $SmtpRemoteProgressiveRetry))
+        $Result.SmtpRemoteProgressiveRetry -ne $SmtpRemoteProgressiveRetry))
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSmtpRemoteProgressiveRetry)
         return $False
@@ -1024,25 +955,23 @@ Function Confirm-UnqiueBindings
     param
     ( 
         [Parameter(Mandatory = $true)]
-        [String]
-        $ExistingBindings,
+        [String] $ExistingBindings,
         
         [Parameter(Mandatory = $true)]
-        [String[]]
-        $ProposedBindings
+        [String[]]  $ProposedBindings
     )
 
     $InputToCheck = @()
-    foreach ($ProposedBinding in $ProposedBindings)
+    foreach($ProposedBinding in $ProposedBindings)
     { 
         $BindingAddition = $ProposedBinding + ':'
         $InputToCheck += $BindingAddition
     }
 
-    $ExistingBindingssToCheck = $ExistingBindings -split '\n'
+    $ExistingBindingsToCheck = $ExistingBindings -split '\n'
 
     $ExistingToCheck = @()
-    foreach ($ExistingBinding in $ExistingBindingssToCheck)
+    foreach($ExistingBinding in $ExistingBindingssToCheck)
     {
         $ExistingToCheck += $ExistingBinding.Trim()
     }
@@ -1076,8 +1005,7 @@ Function Get-SMTPSettings
     param
     ( 
         [Parameter(Mandatory = $true)]
-        [String]
-        $ID
+        [String] $ID
     )
 
     return  [ADSI]"IIS://localhost/smtpsvc/${ID}"
@@ -1102,16 +1030,13 @@ Function Set-SMTPSettings
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
         
         [Parameter(Mandatory = $true)]
-        [String]
-        $Setting,
+        [String] $Setting,
         
         [Parameter(Mandatory = $true)]
-        [String]
-        $Value
+        [String] $Value
     )
     
     $SMTPSite = [ADSI]"IIS://localhost/smtpsvc/${Name}"
@@ -1121,7 +1046,7 @@ Function Set-SMTPSettings
 
 Function Test-EmailAddress
 {
-        <#
+    <#
     .SYNOPSIS
         Tests that an email address is valid when used as input.
     .PARAMETER Email
@@ -1132,12 +1057,11 @@ Function Test-EmailAddress
     #>
 
     [CmdletBinding()]
-    param(
-        
+    param
+    (
         [OutputType([Boolean])]
         [Parameter(Mandatory = $true)]
-        [String]
-        $Email
+        [String] $Email
     )
     
     if($Email)
@@ -1170,13 +1094,11 @@ Function Test-SMTPBindings
     #>
 
     [CmdletBinding()]
-    param(
-        
+    param
+    (
         [OutputType([Boolean])]
         [Parameter(Mandatory = $true)]
-        [String[]]
-        $ServerBindings
-    
+        [String[]] $ServerBindings
     )
 
     foreach ($Binding in $ServerBindings)
@@ -1208,9 +1130,9 @@ Function Test-SMTPBindings
                                      -ErrorCategory 'InvalidResult'
             }
         }
-
-        return $true
     }
+    
+    return $true
 }
 
 #endregion

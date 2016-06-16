@@ -11,9 +11,9 @@ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
--DSCModuleName $global:DSCModuleName `
--DSCResourceName $global:DSCResourceName `
--TestType Unit
+    -DSCModuleName $global:DSCModuleName `
+    -DSCResourceName $global:DSCResourceName `
+    -TestType Unit
 #endregion
 
 # Begin Testing
@@ -21,7 +21,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     #region Pester Tests
-    
+
     InModuleScope -ModuleName $DSCResourceName -ScriptBlock {
     
             $MockSMTP = @{
@@ -61,7 +61,7 @@ try
                     SmtpRemoteProgressiveRetry       = '15,30,60,240'
                 } 
             }
-            
+
             $MockParamaters = @{
                 Name                             = '1'
                 AuthFlags                        = '2'
@@ -97,7 +97,7 @@ try
                 SmtpRemoteNDRExpireMinutes       = '7220'
                 SmtpRemoteProgressiveRetry       = '30,60,120,480'
             }
-            
+
         Describe -Name "$global:DSCResourceName\Assert-Module" -Fixture {
             Context -Name 'WebAdminstration module is not installed' -Fixture {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith {
@@ -818,9 +818,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.AuthFlags
 
@@ -837,9 +837,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -BadMailDirectory $MockParamaters.BadMailDirectory
 
@@ -854,9 +854,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -ConnectionTimeout $MockParamaters.ConnectionTimeout
 
@@ -871,9 +871,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -EnableReverseDnsLookup $MockParamaters.EnableReverseDnsLookup
 
@@ -888,9 +888,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -FullyQualifiedDomainName $MockParamaters.FullyQualifiedDomainName
 
@@ -905,9 +905,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -HopCount $MockParamaters.HopCount
 
@@ -924,9 +924,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -LogFileDirectory $MockParamaters.LogFileDirectory
 
@@ -941,9 +941,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -LogFilePeriod $MockParamaters.LogFilePeriod
 
@@ -958,9 +958,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -LogFileTruncateSize $MockParamaters.LogFileTruncateSize
 
@@ -975,9 +975,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -LogType $MockParamaters.LogType
 
@@ -992,9 +992,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MasqueradeDomain $MockParamaters.MasqueradeDomain
 
@@ -1009,9 +1009,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MaxBatchedMessages $MockParamaters.MaxBatchedMessages
 
@@ -1026,9 +1026,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MaxConnections $MockParamaters.MaxConnections
 
@@ -1043,9 +1043,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MaxMessageSize $MockParamaters.MaxMessageSize
 
@@ -1060,9 +1060,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MaxOutConnections $MockParamaters.MaxOutConnections
 
@@ -1077,9 +1077,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MaxOutConnectionsPerDomain $MockParamaters.MaxOutConnectionsPerDomain
 
@@ -1094,9 +1094,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MaxRecipients $MockParamaters.MaxRecipients
 
@@ -1111,9 +1111,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -MaxSessionSize $MockParamaters.MaxSessionSize
 
@@ -1128,9 +1128,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -RelayForAuth $MockParamaters.RelayForAuth
 
@@ -1145,9 +1145,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -RemoteSmtpPort $MockParamaters.RemoteSmtpPort
 
@@ -1162,9 +1162,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -RemoteTimeout $MockParamaters.RemoteTimeout
 
@@ -1179,9 +1179,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SaslLogonDomain $MockParamaters.SaslLogonDomain
 
@@ -1196,9 +1196,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SendNdrTo $MockParamaters.SendNdrTo
 
@@ -1213,9 +1213,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -ServerBindings $MockParamaters.ServerBindings
 
@@ -1230,9 +1230,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmartHost $MockParamaters.SmartHost
 
@@ -1247,9 +1247,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmartHostType $MockParamaters.SmartHostType
 
@@ -1264,9 +1264,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmtpInboundCommandSupportOptions $MockParamaters.SmtpInboundCommandSupportOptions
 
@@ -1282,9 +1282,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmtpLocalDelayExpireMinutes $MockParamaters.SmtpLocalDelayExpireMinutes
 
@@ -1299,9 +1299,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmtpLocalNDRExpireMinutes $MockParamaters.SmtpLocalNDRExpireMinutes
 
@@ -1316,9 +1316,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmtpRemoteDelayExpireMinutes $MockParamaters.SmtpRemoteDelayExpireMinutes
 
@@ -1333,9 +1333,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmtpRemoteNDRExpireMinutes $MockParamaters.SmtpRemoteNDRExpireMinutes
 
@@ -1350,9 +1350,9 @@ try
                     return $MockSMTP
                         }
 
-                    Mock -CommandName Set-SMTPSettings
+                Mock -CommandName Set-SMTPSettings
 
-                    It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     
                     $Result = Set-TargetResource -Name $MockParamaters.Name -SmtpRemoteProgressiveRetry $MockParamaters.SmtpRemoteProgressiveRetry
 
