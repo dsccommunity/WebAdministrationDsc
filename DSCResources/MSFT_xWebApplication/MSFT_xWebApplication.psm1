@@ -173,7 +173,7 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('WebAppPool') -and ($webApplication.applicationPool -ne $WebAppPool))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebAppPool -f $Name)
-                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" -Name applicationPool -Value $WebAppPool
+                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)" -Name applicationPool -Value $WebAppPool
             }
      
             # Update SslFlags if required
