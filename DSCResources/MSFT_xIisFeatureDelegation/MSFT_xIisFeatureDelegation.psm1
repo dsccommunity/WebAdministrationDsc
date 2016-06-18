@@ -101,8 +101,8 @@ function Test-TargetResource
     return $false
 }
 
-#region Helper Functions
-Function Get-OverrideMode
+#region Helper functions
+function Get-OverrideMode
 {
     <#
     .NOTES
@@ -135,4 +135,4 @@ Function Get-OverrideMode
 
 #endregion
 
-Export-ModuleMember -Function *-TargetResource
+Export-ModuleMember -function *-TargetResource

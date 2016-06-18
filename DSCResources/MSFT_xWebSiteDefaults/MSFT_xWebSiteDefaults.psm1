@@ -15,8 +15,8 @@ data LocalizedData
 function Get-TargetResource
 {
     <#
-            .SYNOPSIS
-            This will return a hashtable of results 
+    .SYNOPSIS
+        This will return a hashtable of results 
     #>
     
     [CmdletBinding()]
@@ -47,13 +47,13 @@ function Get-TargetResource
 function Set-TargetResource
 {
     <#
-            .SYNOPSIS
-            This will set the desired state
+    .SYNOPSIS
+        This will set the desired state
     
-            .NOTES
-            Only a limited number of settings are supported at this time
-            We try to cover the most common use cases
-            We have a single parameter for each setting
+    .NOTES
+        Only a limited number of settings are supported at this time
+        We try to cover the most common use cases
+        We have a single parameter for each setting
     #>
     
     [CmdletBinding()]
@@ -89,9 +89,9 @@ function Set-TargetResource
 function Test-TargetResource
 {
     <#
-            .SYNOPSIS
-            This tests the desired state. If the state is not correct it will return $false.
-            If the state is correct it will return $true
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
     #>
     
     [OutputType([System.Boolean])]

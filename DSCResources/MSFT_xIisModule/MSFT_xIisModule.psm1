@@ -25,8 +25,8 @@ data LocalizedData
 function Get-TargetResource
 {
     <#
-            .SYNOPSIS
-            This will return a hashtable of results 
+    .SYNOPSIS
+        This will return a hashtable of results 
     #>
 
     [CmdletBinding()]
@@ -72,8 +72,8 @@ function Get-TargetResource
         }
 
         $fastCgiSetup = $false
-        # bug(TBD) deal with this better, maybe a seperate resource....
-        If($handler.Modules -eq 'FastCgiModule')
+
+        if($handler.Modules -eq 'FastCgiModule')
         {
             $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* `
                         -PSPath (Get-IisSitePath `
@@ -105,8 +105,8 @@ function Get-TargetResource
 function Set-TargetResource
 {
     <#
-            .SYNOPSIS
-            This will set the desired state
+    .SYNOPSIS
+        This will set the desired state
     #>
 
     [CmdletBinding()]
@@ -136,7 +136,7 @@ function Set-TargetResource
     $getParameters = Get-GetParameters -functionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
     $resourceTests = Test-TargetResourceImpl @PSBoundParameters -resourceStatus $resourceStatus
-    if ($resourceTests.Result)
+    if($resourceTests.Result)
     {
         return
     }
@@ -180,9 +180,9 @@ function Set-TargetResource
 function Test-TargetResource
 {
     <#
-            .SYNOPSIS
-            This tests the desired state. If the state is not correct it will return $false.
-            If the state is correct it will return $true
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
     #>
 
     [CmdletBinding()]
@@ -263,8 +263,8 @@ function Get-IisSitePath
 function Get-IisHandler
 {
     <#
-            .NOTES
-            Get a list on IIS handlers
+    .NOTES
+        Get a list on IIS handlers
     #>
     [CmdletBinding()]
     param
@@ -287,8 +287,8 @@ function Get-IisHandler
 function Remove-IisHandler
 {
     <#
-            .NOTES
-            Remove an IIS Handler
+    .NOTES
+        Remove an IIS Handler
     #>
     param
     (

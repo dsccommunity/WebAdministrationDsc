@@ -35,8 +35,8 @@ data LocalizedData
 function Get-TargetResource
 {
     <#
-            .SYNOPSIS
-            This will return a hashtable of results 
+    .SYNOPSIS
+        This will return a hashtable of results 
     #>
     
     [CmdletBinding()]

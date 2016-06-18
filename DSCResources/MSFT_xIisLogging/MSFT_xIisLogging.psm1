@@ -268,9 +268,9 @@ function Test-TargetResource
 
 }
 
-#region Helper Functions
+#region Helper functions
 
-Function Compare-LogFlags
+function Compare-LogFlags
 {
     <#
     .SYNOPSIS
@@ -305,4 +305,4 @@ Function Compare-LogFlags
 
 #endregion
 
-Export-ModuleMember -Function *-TargetResource
+Export-ModuleMember -function *-TargetResource
