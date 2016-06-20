@@ -1428,19 +1428,14 @@ try
         }
         
         Describe -Name "$Global:DSCResourceName\Confirm-UnqiueBindings" -Fixture {
-            Context 'Returns true when settings match' {
+            Context 'Tests Confirm-UnqiueBindings' {
 
                 It 'Returns true when settings match' {
 
                     Confirm-UnqiueBindings -ExistingBindings ':25:' `
                                            -ProposedBindings @(':25') `
                                            | Should be $true
-                    
                 }
-
-            }
-            
-            Context 'Returns false when settings do match' {
 
                 It 'Returns false when settings do match' {
                     
@@ -1448,14 +1443,12 @@ try
                                            -ProposedBindings @('server:25') `
                                            | Should be $false
                 }
-
             }
-        
         }
-               
+
         Describe -Name "$Global:DSCResourceName\Test-EmailAddress" -Fixture {
         
-            Context 'Returns true when email address is valid' {
+            Context 'Tests Test-EmailAddress' {
 
                 It 'Returns true when email address is valid' {
                     Test-EmailAddress -Email 'user@domain.com' `
@@ -1466,16 +1459,13 @@ try
 
                    { Test-EmailAddress -Email 'user.domain.com' } `
                                        | should Throw
-                    
                 }
-            
             }
-
         }
         
         Describe -Name "$Global:DSCResourceName\Test-SMTPBindings" -Fixture {
         
-            Context 'Returns true when IP and Ports are valid' {
+            Context 'Tests Test-SMTPBindings' {
 
                 It 'Returns true when IP address is valid' {
                     Test-SMTPBindings -ServerBindings @('192.168.0.1:25') `
@@ -1496,13 +1486,9 @@ try
                     { Test-SMTPBindings -ServerBindings @('192.168.0.1:100000') } `
                                         | should Throw
                 }
-            
             }
-        
         }
-    
     }
-
 }
 
 finally
