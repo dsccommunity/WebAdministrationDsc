@@ -28,7 +28,7 @@ try
                 Name       = '1'
                 Properties = @{
                     AuthFlags                        = '1'
-                    BadMailDirectory                 = '{C:\Inetpub\mailroot\Badmail} '
+                    BadMailDirectory                 = 'C:\Inetpub\mailroot\Badmail'
                     ConnectionTimeout                = '600'
                     EnableReverseDnsLookup           = $false
                     FullyQualifiedDomainName         = 'WIN-A1234567890'
@@ -62,10 +62,10 @@ try
                 } 
             }
 
-            $MockParamaters = @{
+            $MockParameters = @{
                 Name                             = '1'
                 AuthFlags                        = '2'
-                BadMailDirectory                 = '{C:\SMTP\Badmail} '
+                BadMailDirectory                 = 'C:\SMTP\Badmail'
                 ConnectionTimeout                = '1200'
                 EnableReverseDnsLookup           = $true
                 FullyQualifiedDomainName         = 'domain.com'
@@ -315,7 +315,7 @@ try
 
                 It 'should throw when SMTP is not found' -test {
                     {
-                        Test-TargetResource @MockParamaters 
+                        Test-TargetResource @MockParameters 
                     } | 
                     Should Throw
                 }
@@ -323,35 +323,36 @@ try
 
             Context 'All Settings are incorrect' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Test-Path {Return $true}
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name @MockParams
+                $Result = Test-TargetResource -Name $MockParameters.Name @MockParams -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be "$($LocalizedData.VerboseTestTargetResource -f 'AuthFlags')"
                 }
             }
             
             Context 'Check AuthFlags is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.AuthFlags
+                $Result = Test-TargetResource -Name $MockParameters.Name -AuthFlags $MockParameters.AuthFlags -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'AuthFlags')
                 }
                 
             }
@@ -359,535 +360,532 @@ try
             Context 'Check BadMailDirectory is different' {
             
                 Mock -CommandName Test-Path {Return $true}
-            
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -BadMailDirectory $MockParamaters.BadMailDirectory
+                $Result = Test-TargetResource -Name $MockParameters.Name -BadMailDirectory $MockParameters.BadMailDirectory -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetFalseBadMailDirectory
+                    $Result[0] | Should Be $LocalizedData.VerboseTestTargetFalseBadMailDirectory
                 }
             }
 
             Context 'Check ConnectionTimeout is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -ConnectionTimeout $MockParamaters.ConnectionTimeout
+                $Result = Test-TargetResource -Name $MockParameters.Name -ConnectionTimeout $MockParameters.ConnectionTimeout -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
-
+                                
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'ConnectionTimeout')
                 }
-
             }
 
             Context 'Check EnableReverseDnsLookup is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -EnableReverseDnsLookup $MockParamaters.EnableReverseDnsLookup
+                $Result = Test-TargetResource -Name $MockParameters.Name -EnableReverseDnsLookup $MockParameters.EnableReverseDnsLookup -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'EnableReverseDnsLookup')
                 }
             }
 
             Context 'Check FullyQualifiedDomainName is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -FullyQualifiedDomainName $MockParamaters.FullyQualifiedDomainName
+                $Result = Test-TargetResource -Name $MockParameters.Name -FullyQualifiedDomainName $MockParameters.FullyQualifiedDomainName -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'FullyQualifiedDomainName')
                 }
             }
 
             Context 'Check HopCount is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -HopCount $MockParamaters.HopCount
+                $Result = Test-TargetResource -Name $MockParameters.Name -HopCount $MockParameters.HopCount -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'HopCount')
                 }
             }
 
             Context 'Check LogFileDirectory is different' {
 
                 Mock -CommandName Test-Path {Return $true}
-
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -LogFileDirectory $MockParamaters.LogFileDirectory
+                $Result = Test-TargetResource -Name $MockParameters.Name -LogFileDirectory $MockParameters.LogFileDirectory -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetFalseLogFileDirectory
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetFalseLogFileDirectory)
                 }
 
             }
 
             Context 'Check LogFilePeriod is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -LogFilePeriod $MockParamaters.LogFilePeriod
+                $Result = Test-TargetResource -Name $MockParameters.Name -LogFilePeriod $MockParameters.LogFilePeriod -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'LogFilePeriod')
                 }
             }
 
             Context 'Check LogFileTruncateSize is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -LogFileTruncateSize $MockParamaters.LogFileTruncateSize
+                $Result = Test-TargetResource -Name $MockParameters.Name -LogFileTruncateSize $MockParameters.LogFileTruncateSize -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'LogFileTruncateSize')
                 }
             }
 
             Context 'Check LogType is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -LogType $MockParamaters.LogType
+                $Result = Test-TargetResource -Name $MockParameters.Name -LogType $MockParameters.LogType -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'LogType')
                 }
             }
 
             Context 'Check MasqueradeDomain is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MasqueradeDomain $MockParamaters.MasqueradeDomain
+                $Result = Test-TargetResource -Name $MockParameters.Name -MasqueradeDomain $MockParameters.MasqueradeDomain -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MasqueradeDomain')
                 }
             }
 
             Context 'Check MaxBatchedMessages is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MaxBatchedMessages $MockParamaters.MaxBatchedMessages
+                $Result = Test-TargetResource -Name $MockParameters.Name -MaxBatchedMessages $MockParameters.MaxBatchedMessages -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MaxBatchedMessages')
                 }
             }
 
             Context 'Check MaxConnections is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MaxConnections $MockParamaters.MaxConnections
+                $Result = Test-TargetResource -Name $MockParameters.Name -MaxConnections $MockParameters.MaxConnections -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MaxConnections')
                 }
             }
 
             Context 'Check MaxMessageSize is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MaxMessageSize $MockParamaters.MaxMessageSize
+                $Result = Test-TargetResource -Name $MockParameters.Name -MaxMessageSize $MockParameters.MaxMessageSize -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MaxMessageSize')
                 }
             }
 
             Context 'Check MaxOutConnections is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MaxOutConnections $MockParamaters.MaxOutConnections
+                $Result = Test-TargetResource -Name $MockParameters.Name -MaxOutConnections $MockParameters.MaxOutConnections -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MaxOutConnections')
                 }
             }
 
             Context 'Check MaxOutConnectionsPerDomain is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MaxOutConnectionsPerDomain $MockParamaters.MaxOutConnectionsPerDomain
+                $Result = Test-TargetResource -Name $MockParameters.Name -MaxOutConnectionsPerDomain $MockParameters.MaxOutConnectionsPerDomain -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MaxOutConnectionsPerDomain')
                 }
             }
 
             Context 'Check MaxRecipients is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MaxRecipients $MockParamaters.MaxRecipients
+                $Result = Test-TargetResource -Name $MockParameters.Name -MaxRecipients $MockParameters.MaxRecipients -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MaxRecipients')
                 }
             }
 
             Context 'Check MaxSessionSize is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -MaxSessionSize $MockParamaters.MaxSessionSize
+                $Result = Test-TargetResource -Name $MockParameters.Name -MaxSessionSize $MockParameters.MaxSessionSize -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'MaxSessionSize')
                 }
             }
 
             Context 'Check RelayForAuth is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -RelayForAuth $MockParamaters.RelayForAuth
+                $Result = Test-TargetResource -Name $MockParameters.Name -RelayForAuth $MockParameters.RelayForAuth -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'RelayForAuth')
                 }
             }
 
             Context 'Check RemoteSmtpPort is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -RemoteSmtpPort $MockParamaters.RemoteSmtpPort
+                $Result = Test-TargetResource -Name $MockParameters.Name -RemoteSmtpPort $MockParameters.RemoteSmtpPort -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'RemoteSmtpPort')
                 }
             }
 
             Context 'Check RemoteTimeout is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -RemoteTimeout $MockParamaters.RemoteTimeout
+                $Result = Test-TargetResource -Name $MockParameters.Name -RemoteTimeout $MockParameters.RemoteTimeout -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'RemoteTimeout')
                 }
             }
 
             Context 'Check SaslLogonDomain is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SaslLogonDomain $MockParamaters.SaslLogonDomain
+                $Result = Test-TargetResource -Name $MockParameters.Name -SaslLogonDomain $MockParameters.SaslLogonDomain -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SaslLogonDomain')
                 }
             }
 
             Context 'Check SendNdrTo is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SendNdrTo $MockParamaters.SendNdrTo
+                $Result = Test-TargetResource -Name $MockParameters.Name -SendNdrTo $MockParameters.SendNdrTo -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetFalseSendNdrTo
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetFalseSendNdrTo)
                 }
             }
 
             Context 'Check ServerBindings is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -ServerBindings $MockParamaters.ServerBindings
+                $Result = Test-TargetResource -Name $MockParameters.Name -ServerBindings $MockParameters.ServerBindings -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetFalseServerBindings
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetFalseServerBindings)
                 }
 
             }
 
             Context 'Check SmartHost is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmartHost $MockParamaters.SmartHost
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmartHost $MockParameters.SmartHost -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmartHost')
                 }
             }
 
             Context 'Check SmartHostType is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmartHostType $MockParamaters.SmartHostType
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmartHostType $MockParameters.SmartHostType -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmartHostType')
                 }
             }
 
             Context 'Check SmtpInboundCommandSupportOptions is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmtpInboundCommandSupportOptions $MockParamaters.SmtpInboundCommandSupportOptions
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmtpInboundCommandSupportOptions $MockParameters.SmtpInboundCommandSupportOptions -Verbose 4>&1
 
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmtpInboundCommandSupportOptions')
                 }
             }
 
             Context 'Check SmtpLocalDelayExpireMinutes is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmtpLocalDelayExpireMinutes $MockParamaters.SmtpLocalDelayExpireMinutes
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmtpLocalDelayExpireMinutes $MockParameters.SmtpLocalDelayExpireMinutes -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmtpLocalDelayExpireMinutes')
                 }
             }
 
             Context 'Check SmtpLocalNDRExpireMinutes is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmtpLocalNDRExpireMinutes $MockParamaters.SmtpLocalNDRExpireMinutes
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmtpLocalNDRExpireMinutes $MockParameters.SmtpLocalNDRExpireMinutes -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmtpLocalNDRExpireMinutes')
                 }
             }
 
             Context 'Check SmtpRemoteDelayExpireMinutes is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmtpRemoteDelayExpireMinutes $MockParamaters.SmtpRemoteDelayExpireMinutes
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmtpRemoteDelayExpireMinutes $MockParameters.SmtpRemoteDelayExpireMinutes -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmtpRemoteDelayExpireMinutes')
                 }
             }
 
             Context 'Check SmtpRemoteNDRExpireMinutes is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmtpRemoteNDRExpireMinutes $MockParamaters.SmtpRemoteNDRExpireMinutes
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmtpRemoteNDRExpireMinutes $MockParameters.SmtpRemoteNDRExpireMinutes -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmtpRemoteNDRExpireMinutes')
                 }
             }
 
             Context 'Check SmtpRemoteProgressiveRetry is different' {
 
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
 
-                $Result = Test-TargetResource -Name $MockParamaters.Name -SmtpRemoteProgressiveRetry $MockParamaters.SmtpRemoteProgressiveRetry
+                $Result = Test-TargetResource -Name $MockParameters.Name -SmtpRemoteProgressiveRetry $MockParameters.SmtpRemoteProgressiveRetry -Verbose 4>&1
 
                 It 'should return False' {
-                    $Result[0] | Should Be $false
+                    $Result[1] | Should Be $false
                 }
                                 
                 It 'should return the correct message' {
-                    $Result[1] | Should Be $LocalizedData.VerboseTestTargetResource
+                    $Result[0] | Should Be ($LocalizedData.VerboseTestTargetResource -f 'SmtpRemoteProgressiveRetry')
                 }
             }
 
@@ -898,8 +896,7 @@ try
             Context 'All Settings need to be updated' {
 
                 Mock -CommandName Test-Path {Return $true}
-
-                Mock -CommandName Get-SMTPSettings -MockWith {
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
                     return $MockSMTP
                 }
                 
@@ -907,439 +904,524 @@ try
 
                 It 'should call expected mocks' {
                     
-                    $result  = Set-TargetResource @MockParamaters
+                    $result  = Set-TargetResource @MockParameters
                     
                     Assert-MockCalled -CommandName  Set-SMTPSettings -Exactly 32
                 }
 
             }
 
-            Context 'Name exists but needs to be updated' {
-
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'Name' -and $Value -eq $MockParameters.Name }
-
-                It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.Name
-
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'Name' -and $Value -eq $MockParameters.Name } -Exactly 1
-                }
-            }
-
             Context 'AuthFlags exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'AuthFlags' -and $Value -eq $MockParameters.AuthFlags }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {} 
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'AuthFlags' -and $Value -eq $MockParameters.AuthFlags }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.AuthFlags
+                    $Result = Set-TargetResource -Name $MockParameters.Name -AuthFlags $MockParameters.AuthFlags
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'AuthFlags' -and $Value -eq $MockParameters.AuthFlags } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'AuthFlags' -and $Value -eq $MockParameters.AuthFlags } -Exactly 1
                 }
             }
 
             Context 'BadMailDirectory exists but needs to be updated' {
-
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'BadMailDirectory' -and $Value -eq $MockParameters.BadMailDirectory }
+                
+                Mock -CommandName Test-Path {Return $true}
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'BadMailDirectory' -and $Value -eq $MockParameters.BadMailDirectory }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.BadMailDirectory
+                    $Result = Set-TargetResource -Name $MockParameters.Name -BadMailDirectory $MockParameters.BadMailDirectory
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'BadMailDirectory' -and $Value -eq $MockParameters.BadMailDirectory } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'BadMailDirectory' -and $Value -eq $MockParameters.BadMailDirectory } -Exactly 1
                 }
             }
 
-            Context 'ConnectionTimeou exists but needs to be updated' {
+            Context 'ConnectionTimeout exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'ConnectionTimeou' -and $Value -eq $MockParameters.ConnectionTimeou }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'ConnectionTimeout' -and $Value -eq $MockParameters.ConnectionTimeout }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.ConnectionTimeou
+                    $Result = Set-TargetResource -Name $MockParameters.Name -ConnectionTimeout $MockParameters.ConnectionTimeout
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'ConnectionTimeou' -and $Value -eq $MockParameters.ConnectionTimeou } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'ConnectionTimeout' -and $Value -eq $MockParameters.ConnectionTimeout } -Exactly 1
                 }
             }
 
             Context 'EnableReverseDnsLookup exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'EnableReverseDnsLookup' -and $Value -eq $MockParameters.EnableReverseDnsLookup }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'EnableReverseDnsLookup' -and $Value -eq $MockParameters.EnableReverseDnsLookup }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.EnableReverseDnsLookup
+                    $Result = Set-TargetResource -Name $MockParameters.Name -EnableReverseDnsLookup $MockParameters.EnableReverseDnsLookup
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'EnableReverseDnsLookup' -and $Value -eq $MockParameters.EnableReverseDnsLookup } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'EnableReverseDnsLookup' -and $Value -eq $MockParameters.EnableReverseDnsLookup } -Exactly 1
                 }
             }
 
             Context 'FullyQualifiedDomainName exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'FullyQualifiedDomainName' -and $Value -eq $MockParameters.FullyQualifiedDomainName }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'FullyQualifiedDomainName' -and $Value -eq $MockParameters.FullyQualifiedDomainName }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.FullyQualifiedDomainName
+                    $Result = Set-TargetResource -Name $MockParameters.Name -FullyQualifiedDomainName $MockParameters.FullyQualifiedDomainName
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'FullyQualifiedDomainName' -and $Value -eq $MockParameters.FullyQualifiedDomainName } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'FullyQualifiedDomainName' -and $Value -eq $MockParameters.FullyQualifiedDomainName } -Exactly 1
                 }
             }
 
             Context 'HopCount exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'HopCount' -and $Value -eq $MockParameters.HopCount }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'HopCount' -and $Value -eq $MockParameters.HopCount }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.HopCount
+                    $Result = Set-TargetResource -Name $MockParameters.Name -HopCount $MockParameters.HopCount
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'HopCount' -and $Value -eq $MockParameters.HopCount } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'HopCount' -and $Value -eq $MockParameters.HopCount } -Exactly 1
                 }
             }
 
             Context 'LogFileDirectory exists but needs to be updated' {
-
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogFileDirectory' -and $Value -eq $MockParameters.LogFileDirectory }
+                
+                Mock -CommandName Test-Path {Return $true}
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogFileDirectory' -and $Value -eq $MockParameters.LogFileDirectory }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.LogFileDirectory
+                    $Result = Set-TargetResource -Name $MockParameters.Name -LogFileDirectory $MockParameters.LogFileDirectory
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogFileDirectory' -and $Value -eq $MockParameters.LogFileDirectory } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogFileDirectory' -and $Value -eq $MockParameters.LogFileDirectory } -Exactly 1
                 }
             }
 
             Context 'LogFilePeriod exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogFilePeriod' -and $Value -eq $MockParameters.LogFilePeriod }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogFilePeriod' -and $Value -eq $MockParameters.LogFilePeriod }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.LogFilePeriod
+                    $Result = Set-TargetResource -Name $MockParameters.Name -LogFilePeriod $MockParameters.LogFilePeriod
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogFilePeriod' -and $Value -eq $MockParameters.LogFilePeriod } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogFilePeriod' -and $Value -eq $MockParameters.LogFilePeriod } -Exactly 1
                 }
             }
 
             Context 'LogFileTruncateSize exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogFileTruncateSize' -and $Value -eq $MockParameters.LogFileTruncateSize }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogFileTruncateSize' -and $Value -eq $MockParameters.LogFileTruncateSize }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.LogFileTruncateSize
+                    $Result = Set-TargetResource -Name $MockParameters.Name -LogFileTruncateSize $MockParameters.LogFileTruncateSize
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogFileTruncateSize' -and $Value -eq $MockParameters.LogFileTruncateSize } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogFileTruncateSize' -and $Value -eq $MockParameters.LogFileTruncateSize } -Exactly 1
                 }
             }
 
             Context 'LogType exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogType' -and $Value -eq $MockParameters.LogType }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogType' -and $Value -eq $MockParameters.LogType }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.LogType
+                    $Result = Set-TargetResource -Name $MockParameters.Name -LogType $MockParameters.LogType
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'LogType' -and $Value -eq $MockParameters.LogType } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'LogType' -and $Value -eq $MockParameters.LogType } -Exactly 1
                 }
             }
 
             Context 'MasqueradeDomain exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MasqueradeDomain' -and $Value -eq $MockParameters.MasqueradeDomain }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MasqueradeDomain' -and $Value -eq $MockParameters.MasqueradeDomain }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MasqueradeDomain
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MasqueradeDomain $MockParameters.MasqueradeDomain
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MasqueradeDomain' -and $Value -eq $MockParameters.MasqueradeDomain } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MasqueradeDomain' -and $Value -eq $MockParameters.MasqueradeDomain } -Exactly 1
                 }
             }
 
             Context 'MaxBatchedMessages exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxBatchedMessages' -and $Value -eq $MockParameters.MaxBatchedMessages }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxBatchedMessages' -and $Value -eq $MockParameters.MaxBatchedMessages }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MaxBatchedMessages
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MaxBatchedMessages $MockParameters.MaxBatchedMessages
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxBatchedMessages' -and $Value -eq $MockParameters.MaxBatchedMessages } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxBatchedMessages' -and $Value -eq $MockParameters.MaxBatchedMessages } -Exactly 1
                 }
             }
 
             Context 'MaxConnections exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxConnections' -and $Value -eq $MockParameters.MaxConnections }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxConnections' -and $Value -eq $MockParameters.MaxConnections }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MaxConnections
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MaxConnections $MockParameters.MaxConnections
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxConnections' -and $Value -eq $MockParameters.MaxConnections } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxConnections' -and $Value -eq $MockParameters.MaxConnections } -Exactly 1
                 }
             }
 
             Context 'MaxMessageSize exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxMessageSize' -and $Value -eq $MockParameters.MaxMessageSize }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxMessageSize' -and $Value -eq $MockParameters.MaxMessageSize }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MaxMessageSize
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MaxMessageSize $MockParameters.MaxMessageSize
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxMessageSize' -and $Value -eq $MockParameters.MaxMessageSize } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxMessageSize' -and $Value -eq $MockParameters.MaxMessageSize } -Exactly 1
                 }
             }
 
             Context 'MaxOutConnections exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxOutConnections' -and $Value -eq $MockParameters.MaxOutConnections }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxOutConnections' -and $Value -eq $MockParameters.MaxOutConnections }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MaxOutConnections
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MaxOutConnections $MockParameters.MaxOutConnections
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxOutConnections' -and $Value -eq $MockParameters.MaxOutConnections } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxOutConnections' -and $Value -eq $MockParameters.MaxOutConnections } -Exactly 1
                 }
             }
 
             Context 'MaxOutConnectionsPerDomain exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxOutConnectionsPerDomain' -and $Value -eq $MockParameters.MaxOutConnectionsPerDomain }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxOutConnectionsPerDomain' -and $Value -eq $MockParameters.MaxOutConnectionsPerDomain }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MaxOutConnectionsPerDomain
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MaxOutConnectionsPerDomain $MockParameters.MaxOutConnectionsPerDomain
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxOutConnectionsPerDomain' -and $Value -eq $MockParameters.MaxOutConnectionsPerDomain } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxOutConnectionsPerDomain' -and $Value -eq $MockParameters.MaxOutConnectionsPerDomain } -Exactly 1
                 }
             }
 
             Context 'MaxRecipients exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxRecipients' -and $Value -eq $MockParameters.MaxRecipients }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxRecipients' -and $Value -eq $MockParameters.MaxRecipients }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MaxRecipients
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MaxRecipients $MockParameters.MaxRecipients
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxRecipients' -and $Value -eq $MockParameters.MaxRecipients } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxRecipients' -and $Value -eq $MockParameters.MaxRecipients } -Exactly 1
                 }
             }
 
             Context 'MaxSessionSize exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxSessionSize' -and $Value -eq $MockParameters.MaxSessionSize }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxSessionSize' -and $Value -eq $MockParameters.MaxSessionSize }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.MaxSessionSize
+                    $Result = Set-TargetResource -Name $MockParameters.Name -MaxSessionSize $MockParameters.MaxSessionSize
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'MaxSessionSize' -and $Value -eq $MockParameters.MaxSessionSize } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'MaxSessionSize' -and $Value -eq $MockParameters.MaxSessionSize } -Exactly 1
                 }
             }
 
             Context 'RelayForAuth exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'RelayForAuth' -and $Value -eq $MockParameters.RelayForAuth }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'RelayForAuth' -and $Value -eq $MockParameters.RelayForAuth }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.RelayForAuth
+                    $Result = Set-TargetResource -Name $MockParameters.Name -RelayForAuth $MockParameters.RelayForAuth
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'RelayForAuth' -and $Value -eq $MockParameters.RelayForAuth } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'RelayForAuth' -and $Value -eq $MockParameters.RelayForAuth } -Exactly 1
                 }
             }
 
             Context 'RemoteSmtpPort exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'RemoteSmtpPort' -and $Value -eq $MockParameters.RemoteSmtpPort }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'RemoteSmtpPort' -and $Value -eq $MockParameters.RemoteSmtpPort }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.RemoteSmtpPort
+                    $Result = Set-TargetResource -Name $MockParameters.Name -RemoteSmtpPort $MockParameters.RemoteSmtpPort
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'RemoteSmtpPort' -and $Value -eq $MockParameters.RemoteSmtpPort } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'RemoteSmtpPort' -and $Value -eq $MockParameters.RemoteSmtpPort } -Exactly 1
                 }
             }
 
             Context 'RemoteTimeout exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'RemoteTimeout' -and $Value -eq $MockParameters.RemoteTimeout }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'RemoteTimeout' -and $Value -eq $MockParameters.RemoteTimeout }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.RemoteTimeout
+                    $Result = Set-TargetResource -Name $MockParameters.Name -RemoteTimeout $MockParameters.RemoteTimeout
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'RemoteTimeout' -and $Value -eq $MockParameters.RemoteTimeout } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'RemoteTimeout' -and $Value -eq $MockParameters.RemoteTimeout } -Exactly 1
                 }
             }
 
             Context 'SaslLogonDomain exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SaslLogonDomain' -and $Value -eq $MockParameters.SaslLogonDomain }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SaslLogonDomain' -and $Value -eq $MockParameters.SaslLogonDomain }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SaslLogonDomain
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SaslLogonDomain $MockParameters.SaslLogonDomain
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SaslLogonDomain' -and $Value -eq $MockParameters.SaslLogonDomain } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SaslLogonDomain' -and $Value -eq $MockParameters.SaslLogonDomain } -Exactly 1
                 }
             }
 
             Context 'SendNdrTo exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SendNdrTo' -and $Value -eq $MockParameters.SendNdrTo }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SendNdrTo' -and $Value -eq $MockParameters.SendNdrTo }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SendNdrTo
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SendNdrTo $MockParameters.SendNdrTo
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SendNdrTo' -and $Value -eq $MockParameters.SendNdrTo } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SendNdrTo' -and $Value -eq $MockParameters.SendNdrTo } -Exactly 1
                 }
             }
 
             Context 'ServerBindings exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'ServerBindings' -and $Value -eq $MockParameters.ServerBindings }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'ServerBindings' -and $Value -eq $MockParameters.ServerBindings }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.ServerBindings
+                    $Result = Set-TargetResource -Name $MockParameters.Name -ServerBindings $MockParameters.ServerBindings
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'ServerBindings' -and $Value -eq $MockParameters.ServerBindings } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'ServerBindings' -and $Value -eq $MockParameters.ServerBindings } -Exactly 1
                 }
             }
 
             Context 'SmartHost exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmartHost' -and $Value -eq $MockParameters.SmartHost }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmartHost' -and $Value -eq $MockParameters.SmartHost }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmartHost
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmartHost $MockParameters.SmartHost
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmartHost' -and $Value -eq $MockParameters.SmartHost } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmartHost' -and $Value -eq $MockParameters.SmartHost } -Exactly 1
                 }
             }
 
             Context 'SmartHostType exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmartHostType' -and $Value -eq $MockParameters.SmartHostType }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmartHostType' -and $Value -eq $MockParameters.SmartHostType }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmartHostType
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmartHostType $MockParameters.SmartHostType
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmartHostType' -and $Value -eq $MockParameters.SmartHostType } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmartHostType' -and $Value -eq $MockParameters.SmartHostType } -Exactly 1
                 }
             }
 
             Context 'SmtpInboundCommandSupportOptions exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpInboundCommandSupportOptions' -and $Value -eq $MockParameters.SmtpInboundCommandSupportOptions }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpInboundCommandSupportOptions' -and $Value -eq $MockParameters.SmtpInboundCommandSupportOptions }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmtpInboundCommandSupportOptions
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmtpInboundCommandSupportOptions $MockParameters.SmtpInboundCommandSupportOptions
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpInboundCommandSupportOptions' -and $Value -eq $MockParameters.SmtpInboundCommandSupportOptions } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpInboundCommandSupportOptions' -and $Value -eq $MockParameters.SmtpInboundCommandSupportOptions } -Exactly 1
                 }
             }
 
             Context 'SmtpLocalDelayExpireMinutes exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpLocalDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalDelayExpireMinutes }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpLocalDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalDelayExpireMinutes }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmtpLocalDelayExpireMinutes
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmtpLocalDelayExpireMinutes $MockParameters.SmtpLocalDelayExpireMinutes
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpLocalDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalDelayExpireMinutes } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpLocalDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalDelayExpireMinutes } -Exactly 1
                 }
             }
 
             Context 'SmtpLocalNDRExpireMinutes exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpLocalNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalNDRExpireMinutes }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpLocalNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalNDRExpireMinutes }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmtpLocalNDRExpireMinutes
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmtpLocalNDRExpireMinutes $MockParameters.SmtpLocalNDRExpireMinutes
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpLocalNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalNDRExpireMinutes } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpLocalNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpLocalNDRExpireMinutes } -Exactly 1
                 }
             }
 
             Context 'SmtpRemoteDelayExpireMinutes exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpRemoteDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteDelayExpireMinutes }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpRemoteDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteDelayExpireMinutes }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmtpRemoteDelayExpireMinutes
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmtpRemoteDelayExpireMinutes $MockParameters.SmtpRemoteDelayExpireMinutes
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpRemoteDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteDelayExpireMinutes } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpRemoteDelayExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteDelayExpireMinutes } -Exactly 1
                 }
             }
 
             Context 'SmtpRemoteNDRExpireMinutes exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpRemoteNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteNDRExpireMinutes }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpRemoteNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteNDRExpireMinutes }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmtpRemoteNDRExpireMinutes
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmtpRemoteNDRExpireMinutes $MockParameters.SmtpRemoteNDRExpireMinutes
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpRemoteNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteNDRExpireMinutes } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpRemoteNDRExpireMinutes' -and $Value -eq $MockParameters.SmtpRemoteNDRExpireMinutes } -Exactly 1
                 }
             }
 
             Context 'SmtpRemoteProgressiveRetry exists but needs to be updated' {
 
-                Mock Set-SMTPSettings {}
-                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpRemoteProgressiveRetry' -and $Value -eq $MockParameters.SmtpRemoteProgressiveRetry }
+                Mock -CommandName Get-SMTPSettings -ParameterFilter { $ID -eq '1' } -MockWith {
+                    return $MockSMTP
+                }
+                Mock -CommandName Set-SMTPSettings -ParameterFilter {}
+                Mock -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpRemoteProgressiveRetry' -and $Value -eq $MockParameters.SmtpRemoteProgressiveRetry }
 
                 It 'should call the expected mocks' {
-                    $Result = Set-TargetResource -Name $MockParamaters.Name -AuthFlags $MockParamaters.SmtpRemoteProgressiveRetry
+                    $Result = Set-TargetResource -Name $MockParameters.Name -SmtpRemoteProgressiveRetry $MockParameters.SmtpRemoteProgressiveRetry
 
-                    Assert-MockCalled -CommandName Set-SMTPSettings -Exactly 0
-                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Setting -eq 'SmtpRemoteProgressiveRetry' -and $Value -eq $MockParameters.SmtpRemoteProgressiveRetry } -Exactly 1
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter {} -Exactly 0
+                    Assert-MockCalled -CommandName Set-SMTPSettings -ParameterFilter { $Name -eq $MockParameters.Name -and $Setting -eq 'SmtpRemoteProgressiveRetry' -and $Value -eq $MockParameters.SmtpRemoteProgressiveRetry } -Exactly 1
                 }
             }
 

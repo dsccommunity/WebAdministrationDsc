@@ -14,7 +14,7 @@ data LocalizedData
         ErrorIPAddressFailure                  = Invalid IP address(s), please verifiy the IP addresse(s) are valid
         ErrorEmailAddressFailure               = Invalid Email address(s), please verifiy the Email addresse(s) are valid 
         ErrorBindingsPortFailure               = Invalid Port Range, please verifiy the port(s) are valid.
-        VerboseTestTargetResource              = SMTPSetting "{0}" is not correct. Is: "{1}" should be: "{2}".
+        VerboseTestTargetResource              = SMTPSetting "{0}" is not correct.
         VerboseTestTargetFalseBadMailDirectory = BadMailDirectory is not in the desired state.
         VerboseTestTargetFalseLogFileDirectory = LogFileDirectory is not in the desired state.
         VerboseTestTargetFalseSendNdrTo        = SendNdrTo is not in the desired state.
@@ -23,8 +23,179 @@ data LocalizedData
         VerboseSetTargetLogFileDirectory       = Updated SMTP Setting LogFileDirectory.
         VerboseSetTargetSendNdrTo              = Updated SMTP Setting SendNdrTo.
         VerboseSetTargetServerBindings         = Updated SMTP Setting ServerBindings.
-        VerboseSetTargetResourceUpdated        = Updated SMTPSetting "{0}" from "{1}" to "{2}".
+        VerboseSetTargetResourceUpdated        = Updated SMTPSetting "{0}".
 '@
+}
+
+data ParameterList
+{
+    @( 
+        @{
+            Name   = 'Name'
+            Source = '$CurrentSMTP.Properties.Name'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'AuthFlags'
+            Source = '$CurrentSMTP.Properties.AuthFlags'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'BadMailDirectory'
+            Source = '$CurrentSMTP.Properties.BadMailDirectory'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'ConnectionTimeout'
+            Source = '$CurrentSMTP.Properties.ConnectionTimeou'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'EnableReverseDnsLookup'
+            Source = '$CurrentSMTP.Properties.EnableReverseDnsLookup'
+            Type   = 'Boolean'
+        }
+        @{
+            Name   = 'FullyQualifiedDomainName'
+            Source = '$CurrentSMTP.Properties.FullyQualifiedDomainName'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'HopCount'
+            Source = '$CurrentSMTP.Properties.HopCount'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'LogFileDirectory'
+            Source = '$CurrentSMTP.Properties.LogFileDirectory'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'LogFilePeriod'
+            Source = '$CurrentSMTP.Properties.LogFilePeriod'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'LogFileTruncateSize'
+            Source = '$CurrentSMTP.Properties.LogFileTruncateSize'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'LogType'
+            Source = '$CurrentSMTP.Properties.LogType'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MasqueradeDomain'
+            Source = '$CurrentSMTP.Properties.MasqueradeDomain'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MaxBatchedMessages'
+            Source = '$CurrentSMTP.Properties.MaxBatchedMessages'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MaxConnections'
+            Source = '$CurrentSMTP.Properties.MaxConnections'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MaxMessageSize'
+            Source = '$CurrentSMTP.Properties.MaxMessageSize'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MaxOutConnections'
+            Source = '$CurrentSMTP.Properties.MaxOutConnections'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MaxOutConnectionsPerDomain'
+            Source = '$CurrentSMTP.Properties.MaxOutConnectionsPerDomain'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MaxRecipients'
+            Source = '$CurrentSMTP.Properties.MaxRecipients'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'MaxSessionSize'
+            Source = '$CurrentSMTP.Properties.MaxSessionSize'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'RelayForAuth'
+            Source = '$CurrentSMTP.Properties.RelayForAuth'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'RemoteSmtpPort'
+            Source = '$CurrentSMTP.Properties.RemoteSmtpPort'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'RemoteTimeout'
+            Source = '$CurrentSMTP.Properties.RemoteTimeout'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SaslLogonDomain'
+            Source = '$CurrentSMTP.Properties.SaslLogonDomain'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SendNdrTo'
+            Source = '$CurrentSMTP.Properties.SendNdrTo'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'ServerBindings'
+            Source = '$CurrentSMTP.Properties.ServerBindings'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmartHost'
+            Source = '$CurrentSMTP.Properties.SmartHost'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmartHostType'
+            Source = '$CurrentSMTP.Properties.SmartHostType'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmtpInboundCommandSupportOptions'
+            Source = '$CurrentSMTP.Properties.SmtpInboundCommandSupportOptions'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmtpLocalDelayExpireMinutes'
+            Source = '$CurrentSMTP.Properties.SmtpLocalDelayExpireMinutes'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmtpLocalNDRExpireMinutes'
+            Source = '$CurrentSMTP.Properties.SmtpLocalNDRExpireMinutes'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmtpRemoteDelayExpireMinutes'
+            Source = '$CurrentSMTP.Properties.SmtpRemoteDelayExpireMinutes'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmtpRemoteNDRExpireMinutes'
+            Source = '$CurrentSMTP.Properties.SmtpRemoteNDRExpireMinutes'
+            Type   = 'String'
+        }
+        @{
+            Name   = 'SmtpRemoteProgressiveRetry'
+            Source = '$CurrentSMTP.Properties.SmtpRemoteProgressiveRetry'
+            Type   = 'String'
+        }
+    )
 }
 
 function Get-TargetResource
@@ -55,38 +226,38 @@ function Get-TargetResource
     {
         return @{
             Name                             = $Name
-            AuthFlags                        = $CurrentSMTP.Properties['AuthFlags']
-            BadMailDirectory                 = $CurrentSMTP.Properties['BadMailDirectory']
-            ConnectionTimeout                = $CurrentSMTP.Properties['ConnectionTimeout']
-            EnableReverseDnsLookup           = $CurrentSMTP.Properties['EnableReverseDnsLookup']
-            FullyQualifiedDomainName         = $CurrentSMTP.Properties['FullyQualifiedDomainName']
-            HopCount                         = $CurrentSMTP.Properties['HopCount']
-            LogFileDirectory                 = $CurrentSMTP.Properties['LogFileDirectory']
-            LogFilePeriod                    = $CurrentSMTP.Properties['LogFilePeriod']
-            LogFileTruncateSize              = $CurrentSMTP.Properties['LogFileTruncateSize']
-            LogType                          = $CurrentSMTP.Properties['LogType']
-            MasqueradeDomain                 = $CurrentSMTP.Properties['MasqueradeDomain']
-            MaxBatchedMessages               = $CurrentSMTP.Properties['MaxBatchedMessages']
-            MaxConnections                   = $CurrentSMTP.Properties['MaxConnections']
-            MaxMessageSize                   = $CurrentSMTP.Properties['MaxMessageSize']
-            MaxOutConnections                = $CurrentSMTP.Properties['MaxOutConnections']
-            MaxOutConnectionsPerDomain       = $CurrentSMTP.Properties['MaxOutConnectionsPerDomain']
-            MaxRecipients                    = $CurrentSMTP.Properties['MaxRecipients']
-            MaxSessionSize                   = $CurrentSMTP.Properties['MaxSessionSize']
-            RelayForAuth                     = $CurrentSMTP.Properties['RelayForAuth']
-            RemoteSmtpPort                   = $CurrentSMTP.Properties['RemoteSmtpPort']
-            RemoteTimeout                    = $CurrentSMTP.Properties['RemoteTimeout']
-            SaslLogonDomain                  = $CurrentSMTP.Properties['SaslLogonDomain']
-            SendNdrTo                        = $CurrentSMTP.Properties['SendNdrTo']
-            ServerBindings                   = $CurrentSMTP.Properties['ServerBindings']
-            SmartHost                        = $CurrentSMTP.Properties['SmartHost']
-            SmartHostType                    = $CurrentSMTP.Properties['SmartHostType']
-            SmtpInboundCommandSupportOptions = $CurrentSMTP.Properties['SmtpInboundCommandSupportOptions']
-            SmtpLocalDelayExpireMinutes      = $CurrentSMTP.Properties['SmtpLocalDelayExpireMinutes']
-            SmtpLocalNDRExpireMinutes        = $CurrentSMTP.Properties['SmtpLocalNDRExpireMinutes']
-            SmtpRemoteDelayExpireMinutes     = $CurrentSMTP.Properties['SmtpRemoteDelayExpireMinutes']
-            SmtpRemoteNDRExpireMinutes       = $CurrentSMTP.Properties['SmtpRemoteNDRExpireMinutes']
-            SmtpRemoteProgressiveRetry       = $CurrentSMTP.Properties['SmtpRemoteProgressiveRetry']
+            AuthFlags                        = $CurrentSMTP.Properties.AuthFlags
+            BadMailDirectory                 = $CurrentSMTP.Properties.BadMailDirectory
+            ConnectionTimeout                = $CurrentSMTP.Properties.ConnectionTimeout
+            EnableReverseDnsLookup           = $CurrentSMTP.Properties.EnableReverseDnsLookup
+            FullyQualifiedDomainName         = $CurrentSMTP.Properties.FullyQualifiedDomainName
+            HopCount                         = $CurrentSMTP.Properties.HopCount
+            LogFileDirectory                 = $CurrentSMTP.Properties.LogFileDirectory
+            LogFilePeriod                    = $CurrentSMTP.Properties.LogFilePeriod
+            LogFileTruncateSize              = $CurrentSMTP.Properties.LogFileTruncateSize
+            LogType                          = $CurrentSMTP.Properties.LogType
+            MasqueradeDomain                 = $CurrentSMTP.Properties.MasqueradeDomain
+            MaxBatchedMessages               = $CurrentSMTP.Properties.MaxBatchedMessages
+            MaxConnections                   = $CurrentSMTP.Properties.MaxConnections
+            MaxMessageSize                   = $CurrentSMTP.Properties.MaxMessageSize
+            MaxOutConnections                = $CurrentSMTP.Properties.MaxOutConnections
+            MaxOutConnectionsPerDomain       = $CurrentSMTP.Properties.MaxOutConnectionsPerDomain
+            MaxRecipients                    = $CurrentSMTP.Properties.MaxRecipients
+            MaxSessionSize                   = $CurrentSMTP.Properties.MaxSessionSize
+            RelayForAuth                     = $CurrentSMTP.Properties.RelayForAuth
+            RemoteSmtpPort                   = $CurrentSMTP.Properties.RemoteSmtpPort
+            RemoteTimeout                    = $CurrentSMTP.Properties.RemoteTimeout
+            SaslLogonDomain                  = $CurrentSMTP.Properties.SaslLogonDomain
+            SendNdrTo                        = $CurrentSMTP.Properties.SendNdrTo
+            ServerBindings                   = $CurrentSMTP.Properties.ServerBindings
+            SmartHost                        = $CurrentSMTP.Properties.SmartHost
+            SmartHostType                    = $CurrentSMTP.Properties.SmartHostType
+            SmtpInboundCommandSupportOptions = $CurrentSMTP.Properties.SmtpInboundCommandSupportOptions
+            SmtpLocalDelayExpireMinutes      = $CurrentSMTP.Properties.SmtpLocalDelayExpireMinutes
+            SmtpLocalNDRExpireMinutes        = $CurrentSMTP.Properties.SmtpLocalNDRExpireMinutes
+            SmtpRemoteDelayExpireMinutes     = $CurrentSMTP.Properties.SmtpRemoteDelayExpireMinutes
+            SmtpRemoteNDRExpireMinutes       = $CurrentSMTP.Properties.SmtpRemoteNDRExpireMinutes
+            SmtpRemoteProgressiveRetry       = $CurrentSMTP.Properties.SmtpRemoteProgressiveRetry
         }
     }
 }
@@ -168,89 +339,94 @@ function Set-TargetResource
 
         [String] $SmtpRemoteProgressiveRetry
     )
-    
+
     Assert-Module
     
     $Result = Get-TargetResource -Name $Name
-    
-    # Update Parameters which do not need any extra checking
-    foreach ($parameter in $ParameterList)
-    {
-        if ($PSBoundParameters.ContainsKey($Parameter) -and `
-            $Result.$Parameter -ne $PSBoundParameter[$Parameter])
-        {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetResourceUpdated `
-                          -f $Parameter, $Result.$Parameter, $PSBoundParameter[$Parameter]
-            Set-SMTPSettings -Name $Name `
-                             -Setting $Parameter `
-                             -Value $PSBoundParameter[$Parameter]
-        }
-    }
 
-    # Update BadMailDirectory if required
-    if (($PSBoundParameters.ContainsKey('BadMailDirectory') -and `
-    $Result.BadMailDirectory -ne $BadMailDirectory))
+    # Update Parameters
+    foreach ($parameter in $ParameterList.Name)
     {
-        if(-not (Test-Path -Path $BadMailDirectory))
+        if ($PSBoundParameters.ContainsKey($parameter) -and `
+            $Result.$parameter -ne $PSBoundParameter.$parameter)
         {
-            $ErrorMessage = $LocalizedData.ErrorBadMailDirectoryFailure
-            New-TerminatingError -ErrorId 'BadMailDirectoryFailure' `
-                                 -ErrorMessage $ErrorMessage `
-                                 -ErrorCategory 'InvalidResult'
-        }
-        Write-Verbose -Message ($LocalizedData.VerboseSetTargetBadMailDirectory)
-        Set-SMTPSettings -Name $Name `
-                         -Setting 'BadMailDirectory' `
-                         -Value $BadMailDirectory
-    }
-
-    # Update LogFileDirectory if required
-    if (($PSBoundParameters.ContainsKey('LogFileDirectory') -and `
-    $Result.LogFileDirectory -ne $LogFileDirectory))
-    {
-        if(-not (Test-Path -Path $LogFileDirectory))
-        {
-            $ErrorMessage = $LocalizedData.ErrorLogFileDirectoryFailure
-            New-TerminatingError -ErrorId 'LogFileDirectoryFailure' `
-                                 -ErrorMessage $ErrorMessage `
-                                 -ErrorCategory 'InvalidResult'
-        }
-        Write-Verbose -Message ($LocalizedData.VerboseSetTargetLogFileDirectory)
-        Set-SMTPSettings -Name $Name `
-                         -Setting 'LogFileDirectory' `
-                         -Value $LogFileDirectory
-    }
-
-    # Update SendNdrTo if required
-    if (($PSBoundParameters.ContainsKey('SendNdrTo') -and `
-    $Result.SendNdrTo -ne $SendNdrTo))
-    {
-        if(Test-EmailAddress -Email $SendNdrTo)
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetSendNdrTo)
-            Set-SMTPSettings -Name $Name `
-                             -Setting 'SendNdrTo' `
-                             -Value $SendNdrTo
-        }
-    }
-    
-    # Check if ServerBindings should be updated
-    if (($PSBoundParameters.ContainsKey('ServerBindings') -and 
-        $Result.ServerBindings -ne $ServerBindings))
-    {
-        # Test if the desired IP and/or port input is valid
-        if (-not (Test-SMTPBindings -ServerBindings $ServerBindings))
-        {
-            if (-not(Confirm-UnqiueBindings `
-                    -ExistingBindings $Result.ServerBindings `
-                    -ProposedBindings $ServerBindings ))
+            switch($parameter)
             {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetServerBindings)
-                # Make input bindings which are an array, into a string
-                $StringafiedBindings = $ServerBindings -join ' '
-                Set-SMTPSettings -Name $Name `
-                                 -Setting 'ServerBindings' `
-                                 -Value $StringafiedBindings
+                Name
+                {
+                    <#
+                     Bug?
+                     Blank to since name does not need to be set
+                    #>
+                }
+
+                BadMailDirectory
+                {
+                    if(-not (Test-Path -Path $BadMailDirectory))
+                    {
+                        $ErrorMessage = $LocalizedData.ErrorBadMailDirectoryFailure
+                        New-TerminatingError -ErrorId 'BadMailDirectoryFailure' `
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidResult'
+                    }
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetBadMailDirectory)
+                    Set-SMTPSettings -Name $Name `
+                                     -Setting 'BadMailDirectory' `
+                                     -Value $BadMailDirectory
+                }
+
+                LogFileDirectory
+                {
+                    if(-not (Test-Path -Path $LogFileDirectory))
+                    {
+                        $ErrorMessage = $LocalizedData.ErrorLogFileDirectoryFailure
+                        New-TerminatingError -ErrorId 'LogFileDirectoryFailure' `
+                                                -ErrorMessage $ErrorMessage `
+                                                -ErrorCategory 'InvalidResult'
+                    }
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetLogFileDirectory)
+                    Set-SMTPSettings -Name $Name `
+                                        -Setting 'LogFileDirectory' `
+                                        -Value $LogFileDirectory
+                }
+
+                SendNdrTo
+                {
+                    if(Test-EmailAddress -Email $SendNdrTo)
+                    {
+                        Write-Verbose -Message ($LocalizedData.VerboseSetTargetSendNdrTo)
+                        Set-SMTPSettings -Name $Name `
+                                         -Setting 'SendNdrTo' `
+                                         -Value $SendNdrTo
+                    }
+                }
+
+                ServerBindings
+                {
+                    if (Test-SMTPBindings -ServerBindings $ServerBindings)
+                    {
+                        if (-not(Confirm-UnqiueBindings `
+                                -ExistingBindings $Result.ServerBindings `
+                                -ProposedBindings $ServerBindings ))
+                        {
+                            Write-Verbose -Message ($LocalizedData.VerboseSetTargetServerBindings)
+                            # Make input bindings which are an array, into a string
+                            $StringafiedBindings = $ServerBindings -join ' '
+                            Set-SMTPSettings -Name $Name `
+                                             -Setting 'ServerBindings' `
+                                             -Value $StringafiedBindings
+                        }
+                    }
+                }
+
+                Default
+                {
+                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetResourceUpdated `
+                            -f $parameter)
+                    Set-SMTPSettings -Name $Name `
+                                     -Setting $parameter `
+                                     -Value $PSBoundParameters.$parameter
+                }
             }
         }
     }
@@ -348,80 +524,84 @@ function Test-TargetResource
         
     $Result = Get-TargetResource -Name $Name
 
-    # Check Parameters which do not need any extra checking
-    foreach ($parameter in $ParameterList)
+    foreach ($parameter in $ParameterList.Name)
     {
-        if ($PSBoundParameters.ContainsKey($Parameter) -and `
-            $Result.$Parameter -ne $PSBoundParameter[$Parameter])
+        if ($PSBoundParameters.ContainsKey($parameter) -and `
+            $Result.$parameter -ne $PSBoundParameter.$parameter)
         {
-            Write-Verbose -Message $LocalizedData.VerboseTestTargetResource `
-                          -f $Parameter, $Result.$Parameter, $PSBoundParameter[$Parameter]
-            return $False
-        }
-    }
+            switch($parameter)
+            {
+                Name
+                {
+                    <#
+                     Bug?
+                     Blank to since name fails the test
+                    #>
+                }
 
-    # Check if BadMailDirectory should be updated
-    if (($PSBoundParameters.ContainsKey('BadMailDirectory') -and 
-        $Result.BadMailDirectory -ne $BadMailDirectory))
-    {
-        if(-not (Test-Path -Path $BadMailDirectory))
-        {
-            $ErrorMessage = $LocalizedData.ErrorBadMailDirectoryFailure
-            New-TerminatingError -ErrorId 'BadMailDirectoryFailure' `
-                                 -ErrorMessage $ErrorMessage `
-                                 -ErrorCategory 'InvalidResult'
-        }
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseBadMailDirectory)
-        return $False
-    }
+                BadMailDirectory
+                {
+                    if(-not (Test-Path -Path $BadMailDirectory))
+                    {
+                        $ErrorMessage = $LocalizedData.ErrorBadMailDirectoryFailure
+                        New-TerminatingError -ErrorId 'BadMailDirectoryFailure' `
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidResult'
+                    }
+                    Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseBadMailDirectory)
+                    return $False
+                }
 
-    # Check if LogFileDirectory should be updated
-    if (($PSBoundParameters.ContainsKey('LogFileDirectory') -and 
-        $Result.LogFileDirectory -ne $LogFileDirectory))
-    {
-        if(-not (Test-Path -Path $LogFileDirectory))
-        {
-            $ErrorMessage = $LocalizedData.ErrorLogFileDirectoryFailure
-            New-TerminatingError -ErrorId 'LogFileDirectoryFailure' `
-                                 -ErrorMessage $ErrorMessage `
-                                 -ErrorCategory 'InvalidResult'
-        }
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFileDirectory)
-        return $False
-    }
+                LogFileDirectory
+                {
+                    if(-not (Test-Path -Path $LogFileDirectory))
+                    {
+                        $ErrorMessage = $LocalizedData.ErrorLogFileDirectoryFailure
+                        New-TerminatingError -ErrorId 'LogFileDirectoryFailure' `
+                                             -ErrorMessage $ErrorMessage `
+                                             -ErrorCategory 'InvalidResult'
+                    }
+                    Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFileDirectory)
+                    return $False
+                }
 
-    # Check if SendNdrTo should be updated
-    if (($PSBoundParameters.ContainsKey('SendNdrTo') -and 
-        $Result.SendNdrTo -ne $SendNdrTo))
-    {
-        if(Test-EmailAddress -Email $SendNdrTo)
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSendNdrTo)
-            return $False
-        }
-    }
+                SendNdrTo
+                {
+                    if(Test-EmailAddress -Email $SendNdrTo)
+                    {
+                        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSendNdrTo)
+                        return $False
+                    }
+                }
 
-    # Check if ServerBindings should be updated
-    if (($PSBoundParameters.ContainsKey('ServerBindings') -and 
-        $Result.ServerBindings -ne $ServerBindings))
-    {
-        # Test if the desired IP and/or port input is valid
-        if (-not (Test-SMTPBindings -ServerBindings $ServerBindings))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseServerBindings)
-            return $False
-        }
+                ServerBindings
+                {
+                    # Test if the desired IP and/or port input is valid
+                    if (-not (Test-SMTPBindings -ServerBindings $ServerBindings))
+                    {
+                        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseServerBindings)
+                        return $False
+                    }
         
-        # Test if the bindings are different
-        if (-not(Confirm-UnqiueBindings `
-                    -ExistingBindings $Result.ServerBindings `
-                    -ProposedBindings $ServerBindings ))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseServerBindings)
-            return $False
+                    # Test if the bindings are different
+                    if (-not(Confirm-UnqiueBindings `
+                                -ExistingBindings $Result.ServerBindings `
+                                -ProposedBindings $ServerBindings ))
+                    {
+                        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseServerBindings)
+                        return $False
+                    }
+                }
+
+                Default
+                {
+                    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResource `
+                                    -f $parameter)
+                    return $False
+                }
+            }
         }
     }
-
     return $true
 }
 
@@ -463,7 +643,7 @@ Function Confirm-UnqiueBindings
     $ExistingBindingsToCheck = $ExistingBindings -split '\n'
 
     $ExistingToCheck = @()
-    foreach($ExistingBinding in $ExistingBindingssToCheck)
+    foreach($ExistingBinding in $ExistingBindingsToCheck)
     {
         $ExistingToCheck += $ExistingBinding.Trim()
     }
