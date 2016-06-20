@@ -1428,6 +1428,7 @@ try
         }
         
         Describe -Name "$Global:DSCResourceName\Confirm-UnqiueBindings" -Fixture {
+
             Context 'Tests Confirm-UnqiueBindings' {
 
                 It 'Returns true when settings match' {
@@ -1447,7 +1448,7 @@ try
         }
 
         Describe -Name "$Global:DSCResourceName\Test-EmailAddress" -Fixture {
-        
+
             Context 'Tests Test-EmailAddress' {
 
                 It 'Returns true when email address is valid' {
@@ -1464,7 +1465,7 @@ try
         }
         
         Describe -Name "$Global:DSCResourceName\Test-SMTPBindings" -Fixture {
-        
+
             Context 'Tests Test-SMTPBindings' {
 
                 It 'Returns true when IP address is valid' {
