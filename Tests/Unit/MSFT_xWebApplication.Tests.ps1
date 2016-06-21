@@ -495,10 +495,26 @@ try
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {   
             
             Context 'Web Application does not exist' {
+
+                $script:mockGetWebApplicationCalled = 0
+                $mockWebApplication = {
+                            $script:mockGetWebApplicationCalled++                                
+                            if($script:mockGetWebApplicationCalled -eq 1)
+                            {
+                                return $null
+                            }
+                            else
+                            {
+                                return @{
+                                            ApplicationPool          = $MockParameters.WebAppPool
+                                            PhysicalPath             = $MockParameters.PhysicalPath
+                                            ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                                            Count = 1
+                                        }
+                            }
+                        }
                 
-                Mock -CommandName Get-WebApplication -MockWith {
-                    return $null     
-                }
+                Mock -CommandName Get-WebApplication -MockWith $mockWebApplication
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
@@ -535,11 +551,11 @@ try
                 It 'should call expected mocks' {
 
                 $Result = Set-TargetResource -Ensure 'Present' @MockParameters
-                    Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
+                    Assert-MockCalled -CommandName Get-WebApplication -Exactly 2
                     Assert-MockCalled -CommandName New-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                     Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
 

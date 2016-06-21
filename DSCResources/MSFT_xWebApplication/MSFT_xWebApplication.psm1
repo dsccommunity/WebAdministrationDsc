@@ -146,6 +146,7 @@ function Set-TargetResource
                 New-WebApplication -Site $Website -Name $Name `
                                    -PhysicalPath $PhysicalPath `
                                    -ApplicationPool $WebAppPool
+                $webApplication = Get-WebApplication -Site $Website -Name $Name
             }
 
             #Update Physical Path if required
