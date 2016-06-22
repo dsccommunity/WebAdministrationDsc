@@ -24,7 +24,14 @@ data LocalizedData
         VerboseSetTargetResourceUpdated        = Updated SMTPSetting "{0}".
 '@
 }
-
+<#
+    This is an array of all the parameters used by this resource
+    It can be used by several of the functions to reduce the amount of code required
+    Each element contains 3 properties:
+    Name: The parameter name
+    Source: The source where the existing parameter can be pulled from
+    Type: This is the content type of the paramater (it is either array, string, boolean or blank)
+#> 
 data ParameterList
 {
     @( 
@@ -191,11 +198,12 @@ data ParameterList
     )
 }
 
+
 function Get-TargetResource
 {
     <#
     .SYNOPSIS
-        This will return a hashtable of results 
+        This will return a hashtable of results
     #>
 
     [CmdletBinding()]
