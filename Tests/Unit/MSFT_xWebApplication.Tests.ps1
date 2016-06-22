@@ -498,21 +498,21 @@ try
 
                 $script:mockGetWebApplicationCalled = 0
                 $mockWebApplication = {
-                            $script:mockGetWebApplicationCalled++                                
-                            if($script:mockGetWebApplicationCalled -eq 1)
-                            {
-                                return $null
+                    $script:mockGetWebApplicationCalled++                                
+                    if($script:mockGetWebApplicationCalled -eq 1)
+                    {
+                        return $null
+                    }
+                    else
+                    {
+                        return @{
+                            ApplicationPool = $MockParameters.WebAppPool
+                            PhysicalPath    = $MockParameters.PhysicalPath
+                            ItemXPath       = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                            Count           = 1
                             }
-                            else
-                            {
-                                return @{
-                                            ApplicationPool          = $MockParameters.WebAppPool
-                                            PhysicalPath             = $MockParameters.PhysicalPath
-                                            ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
-                                            Count = 1
-                                        }
-                            }
-                        }
+                    }
+                }
                 
                 Mock -CommandName Get-WebApplication -MockWith $mockWebApplication
 
