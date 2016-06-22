@@ -231,7 +231,7 @@ Currently, only FastCgiModule is supported.
          * Incorrect Get-TargetResource param block
          * Test-SslFlags validation
          * Unit test mocking of Test-SslFlags
-    * Fixed: The changes of the application pool of WebApplication is applied correctly.
+    * Fixed: The changes of the application pool property of a WebApplication is applied correctly.
 	
 ### 1.11.0.0
 
