@@ -1,5 +1,3 @@
-#requires -Version 4.0 -Modules CimCmdlets
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -30,11 +28,6 @@ data LocalizedData
 data ParameterList
 {
     @( 
-        @{
-            Name   = 'Name'
-            Source = '$CurrentSMTP.Properties.Name'
-            Type   = 'String'
-        }
         @{
             Name   = 'AuthFlags'
             Source = '$CurrentSMTP.Properties.AuthFlags'
@@ -352,14 +345,6 @@ function Set-TargetResource
         {
             switch($parameter)
             {
-                Name
-                {
-                    <#
-                     Bug?
-                     Blank to since name does not need to be set
-                    #>
-                }
-
                 BadMailDirectory
                 {
                     if(-not (Test-Path -Path $BadMailDirectory))
@@ -531,14 +516,6 @@ function Test-TargetResource
         {
             switch($parameter)
             {
-                Name
-                {
-                    <#
-                     Bug?
-                     Blank to since name fails the test
-                    #>
-                }
-
                 BadMailDirectory
                 {
                     if(-not (Test-Path -Path $BadMailDirectory))
