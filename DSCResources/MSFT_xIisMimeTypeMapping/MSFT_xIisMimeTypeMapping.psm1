@@ -177,9 +177,9 @@ function Get-Mapping
         [String] $Type
     )
 
-    [String] $Filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
+    [String] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
                        $Extension + "' and @mimeType='" + $Type + "']"
-    return Get-WebConfigurationProperty  -PSpath 'MACHINE/WEBROOT/APPHOST' -Filter $Filter -Name .
+    return Get-WebConfigurationProperty  -PSpath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
 }
 
 #endregion
