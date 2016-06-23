@@ -448,10 +448,10 @@ Function Confirm-UniqueEnabledProtocols
     $InputToCheck = @()
     foreach($ProposedProtocol in $ProposedProtocols)
     { 
-        $InputToCheck += $ProtocolAddition
+        $InputToCheck += $ProposedProtocol
     }
 
-    $ExistingProtocolsToCheck = $ExistingProtocols -split '\n'
+    $ExistingProtocolsToCheck = $ExistingProtocols -split ','
 
     $ExistingToCheck = @()
     foreach($ExistingProtocol in $ExistingProtocolsToCheck)

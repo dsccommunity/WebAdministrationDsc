@@ -25,20 +25,24 @@ try
                             -ClientOnly `
                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
 
-         $MockParameters = @{
-             Website                  = 'MockSite'
-             Name                     = 'MockApp'
-             WebAppPool               = 'MockPool'
-             PhysicalPath             = 'C:\MockSite\MockApp'
-             SslFlags                 = 'Ssl'
-             PreloadEnabled           = $True
-             ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
-             ServiceAutoStartEnabled  = $True
-             ApplicationType          = 'MockApplicationType'
-             AuthenticationInfo       = $MockAuthenticationInfo
-             EnabledProtocols         = 'http,net.tcp'
+        $MockParameters = @{
+            Website                  = 'MockSite'
+            Name                     = 'MockApp'
+            WebAppPool               = 'MockPool'
+            PhysicalPath             = 'C:\MockSite\MockApp'
+            SslFlags                 = 'Ssl'
+            PreloadEnabled           = $True
+            ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
+            ServiceAutoStartEnabled  = $True
+            ApplicationType          = 'MockApplicationType'
+            AuthenticationInfo       = $MockAuthenticationInfo
+            EnabledProtocols         = @('http','net.tcp')
            
-         }
+        }
+
+        $MockWebApplicationOutput = @{
+            EnabledProtocols         = 'http'
+        }
 
         $GetWebConfigurationOutput = @(
                 @{
@@ -75,7 +79,7 @@ try
                 Website                  = 'MockSite'
                 Name                     = 'MockApp'
                 WebAppPool               = 'MockPool'
-                PhysicalPath             = 'C:\MockSite\MockApp'          
+                PhysicalPath             = 'C:\MockSite\MockApp'
             }
 
             Context 'Absent should return correctly' {
@@ -993,7 +997,7 @@ try
                                                    | Should be $true
                 }
 
-                It 'Returns false when settings do match' {
+                It 'Returns false when settings do not match' {
                     
                     Confirm-UniqueEnabledProtocols -ExistingProtocols 'http' `
                                                    -ProposedProtocols @('http','net.tcp') `
