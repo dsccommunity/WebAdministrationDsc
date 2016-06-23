@@ -434,6 +434,7 @@ function Test-TargetResource
     #>
 
     [CmdletBinding()]
+    [OutputType([Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -675,7 +676,7 @@ Function Set-SMTPSettings
         Helper function used to set the SMTP server settings.
     .PARAMETER ID
         Specifies the ID of the SMTP virtual server. 1 is the default SMTP server.
-    .PARAMETER Settigng
+    .PARAMETER Setting
         Specifies the setting of the SMTP virtual server to be changed.
     .PARAMETER Value
         Specifies the value of the SMTP virtual server setting to be changed.
@@ -750,9 +751,9 @@ Function Test-SMTPBindings
     #>
 
     [CmdletBinding()]
+    [OutputType([Boolean])]
     param
     (
-        [OutputType([Boolean])]
         [Parameter(Mandatory = $true)]
         [String[]] $ServerBindings
     )
