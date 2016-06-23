@@ -9,7 +9,7 @@ data LocalizedData
         UnableToFindConfig       = Unable to find configuration in AppHost Config.
         SettingsslConfig         = Setting {0} ssl binding to {1}.
         sslBindingsCorrect       = ssl Bindings for {0} are correct.
-        sslBindingsAbsent        = ssl Bidnings for {0} are absent.
+        sslBindingsAbsent        = ssl Bindings for {0} are absent.
         VerboseGetTargetResource = Get-TargetResource has been run.
 '@
 }
@@ -20,6 +20,7 @@ function Get-TargetResource
     .SYNOPSIS
         This will return a hashtable of results 
     #>
+
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -59,8 +60,8 @@ function Get-TargetResource
     catch [Exception]
     {
         New-TerminatingError -ErrorId 'UnableToFindConfig'`
-                            -ErrorMessage $ErrorMessage `
-                            -ErrorCategory 'InvalidResult'
+                             -ErrorMessage $ErrorMessage `
+                             -ErrorCategory 'InvalidResult'
     }
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
@@ -78,6 +79,7 @@ function Set-TargetResource
     .SYNOPSIS
         This will set the desired state
     #>
+
     [CmdletBinding()]
     param
     (
