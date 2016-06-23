@@ -161,7 +161,6 @@ function Set-TargetResource
             }
         }
 
-        # bug(TBD) deal with this better, maybe a seperate resource....
         if(-not $resourceTests.EndPointSetup)
         {
             Write-Verbose -Message $LocalizedData.VerboseSetTargetAddfastCgi
@@ -210,7 +209,7 @@ function Test-TargetResource
         [String] $SiteName
     )
 
-    $GetParameters = Get-GetParameters -FunctionParameters $PSBoundParameters
+    $getParameters = Get-GetParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
 
     Write-Verbose -Message $LocalizedData.VerboseTestTargetResource
