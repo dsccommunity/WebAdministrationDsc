@@ -6,10 +6,10 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule   = Please ensure that WebAdministration module is installed.
-        UnableToGetConfig           = Unable to get configuration data for '{0}'
-        ChangedMessage              = Changed overrideMode for '{0}' to {1}
-        VerboseGetTargetResource    = Get-TargetResource has been run.
+        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
+        UnableToGetConfig         = Unable to get configuration data for '{0}'.
+        ChangedMessage            = Changed overrideMode for '{0}' to '{1}'.
+        VerboseGetTargetResource  = Get-TargetResource has been run.
 '@
 }
 
@@ -33,7 +33,7 @@ function Get-TargetResource
         [String] $OverrideMode
     )
 
-    [String] $oMode = Get-OverrideMode -section $SectionName
+    [String] $oMode = Get-OverrideMode -Section $SectionName
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
 

@@ -94,7 +94,7 @@ function Set-TargetResource
     .SYNOPSIS
         This will set the desired state
     #>
-    
+
     [CmdletBinding()]
     param
     (
@@ -133,7 +133,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present')
     {
             $webApplication = Get-WebApplication -Site $Website -Name $Name
- 
+
             if ($AuthenticationInfo -eq $null)
             {
                 $AuthenticationInfo = Get-DefaultAuthenticationInfo
@@ -168,7 +168,7 @@ function Set-TargetResource
                     -Name applicationPool `
                     -Value $WebAppPool
             }
-     
+
             # Update SslFlags if required
             if ($PSBoundParameters.ContainsKey('SslFlags') -and `
                 (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
@@ -299,10 +299,10 @@ function Test-TargetResource
     $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
     if ($AuthenticationInfo -eq $null) 
-    { 
+    {
         $AuthenticationInfo = Get-DefaultAuthenticationInfo 
     }
-    
+
     if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') 
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAbsent -f $Name)
@@ -314,7 +314,7 @@ function Test-TargetResource
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePresent -f $Name)
         return $false
     }
-    
+
     if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') 
     {
         #Check Physical Path
@@ -323,14 +323,14 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)
             return $false
         }
-        
+
         #Check AppPool
         if ($webApplication.applicationPool -ne $WebAppPool)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebAppPool -f $Name)
             return $false
         }
-        
+
         #Check SslFlags
         if ($PSBoundParameters.ContainsKey('SslFlags') -and `
             (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
@@ -344,12 +344,12 @@ function Test-TargetResource
             (-not (Test-AuthenticationInfo -Site $Website `
                                            -Name $Name `
                                            -AuthenticationInfo $AuthenticationInfo)))
-        { 
+        {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo `
                                     -f $Name)
             return $false
-        }       
-        
+        }
+
         #Check Preload
         if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
             $webApplication.preloadEnabled -ne $PreloadEnabled)
@@ -357,7 +357,7 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
             return $false
         } 
-             
+
         #Check AutoStartEnabled
         if($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
             $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
@@ -365,7 +365,7 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutostart -f $Name)
             return $false
         }
-        
+
         #Check AutoStartProviders 
         if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
             $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
@@ -381,9 +381,9 @@ function Test-TargetResource
                 ($LocalizedData.VerboseTestTargetFalseWebApplicationAutoStartProviders -f $Name)
             return $false      
         }
-    
+
     }
-    
+
     return $true
     
 }
@@ -444,9 +444,10 @@ function Confirm-UniqueServiceAutoStartProviders
                               -Property type)
                 {
                     $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' `
-                                         -ErrorMessage $ErrorMessage `
-                                         -ErrorCategory 'InvalidResult'
+                    New-TerminatingError `
+                        -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' `
+                        -ErrorMessage $ErrorMessage `
+                        -ErrorCategory 'InvalidResult'
                 }
         }
 
@@ -510,7 +511,7 @@ function Get-SslFlags
     .PARAMETER Location
         Specifies the path in the IIS: PSDrive to the Application
     #>
-    
+
     [CmdletBinding()]
     [OutputType([System.String])]
     param
@@ -518,7 +519,7 @@ function Get-SslFlags
         [Parameter(Mandatory = $true)]
         [String] $Location
     )
-    
+
     $SslFlags = Get-WebConfiguration `
                 -PSPath IIS:\Sites `
                 -Location $Location `
@@ -604,7 +605,10 @@ function Set-AuthenticationInfo
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
         $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-        Set-Authentication -Site $Site -Name $Name -Type $type -Enabled $enabled
+        Set-Authentication -Site $Site `
+                           -Name $Name `
+                           -Type $type `
+                           -Enabled $enabled
     }
 }
 
@@ -643,7 +647,7 @@ function Test-AuthenticationEnabled
             -Filter /system.WebServer/security/authentication/${Type}Authentication `
             -Name enabled `
             -Location "${Site}/${Name}"
-    
+
     return $prop.Value
     
 }
@@ -684,7 +688,9 @@ function Test-AuthenticationInfo
     {
 
         $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-        $actual = Test-AuthenticationEnabled -Site $Site -Name $Name -Type $type
+        $actual = Test-AuthenticationEnabled -Site $Site `
+                                             -Name $Name `
+                                             -Type $type
         if ($expected -ne $actual)
         {
             return $false
@@ -722,10 +728,11 @@ function Test-SslFlags
 
     $CurrentSslFlags =  Get-SslFlags -Location $Location
 
-    if (Compare-Object -ReferenceObject $CurrentSslFlags -DifferenceObject $SslFlags)
-        {
-            return $false
-        }
+    if(Compare-Object -ReferenceObject $CurrentSslFlags `
+                        -DifferenceObject $SslFlags)
+      {
+          return $false
+      }
         
     return $true
     

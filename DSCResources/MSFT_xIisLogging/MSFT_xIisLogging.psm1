@@ -1,5 +1,3 @@
-#requires -Version 4.0 -Modules CimCmdlets
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -8,21 +6,21 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-VerboseGetTargetResult = Get-Taget has been run.
-VerboseSetTargetUpdateLogPath = LogPath is not in the desired state and will be updated.
-VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated.
-VerboseSetTargetUpdateLogPeriod = LogPeriod is not in the desired state and will be updated.
-VerboseSetTargetUpdateLogTruncateSize = TruncateSize is not in the desired state and will be updated.
-VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover is not in the desired state and will be updated.
-VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated
-VerboseTestTargetFalseLogPath = LogPath does match desired state.
-VerboseTestTargetFalseLogFlags = LogFlags does not match desired state.
-VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state.
-VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state.
-VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
-VerboseTestTargetFalseLogFormat = LogFormat does not match desired state.
-WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state.
-WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used. 
+        VerboseGetTargetResult                     = Get-Taget has been run.
+        VerboseSetTargetUpdateLogPath              = LogPath is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLogFlags             = LogFlags do not match and will be updated.
+        VerboseSetTargetUpdateLogPeriod            = LogPeriod is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLogTruncateSize      = TruncateSize is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLogFormat            = LogFormat is not in the desired state and will be updated
+        VerboseTestTargetFalseLogPath              = LogPath does match desired state.
+        VerboseTestTargetFalseLogFlags             = LogFlags does not match desired state.
+        VerboseTestTargetFalseLogPeriod            = LogPeriod does not match desired state.
+        VerboseTestTargetFalseLogTruncateSize      = LogTruncateSize does not match desired state.
+        VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
+        VerboseTestTargetFalseLogFormat            = LogFormat does not match desired state.
+        WarningLogPeriod                           = LogTruncateSize has is an input as will overwrite this desired state.
+        WarningIncorrectLogFormat                  = LogFormat is not W3C, as a result LogFlags will not be used. 
 '@
 }
 
@@ -32,6 +30,7 @@ function Get-TargetResource
     .SYNOPSIS
         This will return a hashtable of results 
     #>
+
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -65,6 +64,7 @@ function Set-TargetResource
     .SYNOPSIS
         This will set the desired state
     #>
+
     [CmdletBinding()]
     param
     (
@@ -96,8 +96,8 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
-                -name logFormat `
-                -value $LogFormat
+                -Name logFormat `
+                -Value $LogFormat
         }
         
         # Update LogPath if needed
@@ -105,8 +105,8 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
-                -name directory `
-                -value $LogPath
+                -Name directory `
+                -Value $LogPath
         }
         
         # Update Logflags if needed; also sets logformat to W3C
@@ -289,12 +289,14 @@ function Compare-LogFlags
     )
 
     $CurrentLogFlags = (Get-WebConfigurationProperty `
-                        -filter '/system.Applicationhost/Sites/SiteDefaults/logfile' `
-                        -Name LogExtFileFlags) -split ',' | Sort-Object
+                        -Filter '/system.Applicationhost/Sites/SiteDefaults/logfile' `
+                        -Name LogExtFileFlags) -split ',' | `
+                        Sort-Object
 
     $ProposedLogFlags = $LogFlags -split ',' | Sort-Object
 
-    if (Compare-Object -ReferenceObject $CurrentLogFlags -DifferenceObject $ProposedLogFlags)
+    if (Compare-Object -ReferenceObject $CurrentLogFlags `
+                       -DifferenceObject $ProposedLogFlags)
     {
         return $false
     }

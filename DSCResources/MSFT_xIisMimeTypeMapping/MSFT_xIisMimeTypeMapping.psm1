@@ -89,12 +89,12 @@ function Set-TargetResource
         [String] $psPathRoot = 'MACHINE/WEBROOT/APPHOST'
         [String] $sectionNode = 'system.webServer/staticContent'
 
-        $mt = Get-Mapping -extension $Extension -type $MimeType 
+        $mt = Get-Mapping -Extension $Extension -Type $MimeType 
 
         if ($null -eq $mt -and $Ensure -eq 'Present')
         {
             # add the MimeType            
-            Add-WebConfigurationProperty -PSpath $psPathRoot `
+            Add-WebConfigurationProperty -PSPath $psPathRoot `
                                          -Filter $sectionNode `
                                          -Name '.' `
                                          -Value @{fileExtension="$Extension";mimeType="$MimeType"}
@@ -103,7 +103,7 @@ function Set-TargetResource
         elseif ($null -ne $mt -and $Ensure -eq 'Absent')
         {
             # remove the MimeType                      
-            Remove-WebConfigurationProperty -PSpath $psPathRoot `
+            Remove-WebConfigurationProperty -PSPath $psPathRoot `
                                             -Filter $sectionNode `
                                             -Name '.' `
                                             -AtElement @{fileExtension="$Extension"}
@@ -179,7 +179,7 @@ function Get-Mapping
 
     [String] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
                        $Extension + "' and @mimeType='" + $Type + "']"
-    return Get-WebConfigurationProperty  -PSpath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
+    return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
 }
 
 #endregion

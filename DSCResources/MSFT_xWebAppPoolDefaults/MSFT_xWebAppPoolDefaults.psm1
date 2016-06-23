@@ -9,7 +9,7 @@ data LocalizedData
         NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
         SettingValue              = Changing default value '{0}' to '{1}'
         ValueOk                   = Default value '{0}' is already '{1}'
-        VerboseGetTargetResource   = Get-TargetResource has been run.
+        VerboseGetTargetResource  = Get-TargetResource has been run.
 '@
 }
 
@@ -19,7 +19,7 @@ function Get-TargetResource
     .SYNOPSIS
         This will return a hashtable of results 
     #>
-    
+
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -46,7 +46,7 @@ function Set-TargetResource
     .SYNOPSIS
         This will set the desired state
     #>
-    
+
     [CmdletBinding()]
     param
     (    
@@ -92,12 +92,16 @@ function Test-TargetResource
 
     Assert-Module
 
-    if (!(Confirm-Value -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion)) 
+    if (-not((Confirm-Value -Path '' `
+                            -Name 'managedRuntimeVersion' `
+                            -NewValue $ManagedRuntimeVersion)))
     { 
         return $false
     }
 
-    if (!(Confirm-Value -Path 'processModel' -Name 'identityType' -NewValue $IdentityType)) 
+    if (-not((Confirm-Value -Path 'processModel' `
+                            -Name 'identityType' `
+                            -NewValue $IdentityType)))
     {
         return $false 
     }
@@ -119,7 +123,7 @@ function Confirm-Value
         [String] $NewValue
     )
     
-    if (!$NewValue)
+    if (-not($NewValue))
     {
         # if no new value was specified, we assume this value is okay.
         return $true
@@ -151,7 +155,7 @@ function Set-Value
     )
 
     # if the variable doesn't exist, the user doesn't want to change this value
-    if (!$NewValue)
+    if (-not($NewValue))
     {
         return
     }
@@ -179,7 +183,7 @@ function Set-Value
 
 function Get-Value
 {
-    
+
     [CmdletBinding()]
     param
     (  

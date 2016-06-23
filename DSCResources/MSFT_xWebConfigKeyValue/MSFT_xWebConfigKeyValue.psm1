@@ -7,7 +7,7 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
         VerboseGetTargetPresent = MIMEType is present
-        VerboseGetTargetAbsent = MIMEType is absent
+        VerboseGetTargetAbsent  = MIMEType is absent
 '@
 }
 
@@ -17,6 +17,7 @@ function Get-TargetResource
     .SYNOPSIS
         This will return a hashtable of results 
     #>
+
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param

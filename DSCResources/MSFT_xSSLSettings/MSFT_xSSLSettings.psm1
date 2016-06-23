@@ -6,11 +6,11 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        UnableToFindConfig         = Unable to find {0} in AppHost Config.
-        SettingsslConfig           = Setting {0} ssl binding to {1}.
-        sslBindingsCorrect         = ssl Bindings for {0} are correct.
-        sslBindingsAbsent          = ssl Bidnings for {0} are absent.
-        VerboseGetTargetResource   = Get-TargetResource has been run.
+        UnableToFindConfig       = Unable to find configuration in AppHost Config.
+        SettingsslConfig         = Setting {0} ssl binding to {1}.
+        sslBindingsCorrect       = ssl Bindings for {0} are correct.
+        sslBindingsAbsent        = ssl Bidnings for {0} are absent.
+        VerboseGetTargetResource = Get-TargetResource has been run.
 '@
 }
 
@@ -58,13 +58,13 @@ function Get-TargetResource
     }
     catch [Exception]
     {
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-                $($LocalizedData.UnableToFindConfig) -f $Name
-        ) -join '')
+        New-TerminatingError -ErrorId 'UnableToFindConfig'`
+                            -ErrorMessage $ErrorMessage `
+                            -ErrorCategory 'InvalidResult'
     }
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
-    
+
     return @{
         Name = $Name
         Bindings = $Bindings
@@ -105,9 +105,7 @@ function Set-TargetResource
             Value    = ''
         }
 
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-                $($LocalizedData.SettingsslConfig) -f $Name, 'None'
-        ) -join '')
+        Write-Verbose -Message ($LocalizedData.SettingsslConfig -f $Name, 'None')
         Set-WebConfigurationProperty @params
     }
     
@@ -122,9 +120,7 @@ function Set-TargetResource
             Value    = $sslBindings
         }
 
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-                $($LocalizedData.SettingsslConfig) -f $Name, $params.Value
-        ) -join '')
+        Write-Verbose -Message ($LocalizedData.SettingsslConfig -f $Name, $params.Value)
         Set-WebConfigurationProperty @params
     }
 }
@@ -162,20 +158,14 @@ function Test-TargetResource
                                   -PassThru
         if ($null -eq $sslComp)
         {
-            Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-                    $($LocalizedData.sslBindingsCorrect) -f $Name
-            ) -join '')
-
+            Write-Verbose -Message ($LocalizedData.sslBindingsCorrect -f $Name)
             return $true;
         }
     }
 
     if ($Ensure -eq 'Absent' -and $sslSettings.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-                $($LocalizedData.sslBindingsAbsent) -f $Name
-        ) -join '')
-
+        Write-Verbose -Message ($LocalizedData.sslBindingsAbsent -f $Name)
         return $true;
     }
 

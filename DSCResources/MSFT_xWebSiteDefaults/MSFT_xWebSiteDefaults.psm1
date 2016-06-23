@@ -9,7 +9,7 @@ data LocalizedData
         NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
         SettingValue              = Changing default Value '{0}' to '{1}'
         ValueOk                   = Default Value '{0}' is already '{1}'
-        VerboseGetTargetResource   = Get-TargetResource has been run.
+        VerboseGetTargetResource  = Get-TargetResource has been run.
 '@
 }
 function Get-TargetResource
@@ -34,12 +34,12 @@ function Get-TargetResource
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
     
     return @{
-        LogFormat = (Get-Value 'siteDefaults/logFile' 'logFormat')
-        TraceLogDirectory = ( Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory')
+        LogFormat              = (Get-Value 'siteDefaults/logFile' 'logFormat')
+        TraceLogDirectory      = ( Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory')
         DefaultApplicationPool = (Get-Value 'applicationDefaults' 'applicationPool')
-        AllowSubDirConfig = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig')
-        ApplyTo = 'Machine'
-        LogDirectory = (Get-Value 'siteDefaults/logFile' 'directory')
+        AllowSubDirConfig      = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig')
+        ApplyTo                = 'Machine'
+        LogDirectory           = (Get-Value 'siteDefaults/logFile' 'directory')
     }    
 
 }

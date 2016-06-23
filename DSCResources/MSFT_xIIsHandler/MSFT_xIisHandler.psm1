@@ -6,14 +6,14 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule   =   Please ensure that WebAdministration module is installed.
-        AddingHandler               =   Adding handler '{0}'
-        RemovingHandler             =   Removing handler '{0}'
-        HandlerExists               =   Handler with name '{0}' already exist
-        HandlerNotPresent           =   Handler with name '{0}' is not present as requested
-        HandlerNotSupported         =   The handler with name '{0}' is not supported.
-        VerboseGetTargetPresent     =   Handler is present
-        VerboseGetTargetAbsent      =   Handler is absent
+        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
+        AddingHandler             = Adding handler '{0}'
+        RemovingHandler           = Removing handler '{0}'
+        HandlerExists             = Handler with name '{0}' already exist
+        HandlerNotPresent         = Handler with name '{0}' is not present as requested
+        HandlerNotSupported       = The handler with name '{0}' is not supported.
+        VerboseGetTargetPresent   = Handler is present
+        VerboseGetTargetAbsent    = Handler is absent
 '@
 }
 
@@ -898,19 +898,19 @@ function Test-TargetResource
     if (($null -eq $handler -and $Ensure -eq 'Present') -or `
         ($null -ne $handler -and $Ensure -eq 'Absent'))
     {
-        return $false;
+        return $false
     }
     elseif ($null -ne $handler -and $Ensure -eq 'Present')
     {
         # Handler is present
-        Write-Verbose -Message ($LocalizedData.HandlerExists -f $Name);
-        return $true;
+        Write-Verbose -Message ($LocalizedData.HandlerExists -f $Name)
+        return $true
     }
     else
     {
         # Handler not present and should not be there.
-        Write-Verbose -Message ($LocalizedData.HandlerNotPresent -f $Name);
-        return $true;
+        Write-Verbose -Message ($LocalizedData.HandlerNotPresent -f $Name)
+        return $true
     }
 }
 
@@ -926,7 +926,7 @@ function Get-Handler
     [String] $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
     return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' `
                                          -Filter $filter `
-                                         -Name .
+                                         -Name '.'
 }
 
 function Add-Handler
