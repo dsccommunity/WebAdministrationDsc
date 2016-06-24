@@ -13,17 +13,19 @@ configuration MSFT_xWebApplication_Present
             PhysicalPath = $Node.PhysicalPath
             WebAppPool = $Node.ApplicationPool
             ApplicationType = $Node.ApplicationType
-            AuthenticationInfo = MSFT_xWebApplicationAuthenticationInformation
-                {
-                    Anonymous = $Node.AuthenticationInfoAnonymous
-                    Basic     = $Node.AuthenticationInfoBasic
-                    Digest    = $Node.AuthenticationInfoDigest
-                    Windows   = $Node.AuthenticationInfoWindows
-                }
+            AuthenticationInfo = `
+            MSFT_xWebApplicationAuthenticationInformation
+            {
+                Anonymous = $Node.AuthenticationInfoAnonymous
+                Basic     = $Node.AuthenticationInfoBasic
+                Digest    = $Node.AuthenticationInfoDigest
+                Windows   = $Node.AuthenticationInfoWindows
+            }
             PreloadEnabled = $Node.PreloadEnabled
             ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
             SslFlags = $Node.WebApplicationSslFlags
+            EnabledProtocols = $Node.EnabledProtocols
         }
     }
 }
