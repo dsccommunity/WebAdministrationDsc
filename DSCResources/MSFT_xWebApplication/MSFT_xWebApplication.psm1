@@ -439,6 +439,7 @@ Function Confirm-UniqueEnabledProtocols
     param
     ( 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [String] $ExistingProtocols,
         
         [Parameter(Mandatory = $true)]

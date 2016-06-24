@@ -36,11 +36,20 @@ try
             ServiceAutoStartEnabled  = $True
             ApplicationType          = 'MockApplicationType'
             AuthenticationInfo       = $MockAuthenticationInfo
-            EnabledProtocols         = @('http','net.tcp')
-           
+            EnabledProtocols         = @('http')
         }
 
         $MockWebApplicationOutput = @{
+            Website                  = 'MockSite'
+            Name                     = 'MockApp'
+            WebAppPool               = 'MockPool'
+            PhysicalPath             = 'C:\MockSite\MockApp'
+            SslFlags                 = 'Ssl'
+            PreloadEnabled           = $True
+            ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
+            ServiceAutoStartEnabled  = $True
+            ApplicationType          = 'MockApplicationType'
+            AuthenticationInfo       = $MockAuthenticationInfo
             EnabledProtocols         = 'http'
         }
 
@@ -125,13 +134,13 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        SslFlags                 = $MockParameters.SslFlags
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        SslFlags                 = $MockWebApplicationOutput.SslFlags
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
                 }
@@ -212,13 +221,13 @@ try
                 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count                    = 1
                     }
  
@@ -263,12 +272,12 @@ try
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = 'MockPoolOther'
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count                    = 1
                     }
  
@@ -293,12 +302,12 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
                         PhysicalPath             = 'C:\MockSite\MockAppOther'
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
   
@@ -323,12 +332,12 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                         }
                     }
@@ -345,13 +354,13 @@ try
             
                 Mock -CommandName Get-WebApplication -MockWith {
                         return @{
-                            ApplicationPool          = $MockParameters.WebAppPool
-                            PhysicalPath             = $MockParameters.PhysicalPath
-                            PreloadEnabled           = $MockParameters.PreloadEnabled
-                            ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                            ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                            ApplicationType          = $MockParameters.ApplicationType
-                            EnabledProtocols         = $MockParameters.EnabledProtocols
+                            ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                            PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                            PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                            ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                            ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                            ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                            EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                             Count                    = 1
                         }
                 }
@@ -399,13 +408,13 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                         }
                     }
@@ -430,13 +439,13 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
                         ServiceAutoStartEnabled  = 'false'
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                         }
                     }
@@ -465,10 +474,10 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = 'ServiceAutoStartProviderOther'
                         ApplicationType          = 'ApplicationTypeOther'
                         Count = 1
@@ -499,12 +508,12 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
                         EnabledProtocols         = 'http'
                         Count = 1
                         }
@@ -546,7 +555,7 @@ try
             Context 'Web Application does not exist' {
                 
                 Mock -CommandName Get-WebApplication -MockWith {
-                    return $null     
+                    return $null
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
@@ -605,13 +614,13 @@ try
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = 'MockPoolOther'
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
   
@@ -656,14 +665,14 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
                         PhysicalPath             = 'C:\MockSite\MockAppOther'
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
  
@@ -709,14 +718,14 @@ try
             
                 Mock -CommandName Get-WebApplication -MockWith {
                         return @{
-                            ApplicationPool          = $MockParameters.WebAppPool
-                            PhysicalPath             =  $MockParameters.PhysicalPath
-                            ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
-                            PreloadEnabled           = $MockParameters.PreloadEnabled
-                            ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                            ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                            ApplicationType          = $MockParameters.ApplicationType
-                            EnabledProtocols         = $MockParameters.EnabledProtocols
+                            ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                            PhysicalPath             =  $MockWebApplicationOutput.PhysicalPath
+                            ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                            PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                            ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                            ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                            ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                            EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                             Count = 1
                         }
                 
@@ -760,14 +769,14 @@ try
             
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             =  $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
 
@@ -801,14 +810,14 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             =  $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
 
@@ -841,14 +850,14 @@ try
                
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             =  $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
                         ServiceAutoStartEnabled  = 'false'
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider    
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider    
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
  
@@ -893,14 +902,14 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             =  $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
                         ServiceAutoStartProvider = 'OtherServiceAutoStartProvider'
                         ApplicationType          = 'OtherApplicationType'
-                        EnabledProtocols         = $MockParameters.EnabledProtocols
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
 
@@ -946,14 +955,14 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        EnabledProtocols         = 'http'
+                        ApplicationPool          = $MockWebApplicationOutput.WebAppPool
+                        PhysicalPath             =  $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = 'http,net.tcp'
                         Count = 1
                     }
 
@@ -979,7 +988,6 @@ try
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
-                    Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                 }
             
             }
