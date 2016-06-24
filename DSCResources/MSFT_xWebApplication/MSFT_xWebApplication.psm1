@@ -131,7 +131,7 @@ function Set-TargetResource
         [String]
         $ApplicationType,
         
-        [ValidateSet('http','https','net.tcp','net.msmq')]
+        [ValidateSet('http','https','net.tcp','net.msmq','net.pipe')]
         [String[]] $EnabledProtocols
     )
 
@@ -312,7 +312,7 @@ function Test-TargetResource
         [String]
         $ApplicationType,
         
-        [ValidateSet('http','https','net.tcp','net.msmq')]
+        [ValidateSet('http','https','net.tcp','net.msmq','net.pipe')]
         [String[]] $EnabledProtocols
     )
 

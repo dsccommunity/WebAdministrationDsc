@@ -178,6 +178,7 @@ Currently, only FastCgiModule is supported.
     * **Digest**: The acceptable values for this property are: `$true`, `$false`
     * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
+* **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
 ### xWebVirtualDirectory
 
@@ -226,8 +227,10 @@ Currently, only FastCgiModule is supported.
     * LoglocalTimeRollover
     * LogFormat
 
-* Added **xWebApplication** integration tests
-* Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
+* **xWebApplication** updates: 
+    * xWebApplication integration tests updated
+    * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
+    * Added EnabledProtocols
 
 ### 1.11.0.0
 
