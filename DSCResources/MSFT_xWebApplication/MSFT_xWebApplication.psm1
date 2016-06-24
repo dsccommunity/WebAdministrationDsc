@@ -75,11 +75,11 @@ function Get-TargetResource
         WebAppPool               = $webApplication.applicationPool
         PhysicalPath             = $webApplication.PhysicalPath
         AuthenticationInfo       = $CimAuthentication
-        SslFlags                 = @($CurrentSslFlags)
+        SslFlags                 = [Array]$CurrentSslFlags
         PreloadEnabled           = $webApplication.preloadEnabled
         ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
-        EnabledProtocols         = $webApplication.EnabledProtocols
+        EnabledProtocols         = [Array]$webApplication.EnabledProtocols
         Ensure                   = $Ensure
     }
 

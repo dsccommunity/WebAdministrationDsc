@@ -75,11 +75,11 @@ try
                 It 'should throw an error' {
                     { Assert-Module } | 
                     Should Throw
- 
+
                 }
- 
+
             }
-  
+
         }
 
         Describe "$script:DSCResourceName\Get-TargetResource" {
