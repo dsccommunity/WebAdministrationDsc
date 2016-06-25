@@ -1427,20 +1427,20 @@ try
 
         }
         
-        Describe -Name "$Global:DSCResourceName\Confirm-UnqiueBindings" -Fixture {
+        Describe -Name "$Global:DSCResourceName\Confirm-UniqueBindings" -Fixture {
 
-            Context 'Tests Confirm-UnqiueBindings' {
+            Context 'Tests Confirm-UniqueBindings' {
 
                 It 'Returns true when settings match' {
 
-                    Confirm-UnqiueBindings -ExistingBindings ':25:' `
+                    Confirm-UniqueBindings -ExistingBindings ':25:' `
                                            -ProposedBindings @(':25') `
                                            | Should be $true
                 }
 
                 It 'Returns false when settings do match' {
                     
-                    Confirm-UnqiueBindings -ExistingBindings ':25:' `
+                    Confirm-UniqueBindings -ExistingBindings ':25:' `
                                            -ProposedBindings @('server:25') `
                                            | Should be $false
                 }

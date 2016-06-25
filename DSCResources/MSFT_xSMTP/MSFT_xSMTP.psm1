@@ -398,16 +398,16 @@ function Set-TargetResource
                 {
                     if (Test-SMTPBindings -ServerBindings $ServerBindings)
                     {
-                        if (-not(Confirm-UnqiueBindings `
+                        if (-not(Confirm-UniqueBindings `
                                 -ExistingBindings $Result.ServerBindings `
                                 -ProposedBindings $ServerBindings ))
                         {
                             Write-Verbose -Message ($LocalizedData.VerboseSetTargetServerBindings)
                             # Make input bindings which are an array, into a string
-                            $StringafiedBindings = $ServerBindings -join ' '
+                            $stringafiedBindings = $ServerBindings -join ' '
                             Set-SMTPSettings -Name $Name `
                                              -Setting 'ServerBindings' `
-                                             -Value $StringafiedBindings
+                                             -Value $stringafiedBindings
                         }
                     }
                 }
@@ -570,7 +570,7 @@ function Test-TargetResource
                     }
         
                     # Test if the bindings are different
-                    if (-not(Confirm-UnqiueBindings `
+                    if (-not(Confirm-UniqueBindings `
                                 -ExistingBindings $Result.ServerBindings `
                                 -ProposedBindings $ServerBindings ))
                     {
@@ -593,7 +593,7 @@ function Test-TargetResource
 
 #region Helper Functions
 
-Function Confirm-UnqiueBindings
+Function Confirm-UniqueBindings
 {
     <#
     .SYNOPSIS
