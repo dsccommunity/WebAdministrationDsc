@@ -13,7 +13,7 @@
 
     Import-DscResource -ModuleName xWebAdministration
 
-    Node $Node
+    Node $NodeName
     {  
         xWebApplication WebApplication
         {
