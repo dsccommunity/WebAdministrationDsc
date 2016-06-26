@@ -1,5 +1,5 @@
 ﻿$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebApplication'
+$script:DSCResourceName = 'MSFT_xSMTP'
 
 #region HEADER
 # Integration Test Template Version: 1.1.0
