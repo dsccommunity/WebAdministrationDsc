@@ -1,5 +1,7 @@
-$Global:DSCModuleName = 'xWebAdministration'
-$Global:DSCResourceName = 'MSFT_xIISLogging'
+$script:DSCModuleName = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xIISLogging'
+
+#region HEADER
 
 # Integration Test Template Version: 1.1.0
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -11,25 +13,26 @@ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Integration 
+
 #endregion
 
-[string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
 
 try {
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    Describe "$($Global:DSCResourceName)_Rollover" {
+    Describe "$($script:DSCResourceName)_Rollover" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_Rollover -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -41,7 +44,7 @@ try {
 
         It 'Changing Loggging Rollover Settings ' -test {
 
-            Invoke-Expression -Command "$($Global:DSCResourceName)_Rollover -OutputPath `$TestEnvironment.WorkingFolder"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestEnvironment.WorkingFolder"
             Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             
             $CurrentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
@@ -55,11 +58,11 @@ try {
         }
     }    
     
-    Describe "$($Global:DSCResourceName)_Truncate" {
+    Describe "$($script:DSCResourceName)_Truncate" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_Truncate -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -70,7 +73,7 @@ try {
         #endregion
         It 'Changing Loggging Truncate Settings ' -test {
 
-            Invoke-Expression -Command "$($Global:DSCResourceName)_Truncate -OutputPath `$TestEnvironment.WorkingFolder"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestEnvironment.WorkingFolder"
             Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             
             $CurrentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'

@@ -1,5 +1,3 @@
-#requires -Version 4.0 -Modules CimCmdlets
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -8,33 +6,37 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-VerboseGetTargetResult = Get-Taget has been run.
-VerboseSetTargetUpdateLogPath = LogPath is not in the desired state and will be updated.
-VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated.
-VerboseSetTargetUpdateLogPeriod = LogPeriod is not in the desired state and will be updated.
-VerboseSetTargetUpdateLogTruncateSize = TruncateSize is not in the desired state and will be updated.
-VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover is not in the desired state and will be updated.
-VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated
-VerboseTestTargetFalseLogPath = LogPath does match desired state.
-VerboseTestTargetFalseLogFlags = LogFlags does not match desired state.
-VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state.
-VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state.
-VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
-VerboseTestTargetFalseLogFormat = LogFormat does not match desired state.
-WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state.
-WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used. 
+        VerboseGetTargetResult                     = Get-Taget has been run.
+        VerboseSetTargetUpdateLogPath              = LogPath is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLogFlags             = LogFlags do not match and will be updated.
+        VerboseSetTargetUpdateLogPeriod            = LogPeriod is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLogTruncateSize      = TruncateSize is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover is not in the desired state and will be updated.
+        VerboseSetTargetUpdateLogFormat            = LogFormat is not in the desired state and will be updated
+        VerboseTestTargetFalseLogPath              = LogPath does match desired state.
+        VerboseTestTargetFalseLogFlags             = LogFlags does not match desired state.
+        VerboseTestTargetFalseLogPeriod            = LogPeriod does not match desired state.
+        VerboseTestTargetFalseLogTruncateSize      = LogTruncateSize does not match desired state.
+        VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
+        VerboseTestTargetFalseLogFormat            = LogFormat does not match desired state.
+        WarningLogPeriod                           = LogTruncateSize has is an input as will overwrite this desired state.
+        WarningIncorrectLogFormat                  = LogFormat is not W3C, as a result LogFlags will not be used. 
 '@
 }
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $LogPath
+        [String] $LogPath
                        
     )
 
@@ -58,31 +60,30 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+
     [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $LogPath,
+        [String] $LogPath,
         
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        [String[]]
-        $LogFlags,
+        [String[]] $LogFlags,
                 
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        [String]
-        $LogPeriod,
+        [String] $LogPeriod,
                 
         [ValidateRange('1048576','4294967295')]
-        [String]
-        $LogTruncateSize,
+        [String] $LogTruncateSize,
 
-        [Boolean]
-        $LoglocalTimeRollover,
+        [Boolean] $LoglocalTimeRollover,
         
         [ValidateSet('IIS','W3C','NCSA')]
-        [String]
-        $LogFormat
+        [String] $LogFormat
     )
     
         Assert-Module
@@ -95,8 +96,8 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
-                -name logFormat `
-                -value $LogFormat
+                -Name logFormat `
+                -Value $LogFormat
         }
         
         # Update LogPath if needed
@@ -104,8 +105,8 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
-                -name directory `
-                -value $LogPath
+                -Name directory `
+                -Value $LogPath
         }
         
         # Update Logflags if needed; also sets logformat to W3C
@@ -163,32 +164,31 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $LogPath,
-       
+        [String] $LogPath,
+        
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        [String[]]
-        $LogFlags,
+        [String[]] $LogFlags,
                 
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        [String]
-        $LogPeriod,
+        [String] $LogPeriod,
                 
         [ValidateRange('1048576','4294967295')]
-        [String]
-        $LogTruncateSize,
+        [String] $LogTruncateSize,
 
-        [Boolean]
-        $LoglocalTimeRollover,
+        [Boolean] $LoglocalTimeRollover,
         
         [ValidateSet('IIS','W3C','NCSA')]
-        [String]
-        $LogFormat
+        [String] $LogFormat
     )
     
         Assert-Module
@@ -268,33 +268,35 @@ function Test-TargetResource
 
 }
 
-#region Helper Functions
+#region Helper functions
 
-Function Compare-LogFlags
+function Compare-LogFlags
 {
     <#
-            .SYNOPSIS
-            Helper function used to validate that the logflags status.
-            Returns False if the loglfags do not match and true if they do
-            .PARAMETER LogFlags
-            Specifies flags to check
+    .SYNOPSIS
+        Helper function used to validate that the logflags status.
+        Returns False if the loglfags do not match and true if they do
+        .PARAMETER LogFlags
+        Specifies flags to check
     #>
+
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
     (
-        [String[]]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        $LogFlags
+        [String[]] $LogFlags
     )
 
     $CurrentLogFlags = (Get-WebConfigurationProperty `
-                        -filter '/system.Applicationhost/Sites/SiteDefaults/logfile' `
-                        -Name LogExtFileFlags) -split ',' | Sort-Object
+                        -Filter '/system.Applicationhost/Sites/SiteDefaults/logfile' `
+                        -Name LogExtFileFlags) -split ',' | `
+                        Sort-Object
 
     $ProposedLogFlags = $LogFlags -split ',' | Sort-Object
 
-    if (Compare-Object -ReferenceObject $CurrentLogFlags -DifferenceObject $ProposedLogFlags)
+    if (Compare-Object -ReferenceObject $CurrentLogFlags `
+                       -DifferenceObject $ProposedLogFlags)
     {
         return $false
     }
@@ -305,4 +307,4 @@ Function Compare-LogFlags
 
 #endregion
 
-Export-ModuleMember -Function *-TargetResource
+Export-ModuleMember -function *-TargetResource
