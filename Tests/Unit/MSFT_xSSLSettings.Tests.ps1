@@ -129,12 +129,13 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings '' -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', ''
+                # Check that the LocalizedData message from the Set-TargetResource is correct
+                $resultmessage = $LocalizedData.SettingSSLConfig -f 'Name', ''
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $string
+                    $result | Should Be $resultmessage
                 }
             }
 
@@ -143,12 +144,13 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings 'Ssl' -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
+                # Check that the LocalizedData message from the Set-TargetResource is correct
+                $resultmessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $string
+                    $result | Should Be $resultmessage
                 }
             }
 
@@ -157,12 +159,13 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings @('Ssl','SslNegotiateCert','SslRequireCert') -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
+                # Check that the LocalizedData message from the Set-TargetResource is correct
+                $resultmessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $string
+                    $result | Should Be $resultmessage
                 }
             }
         }

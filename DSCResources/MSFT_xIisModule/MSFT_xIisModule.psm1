@@ -133,7 +133,7 @@ function Set-TargetResource
         [String] $SiteName
     )
 
-    $getParameters = Get-GetParameters -FunctionParameters $PSBoundParameters
+    $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
     $resourceTests = Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus
     if($resourceTests.Result)
@@ -209,7 +209,7 @@ function Test-TargetResource
         [String] $SiteName
     )
 
-    $getParameters = Get-GetParameters -FunctionParameters $PSBoundParameters
+    $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
 
     Write-Verbose -Message $LocalizedData.VerboseTestTargetResource
@@ -219,7 +219,7 @@ function Test-TargetResource
 
 #region Helper Functions
 
-function Get-GetParameters
+function Get-PSBoundParameters
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
