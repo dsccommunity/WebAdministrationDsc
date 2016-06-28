@@ -130,12 +130,12 @@ try
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings '' -Ensure 'Present' -Verbose) 4>&1
                 # Check that the LocalizedData message from the Set-TargetResource is correct
-                $resultmessage = $LocalizedData.SettingSSLConfig -f 'Name', ''
+                $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', ''
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $resultmessage
+                    $result | Should Be $resultMessage
                 }
             }
 
@@ -145,12 +145,12 @@ try
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings 'Ssl' -Ensure 'Present' -Verbose) 4>&1
                 # Check that the LocalizedData message from the Set-TargetResource is correct
-                $resultmessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
+                $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $resultmessage
+                    $result | Should Be $resultMessage
                 }
             }
 
@@ -160,12 +160,12 @@ try
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings @('Ssl','SslNegotiateCert','SslRequireCert') -Ensure 'Present' -Verbose) 4>&1
                 # Check that the LocalizedData message from the Set-TargetResource is correct
-                $resultmessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
+                $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $resultmessage
+                    $result | Should Be $resultMessage
                 }
             }
         }
