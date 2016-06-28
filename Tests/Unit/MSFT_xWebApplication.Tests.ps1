@@ -502,6 +502,7 @@ try
                 }
 
             }
+
         }
 
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
