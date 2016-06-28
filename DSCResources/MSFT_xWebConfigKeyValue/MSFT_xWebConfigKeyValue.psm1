@@ -19,7 +19,7 @@ data LocalizedData
 }
 
 <#
-    .SNYPOPSIS
+    .SYNOPSIS
         Gets the value of the specified key in the config file
 #>
 function Get-TargetResource
@@ -83,7 +83,7 @@ function Get-TargetResource
 }
 
 <#
-    .SNYPOPSIS
+    .SYNOPSIS
         Sets the value of the specified key in the config file
 #>
 function Set-TargetResource
@@ -168,7 +168,7 @@ function Set-TargetResource
 }
 
 <#
-    .SNYPOPSIS
+    .SYNOPSIS
         Tests the value of the specified key in the config file
 #>
 function Test-TargetResource
