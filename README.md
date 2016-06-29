@@ -201,6 +201,8 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+
+### 1.12.0.0
 * **xWebAppPool** updates:
     * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
     
