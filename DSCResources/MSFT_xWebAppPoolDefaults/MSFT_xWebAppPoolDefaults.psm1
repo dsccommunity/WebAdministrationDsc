@@ -142,7 +142,7 @@ function Confirm-Value
     }
 }
 
-function SetValue
+function Set-Value
 {
     [CmdletBinding()]
     param
