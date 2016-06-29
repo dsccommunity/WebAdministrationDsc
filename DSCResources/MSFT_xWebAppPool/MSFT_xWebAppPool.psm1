@@ -465,35 +465,34 @@ function Set-TargetResource
 
                 Compare-Object -ReferenceObject $restartScheduleDesired `
                     -DifferenceObject $restartScheduleCurrent |
-                ForEach-Object -Process {
+                        ForEach-Object -Process {
 
-                    # Add value
-                    if ($_.SideIndicator -eq '<=')
-                    {
-                        Write-Verbose -Message (
-                            $LocalizedData['VerboseRestartScheduleValueAdd'] -f
-                                $_.InputObject, $Name
-                        )
+                            # Add value
+                            if ($_.SideIndicator -eq '<=')
+                            {
+                                Write-Verbose -Message (
+                                    $LocalizedData['VerboseRestartScheduleValueAdd'] -f
+                                        $_.InputObject, $Name
+                                )
 
-                        Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
-                            "/+recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
-                        )
-                    }
+                                Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
+                                    "/+recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                                )
+                            }
+                            # Remove value
+                            else
+                            {
+                                Write-Verbose -Message (
+                                    $LocalizedData['VerboseRestartScheduleValueRemove'] -f
+                                        $_.InputObject, $Name
+                                )
 
-                    # Remove value
-                    else
-                    {
-                        Write-Verbose -Message (
-                            $LocalizedData['VerboseRestartScheduleValueRemove'] -f
-                                $_.InputObject, $Name
-                        )
+                                Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
+                                    "/-recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                                )
+                            }
 
-                        Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
-                            "/-recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
-                        )
-                    }
-
-                }
+                        }
             }
 
             if ($PSBoundParameters.ContainsKey('State') -and $appPool.state -ne $State)

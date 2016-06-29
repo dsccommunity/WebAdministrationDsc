@@ -107,7 +107,7 @@ function Get-TargetResource
         Write-Verbose -Message ($LocalizedData.VerboseGetTargetAbsent)
         $EnsureResult = 'Absent'
     }
-    elseif ($Website.Count -eq 1) 
+    elseif ($Website.Count -eq 1)
     {
         Write-Verbose -Message ($LocalizedData.VerboseGetTargetPresent)
         $EnsureResult = 'Present'
