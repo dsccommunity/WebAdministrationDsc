@@ -4,6 +4,9 @@
 
 The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
 
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
 ## Contributing
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
@@ -198,6 +201,9 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+* **xWebAppPool** updates:
+    * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
+    
 * **xWebsite** updates:
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
     * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).

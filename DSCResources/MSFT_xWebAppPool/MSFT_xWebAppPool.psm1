@@ -1,7 +1,7 @@
 #requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
@@ -97,6 +97,11 @@ data PropertyData
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -150,7 +155,8 @@ function Get-TargetResource
         }
     ).ForEach(
         {
-            $returnValue.Add($_.Name, (Invoke-Expression -Command ('$appPool.{0}' -f $_.Path)))
+            $property = Get-Property -Object $appPool -PropertyName $_.Path
+            $returnValue.Add($_.Name, $property)
         }
     )
 
@@ -165,6 +171,11 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+    
     [CmdletBinding(SupportsShouldProcess = $true)]
     param
     (
@@ -220,8 +231,8 @@ function Set-TargetResource
         [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
-            'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
-            'NetworkService', 'SpecificUser'
+                'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
+                'NetworkService', 'SpecificUser'
         )]
         [String] $identityType,
 
@@ -357,10 +368,10 @@ function Set-TargetResource
                 {
                     $propertyName = $_.Name
                     $propertyPath = $_.Path
+                    $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
-                    if (
-                        $PSBoundParameters[$propertyName] -ne
-                        (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    if ( 
+                        $PSBoundParameters[$propertyName] -ne $property
                     )
                     {
                         Write-Verbose -Message (
@@ -529,6 +540,12 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+
     [OutputType([Boolean])]
     param
     (
@@ -584,8 +601,8 @@ function Test-TargetResource
         [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
-            'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
-            'NetworkService', 'SpecificUser'
+                'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
+                'NetworkService', 'SpecificUser'
         )]
         [String] $identityType,
 
@@ -725,10 +742,10 @@ function Test-TargetResource
             {
                 $propertyName = $_.Name
                 $propertyPath = $_.Path
+                $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
                 if (
-                    $PSBoundParameters[$propertyName] -ne
-                    (Invoke-Expression -Command ('$appPool.{0}' -f $propertyPath))
+                    $PSBoundParameters[$propertyName] -ne $property
                 )
                 {
                     Write-Verbose -Message (
@@ -842,6 +859,33 @@ function Test-TargetResource
 }
 
 #region Helper Functions
+
+function Get-Property 
+{
+    param 
+    (
+        [object] $Object,
+        [string] $PropertyName)
+
+    $parts = $PropertyName.Split('.')
+    $firstPart = $parts[0]
+
+    $value = $Object.$firstPart
+    if($parts.Count -gt 1)
+    {
+        $newParts = @()
+        1..($parts.Count -1) | ForEach-Object{
+            $newParts += $parts[$_]
+        }
+
+        $newName = ($newParts -join '.')
+        return Get-Property -Object $value -PropertyName $newName
+    }
+    else
+    {
+        return $value
+    }
+} 
 
 function Invoke-AppCmd
 {
