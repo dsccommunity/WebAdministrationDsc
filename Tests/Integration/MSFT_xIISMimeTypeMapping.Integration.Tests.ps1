@@ -1,5 +1,6 @@
-$Global:DSCModuleName      = 'xWebAdministration'
-$Global:DSCResourceName    = 'MSFT_xIISMimeTypeMapping'
+
+$script:DSCModuleName      = 'xWebAdministration'
+$script:DSCResourceName    = 'MSFT_xIISMimeTypeMapping'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -11,27 +12,27 @@ if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Integration
 #endregion
 
-[string]$tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
 # Using try/finally to always cleanup even if something awful happens.
 try
 {
     #region Integration Tests
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    Describe "$($Global:DSCResourceName)_Integration" {
+    Describe "$($script:DSCResourceName)_Integration" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -42,39 +43,39 @@ try
         #endregion
 
         It 'Adding an existing MimeType' {
-            $node = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select -First 1
+            $node = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
 
             $env:PesterFileExtension2 = $node.fileExtension
             $env:PesterMimeType2 = $node.mimeType
 
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_AddMimeType -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_AddMimeType -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
             [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension2 + "' and @mimeType='" + "$env:PesterMimeType2" + "']"
-            $expected = ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure).Count
+            $expected = ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count
 
             $expected | should be 1
         }
 
         It 'Removing a MimeType' {
-            $node = (Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select -First 1
+            $node = (Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
             $env:PesterFileExtension = $node.fileExtension
             $env:PesterMimeType = $node.mimeType
 
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_RemoveMimeType -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveMimeType -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
             [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension + "' and @mimeType='" + "$env:PesterMimeType" + "']"
-            ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure).Count | should be 0
+            ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count | should be 0
         }
 
         It 'Removing a non existing MimeType' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_RemoveDummyMime -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveDummyMime -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }

@@ -7,4 +7,3 @@ if ((Test-Path $DscTestsPath) -eq $false) {
 } else {
     Invoke-xWebAdministrationTests -DscTestsPath $DscTestsPath
 }
-
