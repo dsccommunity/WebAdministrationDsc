@@ -8,86 +8,86 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-ErrorWebsiteNotFound = The requested website "{0}" cannot be found on the target machine.
-ErrorWebsiteDiscoveryFailure = Failure to get the requested website "{0}" information from the target machine.
-ErrorWebsiteCreationFailure = Failure to successfully create the website "{0}". Error: "{1}".
-ErrorWebsiteRemovalFailure = Failure to successfully remove the website "{0}". Error: "{1}".
-ErrorWebsiteBindingUpdateFailure = Failure to successfully update the bindings for website "{0}". Error: "{1}".
-ErrorWebsiteBindingInputInvalidation = Desired website bindings are not valid for website "{0}".
-ErrorWebsiteCompareFailure = Failure to successfully compare properties for website "{0}". Error: "{1}".
-ErrorWebBindingCertificate = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
-ErrorWebsiteStateFailure = Failure to successfully set the state of the website "{0}". Error: "{1}".
-ErrorWebsiteBindingConflictOnStart = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
-ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property value "{0}". Error: "{1}".
-ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
-ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
-ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
-ErrorWebBindingMissingSniHostName = The HostName property is required for use with Server Name Indication.
-ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
-ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
-ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
-ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
-VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
-VerboseGetTargetAbsent = No Website exists with this name.
-VerboseGetTargetPresent = A single Website exists with this name
-VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
-VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
-VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" have been updated to "{1}".
-VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
-VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
-VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
-VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
-VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
-VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
-VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
-VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
-VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
-VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated on Website "{0}".
-VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated on Website "{0}".
-VerboseSetTargetUpdateLogPeriod = LogPeriod does not match and will be updated on Website "{0}".
-VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
-VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
-VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
-VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
-VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
-VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
-VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
-VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
-VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" do not match the desired state.
-VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
-VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
-VerboseTestTargetFalseResult = The target resource is not in the desired state.
-VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
-VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
-VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
-VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
-VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
-VerboseTestTargetFalseLogPath = LogPath does match desired state on Website "{0}".
-VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
-VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
-VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
-VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
-VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
-VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
-VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
-VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
-VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
-VerboseTestBindingInfoSamePortDifferentProtocol = BindingInfo contains items that share the same Port but have different Protocols.
-VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
-VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
-VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
-WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
-WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
+        ErrorWebsiteNotFound = The requested website "{0}" cannot be found on the target machine.
+        ErrorWebsiteDiscoveryFailure = Failure to get the requested website "{0}" information from the target machine.
+        ErrorWebsiteCreationFailure = Failure to successfully create the website "{0}". Error: "{1}".
+        ErrorWebsiteRemovalFailure = Failure to successfully remove the website "{0}". Error: "{1}".
+        ErrorWebsiteBindingUpdateFailure = Failure to successfully update the bindings for website "{0}". Error: "{1}".
+        ErrorWebsiteBindingInputInvalidation = Desired website bindings are not valid for website "{0}".
+        ErrorWebsiteCompareFailure = Failure to successfully compare properties for website "{0}". Error: "{1}".
+        ErrorWebBindingCertificate = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
+        ErrorWebsiteStateFailure = Failure to successfully set the state of the website "{0}". Error: "{1}".
+        ErrorWebsiteBindingConflictOnStart = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+        ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property value "{0}". Error: "{1}".
+        ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
+        ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
+        ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
+        ErrorWebBindingMissingSniHostName = The HostName property is required for use with Server Name Indication.
+        ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
+        ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
+        ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
+        ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
+        VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
+        VerboseGetTargetAbsent = No Website exists with this name.
+        VerboseGetTargetPresent = A single Website exists with this name
+        VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
+        VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
+        VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" have been updated to "{1}".
+        VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
+        VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
+        VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
+        VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
+        VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
+        VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
+        VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
+        VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
+        VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
+        VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogPeriod = LogPeriod does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
+        VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
+        VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
+        VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
+        VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
+        VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
+        VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
+        VerboseTestTargetFalseResult = The target resource is not in the desired state.
+        VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
+        VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
+        VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
+        VerboseTestTargetFalseLogPath = LogPath does match desired state on Website "{0}".
+        VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
+        VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
+        VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
+        VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
+        VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
+        VerboseTestBindingInfoSamePortDifferentProtocol = BindingInfo contains items that share the same Port but have different Protocols.
+        VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
+        VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
+        VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
+        WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
+        WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
 '@
 }
 
-function Get-TargetResource
-{
-    <#
+<#
     .SYNOPSYS
         The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target 
         machine. It gives the Website info of the requested role/feature on the target machine.
-    #>
+#>
+function Get-TargetResource
+{
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -101,7 +101,7 @@ function Get-TargetResource
     Assert-Module
 
     $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-    
+
     if ($Website.Count -eq 0)
     {
         Write-Verbose -Message ($LocalizedData.VerboseGetTargetAbsent)
@@ -125,7 +125,8 @@ function Get-TargetResource
                                 Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | ` 
                                 Select-Object Name,Type
     }
-    else # Multiple websites with the same name exist. This is not supported and is an error
+    # Multiple websites with the same name exist. This is not supported and is an error
+    else 
     {
         $ErrorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f $Name
         New-TerminatingError -ErrorId 'WebsiteDiscoveryFailure' `
@@ -157,13 +158,13 @@ function Get-TargetResource
     }
 }
 
+<#
+    .SYNOPSIS
+        The Set-TargetResource cmdlet is used to create, delete or configure a website on the
+        target machine.
+#>
 function Set-TargetResource
 {
-    <#
-    .SYNOPSYS
-        The Set-TargetResource cmdlet is used to create, delete or configure a website on the 
-        target machine.
-    #>
     [CmdletBinding()]
     param
     (
@@ -184,7 +185,8 @@ function Set-TargetResource
         [String]
         $State = 'Started',
 
-        [ValidateLength(1, 64)] # The application pool name must contain between 1 and 64 characters
+        # The application pool name must contain between 1 and 64 characters
+        [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
 
@@ -486,7 +488,9 @@ function Set-TargetResource
             }
 
         }
-        else # Create website if it does not exist
+
+        # Create website if it does not exist
+        else
         {
             if ([string]::IsNullOrEmpty($PhysicalPath)) {
                 throw 'The PhysicalPath Parameter must be provided for a website to be created'
@@ -726,7 +730,9 @@ function Set-TargetResource
             }
         }
     }
-    else # Remove website
+
+    # Remove website
+    else
     {
         try
         {
@@ -745,13 +751,13 @@ function Set-TargetResource
     }
 }
 
+<#
+    .SYNOPSIS
+        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
+        expected in the instance document.
+#>
 function Test-TargetResource
 {
-    <#
-    .SYNOPSYS
-        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as 
-        expected in the instance document.
-    #>
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -772,7 +778,8 @@ function Test-TargetResource
         [String]
         $State = 'Started',
 
-        [ValidateLength(1, 64)] # The application pool name must contain between 1 and 64 characters
+        # The application pool name must contain between 1 and 64 characters
+        [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
 
@@ -1042,9 +1049,7 @@ function Test-TargetResource
 
 #region Helper Functions
 
-Function Compare-LogFlags
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate that the logflags status.
         Returns False if the loglfags do not match and true if they do
@@ -1052,7 +1057,9 @@ Function Compare-LogFlags
         Specifies flags to check
     .PARAMETER Name
         Specifies website to check the flags on
-    #>
+#>
+Function Compare-LogFlags
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1080,9 +1087,8 @@ Function Compare-LogFlags
     return $true
 
 }
-function Confirm-UniqueBinding
-{
-    <#
+
+<#
     .SYNOPSIS
         Helper function used to validate that the website's binding information is unique to other 
         websites. Returns False if at least one of the bindings is already assigned to another 
@@ -1093,9 +1099,11 @@ function Confirm-UniqueBinding
         Omits stopped websites.
     .NOTES
         This function tests standard ('http' and 'https') bindings only.
-        It is technically possible to assign identical non-standard bindings (such as 'net.tcp') 
+        It is technically possible to assign identical non-standard bindings (such as 'net.tcp')
         to different websites.
-    #>
+#>   
+function Confirm-UniqueBinding
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1163,9 +1171,7 @@ function Confirm-UniqueBinding
     return $Result
 }
 
-function Confirm-UniqueServiceAutoStartProviders
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate that the AutoStartProviders is unique to other websites.
         returns False if the AutoStartProviders exist.
@@ -1178,8 +1184,9 @@ function Confirm-UniqueServiceAutoStartProviders
         As AutoStartProviders need to be uniquely named it will check for this and error out if 
         attempting to add a duplicatly named AutoStartProvider.
         Name is passed in to bubble to any error messages during the test.
-    #>
-    
+#>
+function Confirm-UniqueServiceAutoStartProviders
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1229,12 +1236,12 @@ function Confirm-UniqueServiceAutoStartProviders
 
 }
 
-function ConvertTo-CimBinding
-{
-    <#
+<#
     .SYNOPSIS
         Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
-    #>
+#>
+function ConvertTo-CimBinding
+{
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     param
@@ -1305,15 +1312,15 @@ function ConvertTo-CimBinding
     }
 }
 
-function ConvertTo-WebBinding
-{
-    <#
+<#
     .SYNOPSIS
         Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding> 
         element representation.
     .LINK
         https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
-    #>
+#>
+function ConvertTo-WebBinding
+{
     [CmdletBinding()]
     param
     (
@@ -1506,12 +1513,12 @@ function ConvertTo-WebBinding
     }
 }
 
+<#
+    .SYNOPSIS
+        Formats the input IP address string for use in the bindingInformation attribute.
+#>
 function Format-IPAddressString
 {
-    <#
-    .SYNOPSYS
-        Formats the input IP address string for use in the bindingInformation attribute.
-    #>
     [CmdletBinding()]
     [OutputType([String])]
     param
@@ -1558,15 +1565,14 @@ function Format-IPAddressString
     return $OutputString
 }
 
-function Get-AuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate that the authenticationProperties for an Application.
     .PARAMETER Site
         Specifies the name of the Website.
-    #>
-
+#>
+function Get-AuthenticationInfo
+{
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     param
@@ -1587,21 +1593,18 @@ function Get-AuthenticationInfo
             -ClientOnly -Property $authenticationProperties
 }
 
-function Get-DefaultAuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to build a default CimInstance for AuthenticationInformation
-    #>
-
+#>
+function Get-DefaultAuthenticationInfo
+{
     New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
         -ClientOnly `
         -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
 }
 
-function Set-Authentication
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to set authenticationProperties for an Application.
     .PARAMETER Site
@@ -1611,8 +1614,9 @@ function Set-Authentication
         Limited to the set: ('Anonymous','Basic','Digest','Windows').
     .PARAMETER Enabled
         Whether the Authentication is enabled or not.
-    #>
-
+#>
+function Set-Authentication
+{
     [CmdletBinding()]
     param
     (
@@ -1633,17 +1637,16 @@ function Set-Authentication
         -Location $Site
 }
 
-function Set-AuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate that the authenticationProperties for an Application.
     .PARAMETER Site
         Specifies the name of the Website.
     .PARAMETER AuthenticationInfo
         A CimInstance of what state the AuthenticationInfo should be.
-    #>
-
+#>
+function Set-AuthenticationInfo
+{
     [CmdletBinding()]
     param
     (
@@ -1662,19 +1665,18 @@ function Set-AuthenticationInfo
     }
 }
 
-function Test-AuthenticationEnabled
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
         Will return that value which will either [String]True or [String]False
     .PARAMETER Site
         Specifies the name of the Website.
-   .PARAMETER Type
-        Specifies the type of Authentication.
+    .PARAMETER Type
+        Specifies the type of Authentication,
         Limited to the set: ('Anonymous','Basic','Digest','Windows').
-    #>
-
+#>
+function Test-AuthenticationEnabled
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1695,9 +1697,7 @@ function Test-AuthenticationEnabled
     return $prop.Value
 }
 
-function Test-AuthenticationInfo
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
         Will return that result which will either [boolean]$True or [boolean]$False for use 
@@ -1707,8 +1707,9 @@ function Test-AuthenticationInfo
         Specifies the name of the Website.
     .PARAMETER AuthenticationInfo
         A CimInstance of what state the AuthenticationInfo should be.
-    #>
-
+#>
+function Test-AuthenticationInfo
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1737,13 +1738,13 @@ function Test-AuthenticationInfo
     return $result
 }
 
+<#
+    .SYNOPSIS
+        Validates the desired binding information (i.e. no duplicate IP address, port, and
+        host name combinations).
+#>
 function Test-BindingInfo
 {
-    <#
-    .SYNOPSYS
-        Validates the desired binding information (i.e. no duplicate IP address, port, and 
-        host name combinations).
-    #>
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1810,13 +1811,13 @@ function Test-BindingInfo
     return $IsValid
 }
 
-function Test-PortNumber
-{
-    <#
-    .SYNOPSYS
+<#
+    .SYNOPSIS
         Validates that an input string represents a valid port number.
         The port number must be a positive integer between 1 and 65535.
-    #>
+#>
+function Test-PortNumber
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1840,13 +1841,13 @@ function Test-PortNumber
     return $IsValid
 }
 
-function Test-WebsiteBinding
-{
-    <#
+<#
     .SYNOPSIS
         Helper function used to validate and compare website bindings of current to desired.
         Returns True if bindings do not need to be updated.
-    #>
+#>
+function Test-WebsiteBinding
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -1915,12 +1916,12 @@ function Test-WebsiteBinding
     return $InDesiredState
 }
 
-function Update-DefaultPage
-{
-    <#
+ <#
     .SYNOPSIS
         Helper function used to update default pages of website.
-    #>
+#>
+function Update-DefaultPage
+{
     [CmdletBinding()]
     param
     (
@@ -1952,12 +1953,12 @@ function Update-DefaultPage
     }
 }
 
-function Update-WebsiteBinding
-{
-    <#
+<#
     .SYNOPSIS
         Updates website bindings.
-    #>
+#>
+function Update-WebsiteBinding
+{
     [CmdletBinding()]
     param
     (

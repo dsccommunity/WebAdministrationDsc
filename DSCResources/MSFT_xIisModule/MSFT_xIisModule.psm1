@@ -22,6 +22,7 @@ data LocalizedData
         VerboseTestTargetResourceImplModuleConfigured          = ModuleConfigured is {0}
 '@
 }
+
 function Get-TargetResource
 {
     <#
@@ -406,7 +407,6 @@ function Test-TargetResourceImpl
                 }
     }
 }
-
 
 #endregion
 

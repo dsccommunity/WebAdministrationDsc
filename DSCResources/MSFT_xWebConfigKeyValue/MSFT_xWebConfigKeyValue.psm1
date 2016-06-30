@@ -345,7 +345,6 @@ function Remove-Item
     {
         $Filter = "$defaultFilter/@$Key"
 
-
         Add-Item -Key 'dummyKey' `
                  -Value 'dummyValue' `
                  -IsAttribute $false `
@@ -402,3 +401,4 @@ function Get-ItemValue
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
+
