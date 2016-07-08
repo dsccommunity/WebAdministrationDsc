@@ -96,6 +96,8 @@ try
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
+                Mock -CommandName Assert-Module -MockWith {}
+
                 It 'should return Absent' {
                     $Result = Get-TargetResource @MockParameters
                     $Result.Ensure | Should Be 'Absent'
@@ -130,6 +132,8 @@ try
                     }
                 }
 
+                Mock -CommandName Assert-Module -MockWith {}
+
                 It 'should return Present' {
                     $Result = Get-TargetResource @MockParameters
                     $Result.Ensure | Should Be 'Present'
@@ -148,6 +152,8 @@ try
             Mock -CommandName Get-WebConfigurationProperty -MockWith {
                 return $GetAuthenticationInfo
             }
+
+            Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Web Application does not exist' {
                 Mock -CommandName Get-WebApplication -MockWith {
@@ -176,6 +182,8 @@ try
         }
 
         Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
+
+            Mock -CommandName Assert-Module -MockWith {}
            
             Context 'Web Application does not exist' {
                 
@@ -479,6 +487,8 @@ try
             Mock -CommandName Get-WebConfigurationProperty -MockWith {
                 return $MockAuthenticationInfo
             }
+
+            Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Web Application exists' {
                 Mock -CommandName Remove-WebApplication
@@ -492,7 +502,9 @@ try
 
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {   
+        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
+        
+            Mock -CommandName Assert-Module -MockWith {}   
             
             Context 'Web Application does not exist' {
                 
