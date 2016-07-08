@@ -1,5 +1,6 @@
-﻿$Global:DSCModuleName = 'xWebAdministration'
-$Global:DSCResourceName = 'MSFT_xWebApplication'
+﻿
+$script:DSCModuleName = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xWebApplication'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -11,14 +12,14 @@ $Global:DSCResourceName = 'MSFT_xWebApplication'
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Unit
 #endregion
 
 try
 {
-    InModuleScope -ModuleName $global:DSCResourceName -ScriptBlock {
+    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
         
         $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                             -ClientOnly `
@@ -49,7 +50,7 @@ try
                 }
             )
        
-        Describe "$Global:DSCResourceName\Assert-Module" {
+        Describe "$script:DSCResourceName\Assert-Module" {
             
             Context 'WebAdminstration module is not installed' {
                 
@@ -67,7 +68,14 @@ try
   
         }
 
-        Describe "$Global:DSCResourceName\Get-TargetResource" {
+        Describe "$script:DSCResourceName\Get-TargetResource" {
+
+            $MockParameters = @{
+                Website                  = 'MockSite'
+                Name                     = 'MockApp'
+                WebAppPool               = 'MockPool'
+                PhysicalPath             = 'C:\MockSite\MockApp'          
+            }
 
             Context 'Absent should return correctly' {
                 Mock -CommandName Get-WebApplication -MockWith {
@@ -84,6 +92,7 @@ try
 
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Anonymous') }
+                    
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
@@ -130,7 +139,7 @@ try
 
         }
 
-        Describe "how $Global:DSCResourceName\Test-TargetResource responds to Ensure = 'Absent'" {
+        Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Absent'" {
 
             Mock -CommandName Get-SslFlags -MockWith {
                 return $GetSslFlags
@@ -166,7 +175,7 @@ try
  
         }
 
-        Describe "how $Global:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
+        Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
            
             Context 'Web Application does not exist' {
                 
@@ -461,7 +470,7 @@ try
             
         }
 
-        Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
+        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
 
             Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                 return $GetWebConfigurationOutput
@@ -483,7 +492,7 @@ try
 
         }
 
-        Describe "how $Global:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {   
+        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {   
             
             Context 'Web Application does not exist' {
                 
@@ -515,10 +524,11 @@ try
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
+                Mock Test-SslFlags { return $null }
+
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
                 Mock -CommandName Set-WebConfigurationProperty
-                Mock -CommandName Set-WebConfiguration
                 Mock -CommandName Set-ItemProperty
                 Mock -CommandName Set-Authentication
                 
@@ -529,8 +539,7 @@ try
                     Assert-MockCalled -CommandName New-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
-                    Assert-MockCalled -CommandName Set-WebConfiguration -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
                     Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
 
@@ -868,7 +877,7 @@ try
         
         }
       
-        Describe "$Global:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
+        Describe "$script:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
 
             $MockParameters = @{
                 Name = 'MockServiceAutoStartProvider'
@@ -970,7 +979,7 @@ try
 
         } 
 
-        Describe "$Global:DSCResourceName\Get-AuthenticationInfo" {
+        Describe "$script:DSCResourceName\Get-AuthenticationInfo" {
 
             Context 'Expected behavior' {
 
@@ -1038,7 +1047,7 @@ try
 
         }
 
-        Describe "$Global:DSCResourceName\Get-DefaultAuthenticationInfo" {
+        Describe "$script:DSCResourceName\Get-DefaultAuthenticationInfo" {
        
             Context 'Expected behavior' {
 
@@ -1063,7 +1072,7 @@ try
  
         }
 
-        Describe "$Global:DSCResourceName\Get-SslFlags" {
+        Describe "$script:DSCResourceName\Get-SslFlags" {
          
             Context 'Expected behavior' {
 
@@ -1104,7 +1113,7 @@ try
 
         }
 
-        Describe "$Global:DSCResourceName\Set-Authentication" {
+        Describe "$script:DSCResourceName\Set-Authentication" {
 
         Context 'Expected behavior' {
 
@@ -1123,7 +1132,7 @@ try
   
         }
 
-        Describe "$Global:DSCResourceName\Set-AuthenticationInfo" {
+        Describe "$script:DSCResourceName\Set-AuthenticationInfo" {
         
         Context 'Expected behavior' {
 
@@ -1146,7 +1155,7 @@ try
 
       }
         
-        Describe "$Global:DSCResourceName\Test-AuthenticationEnabled" {
+        Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
         
         Context 'Expected behavior' {
 
@@ -1212,7 +1221,7 @@ try
   
         }
         
-        Describe "$Global:DSCResourceName\Test-AuthenticationInfo" {
+        Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
 
         Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
 
@@ -1281,7 +1290,7 @@ try
   
         }
 
-        Describe "$Global:DSCResourceName\Test-SslFlags" {
+        Describe "$script:DSCResourceName\Test-SslFlags" {
         
         Context 'Expected behavior' {
 
