@@ -62,10 +62,13 @@ try
         }
         
         Describe "$global:DSCResourceName\Get-TargetResource" {
+
             Context 'Correct hashtable is returned' {
                 
                 Mock -CommandName Get-WebConfiguration `
                     -MockWith {return $MockLogOutput} 
+
+                Mock -CommandName Assert-Module -MockWith {}
                     
                 $result = Get-TargetResource -LogPath $MockLogParameters.LogPath
                
@@ -101,7 +104,10 @@ try
         
         }
 
-        Describe "$global:DSCResourceName\Test-TargetResource" { 
+        Describe "$global:DSCResourceName\Test-TargetResource" {
+         
+            Mock -CommandName Assert-Module -MockWith {}
+
             Context 'All settings are correct'{
 
                 $MockLogOutput = 
@@ -169,6 +175,7 @@ try
 
                 Mock -CommandName Get-WebConfigurationProperty `
                     -MockWith {return $MockLogOutput.logExtFileFlags }
+
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -321,6 +328,8 @@ try
         }
 
         Describe "$global:DSCResourceName\Set-TargetResource" {
+
+            Mock -CommandName Assert-Module -MockWith {}
         
             Context 'All Settings are incorrect' {
 
@@ -591,7 +600,5 @@ try
 
 finally
 {
-    #region FOOTER
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
 }
