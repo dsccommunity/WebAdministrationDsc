@@ -1701,6 +1701,8 @@ try
 
         Describe "how '$($script:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Absent'" {
 
+            Mock -CommandName Assert-Module -MockWith {}
+
             Context 'Application pool exists and is started' {
 
                 $mockAppPool = @{
@@ -1778,6 +1780,8 @@ try
         }
 
         Describe "how '$($script:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Present'" {
+
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Application pool does not exist' {
 
@@ -3295,47 +3299,11 @@ try
 
         }
 
-        Describe "$($script:DSCResourceName)\Invoke-AppCmd" {
-
-            It 'Should throw if AppCmd.exe exits with non-zero exit code' {
-
-                $errorId = 'ErrorAppCmdNonZeroExitCode'
-                $errorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
-                $errorMessage = $LocalizedData[$errorId] -f 1
-                $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
-                {Invoke-AppCmd -ArgumentList '/?'} |
-                Should Throw $errorRecord
-
-            }
-
-            It 'Should throw if AppCmd.exe cannot be found' {
-
-                Mock Test-Path -MockWith {$false}
-
-                $mockFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
-
-                $errorId = 'ErrorAppCmdPathNotFound'
-                $errorCategory = [System.Management.Automation.ErrorCategory]::ObjectNotFound
-                $errorMessage = $LocalizedData[$errorId] -f $mockFilePath
-                $exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $errorMessage
-                $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception, $errorId, $errorCategory, $null
-
-                {Invoke-AppCmd -FilePath $mockFilePath -ArgumentList '/?'} |
-                Should Throw $errorRecord
-
-            }
-
-        }
-
     }
 
     #endregion
 }
 finally
 {
-    #region FOOTER
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
 }
