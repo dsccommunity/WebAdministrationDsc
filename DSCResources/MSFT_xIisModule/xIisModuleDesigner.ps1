@@ -9,7 +9,6 @@ $originalModuleRootPath = Resolve-Path $originalModuleRoot
 $moduleRoot = Join-Path $env:temp "$($originalModuleRootPath.path | split-path -Leaf)Temp"
 
 $resources = @()
-$schemaPath = (join-path $scriptRoot "$resourceName.schema.mof")
 
 #Key properties
 $resources += New-xDscResourceProperty -Name Path -Type String -Attribute Key -Description "The path to the module, usually a dll, to be added to IIS." 
@@ -30,7 +29,7 @@ $resources += New-xDscResourceProperty -Name EndPointSetup -Type Boolean -Attrib
 
 
 
-Write-Host updating...
+Write-Verbose "updating..." -Verbose
 
 # Create a New template resource to a temporary folder
 New-xDscResource -Property $resources -ClassVersion $classVersion -Name $resourceName -Path $moduleRoot -FriendlyName $friendlyName
