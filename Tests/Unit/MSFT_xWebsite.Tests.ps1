@@ -27,9 +27,7 @@ try
 
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
-                Mock -ModuleName Helper -CommandName Get-Module -MockWith {
-                    return $null
-                }
+                Mock -ModuleName Helper -CommandName Get-Module -MockWith { return $null }
 
                 It 'should throw an error' {
                     { Assert-Module } | Should Throw
@@ -101,6 +99,8 @@ try
                 LogFile              = $MockLogOutput
                 Count                = 1
             }
+
+            Mock -CommandName Assert-Module {}
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -332,6 +332,8 @@ try
                 LogFile              = $MockLogOutput
                 Count                = 1
             }
+
+            Mock -CommandName Assert-Module {}
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -768,6 +770,8 @@ try
                 LogFile              = $MockLogOutput
             }
 
+            Mock -CommandName Assert-Module {}
+
             Context 'All properties need to be updated and website must be started' {
                 Mock -CommandName Add-WebConfiguration
 
@@ -933,11 +937,13 @@ try
 
                 Mock -CommandName Get-Website
 
-                Mock -CommandName New-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Command -MockWith { return @{Parameters = @{Name = 'MockName'}}}
+
+                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
 
                 Mock -CommandName Stop-Website
 
-                Mock -CommandName Test-WebsiteBinding -MockWith {return $false}
+                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Update-WebsiteBinding
 
@@ -947,9 +953,9 @@ try
 
                 Mock -CommandName Update-DefaultPage
 
-                Mock -CommandName Confirm-UniqueBinding -MockWith {return $true}
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
 
-                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $false}
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $false }
 
                 Mock -CommandName Set-Authentication
 
@@ -1000,6 +1006,8 @@ try
 
                 Mock -CommandName Get-Website
 
+                Mock -CommandName Get-Command -MockWith { return @{Parameters = @{Name = 'MockName'}}}
+
                 Mock -CommandName New-Website -MockWith {return $MockWebsite}
 
                 Mock -CommandName Stop-Website
@@ -1036,6 +1044,9 @@ try
 
             Context 'New-Website throws an error' {
                 Mock -CommandName Get-Website
+
+                Mock -CommandName Get-Command -MockWith { return @{Parameters = @{Name = 'MockName'}}}
+
                 Mock -CommandName New-Website -MockWith {throw}
 
                 It 'should throw the correct error' {
@@ -1062,6 +1073,8 @@ try
             }
 
             Mock -CommandName Get-Website -MockWith {return @{Name = $MockParameters.Name}}
+
+            Mock -CommandName Assert-Module {}
 
             It 'should call Remove-Website' {
                 Mock -CommandName Remove-Website
