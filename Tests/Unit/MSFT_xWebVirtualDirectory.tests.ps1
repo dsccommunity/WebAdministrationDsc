@@ -47,6 +47,8 @@ try
                 Count = 1
             }
 
+            Mock -CommandName Assert-Module -MockWith {}
+
             Context 'Directory is Present and PhysicalPath is Correct' {
                 It 'should return true' {
                     Mock Get-WebVirtualDirectory { return $virtualDir }
@@ -82,6 +84,8 @@ try
         }
 
         Describe "$script:DSCResourceName\Get-TargetResource" {
+            Mock -CommandName Assert-Module -MockWith {}
+
             Context 'Ensure = Absent and virtual directory does not exist' {
                 It 'should return the correct values' {
                     $returnSite = @{
@@ -129,6 +133,9 @@ try
         }
 
         Describe "$script:DSCResourceName\Set-TargetResource" {
+            
+            Mock -CommandName Assert-Module -MockWith {}
+
             Context 'Ensure = Present and virtual directory does not exist' {
                 It 'should call New-WebVirtualDirectory' {
                     $mockSite = @{
