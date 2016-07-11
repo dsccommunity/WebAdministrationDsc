@@ -59,6 +59,7 @@ else
     Import-Module $testHelperPath -Force
 }
 
+Import-Module (Join-Path -Path $moduleRoot -ChildPath "WebAministrationStubs.psm1")
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `

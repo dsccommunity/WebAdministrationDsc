@@ -11,6 +11,9 @@ $script:DSCResourceName = 'MSFT_xSSLSettings'
 }
 
 Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+
+Import-Module (Join-Path -Path $moduleRoot -ChildPath "WebAministrationStubs.psm1")
+
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
