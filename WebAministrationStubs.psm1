@@ -1,4 +1,10 @@
-﻿function Add-WebConfiguration { 
+﻿
+# Suppressing these rule because these functions are from an external module 
+# and are only being used as stubs
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
+param ()
+
+function Add-WebConfiguration { 
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268763')]
 param(
     [psobject]
