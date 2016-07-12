@@ -2,6 +2,10 @@
 # Suppressing these rule because these functions are from an external module 
 # and are only being used as stubs
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
 param ()
 
 function Add-WebConfiguration { 
