@@ -201,6 +201,7 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
 
 ### 1.12.0.0
 * **xWebAppPool** updates:
