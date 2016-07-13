@@ -57,7 +57,8 @@ function Get-TargetResource
     )
 
     Assert-Module
-
+    
+    $Name = Get-WebApplicationNameFixed $Name
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
     $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${Name}")
@@ -129,6 +130,8 @@ function Set-TargetResource
     )
 
     Assert-Module
+    
+    $Name = Get-WebApplicationNameFixed $Name
 
     if ($Ensure -eq 'Present')
     {
@@ -294,7 +297,8 @@ function Test-TargetResource
     )
 
     Assert-Module
-
+    
+    $Name = Get-WebApplicationNameFixed $Name
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
@@ -728,6 +732,26 @@ function Test-SslFlags
     
 }
 
+<#
+    .SYNOPSIS
+        Helper function to replace a backslash with a forward slash in
+        the web app names.
+    .PARAMETER Name
+        The web application name 
+#>
+function Get-WebApplicationNameFixed
+{
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $Name
+    )
+
+    # back slash is replaced by iis with a forward slash. for compatibility we do the same
+    $Name -replace '\\', '/'
+}
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
