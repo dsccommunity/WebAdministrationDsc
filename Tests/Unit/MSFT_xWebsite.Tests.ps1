@@ -940,7 +940,13 @@ try
 
                 Mock -CommandName Get-Website
 
-                Mock -CommandName Get-Command -MockWith { return @{Parameters = @{Name = 'MockName'}}}
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
 
                 Mock -CommandName New-Website -MockWith { return $MockWebsite } 
 
@@ -1054,7 +1060,13 @@ try
             Context 'New-Website throws an error' {
                 Mock -CommandName Get-Website
 
-                Mock -CommandName Get-Command -MockWith { return @{Parameters = @{Name = 'MockName'}}}
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
 
                 Mock -CommandName New-Website -MockWith {throw}
 
