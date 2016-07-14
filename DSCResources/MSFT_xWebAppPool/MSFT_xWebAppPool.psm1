@@ -885,6 +885,14 @@ function Get-Property
     }
 } 
 
+<#
+    .SYNOPSIS
+        Runs appcmd.exe - if there's an error then the application will terminate
+        
+    .PARAMETER ArgumentList
+        Optional list of string arguments to be passed into appcmd.exe    
+
+#>
 function Invoke-AppCmd
 {
     [CmdletBinding()]
@@ -893,13 +901,15 @@ function Invoke-AppCmd
         [String[]] $ArgumentList
     )
 
-    # This is a local preference for the function which will terminate
-    # the program if there's an error invoking appcmd.exe
+    <# 
+        This is a local preference for the function which will terminate
+        the program if there's an error invoking appcmd.exe
+    #>
     $ErrorActionPreference = 'Stop'
 
-    $filePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+    $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
 
-    $(& $filePath $ArgumentList) | Write-Verbose
+    $(& $appcmdfilePath $ArgumentList) | Write-Verbose
 
     if ($LASTEXITCODE -ne 0)
     {

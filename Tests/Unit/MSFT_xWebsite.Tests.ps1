@@ -3,16 +3,16 @@ $script:DSCModuleName   = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebsite'
 
 #region HEADER
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
-if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath "WebAministrationStubs.psm1")
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath "MockWebAdministrationWindowsFeature.psm1")
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
@@ -103,7 +103,7 @@ try
                 Count                = 1
             }
 
-            Mock -CommandName Assert-Module {}
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -336,7 +336,7 @@ try
                 Count                = 1
             }
 
-            Mock -CommandName Assert-Module {}
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -773,7 +773,7 @@ try
                 LogFile              = $MockLogOutput
             }
 
-            Mock -CommandName Assert-Module {}
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'All properties need to be updated and website must be started' {
                 Mock -CommandName Add-WebConfiguration
@@ -1009,7 +1009,13 @@ try
 
                 Mock -CommandName Get-Website
 
-                Mock -CommandName Get-Command -MockWith { return @{Parameters = @{Name = 'MockName'}}}
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
 
                 Mock -CommandName New-Website -MockWith {return $MockWebsite}
 
@@ -1077,7 +1083,7 @@ try
 
             Mock -CommandName Get-Website -MockWith {return @{Name = $MockParameters.Name}}
 
-            Mock -CommandName Assert-Module {}
+            Mock -CommandName Assert-Module -MockWith {}
 
             It 'should call Remove-Website' {
                 Mock -CommandName Remove-Website
