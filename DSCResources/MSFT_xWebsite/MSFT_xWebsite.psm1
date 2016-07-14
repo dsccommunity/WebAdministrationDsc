@@ -122,7 +122,7 @@ function Get-TargetResource
         $WebSiteAutoStartProviders = (Get-WebConfiguration `
             -filter /system.applicationHost/serviceAutoStartProviders).Collection
         $WebConfiguration = $WebSiteAutoStartProviders | `
-                                Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | ` 
+                                Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | `
                                 Select-Object Name,Type
     }
     # Multiple websites with the same name exist. This is not supported and is an error

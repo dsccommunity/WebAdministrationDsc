@@ -1,4 +1,9 @@
 #requires -Version 1
+
+# Suppressing this rule because this isn't a module manifest
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSMissingModuleManifestField', '')]
+param ()
+
 @{
     AllNodes = @(
         @{

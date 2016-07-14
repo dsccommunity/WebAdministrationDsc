@@ -1,4 +1,9 @@
 #requires -Version 4
+
+# Suppressing this rule because this isn't a module manifest
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSMissingModuleManifestField', '')]
+param ()
+
 configuration MSFT_xWebsite_Present_Started
 {
     param(
