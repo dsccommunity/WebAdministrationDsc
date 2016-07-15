@@ -1,5 +1,5 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xIisLogging'
+$script:DSCModuleName = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xIisLogging'
 
 # Unit Test Template Version: 1.1.0
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -14,8 +14,8 @@ Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\
 Import-Module (Join-Path -Path $script:moduleRoot -ChildPath "MockWebAdministrationWindowsFeature.psm1")
 
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Unit 
 #endregion HEADER
 
@@ -47,7 +47,7 @@ try
                 localTimeRollover = 'False'
             }       
 
-        Describe "$Global:DSCResourceName\Assert-Module" {
+        Describe "$script:DSCResourceName\Assert-Module" {
            
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith {
@@ -64,7 +64,7 @@ try
   
         }
         
-        Describe "$global:DSCResourceName\Get-TargetResource" {
+        Describe "$script:DSCResourceName\Get-TargetResource" {
 
             Context 'Correct hashtable is returned' {
                 
@@ -107,7 +107,7 @@ try
         
         }
 
-        Describe "$global:DSCResourceName\Test-TargetResource" {
+        Describe "$script:DSCResourceName\Test-TargetResource" {
          
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -330,7 +330,7 @@ try
        
         }
 
-        Describe "$global:DSCResourceName\Set-TargetResource" {
+        Describe "$script:DSCResourceName\Set-TargetResource" {
 
             Mock -CommandName Assert-Module -MockWith {}
         
@@ -546,7 +546,7 @@ try
         
         }
 
-        Describe "$Global:DSCResourceName\Compare-LogFlags" {
+        Describe "$script:DSCResourceName\Compare-LogFlags" {
          
             Context 'Returns false when LogFlags are incorrect' {
                
