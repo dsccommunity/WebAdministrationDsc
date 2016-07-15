@@ -201,6 +201,7 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
+* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
 * Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
 * Updated appveyor.yml to use the default image.
 
