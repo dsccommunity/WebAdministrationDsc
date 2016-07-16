@@ -122,7 +122,7 @@ function Get-OverrideMode
 
     Assert-Module
 
-    Write-Verbose -Message 'getting override mode'
+    Write-Verbose -Message 'Getting override mode'
 
     [String] $oMode = ((Get-WebConfiguration -Location '' `
                                              -Filter /system.webServer/$Section `
