@@ -245,6 +245,7 @@ function Get-PSBoundParameters
 function Get-IisSitePath
 {
     [CmdletBinding()]
+    [OutputType([System.String])]
     param
     (
         [String] $SiteName

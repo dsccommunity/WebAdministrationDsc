@@ -1,3 +1,7 @@
+# Suppressing this rule because there's a Write-Verbose called in a helper function
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSDSCUseVerboseMessageInDSCResource', '')]
+param ()
+
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -117,6 +121,8 @@ function Get-OverrideMode
     )
 
     Assert-Module
+
+    Write-Verbose -Message 'Getting override mode'
 
     [String] $oMode = ((Get-WebConfiguration -Location '' `
                                              -Filter /system.webServer/$Section `

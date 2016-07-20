@@ -107,6 +107,9 @@ function Set-TargetResource
                 ($IsAttribute -and `
             ($existingValue.Length -eq 0))))
         {
+
+            Write-Verbose -Message 'Adding new item'
+
             Add-Item -Key $Key `
                      -Value $Value `
                      -IsAttribute $IsAttribute `
@@ -116,10 +119,14 @@ function Set-TargetResource
         else
         {
             $propertyName ='Value'
+
             if($IsAttribute)
             {
                 $propertyName = $Key
             }
+
+            Write-Verbose -Message 'Editing item'
+
             Edit-Item -PropertyName $propertyName `
                       -OldValue $existingValue `
                       -NewValue $Value `
@@ -130,6 +137,9 @@ function Set-TargetResource
     }
     else
     {
+
+        Write-Verbose -Message 'Removing item'
+
         Remove-Item -Key $Key `
                     -IsAttribute $IsAttribute `
                     -WebsitePath $WebsitePath `
@@ -183,6 +193,7 @@ function Test-TargetResource
         {
             if(($null -eq $existingValue) -or ($existingValue -ne $Value))
             {
+                Write-Verbose -Message "Old value ($existingValue) is not equal to new value ($Value)"
                 return $false
             }
             else
@@ -194,6 +205,7 @@ function Test-TargetResource
         {
             if(($existingValue.Length -eq 0) -or ($existingValue -ne $Value))
             {
+                Write-Verbose -Message "Old value ($existingValue) is not equal to new value ($Value)"
                 return $false
             }
             else
@@ -213,6 +225,7 @@ function Test-TargetResource
             }
             else
             {
+                Write-Verbose -Message "Old value ($existingValue) is not null"
                 return $false
             }
         }
@@ -224,6 +237,7 @@ function Test-TargetResource
             }
             else
             {
+                Write-Verbose -Message "Old value ($existingValue) is not null"
                 return $false
             }
         }
