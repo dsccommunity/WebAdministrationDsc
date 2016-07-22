@@ -1,21 +1,18 @@
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xIisLogging'
+$global:DSCModuleName = 'xWebAdministration'
+$global:DSCResourceName = 'MSFT_xIisLogging'
 
 # Unit Test Template Version: 1.1.0
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
+if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+     (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath "MockWebAdministrationWindowsFeature.psm1")
-
+Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
+    -DSCModuleName $Global:DSCModuleName `
+    -DSCResourceName $Global:DSCResourceName `
     -TestType Unit 
 #endregion HEADER
 
@@ -47,7 +44,7 @@ try
                 localTimeRollover = 'False'
             }       
 
-        Describe "$script:DSCResourceName\Assert-Module" {
+        Describe "$Global:DSCResourceName\Assert-Module" {
            
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith {
@@ -64,14 +61,11 @@ try
   
         }
         
-        Describe "$script:DSCResourceName\Get-TargetResource" {
-
+        Describe "$global:DSCResourceName\Get-TargetResource" {
             Context 'Correct hashtable is returned' {
                 
                 Mock -CommandName Get-WebConfiguration `
                     -MockWith {return $MockLogOutput} 
-
-                Mock -CommandName Assert-Module -MockWith {}
                     
                 $result = Get-TargetResource -LogPath $MockLogParameters.LogPath
                
@@ -107,10 +101,7 @@ try
         
         }
 
-        Describe "$script:DSCResourceName\Test-TargetResource" {
-         
-            Mock -CommandName Assert-Module -MockWith {}
-
+        Describe "$global:DSCResourceName\Test-TargetResource" { 
             Context 'All settings are correct'{
 
                 $MockLogOutput = 
@@ -178,7 +169,6 @@ try
 
                 Mock -CommandName Get-WebConfigurationProperty `
                     -MockWith {return $MockLogOutput.logExtFileFlags }
-
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -330,9 +320,7 @@ try
        
         }
 
-        Describe "$script:DSCResourceName\Set-TargetResource" {
-
-            Mock -CommandName Assert-Module -MockWith {}
+        Describe "$global:DSCResourceName\Set-TargetResource" {
         
             Context 'All Settings are incorrect' {
 
@@ -546,7 +534,7 @@ try
         
         }
 
-        Describe "$script:DSCResourceName\Compare-LogFlags" {
+        Describe "$Global:DSCResourceName\Compare-LogFlags" {
          
             Context 'Returns false when LogFlags are incorrect' {
                
@@ -603,5 +591,7 @@ try
 
 finally
 {
+    #region FOOTER
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
+    #endregion
 }

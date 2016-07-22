@@ -1,7 +1,3 @@
-# Suppressing this rule because there's a Write-Verbose called in a helper function
-[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSDSCUseVerboseMessageInDSCResource', '')]
-param ()
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -100,7 +96,6 @@ function Test-TargetResource
                             -Name 'managedRuntimeVersion' `
                             -NewValue $ManagedRuntimeVersion)))
     { 
-        Write-Verbose -Message "Problem with Managed runtime version: $ManagedRuntimeVersion"
         return $false
     }
 
@@ -108,7 +103,6 @@ function Test-TargetResource
                             -Name 'identityType' `
                             -NewValue $IdentityType)))
     {
-        Write-Verbose -Message "Problem with Identity type: $IdentityType"
         return $false 
     }
     
@@ -119,7 +113,6 @@ function Test-TargetResource
 
 function Confirm-Value
 {
-    [OutputType([System.Boolean])]
     [CmdletBinding()]
     param
     (  
@@ -139,7 +132,6 @@ function Confirm-Value
     $existingValue = Get-Value -Path $Path -Name $Name
     if ($existingValue -ne $NewValue)
     {
-        Write-Verbose -Message "The old value ($existingValue) does not equal the new value ($NewValue)"
         return $false
     }
     else

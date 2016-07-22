@@ -1,4 +1,4 @@
-﻿[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
 # xWebAdministration
 
@@ -201,11 +201,6 @@ Currently, only FastCgiModule is supported.
 ## Versions
 
 ### Unreleased
-* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
-* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
-* Updated appveyor.yml to use the default image.
-
-### 1.12.0.0
 * **xWebAppPool** updates:
     * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
 
