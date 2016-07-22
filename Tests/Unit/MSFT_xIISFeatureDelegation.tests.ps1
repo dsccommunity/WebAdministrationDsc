@@ -17,7 +17,7 @@ if (($null -ne $repoSource) -and ($repoSource[0].RepositorySourceLocation.Host -
         # If user wants to skip prompt - set this environment variale equal to 'true'
         if ($env:getDscTestHelper -ne $true)
         {
-            $choice = read-host "In order to run this test you need to install a helper module, continue with installation? (Y/N)"
+            $choice = read-host 'In order to run this test you need to install a helper module, continue with installation? (Y/N)'
         }
 
         if ($choice -eq 'y')
@@ -28,7 +28,7 @@ if (($null -ne $repoSource) -and ($repoSource[0].RepositorySourceLocation.Host -
 
         else 
         {
-            Write-Error "Unable to run tests without the required helper module - Exiting test"
+            Write-Error 'Unable to run tests without the required helper module - Exiting test'
             return
         }
         
@@ -85,7 +85,6 @@ try
                 It 'should return the correct hashtable' {
                     $result.SectionName  | Should Be $expected.SectionName
                     $result.OverrideMode | Should Be $expected.OverrideMode
-                    $result.Ensure       | Should Be $expected.Ensure
                 }
             }
             Context 'OverRideMode is absent' {
@@ -99,7 +98,6 @@ try
                 It 'should return the correct hashtable' {
                     $result.SectionName  | Should Be $expected.SectionName
                     $result.OverrideMode | Should Be $expected.OverrideMode
-                    $result.Ensure       | Should Be $expected.Ensure
                 }
             }
         }

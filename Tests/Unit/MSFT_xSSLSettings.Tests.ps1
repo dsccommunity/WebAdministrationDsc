@@ -129,13 +129,13 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings '' -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', ''
-                $expected = "Set-TargetResource: $string"
+                # Check that the LocalizedData message from the Set-TargetResource is correct
+                $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', ''
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $expected
+                    $result | Should Be $resultMessage
                 }
             }
 
@@ -144,13 +144,13 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings 'Ssl' -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
-                $expected = "Set-TargetResource: $string"
+                # Check that the LocalizedData message from the Set-TargetResource is correct
+                $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $expected
+                    $result | Should Be $resultMessage
                 }
             }
 
@@ -159,13 +159,13 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings @('Ssl','SslNegotiateCert','SslRequireCert') -Ensure 'Present' -Verbose) 4>&1
-                $string = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
-                $expected = "Set-TargetResource: $string"
+                # Check that the LocalizedData message from the Set-TargetResource is correct
+                $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
 
                 Assert-VerifiableMocks
 
                 It 'should return the correct string' {
-                    $result | Should Be $expected
+                    $result | Should Be $resultMessage
                 }
             }
         }
