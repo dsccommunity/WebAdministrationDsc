@@ -208,7 +208,7 @@ Currently, only FastCgiModule is supported.
 ### 1.12.0.0
 * **xWebAppPool** updates:
     * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
-    
+
 * **xWebsite** updates:
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
     * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).
@@ -233,6 +233,7 @@ Currently, only FastCgiModule is supported.
 
 * Added **xWebApplication** integration tests
 * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
+* Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
 
 ### 1.11.0.0
 
