@@ -144,12 +144,12 @@ try
 
         Describe 'MSFT_xIISFeatureDelegation\Get-OverrideMode' {
             $mockWebConfigOutput = 
-               @{
-                   Metadata = 
-                       @{
-                           effectiveOverrideMode = $null
-                        }
+            @{
+                Metadata = 
+                @{
+                    effectiveOverrideMode = $null
                 }
+            }
             $mockSection = 'NonExistant'
             Mock -CommandName Assert-Module -MockWith {}
         
