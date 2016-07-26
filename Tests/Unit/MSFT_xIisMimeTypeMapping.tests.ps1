@@ -25,6 +25,12 @@ try
     #region Pester Tests
     
     InModuleScope $DSCResourceName {
+    
+        $mockMapping =
+        @{
+            fileExtension = 'mockFileExtension'
+            mimeType = 'mockMimeType'
+        }
 
         #region testing Get-TargetResource
         Describe 'MSFT_xIisMimeTypeMapping\Get-TargetResource' {
@@ -42,11 +48,6 @@ try
             }
             
             Context 'MimeType is Present' {
-                $mockMapping =
-                @{
-                    fileExtension = 'mockFileExtension'
-                    mimeType = 'mockMimeType'
-                }
                 Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
                 
                 It 'Should return the correct hashtable' {
@@ -62,6 +63,7 @@ try
         #region testing Set-TargetResource
         Describe 'MSFT_xIisMimeTypeMapping\Set-TargetResource' {
             Mock -CommandName Assert-Module -MockWith {}
+            
             Context 'Add MimeType' {
                  Mock -CommandName Get-Mapping -MockWith { return $null }
                  Mock -CommandName Add-WebConfigurationProperty -MockWith {}
@@ -106,11 +108,55 @@ try
         
         #region testing Test-TargetResource
         Describe 'MSFT_xIisMimeTypeMapping\Test-TargetResource' {
-        
+            Mock -CommandName Assert-Module -MockWith {}
+            
+            Context 'Mapping could not be found with Ensure = to Present' {
+                 Mock -CommandName Get-Mapping -MockWith { return $null }
+                 
+                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
+                 It 'should return false' {
+                    $result | Should be $false
+                 }
+            }
+            Context 'Mapping found but Ensure = to Absent' {
+                 Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
+                 
+                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
+                 It 'should return false' {
+                    $result | Should be $false
+                 }
+            }
+            Context 'Mapping found and type exists' {
+                 Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
+                 
+                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
+                 It 'should return true' {
+                    $result | Should be $true
+                 }
+            }
+            Context 'Mapping not found and type is absent' {
+                 Mock -CommandName Get-Mapping -MockWith { return $null }
+                 
+                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
+                 It 'should return true' {
+                    $result | Should be $true
+                 }
+            }
         }
         #endregion
-
-
+        
+        #region Get-Mapping
+        Describe 'MSFT_xIisMimeTypeMapping\Get-Mapping' {
+            
+            Context 'Get-mapping with Extension and Type' {
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { return $mockMapping }
+                
+                $result = Get-Mapping -Extension 'mockExtension' -Type 'mockType'
+                It 'should return $mockMapping' {
+                    $result | Should be $mockMapping
+                }
+            }
+        }
     }
 }
 finally
