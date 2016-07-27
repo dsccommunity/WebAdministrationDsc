@@ -22,7 +22,6 @@ data LocalizedData
         VerboseTestTargetResourceImplModuleConfigured          = ModuleConfigured is {0}
 '@
 }
-
 function Get-TargetResource
 {
     <#
@@ -245,7 +244,6 @@ function Get-PSBoundParameters
 function Get-IisSitePath
 {
     [CmdletBinding()]
-    [OutputType([System.String])]
     param
     (
         [String] $SiteName
@@ -408,6 +406,7 @@ function Test-TargetResourceImpl
                 }
     }
 }
+
 
 #endregion
 
