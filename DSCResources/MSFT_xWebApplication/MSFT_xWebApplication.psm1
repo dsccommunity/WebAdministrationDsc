@@ -57,8 +57,7 @@ function Get-TargetResource
     )
 
     Assert-Module
-    
-    $Name = Get-WebApplicationNameFixed $Name
+
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
     $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${Name}")
@@ -130,8 +129,6 @@ function Set-TargetResource
     )
 
     Assert-Module
-    
-    $Name = Get-WebApplicationNameFixed $Name
 
     if ($Ensure -eq 'Present')
     {
@@ -297,8 +294,7 @@ function Test-TargetResource
     )
 
     Assert-Module
-    
-    $Name = Get-WebApplicationNameFixed $Name
+
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
@@ -391,24 +387,26 @@ function Test-TargetResource
     return $true
     
 }
+
 #region Helper Functions
 
-<#
-    .SYNOPSIS
-        Helper function used to validate that the AutoStartProviders is unique to other websites.
-        returns False if the AutoStartProviders exist.
-    .PARAMETER serviceAutoStartProvider
-        Specifies the name of the AutoStartProviders.
-    .PARAMETER ExcludeStopped
-        Specifies the name of the Application Type for the AutoStartProvider.
-    .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned. 
-        As AutoStartProviders need to be uniquely named it will check for this and error out if 
-        attempting to add a duplicatly named AutoStartProvider.
-        Name is passed in to bubble to any error messages during the test.
-#>
 function Confirm-UniqueServiceAutoStartProviders
 {
+    <#
+    .SYNOPSIS
+       Helper function used to validate that the AutoStartProviders is unique to other 
+       websites. Returns False if the AutoStartProviders exist.
+    .PARAMETER serviceAutoStartProvider
+       Specifies the name of the AutoStartProviders.
+   .PARAMETER ExcludeStopped
+       Specifies the name of the Application Type for the AutoStartProvider.
+   .NOTES
+       This tests for the existance of a AutoStartProviders which is globally assigned. 
+       As AutoStartProviders need to be uniquely named it will check for this and error out if 
+       attempting to add a duplicatly named AutoStartProvider.
+       Name is passed in to bubble to any error messages during the test.
+    #>
+    
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -457,16 +455,17 @@ function Confirm-UniqueServiceAutoStartProviders
 
 }
 
-<#
+function Get-AuthenticationInfo
+{
+    <#
     .SYNOPSIS
         Helper function used to validate that the authenticationProperties for an Application.
     .PARAMETER Site
          Specifies the name of the Website.
     .PARAMETER Name
-        Specifies the name of the Application.
-#>
-function Get-AuthenticationInfo
-{
+         Specifies the name of the Application.
+    #>
+
     [CmdletBinding()]
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     param
@@ -492,25 +491,27 @@ function Get-AuthenticationInfo
             
 }
 
-<#
-    .SYNOPSIS
-        Helper function used to build a default CimInstance for AuthenticationInformation
-#>
 function Get-DefaultAuthenticationInfo
 {
+    <#
+            .SYNOPSIS
+            Helper function used to build a default CimInstance for AuthenticationInformation
+    #>
+
     New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
         -ClientOnly `
         -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
 }
 
-<#
+function Get-SslFlags
+{
+    <#
     .SYNOPSIS
          Helper function used to return the SSLFlags on an Application.
     .PARAMETER Location
         Specifies the path in the IIS: PSDrive to the Application
-#>
-function Get-SslFlags
-{
+    #>
+
     [CmdletBinding()]
     [OutputType([System.String])]
     param
@@ -534,7 +535,9 @@ function Get-SslFlags
     
 }
 
-<#
+function Set-Authentication
+{
+    <#
     .SYNOPSIS
         Helper function used to set authenticationProperties for an Application.
     .PARAMETER Site
@@ -546,9 +549,8 @@ function Get-SslFlags
         Limited to the set: ('Anonymous','Basic','Digest','Windows').
     .PARAMETER Enabled
         Whether the Authentication is enabled or not.
-#>
-function Set-Authentication
-{
+    #>
+
     [CmdletBinding()]
     param
     (
@@ -573,7 +575,9 @@ function Set-Authentication
 
 }
 
-<#
+function Set-AuthenticationInfo
+{
+    <#
     .SYNOPSIS
          Helper function used to validate that the authenticationProperties for an Application.
     .PARAMETER Site
@@ -581,10 +585,9 @@ function Set-Authentication
     .PARAMETER Name
          Specifies the name of the Application.
     .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Set-AuthenticationInfo
-{
+         A CimInstance of what state the AuthenticationInfo should be.
+    #>
+
     [CmdletBinding()]
     param
     (
@@ -609,7 +612,9 @@ function Set-AuthenticationInfo
     }
 }
 
-<#
+function Test-AuthenticationEnabled
+{
+    <#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
         Will return that value which will either [String] True or [String] False
@@ -620,9 +625,8 @@ function Set-AuthenticationInfo
     .PARAMETER Type
         Specifies the type of Authentication, 
         limited to the set: ('Anonymous','Basic','Digest','Windows').
-#>
-function Test-AuthenticationEnabled
-{
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -648,7 +652,9 @@ function Test-AuthenticationEnabled
     
 }
 
-<#
+function Test-AuthenticationInfo
+{
+    <#
     .SYNOPSIS
         Helper function used to test the authenticationProperties state for an Application. 
         Will return that result which will either [boolean]$True or [boolean]$False for use in 
@@ -661,9 +667,8 @@ function Test-AuthenticationEnabled
         Specifies the name of the Application.
     .PARAMETER AuthenticationInfo
         A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Test-AuthenticationInfo
-{
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -696,17 +701,18 @@ function Test-AuthenticationInfo
     
 }
 
-<#
+function Test-SslFlags
+{
+    <#
     .SYNOPSIS
         Helper function used to test the SSLFlags on an Application. 
         Will return $true if they match and $false if they do not.
     .PARAMETER SslFlags
         Specifies the SslFlags to Test
     .PARAMETER Location
-        Specifies the path in the IIS: PSDrive to the Application
-#>
-function Test-SslFlags
-{
+         Specifies the path in the IIS: PSDrive to the Application
+    #>
+
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -732,26 +738,6 @@ function Test-SslFlags
     
 }
 
-<#
-    .SYNOPSIS
-        Helper function to replace a backslash with a forward slash in
-        the web app names.
-    .PARAMETER Name
-        The web application name 
-#>
-function Get-WebApplicationNameFixed
-{
-    [CmdletBinding()]
-    [OutputType([string])]
-    param(
-        [parameter(Mandatory = $true)]
-        [System.String]
-        $Name
-    )
-
-    # back slash is replaced by iis with a forward slash. for compatibility we do the same
-    $Name -replace '\\', '/'
-}
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
