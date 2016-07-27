@@ -165,7 +165,7 @@ try
                     {Get-OverrideMode -Section $mockSection} | Should Throw ($LocalizedData.UnableToGetConfig -f $mockSection)
                 }
             }
-            
+                        
             Context 'oMode is set correctly' {
                 $mockWebConfigOutput.Metadata.effectiveOverrideMode = 'Allow'
                 Mock -CommandName Get-WebConfiguration -MockWith {return $mockWebConfigOutput}

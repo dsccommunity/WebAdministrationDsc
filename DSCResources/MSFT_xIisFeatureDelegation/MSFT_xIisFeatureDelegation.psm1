@@ -73,7 +73,6 @@ function Set-TargetResource
                          -PSPath 'machine/webroot/apphost' `
                          -Metadata 'overrideMode' `
                          -Value $OverrideMode
-                          
 }
 
 function Test-TargetResource
