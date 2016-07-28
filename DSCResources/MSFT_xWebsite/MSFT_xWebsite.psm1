@@ -1,4 +1,4 @@
-#requires -Version 4.0 -Modules CimCmdlets
+Unable to validate BindingInfo#requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
@@ -74,7 +74,6 @@ VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is 
 VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
 VerboseTestBindingInfoSamePortDifferentProtocol = BindingInfo contains items that share the same Port but have different Protocols.
 VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
-VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
 VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
 WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
 WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
