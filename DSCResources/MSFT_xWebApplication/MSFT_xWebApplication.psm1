@@ -128,8 +128,6 @@ function Set-TargetResource
     )
 
     Assert-Module
-    
-    $Name = Get-WebApplicationNameFixed $Name
 
     if ($Ensure -eq 'Present')
     {
@@ -312,8 +310,7 @@ function Test-TargetResource
     )
 
     Assert-Module
-    
-    $Name = Get-WebApplicationNameFixed $Name
+
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 

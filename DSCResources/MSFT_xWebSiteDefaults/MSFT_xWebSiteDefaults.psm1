@@ -1,4 +1,3 @@
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -13,7 +12,6 @@ data LocalizedData
         VerboseGetTargetResource  = Get-TargetResource has been run.
 '@
 }
-
 function Get-TargetResource
 {
     <#
