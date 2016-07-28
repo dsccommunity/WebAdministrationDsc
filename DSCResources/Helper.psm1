@@ -2,7 +2,7 @@
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
+    ConvertFrom-StringData -StringData @'
         ModuleNotFound                                  = Please ensure that the PowerShell module for role {0} is installed.
         ErrorWebsiteNotFound                            = The requested website "{0}" cannot be found on the target machine.
         ErrorWebsiteBindingUpdateFailure                = Failure to successfully update the bindings for website "{0}". Error: "{1}".
@@ -22,6 +22,7 @@ data LocalizedData
         ErrorWebsiteTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
         ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
         VerboseUpdateDefaultPageUpdated                 = Default page for website "{0}" has been updated to "{1}".
+        VerboseTestBindingInfoInvalidCatch              = Unable to validate BindingInfo: "{0}".
 '@
 }
 
