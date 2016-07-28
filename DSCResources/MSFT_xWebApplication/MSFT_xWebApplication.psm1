@@ -32,13 +32,12 @@ data LocalizedData
 '@
 }
 
+<#
+.SYNOPSIS
+    This will return a hashtable of results 
+#>
 function Get-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This will return a hashtable of results 
-    #>
-    
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -58,10 +57,10 @@ function Get-TargetResource
 
     Assert-Module
     
-    $Name = Get-WebApplicationNameFixed $Name
-    $webApplication = Get-WebApplication -Site $Website -Name $Name
-    $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
-    $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${Name}")
+    $name = Get-WebApplicationNameFixed -Name $Name
+    $webApplication = Get-WebApplication -Site $Website -Name $name
+    $CimAuthentication = Get-AuthenticationInfo -Site $Website -Application $name
+    $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${name}")
 
     $Ensure = 'Absent'
 
@@ -74,7 +73,7 @@ function Get-TargetResource
     
     $returnValue = @{
         Website                  = $Website
-        Name                     = $Name
+        Name                     = $name
         WebAppPool               = $webApplication.applicationPool
         PhysicalPath             = $webApplication.PhysicalPath
         AuthenticationInfo       = $CimAuthentication
@@ -89,13 +88,12 @@ function Get-TargetResource
 
 }
 
+<#
+.SYNOPSIS
+    This will set the desired state
+#>
 function Set-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This will set the desired state
-    #>
-
     [CmdletBinding()]
     param
     (
@@ -190,15 +188,33 @@ function Set-TargetResource
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
                 (-not (Test-AuthenticationInfo -Site $Website `
-                                               -Name $Name `
+                                               -Application $Name `
+                                               -IisType 'Application' `
                                                -AuthenticationInfo $AuthenticationInfo)))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo -f $Name)
                 Set-AuthenticationInfo -Site $Website `
-                                       -Name $Name `
+                                       -Application $Name `
+                                       -IisType 'Application' `
                                        -AuthenticationInfo $AuthenticationInfo `
                                        -ErrorAction Stop `
-                                       -Verbose
+            }
+            $DefaultAuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
+            if($null -eq $PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+                (-not (Test-AuthenticationInfo `
+                        -Site $Website `
+                        -Application $Name `
+                        -IisType 'Application' `
+                        -AuthenticationInfo $DefaultAuthenticationInfo)))
+            {
+                $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo `
+                                        -f $Name)
+                Set-AuthenticationInfo -Site $Website `
+                                        -Application $Name `
+                                        -IisType 'Application' `
+                                        -AuthenticationInfo $DefaultAuthenticationInfo `
+                                        -ErrorAction Stop `
             }
 
             # Update Preload if required
@@ -254,14 +270,13 @@ function Set-TargetResource
 
 }
 
+<#
+.SYNOPSIS
+    This tests the desired state. If the state is not correct it will return $false.
+    If the state is correct it will return $true
+#>
 function Test-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This tests the desired state. If the state is not correct it will return $false.
-        If the state is correct it will return $true
-    #>
-
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -303,8 +318,8 @@ function Test-TargetResource
     $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
     if ($AuthenticationInfo -eq $null) 
-    {
-        $AuthenticationInfo = Get-DefaultAuthenticationInfo 
+    { 
+        $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
     }
 
     if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') 
@@ -346,11 +361,11 @@ function Test-TargetResource
         #Check AuthenticationInfo
         if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
             (-not (Test-AuthenticationInfo -Site $Website `
-                                           -Name $Name `
+                                           -Application $Name `
+                                           -IisType 'Application' `
                                            -AuthenticationInfo $AuthenticationInfo)))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo `
-                                    -f $Name)
+        { 
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
             return $false
         }
 
@@ -391,123 +406,12 @@ function Test-TargetResource
     return $true
     
 }
-#region Helper Functions
 
 <#
-    .SYNOPSIS
-        Helper function used to validate that the AutoStartProviders is unique to other websites.
-        returns False if the AutoStartProviders exist.
-    .PARAMETER serviceAutoStartProvider
-        Specifies the name of the AutoStartProviders.
-    .PARAMETER ExcludeStopped
-        Specifies the name of the Application Type for the AutoStartProvider.
-    .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned. 
-        As AutoStartProviders need to be uniquely named it will check for this and error out if 
-        attempting to add a duplicatly named AutoStartProvider.
-        Name is passed in to bubble to any error messages during the test.
-#>
-function Confirm-UniqueServiceAutoStartProviders
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $ServiceAutoStartProvider,
-
-        [Parameter(Mandatory = $true)]
-        [String] $ApplicationType
-    )
-
-    $WebSiteAutoStartProviders = (Get-WebConfiguration `
-                            -filter /system.applicationHost/serviceAutoStartProviders).Collection
-
-    $ExistingObject = $WebSiteAutoStartProviders | `
-        Where-Object -Property Name -eq -Value $serviceAutoStartProvider | `
-        Select-Object Name,Type
-
-    $ProposedObject = @(New-Object -TypeName PSObject -Property @{
-            name   = $ServiceAutoStartProvider
-            type   = $ApplicationType
-    })
-
-    if(-not $ExistingObject)
-        {
-            return $false
-        }
-
-    if(-not (Compare-Object -ReferenceObject $ExistingObject `
-                            -DifferenceObject $ProposedObject `
-                            -Property name))
-        {
-            if(Compare-Object -ReferenceObject $ExistingObject `
-                              -DifferenceObject $ProposedObject `
-                              -Property type)
-                {
-                    $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure
-                    New-TerminatingError `
-                        -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' `
-                        -ErrorMessage $ErrorMessage `
-                        -ErrorCategory 'InvalidResult'
-                }
-        }
-
-    return $true
-
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to validate that the authenticationProperties for an Application.
-    .PARAMETER Site
-         Specifies the name of the Website.
-    .PARAMETER Name
-        Specifies the name of the Application.
-#>
-function Get-AuthenticationInfo
-{
-    [CmdletBinding()]
-    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $Site,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Name
-    )
-
-    $authenticationProperties = @{}
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $authenticationProperties[$type] = [String](Test-AuthenticationEnabled -Site $Site `
-                                                                               -Name $Name `
-                                                                               -Type $type)
-    }
-
-    return New-CimInstance `
-            -ClassName MSFT_xWebApplicationAuthenticationInformation `
-            -ClientOnly -Property $authenticationProperties
-            
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to build a default CimInstance for AuthenticationInformation
-#>
-function Get-DefaultAuthenticationInfo
-{
-    New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
-        -ClientOnly `
-        -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
-}
-
-<#
-    .SYNOPSIS
-         Helper function used to return the SSLFlags on an Application.
-    .PARAMETER Location
-        Specifies the path in the IIS: PSDrive to the Application
+.SYNOPSIS
+    Helper function used to return the SSLFlags on an Application.
+.PARAMETER Location
+    Specifies the path in the IIS: PSDrive to the Application
 #>
 function Get-SslFlags
 {
@@ -534,176 +438,16 @@ function Get-SslFlags
     
 }
 
-<#
-    .SYNOPSIS
-        Helper function used to set authenticationProperties for an Application.
-    .PARAMETER Site
-        Specifies the name of the Website.
-    .PARAMETER Name
-        Specifies the name of the Application.
-    .PARAMETER Type
-         Specifies the type of Authentication, 
-        Limited to the set: ('Anonymous','Basic','Digest','Windows').
-    .PARAMETER Enabled
-        Whether the Authentication is enabled or not.
-#>
-function Set-Authentication
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $Site,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Name,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String] $Type,
-
-        [Boolean] $Enabled
-    )
-
-    Set-WebConfigurationProperty `
-        -Filter /system.WebServer/security/authentication/${Type}Authentication `
-        -Name enabled `
-        -Value $Enabled `
-        -Location "${Site}/${Name}" 
-
-}
+#region Helper Functions
 
 <#
-    .SYNOPSIS
-         Helper function used to validate that the authenticationProperties for an Application.
-    .PARAMETER Site
-         Specifies the name of the Website.
-    .PARAMETER Name
-         Specifies the name of the Application.
-    .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Set-AuthenticationInfo
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $Site,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Name,
-
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
-    )
-
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-        Set-Authentication -Site $Site `
-                           -Name $Name `
-                           -Type $type `
-                           -Enabled $enabled
-    }
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application. 
-        Will return that value which will either [String] True or [String] False
-    .PARAMETER Site
-        Specifies the name of the Website.
-    .PARAMETER Name
-        Specifies the name of the Application.
-    .PARAMETER Type
-        Specifies the type of Authentication, 
-        limited to the set: ('Anonymous','Basic','Digest','Windows').
-#>
-function Test-AuthenticationEnabled
-{
-    [CmdletBinding()]
-    [OutputType([System.Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $Site,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Name,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String] $Type
-    )
-
-
-    $prop = Get-WebConfigurationProperty `
-            -Filter /system.WebServer/security/authentication/${Type}Authentication `
-            -Name enabled `
-            -Location "${Site}/${Name}"
-
-    return $prop.Value
-    
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application. 
-        Will return that result which will either [boolean]$True or [boolean]$False for use in 
-        Test-TargetResource.
-        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break 
-        this function out.
-    .PARAMETER Site
-        Specifies the name of the Website.
-    .PARAMETER Name
-        Specifies the name of the Application.
-    .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Test-AuthenticationInfo
-{
-    [CmdletBinding()]
-    [OutputType([System.Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $Site,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Name,
-
-        [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
-    )
-
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-
-        $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-        $actual = Test-AuthenticationEnabled -Site $Site `
-                                             -Name $Name `
-                                             -Type $type
-        if ($expected -ne $actual)
-        {
-            return $false
-        }
-    }
-
-    return $true
-    
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to test the SSLFlags on an Application. 
-        Will return $true if they match and $false if they do not.
-    .PARAMETER SslFlags
-        Specifies the SslFlags to Test
-    .PARAMETER Location
-        Specifies the path in the IIS: PSDrive to the Application
+.SYNOPSIS
+    Helper function used to test the SSLFlags on an Application. 
+    Will return $true if they match and $false if they do not.
+.PARAMETER SslFlags
+    Specifies the SslFlags to Test
+.PARAMETER Location
+    Specifies the path in the IIS: PSDrive to the Application
 #>
 function Test-SslFlags
 {
@@ -733,11 +477,13 @@ function Test-SslFlags
 }
 
 <#
-    .SYNOPSIS
-        Helper function to replace a backslash with a forward slash in
-        the web app names.
-    .PARAMETER Name
-        The web application name 
+.SYNOPSIS
+    Helper function to replace a backslash with a forward slash in
+    the web app names.
+.PARAMETER Name
+    The web application name 
+.NOTES
+    Back slash is replaced by iis with a forward slash. for compatibility we do the same
 #>
 function Get-WebApplicationNameFixed
 {
@@ -745,13 +491,12 @@ function Get-WebApplicationNameFixed
     [OutputType([string])]
     param(
         [parameter(Mandatory = $true)]
-        [System.String]
-        $Name
+        [System.String] $Name
     )
 
-    # back slash is replaced by iis with a forward slash. for compatibility we do the same
     $Name -replace '\\', '/'
 }
+
 #endregion
 
 Export-ModuleMember -Function *-TargetResource

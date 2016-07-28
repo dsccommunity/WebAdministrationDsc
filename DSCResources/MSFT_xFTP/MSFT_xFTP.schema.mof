@@ -1,0 +1,56 @@
+[ClassVersion("1.0.0")]
+class MSFT_xFTPAuthenticationInformation
+{
+    [Write] Boolean Anonymous;
+    [Write] Boolean Basic;
+};
+
+[ClassVersion("1.0.0")]
+class MSFT_xFTPAuthorizationInformation
+{
+    [Write,ValueMap{"Allow", "Deny"},Values{"Allow", "Deny"}] String AccessType;
+    [Write] String Roles;
+    [Write,ValueMap{"Read", "Write", "Read,Write" },Values{"Read", "Write", "Read,Write"}] String Permissions;
+    [Write] String Users;
+};
+
+[ClassVersion("1.0.0")]
+class MSFT_xFTPSslInformation
+{
+    [Write,ValueMap{"SslAllow", "SslRequire", "SslRequireCredentialsOnly"},Values{"SslAllow", "SslRequire", "SslRequireCredentialsOnly"}] String ControlChannelPolicy;
+    [Write,ValueMap{"SslAllow", "SslRequire", "SslDeny"},Values{"SslAllow", "SslRequire", "SslDeny"}] String DataChannelPolicy;
+    [Write] Boolean RequireSsl128;
+    [Write] String CertificateHash;
+    [Write,ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] String CertificateStoreName;
+};
+
+[ClassVersion("1.0.0")]
+class MSFT_xFTPBindingInformation
+{
+    [Required,ValueMap{"ftp"},Values{"ftp"}] String Protocol;
+    [Write] String BindingInformation;
+    [Write] String IPAddress;
+    [Write] UInt16 Port;
+    [Write] String HostName;
+};
+
+[ClassVersion("2.0.0"), FriendlyName("xFTP")]
+class MSFT_xFTP : OMI_BaseResource
+{
+    [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
+    [Key] String Name;
+    [Write] String PhysicalPath;
+    [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
+    [Write] String ApplicationPool;
+    [Write, EmbeddedInstance("MSFT_xFTPAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic)")] String AuthenticationInfo;
+    [Write, EmbeddedInstance("MSFT_xFTPAuthorizationInformation"), Description("Hashtable containing authentication information (AccessType, Roles, Permissions, Users)")] String AuthorizationInfo[];
+    [Write, EmbeddedInstance("MSFT_xFTPBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xFTPBindingInformation CIM class.")] String BindingInfo[];
+    [Write, EmbeddedInstance("MSFT_xFTPSslInformation"), Description("Hashtable containing Ssl information (ControlChannelPolicy, DataChannelPolicy, RequireSsl128, CertificateHash, CertificateStoreName)")] String SslInfo;
+    [Write, Description ("The directory to be used for logfiles")] String LogPath;
+    [Write, Description ("The W3C logging fields"), ValueMap{"Date","Time","ClientIP","UserName","ServerIP","Method","UriStem","UriQuery","HttpStatus","Win32Status","TimeTaken","ServerPort","UserAgent","Referer","HttpSubStatus"},Values{"Date","Time","ClientIP","UserName","ServerIP","Method","UriStem","UriQuery","HttpStatus","Win32Status","TimeTaken","ServerPort","UserAgent","Referer","HttpSubStatus"}] String LogFlags[];
+    [Write, Description ("How often the log file should rollover"), ValueMap{"Hourly","Daily","Weekly","Monthly","MaxSize"},Values{"Hourly","Daily","Weekly","Monthly","MaxSize"}] String LogPeriod;
+    [Write, Description ("How large the file should be before it is truncated")] String LogTruncateSize;
+    [Write, Description ("Use the localtime for file naming and rollover")] Boolean LoglocalTimeRollover;
+    [Write, Description ("What method of Directory Browsing should be enabled"), ValueMap{"StyleUnix","LongDate","DisplayAvailableBytes","DisplayVirtualDirectories"},Values{"StyleUnix","LongDate","DisplayAvailableBytes","DisplayVirtualDirectories"}] String DirectoryBrowseFlags[];
+    [Write, Description ("What method of UserIsolation should be enabled"), ValueMap{"None","StartInUsersDirectory","IsolateAllDirectories","IsolateRootDirectoryOnly"},Values{"None","StartInUsersDirectory","IsolateAllDirectories","IsolateRootDirectoryOnly"}] String UserIsolation;
+};

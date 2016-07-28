@@ -12,6 +12,42 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ## Resources
 
+### xFTP
+
+* **Ensure**: Ensures that the FTP Site is **Present** or **Absent**.
+* **Name**: The desired name of the website.
+* **PhysicalPath**: The path to the files that compose the website.
+* **State**: The state of the website: { Started | Stopped }
+* **ApplicationPool**: The FTP Site’s application pool.
+* **AuthenticationInformation**: FTP Site's authentication information in the form of an embedded instance of the **MSFT_xFTPAuthenticationInformation** CIM class. **MSFT_xFTPAuthenticationInformation** take the following properties:
+    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+    * **Basic**: The acceptable values for this property are: `$true`, `$false`
+* **AuthorizationInformation**: FTP Site's authorization information in the form of an array of embedded instances of the **MSFT_xFTPAuthorizationInformation** CIM class. **MSFT_xFTPAuthorizationInformation** take the following properties:
+    * **AccessType**: The acceptable values for this property are: `Allow`, `Deny`
+    * **Users**: Users which can have desired access. *Note* If using groups pass in '' for the users.
+    * **Roles**: Groups which can have desired access. *Note* If using users pass in '' for the group.
+    * **Permissions**: The acceptable values for this property are: `Read`, `Write`, `Read,Write`
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xFTPBindingInformation** CIM class that implements the following properties:
+    * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `ftp`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp` but `ftp` is needed for an FTP site.
+    * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
+    * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
+    * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
+    * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
+* **SslInfo**: FTP Site's Ssl information in the form of an embedded instance of the **MSFT_xFTPSslInformation** CIM class. **MSFT_xFTPSslInformation** take the following properties:
+    * **ControlChannelPolicy**: The acceptable values for this property are: `SslAllow`, `SslRequire`, `SslRequireCredentialsOnly`},Values{`SslAllow`, `SslRequire`, `SslRequireCredentialsOnly`
+    * **DataChannelPolicy**: The acceptable values for this property are: `SslAllow`, `SslRequire`, `SslDeny`
+    * **RequireSsl128**: `$true`, `$false`
+    * **CertificateHash**:The thumbprint of the certificate.
+    * **CertificateStoreName**: The name of the certificate store where the certificate is located. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
+* **LogPath**: The directory to be used for logfiles.
+* **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`TimeTaken`,`ServerPort`,`UserAgent`,`Referer`,`HttpSubStatus`
+* **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
+* **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
+* **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
+* **DirectoryBrowseFlags**: What method of Directory Browsing should be enabled. The values that are allowed for this property are: `StyleUnix`,`LongDate`,`DisplayAvailableBytes`,`DisplayVirtualDirectories`
+* **UserIsolation**: What method of UserIsolation should be enabled. The values that are allowed for this property are: `None`,`StartInUsersDirectory`,`IsolateAllDirectories`,`IsolateRootDirectoryOnly`
+
+
 ### xIISModule
 
 * **Path**: The path to the module to be registered.
@@ -25,6 +61,7 @@ Currently, only FastCgiModule is supported.
 * **Ensure**: Ensures that the module is **Present** or **Absent**.
 
 ### xIISLogging
+
 **Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebsite**
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`

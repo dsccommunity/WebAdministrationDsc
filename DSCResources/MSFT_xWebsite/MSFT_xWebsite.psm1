@@ -82,9 +82,9 @@ data LocalizedData
 }
 
 <#
-    .SYNOPSYS
-        The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target 
-        machine. It gives the Website info of the requested role/feature on the target machine.
+.SYNOPSYS
+    The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target 
+    machine. It gives the Website info of the requested role/feature on the target machine.
 #>
 function Get-TargetResource
 {
@@ -118,7 +118,7 @@ function Get-TargetResource
             Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
             ForEach-Object -Process {Write-Output -InputObject $_.value}
         )
-        $CimAuthentication = Get-AuthenticationInfo -Site $Name
+        $CimAuthentication = Get-AuthenticationInfo -Site $Name -IisType 'Website'
         $WebSiteAutoStartProviders = (Get-WebConfiguration `
             -filter /system.applicationHost/serviceAutoStartProviders).Collection
         $WebConfiguration = $WebSiteAutoStartProviders | `
@@ -159,9 +159,9 @@ function Get-TargetResource
 }
 
 <#
-    .SYNOPSIS
-        The Set-TargetResource cmdlet is used to create, delete or configure a website on the
-        target machine.
+.SYNOPSIS
+    The Set-TargetResource cmdlet is used to create, delete or configure a website on the
+    target machine.
 #>
 function Set-TargetResource
 {
@@ -358,13 +358,30 @@ function Set-TargetResource
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
                 (-not (Test-AuthenticationInfo -Site $Name `
+                                               -IisType 'Website' `
                                                -AuthenticationInfo $AuthenticationInfo)))
             {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo -f $Name)
                 Set-AuthenticationInfo -Site $Name `
+                                       -IisType 'Website' `
                                        -AuthenticationInfo $AuthenticationInfo `
-                                       -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
+                                       -ErrorAction Stop `
+            }
+
+            $DefaultAuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
+            if($null -eq $PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+                (-not (Test-AuthenticationInfo `
+                        -Site $Name `
+                        -IisType 'Website' `
+                        -AuthenticationInfo $DefaultAuthenticationInfo)))
+            {
+                $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo `
                                         -f $Name)
+                Set-AuthenticationInfo -Site $Name `
+                                       -IisType 'Website' `
+                                       -AuthenticationInfo $DefaultAuthenticationInfo `
+                                       -ErrorAction Stop `
             }
            
             # Update Preload if required
@@ -416,17 +433,6 @@ function Set-TargetResource
                                 -f $Name)
             }
 
-            # Update LogFormat if Needed
-            if ($PSBoundParameters.ContainsKey('LogFormat') -and `
-                ($LogFormat -ne $Website.logfile.LogFormat))
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat `
-                                        -f $Name)
-                Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
-                    -name logFormat `
-                    -value $LogFormat
-            }
-
             # Update LogFlags if required
             if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
@@ -434,9 +440,11 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.logFormat -Value 'W3C'
+                                 -Name logFile.logFormat `
+                                 -Value 'W3C'
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+                                 -Name logFile.logExtFileFlags `
+                                 -Value ($LogFlags -join ',')
             }
 
             # Update LogPath if required
@@ -447,7 +455,8 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.directory -value $LogPath
+                                 -Name logFile.directory `
+                                 -Value $LogPath
             }
 
             # Update LogPeriod if needed
@@ -456,12 +465,14 @@ function Set-TargetResource
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
-                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod -f $Name)
+                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod `
+                                                -f $Name)
                     }
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.period -Value $LogPeriod
+                                 -Name logFile.period `
+                                 -Value $LogPeriod
             }
 
             # Update LogTruncateSize if needed
@@ -471,9 +482,11 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.truncateSize -Value $LogTruncateSize
+                                 -Name logFile.truncateSize `
+                                 -Value $LogTruncateSize
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.period -Value 'MaxSize'
+                                 -Name logFile.period `
+                                 -Value 'MaxSize'
             }
 
             # Update LoglocalTimeRollover if neeed
@@ -484,7 +497,8 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
+                                 -Name logFile.localTimeRollover `
+                                 -Value $LoglocalTimeRollover
             }
 
         }
@@ -599,13 +613,30 @@ function Set-TargetResource
             # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
             if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
                 (-not (Test-AuthenticationInfo -Site $Name `
+                                               -IisType 'Website' `
                                                -AuthenticationInfo $AuthenticationInfo)))
             {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo -f $Name)
                 Set-AuthenticationInfo -Site $Name `
+                                       -IisType 'Website' `
                                        -AuthenticationInfo $AuthenticationInfo `
-                                       -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
+                                       -ErrorAction Stop `
+            }
+
+            $DefaultAuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
+            if($null -eq $PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+                (-not (Test-AuthenticationInfo `
+                        -Site $Name `
+                        -IisType 'Website' `
+                        -AuthenticationInfo $DefaultAuthenticationInfo)))
+            {
+                $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo `
                                         -f $Name)
+                Set-AuthenticationInfo -Site $Name `
+                                       -IisType 'Website' `
+                                       -AuthenticationInfo $DefaultAuthenticationInfo `
+                                       -ErrorAction Stop `
             }
            
             # Update Preload if required
@@ -664,8 +695,8 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
                 Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
-                    -name logFormat `
-                    -value $LogFormat
+                    -Name logFormat `
+                    -Value $LogFormat
             }
 
             # Update LogFlags if required
@@ -675,9 +706,11 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.logFormat -Value 'W3C'
+                                 -Name logFile.logFormat `
+                                 -Value 'W3C'
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+                                 -Name logFile.logExtFileFlags `
+                                 -Value ($LogFlags -join ',')
             }
 
             # Update LogPath if required
@@ -688,7 +721,8 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.directory -value $LogPath
+                                 -Name logFile.directory `
+                                 -Value $LogPath
             }
 
             # Update LogPeriod if needed
@@ -703,7 +737,8 @@ function Set-TargetResource
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.period -Value $LogPeriod
+                                 -Name logFile.period `
+                                 -Value $LogPeriod
             }
 
             # Update LogTruncateSize if needed
@@ -713,9 +748,11 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.truncateSize -Value $LogTruncateSize
+                                 -Name logFile.truncateSize `
+                                 -Value $LogTruncateSize
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.period -Value 'MaxSize'
+                                 -Name logFile.period `
+                                 -Value 'MaxSize'
             }
 
             # Update LoglocalTimeRollover if neeed
@@ -726,7 +763,8 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
+                                 -Name logFile.localTimeRollover `
+                                 -Value $LoglocalTimeRollover
             }
         }
     }
@@ -752,9 +790,9 @@ function Set-TargetResource
 }
 
 <#
-    .SYNOPSIS
-        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
-        expected in the instance document.
+.SYNOPSIS
+    The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
+    expected in the instance document.
 #>
 function Test-TargetResource
 {
@@ -920,6 +958,7 @@ function Test-TargetResource
         #Check AuthenticationInfo
         if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
             (-not (Test-AuthenticationInfo -Site $Name `
+                                           -IisType 'Website' `
                                            -AuthenticationInfo $AuthenticationInfo)))
         { 
             $InDesiredState = $false
@@ -1047,1021 +1086,4 @@ function Test-TargetResource
     return $InDesiredState
 }
 
-#region Helper Functions
-
-<#
-    .SYNOPSIS
-        Helper function used to validate that the logflags status.
-        Returns False if the loglfags do not match and true if they do
-    .PARAMETER LogFlags
-        Specifies flags to check
-    .PARAMETER Name
-        Specifies website to check the flags on
-#>
-Function Compare-LogFlags
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String[]]
-        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        $LogFlags,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name
-
-    )
-
-    $CurrentLogFlags = (Get-Website -Name $Name).logfile.logExtFileFlags -split ',' | Sort-Object
-    $ProposedLogFlags = $LogFlags -split ',' | Sort-Object
-
-    if (Compare-Object -ReferenceObject $CurrentLogFlags -DifferenceObject $ProposedLogFlags)
-    {
-        return $false
-    }
-
-    return $true
-
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to validate that the website's binding information is unique to other 
-        websites. Returns False if at least one of the bindings is already assigned to another 
-        website.
-    .PARAMETER Name
-        Specifies the name of the website.
-    .PARAMETER ExcludeStopped
-        Omits stopped websites.
-    .NOTES
-        This function tests standard ('http' and 'https') bindings only.
-        It is technically possible to assign identical non-standard bindings (such as 'net.tcp')
-        to different websites.
-#>   
-function Confirm-UniqueBinding
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $false)]
-        [Switch]
-        $ExcludeStopped
-    )
-
-    $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-
-    if (-not $Website)
-    {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound `
-                        -f $Name
-        New-TerminatingError -ErrorId 'WebsiteNotFound' `
-                             -ErrorMessage $ErrorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    $ReferenceObject = @(
-        $Website.bindings.Collection |
-        Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
-        ConvertTo-WebBinding -Verbose:$false
-    )
-
-    if ($ExcludeStopped)
-    {
-        $OtherWebsiteFilter = {$_.Name -ne $Website.Name -and $_.State -ne 'Stopped'}
-    }
-    else
-    {
-        $OtherWebsiteFilter = {$_.Name -ne $Website.Name}
-    }
-
-    $DifferenceObject = @(
-        Get-Website |
-        Where-Object -FilterScript $OtherWebsiteFilter |
-        ForEach-Object -Process {$_.bindings.Collection} |
-        Where-Object -FilterScript {$_.protocol -in @('http', 'https')} |
-        ConvertTo-WebBinding -Verbose:$false
-    )
-
-    # Assume that bindings are unique
-    $Result = $true
-
-    $CompareSplat = @{
-        ReferenceObject  = $ReferenceObject
-        DifferenceObject = $DifferenceObject
-        Property         = @('protocol', 'bindingInformation')
-        ExcludeDifferent = $true
-        IncludeEqual     = $true
-    }
-
-    if (Compare-Object @CompareSplat)
-    {
-        $Result = $false
-    }
-
-    return $Result
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to validate that the AutoStartProviders is unique to other websites.
-        returns False if the AutoStartProviders exist.
-    .PARAMETER serviceAutoStartProvider
-        Specifies the name of the AutoStartProviders.
-    .PARAMETER ExcludeStopped
-        Specifies the name of the Application Type for the AutoStartProvider.
-    .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned. 
-        As AutoStartProviders need to be uniquely named it will check for this and error out if 
-        attempting to add a duplicatly named AutoStartProvider.
-        Name is passed in to bubble to any error messages during the test.
-#>
-function Confirm-UniqueServiceAutoStartProviders
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $ServiceAutoStartProvider,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $ApplicationType
-    )
-
-    $WebSiteASP = (Get-WebConfiguration `
-                   -filter /system.applicationHost/serviceAutoStartProviders).Collection
-
-    $ExistingObject = $WebSiteASP | `
-        Where-Object -Property Name -eq -Value $serviceAutoStartProvider | `
-        Select-Object Name,Type
-
-    $ProposedObject = @(New-Object -TypeName PSObject -Property @{
-        name   = $ServiceAutoStartProvider
-        type   = $ApplicationType
-    })
-
-    if(-not $ExistingObject)
-        {
-            return $false
-        }
-
-    if(-not (Compare-Object -ReferenceObject $ExistingObject `
-                            -DifferenceObject $ProposedObject `
-                            -Property name))
-        {
-            if(Compare-Object -ReferenceObject $ExistingObject `
-                              -DifferenceObject $ProposedObject `
-                              -Property type)
-                {
-                    $ErrorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' `
-                                         -ErrorMessage $ErrorMessage `
-                                         -ErrorCategory 'InvalidResult'`
-                }
-        }
-
-    return $true
-
-}
-
-<#
-    .SYNOPSIS
-        Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
-#>
-function ConvertTo-CimBinding
-{
-    [CmdletBinding()]
-    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-    param
-    (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [AllowEmptyCollection()]
-        [AllowNull()]
-        [Object[]]
-        $InputObject
-    )
-    begin
-    {
-        $CimClassName = 'MSFT_xWebBindingInformation'
-        $CimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
-    }
-    process
-    {
-        foreach ($Binding in $InputObject)
-        {
-            [Hashtable]$CimProperties = @{
-                Protocol           = [String]$Binding.protocol
-                BindingInformation = [String]$Binding.bindingInformation
-            }
-
-            if ($Binding.Protocol -in @('http', 'https'))
-            {
-                # Extract IPv6 address
-                if ($Binding.bindingInformation -match '^\[(.*?)\]\:(.*?)\:(.*?)$') 
-                {
-                    $IPAddress = $Matches[1]
-                    $Port      = $Matches[2]
-                    $HostName  = $Matches[3]
-                }
-                else
-                {
-                    $IPAddress, $Port, $HostName = $Binding.bindingInformation -split '\:'
-                }
-
-                if ([String]::IsNullOrEmpty($IPAddress))
-                {
-                    $IPAddress = '*'
-                }
-
-                $CimProperties.Add('IPAddress', [String]$IPAddress)
-                $CimProperties.Add('Port',      [UInt16]$Port)
-                $CimProperties.Add('HostName',  [String]$HostName)
-            }
-            else
-            {
-                $CimProperties.Add('IPAddress', [String]::Empty)
-                $CimProperties.Add('Port',      [UInt16]::MinValue)
-                $CimProperties.Add('HostName',  [String]::Empty)
-            }
-
-            if ([Environment]::OSVersion.Version -ge '6.2')
-            {
-                $CimProperties.Add('SslFlags', [String]$Binding.sslFlags)
-            }
-
-            $CimProperties.Add('CertificateThumbprint', [String]$Binding.certificateHash)
-            $CimProperties.Add('CertificateStoreName',  [String]$Binding.certificateStoreName)
-
-            New-CimInstance -ClassName $CimClassName `
-                            -Namespace $CimNamespace `
-                            -Property $CimProperties `
-                            -ClientOnly
-        }
-    }
-}
-
-<#
-    .SYNOPSIS
-        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding> 
-        element representation.
-    .LINK
-        https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
-#>
-function ConvertTo-WebBinding
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [AllowEmptyCollection()]
-        [AllowNull()]
-        [Object[]]
-        $InputObject
-    )
-    process
-    {
-        foreach ($Binding in $InputObject)
-        {
-            $OutputObject = @{
-                protocol = $Binding.Protocol
-            }
-
-            if ($Binding -is [Microsoft.Management.Infrastructure.CimInstance])
-            {
-                if ($Binding.Protocol -in @('http', 'https'))
-                {
-                    if (-not [String]::IsNullOrEmpty($Binding.BindingInformation))
-                    {
-                        if (-not [String]::IsNullOrEmpty($Binding.IPAddress) -or
-                            -not [String]::IsNullOrEmpty($Binding.Port) -or
-                            -not [String]::IsNullOrEmpty($Binding.HostName)
-                        )
-                        {
-                            $IsJoinRequired = $true
-                            Write-Verbose -Message `
-                                ($LocalizedData.VerboseConvertToWebBindingIgnoreBindingInformation `
-                                -f $Binding.Protocol)
-                        }
-                        else
-                        {
-                            $IsJoinRequired = $false
-                        }
-                    }
-                    else
-                    {
-                        $IsJoinRequired = $true
-                    }
-
-                    # Construct the bindingInformation attribute
-                    if ($IsJoinRequired -eq $true)
-                    {
-                        $IPAddressString = Format-IPAddressString -InputString $Binding.IPAddress `
-                                                                   -ErrorAction Stop
-
-                        if ([String]::IsNullOrEmpty($Binding.Port))
-                        {
-                            switch ($Binding.Protocol)
-                            {
-                                'http'  {$PortNumberString = '80'}
-                                'https' {$PortNumberString = '443'}
-                            }
-
-                            Write-Verbose -Message `
-                                ($LocalizedData.VerboseConvertToWebBindingDefaultPort `
-                                -f $Binding.Protocol, $PortNumberString)
-                        }
-                        else
-                        {
-                            if (Test-PortNumber -InputString $Binding.Port)
-                            {
-                                $PortNumberString = $Binding.Port
-                            }
-                            else
-                            {
-                                $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidPort `
-                                                -f $Binding.Port
-                                New-TerminatingError -ErrorId 'WebBindingInvalidPort' `
-                                                     -ErrorMessage $ErrorMessage `
-                                                     -ErrorCategory 'InvalidArgument'
-                            }
-                        }
-
-                        $BindingInformation = $IPAddressString, `
-                                              $PortNumberString, `
-                                              $Binding.HostName -join ':'
-                        $OutputObject.Add('bindingInformation', [String]$BindingInformation)
-                    }
-                    else
-                    {
-                        $OutputObject.Add('bindingInformation', [String]$Binding.BindingInformation)
-                    }
-                }
-                else
-                {
-                    if ([String]::IsNullOrEmpty($Binding.BindingInformation))
-                    {
-                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation `
-                                        -f $Binding.Protocol
-                        New-TerminatingError -ErrorId 'WebBindingMissingBindingInformation' `
-                                             -ErrorMessage $ErrorMessage `
-                                             -ErrorCategory 'InvalidArgument'
-                    }
-                    else
-                    {
-                        $OutputObject.Add('bindingInformation', [String]$Binding.BindingInformation)
-                    }
-                }
-
-                # SSL-related properties
-                if ($Binding.Protocol -eq 'https')
-                {
-                    if ([String]::IsNullOrEmpty($Binding.CertificateThumbprint))
-                    {
-                        $ErrorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint `
-                                        -f $Binding.Protocol
-                        New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' `
-                                             -ErrorMessage $ErrorMessage `
-                                             -ErrorCategory 'InvalidArgument'
-                    }
-
-                    if ([String]::IsNullOrEmpty($Binding.CertificateStoreName))
-                    {
-                        $CertificateStoreName = 'MY'
-                        Write-Verbose -Message `
-                            ($LocalizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
-                            -f $CertificateStoreName)
-                    }
-                    else
-                    {
-                        $CertificateStoreName = $Binding.CertificateStoreName
-                    }
-
-                    # Remove the Left-to-Right Mark character
-                    $CertificateHash = $Binding.CertificateThumbprint -replace '^\u200E'
-
-                    $OutputObject.Add('certificateHash',      [String]$CertificateHash)
-                    $OutputObject.Add('certificateStoreName', [String]$CertificateStoreName)
-
-                    if ([Environment]::OSVersion.Version -ge '6.2')
-                    {
-                        $SslFlags = [Int64]$Binding.SslFlags
-
-                        if ($SslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($Binding.HostName))
-                        {
-                            $ErrorMessage = $LocalizedData.ErrorWebBindingMissingSniHostName
-                            New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' `
-                                                 -ErrorMessage $ErrorMessage `
-                                                 -ErrorCategory 'InvalidArgument'
-                        }
-
-                        $OutputObject.Add('sslFlags', $SslFlags)
-                    }
-                }
-                else
-                {
-                    # Ignore SSL-related properties for non-SSL bindings
-                    $OutputObject.Add('certificateHash',      [String]::Empty)
-                    $OutputObject.Add('certificateStoreName', [String]::Empty)
-
-                    if ([Environment]::OSVersion.Version -ge '6.2')
-                    {
-                        $OutputObject.Add('sslFlags', [Int64]0)
-                    }
-                }
-            }
-            else
-            {
-                <#
-                    WebAdministration can throw the following exception if there are non-standard 
-                    bindings (such as 'net.tcp'): 'The data is invalid. 
-                    (Exception from HRESULT: 0x8007000D)'
-
-                    Steps to reproduce:
-                    1) Add 'net.tcp' binding
-                    2) Execute {Get-Website | `
-                                ForEach-Object {$_.bindings.Collection} | `
-                                Select-Object *}
-
-                    Workaround is to create a new custom object and use dot notation to
-                    access binding properties.
-                #>
-
-                $OutputObject.Add('bindingInformation',   [String]$Binding.bindingInformation)
-                $OutputObject.Add('certificateHash',      [String]$Binding.certificateHash)
-                $OutputObject.Add('certificateStoreName', [String]$Binding.certificateStoreName)
-
-                if ([Environment]::OSVersion.Version -ge '6.2')
-                {
-                    $OutputObject.Add('sslFlags', [Int64]$Binding.sslFlags)
-                }
-            }
-
-            Write-Output -InputObject ([PSCustomObject]$OutputObject)
-        }
-    }
-}
-
-<#
-    .SYNOPSIS
-        Formats the input IP address string for use in the bindingInformation attribute.
-#>
-function Format-IPAddressString
-{
-    [CmdletBinding()]
-    [OutputType([String])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [AllowEmptyString()]
-        [AllowNull()]
-        [String]
-        $InputString
-    )
-
-    if ([String]::IsNullOrEmpty($InputString) -or $InputString -eq '*')
-    {
-        $OutputString = '*'
-    }
-    else
-    {
-        try
-        {
-            $IPAddress = [IPAddress]::Parse($InputString)
-
-            switch ($IPAddress.AddressFamily)
-            {
-                'InterNetwork'
-                {
-                    $OutputString = $IPAddress.IPAddressToString
-                }
-                'InterNetworkV6'
-                {
-                    $OutputString = '[{0}]' -f $IPAddress.IPAddressToString
-                }
-            }
-        }
-        catch
-        {
-            $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress `
-                            -f $InputString, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' `
-                                 -ErrorMessage $ErrorMessage `
-                                 -ErrorCategory 'InvalidArgument'
-        }
-    }
-
-    return $OutputString
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to validate that the authenticationProperties for an Application.
-    .PARAMETER Site
-        Specifies the name of the Website.
-#>
-function Get-AuthenticationInfo
-{
-    [CmdletBinding()]
-    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site
-    )
-
-    $authenticationProperties = @{}
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $authenticationProperties[$type] = [String](Test-AuthenticationEnabled -Site $Site `
-                                                                               -Type $type)
-    }
-
-    return New-CimInstance `
-            -ClassName MSFT_xWebAuthenticationInformation `
-            -ClientOnly -Property $authenticationProperties
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to build a default CimInstance for AuthenticationInformation
-#>
-function Get-DefaultAuthenticationInfo
-{
-    New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
-        -ClientOnly `
-        -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to set authenticationProperties for an Application.
-    .PARAMETER Site
-        Specifies the name of the Website.
-    .PARAMETER Type
-        Specifies the type of Authentication.
-        Limited to the set: ('Anonymous','Basic','Digest','Windows').
-    .PARAMETER Enabled
-        Whether the Authentication is enabled or not.
-#>
-function Set-Authentication
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type,
-
-        [Boolean]$Enabled
-    )
-
-    Set-WebConfigurationProperty `
-        -Filter /system.WebServer/security/authentication/${Type}Authentication `
-        -Name enabled `
-        -Value $Enabled `
-        -Location $Site
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to validate that the authenticationProperties for an Application.
-    .PARAMETER Site
-        Specifies the name of the Website.
-    .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Set-AuthenticationInfo
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
-    )
-
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-        Set-Authentication -Site $Site -Type $type -Enabled $enabled
-    }
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application. 
-        Will return that value which will either [String]True or [String]False
-    .PARAMETER Site
-        Specifies the name of the Website.
-    .PARAMETER Type
-        Specifies the type of Authentication,
-        Limited to the set: ('Anonymous','Basic','Digest','Windows').
-#>
-function Test-AuthenticationEnabled
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type
-    )
-
-
-    $prop = Get-WebConfigurationProperty `
-        -Filter /system.WebServer/security/authentication/${Type}Authentication `
-        -Name enabled `
-        -Location $Site
-    return $prop.Value
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application. 
-        Will return that result which will either [boolean]$True or [boolean]$False for use 
-        in Test-TargetResource. Uses Test-AuthenticationEnabled to determine this. 
-        First incorrect result will break this function out.
-    .PARAMETER Site
-        Specifies the name of the Website.
-    .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Test-AuthenticationInfo
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
-    )
-
-    $result = $true
-
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-        $actual = Test-AuthenticationEnabled -Site $Site -Type $type
-        if ($expected -ne $actual)
-        {
-            $result = $false
-            break
-        }
-    }
-
-    return $result
-}
-
-<#
-    .SYNOPSIS
-        Validates the desired binding information (i.e. no duplicate IP address, port, and
-        host name combinations).
-#>
-function Test-BindingInfo
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo
-    )
-
-    $IsValid = $true
-
-    try
-    {
-        # Normalize the input (helper functions will perform additional validations)
-        $Bindings = @(ConvertTo-WebBinding -InputObject $BindingInfo | ConvertTo-CimBinding)
-        $StandardBindings = @($Bindings | `
-                                Where-Object -FilterScript {$_.Protocol -in @('http', 'https')})
-        $NonStandardBindings = @($Bindings | `
-                                 Where-Object -FilterScript {$_.Protocol -notin @('http', 'https')})
-
-        if ($StandardBindings.Count -ne 0)
-        {
-            # IP address, port, and host name combination must be unique
-            if (($StandardBindings | Group-Object -Property IPAddress, Port, HostName) | `
-                                     Where-Object -FilterScript {$_.Count -ne 1})
-            {
-                $IsValid = $false
-                Write-Verbose -Message `
-                    ($LocalizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
-            }
-
-            # A single port cannot be simultaneously specified for bindings with different protocols
-            foreach ($GroupByPort in ($StandardBindings | Group-Object -Property Port))
-            {
-                if (($GroupByPort.Group | Group-Object -Property Protocol).Length -ne 1)
-                {
-                    $IsValid = $false
-                    Write-Verbose -Message `
-                        ($LocalizedData.VerboseTestBindingInfoSamePortDifferentProtocol)
-                    break
-                }
-            }
-        }
-
-        if ($NonStandardBindings.Count -ne 0)
-        {
-            if (($NonStandardBindings | `
-                Group-Object -Property Protocol, BindingInformation) | `
-                Where-Object -FilterScript {$_.Count -ne 1})
-            {
-                $IsValid = $false
-                Write-Verbose -Message `
-                    ($LocalizedData.VerboseTestBindingInfoSameProtocolBindingInformation)
-            }
-        }
-    }
-    catch
-    {
-        $IsValid = $false
-        Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoInvalidCatch `
-                                -f $_.Exception.Message)
-    }
-
-    return $IsValid
-}
-
-<#
-    .SYNOPSIS
-        Validates that an input string represents a valid port number.
-        The port number must be a positive integer between 1 and 65535.
-#>
-function Test-PortNumber
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [AllowEmptyString()]
-        [AllowNull()]
-        [String]
-        $InputString
-    )
-
-    try
-    {
-        $IsValid = [UInt16]$InputString -ne 0
-    }
-    catch
-    {
-        $IsValid = $false
-    }
-
-    return $IsValid
-}
-
-<#
-    .SYNOPSIS
-        Helper function used to validate and compare website bindings of current to desired.
-        Returns True if bindings do not need to be updated.
-#>
-function Test-WebsiteBinding
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo
-    )
-
-    $InDesiredState = $true
-
-    # Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and 
-    # host name combinations).
-    if (-not (Test-BindingInfo -BindingInfo $BindingInfo))
-    {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation `
-                        -f $Name
-        New-TerminatingError -ErrorId 'WebsiteBindingInputInvalidation' `
-                             -ErrorMessage $ErrorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    try
-    {
-        $Website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-
-        # Normalize binding objects to ensure they have the same representation
-        $CurrentBindings = @(ConvertTo-WebBinding -InputObject $Website.bindings.Collection `
-                                                   -Verbose:$false)
-        $DesiredBindings = @(ConvertTo-WebBinding -InputObject $BindingInfo `
-                                                  -Verbose:$false)
-
-        $PropertiesToCompare = 'protocol', `
-                               'bindingInformation', `
-                               'certificateHash', `
-                               'certificateStoreName'
-
-        # The sslFlags attribute was added in IIS 8.0.
-        # This check is needed for backwards compatibility with Windows Server 2008 R2.
-        if ([Environment]::OSVersion.Version -ge '6.2')
-        {
-            $PropertiesToCompare += 'sslFlags'
-        }
-
-        if (Compare-Object -ReferenceObject $CurrentBindings `
-                           -DifferenceObject $DesiredBindings `
-                           -Property $PropertiesToCompare)
-        {
-            $InDesiredState = $false
-        }
-    }
-    catch
-    {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteCompareFailure `
-                         -f $Name, $_.Exception.Message
-        New-TerminatingError -ErrorId 'WebsiteCompareFailure' `
-                             -ErrorMessage $ErrorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    return $InDesiredState
-}
-
- <#
-    .SYNOPSIS
-        Helper function used to update default pages of website.
-#>
-function Update-DefaultPage
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [String[]]
-        $DefaultPage
-    )
-
-    $AllDefaultPages = @(
-        Get-WebConfiguration -Filter '//defaultDocument/files/*' `
-                             -PSPath "IIS:\Sites\$Name" |
-        ForEach-Object -Process {Write-Output -InputObject $_.value}
-    )
-
-    foreach ($Page in $DefaultPage)
-    {
-        if ($AllDefaultPages -inotcontains $Page)
-        {
-            Add-WebConfiguration -Filter '//defaultDocument/files' `
-                                 -PSPath "IIS:\Sites\$Name" `
-                                 -Value @{value = $Page}
-            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
-                                    -f $Name, $Page)
-        }
-    }
-}
-
-<#
-    .SYNOPSIS
-        Updates website bindings.
-#>
-function Update-WebsiteBinding
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $false)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo
-    )
-
-    # Use Get-WebConfiguration instead of Get-Website to retrieve XPath of the target website.
-    # XPath -Filter is case-sensitive. Use Where-Object to get the target website by name.
-    $Website = Get-WebConfiguration -Filter '/system.applicationHost/sites/site' |
-        Where-Object -FilterScript {$_.Name -eq $Name}
-
-    if (-not $Website)
-    {
-        $ErrorMessage = $LocalizedData.ErrorWebsiteNotFound `
-                        -f $Name
-        New-TerminatingError -ErrorId 'WebsiteNotFound' `
-                             -ErrorMessage $ErrorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    ConvertTo-WebBinding -InputObject $BindingInfo -ErrorAction Stop |
-    ForEach-Object -Begin {
-
-        Clear-WebConfiguration -Filter "$($Website.ItemXPath)/bindings" -Force -ErrorAction Stop
-
-    } -Process {
-
-        $Properties = $_
-
-        try
-        {
-            Add-WebConfiguration -Filter "$($Website.ItemXPath)/bindings" -Value @{
-                protocol = $Properties.protocol
-                bindingInformation = $Properties.bindingInformation
-            } -Force -ErrorAction Stop
-        }
-        catch
-        {
-            $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
-                            -f $Name, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' `
-                                 -ErrorMessage $ErrorMessage `
-                                 -ErrorCategory 'InvalidResult'
-        }
-
-        if ($Properties.protocol -eq 'https')
-        {
-            if ([Environment]::OSVersion.Version -ge '6.2')
-            {
-                try
-                {
-                    Set-WebConfigurationProperty `
-                        -Filter "$($Website.ItemXPath)/bindings/binding[last()]" `
-                        -Name sslFlags `
-                        -Value $Properties.sslFlags `
-                        -Force `
-                        -ErrorAction Stop
-                }
-                catch
-                {
-                    $ErrorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
-                                    -f $Name, $_.Exception.Message
-                    New-TerminatingError `
-                        -ErrorId 'WebsiteBindingUpdateFailure' `
-                        -ErrorMessage $ErrorMessage `
-                        -ErrorCategory 'InvalidResult'
-                }
-            }
-
-            try
-            {
-                $Binding = Get-WebConfiguration `
-                            -Filter "$($Website.ItemXPath)/bindings/binding[last()]" `
-                            -ErrorAction Stop
-                $Binding.AddSslCertificate($Properties.certificateHash, `
-                                           $Properties.certificateStoreName)
-            }
-            catch
-            {
-                $ErrorMessage = $LocalizedData.ErrorWebBindingCertificate `
-                                -f $Properties.certificateHash, $_.Exception.Message
-                New-TerminatingError `
-                    -ErrorId 'WebBindingCertificate' `
-                    -ErrorMessage $ErrorMessage `
-                    -ErrorCategory 'InvalidOperation'
-            }
-        }
-
-    }
-
-}
-
-#endregion
-
 Export-ModuleMember -Function *-TargetResource
-
-
-
-

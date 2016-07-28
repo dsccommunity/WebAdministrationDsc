@@ -1,6 +1,7 @@
 ﻿
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebApplication'
+$script:DSCModuleName        = 'xWebAdministration'
+$script:DSCResourceName      = 'MSFT_xWebApplication'
+$script:DSCHelplerModuleName = 'Helper'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
@@ -20,6 +21,9 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
+        $script:DSCModuleName        = 'xWebAdministration'
+        $script:DSCResourceName      = 'MSFT_xWebApplication'
+        $script:DSCHelplerModuleName = 'Helper'
         
         $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                             -ClientOnly `
@@ -74,7 +78,7 @@ try
                 Website                  = 'MockSite'
                 Name                     = 'MockApp'
                 WebAppPool               = 'MockPool'
-                PhysicalPath             = 'C:\MockSite\MockApp'          
+                PhysicalPath             = 'C:\MockSite\MockApp'
             }
 
             Context 'Absent should return correctly' {
@@ -86,15 +90,15 @@ try
                     return $GetWebConfigurationOutput
                 }
                 
-                Mock -CommandName Get-WebConfigurationProperty  -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty  -MockWith {
                     return $MockAuthenticationInfo
                 }
 
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Anonymous') }
                     
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 It 'should return Absent' {
                     $Result = Get-TargetResource @MockParameters
@@ -109,14 +113,14 @@ try
                        return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $GetAuthenticationInfo
                 }
 
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Anonymous') }
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
@@ -145,7 +149,7 @@ try
                 return $GetSslFlags
             }
 
-            Mock -CommandName Get-WebConfigurationProperty -MockWith {
+            Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                 return $GetAuthenticationInfo
             }
             
@@ -191,7 +195,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
 
@@ -220,21 +224,21 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
 
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
+                Mock -Module Helper -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Anonymous') }
 
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Basic') }
+                Mock -Module Helper -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Basic') }
 
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Digest') }
+                Mock -Module Helper -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Digest') }
             
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
+                Mock -Module Helper -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 It 'should return True' {
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
@@ -249,7 +253,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
                 
@@ -279,7 +283,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
 
@@ -308,9 +312,21 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -ModuleName Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
@@ -332,7 +348,7 @@ try
             }
 
             Context 'Check AuthenticationInfo is different' {
-            
+
                 Mock -CommandName Get-WebApplication -MockWith {
                         return @{
                             ApplicationPool          = $MockParameters.WebAppPool
@@ -348,26 +364,23 @@ try
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                         return $GetWebConfigurationOutput
                     }
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+
+                Mock -ModuleName Helper -CommandName Get-WebConfigurationProperty -MockWith {
                         return $MockAuthenticationInfo
                     }
 
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                      -ParameterFilter { ($Type -eq 'Anonymous') }
 
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Basic') }
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                      -ParameterFilter { ($Type -eq 'Basic') }
 
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Digest') }
-            
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
-            
-                $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
-                                            -ClientOnly `
-                                            -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
-            
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                      -ParameterFilter { ($Type -eq 'Digest') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                      -ParameterFilter { ($Type -eq 'Windows') }
+
                 $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                 
                 It 'should return False' {
@@ -380,11 +393,23 @@ try
                 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
-                }
+                }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
@@ -411,9 +436,21 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
@@ -444,9 +481,21 @@ try
                     return $null
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                     -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Digest') }
+            
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
@@ -476,7 +525,7 @@ try
                 return $GetWebConfigurationOutput
             }
 
-            Mock -CommandName Get-WebConfigurationProperty -MockWith {
+            Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                 return $MockAuthenticationInfo
             }
             
@@ -497,7 +546,7 @@ try
             Context 'Web Application does not exist' {
                 
                 Mock -CommandName Get-WebApplication -MockWith {
-                    return $null     
+                    return $null
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
@@ -508,21 +557,7 @@ try
                     return $null
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
-                    return $MockAuthenticationInfo
-                }
-
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Basic') }
-
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Digest') }
-            
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
+                Mock -CommandName Test-AuthenticationInfo { return $false }
 
                 Mock Test-SslFlags { return $null }
 
@@ -530,7 +565,7 @@ try
                 Mock -CommandName New-WebApplication
                 Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Set-ItemProperty
-                Mock -CommandName Set-Authentication
+                Mock -ModuleName Helper -CommandName Set-Authentication
                 
                 It 'should call expected mocks' {
 
@@ -540,8 +575,8 @@ try
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
-                    Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
-                    Assert-MockCalled -CommandName Set-Authentication -Exactly 4
+                    Assert-MockCalled -CommandName Test-AuthenticationInfo -Exactly 1
+                    Assert-MockCalled -ModuleName Helper -CommandName Set-Authentication -Exactly 4
 
                 }
 
@@ -549,10 +584,6 @@ try
 
             Context 'Web Application exists but has a different WebAppPool' {
                 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
-                    return $MockAuthenticationInfo
-                }
-
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = 'MockPoolOther'
@@ -571,21 +602,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
-                    return $MockAuthenticationInfo
-                }
-
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Basic') }
-
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Digest') }
-            
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
+                Mock -CommandName Test-AuthenticationInfo { return $true }
 
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
@@ -622,21 +639,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
-                    return $MockAuthenticationInfo
-                }
-
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Basic') }
-
-                Mock Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Digest') }
-            
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
+                Mock -CommandName Test-AuthenticationInfo { return $true }
 
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
@@ -655,7 +658,11 @@ try
             }
 
             Context 'Web Application exists but has different AuthenticationInfo' {
-            
+
+                $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                                -ClientOnly `
+                                -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
+
                 Mock -CommandName Get-WebApplication -MockWith {
                         return @{
                             ApplicationPool          = $MockParameters.WebAppPool
@@ -673,33 +680,23 @@ try
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                         return $GetWebConfigurationOutput
                     }
-                
-                Mock -CommandName Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
 
-                Mock -CommandName Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Basic') }
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
+                    return $MockAuthenticationInfo
+                }
 
-                Mock -CommandName Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Digest') }
-            
-                Mock -CommandName Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
+                Mock -ModuleName Helper -CommandName Test-AuthenticationEnabled { return $false }
 
-                Mock -CommandName Set-WebConfiguration
-                Mock -CommandName Set-Authentication
-            
-                $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
-                                            -ClientOnly `
-                                            -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
-                            
+                Mock -ModuleName Helper -CommandName Set-WebConfiguration
+                Mock -ModuleName Helper -CommandName Set-Authentication
+
                 It 'should call expected mocks' {
 
                     $Result = Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
-                    Assert-MockCalled -CommandName Set-Authentication -Exactly 4
+                    Assert-MockCalled -ModuleName Helper -CommandName Test-AuthenticationEnabled -Exactly 1
+                    Assert-MockCalled -ModuleName Helper -CommandName Set-Authentication -Exactly 4
                 }
             
             }
@@ -717,16 +714,17 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
-
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
+
+                Mock -CommandName Test-AuthenticationInfo { return $true }
 
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
@@ -763,9 +761,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
-                    return $MockAuthenticationInfo
-                }
+                Mock -CommandName Test-AuthenticationInfo { return $true }
 
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
@@ -803,9 +799,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
-                    return $MockAuthenticationInfo
-                }
+                Mock -CommandName Test-AuthenticationInfo { return $true }
 
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
@@ -854,9 +848,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith {
-                    return $MockAuthenticationInfo
-                }
+                Mock -CommandName Test-AuthenticationInfo { return $true }
 
                 Mock -CommandName Add-WebConfiguration
                 Mock -CommandName New-WebApplication
@@ -876,7 +868,114 @@ try
             }
         
         }
-      
+
+        Describe "$script:DSCResourceName\Get-SslFlags" {
+         
+            Context 'Expected behavior' {
+
+                Mock -CommandName Get-WebConfiguration -MockWith {$GetWebConfigurationOutput}
+
+                It 'should not throw an error' {
+                    { Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) }|
+                    Should Not Throw
+                }
+
+                It 'should call Get-WebConfiguration once' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+
+            }
+
+            Context 'SslFlags do not exist' {
+
+                Mock -CommandName Get-WebConfiguration -MockWith {return ''}
+
+                It 'should return nothing' {
+                    Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) |
+                    Should BeNullOrEmpty
+                }
+
+            }
+
+            Context 'SslFlags do exist' {
+                
+                Mock -CommandName Get-WebConfiguration -MockWith {$GetWebConfigurationOutput}
+
+                It 'should return SslFlags' {
+                    Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) |
+                    Should Be 'Ssl'
+                }
+ 
+            }
+
+        }
+
+        Describe "$script:DSCResourceName\Test-SslFlags" {
+
+        Context 'Expected behavior' {
+
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
+            It 'should not throw an error' {
+                    { Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  }|
+                    Should Not Throw
+                }
+
+            It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }    
+ 
+            }
+
+        Context 'Return False when SslFlags are not correct' {
+
+                $GetWebConfigurationOutput = @(
+                    @{
+                        SslFlags    = ''
+                    }
+                )
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
+                
+                It 'should return false' {
+                    Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags | Should be False
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+  
+            }
+
+        Context 'Return True when SslFlags are correct' {
+                
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+     
+                It 'should return true' {
+                    Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  | Should be True
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+  
+            }
+        
+        }
+    }
+
+    InModuleScope -ModuleName $script:DSCHelplerModuleName -ScriptBlock {
+        $script:DSCModuleName        = 'xWebAdministration'
+        $script:DSCResourceName      = 'MSFT_xWebApplication'
+        $script:DSCHelplerModuleName = 'Helper'
+
         Describe "$script:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
 
             $MockParameters = @{
@@ -977,38 +1076,36 @@ try
 
             }
 
-        } 
+        }
 
         Describe "$script:DSCResourceName\Get-AuthenticationInfo" {
 
             Context 'Expected behavior' {
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { return 'False'}
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith { return $false }
 
                 It 'should not throw an error' {
-                    { Get-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name } |
+                    { Get-AuthenticationInfo -site $MockParameters.Website -Application $MockParameters.Name -IisType Application } |
                     Should Not Throw
                 }
 
                 It 'should call Get-WebConfigurationProperty four times' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
- 
             }
+
 
             Context 'AuthenticationInfo is false' {
 
-                $GetWebConfigurationOutput = @(
-                    @{
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith { 
+                    return @{
                         Value = 'False'
-                    }
-                )
-
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                        }
+                }
 
                 
                 It 'should all be false' {
-                    $result = Get-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name 
+                    $result = Get-AuthenticationInfo -site $MockParameters.Website -Application $MockParameters.Name -IisType Application
                     $result.Anonymous | Should be False
                     $result.Digest | Should be False
                     $result.Basic | Should be False
@@ -1016,23 +1113,21 @@ try
                 }
 
                 It 'should call Get-WebConfigurationProperty four times' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
-  
+
             }
 
             Context 'AuthenticationInfo is true' {
                 
-                $GetWebConfigurationOutput = @(
-                    @{
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith { 
+                    return @{
                         Value = 'True'
-                    }
-                )
-                
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
-     
+                        }
+                }
+
                 It 'should all be true' {
-                    $result = Get-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name 
+                    $result = Get-AuthenticationInfo -site $MockParameters.Website -Application $MockParameters.Name -IisType Application
                     $result.Anonymous | Should be True
                     $result.Digest | Should be True
                     $result.Basic | Should be True
@@ -1040,7 +1135,7 @@ try
                 }
 
                 It 'should call Get-WebConfigurationProperty four times' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
  
             }
@@ -1061,7 +1156,7 @@ try
             Context 'Get-DefaultAuthenticationInfo should produce a false CimInstance' {
                
                 It 'should all be false' {
-                    $result = Get-DefaultAuthenticationInfo
+                    $result = Get-DefaultAuthenticationInfo -IisType Application
                     $result.Anonymous | Should be False
                     $result.Digest | Should be False
                     $result.Basic | Should be False
@@ -1072,60 +1167,19 @@ try
  
         }
 
-        Describe "$script:DSCResourceName\Get-SslFlags" {
-         
-            Context 'Expected behavior' {
-
-                Mock -CommandName Get-WebConfiguration -MockWith {$GetWebConfigurationOutput}
-
-                It 'should not throw an error' {
-                    { Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) }|
-                    Should Not Throw
-                }
-
-                It 'should call Get-WebConfiguration once' {
-                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
-                }
-
-            }
-
-            Context 'SslFlags do not exist' {
-
-                Mock -CommandName Get-WebConfiguration -MockWith {return ''}
-
-                It 'should return nothing' {
-                    Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) |
-                    Should BeNullOrEmpty
-                }
-
-            }
-
-            Context 'SslFlags do exist' {
-                
-                Mock -CommandName Get-WebConfiguration -MockWith {$GetWebConfigurationOutput}
-
-                It 'should return SslFlags' {
-                    Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) |
-                    Should Be 'Ssl'
-                }
- 
-            }
-
-        }
-
         Describe "$script:DSCResourceName\Set-Authentication" {
 
         Context 'Expected behavior' {
 
-            Mock -CommandName Set-WebConfigurationProperty
+            Mock -ModuleName Helper -CommandName Set-WebConfigurationProperty
 
             It 'should not throw an error' {
-                    { Set-Authentication -Site $MockParameters.Website -Name $MockParameters.Name -Type Basic -Enabled $true }|
+                    { Set-Authentication -Site $MockParameters.Website -Application $MockParameters.Name -IisType Application -Type Basic -Enabled $true }|
                     Should Not Throw
                 }
 
             It 'should call Set-WebConfigurationProperty once' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -ModuleName Helper -CommandName Set-WebConfigurationProperty -Exactly 1
                 }    
  
             }
@@ -1136,19 +1190,19 @@ try
         
         Context 'Expected behavior' {
 
-            Mock -CommandName Set-WebConfigurationProperty
+            Mock -Module Helper -CommandName Set-WebConfigurationProperty
 
             $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                                                   -ClientOnly `
-                                                  -Property @{Anonymous='true';Basic='false';Digest='false';Windows='false'}
+                                                  -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$false}
 
             It 'should not throw an error' {
-                    { Set-AuthenticationInfo  -Site $MockParameters.Website -Name $MockParameters.Name -AuthenticationInfo $AuthenticationInfo }|
+                    { Set-AuthenticationInfo  -Site $MockParameters.Website -Application $MockParameters.Name -IisType Application -AuthenticationInfo $AuthenticationInfo }|
                     Should Not Throw
                 }
 
             It 'should call should call expected mocks' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 4
+                    Assert-MockCalled -Module Helper -CommandName Set-WebConfigurationProperty -Exactly 4
                 }    
   
             }       
@@ -1165,56 +1219,52 @@ try
                     }
                 )
 
-            Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+            Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
 
             It 'should not throw an error' {
-                    { Test-AuthenticationEnabled  -Site $MockParameters.Website -Name $MockParameters.Name -Type 'Basic'}|
+                    { Test-AuthenticationEnabled  -Site $MockParameters.Website -Application $MockParameters.Name -IisType Application -Type 'Basic'}|
                     Should Not Throw
                 }
 
             It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 1
                 }    
     
             }
 
         Context 'AuthenticationInfo is false' {
 
-                $GetWebConfigurationOutput = @(
-                    @{
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith { 
+                    return @{
                         Value = 'False'
                     }
-                )
-
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                }
 
                 
                 It 'should return false' {
-                    Test-AuthenticationEnabled -site $MockParameters.Website -name $MockParameters.Name -Type 'Basic' | Should be False
+                    Test-AuthenticationEnabled -site $MockParameters.Website -Application $MockParameters.Name -IisType Application -Type 'Basic' | Should be False
                 }
 
                 It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 1
                 }
 
             }
 
         Context 'AuthenticationInfo is true' {
                 
-                $GetWebConfigurationOutput = @(
-                    @{
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
+                    return @{
                         Value = 'True'
                     }
-                )
-                
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
-     
+                }
+
                 It 'should all be true' {
-                    Test-AuthenticationEnabled -site $MockParameters.Website -name $MockParameters.Name -Type 'Basic' | Should be True
+                    Test-AuthenticationEnabled -site $MockParameters.Website -Application $MockParameters.Name -IisType Application -Type 'Basic' | Should be True
                 }
 
                 It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 1
                 }
   
             }   
@@ -1223,133 +1273,67 @@ try
         
         Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
 
-        Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+            Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
+                return @{
+                            Value = 'False'
+                        }
+            }
 
-        $GetWebConfigurationOutput = @(
-                    @{
-                        Value = 'False'
-                    }
-                )
+            $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                                        -ClientOnly `
+                                        -Property @{Anonymous=$false;Basic=$true;Digest=$false;Windows=$false}
 
-        $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
-                                    -ClientOnly `
-                                    -Property @{Anonymous='false';Basic='true';Digest='false';Windows='false'}
-        
         Context 'Expected behavior' {
 
-
             It 'should not throw an error' {
-                    { Test-AuthenticationInfo  -Site $MockParameters.Website -Name $MockParameters.Name -AuthenticationInfo $AuthenticationInfo }|
+                    { Test-AuthenticationInfo  -Site $MockParameters.Website -Application $MockParameters.Name -IisType Application -AuthenticationInfo $AuthenticationInfo }|
                     Should Not Throw
                 }
 
             It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
-                }    
- 
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 1
+                }
+
             }
 
         Context 'Return False when AuthenticationInfo is not correct' {
 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
 
-                
                 It 'should return false' {
-                    Test-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name -AuthenticationInfo $AuthenticationInfo | Should be False
+                    Test-AuthenticationInfo -site $MockParameters.Website -Application $MockParameters.Name -IisType Application -AuthenticationInfo $AuthenticationInfo | Should be False
                 }
 
                 It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 1
                 }
   
             }
 
         Context 'Return True when AuthenticationInfo is correct' {
-                
-                $GetWebConfigurationOutput = @(
-                    @{
-                        Value = 'True'
-                    }
-                )
-      
+
                 $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                                     -ClientOnly `
-                                    -Property @{Anonymous='true';Basic='true';Digest='true';Windows='true'}
+                                    -Property @{Anonymous=$true;Basic=$true;Digest=$true;Windows=$true}
                 
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
-     
+                Mock -Module Helper -CommandName Get-WebConfigurationProperty -MockWith {
+                    return @{
+                        Value = 'True'
+                    }
+                }
+
                 It 'should return true' {
-                    Test-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name -AuthenticationInfo $AuthenticationInfo | Should be True
+                    Test-AuthenticationInfo -site $MockParameters.Website -Application $MockParameters.Name -IisType Application -AuthenticationInfo $AuthenticationInfo | Should be True
                 }
 
                 It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
+                    Assert-MockCalled -Module Helper -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
   
             }     
   
         }
 
-        Describe "$script:DSCResourceName\Test-SslFlags" {
-        
-        Context 'Expected behavior' {
-
-            Mock -CommandName Get-WebConfiguration -MockWith {
-                    return $GetWebConfigurationOutput
-                }
-
-            It 'should not throw an error' {
-                    { Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  }|
-                    Should Not Throw
-                }
-
-            It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
-                }    
- 
-            }
-
-        Context 'Return False when SslFlags are not correct' {
-
-                $GetWebConfigurationOutput = @(
-                    @{
-                        SslFlags    = ''
-                    }
-                )
-
-                Mock -CommandName Get-WebConfiguration -MockWith {
-                    return $GetWebConfigurationOutput
-                }
-
-                
-                It 'should return false' {
-                    Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags | Should be False
-                }
-
-                It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
-                }
-  
-            }
-
-        Context 'Return True when SslFlags are correct' {
-                
-                Mock -CommandName Get-WebConfiguration -MockWith {
-                    return $GetWebConfigurationOutput
-                }
-     
-                It 'should return true' {
-                    Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  | Should be True
-                }
-
-                It 'should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
-                }
-  
-            }
-        
-        }     
-    
     }
 
 }
