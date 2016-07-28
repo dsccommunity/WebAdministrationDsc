@@ -14,6 +14,7 @@ data LocalizedData
         TypeStatusUnknown         = MIMEType '{0}' for extension '{1}' is is an unknown status
         VerboseGetTargetPresent   = MIMEType is present
         VerboseGetTargetAbsent    = MIMEType is absent
+        VerboseSetTargetError     = Cannot set type
 '@
 }
 
@@ -66,8 +67,8 @@ function Get-TargetResource
 function Set-TargetResource
 {
     <#
-    .SYNOPSIS
-        This will set the desired state
+            .SYNOPSIS
+            This will set the desired state
     #>
     param
     (    
@@ -108,6 +109,10 @@ function Set-TargetResource
                                             -Name '.' `
                                             -AtElement @{fileExtension="$Extension"}
             Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension);
+        }
+        else 
+        {
+            Write-Verbose -Message $LocalizedData.VerboseSetTargetError
         }
 }
 

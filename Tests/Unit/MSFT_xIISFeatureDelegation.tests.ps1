@@ -76,7 +76,7 @@ try
         Describe 'MSFT_xIISFeatureDelegation\Get-TargetResource' {
             Context 'OverRideMode is present' {
                 Mock Get-OverrideMode {return 'Allow'}
-                $result = Get-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Allow'
+                $result = Get-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Allow'
                 $expected = @{
                     SectionName = 'serverRunTime'
                     OverrideMode = 'Allow'
@@ -89,7 +89,7 @@ try
             }
             Context 'OverRideMode is absent' {
                 Mock Get-OverrideMode {return 'Deny'}
-                $result = Get-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Allow'
+                $result = Get-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Allow'
                 $expected = @{
                     SectionName = 'serverRunTime'
                     OverrideMode = 'Deny'
@@ -109,7 +109,7 @@ try
             Context 'OverRideMode is present' {
                 Mock Get-OverrideMode {return 'Allow'}
                 It 'should return true' {
-                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Allow'
+                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Allow'
                     $results | Should Be $true
                 }
             }
@@ -117,7 +117,7 @@ try
             Context 'OverRideMode is absent' {
                 Mock Get-OverrideMode {return 'Allow'}
                 It 'should return true' {
-                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Deny'
+                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Deny'
                     $results | Should Be $false
                 }
             }
@@ -127,21 +127,53 @@ try
 
         #region Function Set-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Set-TargetResource' {
-            # TODO: Add Set-TargetResource tests
+            Context 'Settings are correct' {
+
+                Mock -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -MockWith {}
+
+                Set-TargetResource -SectionName 'mockName' -OverrideMode 'Allow'
+
+                It 'should call all the mocks' {
+                    Assert-MockCalled -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -Exactly 1
+                }
+            }
+
         }
         #endregion
 
         Describe 'MSFT_xIISFeatureDelegation\Get-OverrideMode' {
+            $mockWebConfigOutput = 
+            @{
+                Metadata = 
+                @{
+                    effectiveOverrideMode = $null
+                }
+            }
+            $mockSection = 'NonExistant'
+            Mock -CommandName Assert-Module -MockWith {}
+        
             Context 'function is not able to find a value' {
                 It 'Should throw an error on null' {
-                    Mock Get-WebConfiguration {return $null}
-                    {Get-OverrideMode -Section 'NonExistant'} | Should Throw
+                    Mock Get-WebConfiguration { return $mockWebConfigOutput }
+                    {Get-OverrideMode -Section $mockSection} | Should Throw ($LocalizedData.UnableToGetConfig -f $mockSection)
                 }
 
                 It 'Should throw an error on the wrong value' {
-                    Mock Get-WebConfiguration {return 'Wrong'}
-                    {Get-OverrideMode -Section 'NonExistant'} | Should Throw
+                    $mockWebConfigOutput.Metadata.effectiveOverrideMode = 'Wrong'
+                    Mock Get-WebConfiguration { return $mockWebConfigOutput }
+                    {Get-OverrideMode -Section $mockSection} | Should Throw ($LocalizedData.UnableToGetConfig -f $mockSection)
                 }
+            }
+                        
+            Context 'oMode is set correctly' {
+                $mockWebConfigOutput.Metadata.effectiveOverrideMode = 'Allow'
+                Mock -CommandName Get-WebConfiguration -MockWith {return $mockWebConfigOutput}
+                
+                $oMode = Get-OverrideMode -Section $mockSection
+                It 'Should be Allow' {
+                    $oMode | Should Be 'Allow'
+                }
+            
             }
         }
 
