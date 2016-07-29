@@ -3,26 +3,26 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-    ModuleNotFound                                  = Please ensure that the PowerShell module for role {0} is installed.
-    ErrorWebsiteNotFound                            = The requested website "{0}" cannot be found on the target machine.
-    ErrorWebsiteBindingUpdateFailure                = Failure to successfully update the bindings for website "{0}". Error: "{1}".
-    ErrorWebsiteBindingInputInvalidation            = Desired website bindings are not valid for website "{0}".
-    ErrorWebsiteCompareFailure                      = Failure to successfully compare properties for website "{0}". Error: "{1}".
-    ErrorWebBindingCertificate                      = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
-    ErrorWebsiteStateFailure                        = Failure to successfully set the state of the website "{0}". Error: "{1}".
-    ErrorWebsiteBindingConflictOnStart              = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing websites bindings before trying to start it.
-    ErrorWebBindingInvalidIPAddress                 = Failure to validate the IPAddress property value "{0}". Error: "{1}".
-    ErrorWebBindingInvalidPort                      = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
-    ErrorWebBindingMissingBindingInformation        = The BindingInformation property is required for bindings of type "{0}".
-    ErrorWebBindingMissingCertificateThumbprint     = The CertificateThumbprint property is required for bindings of type "{0}".
-    ErrorWebBindingMissingSniHostName               = The HostName property is required for use with Server Name Indication.
-    ErrorWebsitePreloadFailure                      = Failure to set Preload on Website "{0}". Error: "{1}".
-    ErrorWebsiteAutoStartFailure                    = Failure to set AutoStart on Website "{0}". Error: "{1}".
-    ErrorWebsiteAutoStartProviderFailure            = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
-    ErrorWebsiteTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
-    ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
-    VerboseUpdateDefaultPageUpdated                 = Default page for website "{0}" has been updated to "{1}".
-    VerboseTestBindingInfoInvalidCatch              = Unable to validate BindingInfo: "{0}".
+        ModuleNotFound                                  = Please ensure that the PowerShell module for role {0} is installed.
+        ErrorWebsiteNotFound                            = The requested website "{0}" cannot be found on the target machine.
+        ErrorWebsiteBindingUpdateFailure                = Failure to successfully update the bindings for website "{0}". Error: "{1}".
+        ErrorWebsiteBindingInputInvalidation            = Desired website bindings are not valid for website "{0}".
+        ErrorWebsiteCompareFailure                      = Failure to successfully compare properties for website "{0}". Error: "{1}".
+        ErrorWebBindingCertificate                      = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
+        ErrorWebsiteStateFailure                        = Failure to successfully set the state of the website "{0}". Error: "{1}".
+        ErrorWebsiteBindingConflictOnStart              = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing websites bindings before trying to start it.
+        ErrorWebBindingInvalidIPAddress                 = Failure to validate the IPAddress property value "{0}". Error: "{1}".
+        ErrorWebBindingInvalidPort                      = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
+        ErrorWebBindingMissingBindingInformation        = The BindingInformation property is required for bindings of type "{0}".
+        ErrorWebBindingMissingCertificateThumbprint     = The CertificateThumbprint property is required for bindings of type "{0}".
+        ErrorWebBindingMissingSniHostName               = The HostName property is required for use with Server Name Indication.
+        ErrorWebsitePreloadFailure                      = Failure to set Preload on Website "{0}". Error: "{1}".
+        ErrorWebsiteAutoStartFailure                    = Failure to set AutoStart on Website "{0}". Error: "{1}".
+        ErrorWebsiteAutoStartProviderFailure            = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
+        ErrorWebsiteTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
+        ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+        VerboseUpdateDefaultPageUpdated                 = Default page for website "{0}" has been updated to "{1}".
+        VerboseTestBindingInfoInvalidCatch              = Unable to validate BindingInfo: "{0}".
 '@
 }
 
@@ -791,27 +791,27 @@ function ConvertTo-WebBinding
     )
     process
     {
-        foreach ($Binding in $InputObject)
+        foreach ($binding in $InputObject)
         {
             $OutputObject = @{
-                protocol = $Binding.Protocol
+                protocol = $binding.Protocol
             }
 
             if ($Binding -is [Microsoft.Management.Infrastructure.CimInstance])
             {
                 if ($Binding.Protocol -in @('http', 'https', 'ftp'))
                 {
-                    if (-not [String]::IsNullOrEmpty($Binding.BindingInformation))
+                    if (-not [String]::IsNullOrEmpty($binding.BindingInformation))
                     {
                         if (-not [String]::IsNullOrEmpty($Binding.IPAddress) -or
-                            -not [String]::IsNullOrEmpty($Binding.Port) -or
-                            -not [String]::IsNullOrEmpty($Binding.HostName)
+                            -not [String]::IsNullOrEmpty($binding.Port) -or
+                            -not [String]::IsNullOrEmpty($binding.HostName)
                         )
                         {
                             $IsJoinRequired = $true
                             Write-Verbose -Message `
                                 ($LocalizedData.VerboseConvertToWebBindingIgnoreBindingInformation `
-                                -f $Binding.Protocol)
+                                -f $binding.Protocol)
                         }
                         else
                         {
@@ -826,12 +826,12 @@ function ConvertTo-WebBinding
                     # Construct the bindingInformation attribute
                     if ($IsJoinRequired -eq $true)
                     {
-                        $IPAddressString = Format-IPAddressString -InputString $Binding.IPAddress `
+                        $IPAddressString = Format-IPAddressString -InputString $binding.IPAddress `
                                                                    -ErrorAction Stop
 
-                        if ([String]::IsNullOrEmpty($Binding.Port))
+                        if ([String]::IsNullOrEmpty($binding.Port))
                         {
-                            switch ($Binding.Protocol)
+                            switch ($binding.Protocol)
                             {
                                 'http'  {$PortNumberString = '80'}
                                 'https' {$PortNumberString = '443'}
@@ -840,63 +840,63 @@ function ConvertTo-WebBinding
 
                             Write-Verbose -Message `
                                 ($LocalizedData.VerboseConvertToWebBindingDefaultPort `
-                                -f $Binding.Protocol, $PortNumberString)
+                                -f $binding.Protocol, $PortNumberString)
                         }
                         else
                         {
-                            if (Test-PortNumber -InputString $Binding.Port)
+                            if (Test-PortNumber -InputString $binding.Port)
                             {
-                                $PortNumberString = $Binding.Port
+                                $PortNumberString = $binding.Port
                             }
                             else
                             {
                                 $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidPort `
-                                                -f $Binding.Port
+                                                -f $binding.Port
                                 New-TerminatingError -ErrorId 'WebBindingInvalidPort' `
                                                      -ErrorMessage $ErrorMessage `
                                                      -ErrorCategory 'InvalidArgument'
                             }
                         }
 
-                        $BindingInformation = $IPAddressString, `
+                        $bindingInformation = $IPAddressString, `
                                               $PortNumberString, `
-                                              $Binding.HostName -join ':'
-                        $OutputObject.Add('bindingInformation', [String]$BindingInformation)
+                                              $binding.HostName -join ':'
+                        $OutputObject.Add('bindingInformation', [String]$bindingInformation)
                     }
                     else
                     {
-                        $OutputObject.Add('bindingInformation', [String]$Binding.BindingInformation)
+                        $OutputObject.Add('bindingInformation', [String]$binding.BindingInformation)
                     }
                 }
                 else
                 {
-                    if ([String]::IsNullOrEmpty($Binding.BindingInformation))
+                    if ([String]::IsNullOrEmpty($binding.BindingInformation))
                     {
                         $ErrorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation `
-                                        -f $Binding.Protocol
+                                        -f $binding.Protocol
                         New-TerminatingError -ErrorId 'WebBindingMissingBindingInformation' `
                                              -ErrorMessage $ErrorMessage `
                                              -ErrorCategory 'InvalidArgument'
                     }
                     else
                     {
-                        $OutputObject.Add('bindingInformation', [String]$Binding.BindingInformation)
+                        $OutputObject.Add('bindingInformation', [String]$binding.BindingInformation)
                     }
                 }
 
                 # SSL-related properties
-                if ($Binding.Protocol -eq 'https')
+                if ($binding.Protocol -eq 'https')
                 {
-                    if ([String]::IsNullOrEmpty($Binding.CertificateThumbprint))
+                    if ([String]::IsNullOrEmpty($binding.CertificateThumbprint))
                     {
                         $ErrorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint `
-                                        -f $Binding.Protocol
+                                        -f $binding.Protocol
                         New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' `
                                              -ErrorMessage $ErrorMessage `
                                              -ErrorCategory 'InvalidArgument'
                     }
 
-                    if ([String]::IsNullOrEmpty($Binding.CertificateStoreName))
+                    if ([String]::IsNullOrEmpty($binding.CertificateStoreName))
                     {
                         $CertificateStoreName = 'MY'
                         Write-Verbose -Message `
@@ -905,20 +905,20 @@ function ConvertTo-WebBinding
                     }
                     else
                     {
-                        $CertificateStoreName = $Binding.CertificateStoreName
+                        $CertificateStoreName = $binding.CertificateStoreName
                     }
 
                     # Remove the Left-to-Right Mark character
-                    $CertificateHash = $Binding.CertificateThumbprint -replace '^\u200E'
+                    $CertificateHash = $binding.CertificateThumbprint -replace '^\u200E'
 
                     $OutputObject.Add('certificateHash',      [String]$CertificateHash)
                     $OutputObject.Add('certificateStoreName', [String]$CertificateStoreName)
 
                     if ([Environment]::OSVersion.Version -ge '6.2')
                     {
-                        $SslFlags = [Int64]$Binding.SslFlags
+                        $SslFlags = [Int64]$binding.SslFlags
 
-                        if ($SslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($Binding.HostName))
+                        if ($SslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($binding.HostName))
                         {
                             $ErrorMessage = $LocalizedData.ErrorWebBindingMissingSniHostName
                             New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' `
@@ -958,13 +958,13 @@ function ConvertTo-WebBinding
                     access binding properties.
                 #>
 
-                $OutputObject.Add('bindingInformation',   [String]$Binding.bindingInformation)
-                $OutputObject.Add('certificateHash',      [String]$Binding.certificateHash)
-                $OutputObject.Add('certificateStoreName', [String]$Binding.certificateStoreName)
+                $OutputObject.Add('bindingInformation',   [String]$binding.bindingInformation)
+                $OutputObject.Add('certificateHash',      [String]$binding.certificateHash)
+                $OutputObject.Add('certificateStoreName', [String]$binding.certificateStoreName)
 
                 if ([Environment]::OSVersion.Version -ge '6.2')
                 {
-                    $OutputObject.Add('sslFlags', [Int64]$Binding.sslFlags)
+                    $OutputObject.Add('sslFlags', [Int64]$binding.sslFlags)
                 }
             }
 
