@@ -4,13 +4,13 @@ $script:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 
 #region HEADER
 
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
+$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $repoSource = (Get-Module -Name $script:DSCModuleName -ListAvailable)
 
 # If module was obtained from the gallery install test folder from the gallery instead of cloning from git
 if (($null -ne $repoSource) -and ($repoSource[0].RepositorySourceLocation.Host -eq 'www.powershellgallery.com'))
 {
-    if ( -not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests\DscResourceTestHelper')) )
+    if ( -not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\DscResourceTestHelper')) )
     {
         $choice = 'y'
 
@@ -23,7 +23,7 @@ if (($null -ne $repoSource) -and ($repoSource[0].RepositorySourceLocation.Host -
         if ($choice -eq 'y')
         {
             # Install test folders from gallery
-            Save-Module -Name 'DscResourceTestHelper' -Path (Join-Path -Path $moduleRoot -ChildPath 'Tests')
+            Save-Module -Name 'DscResourceTestHelper' -Path (Join-Path -Path $script:moduleRoot -ChildPath 'Tests')
         }
 
         else 
@@ -34,19 +34,19 @@ if (($null -ne $repoSource) -and ($repoSource[0].RepositorySourceLocation.Host -
         
     }
 
-    $testModuleVer = Get-ChildItem -Path (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResourceTestHelper')
-    Import-Module (Join-Path -Path $moduleRoot -ChildPath "Tests\DscResourceTestHelper\$testModuleVer\TestHelper.psm1") -Force
+    $testModuleVer = Get-ChildItem -Path (Join-Path -Path $script:moduleRoot -ChildPath '\Tests\DscResourceTestHelper')
+    Import-Module (Join-Path -Path $script:moduleRoot -ChildPath "Tests\DscResourceTestHelper\$testModuleVer\TestHelper.psm1") -Force
 } 
 # Otherwise module was cloned from github
 else
 {
     # Get common tests and test helpers from gitHub rather than installing them from the gallery
     # This ensures that developers always have access to the most recent DscResource.Tests folder 
-    $testHelperPath = (Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1')
+    $testHelperPath = (Join-Path -Path $script:moduleRoot -ChildPath '\Tests\DscResource.Tests\DscResourceTestHelper\TestHelper.psm1')
     if (-not (Test-Path -Path $testHelperPath))
     {
         # Clone test folders from gitHub
-        $dscResourceTestsPath = Join-Path -Path $moduleRoot -ChildPath '\Tests\DscResource.Tests'
+        $dscResourceTestsPath = Join-Path -Path $script:moduleRoot -ChildPath '\Tests\DscResource.Tests'
         & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',$dscResourceTestsPath)
         
         # TODO get rid of this section once we update all other resources and merge the gitDependency branch with the main branch on DscResource.Tests
@@ -59,6 +59,7 @@ else
     Import-Module $testHelperPath -Force
 }
 
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath "MockWebAdministrationWindowsFeature.psm1")
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
@@ -76,7 +77,7 @@ try
         Describe 'MSFT_xIISFeatureDelegation\Get-TargetResource' {
             Context 'OverRideMode is present' {
                 Mock Get-OverrideMode {return 'Allow'}
-                $result = Get-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Allow'
+                $result = Get-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Allow'
                 $expected = @{
                     SectionName = 'serverRunTime'
                     OverrideMode = 'Allow'
@@ -89,7 +90,7 @@ try
             }
             Context 'OverRideMode is absent' {
                 Mock Get-OverrideMode {return 'Deny'}
-                $result = Get-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Allow'
+                $result = Get-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Allow'
                 $expected = @{
                     SectionName = 'serverRunTime'
                     OverrideMode = 'Deny'
@@ -109,7 +110,7 @@ try
             Context 'OverRideMode is present' {
                 Mock Get-OverrideMode {return 'Allow'}
                 It 'should return true' {
-                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Allow'
+                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Allow'
                     $results | Should Be $true
                 }
             }
@@ -117,7 +118,7 @@ try
             Context 'OverRideMode is absent' {
                 Mock Get-OverrideMode {return 'Allow'}
                 It 'should return true' {
-                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverrideMode 'Deny'
+                    $results = Test-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Deny'
                     $results | Should Be $false
                 }
             }
@@ -127,53 +128,21 @@ try
 
         #region Function Set-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Set-TargetResource' {
-            Context 'Settings are correct' {
-
-                Mock -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -MockWith {}
-
-                Set-TargetResource -SectionName 'mockName' -OverrideMode 'Allow'
-
-                It 'should call all the mocks' {
-                    Assert-MockCalled -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -Exactly 1
-                }
-            }
-
+            # TODO: Add Set-TargetResource tests
         }
         #endregion
 
         Describe 'MSFT_xIISFeatureDelegation\Get-OverrideMode' {
-            $mockWebConfigOutput = 
-            @{
-                Metadata = 
-                @{
-                    effectiveOverrideMode = $null
-                }
-            }
-            $mockSection = 'NonExistant'
-            Mock -CommandName Assert-Module -MockWith {}
-        
             Context 'function is not able to find a value' {
                 It 'Should throw an error on null' {
-                    Mock Get-WebConfiguration { return $mockWebConfigOutput }
-                    {Get-OverrideMode -Section $mockSection} | Should Throw ($LocalizedData.UnableToGetConfig -f $mockSection)
+                    Mock Get-WebConfiguration {return $null}
+                    {Get-OverrideMode -Section 'NonExistant'} | Should Throw
                 }
 
                 It 'Should throw an error on the wrong value' {
-                    $mockWebConfigOutput.Metadata.effectiveOverrideMode = 'Wrong'
-                    Mock Get-WebConfiguration { return $mockWebConfigOutput }
-                    {Get-OverrideMode -Section $mockSection} | Should Throw ($LocalizedData.UnableToGetConfig -f $mockSection)
+                    Mock Get-WebConfiguration {return 'Wrong'}
+                    {Get-OverrideMode -Section 'NonExistant'} | Should Throw
                 }
-            }
-                        
-            Context 'oMode is set correctly' {
-                $mockWebConfigOutput.Metadata.effectiveOverrideMode = 'Allow'
-                Mock -CommandName Get-WebConfiguration -MockWith {return $mockWebConfigOutput}
-                
-                $oMode = Get-OverrideMode -Section $mockSection
-                It 'Should be Allow' {
-                    $oMode | Should Be 'Allow'
-                }
-            
             }
         }
 
