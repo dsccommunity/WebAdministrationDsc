@@ -9,7 +9,6 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
         ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
-        ErrorAppCmdPathNotFound           = AppCmd.exe could not be found at path "{0}".
         VerboseAppPoolFound               = Application pool "{0}" was found.
         VerboseAppPoolNotFound            = Application pool "{0}" was not found.
         VerboseEnsureNotInDesiredState    = The "Ensure" state of application pool "{0}" does not match the desired state.
@@ -465,32 +464,34 @@ function Set-TargetResource
 
                 Compare-Object -ReferenceObject $restartScheduleDesired `
                     -DifferenceObject $restartScheduleCurrent |
-                ForEach-Object -Process {
+                        ForEach-Object -Process {
 
-                    if ($_.SideIndicator -eq '<=') # Add value
-                    {
-                        Write-Verbose -Message (
-                            $LocalizedData['VerboseRestartScheduleValueAdd'] -f
-                                $_.InputObject, $Name
-                        )
+                            # Add value
+                            if ($_.SideIndicator -eq '<=')
+                            {
+                                Write-Verbose -Message (
+                                    $LocalizedData['VerboseRestartScheduleValueAdd'] -f
+                                        $_.InputObject, $Name
+                                )
 
-                        Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
-                            "/+recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
-                        )
-                    }
-                    else # Remove value
-                    {
-                        Write-Verbose -Message (
-                            $LocalizedData['VerboseRestartScheduleValueRemove'] -f
-                                $_.InputObject, $Name
-                        )
+                                Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
+                                    "/+recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                                )
+                            }
+                            # Remove value
+                            else
+                            {
+                                Write-Verbose -Message (
+                                    $LocalizedData['VerboseRestartScheduleValueRemove'] -f
+                                        $_.InputObject, $Name
+                                )
 
-                        Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
-                            "/-recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
-                        )
-                    }
+                                Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
+                                    "/-recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                                )
+                            }
 
-                }
+                        }
             }
 
             if ($PSBoundParameters.ContainsKey('State') -and $appPool.state -ne $State)
@@ -884,36 +885,39 @@ function Get-Property
     }
 } 
 
+<#
+    .SYNOPSIS
+        Runs appcmd.exe - if there's an error then the application will terminate
+        
+    .PARAMETER ArgumentList
+        Optional list of string arguments to be passed into appcmd.exe    
+
+#>
 function Invoke-AppCmd
 {
     [CmdletBinding()]
     param
     (
-        [String[]] $ArgumentList,
-
-        [String] $FilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+        [String[]] $ArgumentList
     )
 
-    if (Test-Path -Path $FilePath -PathType Leaf)
+    <# 
+        This is a local preference for the function which will terminate
+        the program if there's an error invoking appcmd.exe
+    #>
+    $ErrorActionPreference = 'Stop'
+
+    $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+
+    $(& $appcmdfilePath $ArgumentList) | Write-Verbose
+
+    if ($LASTEXITCODE -ne 0)
     {
-        $(& $FilePath $ArgumentList) | Write-Verbose
+        $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
 
-        if ($LASTEXITCODE -ne 0)
-        {
-            $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
-
-            New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
-                -ErrorMessage $errorMessage `
-                -ErrorCategory 'InvalidResult'
-        }
-    }
-    else
-    {
-        $errorMessage = $LocalizedData['ErrorAppCmdPathNotFound'] -f $FilePath
-
-        New-TerminatingError -ErrorId 'ErrorAppCmdPathNotFound' `
+        New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
             -ErrorMessage $errorMessage `
-            -ErrorCategory 'ObjectNotFound'
+            -ErrorCategory 'InvalidResult'
     }
 }
 
