@@ -75,7 +75,7 @@ function Get-TargetResource
 
 <#
         .SYNOPSIS
-        This will set the desired state
+        This will update the desired state based on the Bindings passed in
 #>
 function Set-TargetResource
 {
