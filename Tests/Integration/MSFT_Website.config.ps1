@@ -1,5 +1,5 @@
 #requires -Version 4
-configuration MSFT_xWebsite_Present_Started
+configuration MSFT_Website_Present_Started
 {
     param(
         
@@ -8,39 +8,39 @@ configuration MSFT_xWebsite_Present_Started
     
     )
 
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {  
-        xWebsite Website
+        Website Website
         {
             Name = $Node.Website
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                MSFT_xWebAuthenticationInformation
+                MSFT_WebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
                     Digest    = $Node.AuthenticationInfoDigest
                     Windows   = $Node.AuthenticationInfoWindows
                 }
-            BindingInfo = @(MSFT_xWebBindingInformation
+            BindingInfo = @(MSFT_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                MSFT_xWebBindingInformation
+                MSFT_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                MSFT_xWebBindingInformation
+                MSFT_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -61,7 +61,7 @@ configuration MSFT_xWebsite_Present_Started
     }
 }
 
-configuration MSFT_xWebsite_Present_Stopped
+configuration MSFT_Website_Present_Stopped
 {
     param(
         
@@ -70,18 +70,18 @@ configuration MSFT_xWebsite_Present_Stopped
     
     )
 
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministration
 
     Node $AllNodes.NodeName 
     {  
-        xWebsite Website
+        Website Website
         {
             Name = $Node.Website
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                MSFT_xWebAuthenticationInformation
+                MSFT_WebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -89,21 +89,21 @@ configuration MSFT_xWebsite_Present_Stopped
                     Windows   = $Node.AuthenticationInfoWindows
                 }
             BindingInfo = @(
-                MSFT_xWebBindingInformation
+                MSFT_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                MSFT_xWebBindingInformation
+                MSFT_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                MSFT_xWebBindingInformation
+                MSFT_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -124,13 +124,13 @@ configuration MSFT_xWebsite_Present_Stopped
     }
 }
 
-configuration MSFT_xWebsite_Absent
+configuration MSFT_Website_Absent
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName 
     {  
-        xWebsite Website
+        Website Website
         {
             Name = $Node.Website
             Ensure = 'Absent'

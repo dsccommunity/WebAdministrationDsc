@@ -1,5 +1,5 @@
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xIISLogging'
+$script:DSCModuleName = 'WebAdministrationDsc'
+$script:DSCResourceName = 'MSFT_IisLogging'
 
 #region HEADER
 
@@ -19,7 +19,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 #endregion
 
-[string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[String]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 
 try {

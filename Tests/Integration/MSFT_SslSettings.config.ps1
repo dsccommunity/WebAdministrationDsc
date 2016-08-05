@@ -1,11 +1,11 @@
 #requires -Version 4
-configuration MSFT_xSSLSettings_Present
+configuration MSFT_SslSettings_Present
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {  
-        xSSLSettings Website
+        SslSettings Website
         {
             Ensure = 'Present'
             Name = $Node.Website
@@ -14,13 +14,13 @@ configuration MSFT_xSSLSettings_Present
     }
 }
 
-configuration MSFT_xSSLSettings_Absent
+configuration MSFT_SslSettings_Absent
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName 
     {  
-        xSSLSettings Website
+        SslSettings Website
         {
             Ensure = 'Absent'
             Name = $Node.Website

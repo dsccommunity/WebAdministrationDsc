@@ -1,5 +1,5 @@
-$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebsite'
+$script:DSCModuleName   = 'WebAdministrationDsc'
+$script:DSCResourceName = 'MSFT_Website'
 
 #region HEADER
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -16,11 +16,11 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
-[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[String] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
 {
-    # Now that xWebAdministration should be discoverable load the configuration data
+    # Now that WebAdministrationDsc should be discoverable, load the configuration data
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
@@ -34,7 +34,7 @@ try
     #region HelperFunctions
 
     # Function needed to test AuthenticationInfo
-    Function Get-AuthenticationInfo ($Type, $Website) {
+    function Get-AuthenticationInfo ($Type, $Website) {
 
         (Get-WebConfigurationProperty `
             -Filter /system.WebServer/security/authentication/${Type}Authentication `
@@ -208,14 +208,14 @@ try
 
     }
 
-    Describe 'MSFT_xWebBindingInformation' {
+    Describe 'MSFT_WebBindingInformation' {
         # Directly interacting with Cim classes is not supported by PowerShell DSC
         # it is being done here explicitly for the purpose of testing. Please do not
         # do this in actual resource code
         
         #TODO: Delete or Uncomment - Is this needed? PSScriptAnalyzer says it's never used.
-        #$xWebBindingInforationClass = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation')
-        $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
+        #$WebBindingInforationClass = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_WebBindingInformation')
+        $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_WebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
 
         foreach ($storeName in $storeNames)
         {
