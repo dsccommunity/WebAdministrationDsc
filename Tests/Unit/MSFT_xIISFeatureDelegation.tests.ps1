@@ -59,7 +59,7 @@ else
     Import-Module $testHelperPath -Force
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath "MockWebAdministrationWindowsFeature.psm1")
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
