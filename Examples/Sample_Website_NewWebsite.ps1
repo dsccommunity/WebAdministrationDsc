@@ -1,9 +1,9 @@
-configuration Sample_xWebsite_NewWebsite
+configuration Sample_Website_NewWebsite
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost',
+        [String[]]$NodeName = 'localhost',
 
         # Name of the website to create
         [Parameter(Mandatory)]
@@ -41,7 +41,7 @@ configuration Sample_xWebsite_NewWebsite
         }
 
         # Stop the default website
-        xWebsite DefaultSite 
+        Website DefaultSite 
         {
             Ensure          = 'Present'
             Name            = 'Default Web Site'
@@ -62,7 +62,7 @@ configuration Sample_xWebsite_NewWebsite
         }       
 
         # Create the new Website
-        xWebsite NewWebsite
+        Website NewWebsite
         {
             Ensure          = 'Present'
             Name            = $WebSiteName

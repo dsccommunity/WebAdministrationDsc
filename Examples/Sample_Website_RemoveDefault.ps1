@@ -1,9 +1,9 @@
-configuration Sample_xWebsite_StopDefault
+configuration Sample_Website_StopDefault
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
+        [String[]]$NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
@@ -19,7 +19,7 @@ configuration Sample_xWebsite_StopDefault
         }
 
         # Stop the default website
-        xWebsite DefaultSite 
+        Website DefaultSite 
         {
             Ensure          = 'Present'
             Name            = 'Default Web Site'

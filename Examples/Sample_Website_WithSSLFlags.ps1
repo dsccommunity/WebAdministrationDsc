@@ -1,9 +1,9 @@
-configuration Sample_xWebsite_NewWebsite
+configuration Sample_Website_NewWebsite
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost',
+        [String[]]$NodeName = 'localhost',
 
         # Name of the website to create
         [Parameter(Mandatory)]
@@ -41,7 +41,7 @@ configuration Sample_xWebsite_NewWebsite
         }
 
         # Stop the default website
-        xWebsite DefaultSite
+        Website DefaultSite
         {
             Ensure          = "Present"
             Name            = "Default Web Site"
@@ -64,14 +64,14 @@ configuration Sample_xWebsite_NewWebsite
         # Create the new Website
         # Have it set to the CertificateThumbprint
         # and set that the Server Name Indication is required
-        xWebsite NewWebsite
+        Website NewWebsite
         {
             Ensure          = "Present"
             Name            = $WebSiteName
             State           = "Started"
             PhysicalPath    = $DestinationPath
             DependsOn       = "[File]WebContent"
-            BindingInfo     = MSFT_xWebBindingInformation
+            BindingInfo     = MSFT_WebBindingInformation
             {
                 Protocol              = 'https'
                 Port                  = '443'

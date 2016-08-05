@@ -1,9 +1,9 @@
-configuration Sample_xSSLSetting_RequireCert
+configuration Sample_SSLSetting_RequireCert
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
+        [String[]]$NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
@@ -11,7 +11,7 @@ configuration Sample_xSSLSetting_RequireCert
 
     Node $NodeName
     {
-         xSSLSettings SiteDefaults
+         SSLSettings SiteDefaults
          {
             Ensure   = 'Present'
             Name     = 'contoso.com'

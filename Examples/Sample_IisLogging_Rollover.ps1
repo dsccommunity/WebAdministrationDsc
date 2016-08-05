@@ -1,8 +1,9 @@
+configuration Sample_IisLogging_Rollover
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
+        [String[]]$NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
@@ -10,11 +11,11 @@
 
     Node $NodeName
     {
-        xIisLogging Logging
+        IisLogging Logging
         {
             LogPath = 'C:\IISLogFiles'
             Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
-            LoglocalTimeRollover = $True
+            LoglocalTimeRollover = $true
             LogPeriod = 'Hourly'
             LogFormat = 'W3C'
         }

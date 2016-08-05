@@ -1,8 +1,9 @@
+configuration Sample_IisLogging_Truncate
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
+        [String[]]$NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
@@ -10,7 +11,7 @@
 
     Node $NodeName
     {
-        xIisLogging Logging
+        IisLogging Logging
         {
             LogPath = 'C:\IISLogFiles'
             Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
