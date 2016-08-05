@@ -902,14 +902,15 @@ function Invoke-AppCmd
     )
 
     <# 
-        This is a local preference for the function which will terminate
-        the program if there's an error invoking appcmd.exe
+            This is a local preference for the function which will terminate
+            the program if there's an error invoking appcmd.exe
     #>
     $ErrorActionPreference = 'Stop'
 
     $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
-
-    $(& $appcmdfilePath $ArgumentList) | Write-Verbose
+    
+    $appcmdResult = $(& $appcmdFilePath $ArgumentList)
+    Write-Verbose -Message $appcmdResult
 
     if ($LASTEXITCODE -ne 0)
     {

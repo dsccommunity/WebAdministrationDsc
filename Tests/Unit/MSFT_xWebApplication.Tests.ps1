@@ -79,27 +79,28 @@ try
                 WebAppPool               = 'MockPool'
                 PhysicalPath             = 'C:\MockSite\MockApp'          
             }
+            
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+            }
+            
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+                    
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+            
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Absent should return correctly' {
+            
                 Mock -CommandName Get-WebApplication -MockWith {
                     return $null
-                }
-
-                Mock -CommandName Get-WebConfiguration -MockWith {
-                    return $GetWebConfigurationOutput
                 }
                 
                 Mock -CommandName Get-WebConfigurationProperty  -MockWith {
                     return $MockAuthenticationInfo
                 }
-
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-                    
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
-
-                Mock -CommandName Assert-Module -MockWith {}
 
                 It 'should return Absent' {
                     $Result = Get-TargetResource @MockParameters
@@ -109,19 +110,10 @@ try
             }
 
             Context 'Present should return correctly' {
-                
-                Mock -CommandName Get-WebConfiguration -MockWith {
-                       return $GetWebConfigurationOutput
-                }
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $GetAuthenticationInfo
                 }
-
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
@@ -134,8 +126,6 @@ try
                         Count = 1
                     }
                 }
-
-                Mock -CommandName Assert-Module -MockWith {}
 
                 It 'should return Present' {
                     $Result = Get-TargetResource @MockParameters
