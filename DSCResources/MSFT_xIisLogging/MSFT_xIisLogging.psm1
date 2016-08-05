@@ -24,13 +24,12 @@ data LocalizedData
 '@
 }
 
+<#
+        .SYNOPSIS
+        This will return a hashtable of results about the given LogPath 
+#>
 function Get-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This will return a hashtable of results 
-    #>
-
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -42,29 +41,27 @@ function Get-TargetResource
 
         Assert-Module
 
-        $CurrentLogSettings = Get-WebConfiguration `
+        $currentLogSettings = Get-WebConfiguration `
                                 -filter '/system.applicationHost/sites/siteDefaults/Logfile'
-
-        return @{
-            LogPath              = $CurrentLogSettings.directory
-            LogFlags             = [Array]$CurrentLogSettings.LogExtFileFlags
-            LogPeriod            = $CurrentLogSettings.period
-            LogTruncateSize      = $CurrentLogSettings.truncateSize
-            LoglocalTimeRollover = $CurrentLogSettings.localTimeRollover
-            LogFormat            = $CurrentLogSettings.logFormat
-        }
-        
+                                
         Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
 
+        return @{
+            LogPath              = $currentLogSettings.directory
+            LogFlags             = [Array]$currentLogSettings.LogExtFileFlags
+            LogPeriod            = $currentLogSettings.period
+            LogTruncateSize      = $currentLogSettings.truncateSize
+            LoglocalTimeRollover = $currentLogSettings.localTimeRollover
+            LogFormat            = $currentLogSettings.logFormat
+        }
 }
 
+<#
+        .SYNOPSIS
+        This will set the desired state
+#>
 function Set-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This will set the desired state
-    #>
-
     [CmdletBinding()]
     param
     (
@@ -88,11 +85,11 @@ function Set-TargetResource
     
         Assert-Module
     
-        $CurrentLogState = Get-TargetResource -LogPath $LogPath
+        $currentLogState = Get-TargetResource -LogPath $LogPath
         
         # Update LogFormat if needed
         if ($PSBoundParameters.ContainsKey('LogFormat') -and `
-            ($LogFormat -ne $CurrentLogState.LogFormat))
+            ($LogFormat -ne $currentLogState.LogFormat))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
@@ -101,7 +98,7 @@ function Set-TargetResource
         }
         
         # Update LogPath if needed
-        if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $CurrentLogState.LogPath))
+        if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $currentLogState.LogPath))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
@@ -124,7 +121,7 @@ function Set-TargetResource
         
         # Update Log Period if needed
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-            ($LogPeriod -ne $CurrentLogState.LogPeriod))
+            ($LogPeriod -ne $currentLogState.LogPeriod))
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                 {
@@ -138,7 +135,7 @@ function Set-TargetResource
         
         # Update LogTruncateSize if needed
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
-            ($LogTruncateSize -ne $CurrentLogState.LogTruncateSize))
+            ($LogTruncateSize -ne $currentLogState.LogTruncateSize))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
@@ -152,23 +149,22 @@ function Set-TargetResource
         # Update LoglocalTimeRollover if needed
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
             ($LoglocalTimeRollover -ne `
-             ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
+             ([System.Convert]::ToBoolean($currentLogState.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
                 -Name localTimeRollover `
                 -Value $LoglocalTimeRollover
         }    
-
 }
 
-function Test-TargetResource
-{
-    <#
-    .SYNOPSIS
+<#
+        .SYNOPSIS
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
-    #>
+#>
+function Test-TargetResource
+{
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
@@ -193,7 +189,7 @@ function Test-TargetResource
     
         Assert-Module
 
-        $CurrentLogState = Get-TargetResource -LogPath $LogPath
+        $currentLogState = Get-TargetResource -LogPath $LogPath
         
         # Check LogFormat
         if ($PSBoundParameters.ContainsKey('LogFormat'))
@@ -204,14 +200,16 @@ function Test-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
             }
+            
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
             if($PSBoundParameters.ContainsKey('LogFlags') -and `
-                $CurrentLogState.LogFormat -ne 'W3C')
+                $currentLogState.LogFormat -ne 'W3C')
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
             }
+            
             # Check LogFormat 
-            if ($LogFormat -ne $CurrentLogState.LogFormat)
+            if ($LogFormat -ne $currentLogState.LogFormat)
             {
                 Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFormat)
                 return $false 
@@ -228,7 +226,7 @@ function Test-TargetResource
             
         # Check LogPath
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
-            ($LogPath -ne $CurrentLogState.LogPath))
+            ($LogPath -ne $currentLogState.LogPath))
         { 
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath)
             return $false 
@@ -236,7 +234,7 @@ function Test-TargetResource
         
         # Check LogPeriod
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-            ($LogPeriod -ne $CurrentLogState.LogPeriod))
+            ($LogPeriod -ne $currentLogState.LogPeriod))
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
             {
@@ -249,7 +247,7 @@ function Test-TargetResource
         
         # Check LogTruncateSize
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
-            ($LogTruncateSize -ne $CurrentLogState.LogTruncateSize))
+            ($LogTruncateSize -ne $currentLogState.LogTruncateSize))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize)
             return $false
@@ -258,7 +256,7 @@ function Test-TargetResource
         # Check LoglocalTimeRollover
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
             ($LoglocalTimeRollover -ne `
-             ([System.Convert]::ToBoolean($CurrentLogState.LoglocalTimeRollover))))
+             ([System.Convert]::ToBoolean($currentLogState.LoglocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover)
             return $false
@@ -270,16 +268,16 @@ function Test-TargetResource
 
 #region Helper functions
 
-function Compare-LogFlags
-{
-    <#
-    .SYNOPSIS
-        Helper function used to validate that the logflags status.
+<#
+        .SYNOPSIS
+        Helper function used to validate the logflags status.
         Returns False if the loglfags do not match and true if they do
+
         .PARAMETER LogFlags
         Specifies flags to check
-    #>
-
+#>
+function Compare-LogFlags
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -288,15 +286,15 @@ function Compare-LogFlags
         [String[]] $LogFlags
     )
 
-    $CurrentLogFlags = (Get-WebConfigurationProperty `
+    $currentLogFlags = (Get-WebConfigurationProperty `
                         -Filter '/system.Applicationhost/Sites/SiteDefaults/logfile' `
                         -Name LogExtFileFlags) -split ',' | `
                         Sort-Object
 
-    $ProposedLogFlags = $LogFlags -split ',' | Sort-Object
+    $proposedLogFlags = $LogFlags -split ',' | Sort-Object
 
-    if (Compare-Object -ReferenceObject $CurrentLogFlags `
-                       -DifferenceObject $ProposedLogFlags)
+    if (Compare-Object -ReferenceObject $currentLogFlags `
+                       -DifferenceObject $proposedLogFlags)
     {
         return $false
     }
