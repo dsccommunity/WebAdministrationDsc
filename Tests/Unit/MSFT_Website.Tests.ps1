@@ -24,7 +24,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     #region Pester Tests
-    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock 
+    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
 
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
@@ -1938,7 +1938,7 @@ try
                 Count                = 1
             }
 
-           Context 'Expected behavior' {
+            Context 'Expected behavior' {
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return 'False'}
 
                 It 'should not throw an error' {
@@ -3025,8 +3025,8 @@ try
             }
         }
     }
-    #endregion
 }
+    #endregion
 finally
 {
     #region FOOTER
