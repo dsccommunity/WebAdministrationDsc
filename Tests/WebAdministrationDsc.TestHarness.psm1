@@ -1,8 +1,11 @@
-function Invoke-xWebAdministrationTests() {
+function Invoke-WebAdministrationDscTests() {
     param
     (
-        [parameter(Mandatory = $false)] [System.String] $testResultsFile,
-        [parameter(Mandatory = $false)] [System.String] $DscTestsPath
+        [Parameter(Mandatory = $false)]
+        [System.String] $testResultsFile,
+        
+        [Parameter(Mandatory = $false)]
+        [System.String] $DscTestsPath
     )
 
     Write-Verbose 'Commencing xWebAdministration unit tests'
@@ -17,18 +20,19 @@ function Invoke-xWebAdministrationTests() {
     }
 
     $testResultSettings = @{ }
-    if ([string]::IsNullOrEmpty($testResultsFile) -eq $false) {
+    if ([String]::IsNullOrEmpty($testResultsFile) -eq $false) {
         $testResultSettings.Add('OutputFormat', 'NUnitXml' )
         $testResultSettings.Add('OutputFile', $testResultsFile)
     }
-    Import-Module "$repoDir\xWebAdministration.psd1"
+    
+    Import-Module "$repoDir\WebAdministrationDsc.psd1"
     
     $versionsToTest = (Get-ChildItem (Join-Path $repoDir '\Tests\Unit\')).Name
     
     $testsToRun = @()
     $versionsToTest | ForEach-Object {
         $testsToRun += @(@{
-            'Path' = "$repoDir\Tests\Unit\$_"
+                'Path' = "$repoDir\Tests\Unit\$_"
         })
     }
     
