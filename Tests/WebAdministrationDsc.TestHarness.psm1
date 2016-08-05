@@ -2,7 +2,7 @@ function Invoke-WebAdministrationDscTests() {
     param
     (
         [Parameter(Mandatory = $false)]
-        [System.String] $testResultsFile,
+        [System.String] $TestResultsFile,
         
         [Parameter(Mandatory = $false)]
         [System.String] $DscTestsPath
@@ -20,9 +20,9 @@ function Invoke-WebAdministrationDscTests() {
     }
 
     $testResultSettings = @{ }
-    if ([String]::IsNullOrEmpty($testResultsFile) -eq $false) {
+    if ([String]::IsNullOrEmpty($TestResultsFile) -eq $false) {
         $testResultSettings.Add('OutputFormat', 'NUnitXml' )
-        $testResultSettings.Add('OutputFile', $testResultsFile)
+        $testResultSettings.Add('OutputFile', $TestResultsFile)
     }
     
     Import-Module "$repoDir\WebAdministrationDsc.psd1"

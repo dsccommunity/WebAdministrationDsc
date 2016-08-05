@@ -75,6 +75,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
 * Added **xSSLSettings** integration tests
 * Added fixes to **xSSLSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
+* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
 
 * Added **xIISLogging** resource which supports for the following options:
     * LogPath
