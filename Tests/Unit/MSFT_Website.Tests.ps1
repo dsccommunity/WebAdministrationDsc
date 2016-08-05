@@ -1,6 +1,6 @@
 
-$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebsite'
+$script:DSCModuleName   = 'WebAdministrationDsc'
+$script:DSCResourceName = 'MSFT_Website'
 
 #region HEADER
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -24,9 +24,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     #region Pester Tests
-    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        $script:DSCModuleName   = 'xWebAdministration'
-        $script:DSCResourceName = 'MSFT_xWebsite'
+    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock 
 
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
@@ -71,7 +69,7 @@ try
             )
 
             $MockAuthenticationInfo = @(
-                New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
+                New-CimInstance -ClassName MSFT_WebAuthenticationInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Anonymous = 'true'
@@ -264,7 +262,7 @@ try
 
         Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
             $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                New-CimInstance -ClassName MSFT_WebBindingInformation `
                 -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                 -Property @{
                     Protocol              = 'https'
@@ -452,7 +450,7 @@ try
                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 $MockAuthenticationInfo = New-CimInstance `
-                                            -ClassName MSFT_xWebAuthenticationInformation `
+                                            -ClassName MSFT_WebAuthenticationInformation `
                                             -ClientOnly `
                                             -Property @{ Anonymous=$true; Basic=$false; Digest=$false; Windows=$true }
 
@@ -694,12 +692,12 @@ try
 
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
             $MockAuthenticationInfo = New-CimInstance  `
-                -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                -ClassName MSFT_WebApplicationAuthenticationInformation `
                 -ClientOnly `
                 -Property @{ Anonymous=$true; Basic=$false; Digest=$false; Windows=$true }
 
             $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                New-CimInstance -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol              = 'https'
@@ -1611,7 +1609,7 @@ try
             Context 'Expected behaviour' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                    -ClassName MSFT_xWebBindingInformation `
+                    -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol              = 'https'
@@ -1651,7 +1649,7 @@ try
             Context 'IP address is invalid' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -Property @{
                             Protocol  = 'http'
@@ -1678,7 +1676,7 @@ try
                 It 'should set the default HTTP port' {
                     $MockBindingInfo = @(
                         New-CimInstance `
-                            -ClassName MSFT_xWebBindingInformation `
+                            -ClassName MSFT_WebBindingInformation `
                             -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                             -ClientOnly `
                             -Property @{
@@ -1693,7 +1691,7 @@ try
                 It 'should set the default HTTPS port' {
                     $MockBindingInfo = @(
                         New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -1710,7 +1708,7 @@ try
             Context 'Port is invalid' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                    -ClassName MSFT_xWebBindingInformation `
+                    -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol = 'http'
@@ -1747,7 +1745,7 @@ try
                 $MockThumbprintWithLrmChar = $UnicodeEncoding.GetString(($LrmCharBytes + $UnicodeBytes))
 
                 $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    New-CimInstance -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol              = 'https'
@@ -1768,7 +1766,7 @@ try
 
             Context 'Protocol is HTTPS and CertificateThumbprint is not specified' {
                 $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    New-CimInstance -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol              = 'https'
@@ -1793,7 +1791,7 @@ try
 
             Context 'Protocol is HTTPS and CertificateStoreName is not specified' {
                 $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    New-CimInstance -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol              = 'https'
@@ -1810,7 +1808,7 @@ try
 
             Context 'Protocol is HTTPS and HostName is not specified for use with Server Name Indication' {
                 $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    New-CimInstance -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol              = 'https'
@@ -1840,7 +1838,7 @@ try
 
             Context 'Protocol is not HTTPS' {
                 $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    New-CimInstance -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         Protocol              = 'http'
@@ -1861,7 +1859,7 @@ try
             Context 'Protocol is neither HTTP nor HTTPS' {
                 It 'should throw an error if BindingInformation is not specified' {
                     $MockBindingInfo = @(
-                        New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                        New-CimInstance -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -Property @{
                             Protocol           = 'net.tcp'
@@ -1884,7 +1882,7 @@ try
 
                 It 'should use BindingInformation and ignore IPAddress, Port, and HostName' {
                     $MockBindingInfo = @(
-                        New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                        New-CimInstance -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -Property @{
                             Protocol           = 'net.tcp'
@@ -2060,7 +2058,7 @@ try
                 Mock -CommandName Set-WebConfigurationProperty
 
                 $AuthenticationInfo = New-CimInstance `
-                    -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                    -ClassName MSFT_WebApplicationAuthenticationInformation `
                     -ClientOnly `
                     -Property @{Anonymous='true';Basic='false';Digest='false';Windows='false'}
 
@@ -2166,7 +2164,7 @@ try
             )
 
             $AuthenticationInfo = New-CimInstance `
-                -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                -ClassName MSFT_WebApplicationAuthenticationInformation `
                 -ClientOnly `
                 -Property @{ Anonymous='false'; Basic='true'; Digest='false'; Windows='false' }
 
@@ -2202,7 +2200,7 @@ try
                 )
 
                 $AuthenticationInfo = New-CimInstance `
-                    -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                    -ClassName MSFT_WebApplicationAuthenticationInformation `
                     -ClientOnly `
                     -Property @{ Anonymous='true'; Basic='true'; Digest='true'; Windows='true' }
 
@@ -2224,7 +2222,7 @@ try
             Context 'BindingInfo is valid' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2238,7 +2236,7 @@ try
                         }
 
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2260,7 +2258,7 @@ try
             Context 'BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2274,7 +2272,7 @@ try
                         }
 
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2296,7 +2294,7 @@ try
             Context 'BindingInfo contains items that share the same Port but have different Protocols' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2310,7 +2308,7 @@ try
                         }
 
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2332,7 +2330,7 @@ try
             Context 'BindingInfo contains multiple items with the same Protocol and BindingInformation combination' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2341,7 +2339,7 @@ try
                         }
 
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2407,7 +2405,7 @@ try
             Context 'Test-BindingInfo returns False' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                    -ClassName MSFT_xWebBindingInformation `
+                    -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -ClientOnly `
                     -Property @{
@@ -2440,7 +2438,7 @@ try
             Context 'Bindings comparison throws an error' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                    -ClassName MSFT_xWebBindingInformation `
+                    -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -ClientOnly `
                     -Property @{
@@ -2471,7 +2469,7 @@ try
             Context 'Port is different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2495,7 +2493,7 @@ try
             Context 'Protocol is different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2519,7 +2517,7 @@ try
             Context 'IPAddress is different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                    -ClassName MSFT_xWebBindingInformation `
+                    -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -ClientOnly `
                     -Property @{
@@ -2543,7 +2541,7 @@ try
             Context 'HostName is different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2566,7 +2564,7 @@ try
             Context 'CertificateThumbprint is different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2607,7 +2605,7 @@ try
             Context 'CertificateStoreName is different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2646,7 +2644,7 @@ try
             Context 'CertificateStoreName is different and no CertificateThumbprint is specified' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2695,7 +2693,7 @@ try
             Context 'SslFlags is different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2734,7 +2732,7 @@ try
             Context 'Bindings are identical' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2748,7 +2746,7 @@ try
                         }
 
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2796,7 +2794,7 @@ try
             Context 'Bindings are different' {
                 $MockBindingInfo = @(
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2810,7 +2808,7 @@ try
                         }
 
                     New-CimInstance `
-                        -ClassName MSFT_xWebBindingInformation `
+                        -ClassName MSFT_WebBindingInformation `
                         -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                         -ClientOnly `
                         -Property @{
@@ -2889,7 +2887,7 @@ try
 
             $MockBindingInfo = @(
                 New-CimInstance `
-                    -ClassName MSFT_xWebBindingInformation `
+                    -ClassName MSFT_WebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -ClientOnly `
                     -Property @{
