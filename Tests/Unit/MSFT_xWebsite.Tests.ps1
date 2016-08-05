@@ -3,14 +3,17 @@ $script:DSCModuleName   = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebsite'
 
 #region HEADER
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
-if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath "MockWebAdministrationWindowsFeature.psm1")
+
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
@@ -27,9 +30,7 @@ try
 
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
-                Mock -ModuleName Helper -CommandName Get-Module -MockWith {
-                    return $null
-                }
+                Mock -ModuleName Helper -CommandName Get-Module -MockWith { return $null }
 
                 It 'should throw an error' {
                     { Assert-Module } | Should Throw
@@ -101,6 +102,8 @@ try
                 LogFile              = $MockLogOutput
                 Count                = 1
             }
+
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -332,6 +335,8 @@ try
                 LogFile              = $MockLogOutput
                 Count                = 1
             }
+
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -768,6 +773,8 @@ try
                 LogFile              = $MockLogOutput
             }
 
+            Mock -CommandName Assert-Module -MockWith {}
+
             Context 'All properties need to be updated and website must be started' {
                 Mock -CommandName Add-WebConfiguration
 
@@ -933,11 +940,19 @@ try
 
                 Mock -CommandName Get-Website
 
-                Mock -CommandName New-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
+
+                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
 
                 Mock -CommandName Stop-Website
 
-                Mock -CommandName Test-WebsiteBinding -MockWith {return $false}
+                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Update-WebsiteBinding
 
@@ -947,9 +962,9 @@ try
 
                 Mock -CommandName Update-DefaultPage
 
-                Mock -CommandName Confirm-UniqueBinding -MockWith {return $true}
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
 
-                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $false}
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $false }
 
                 Mock -CommandName Set-Authentication
 
@@ -1000,6 +1015,14 @@ try
 
                 Mock -CommandName Get-Website
 
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
+
                 Mock -CommandName New-Website -MockWith {return $MockWebsite}
 
                 Mock -CommandName Stop-Website
@@ -1036,6 +1059,15 @@ try
 
             Context 'New-Website throws an error' {
                 Mock -CommandName Get-Website
+
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
+
                 Mock -CommandName New-Website -MockWith {throw}
 
                 It 'should throw the correct error' {
@@ -1062,6 +1094,8 @@ try
             }
 
             Mock -CommandName Get-Website -MockWith {return @{Name = $MockParameters.Name}}
+
+            Mock -CommandName Assert-Module -MockWith {}
 
             It 'should call Remove-Website' {
                 Mock -CommandName Remove-Website

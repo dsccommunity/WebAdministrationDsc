@@ -1,33 +1,34 @@
-$Global:DSCModuleName   = 'xWebAdministration'
-$Global:DSCResourceName = 'MSFT_xWebApplication'
+$script:DSCModuleName   = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xWebApplication'
 
 #region HEADER
+
 # Integration Test Template Version: 1.1.0
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
-if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Integration 
 #endregion
 
-[string] $tempName = "$($Global:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
 {
     $null = Backup-WebConfiguration -Name $tempName
     
     # Now that xWebAdministration should be discoverable load the configuration data
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($Global:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($Global:DSCResourceName).config.psd1"
+    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
     #region HelperFunctions
 
@@ -66,11 +67,11 @@ try
         -Force `
         -ErrorAction Stop
 
-    Describe "$($Global:DSCResourceName)_Present" {
+    Describe "$($script:DSCResourceName)_Present" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -82,7 +83,7 @@ try
 
         It 'Should create a WebApplication with correct settings' -test {
             
-            Invoke-Expression -Command "$($Global:DSCResourceName)_Present -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder"
 
             # Build results to test
             $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
@@ -115,11 +116,11 @@ try
 
     }
 
-    Describe "$($Global:DSCResourceName)_Absent" {
+    Describe "$($script:DSCResourceName)_Absent" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($Global:DSCResourceName)_Absent -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -131,7 +132,7 @@ try
         
         It 'Should remove the WebApplication' -test {
             
-            Invoke-Expression -Command "$($Global:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder"
 
             # Build results to test
             $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
