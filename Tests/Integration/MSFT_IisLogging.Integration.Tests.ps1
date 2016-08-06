@@ -19,7 +19,8 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 #endregion
 
-[String]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+#[String]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[String]$tempName = MSFT_xIisLogging + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 
 try {
