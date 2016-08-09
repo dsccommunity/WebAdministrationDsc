@@ -6,17 +6,14 @@ version: 1.11.{build}.0
 install:
   - cinst -y pester
   - ps: Push-Location
-  - cd Tests
-  - git clone https://github.com/PowerShell/DscResource.Tests    
-  - cd ..
   - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
   - ps: New-item "$env:ProgramFiles\WindowsPowerShell\Modules" -Name WebAdministrationDsc -ItemType Directory -Force | Out-Null
   - ps: Copy-item -Path ".\WebAdministrationDsc.psd1" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force
   - ps: Copy-item -Path ".\DscResources" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force -Recurse
   - ps: Copy-item -Path ".\Examples" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force -Recurse
-  - cd Tests\DscResource.Tests
-  - ps: Import-Module ..\WebAdministrationDsc.TestHarness.psm1 -force
-  - ps: Enable-RDP
+  - cd Tests
+  - git clone https://github.com/PowerShell/DscResource.Tests
+  - cd DscResource.Tests  
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location
   - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
@@ -37,7 +34,9 @@ build: false
 test_script:
     - ps: |
         $testResultsFile = ".\TestsResults.xml"
-        $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
+        Import-Module "$env:APPVEYOR_BUILD_FOLDER\Tests\WebAdministrationDsc.TestHarness.psm1" -Force
+        #$res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
+        $res = Invoke-WebAdministrationDscTests -TestResultsFile $testResultsFile -DscTestsPath c:\Projects\xWebAdministration\Tests\DscResource.Tests
         (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsFile))
         if ($res.FailedCount -gt 0) {
             throw "$($res.FailedCount) tests failed."
