@@ -13,9 +13,6 @@ install:
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location
   - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
-  - ps: $env:PSModulePath
-  - ps: Get-Module -List WebAdministrationDsc | % {$_.path, $_.version}
-  - ps: dir "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -recurse
 
 #---------------------------------#
 #      build configuration        #
