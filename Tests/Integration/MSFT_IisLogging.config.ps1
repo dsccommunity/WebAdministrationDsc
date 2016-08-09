@@ -1,6 +1,6 @@
 configuration MSFT_IisLogging_Rollover
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     IisLogging Logging
     {
@@ -14,7 +14,7 @@ configuration MSFT_IisLogging_Rollover
 
 configuration MSFT_IisLogging_Truncate
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     IisLogging Logging
     {

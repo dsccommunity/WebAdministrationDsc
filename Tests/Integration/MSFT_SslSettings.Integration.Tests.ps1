@@ -1,4 +1,4 @@
-$script:DSCModuleName   = 'xWebAdministration'
+$script:DSCModuleName   = 'WebAdministrationDsc'
 $script:DSCResourceName = 'MSFT_xSSLSettings'
 
 #region HEADER
@@ -24,7 +24,7 @@ try
 {
     $null = Backup-WebConfiguration -Name $tempName
     
-    # Now that xWebAdministration should be discoverable load the configuration data
+    # Now that WebAdministrationDsc should be discoverable load the configuration data
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
