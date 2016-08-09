@@ -7,14 +7,9 @@ install:
   - cinst -y pester
   - ps: Push-Location
   - cd Tests
-  - git clone https://github.com/PowerShell/DscResource.Tests
-  - cd ..
-  - ps: New-item "$env:ProgramFiles\WindowsPowerShell\Modules" -Name WebAdministrationDsc -ItemType Directory -Force | Out-Null
-  - ps: Copy-item -Path ".\WebAdministrationDsc.psd1" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force
-  - ps: Copy-item -Path ".\DscResources" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force -Recurse
-  - ps: Copy-item -Path ".\Examples" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force -Recurse
+  - git clone https://github.com/PowerShell/DscResource.Tests    
   - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
-  - cd Tests\DscResource.Tests
+  - cd DscResource.Tests
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location
   - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
