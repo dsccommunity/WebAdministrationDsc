@@ -15,6 +15,8 @@ install:
   - ps: Copy-item -Path ".\DscResources" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force -Recurse
   - ps: Copy-item -Path ".\Examples" -Destination "$env:ProgramFiles\WindowsPowerShell\Modules\WebAdministrationDsc" -Force -Recurse
   - cd Tests\DscResource.Tests
+  - ps: Import-Module ..\WebAdministrationDsc.TestHarness.psm1 -force
+  - ps: Enable-RDP
   - ps: Import-Module .\TestHelper.psm1 -force
   - ps: Pop-Location
   - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
