@@ -4,7 +4,7 @@
 
 version: 1.11.{build}.0
 install:
-  - cinst -y pester
+  - Install-Module Pester -Repository PSGallery -Force
   - ps: Push-Location
   - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
   - cd Tests
