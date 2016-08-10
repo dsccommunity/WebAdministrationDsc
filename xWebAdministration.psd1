@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.11.0.0'
+ModuleVersion = '1.13.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,7 +41,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = '* **xWebAppPool** updates:
+    * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
+
+* **xWebsite** updates:
+    * Bugfix for '
 
     } # End of PSData hashtable
 
@@ -53,6 +57,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 
