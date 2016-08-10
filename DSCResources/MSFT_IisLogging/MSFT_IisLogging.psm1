@@ -35,8 +35,7 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $LogPath
-                       
+        [String] $LogPath                
     )
 
         Assert-Module

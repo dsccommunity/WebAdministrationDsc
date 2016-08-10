@@ -21,20 +21,30 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     # Now that WebAdministrationDsc should be discoverable, load the configuration data
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $ConfigFile
+    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    . $configFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
+    $dscConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
     # Create a SelfSigned Cert
-    $SelfSignedCert = (New-SelfSignedCertificate -DnsName $DSCConfig.AllNodes.HTTPSHostname  -CertStoreLocation 'cert:\LocalMachine\My')
+    $selfSignedCert = (New-SelfSignedCertificate -DnsName $dscConfig.AllNodes.HTTPSHostname  -CertStoreLocation 'cert:\LocalMachine\My')
     
     #region HelperFunctions
 
     # Function needed to test AuthenticationInfo
-    function Get-AuthenticationInfo ($Type, $Website) {
+    function Get-AuthenticationInfo
+    {
+        [CmdletBinding()]
+        param
+        (
+            [Parameter(Mandatory = $true)]
+            [String] $Type,
+
+            [Parameter(Mandatory = $true)]
+            [String] $Website
+        )
 
         (Get-WebConfigurationProperty `
             -Filter /system.WebServer/security/authentication/${Type}Authentication `
@@ -48,7 +58,7 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$SelfSignedCert.Thumbprint"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfig -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -60,53 +70,53 @@ try
 
         It 'Should Create a Started Website with correct settings' -test {
             
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$SelfSignedCert.Thumbprint"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
 
             # Build results to test
-            $Result = Get-Website -Name $DSCConfig.AllNodes.Website
+            $result = Get-Website -Name $dscConfig.AllNodes.Website
             
-            $DefaultPages = Get-WebConfiguration `
+            $defaultPages = Get-WebConfiguration `
                 -Filter '//defaultDocument/files/*' `
                 -PSPath 'IIS:\Sites\Website' |
                 ForEach-Object -Process {Write-Output -InputObject $_.value}
 
-            $ServiceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+            $serviceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
             # Test Website basic settings are correct
-            $Result.Name             | Should Be $DSCConfig.AllNodes.Website
-            $Result.PhysicalPath     | Should Be $DSCConfig.AllNodes.PhysicalPath
-            $Result.State            | Should Be 'Started'
-            $Result.ApplicationPool  | Should Be $DSCConfig.AllNodes.ApplicationPool
-            $Result.EnabledProtocols | Should Be $DSCConfig.AllNodes.EnabledProtocols
+            $result.Name             | Should Be $dscConfig.AllNodes.Website
+            $result.PhysicalPath     | Should Be $dscConfig.AllNodes.PhysicalPath
+            $result.State            | Should Be 'Started'
+            $result.ApplicationPool  | Should Be $dscConfig.AllNodes.ApplicationPool
+            $result.EnabledProtocols | Should Be $dscConfig.AllNodes.EnabledProtocols
             
             # Test Website AuthenticationInfo are correct
-            Get-AuthenticationInfo -Type 'Anonymous' -Website $DSCConfig.AllNodes.Website | Should Be $DSCConfig.AllNodes.AuthenticationInfoAnonymous
-            Get-AuthenticationInfo -Type 'Basic' -Website $DSCConfig.AllNodes.Website     | Should Be $DSCConfig.AllNodes.AuthenticationInfoBasic
-            Get-AuthenticationInfo -Type 'Digest' -Website $DSCConfig.AllNodes.Website    | Should Be $DSCConfig.AllNodes.AuthenticationInfoDigest
-            Get-AuthenticationInfo -Type 'Windows' -Website $DSCConfig.AllNodes.Website   | Should Be $DSCConfig.AllNodes.AuthenticationInfoWindows
+            Get-AuthenticationInfo -Type 'Anonymous' -Website $dscConfig.AllNodes.Website | Should Be $dscConfig.AllNodes.AuthenticationInfoAnonymous
+            Get-AuthenticationInfo -Type 'Basic' -Website $dscConfig.AllNodes.Website     | Should Be $dscConfig.AllNodes.AuthenticationInfoBasic
+            Get-AuthenticationInfo -Type 'Digest' -Website $dscConfig.AllNodes.Website    | Should Be $dscConfig.AllNodes.AuthenticationInfoDigest
+            Get-AuthenticationInfo -Type 'Windows' -Website $dscConfig.AllNodes.Website   | Should Be $dscConfig.AllNodes.AuthenticationInfoWindows
             
             # Test Website Application settings
-            $Result.ApplicationDefaults.PreloadEnabled           | Should Be $DSCConfig.AllNodes.PreloadEnabled
-            $Result.ApplicationDefaults.ServiceAutoStartProvider | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
-            $Result.ApplicationDefaults.ServiceAutoStartEnabled  | Should Be $DSCConfig.AllNodes.ServiceAutoStartEnabled
+            $result.ApplicationDefaults.PreloadEnabled           | Should Be $dscConfig.AllNodes.PreloadEnabled
+            $result.ApplicationDefaults.ServiceAutoStartProvider | Should Be $dscConfig.AllNodes.ServiceAutoStartProvider
+            $result.ApplicationDefaults.ServiceAutoStartEnabled  | Should Be $dscConfig.AllNodes.ServiceAutoStartEnabled
             
             # Test the serviceAutoStartProviders are present in IIS config
-            $ServiceAutoStartProviders.Name | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
-            $ServiceAutoStartProviders.Type | Should Be $DSCConfig.AllNodes.ApplicationType
+            $serviceAutoStartProviders.Name | Should Be $dscConfig.AllNodes.ServiceAutoStartProvider
+            $serviceAutoStartProviders.Type | Should Be $dscConfig.AllNodes.ApplicationType
 
             # Test bindings are correct
-            $Result.bindings.Collection.Protocol                | Should Match $DSCConfig.AllNodes.HTTPProtocol
-            $Result.bindings.Collection.BindingInformation[0]   | Should Match $DSCConfig.AllNodes.HTTP1Hostname
-            $Result.bindings.Collection.BindingInformation[1]   | Should Match $DSCConfig.AllNodes.HTTP2Hostname
-            $Result.bindings.Collection.BindingInformation[2]   | Should Match $DSCConfig.AllNodes.HTTPSHostname
-            $Result.bindings.Collection.BindingInformation[0]   | Should Match $DSCConfig.AllNodes.HTTPPort
-            $Result.bindings.Collection.BindingInformation[1]   | Should Match $DSCConfig.AllNodes.HTTPPort
-            $Result.bindings.Collection.BindingInformation[2]   | Should Match $DSCConfig.AllNodes.HTTPSPort
-            $Result.bindings.Collection.certificateHash[2]      | Should Be $SelfSignedCert.Thumbprint
-            $Result.bindings.Collection.certificateStoreName[2] | Should Be $DSCConfig.AllNodes.CertificateStoreName
+            $result.bindings.Collection.Protocol                | Should Match $dscConfig.AllNodes.HTTPProtocol
+            $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTP1Hostname
+            $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTP2Hostname
+            $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSHostname
+            $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTPPort
+            $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTPPort
+            $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSPort
+            $result.bindings.Collection.certificateHash[2]      | Should Be $selfSignedCert.Thumbprint
+            $result.bindings.Collection.certificateStoreName[2] | Should Be $dscConfig.AllNodes.CertificateStoreName
             
             #Test DefaultPage is correct
-            $DefaultPages[0] | Should Match $DSCConfig.AllNodes.DefaultPage
+            $defaultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
             }
 
@@ -116,7 +126,7 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$SelfSignedCert.Thumbprint"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$dscConfig -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -128,53 +138,53 @@ try
         
         It 'Should Create a Stopped Website with correct settings' -test {
             
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$SelfSignedCert.Thumbprint"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
 
             # Build results to test
-            $Result = Get-Website -Name $DSCConfig.AllNodes.Website
+            $result = Get-Website -Name $dscConfig.AllNodes.Website
             
-            $DefaultPages = Get-WebConfiguration `
+            $defaultPages = Get-WebConfiguration `
                 -Filter '//defaultDocument/files/*' `
                 -PSPath 'IIS:\Sites\Website' |
                 ForEach-Object -Process {Write-Output -InputObject $_.value}
 
-            $ServiceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+            $serviceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
             # Test Website basic settings are correct
-            $Result.Name             | Should Be $DSCConfig.AllNodes.Website
-            $Result.PhysicalPath     | Should Be $DSCConfig.AllNodes.PhysicalPath
-            $Result.State            | Should Be 'Stopped'
-            $Result.ApplicationPool  | Should Be $DSCConfig.AllNodes.ApplicationPool
-            $Result.EnabledProtocols | Should Be $DSCConfig.AllNodes.EnabledProtocols
+            $result.Name             | Should Be $dscConfig.AllNodes.Website
+            $result.PhysicalPath     | Should Be $dscConfig.AllNodes.PhysicalPath
+            $result.State            | Should Be 'Stopped'
+            $result.ApplicationPool  | Should Be $dscConfig.AllNodes.ApplicationPool
+            $result.EnabledProtocols | Should Be $dscConfig.AllNodes.EnabledProtocols
             
             # Test Website AuthenticationInfo are correct
-            Get-AuthenticationInfo -Type 'Anonymous' -Website $DSCConfig.AllNodes.Website | Should Be $DSCConfig.AllNodes.AuthenticationInfoAnonymous
-            Get-AuthenticationInfo -Type 'Basic' -Website $DSCConfig.AllNodes.Website     | Should Be $DSCConfig.AllNodes.AuthenticationInfoBasic
-            Get-AuthenticationInfo -Type 'Digest' -Website $DSCConfig.AllNodes.Website    | Should Be $DSCConfig.AllNodes.AuthenticationInfoDigest
-            Get-AuthenticationInfo -Type 'Windows' -Website $DSCConfig.AllNodes.Website   | Should Be $DSCConfig.AllNodes.AuthenticationInfoWindows
+            Get-AuthenticationInfo -Type 'Anonymous' -Website $dscConfig.AllNodes.Website | Should Be $dscConfig.AllNodes.AuthenticationInfoAnonymous
+            Get-AuthenticationInfo -Type 'Basic' -Website $dscConfig.AllNodes.Website     | Should Be $dscConfig.AllNodes.AuthenticationInfoBasic
+            Get-AuthenticationInfo -Type 'Digest' -Website $dscConfig.AllNodes.Website    | Should Be $dscConfig.AllNodes.AuthenticationInfoDigest
+            Get-AuthenticationInfo -Type 'Windows' -Website $dscConfig.AllNodes.Website   | Should Be $dscConfig.AllNodes.AuthenticationInfoWindows
             
             # Test Website Application settings
-            $Result.ApplicationDefaults.PreloadEnabled           | Should Be $DSCConfig.AllNodes.PreloadEnabled
-            $Result.ApplicationDefaults.ServiceAutoStartProvider | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
-            $Result.ApplicationDefaults.ServiceAutoStartEnabled  | Should Be $DSCConfig.AllNodes.ServiceAutoStartEnabled
+            $result.ApplicationDefaults.PreloadEnabled           | Should Be $dscConfig.AllNodes.PreloadEnabled
+            $result.ApplicationDefaults.ServiceAutoStartProvider | Should Be $dscConfig.AllNodes.ServiceAutoStartProvider
+            $result.ApplicationDefaults.ServiceAutoStartEnabled  | Should Be $dscConfig.AllNodes.ServiceAutoStartEnabled
 
             # Test the serviceAutoStartProviders are present in IIS config
-            $ServiceAutoStartProviders.Name | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
-            $ServiceAutoStartProviders.Type | Should Be $DSCConfig.AllNodes.ApplicationType
+            $serviceAutoStartProviders.Name | Should Be $dscConfig.AllNodes.ServiceAutoStartProvider
+            $serviceAutoStartProviders.Type | Should Be $dscConfig.AllNodes.ApplicationType
 
             # Test bindings are correct
-            $Result.bindings.Collection.Protocol                | Should Match $DSCConfig.AllNodes.HTTPProtocol
-            $Result.bindings.Collection.BindingInformation[0]   | Should Match $DSCConfig.AllNodes.HTTP1Hostname
-            $Result.bindings.Collection.BindingInformation[1]   | Should Match $DSCConfig.AllNodes.HTTP2Hostname
-            $Result.bindings.Collection.BindingInformation[2]   | Should Match $DSCConfig.AllNodes.HTTPSHostname
-            $Result.bindings.Collection.BindingInformation[0]   | Should Match $DSCConfig.AllNodes.HTTPPort
-            $Result.bindings.Collection.BindingInformation[1]   | Should Match $DSCConfig.AllNodes.HTTPPort
-            $Result.bindings.Collection.BindingInformation[2]   | Should Match $DSCConfig.AllNodes.HTTPSPort
-            $Result.bindings.Collection.certificateHash[2]      | Should Be $SelfSignedCert.Thumbprint
-            $Result.bindings.Collection.certificateStoreName[2] | Should Be $DSCConfig.AllNodes.CertificateStoreName
+            $result.bindings.Collection.Protocol                | Should Match $dscConfig.AllNodes.HTTPProtocol
+            $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTP1Hostname
+            $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTP2Hostname
+            $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSHostname
+            $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTPPort
+            $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTPPort
+            $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSPort
+            $result.bindings.Collection.certificateHash[2]      | Should Be $selfSignedCert.Thumbprint
+            $result.bindings.Collection.certificateStoreName[2] | Should Be $dscConfig.AllNodes.CertificateStoreName
             
             #Test DefaultPage is correct
-            $DefaultPages[0] | Should Match $DSCConfig.AllNodes.DefaultPage
+            $defaultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
             }
 
@@ -184,7 +194,7 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
+                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$dscConfig -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -199,10 +209,10 @@ try
             Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestEnvironment.WorkingFolder"
 
             # Build results to test
-            $Result = Get-Website -Name $DSCConfig.AllNodes.Website
+            $result = Get-Website -Name $dscConfig.AllNodes.Website
             
             # Test Website is removed
-            $Result | Should BeNullOrEmpty 
+            $result | Should BeNullOrEmpty 
             
             }
 
@@ -212,9 +222,7 @@ try
         # Directly interacting with Cim classes is not supported by PowerShell DSC
         # it is being done here explicitly for the purpose of testing. Please do not
         # do this in actual resource code
-        
-        #TODO: Delete or Uncomment - Is this needed? PSScriptAnalyzer says it's never used.
-        #$WebBindingInforationClass = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_WebBindingInformation')
+
         $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_WebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
 
         foreach ($storeName in $storeNames)

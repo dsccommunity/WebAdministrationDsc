@@ -1,4 +1,3 @@
-
 $script:DSCModuleName = 'WebAdministrationDsc'
 $script:DSCResourceName = 'MSFT_SslSettings'
 

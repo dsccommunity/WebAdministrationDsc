@@ -1,4 +1,5 @@
 #requires -Version 4
+
 configuration MSFT_Website_Present_Started
 {
     param(
@@ -8,7 +9,7 @@ configuration MSFT_Website_Present_Started
     
     )
 
-    Import-DscResource -ModuleName WebAdministrationDsc
+    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
 
     Node $AllNodes.NodeName
     {  
@@ -70,7 +71,7 @@ configuration MSFT_Website_Present_Stopped
     
     )
 
-    Import-DscResource -ModuleName WebAdministration
+    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
 
     Node $AllNodes.NodeName 
     {  
@@ -126,7 +127,7 @@ configuration MSFT_Website_Present_Stopped
 
 configuration MSFT_Website_Absent
 {
-    Import-DscResource -ModuleName WebAdministrationDsc
+    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
 
     Node $AllNodes.NodeName 
     {  

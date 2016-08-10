@@ -1,7 +1,8 @@
 #requires -Version 4
+
 configuration MSFT_SslSettings_Present
 {
-    Import-DscResource -ModuleName WebAdministrationDsc
+    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
 
     Node $AllNodes.NodeName
     {  
@@ -16,7 +17,7 @@ configuration MSFT_SslSettings_Present
 
 configuration MSFT_SslSettings_Absent
 {
-    Import-DscResource -ModuleName WebAdministrationDsc
+    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
 
     Node $AllNodes.NodeName 
     {  

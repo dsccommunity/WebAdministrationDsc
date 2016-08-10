@@ -1,5 +1,5 @@
 $script:DSCModuleName   = 'WebAdministrationDsc'
-$script:DSCResourceName = 'MSFT_xSSLSettings'
+$script:DSCResourceName = 'MSFT_SSLSettings'
 
 #region HEADER
 
@@ -25,15 +25,23 @@ try
     $null = Backup-WebConfiguration -Name $tempName
     
     # Now that WebAdministrationDsc should be discoverable load the configuration data
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $ConfigFile
+    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    . $configFile
 
     $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
     #region HelperFunctions
 
     # Function needed to test SslFlags
-    function Get-SslFlags ($Website) { 
+    function Get-SslFlags
+    {
+        [CmdletBinding()]
+        param
+        (
+            [Parameter(Mandatory = $true)]
+            [String] $Website
+
+        )
         
         Get-WebConfiguration `
                 -PSPath IIS:\Sites `
