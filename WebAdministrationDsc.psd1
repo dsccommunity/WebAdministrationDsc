@@ -3,7 +3,7 @@
 ModuleVersion = '0.1.0.0'
 
 # ID used to uniquely identify this module
-GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
+GUID = '4e0d0310-d36e-4d69-9eba-db7afdbd1694'
 
 # Author of this module
 Author = 'Microsoft Corporation'
@@ -41,7 +41,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = '* Initial release with the following resources
+    - **IisLogging**
+    - **Website**
+    - **SslSettings**'
 
     } # End of PSData hashtable
 
@@ -53,6 +56,3 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
-
-
-
