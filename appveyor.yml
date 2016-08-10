@@ -4,6 +4,7 @@
 
 version: 1.11.{build}.0
 install:
+  - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
   - ps: Install-Module Pester -Repository PSGallery -Force
   - ps: Push-Location
   - ps: Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
@@ -11,8 +12,7 @@ install:
   - git clone https://github.com/PowerShell/DscResource.Tests
   - cd DscResource.Tests  
   - ps: Import-Module .\TestHelper.psm1 -force
-  - ps: Pop-Location
-  - ps: Get-PackageProvider -name nuget -ForceBootStrap -Force
+  - ps: Pop-Location  
 
 #---------------------------------#
 #      build configuration        #
