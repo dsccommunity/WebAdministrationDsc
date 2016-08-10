@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.12.0.0'
+ModuleVersion = '1.13.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,11 +41,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* **xWebAppPool** updates:
-    * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
-    
-* **xWebsite** updates:
-    * Bugfix for '
+        ReleaseNotes = '* Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
+* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
+* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
+* Updated appveyor.yml to use the default image. '
 
     } # End of PSData hashtable
 

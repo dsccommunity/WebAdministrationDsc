@@ -202,10 +202,17 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+### 1.13.0.0
+
+* Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
+* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
+* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
+* Updated appveyor.yml to use the default image.
+
 ### 1.12.0.0
 * **xWebAppPool** updates:
     * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
-    
+
 * **xWebsite** updates:
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
     * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).

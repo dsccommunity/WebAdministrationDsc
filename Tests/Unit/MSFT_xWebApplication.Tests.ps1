@@ -3,14 +3,17 @@ $script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebApplication'
 
 #region HEADER
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
- if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
+
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
@@ -76,25 +79,28 @@ try
                 WebAppPool               = 'MockPool'
                 PhysicalPath             = 'C:\MockSite\MockApp'          
             }
+            
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+            }
+            
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+                    
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+            
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Absent should return correctly' {
+            
                 Mock -CommandName Get-WebApplication -MockWith {
                     return $null
-                }
-
-                Mock -CommandName Get-WebConfiguration -MockWith {
-                    return $GetWebConfigurationOutput
                 }
                 
                 Mock -CommandName Get-WebConfigurationProperty  -MockWith {
                     return $MockAuthenticationInfo
                 }
-
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-                    
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
 
                 It 'should return Absent' {
                     $Result = Get-TargetResource @MockParameters
@@ -104,19 +110,10 @@ try
             }
 
             Context 'Present should return correctly' {
-                
-                Mock -CommandName Get-WebConfiguration -MockWith {
-                       return $GetWebConfigurationOutput
-                }
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $GetAuthenticationInfo
                 }
-
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-                Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
@@ -148,6 +145,8 @@ try
             Mock -CommandName Get-WebConfigurationProperty -MockWith {
                 return $GetAuthenticationInfo
             }
+
+            Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Web Application does not exist' {
                 Mock -CommandName Get-WebApplication -MockWith {
@@ -176,6 +175,8 @@ try
         }
 
         Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
+
+            Mock -CommandName Assert-Module -MockWith {}
            
             Context 'Web Application does not exist' {
                 
@@ -479,6 +480,8 @@ try
             Mock -CommandName Get-WebConfigurationProperty -MockWith {
                 return $MockAuthenticationInfo
             }
+
+            Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Web Application exists' {
                 Mock -CommandName Remove-WebApplication
@@ -492,7 +495,9 @@ try
 
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {   
+        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
+        
+            Mock -CommandName Assert-Module -MockWith {}   
             
             Context 'Web Application does not exist' {
                 

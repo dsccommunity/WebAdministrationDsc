@@ -7,20 +7,19 @@ data LocalizedData
 '@
 }
 
-function New-TerminatingError
-{
-    <#
-    .SYNOPSIS
+<#
+        .SYNOPSIS
         Internal function to throw terminating error with specified 
         errroCategory, errorId and errorMessage
-    .PARAMETER ErrorId
+        .PARAMETER ErrorId
         Specifies the Id error message.
-    .PARAMETER ErrorMessage
+        .PARAMETER ErrorMessage
         Specifies full Error Message to be returned.
-    .PARAMETER ErrorCategory
+        .PARAMETER ErrorCategory
         Specifies Error Category.
-    #>
-
+#>
+function New-TerminatingError
+{
     [CmdletBinding()]
     param
     (
@@ -40,15 +39,14 @@ function New-TerminatingError
     throw $errorRecord
 }
 
-function Assert-Module
-{
-    <#
+<#
     .SYNOPSIS
         Internal function to assert if the module exists
     .PARAMETER ModuleName
         Module to test
-    #>
-
+#>
+function Assert-Module
+{
     [CmdletBinding()]
     param
     (

@@ -16,7 +16,7 @@ data LocalizedData
 function Get-TargetResource
 {
     <#
-    .SYNOPSIS
+      .SYNOPSIS
         This will return a hashtable of results 
     #>
     
@@ -46,7 +46,7 @@ function Get-TargetResource
 function Set-TargetResource
 {
     <#
-    .SYNOPSIS
+      .SYNOPSIS
         This will set the desired state
     #>
     
@@ -63,17 +63,18 @@ function Set-TargetResource
     )
 
      Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName, $OverrideMode)
+     
      Set-WebConfiguration -Location '' `
-                          -Filter "/system.webServer/$SectionName" `
-                          -PSPath 'machine/webroot/apphost' `
-                          -Metadata overrideMode `
-                          -Value $OverrideMode
+                         -Filter "/system.webServer/$SectionName" `
+                         -PSPath 'machine/webroot/apphost' `
+                         -Metadata 'overrideMode' `
+                         -Value $OverrideMode
 }
 
 function Test-TargetResource
 {
     <#
-    .SYNOPSIS
+      .SYNOPSIS
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
@@ -105,10 +106,10 @@ function Test-TargetResource
 function Get-OverrideMode
 {
     <#
-    .NOTES
-        Check for a single value.
-        If $oMode is anything but Allow or Deny, we have a problem with our 
-        Get-WebConfiguration call or the ApplicationHost.config file is corrupted.
+            .NOTES
+            Check for a single value.
+            If $oMode is anything but Allow or Deny, we have a problem with our 
+            Get-WebConfiguration call or the ApplicationHost.config file is corrupted.
     #>
     
     param
@@ -118,9 +119,13 @@ function Get-OverrideMode
 
     Assert-Module
 
-    [String] $oMode = ((Get-WebConfiguration -Location '' `
-                                             -Filter /system.webServer/$Section `
-                                             -Metadata).Metadata).effectiveOverrideMode
+    Write-Verbose -Message 'Getting override mode'
+    
+    $webConfig = Get-WebConfiguration -Location '' `
+                                      -Filter /system.webServer/$Section `
+                                      -Metadata
+
+    $oMode = $webConfig.Metadata.effectiveOverrideMode
 
     if ($oMode -notmatch "^(Allow|Deny)$")
     {
@@ -132,6 +137,7 @@ function Get-OverrideMode
 
     return $oMode
 }
+
 
 #endregion
 

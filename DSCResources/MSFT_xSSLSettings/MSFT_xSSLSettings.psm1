@@ -14,13 +14,12 @@ data LocalizedData
 '@
 }
 
+<#
+        .SYNOPSIS
+        This will return a hashtable of results including Name, Bindings, and Ensure 
+#>
 function Get-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This will return a hashtable of results 
-    #>
-
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -36,7 +35,7 @@ function Get-TargetResource
 
     Assert-Module
 
-    $Ensure = 'Absent'
+    $ensure = 'Absent'
 
     try
     {
@@ -50,17 +49,18 @@ function Get-TargetResource
         $sslSettings = Get-WebConfigurationProperty @params
 
         # If SSL is configured at all this will be a String else
-        # it'll be a configuration object.
+        # it willl be a configuration object.
         if ($sslSettings.GetType().FullName -eq 'System.String')
         {
             $Bindings = $sslSettings.Split(',')
-            $Ensure = 'Present'
+            $ensure = 'Present'
         }
     }
     catch [Exception]
     {
+        $errorMessage = $LocalizedData.UnableToFindConfig
         New-TerminatingError -ErrorId 'UnableToFindConfig'`
-                             -ErrorMessage $ErrorMessage `
+                             -ErrorMessage  $errorMessage`
                              -ErrorCategory 'InvalidResult'
     }
 
@@ -69,17 +69,16 @@ function Get-TargetResource
     return @{
         Name = $Name
         Bindings = $Bindings
-        Ensure = $Ensure
+        Ensure = $ensure
     }
 }
 
+<#
+        .SYNOPSIS
+        This will update the desired state based on the Bindings passed in
+#>
 function Set-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This will set the desired state
-    #>
-
     [CmdletBinding()]
     param
     (
@@ -127,14 +126,13 @@ function Set-TargetResource
     }
 }
 
-function Test-TargetResource
-{
-    <#
-    .SYNOPSIS
+<#
+        .SYNOPSIS
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
-    #>
-
+#>
+function Test-TargetResource
+{
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
