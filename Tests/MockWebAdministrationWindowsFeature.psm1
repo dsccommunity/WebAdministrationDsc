@@ -1,5 +1,4 @@
-﻿
-# Suppressing these rule because these functions are from an external module 
+﻿# Suppressing these rule because these functions are from an external module 
 # and are only being used as stubs
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
