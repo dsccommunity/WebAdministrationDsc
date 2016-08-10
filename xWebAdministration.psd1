@@ -41,11 +41,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* **xWebAppPool** updates:
-    * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
-
-* **xWebsite** updates:
-    * Bugfix for '
+        ReleaseNotes = '* Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
+* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
+* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
+* Updated appveyor.yml to use the default image. '
 
     } # End of PSData hashtable
 

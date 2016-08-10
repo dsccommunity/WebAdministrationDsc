@@ -203,6 +203,13 @@ Currently, only FastCgiModule is supported.
 ### Unreleased
 
 ### 1.13.0.0
+
+* Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
+* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
+* Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
+* Updated appveyor.yml to use the default image.
+
+### 1.12.0.0
 * **xWebAppPool** updates:
     * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
 
@@ -230,8 +237,6 @@ Currently, only FastCgiModule is supported.
 
 * Added **xWebApplication** integration tests
 * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
-* Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
-* Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
 
 ### 1.11.0.0
 
