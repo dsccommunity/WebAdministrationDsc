@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.11.0.0'
+ModuleVersion = '0.1.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -32,10 +32,10 @@ PrivateData = @{
         Tags = @('DesiredStateConfiguration', 'DSC', 'DSCResourceKit', 'DSCResource')
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/PowerShell/xWebAdministration/blob/master/LICENSE'
+        LicenseUri = 'https://github.com/PowerShell/xWebAdministration/blob/WebAdministrationDsc/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/PowerShell/xWebAdministration'
+        ProjectUri = 'https://github.com/PowerShell/xWebAdministration/tree/WebAdministrationDsc'
 
         # A URL to an icon representing this module.
         # IconUri = ''

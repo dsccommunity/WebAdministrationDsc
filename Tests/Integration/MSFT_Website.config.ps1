@@ -9,7 +9,7 @@ configuration MSFT_Website_Present_Started
     
     )
 
-    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {  
@@ -71,7 +71,7 @@ configuration MSFT_Website_Present_Stopped
     
     )
 
-    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName 
     {  
@@ -127,7 +127,7 @@ configuration MSFT_Website_Present_Stopped
 
 configuration MSFT_Website_Absent
 {
-    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName 
     {  

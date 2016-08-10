@@ -1,6 +1,6 @@
 configuration MSFT_IisLogging_Rollover
 {
-    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
+    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='0.1.0.0'}
 
     IisLogging Logging
     {
@@ -14,7 +14,7 @@ configuration MSFT_IisLogging_Rollover
 
 configuration MSFT_IisLogging_Truncate
 {
-    Import-DscResource -ModuleName @{ModuleName='WebAdministrationDsc'; RequiredVersion='1.11.0.0'}
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     IisLogging Logging
     {
