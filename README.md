@@ -10,6 +10,11 @@ For more information see the [Code of Conduct FAQ](https://opensource.microsoft.
 ## Contributing
 If you would like to contribute to this repository, please read the DSC Resource Kit [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
+## Requiremets to Run Module
+
+* Must be using a Windows server
+* Must have Windows-Feature Web-Server installed: -- >Install-WindowsFeature Web-Server
+
 ## Resources
 
 ### IisLogging
