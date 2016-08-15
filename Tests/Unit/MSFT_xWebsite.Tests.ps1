@@ -25,9 +25,7 @@ try
 {
     #region Pester Tests
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        $script:DSCModuleName   = 'xWebAdministration'
-        $script:DSCResourceName = 'MSFT_xWebsite'
-
+        
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith { return $null }

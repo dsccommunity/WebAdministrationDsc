@@ -1,10 +1,11 @@
 #requires -Version 4
+
 configuration MSFT_xWebsite_Present_Started
 {
     param(
         
         [Parameter(Mandatory = $true)]
-        [String]$CertificateThumbprint
+        [String] $CertificateThumbprint
     
     )
 

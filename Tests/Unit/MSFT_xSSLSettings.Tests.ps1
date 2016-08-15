@@ -27,8 +27,6 @@ try
     #region Pester Tests
 
     InModuleScope $DSCResourceName {
-    $script:DSCModuleName = 'xWebAdministration'
-    $script:DSCResourceName = 'MSFT_xSSLSettings'
 
         Describe "$script:DSCResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {
@@ -82,8 +80,8 @@ try
 
         Describe "$script:DSCResourceName\Get-TargetResource" {
             Context 'Command finds SSL Settings' {
-                Mock Assert-Module -Verifiable { }
-                Mock Get-WebConfigurationProperty -Verifiable {return 'Ssl'}
+                Mock Assert-Module -Verifiable {}
+                Mock Get-WebConfigurationProperty -Verifiable { return 'Ssl' }
 
                 $result = Get-TargetResource -Name 'Name' -Bindings 'Ssl'
                 $expected = @{
@@ -104,8 +102,8 @@ try
             }
 
             Context 'Command does not find Ssl Settings' {
-                Mock Assert-Module -Verifiable { }
-                Mock Get-WebConfigurationProperty -Verifiable {return $false}
+                Mock Assert-Module -Verifiable {}
+                Mock Get-WebConfigurationProperty -Verifiable { return $false }
 
                 $result = Get-TargetResource -Name 'Name' -Bindings 'Ssl'
                 $expected = @{
@@ -132,6 +130,7 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings '' -Ensure 'Present' -Verbose) 4>&1
+
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', ''
 
@@ -147,6 +146,7 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings 'Ssl' -Ensure 'Present' -Verbose) 4>&1
+
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
 
@@ -158,10 +158,11 @@ try
             }
 
             Context 'Ssl Bindings set to Ssl,SslNegotiateCert,SslRequireCert' {
-                Mock Assert-Module -Verifiable { }
+                Mock Assert-Module -Verifiable {}
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings @('Ssl','SslNegotiateCert','SslRequireCert') -Ensure 'Present' -Verbose) 4>&1
+
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
 

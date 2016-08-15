@@ -3,7 +3,7 @@ configuration Sample_xWebsite_StopDefault
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
+        [String[]] $NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
