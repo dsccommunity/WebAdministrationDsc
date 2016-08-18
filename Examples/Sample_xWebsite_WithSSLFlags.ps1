@@ -3,22 +3,22 @@ configuration Sample_xWebsite_NewWebsite
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost',
+        [String[]] $NodeName = 'localhost',
 
         # Name of the website to create
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$WebSiteName,
+        [String] $WebSiteName,
 
         # Source Path for Website content
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$SourcePath,
+        [String] $SourcePath,
 
         # Destination path for Website content
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$DestinationPath
+        [String] $DestinationPath
     )
 
     # Import the module that defines custom resources
