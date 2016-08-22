@@ -28,18 +28,18 @@ try
         
         
         $mockHandler = @{
-           ScriptProcessor  = 'mockScriptProcessor'
-           Name             = 'mockName'
-           Path             = 'mockPath'
-           Modules          = 'mockModules'
-           Verb             = @(
+            ScriptProcessor  = 'mockScriptProcessor'
+            Name             = 'mockName'
+            Path             = 'mockPath'
+            Modules          = 'mockModules'
+            Verb             = @(
                                 'MockVerb1'
                                 'MockVerb2'
                             ) 
             
         }
         
-	    Describe 'Get-TargetResource' {
+        Describe 'Get-TargetResource' {
             
             BeforeAll {
                 Mock -CommandName Assert-Module -MockWith {}
@@ -55,31 +55,31 @@ try
                 }
             }
 
-	        Context 'Handler cannot be found' {
-	            Mock -CommandName Get-IisHandler -MockWith { return $null }
+            Context 'Handler cannot be found' {
+                Mock -CommandName Get-IisHandler -MockWith { return $null }
                 
                 $result = Get-TargetResource @mockGetParams
                 
-	            It 'Should return the correct values for when the Handler is Absent' {
-	                $result.Ensure | Should Be 'Absent'
+                It 'Should return the correct values for when the Handler is Absent' {
+                    $result.Ensure | Should Be 'Absent'
                     $result.Path | Should Be $mockGetParams.Path
                     $result.EndPointSetup | Should Be $false
-	            }
+                }
 
-	        }
+            }
 
-	        Context 'Handler is found without fastCgi' {
+            Context 'Handler is found without fastCgi' {
                 Mock -CommandName Get-IisHandler -MockWith { return $mockHandler }
                 
                 $result = Get-TargetResource @mockGetParams
                 
-	            It 'Should return the correct values for when the Handler is found and does not use fastCgi' {
-	                $result.Ensure | Should Be 'Present'
+                It 'Should return the correct values for when the Handler is found and does not use fastCgi' {
+                    $result.Ensure | Should Be 'Present'
                     $result.Path | Should Be $mockHandler.ScriptProcessor
                     $result.Verb[0] | Should Be $mockHandler.Verb[0]
                     $result.EndPointSetup | Should Be $false
-	            }
-	        }
+                }
+            }
             
             Context 'Handler is found with fastCgi' {
                 $mockHandler.Modules = 'FastCgiModule'
@@ -93,32 +93,156 @@ try
                 
                 $result = Get-TargetResource @mockGetParams
                 
-	            It 'Should return the correct values for when the Handler is found and uses fastCgi' {
-	                $result.Ensure | Should Be 'Present'
+                It 'Should return the correct values for when the Handler is found and uses fastCgi' {
+                    $result.Ensure | Should Be 'Present'
                     $result.Path | Should Be $mockHandler.ScriptProcessor
                     $result.Verb[1] | Should Be $mockHandler.Verb[1]
                     $result.EndPointSetup | Should Be $true
-	            }
+                }
                 It 'Should call all the mocks' {
                     Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
                 }
-	        }
-	    }
+            }
+        }
 
-	    Describe 'Set-TargetResource' {
-	        Context 'context-description' {
-	            It 'Should ...test-description' {
-	                # test-code
-	            }
-	        }
-	    }
-	}
+        Describe 'Set-TargetResource' {
+            BeforeAll {
+                Mock -CommandName Assert-Module -MockWith {}
+                Mock Add-WebConfiguration -MockWith {}
+                
+                $mockSetParams = @{
+                    Path = 'mockPath'
+                    Name = 'mockName'
+                    RequestPath = 'mockRequestPath'
+                    Verb = @(
+                        'MockVerb1'
+                        'MockVerb2'
+                    )
+                    Ensure = 'Absent'
+                    ModuleType = 'FastCgiModule'
+                }
+            }
+            Context 'Resource is absent' {
+                Mock -CommandName Remove-IisHandler -MockWith {}
+                
+                Set-TargetResource @mockSetParams
+                
+                It 'Should call all the mocks' {
+                    Assert-MockCalled -CommandName Remove-IisHandler -Exactly 1
+                    Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 0
+                }
+            }
+            
+            Context 'Resource is present with FastCgi' {
+                $mockSetParams.Ensure = 'Present'
+                Mock Get-FastCgi -MockWith { return $true }
+                
+                Set-TargetResource @mockSetParams
+                
+                It 'Should call all the mocks' {
+                    Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
+                    Assert-MockCalled -CommandName Get-FastCgi -Exactly 1
+                }
+            }
+            
+            Context 'Resource is present without FastCgi set' {
+                $mockSetParams.Ensure = 'Present'
+                Mock Get-FastCgi -MockWith { return $false }
+                
+                Set-TargetResource @mockSetParams
+                
+                It 'Should call all the mocks' {
+                    Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 2
+                    Assert-MockCalled -CommandName Get-FastCgi -Exactly 1
+                }
+            }
+        }
+        
+        Describe 'Test-TargetResource'{
+            $mockTestParams = @{
+                Path = 'mockPath'
+                Name = 'mockName'
+                RequestPath = 'mockRequestPath'
+                Verb = @(
+                    'MockVerb1'
+                    'MockVerb2'
+                )
+                Ensure = 'Present'
+                ModuleType = 'FastCgiModule'
+            }
+            $mockModuleSettings = @{
+                Path = 'mockPath'
+                Name = 'mockName'
+                RequestPath = 'mockRequestPath'
+                Verb = @(
+                    'MockVerb1'
+                    'MockVerb2'
+                )
+                Ensure = 'Present'
+                ModuleType = 'FastCgiModule'
+                EndPointSetup = $true
+            }
+            
+            Context 'Settings are all correct' {
+                Mock -CommandName Get-TargetResource -MockWith { return $mockModuleSettings }
+                
+                It 'Should return $true because all settings are correct' {
+                    Test-TargetResource @mockTestParams | Should Be $true
+                }
+                It 'Should return $true because module is Absent and Ensure is set to Absent' {
+                    $mockTestParams.Ensure = 'Absent'
+                    $mockModuleSettings.Ensure = 'Absent'
+                    Test-TargetResource @mockTestParams | Should Be $true
+                }
+            }
+            
+            Context 'Settings are incorrect' {
+                Mock -CommandName Get-TargetResource -MockWith { return $mockModuleSettings }
+                
+                It 'Should return $false due to Ensure being set to Absent but module being Present' {
+                    $mockTestParams.Ensure = 'Absent'
+                    $mockModuleSettings.Ensure = 'Present'
+                    Test-TargetResource @mockTestParams | Should Be $false
+                }
+                It 'Should return $false due to Ensure being set to Present but module being Absent' {
+                    $mockTestParams.Ensure = 'Present'
+                    $mockModuleSettings.Ensure = 'Absent'
+                    Test-TargetResource @mockTestParams | Should Be $false
+                }
+                It 'Should return $false due to incorrect path' {
+                    $mockModuleSettings.Ensure = 'Present'
+                    $mockTestParams.Path = 'BadPath'
+                    Test-TargetResource @mockTestParams | Should Be $false
+                }
+                It 'Should return $false due to incorrect Requestpath' {
+                    $mockTestParams.Path = 'mockPath'
+                    $mockTestParams.RequestPath = 'BadPath'
+                    Test-TargetResource @mockTestParams | Should Be $false
+                }
+                It 'Should return $false due to incorrect Verb' {
+                    $mockTestParams.RequestPath = 'mockRequestPath'
+                    $mockTestParams.Verb[1] = 'BadVerb'
+                    Test-TargetResource @mockTestParams | Should Be $false
+                }
+                It 'Should return $false due to incorrect FastCgi' {
+                    $mockTestParams.Verb[1] = 'MockVerb2'
+                    $mockModuleSettings.EndPointSetup = $false
+                    Test-TargetResource @mockTestParams | Should Be $false
+                }
+                It 'Should return $false due to extra verb' {
+                    $mockTestParams.Verb += 'MockVerb3'
+                    $mockModuleSettings.EndPointSetup = $true
+                    Test-TargetResource @mockTestParams | Should Be $false
+                }
+            }
+            
+
+        }
+    }
 }
 finally
 {
 
-   Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    
-    # TODO: Other optional cleanup code goes here
+    Restore-TestEnvironment -TestEnvironment $TestEnvironment
     
 }

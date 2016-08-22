@@ -1,4 +1,4 @@
-﻿
+
 $script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xIisMimeTypeMapping'
 
