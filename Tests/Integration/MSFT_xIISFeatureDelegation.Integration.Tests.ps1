@@ -33,7 +33,7 @@ try
     Describe "$($script:DSCResourceName)_Integration" {
         # Allow Feature Delegation
         # for this test we are using the anonymous Authentication feature, which is installed by default, but has Feature Delegation set to denied by default
-        if ((Get-WindowsOptionalFeature –Online | Where-Object {$_.FeatureName -eq 'IIS-Security' -and $_.State -eq 'Enabled'}).Count -eq 1)
+        if ((Get-WindowsOptionalFeature Online | Where-Object {$_.FeatureName -eq 'IIS-Security' -and $_.State -eq 'Enabled'}).Count -eq 1)
         {
             if ((Get-WebConfiguration /system.webserver/security/authentication/anonymousAuthentication iis:\).OverrideModeEffective -eq 'Deny')
             {
@@ -95,7 +95,7 @@ try
         #    Add-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter 'system.webServer/defaultDocument/files' -name '.' -value @{value='pesterpage.cgi'}
 
         #    # remove it again, should also fail, but if both work we at least cleaned it up, it would be better to backup and restore the web.config file.
-        #    Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName"  -filter 'system.webServer/defaultDocument/files' -name '.' -AtElement @{value='pesterpage.cgi'} } | should throw
+        #    Remove-WebConfigurationProperty  -pspath "MACHINE/WEBROOT/APPHOST/$siteName" -filter 'system.webServer/defaultDocument/files' -name '.' -AtElement @{value='pesterpage.cgi'} } | should throw
         #}
 
         #region DEFAULT TESTS
