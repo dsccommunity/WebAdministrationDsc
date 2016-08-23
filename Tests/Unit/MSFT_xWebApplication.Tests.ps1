@@ -39,8 +39,9 @@ try
             ServiceAutoStartEnabled  = $True
             ApplicationType          = 'MockApplicationType'
             AuthenticationInfo       = $MockAuthenticationInfo
-           
         }
+        
+        $MockItemXPath = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.WebAppPool)
 
         $GetWebConfigurationOutput = @(
                 @{
@@ -77,7 +78,7 @@ try
                 Website                  = 'MockSite'
                 Name                     = 'MockApp'
                 WebAppPool               = 'MockPool'
-                PhysicalPath             = 'C:\MockSite\MockApp'          
+                PhysicalPath             = 'C:\MockSite\MockApp'
             }
             
             Mock -CommandName Get-WebConfiguration -MockWith {
@@ -264,14 +265,12 @@ try
                         ApplicationType          = $MockParameters.ApplicationType
                         Count                    = 1
                     }
- 
                 }
-
+                
                 It 'should return False' {
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $False
                 }
- 
             }
 
             Context 'Web Application exists but has a different PhysicalPath' {
@@ -293,7 +292,6 @@ try
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         Count = 1
                     }
-  
                 }
 
                 It 'should return False' {
@@ -513,9 +511,9 @@ try
                         return @{
                             ApplicationPool = $MockParameters.WebAppPool
                             PhysicalPath    = $MockParameters.PhysicalPath
-                            ItemXPath       = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                            ItemXPath       = $MockItemXPath
                             Count           = 1
-                            }
+                        }
                     }
                 }
                 
@@ -578,7 +576,7 @@ try
                     return @{
                         ApplicationPool          = 'MockPoolOther'
                         PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -618,7 +616,12 @@ try
                     $Result = Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Scope It -Exactly 1 `
+                                      -ParameterFilter { `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
+                                        ($Name   -eq 'applicationPool') -And `
+                                        ($Value  -eq 'MockPool') `
+                                      }
                 }
 
             }
@@ -629,7 +632,7 @@ try
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
                         PhysicalPath             = 'C:\MockSite\MockAppOther'
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -670,9 +673,13 @@ try
                     $Result = Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
+                                      -ParameterFilter { `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
+                                        ($Name   -eq 'physicalPath') -And `
+                                        ($Value  -eq 'C:\MockSite\MockApp') `
+                                      }
                 }
- 
             }
 
             Context 'Web Application exists but has different AuthenticationInfo' {
@@ -680,8 +687,8 @@ try
                 Mock -CommandName Get-WebApplication -MockWith {
                         return @{
                             ApplicationPool          = $MockParameters.WebAppPool
-                            PhysicalPath             =  $MockParameters.PhysicalPath
-                            ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                            PhysicalPath             = $MockParameters.PhysicalPath
+                            ItemXPath                = $MockItemXPath
                             PreloadEnabled           = $MockParameters.PreloadEnabled
                             ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                             ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -730,8 +737,8 @@ try
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = 'false'
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -770,8 +777,8 @@ try
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = 'false'
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -809,8 +816,8 @@ try
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = 'false'
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider    
@@ -860,8 +867,8 @@ try
                Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             =  $MockParameters.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.Name)
+                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         ServiceAutoStartProvider = 'OtherServiceAutoStartProvider'
