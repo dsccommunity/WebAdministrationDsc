@@ -617,11 +617,11 @@ try
                     $Result = Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Scope It -Exactly 1 `
                                       -ParameterFilter { `
-                                        ($Filter -eq $MockItemXPath) -And `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
                                         ($Name   -eq 'applicationPool') -And `
-                                        ($Value  -eq $MockParameters.WebAppPool) `
+                                        ($Value  -eq 'MockPool') `
                                       }
                 }
 
@@ -676,9 +676,9 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
                                       -ParameterFilter { `
-                                        ($Filter -eq $MockItemXPath) -And `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
                                         ($Name   -eq 'physicalPath') -And `
-                                        ($Value  -eq $MockParameters.PhysicalPath) `
+                                        ($Value  -eq 'C:\MockSite\MockApp') `
                                       }
                 }
             }
