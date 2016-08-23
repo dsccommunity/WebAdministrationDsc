@@ -39,8 +39,9 @@ try
             ServiceAutoStartEnabled  = $True
             ApplicationType          = 'MockApplicationType'
             AuthenticationInfo       = $MockAuthenticationInfo
-           
         }
+        
+        $MockItemXPath = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.WebAppPool)
 
         $GetWebConfigurationOutput = @(
                 @{
@@ -79,8 +80,6 @@ try
                 WebAppPool               = 'MockPool'
                 PhysicalPath             = 'C:\MockSite\MockApp'
             }
-            
-            $MockItemXPath = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.WebAppPool)
             
             Mock -CommandName Get-WebConfiguration -MockWith {
                     return $GetWebConfigurationOutput
