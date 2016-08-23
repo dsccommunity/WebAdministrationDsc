@@ -292,7 +292,6 @@ try
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         Count = 1
                     }
-  
                 }
 
                 It 'should return False' {
