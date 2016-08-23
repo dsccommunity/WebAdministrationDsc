@@ -78,8 +78,9 @@ try
                 Name                     = 'MockApp'
                 WebAppPool               = 'MockPool'
                 PhysicalPath             = 'C:\MockSite\MockApp'
-                ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f 'MockSite', 'MockApp')
             }
+            
+            $MockItemXPath = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.WebAppPool)
             
             Mock -CommandName Get-WebConfiguration -MockWith {
                     return $GetWebConfigurationOutput
@@ -511,7 +512,7 @@ try
                         return @{
                             ApplicationPool = $MockParameters.WebAppPool
                             PhysicalPath    = $MockParameters.PhysicalPath
-                            ItemXPath       = $MockParameters.ItemXPath
+                            ItemXPath       = $MockItemXPath
                             Count           = 1
                         }
                     }
@@ -576,7 +577,7 @@ try
                     return @{
                         ApplicationPool          = 'MockPoolOther'
                         PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockParameters.ItemXPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -618,7 +619,7 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
                                       -ParameterFilter { `
-                                        ($Filter -eq $MockParameters.ItemXPath) -And `
+                                        ($Filter -eq $MockItemXPath) -And `
                                         ($Name   -eq 'applicationPool') -And `
                                         ($Value  -eq $MockParameters.WebAppPool) `
                                       }
@@ -632,7 +633,7 @@ try
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
                         PhysicalPath             = 'C:\MockSite\MockAppOther'
-                        ItemXPath                = $MockParameters.ItemXPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -675,7 +676,7 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
                                       -ParameterFilter { `
-                                        ($Filter -eq $MockParameters.ItemXPath) -And `
+                                        ($Filter -eq $MockItemXPath) -And `
                                         ($Name   -eq 'physicalPath') -And `
                                         ($Value  -eq $MockParameters.PhysicalPath) `
                                       }
@@ -688,7 +689,7 @@ try
                         return @{
                             ApplicationPool          = $MockParameters.WebAppPool
                             PhysicalPath             = $MockParameters.PhysicalPath
-                            ItemXPath                = $MockParameters.ItemXPath
+                            ItemXPath                = $MockItemXPath
                             PreloadEnabled           = $MockParameters.PreloadEnabled
                             ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                             ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -738,7 +739,7 @@ try
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
                         PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockParameters.ItemXPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = 'false'
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -778,7 +779,7 @@ try
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
                         PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockParameters.ItemXPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = 'false'
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
@@ -817,7 +818,7 @@ try
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
                         PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockParameters.ItemXPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = 'false'
                         ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider    
@@ -868,7 +869,7 @@ try
                     return @{
                         ApplicationPool          = $MockParameters.WebAppPool
                         PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockParameters.ItemXPath
+                        ItemXPath                = $MockItemXPath
                         PreloadEnabled           = $MockParameters.PreloadEnabled
                         ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
                         ServiceAutoStartProvider = 'OtherServiceAutoStartProvider'
