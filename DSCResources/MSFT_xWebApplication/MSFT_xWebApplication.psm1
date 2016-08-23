@@ -148,13 +148,13 @@ function Set-TargetResource
                 $webApplication = Get-WebApplication -Site $Website -Name $Name
             }
 
-            #Update Physical Path if required
+            # Update Physical Path if required
             if (($PSBoundParameters.ContainsKey('PhysicalPath') -and `
                 $webApplication.physicalPath -ne $PhysicalPath))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetPhysicalPath -f $Name)
                 Set-WebConfigurationProperty `
-                    -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
+                    -Filter $webApplication.ItemXPath `
                     -Name physicalPath `
                     -Value $PhysicalPath
             }
@@ -165,7 +165,7 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebAppPool -f $Name)
                 Set-WebConfigurationProperty `
-                    -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
+                    -Filter $webApplication.ItemXPath `
                     -Name applicationPool `
                     -Value $WebAppPool
             }
