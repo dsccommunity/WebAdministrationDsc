@@ -253,6 +253,11 @@ function Test-TargetResource
 
 #region Helper Functions
 
+<#
+    .SYNOPSIS
+    Returns the IIS path as a string either with the SiteName if one is proveded
+    or without one if not provided.
+#>
 function Get-IisSitePath
 {
     [CmdletBinding()]
@@ -268,18 +273,18 @@ function Get-IisSitePath
     }
     else
     {
-        return Join-Path 'IIS:\sites\' $SiteName
+        return "IIS:\sites\$SiteName"
     }
 }
 
 <#
-        .NOTES
-        Get a list on IIS handlers
+    .SYNOPSIS
+        Returns a list of IIS handlers for the module with the given Name
 #>
 function Get-IisHandler
 {
-   
     [CmdletBinding()]
+    [OutputType([PSObject])]
     param
     (
         [Parameter(Mandatory)]
@@ -290,15 +295,15 @@ function Get-IisHandler
     )
 
     Write-Verbose -Message ($LocalizedData.VerboseGetIisHandler -f $Name, $SiteName)
-    return Get-Webconfiguration -Filter 'System.WebServer/handlers/*' `
+    return Get-WebConfiguration -Filter 'System.WebServer/handlers/*' `
                                 -PSPath (Get-IisSitePath `
                                 -SiteName $SiteName) | `
                                 Where-Object{$_.Name -ieq $Name}
 }
 
 <#
-        .NOTES
-        Remove an IIS Handler
+    .SYNOPSIS
+        Remove an IIS Handler with the given Name
 #>
 function Remove-IisHandler
 {
@@ -312,14 +317,8 @@ function Remove-IisHandler
         [String] $SiteName
     )
 
-    $handler = Get-IisHandler @PSBoundParameters
-
-    if ($handler)
-    {
-        Clear-WebConfiguration -PSPath $handler.PSPath `
-                               -Filter $handler.ItemXPath `
-                               -Location $handler.Location
-    }
+    Clear-WebConfiguration -Filter 'System.WebServer/handlers/*' `
+                           -PSPath (Get-IisSitePath -SiteName $SiteName)
 }
 
 function Get-FastCgi

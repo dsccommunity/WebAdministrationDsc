@@ -158,7 +158,7 @@ try
             }
         }
         
-        Describe 'Test-TargetResource'{
+        Describe 'Test-TargetResource' {
             $mockTestParams = @{
                 Path = 'mockPath'
                 Name = 'mockName'
@@ -235,8 +235,56 @@ try
                     Test-TargetResource @mockTestParams | Should Be $false
                 }
             }
+        }
+        
+        Describe 'Get-IisSitePath' {
+            It 'Should return IIS:\' {
+                Get-IisSitePath | Should Be 'IIS:\'
+            }
             
+            $expected = 'IIS:\sites\mockSite'
+            It 'Should return expected value' {
+                Get-IisSitePath -SiteName 'mockSite' | Should Be $expected
+            }
+        }
+        
+        Describe 'Get-IisHandler' {
 
+            Mock -CommandName Get-WebConfiguration -MockWith { return $mockHandler }
+            
+            $result = Get-IisHandler -Name 'mockName'
+            
+            It 'Should return the expected value' {
+                $result | Should Be $mockHandler
+            }
+            It 'Should call all the mocks' {
+                Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+            }
+        }
+        
+        Describe 'Remove-IisHandler' {
+            Mock -CommandName Clear-WebConfiguration -MockWith {}
+            
+            Remove-IisHandler -Name 'MockName'
+            
+            It 'Should call all the mocks' {
+                Assert-MockCalled -CommandName Clear-WebConfiguration
+            } 
+        }
+        
+        Describe 'Get-FastCgi' {
+            Mock -CommandName Get-IisHandler -MockWith { return $mockHandler }
+            
+            
+            It 'Should return $true because it has FastCgi' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{ FullPath = $mockHandler.ScriptProcessor } }
+                Get-FastCgi -Name 'mockName' | Should be $true
+            }
+            
+            It 'Should return $false because it does not have FastCgi' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{ FullPath = 'noFastCgi' } }
+                Get-FastCgi -Name 'mockName' | Should be $false
+            }
         }
     }
 }
