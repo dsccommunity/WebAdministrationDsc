@@ -46,8 +46,7 @@ try
             $currentConfiguration.Path | Should Be $testParameters.Path
             $currentConfiguration.Name | Should Be $testParameters.Name
             $currentConfiguration.RequestPath | Should Be $testParameters.RequestPath
-            $currentConfiguration.Verb[1] | Should Be $testParameters.Verb[1]
-            #$currentConfiguration.Verb[1] | Should Be $testParameters.Verb[1]
+            $currentConfiguration.Verb | Should Be $testParameters.Verb
         }
         
         It 'Should be in the correct state' {

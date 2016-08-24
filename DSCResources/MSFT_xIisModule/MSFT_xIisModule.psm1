@@ -273,7 +273,7 @@ function Get-IisSitePath
     }
     else
     {
-        return (Join-Path -Path 'IIS:\sites\' -ChilePath $SiteName)
+        return (Join-Path -Path 'IIS:\sites\' -ChildPath $SiteName)
     }
 }
 
