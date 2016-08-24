@@ -148,6 +148,7 @@ function Set-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetAddfastCgi `
                     -f $RequestPath)
             Add-WebConfiguration -Filter '/system.webServer/fastCgi' -PSPath $iisSitePath -Value @{
+                FullPath = $Path
                 ScriptProcessor = $RequestPath
             }
         }
