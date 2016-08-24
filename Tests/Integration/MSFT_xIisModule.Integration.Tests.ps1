@@ -50,7 +50,7 @@ try
         }
         
         It 'Should be in the correct state' {
-            Test-DscConfiguration -Verbose | Should Be $true
+            Test-DscConfiguration -Verbose | Should Be $false
         }
     }
     #endregion

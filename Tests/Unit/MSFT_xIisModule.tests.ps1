@@ -32,11 +32,7 @@ try
             Name             = 'mockName'
             Path             = 'mockPath'
             Modules          = 'mockModules'
-            Verb             = @(
-                                'MockVerb1'
-                                'MockVerb2'
-                            ) 
-            
+            Verb             = 'MockVerb1,MockVerb2'            
         }
         
         Describe 'Get-TargetResource' {
@@ -64,6 +60,7 @@ try
                     $result.Ensure | Should Be 'Absent'
                     $result.Path | Should Be $mockGetParams.Path
                     $result.EndPointSetup | Should Be $false
+                    $result.RequestPath | Should Be $mockGetParams.RequestPath
                 }
 
             }
@@ -72,11 +69,12 @@ try
                 Mock -CommandName Get-IisHandler -MockWith { return $mockHandler }
                 
                 $result = Get-TargetResource @mockGetParams
+                $handlerVerbs = ($mockHandler.Verb).Split(',')
                 
                 It 'Should return the correct values for when the Handler is found and does not use fastCgi' {
                     $result.Ensure | Should Be 'Present'
-                    $result.Path | Should Be $mockHandler.ScriptProcessor
-                    $result.Verb[0] | Should Be $mockHandler.Verb[0]
+                    $result.Path | Should Be $mockHandler.Path
+                    $result.Verb[0] | Should Be $handlerVerbs[0]
                     $result.EndPointSetup | Should Be $false
                 }
             }
@@ -95,7 +93,7 @@ try
                 
                 It 'Should return the correct values for when the Handler is found and uses fastCgi' {
                     $result.Ensure | Should Be 'Present'
-                    $result.Path | Should Be $mockHandler.ScriptProcessor
+                    $result.Path | Should Be $mockHandler.Path
                     $result.Verb[1] | Should Be $mockHandler.Verb[1]
                     $result.EndPointSetup | Should Be $true
                 }

@@ -2,9 +2,9 @@
 # Integration Test Config Template Version: 1.0.0
 
 $testParameters = @{
-    Path = 'c:\php\php-cgi.exe'
+    Path = (Join-Path -Path (Get-Location) -ChildPath TestModule)
     Name = 'TestModule'
-    RequestPath = Join-Path -Path (Get-Location) -ChildPath TestModule
+    RequestPath = 'c:\php\php-cgi.exe'
     Verb = @('Verb1','Verb2')
 }
 
