@@ -129,7 +129,7 @@ function Set-TargetResource
     
     Assert-Module
     
-    $iisSitePath = Get-IisSitePath -Name $Name -SiteName $SiteName
+    $iisSitePath = Get-IisSitePath -SiteName $SiteName
 
     if ($Ensure -eq 'Present')
     {
