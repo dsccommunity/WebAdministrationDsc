@@ -18,7 +18,7 @@ configuration MSFT_xIisModule_Present {
             Path = $testParameters.Path
             Name = $testParameters.Name
             RequestPath = $testParameters.RequestPath
-            Verb = $testParameters.Verb
+            Verb = @($testParameters.Verb[0],$testParameters.Verb[1])
             Ensure = 'Present'
         }
     }
