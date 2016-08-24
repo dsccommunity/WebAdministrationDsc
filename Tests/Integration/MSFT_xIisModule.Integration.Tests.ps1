@@ -36,12 +36,21 @@ try
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
 
         It 'Should have set the resource and all the parameters should match' {
+            $currentConfiguration = Get-DscConfiguration
+            $currentConfiguration.Path | Should Be $testParameters.Path
+            $currentConfiguration.Name | Should Be $testParameters.Name
+            $currentConfiguration.RequestPath | Should Be $testParameters.RequestPath
+            $currentConfiguration.Verb[0] | Should Be $testParameters.Verb[0]
+            $currentConfiguration.Verb[1] | Should Be $testParameters.Verb[1]
+        }
+        
+        It 'Should be in the correct state' {
             Test-DscConfiguration -Verbose | Should Be $true
         }
     }
