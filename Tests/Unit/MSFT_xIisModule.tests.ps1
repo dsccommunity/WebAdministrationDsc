@@ -69,12 +69,11 @@ try
                 Mock -CommandName Get-IisHandler -MockWith { return $mockHandler }
                 
                 $result = Get-TargetResource @mockGetParams
-                $handlerVerbs = ($mockHandler.Verb).Split(',')
                 
                 It 'Should return the correct values for when the Handler is found and does not use fastCgi' {
                     $result.Ensure | Should Be 'Present'
                     $result.Path | Should Be $mockHandler.Path
-                    $result.Verb[0] | Should Be $handlerVerbs[0]
+                    $result.Verb[0] | Should Be $mockHandler.Verb[0]
                     $result.EndPointSetup | Should Be $false
                 }
             }
