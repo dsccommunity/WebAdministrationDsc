@@ -32,14 +32,18 @@ try
             {
                 Invoke-Expression -Command "$($script:DSCResourceName)_Present -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
-                    -ComputerName localhost -Wait -Verbose -Force
+                                       -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
+        
+        Invoke-Expression -Command "$($script:DSCResourceName)_Present -OutputPath `$TestEnvironment.WorkingFolder"
+        Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
+                               -ComputerName localhost -Wait -Verbose -Force
 
         It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
-        #endregion
+
 
         It 'Should have set the resource and all the parameters should match' {
             $currentConfiguration = Get-DscConfiguration
@@ -50,7 +54,7 @@ try
         }
         
         It 'Should be in the correct state' {
-            Test-DscConfiguration -Verbose | Should Be $false
+            Test-DscConfiguration -Verbose | Should Be $true
         }
     }
     #endregion

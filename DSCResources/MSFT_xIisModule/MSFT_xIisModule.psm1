@@ -63,8 +63,8 @@ function Get-TargetResource
         if ($handler)
         {
             $ensure = 'Present'
-            $Path = $handler.Path
-            $RequestPath = $handler.ScriptProcessor
+            $Path = $handler.ScriptProcessor
+            $RequestPath = $handler.Path
             $type = $handler.Modules
             $verbs = ($handler.Verb).Split(',')
 
