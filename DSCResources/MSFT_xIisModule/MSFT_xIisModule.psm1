@@ -128,13 +128,14 @@ function Set-TargetResource
     )
     
     Assert-Module
-
+    
+    $iisSitePath = Get-IisSitePath -Name $Name -SiteName $SiteName
 
     if ($Ensure -eq 'Present')
     {
         # Update values
         Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler 
-        Add-Webconfiguration /system.webServer/handlers iis:\ -Value @{
+        Add-Webconfiguration -Filter '/system.webServer/handlers' -PSPath $iisSitePath -Value @{
             Name = $Name
             Path = $RequestPath
             Verb = $Verb -join ','
@@ -144,10 +145,10 @@ function Set-TargetResource
 
         if (-not (Get-FastCgi -Name $Name -SiteName $SiteName))
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddfastCgi `
-                    -f $RequestPath
-            Add-WebConfiguration /system.webServer/fastCgi iis:\ -Value @{
-                Path = $RequestPath
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetAddfastCgi `
+                    -f $RequestPath)
+            Add-WebConfiguration -Filter '/system.webServer/fastCgi' -PSPath $iisSitePath -Value @{
+                ScriptProcessor = $RequestPath
             }
         }
     }
