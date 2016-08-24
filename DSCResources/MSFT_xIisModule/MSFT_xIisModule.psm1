@@ -6,20 +6,21 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResource                               = Get-TargetResource has been run.
-        VerboseSetTargetRemoveHandler                          = Removing handler
-        VerboseSetTargetAddHandler                             = Adding handler.
-        VerboseSetTargetAddfastCgi                             = Adding fastCgi.
-        VerboseTestTargetResource                              = Get-TargetResource has been run.
-        VerboseGetIisHandler                                   = Getting Handler for {0} in Site {1}
-        VerboseTestTargetResourceVerb                      = Matched Verb {0}
-        VerboseTestTargetResourceExtraVerb                 = Extra Verb {0}
-        VerboseTestTargetResourceRequestPath               = RequestPath is {0}
-        VerboseTestTargetResourcePath                      = Path is {0}
-        VerboseTestTargetResourceActualRequestPath = StatusRequestPath is {0}
-        VerboseTestTargetResourceActualPath        = StatusPath is {0}
-        VerboseTestTargetResourceModulePresent             = Module present is {0}
-        VerboseTestTargetResourceModuleConfigured          = ModuleConfigured is {0}
+        VerboseGetTargetResource                    = Get-TargetResource has been run.
+        VerboseSetTargetRemoveHandler               = Removing handler
+        VerboseSetTargetAddHandler                  = Adding handler.
+        VerboseSetTargetAddfastCgi                  = Adding fastCgi.
+        VerboseTestTargetResource                   = Get-TargetResource has been run.
+        VerboseGetIisHandler                        = Getting Handler for {0} in Site {1}
+        VerboseTestTargetResourceVerb               = Matched Verb {0}
+        VerboseTestTargetResourceExtraVerb          = Extra Verb {0}
+        VerboseTestTargetResourceRequestPath        = RequestPath is {0}
+        VerboseTestTargetResourcePath               = Path is {0}
+        VerboseTestTargetResourceActualRequestPath  = StatusRequestPath is {0}
+        VerboseTestTargetResourceActualPath         = StatusPath is {0}
+        VerboseTestTargetResourceModulePresent      = Module present is {0}
+        VerboseTestTargetResourceModuleConfigured   = ModuleConfigured is {0}
+        VerboseTestTargetResourceEndPointSetup      = EndPointSetup is {0}
 '@
 }
 
@@ -236,6 +237,8 @@ function Test-TargetResource
                             -f $ModuleSettings.Ensure)
     Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceModuleConfigured `
                             -f $ModuleConfigured)
+    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceEndPointSetup `
+                            -f $moduleSettings.EndPointSetup)
                             
     if ($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $moduleSettings.EndPointSetup) )
     {

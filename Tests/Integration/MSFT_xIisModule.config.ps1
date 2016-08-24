@@ -6,6 +6,7 @@ $testParameters = @{
     Name = 'TestModule'
     RequestPath = 'c:\php\php-cgi.exe'
     Verb = @('Verb1','Verb2')
+    EndPointSetup = $true
 }
 
 configuration MSFT_xIisModule_Present {

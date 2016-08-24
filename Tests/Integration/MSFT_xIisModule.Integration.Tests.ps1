@@ -46,6 +46,7 @@ try
             $currentConfiguration.Name | Should Be $testParameters.Name
             $currentConfiguration.RequestPath | Should Be $testParameters.RequestPath
             $currentConfiguration.Verb | Should Be $testParameters.Verb
+            $currentConfiguration.EndPointSetup | Should Be $testParameters.EndPointSetup
         }
         
         It 'Should be in the correct state' {
