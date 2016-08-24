@@ -25,16 +25,14 @@ try
     #region Integration Tests
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $configFile
+    
+    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
     Describe "$($script:DSCResourceName)_Present" {
-    
-        It 'Should not be in the desired state' {
-            Test-DscConfiguration -Verbose | Should Be $false
-        }
 
         It 'Should compile without throwing' {
             {
-                & "$($script:DSCResourceName)_Present" -OutputPath $TestEnvironment.WorkingFolder
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestEnvironment.WorkingFolder"
                 Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
                     -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
