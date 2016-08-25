@@ -59,8 +59,8 @@ function Get-TargetResource
     Assert-Module
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
-    $CimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
-    $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${Name}")
+    $cimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
+    $currentSslFlags = (Get-SslFlags -Location "${Website}/${Name}")
 
     $Ensure = 'Absent'
 
@@ -74,8 +74,8 @@ function Get-TargetResource
         Name                     = $Name
         WebAppPool               = $webApplication.applicationPool
         PhysicalPath             = $webApplication.PhysicalPath
-        AuthenticationInfo       = $CimAuthentication
-        SslFlags                 = [Array]$CurrentSslFlags
+        AuthenticationInfo       = $cimAuthentication
+        SslFlags                 = [Array]$currentSslFlags
         PreloadEnabled           = $webApplication.preloadEnabled
         ServiceAutoStartProvider = $webApplication.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $webApplication.serviceAutoStartEnabled
@@ -419,21 +419,20 @@ function Test-TargetResource
     
 }
 
-Function Confirm-UniqueEnabledProtocols
+<#
+.SYNOPSIS
+    Helper function used to validate that the EnabledProtocols are unique.
+    Returns $false if EnabledProtocols are not unique and $true if they are
+.PARAMETER ExistingProtocols
+    Specifies existing SMTP bindings
+.PARAMETER ProposedProtocols
+    Specifies desired SMTP bindings.
+.NOTES
+    ExistingProtocols is a String whereas ProposedProtocols is an array of Strings 
+    so we need to do some extra work in comparing them
+#>
+function Confirm-UniqueEnabledProtocols
 {
-    <#
-        .SYNOPSIS
-            Helper function used to validate that the EnabledProtocols are unique.
-            Returns False if EnabledProtocols are not unique and True if they are
-        .PARAMETER ExistingProtocols
-            Specifies existing SMTP bindings
-        .PARAMETER ProposedProtocols
-            Specifies desired SMTP bindings.
-        .NOTES
-            The existing EnabledProtocols are a [String] where are the desired are a [Array] so we 
-            need to do some magic to make sure the compare works.
-    #>
-
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -446,26 +445,26 @@ Function Confirm-UniqueEnabledProtocols
         [String[]] $ProposedProtocols
     )
 
-    $InputToCheck = @()
+    $inputToCheck = @()
     foreach($ProposedProtocol in $ProposedProtocols)
     { 
-        $InputToCheck += $ProposedProtocol
+        $inputToCheck += $ProposedProtocol
     }
 
-    $ExistingProtocolsToCheck = $ExistingProtocols -split ','
+    $existingProtocolsToCheck = $existingProtocols -split ','
 
-    $ExistingToCheck = @()
-    foreach($ExistingProtocol in $ExistingProtocolsToCheck)
+    $existingToCheck = @()
+    foreach($existingProtocol in $existingProtocolsToCheck)
     {
-        $ExistingToCheck += $ExistingProtocol.Trim()
+        $existingToCheck += $existingProtocol.Trim()
     }
 
-    $SortedExistingProtocols = $ExistingToCheck | Sort-Object -Unique
-    $SortedInputProtocols = $InputToCheck| Sort-Object -Unique
+    $sortedExistingProtocols = $existingToCheck | Sort-Object -Unique
+    $sortedInputProtocols = $inputToCheck| Sort-Object -Unique
 
 
-    if (Compare-Object -ReferenceObject $SortedExistingProtocols `
-                       -DifferenceObject $SortedInputProtocols `
+    if (Compare-Object -ReferenceObject $sortedExistingProtocols `
+                       -DifferenceObject $sortedInputProtocols `
                        -PassThru)
     {
         return $false

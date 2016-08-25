@@ -1,19 +1,22 @@
-﻿configuration MSFT_xWebApplication_Present
+﻿<#
+    This shows an example for all possible settings for the xWebApplication resource
+#>
+configuration MSFT_xWebApplication_Present
 {
 
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost',
+        [String[]] $NodeName = 'localhost',
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String]$PhysicalPath
+        [String] $PhysicalPath
     )
 
     Import-DscResource -ModuleName xWebAdministration
 
-    Node $NodeName
+    node $NodeName
     {  
         xWebApplication WebApplication
         {

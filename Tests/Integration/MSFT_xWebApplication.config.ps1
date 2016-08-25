@@ -14,13 +14,13 @@ configuration MSFT_xWebApplication_Present
             WebAppPool = $Node.ApplicationPool
             ApplicationType = $Node.ApplicationType
             AuthenticationInfo = `
-            MSFT_xWebApplicationAuthenticationInformation
-            {
-                Anonymous = $Node.AuthenticationInfoAnonymous
-                Basic     = $Node.AuthenticationInfoBasic
-                Digest    = $Node.AuthenticationInfoDigest
-                Windows   = $Node.AuthenticationInfoWindows
-            }
+                MSFT_xWebApplicationAuthenticationInformation
+                {
+                    Anonymous = $Node.AuthenticationInfoAnonymous
+                    Basic     = $Node.AuthenticationInfoBasic
+                    Digest    = $Node.AuthenticationInfoDigest
+                    Windows   = $Node.AuthenticationInfoWindows
+                }
             PreloadEnabled = $Node.PreloadEnabled
             ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
