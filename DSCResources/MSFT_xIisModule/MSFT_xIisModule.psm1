@@ -148,8 +148,7 @@ function Set-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetAddfastCgi `
                     -f $RequestPath)
             Add-WebConfiguration -Filter '/system.webServer/fastCgi' -PSPath $iisSitePath -Value @{
-                FullPath = $Path
-                ScriptProcessor = $RequestPath
+                FullPath = $RequestPath
             }
         }
     }
@@ -343,10 +342,14 @@ function Get-FastCgi
     
     $handler = Get-IisHandler -Name $Name -SiteName $SiteName
     
+    Write-Verbose -Message "Handler.ScriptProcessor: $($handler.ScriptProcessor)" -Verbose
+    
     $fastCgi = Get-WebConfiguration -Filter /system.webServer/fastCgi/* `
                             -PSPath (Get-IisSitePath `
                             -SiteName $SiteName) | `
-                            Where-Object{ $_.FullPath -ieq $handler.ScriptProcessor }
+                            Where-Object {
+                                Write-Verbose -Message $_.FullPath -Verbose
+                                $_.FullPath -ieq $handler.ScriptProcessor }
     if ($fastCgi)
     {
         return $true;
