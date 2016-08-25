@@ -2,9 +2,9 @@
 # Integration Test Config Template Version: 1.0.0
 
 $testParameters = @{
-    Path = (Join-Path -Path (Get-Location) -ChildPath TestModule)
+    Path = "$env:windir\notepad.exe"
     Name = 'TestModule'
-    RequestPath = 'c:\php\php-cgi.exe'
+    RequestPath = '*.php'
     Verb = @('Verb1','Verb2')
     EndPointSetup = $true
 }
