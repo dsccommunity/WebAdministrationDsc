@@ -675,7 +675,7 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
                                       -ParameterFilter { `
-                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']/virtualDirectory[@path='/']") -And `
                                         ($Name   -eq 'physicalPath') -And `
                                         ($Value  -eq 'C:\MockSite\MockApp') `
                                       }
