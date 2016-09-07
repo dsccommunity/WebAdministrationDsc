@@ -2,10 +2,10 @@
 # Integration Test Config Template Version: 1.0.0
 
 $testParameters = @{
-    Path = "$env:windir\notepad.exe"
+    Path = "C:\Users\localadmin\Documents\php-7.0.10-nts-Win32-VC14-x86\php-cgi.exe"
     Name = 'TestModule'
     RequestPath = '*.php'
-    Verb = @('Verb1','Verb2')
+    Verb = @('Verb0','Verb1')
     EndPointSetup = $true
 }
 
@@ -24,4 +24,5 @@ configuration MSFT_xIisModule_Present {
         }
     }
 }
-
+#C:\Users\localadmin\Documents\php-7.0.10-nts-Win32-VC14-x86\php-cgi.exe
+#$env:windir\notepad.exe

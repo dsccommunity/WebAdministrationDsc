@@ -57,7 +57,6 @@ function Get-TargetResource
         $currentVerbs = @()
         $ensure = 'Absent'
         $fastCgiSetup = $false
-        $type = $ModuleType
 
         $handler = Get-IisHandler -Name $Name -SiteName $SiteName
 
@@ -66,7 +65,6 @@ function Get-TargetResource
             $ensure = 'Present'
             $Path = $handler.ScriptProcessor
             $RequestPath = $handler.Path
-            $type = $handler.Modules
             $verbs = ($handler.Verb).Split(',')
 
             foreach ($thisVerb  in $verbs)
@@ -74,7 +72,7 @@ function Get-TargetResource
                 $currentVerbs += $thisVerb
             }
 
-            if ($handler.Modules -eq 'FastCgiModule')
+            if ($ModuleType -eq 'FastCgiModule')
             {
                 $fastCgiSetup = Get-FastCgi -Name $Name -SiteName $SiteName
             }
@@ -98,7 +96,8 @@ function Get-TargetResource
 
 <#
         .SYNOPSIS
-        This will set the desired state
+        This will set the desired state - right now this only supports 
+        setting the FastCgi
 #>
 function Set-TargetResource
 {
@@ -134,23 +133,26 @@ function Set-TargetResource
     if ($Ensure -eq 'Present')
     {
         # Update values
+        Get-FastCgi -Name $Name -SiteName $SiteName
+
         Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler 
-        Add-Webconfiguration -Filter '/system.webServer/handlers' -PSPath $iisSitePath -Value @{
+        Add-Webconfiguration -Filter '/System.WebServer/handlers' -PSPath $iisSitePath -Value @{
             Name = $Name
             Path = $RequestPath
             Verb = $Verb -join ','
             Module = $ModuleType
             ScriptProcessor = $Path
         }
-
+        
         if (-not (Get-FastCgi -Name $Name -SiteName $SiteName))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetAddfastCgi `
-                    -f $RequestPath)
-            Add-WebConfiguration -Filter '/system.webServer/fastCgi' -PSPath $iisSitePath -Value @{
-                FullPath = $RequestPath
+                    -f $Path)
+            Add-WebConfiguration -Filter '/System.WebServer/FastCgi/*' -PSPath $iisSitePath -Value @{
+                FullPath = $Path
             }
         }
+        
     }
     else 
     {
@@ -242,7 +244,8 @@ function Test-TargetResource
     Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceEndPointSetup `
                             -f $moduleSettings.EndPointSetup)
                             
-    if ($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $moduleSettings.EndPointSetup) )
+    if ($moduleConfigured -and (($ModuleType -ne 'FastCgiModule') -or `
+                                ($moduleSettings.EndPointSetup -eq $true)) )
     {
         return $true
     }
@@ -300,7 +303,8 @@ function Get-IisHandler
         [String] $SiteName
     )
 
-    Write-Verbose -Message ($LocalizedData.VerboseGetIisHandler -f $Name, $SiteName)
+    Write-Verbose -Message ($LocalizedData.VerboseGetIisHandler `
+            -f $Name, (Get-IisSitePath -SiteName $SiteName) )
     return Get-WebConfiguration -Filter 'System.WebServer/handlers/*' `
                                 -PSPath (Get-IisSitePath `
                                 -SiteName $SiteName) | `
@@ -344,12 +348,12 @@ function Get-FastCgi
     
     Write-Verbose -Message "Handler.ScriptProcessor: $($handler.ScriptProcessor)" -Verbose
     
-    $fastCgi = Get-WebConfiguration -Filter /system.webServer/fastCgi/* `
+    $fastCgi = Get-WebConfiguration -Filter '/System.WebServer/fastCgi/*' `
                             -PSPath (Get-IisSitePath `
                             -SiteName $SiteName) | `
                             Where-Object {
-                                Write-Verbose -Message $_.FullPath -Verbose
-                                $_.FullPath -ieq $handler.ScriptProcessor }
+                                Write-Verbose -Message "fullPath is: $($_.FullPath) handler path is: $($handler.Path)" -Verbose
+                                $_.FullPath -ieq $handler.Path }
     if ($fastCgi)
     {
         return $true;

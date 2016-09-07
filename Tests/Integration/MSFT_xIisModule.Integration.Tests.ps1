@@ -19,9 +19,14 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 #endregion
 
+$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+
 # Using try/finally to always cleanup.
 try
 {
+
+    $null = Backup-WebConfiguration -Name $tempName
+
     #region Integration Tests
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $configFile
@@ -59,6 +64,8 @@ try
 finally
 {
     #region FOOTER
+    Restore-WebConfiguration -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 
