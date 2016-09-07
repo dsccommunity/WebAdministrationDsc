@@ -47,5 +47,3 @@ else
     Write-Warning "Diff propgram not found!`r`nUse your favorite diff program to compare and merge:`r`n `t$($originalModuleRootPath.path)`r`n and:`r`n `t$moduleRoot"
 }
 
-
-
