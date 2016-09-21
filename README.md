@@ -202,6 +202,12 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+### 1.14.0.0
+
+* xWebApplication: 
+	* Fixed bug when setting PhysicalPath and WebAppPool
+	* Changes to the application pool property are now applied correctly
+
 ### 1.13.0.0
 
 * Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
@@ -235,15 +241,21 @@ Currently, only FastCgiModule is supported.
     * LoglocalTimeRollover
     * LogFormat
 
-* Added **xWebApplication** integration tests
-* Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
-
+* **xWebApplication** updates:
+    * Added integration tests and added option to SslFlags
+    * Fixed: 
+         * Formatted resources to DSC StyleGuideLines 
+         * Logging statements
+         * Incorrect Get-TargetResource param block
+         * Test-SslFlags validation
+         * Unit test mocking of Test-SslFlags
+	
 ### 1.11.0.0
 
 * **xWebAppPool** updates:
     * Bug fixes, error handling and input validation improvements.
-    * The resource was updated to ensure a specific state only for the explicitly specified properties.
     * The following properties were added: **idleTimeoutAction**, **logEventOnProcessModel**, **setProfileEnvironment**.
+    * The resource was updated to ensure a specific state only for the explicitly specified properties.
     * The type of the following properties was changed to **Boolean**: **autoStart**, **enable32BitAppOnWin64**, **enableConfigurationOverride**,
         **passAnonymousToken**, **cpuSmpAffinitized**, **loadUserProfile**, **manualGroupMembership**, **pingingEnabled**, **setProfileEnvironment**,
         **orphanWorkerProcess**, **rapidFailProtection**, **disallowOverlappingRotation**, **disallowRotationOnConfigChange**.

@@ -1,4 +1,5 @@
 #requires -Version 4
+
 configuration MSFT_xSSLSettings_Present
 {
     Import-DscResource -ModuleName xWebAdministration

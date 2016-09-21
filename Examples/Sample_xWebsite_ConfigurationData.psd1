@@ -7,7 +7,7 @@ param()
     # Node specific data
     AllNodes = @(
 
-       # All the WebServer has following identical information 
+       # All the WebServers have the following identical information 
        @{
             NodeName           = '*'
             WebsiteName        = 'FourthCoffee'

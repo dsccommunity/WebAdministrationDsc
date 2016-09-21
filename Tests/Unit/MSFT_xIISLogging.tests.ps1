@@ -1,5 +1,5 @@
-$global:DSCModuleName = 'xWebAdministration'
-$global:DSCResourceName = 'MSFT_xIisLogging'
+$script:DSCModuleName = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xIisLogging'
 
 # Unit Test Template Version: 1.1.0
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -14,8 +14,8 @@ Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\
 Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
 
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $Global:DSCModuleName `
-    -DSCResourceName $Global:DSCResourceName `
+    -DSCModuleName $script:DSCModuleName `
+    -DSCResourceName $script:DSCResourceName `
     -TestType Unit 
 #endregion HEADER
 
@@ -24,7 +24,7 @@ try
 {
     #region Pester Tests
 
-    InModuleScope $DSCResourceName {
+    InModuleScope $script:DSCResourceName {
         
         $MockLogParameters =
             @{
@@ -32,7 +32,7 @@ try
                 LogFlags             = 'Date','Time','ClientIP','UserName','ServerIP'
                 LogPeriod            = 'Hourly'
                 LogTruncateSize      = '2097152'
-                LoglocalTimeRollover = $True
+                LoglocalTimeRollover = $true
                 LogFormat            = 'W3C'
 
             }
@@ -47,7 +47,7 @@ try
                 localTimeRollover = 'False'
             }       
 
-        Describe "$Global:DSCResourceName\Assert-Module" {
+        Describe "$script:DSCResourceName\Assert-Module" {
            
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith {
@@ -64,12 +64,12 @@ try
   
         }
         
-        Describe "$global:DSCResourceName\Get-TargetResource" {
+        Describe "$script:DSCResourceName\Get-TargetResource" {
 
             Context 'Correct hashtable is returned' {
                 
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput} 
+                    -MockWith { return $MockLogOutput } 
 
                 Mock -CommandName Assert-Module -MockWith {}
                     
@@ -107,7 +107,7 @@ try
         
         }
 
-        Describe "$global:DSCResourceName\Test-TargetResource" {
+        Describe "$script:DSCResourceName\Test-TargetResource" {
          
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -124,13 +124,13 @@ try
                     }
                 
 
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -142,13 +142,13 @@ try
             
             Context 'All Settings are incorrect' {
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput} 
+                    -MockWith { return $MockLogOutput } 
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
                 
@@ -171,13 +171,13 @@ try
                     }
                 
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
 
                 
                 $result = Test-TargetResource @MockLogParameters
@@ -200,13 +200,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
                            
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -228,13 +228,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
                             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -256,13 +256,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -284,13 +284,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -312,13 +312,13 @@ try
                         logFormat         = 'IIS'
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Test-TargetResource @MockLogParameters
 
@@ -330,7 +330,7 @@ try
        
         }
 
-        Describe "$global:DSCResourceName\Set-TargetResource" {
+        Describe "$script:DSCResourceName\Set-TargetResource" {
 
             Mock -CommandName Assert-Module -MockWith {}
         
@@ -346,13 +346,13 @@ try
                         localTimeRollover = 'False'
                     }  
 
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput} 
+                    -MockWith { return $MockLogOutput } 
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags} 
+                    -MockWith { return $MockLogOutput.logExtFileFlags } 
                 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -376,13 +376,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -406,13 +406,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -436,13 +436,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
                             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -466,13 +466,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -496,13 +496,13 @@ try
                         logFormat         = $MockLogParameters.LogFormat
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -526,13 +526,13 @@ try
                         logFormat         = 'IIS'
                     }
             
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
-                    -MockWith {return $MockLogOutput}
+                    -MockWith { return $MockLogOutput }
                 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 Mock -CommandName Set-WebConfigurationProperty
                 
@@ -546,7 +546,7 @@ try
         
         }
 
-        Describe "$Global:DSCResourceName\Compare-LogFlags" {
+        Describe "$script:DSCResourceName\Compare-LogFlags" {
          
             Context 'Returns false when LogFlags are incorrect' {
                
@@ -561,7 +561,7 @@ try
                     }
                 
                  Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Compare-LogFlags $MockLogParameters.LogFlags
 
@@ -584,18 +584,16 @@ try
                     }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
                 
                 $result = Compare-LogFlags $MockLogParameters.LogFlags
 
                 It 'Should return true' { 
                     $result | Should be $true
                 }        
-         
             }
          
          }
-    
      }
 
     #endregion
