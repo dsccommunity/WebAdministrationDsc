@@ -202,6 +202,10 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+* xWebApplication: 
+	* Fixed bug when setting PhysicalPath and WebAppPool
+	* Changes to the application pool property are now applied correctly
+
 ### 1.13.0.0
 
 * Added unit tests for **xWebConfigKeyValue** and cleaned up style formatting.
@@ -243,7 +247,6 @@ Currently, only FastCgiModule is supported.
          * Incorrect Get-TargetResource param block
          * Test-SslFlags validation
          * Unit test mocking of Test-SslFlags
-    * Fixed: The changes of the application pool property of a WebApplication is applied correctly.
 	
 ### 1.11.0.0
 
