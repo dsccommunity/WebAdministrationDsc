@@ -202,6 +202,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+### 1.14.0.0
+
 * xWebApplication: 
 	* Fixed bug when setting PhysicalPath and WebAppPool
 	* Changes to the application pool property are now applied correctly
