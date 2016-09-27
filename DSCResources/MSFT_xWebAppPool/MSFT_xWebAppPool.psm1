@@ -9,7 +9,6 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
         ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
-        ErrorAppCmdPathNotFound           = AppCmd.exe could not be found at path "{0}".
         VerboseAppPoolFound               = Application pool "{0}" was found.
         VerboseAppPoolNotFound            = Application pool "{0}" was not found.
         VerboseEnsureNotInDesiredState    = The "Ensure" state of application pool "{0}" does not match the desired state.
@@ -886,36 +885,40 @@ function Get-Property
     }
 } 
 
+<#
+    .SYNOPSIS
+        Runs appcmd.exe - if there's an error then the application will terminate
+        
+    .PARAMETER ArgumentList
+        Optional list of string arguments to be passed into appcmd.exe    
+
+#>
 function Invoke-AppCmd
 {
     [CmdletBinding()]
     param
     (
-        [String[]] $ArgumentList,
-
-        [String] $FilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+        [String[]] $ArgumentList
     )
 
-    if (Test-Path -Path $FilePath -PathType Leaf)
+    <# 
+            This is a local preference for the function which will terminate
+            the program if there's an error invoking appcmd.exe
+    #>
+    $ErrorActionPreference = 'Stop'
+
+    $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+    
+    $appcmdResult = $(& $appcmdFilePath $ArgumentList)
+    Write-Verbose -Message $appcmdResult
+
+    if ($LASTEXITCODE -ne 0)
     {
-        $(& $FilePath $ArgumentList) | Write-Verbose
+        $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
 
-        if ($LASTEXITCODE -ne 0)
-        {
-            $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
-
-            New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
-                -ErrorMessage $errorMessage `
-                -ErrorCategory 'InvalidResult'
-        }
-    }
-    else
-    {
-        $errorMessage = $LocalizedData['ErrorAppCmdPathNotFound'] -f $FilePath
-
-        New-TerminatingError -ErrorId 'ErrorAppCmdPathNotFound' `
+        New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
             -ErrorMessage $errorMessage `
-            -ErrorCategory 'ObjectNotFound'
+            -ErrorCategory 'InvalidResult'
     }
 }
 

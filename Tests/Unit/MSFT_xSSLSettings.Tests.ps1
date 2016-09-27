@@ -3,14 +3,17 @@ $script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xSSLSettings'
 
 #region HEADER
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
- if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
+      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
+
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
@@ -24,8 +27,6 @@ try
     #region Pester Tests
 
     InModuleScope $DSCResourceName {
-    $script:DSCModuleName = 'xWebAdministration'
-    $script:DSCResourceName = 'MSFT_xSSLSettings'
 
         Describe "$script:DSCResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {
@@ -79,8 +80,8 @@ try
 
         Describe "$script:DSCResourceName\Get-TargetResource" {
             Context 'Command finds SSL Settings' {
-                Mock Assert-Module -Verifiable { }
-                Mock Get-WebConfigurationProperty -Verifiable {return 'Ssl'}
+                Mock Assert-Module -Verifiable {}
+                Mock Get-WebConfigurationProperty -Verifiable { return 'Ssl' }
 
                 $result = Get-TargetResource -Name 'Name' -Bindings 'Ssl'
                 $expected = @{
@@ -101,8 +102,8 @@ try
             }
 
             Context 'Command does not find Ssl Settings' {
-                Mock Assert-Module -Verifiable { }
-                Mock Get-WebConfigurationProperty -Verifiable {return $false}
+                Mock Assert-Module -Verifiable {}
+                Mock Get-WebConfigurationProperty -Verifiable { return $false }
 
                 $result = Get-TargetResource -Name 'Name' -Bindings 'Ssl'
                 $expected = @{
@@ -129,6 +130,7 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings '' -Ensure 'Present' -Verbose) 4>&1
+
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', ''
 
@@ -144,6 +146,7 @@ try
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings 'Ssl' -Ensure 'Present' -Verbose) 4>&1
+
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
 
@@ -155,10 +158,11 @@ try
             }
 
             Context 'Ssl Bindings set to Ssl,SslNegotiateCert,SslRequireCert' {
-                Mock Assert-Module -Verifiable { }
+                Mock Assert-Module -Verifiable {}
                 Mock Set-WebConfigurationProperty -Verifiable {}
 
                 $result = (Set-TargetResource -Name 'Name' -Bindings @('Ssl','SslNegotiateCert','SslRequireCert') -Ensure 'Present' -Verbose) 4>&1
+
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
 
