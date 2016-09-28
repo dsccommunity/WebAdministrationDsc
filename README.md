@@ -199,7 +199,7 @@ Currently, only FastCgiModule is supported.
 * **Ensure**: Ensures if the bindings are Present or Absent.
 
 ### xIisFeatureDelegation
-* **SectionName**: relative path of the section to delegate such as **security/authentication**
+* **SectionName**: Relative path of the section to delegate such as **security/authentication**
 * **OverrideMode**: Mode of that section { **Allow** | **Deny** }
 
 ### xIisMimeTypeMapping
@@ -210,7 +210,7 @@ Currently, only FastCgiModule is supported.
 ### xWebAppPoolDefaults
 * **ApplyTo**: Required Key value, always **Machine**
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
-* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService |LocalSystem | NetworkService}
+* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
 
 ## Versions
 
