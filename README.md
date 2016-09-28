@@ -203,7 +203,7 @@ Currently, only FastCgiModule is supported.
 * **OverrideMode**: Mode of that section { **Allow** | **Deny** }
 
 ### xIisMimeTypeMapping
-* **Extension**: The file extension to map such as **.html**
+* **Extension**: The file extension to map such as **.html** or **.xml**
 * **MimeType**: The MIME type to map that extension to such as **text/html**
 * **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
 
