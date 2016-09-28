@@ -198,6 +198,20 @@ Currently, only FastCgiModule is supported.
 * **Bindings**: The SSL bindings to implement.
 * **Ensure**: Ensures if the bindings are Present or Absent.
 
+### xIisFeatureDelegation
+* **SectionName**: Relative path of the section to delegate such as **security/authentication**
+* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
+
+### xIisMimeTypeMapping
+* **Extension**: The file extension to map such as **.html** or **.xml**
+* **MimeType**: The MIME type to map that extension to such as **text/html**
+* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
+
+### xWebAppPoolDefaults
+* **ApplyTo**: Required Key value, always **Machine**
+* **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
+* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
+
 ## Versions
 
 ### Unreleased
