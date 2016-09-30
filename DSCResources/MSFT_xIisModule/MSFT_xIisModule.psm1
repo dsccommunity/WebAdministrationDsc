@@ -276,7 +276,7 @@ function Get-IisHandler
         [String] $SiteName
     )
 
-    Write-Verbose -Message $LocalizedData.VerboseGetIisHandler -f $Name,$SiteName
+    Write-Verbose -Message ($LocalizedData.VerboseGetIisHandler -f $Name,$SiteName)
     return Get-Webconfiguration -Filter 'System.WebServer/handlers/*' `
                                 -PSPath (Get-IisSitePath `
                                 -SiteName $SiteName) | `
@@ -386,7 +386,7 @@ function Test-TargetResourceImpl
     }
 
     Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModulePresent `
-                            -f $ModulePresent)S
+                            -f $ModulePresent)
     Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
                             -f $ModuleConfigured)
     if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
