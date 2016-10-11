@@ -18,7 +18,8 @@ Configuration Sample_xWebApplication_NewWebApplication
     )
 
     # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
+    Import-DscResource -Module PSDesiredStateConfiguration
+    Import-DscResource -Module xWebAdministration
 
     Node $NodeName
     {
