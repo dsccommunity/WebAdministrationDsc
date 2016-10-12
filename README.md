@@ -149,7 +149,7 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Website's authentication information in the form of an array of embedded instances of the **MSFT_xWebAuthenticationInformation** CIM class. **MSFT_xWebAuthenticationInformation** take the following properties:
+* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **MSFT_xWebAuthenticationInformation** CIM class. **MSFT_xWebAuthenticationInformation** takes the following properties:
     * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
     * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -172,7 +172,7 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+* **AuthenticationInfo**: Web Application's authentication information in the form of an embedded instance of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** takes the following properties:
     * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
     * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -218,6 +218,7 @@ Currently, only FastCgiModule is supported.
 
 * Corrected name of AuthenticationInfo parameter in Readme.md.
 * Added sample for **xWebApplication** for adding new web application.
+* Corrected description for AuthenticationInfo for xWebApplication and xWebsite.
 
 ### 1.14.0.0
 
