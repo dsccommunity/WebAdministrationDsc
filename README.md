@@ -761,6 +761,8 @@ Sample_xWebsite_FromConfigurationData -ConfigurationData ConfigurationData.psd1
 
 configuration Sample_EndToEndxWebAdministration
 {
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName xWebAdministration
 
     Node $AllNodes.NodeName
     {
@@ -772,6 +774,30 @@ configuration Sample_EndToEndxWebAdministration
             State  = "Started"
         }
 
+        #Create physical path website
+        File NewWebsitePath
+        {
+            DestinationPath = $Node.PhysicalPathWebSite
+            Type = "Directory"
+            Ensure = "Present"
+        }
+
+        #Create physical path web application
+        File NewWebApplicationPath
+        {
+            DestinationPath = $Node.PhysicalPathWebApplication
+            Type = "Directory"
+            Ensure = "Present"
+        }
+
+        #Create physical path virtual directory
+        File NewVirtualDirectoryPath
+        {
+            DestinationPath = $Node.PhysicalPathVirtualDir
+            Type = "Directory"
+            Ensure = "Present"
+        }
+
         #Create a New Website with Port
         xWebSite NewWebSite
         {
@@ -779,12 +805,13 @@ configuration Sample_EndToEndxWebAdministration
             Ensure = "Present"
             BindingInfo = MSFT_xWebBindingInformation
             {
+                Protocol = "http"
                 Port = $Node.Port
             }
 
             PhysicalPath = $Node.PhysicalPathWebSite
             State = "Started"
-            DependsOn = @("[xWebAppPool]NewWebAppPool")
+            DependsOn = @("[xWebAppPool]NewWebAppPool","[File]NewWebsitePath")
         }
 
         #Create a new Web Application
@@ -795,7 +822,7 @@ configuration Sample_EndToEndxWebAdministration
             WebAppPool =  $Node.WebAppPoolName
             PhysicalPath = $Node.PhysicalPathWebApplication
             Ensure = "Present"
-            DependsOn = @("[xWebSite]NewWebSite")
+            DependsOn = @("[xWebSite]NewWebSite","[File]NewWebApplicationPath")
         }
 
         #Create a new virtual Directory
@@ -806,24 +833,27 @@ configuration Sample_EndToEndxWebAdministration
             WebApplication =  $Node.WebApplicationName
             PhysicalPath = $Node.PhysicalPathVirtualDir
             Ensure = "Present"
-            DependsOn = @("[xWebApplication]NewWebApplication")
+            DependsOn = @("[xWebApplication]NewWebApplication","[File]NewVirtualDirectoryPath")
         }
 
+        #Create an empty web.config file
         File CreateWebConfig
         {
              DestinationPath = $Node.PhysicalPathWebSite + "\web.config"
-             Contents = "&amp;amp;amp;amp;lt;?xml version=`"1.0`" encoding=`"UTF-8`"?&amp;amp;amp;amp;gt;
-                            &amp;amp;amp;amp;lt;configuration&amp;amp;amp;amp;gt;
-                            &amp;amp;amp;amp;lt;/configuration&amp;amp;amp;amp;gt;"
+             Contents = "<?xml version=`"1.0`" encoding=`"UTF-8`"?>
+                            <configuration>
+                            </configuration>"
                     Ensure = "Present"
              DependsOn = @("[xWebVirtualDirectory]NewVirtualDir")
         }
 
+        #Add an appSetting key1
         xWebConfigKeyValue ModifyWebConfig
         {
             Ensure = "Present"
             ConfigSection = "AppSettings"
-            KeyValuePair = @{key="key1";value="value1"}
+            Key = "key1"
+            Value = "value1"
             IsAttribute = $false
             WebsitePath = "IIS:\sites\" + $Node.WebsiteName
             DependsOn = @("[File]CreateWebConfig")
