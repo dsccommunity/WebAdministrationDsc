@@ -33,7 +33,7 @@ try
     Describe "$($script:DSCResourceName)_Integration" {
         # Allow Feature Delegation
         # for this test we are using the anonymous Authentication feature, which is installed by default, but has Feature Delegation set to denied by default
-        if ((Get-WindowsOptionalFeature –Online | Where-Object {$_.FeatureName -eq 'IIS-Security' -and $_.State -eq 'Enabled'}).Count -eq 1)
+        if ((Get-WindowsOptionalFeature -Online | Where-Object {$_.FeatureName -eq 'IIS-Security' -and $_.State -eq 'Enabled'}).Count -eq 1)
         {
             if ((Get-WebConfiguration /system.webserver/security/authentication/anonymousAuthentication iis:\).OverrideModeEffective -eq 'Deny')
             {
