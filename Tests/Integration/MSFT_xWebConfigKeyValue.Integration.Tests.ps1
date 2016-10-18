@@ -51,7 +51,7 @@ try
                 [string] $originalValue = (Get-WebConfigurationProperty `
                     -PSPath $env:xWebConfigKeyValuePsPath `
                     -Filter "appSettings/add[@key='$($env:xWebConfigKeyValueIntegrationKey)']" `
-                    -Name 'value')
+                    -Name 'value').Value
 
                 $env:xWebConfigKeyValueIntegrationValueUpdated = $originalValue + "-updated"
 
@@ -64,7 +64,7 @@ try
                 -PSPath $env:xWebConfigKeyValuePsPath `
                 -Filter "appSettings/add[@key='$($env:xWebConfigKeyValueIntegrationKey)']" `
                 -Name 'value').Value
-            $changedValue | Should Be $env:PesterAppSettingValue
+            $changedValue | Should Be $env:xWebConfigKeyValueIntegrationValueUpdated
         }
 
         It 'Removing AppSetting "xWebAdministration Integration Tests Key"' {
