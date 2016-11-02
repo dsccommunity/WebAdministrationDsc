@@ -149,7 +149,7 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInformation**: Website's authentication information in the form of an array of embedded instances of the **MSFT_xWebAuthenticationInformation** CIM class. **MSFT_xWebAuthenticationInformation** take the following properties:
+* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **MSFT_xWebAuthenticationInformation** CIM class. **MSFT_xWebAuthenticationInformation** takes the following properties:
     * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
     * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -172,7 +172,7 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+* **AuthenticationInfo**: Web Application's authentication information in the form of an embedded instance of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** takes the following properties:
     * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
     * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -198,13 +198,33 @@ Currently, only FastCgiModule is supported.
 * **Bindings**: The SSL bindings to implement.
 * **Ensure**: Ensures if the bindings are Present or Absent.
 
+### xIisFeatureDelegation
+* **SectionName**: Relative path of the section to delegate such as **security/authentication**
+* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
+
+### xIisMimeTypeMapping
+* **Extension**: The file extension to map such as **.html** or **.xml**
+* **MimeType**: The MIME type to map that extension to such as **text/html**
+* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
+
+### xWebAppPoolDefaults
+* **ApplyTo**: Required Key value, always **Machine**
+* **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
+* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
+
 ## Versions
 
 ### Unreleased
 
+### 1.15.0.0
+
+* Corrected name of AuthenticationInfo parameter in Readme.md.
+* Added sample for **xWebApplication** for adding new web application.
+* Corrected description for AuthenticationInfo for xWebApplication and xWebsite.
+
 ### 1.14.0.0
 
-* xWebApplication: 
+* xWebApplication:
 	* Fixed bug when setting PhysicalPath and WebAppPool
 	* Changes to the application pool property are now applied correctly
 
@@ -243,13 +263,13 @@ Currently, only FastCgiModule is supported.
 
 * **xWebApplication** updates:
     * Added integration tests and added option to SslFlags
-    * Fixed: 
-         * Formatted resources to DSC StyleGuideLines 
+    * Fixed:
+         * Formatted resources to DSC StyleGuideLines
          * Logging statements
          * Incorrect Get-TargetResource param block
          * Test-SslFlags validation
          * Unit test mocking of Test-SslFlags
-	
+
 ### 1.11.0.0
 
 * **xWebAppPool** updates:
@@ -743,6 +763,8 @@ Sample_xWebsite_FromConfigurationData -ConfigurationData ConfigurationData.psd1
 
 configuration Sample_EndToEndxWebAdministration
 {
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName xWebAdministration
 
     Node $AllNodes.NodeName
     {
@@ -754,6 +776,30 @@ configuration Sample_EndToEndxWebAdministration
             State  = "Started"
         }
 
+        #Create physical path website
+        File NewWebsitePath
+        {
+            DestinationPath = $Node.PhysicalPathWebSite
+            Type = "Directory"
+            Ensure = "Present"
+        }
+
+        #Create physical path web application
+        File NewWebApplicationPath
+        {
+            DestinationPath = $Node.PhysicalPathWebApplication
+            Type = "Directory"
+            Ensure = "Present"
+        }
+
+        #Create physical path virtual directory
+        File NewVirtualDirectoryPath
+        {
+            DestinationPath = $Node.PhysicalPathVirtualDir
+            Type = "Directory"
+            Ensure = "Present"
+        }
+
         #Create a New Website with Port
         xWebSite NewWebSite
         {
@@ -761,12 +807,13 @@ configuration Sample_EndToEndxWebAdministration
             Ensure = "Present"
             BindingInfo = MSFT_xWebBindingInformation
             {
+                Protocol = "http"
                 Port = $Node.Port
             }
 
             PhysicalPath = $Node.PhysicalPathWebSite
             State = "Started"
-            DependsOn = @("[xWebAppPool]NewWebAppPool")
+            DependsOn = @("[xWebAppPool]NewWebAppPool","[File]NewWebsitePath")
         }
 
         #Create a new Web Application
@@ -777,7 +824,7 @@ configuration Sample_EndToEndxWebAdministration
             WebAppPool =  $Node.WebAppPoolName
             PhysicalPath = $Node.PhysicalPathWebApplication
             Ensure = "Present"
-            DependsOn = @("[xWebSite]NewWebSite")
+            DependsOn = @("[xWebSite]NewWebSite","[File]NewWebApplicationPath")
         }
 
         #Create a new virtual Directory
@@ -788,24 +835,27 @@ configuration Sample_EndToEndxWebAdministration
             WebApplication =  $Node.WebApplicationName
             PhysicalPath = $Node.PhysicalPathVirtualDir
             Ensure = "Present"
-            DependsOn = @("[xWebApplication]NewWebApplication")
+            DependsOn = @("[xWebApplication]NewWebApplication","[File]NewVirtualDirectoryPath")
         }
 
+        #Create an empty web.config file
         File CreateWebConfig
         {
              DestinationPath = $Node.PhysicalPathWebSite + "\web.config"
-             Contents = "&amp;amp;amp;amp;lt;?xml version=`"1.0`" encoding=`"UTF-8`"?&amp;amp;amp;amp;gt;
-                            &amp;amp;amp;amp;lt;configuration&amp;amp;amp;amp;gt;
-                            &amp;amp;amp;amp;lt;/configuration&amp;amp;amp;amp;gt;"
+             Contents = "<?xml version=`"1.0`" encoding=`"UTF-8`"?>
+                            <configuration>
+                            </configuration>"
                     Ensure = "Present"
              DependsOn = @("[xWebVirtualDirectory]NewVirtualDir")
         }
 
+        #Add an appSetting key1
         xWebConfigKeyValue ModifyWebConfig
         {
             Ensure = "Present"
             ConfigSection = "AppSettings"
-            KeyValuePair = @{key="key1";value="value1"}
+            Key = "key1"
+            Value = "value1"
             IsAttribute = $false
             WebsitePath = "IIS:\sites\" + $Node.WebsiteName
             DependsOn = @("[File]CreateWebConfig")
