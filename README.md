@@ -216,6 +216,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+### 1.15.0.0
+
 * Corrected name of AuthenticationInfo parameter in Readme.md.
 * Added sample for **xWebApplication** for adding new web application.
 * Corrected description for AuthenticationInfo for xWebApplication and xWebsite.
