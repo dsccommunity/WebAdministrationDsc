@@ -216,6 +216,8 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+* Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for #256.
+
 ### 1.15.0.0
 
 * Corrected name of AuthenticationInfo parameter in Readme.md.

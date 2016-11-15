@@ -62,7 +62,7 @@ data LocalizedData
         VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
         VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
         VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
-        VerboseTestTargetFalseLogPath = LogPath does match desired state on Website "{0}".
+        VerboseTestTargetFalseLogPath = LogPath does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
@@ -445,9 +445,8 @@ function Set-TargetResource
 
             # Update LogPath if required
             if ($PSBoundParameters.ContainsKey('LogPath') -and `
-                ($LogPath -ne $website.logfile.LogPath))
+                ($LogPath -ne $website.logfile.directory))
             {
-
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -683,7 +682,7 @@ function Set-TargetResource
 
             # Update LogPath if required
             if ($PSBoundParameters.ContainsKey('LogPath') -and `
-                ($LogPath -ne $website.logfile.LogPath))
+                ($LogPath -ne $website.logfile.directory))
             {
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
@@ -995,7 +994,7 @@ function Test-TargetResource
 
         # Check LogPath
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
-            ($LogPath -ne $website.logfile.LogPath))
+            ($LogPath -ne $website.logfile.directory))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath `
                                     -f $Name)
