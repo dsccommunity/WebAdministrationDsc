@@ -494,31 +494,31 @@ try
             }
 
             Context 'Check AutoStartProvider is different' {
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
-                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                             -Name $MockParameters.Name `
                             -PhysicalPath $MockParameters.PhysicalPath `
                             -ServiceAutoStartProvider 'MockAutoStartProviderDifferent' `
                             -ApplicationType 'MockApplicationTypeDifferent' `
                             -Verbose:$VerbosePreference
 
-                It 'should return False' {
-                    $Result | Should Be $false
+                It 'Should return False' {
+                    $result | Should Be $false
                 }
             }
 
             Context 'Check LogPath is equal' {
                 $MockLogOutput.directory = $MockParameters.LogPath
 
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
 
-                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                 -Name $MockParameters.Name `
                                 -PhysicalPath $MockParameters.PhysicalPath `
                                 -LogPath $MockParameters.LogPath `
@@ -532,14 +532,14 @@ try
             Context 'Check LogPath is different' {
                 $MockLogOutput.directory = $MockParameters.LogPath
 
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
 
-                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                 -Name $MockParameters.Name `
                                 -PhysicalPath $MockParameters.PhysicalPath `
                                 -LogPath 'C:\MockLogPath2' `
@@ -560,14 +560,14 @@ try
                     localTimeRollover = $MockParameters.LoglocalTimeRollover
                 }
 
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
 
-                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                     -Name $MockParameters.Name `
                     -PhysicalPath $MockParameters.PhysicalPath `
                     -LogFlags 'Date','Time','ClientIP','UserName','ServerIP' `
@@ -1030,7 +1030,7 @@ try
                     }
                 }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-Command -MockWith {
                     return @{
@@ -1066,9 +1066,9 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                $Result = Set-TargetResource @MockParameters
+                $result = Set-TargetResource @MockParameters
 
-                It 'should call all the mocks' {
+                It 'Should call all the mocks' {
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
@@ -1100,7 +1100,7 @@ try
                     }
                 }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-Command -MockWith {
                     return @{
@@ -1136,9 +1136,9 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                $Result = Set-TargetResource @MockParameters
+                $result = Set-TargetResource @MockParameters
 
-                It 'should call all the mocks' {
+                It 'Should call all the mocks' {
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
