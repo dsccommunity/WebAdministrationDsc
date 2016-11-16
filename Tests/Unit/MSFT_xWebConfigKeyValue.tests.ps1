@@ -410,7 +410,7 @@ try
                 $result = Edit-Item @parameters
 
                 It 'Should have called the right command' {
-                    $result | Should Be "AppSettings/add[@PropertyName='OldValue']"
+                    $result | Should Be "AppSettings/add[@key='OldValue']"
                 }
 
                 It 'should have called Set-WebConfigurationProperty' {

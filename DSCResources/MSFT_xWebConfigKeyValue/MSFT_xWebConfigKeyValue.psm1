@@ -147,7 +147,7 @@ function Set-TargetResource
 
             Edit-Item `
                 -PropertyName $propertyName `
-                -OldValue $existingValue `
+                -OldValue $Key `
                 -NewValue $Value `
                 -IsAttribute $IsAttribute `
                 -WebsitePath $WebsitePath `
@@ -283,6 +283,8 @@ function Edit-Item
     (
         [string] $PropertyName,
 
+        #[string] $Key,
+
         [string] $OldValue,
 
         [string] $NewValue,
@@ -296,7 +298,7 @@ function Edit-Item
 
     if ( -not $IsAttribute )
     {
-        $filter = "$ConfigSection/add[@$PropertyName=`'$OldValue`']"
+        $filter = "$ConfigSection/add[@key=`'$OldValue`']"
 
         Set-WebConfigurationProperty -Filter $filter `
             -PSPath $WebsitePath `
