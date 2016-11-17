@@ -281,9 +281,7 @@ function Edit-Item
 {
     param
     (
-        [string] $PropertyName,
-
-        #[string] $Key,
+        [string] $PropertyName,        
 
         [string] $OldValue,
 
