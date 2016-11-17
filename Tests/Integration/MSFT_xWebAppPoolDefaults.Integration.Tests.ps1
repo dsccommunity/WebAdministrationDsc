@@ -45,8 +45,8 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
@@ -72,8 +72,8 @@ try
                     $env:PesterManagedRuntimeVersion =  'v4.0'
                 }
 
-                Invoke-Expression -Command "$($script:DSCResourceName)_ManagedRuntimeVersion -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_ManagedRuntimeVersion -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             }  | should not throw
 
             # get the configured value again
@@ -101,8 +101,8 @@ try
 
             # Compile the MOF File
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_AppPoolIdentityType -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_AppPoolIdentityType -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
             $changedValue = (Get-WebConfigurationProperty -PSPath $constPsPath -Filter $constAPDFilter/processModel -Name identityType)
@@ -125,8 +125,8 @@ try
 
             # Compile the MOF File
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_LogFormat -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_LogFormat -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
             $changedValue = Get-SiteValue 'logFile' 'logFormat'
@@ -142,8 +142,8 @@ try
             $env:PesterDefaultPool =  'DefaultAppPool'
             # Compile the MOF File
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_DefaultPool -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_DefaultPool -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
             $changedValue = Get-SiteValue 'applicationDefaults' 'applicationPool'
