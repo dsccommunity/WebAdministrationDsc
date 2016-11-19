@@ -72,9 +72,11 @@ function Set-TargetResource
                 
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
-                
-        [ValidateRange(1048576,4294967295)]
-        [UInt64] $LogTruncateSize,
+
+        [ValidateScript({
+            ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
+        })]
+        [String] $LogTruncateSize,
 
         [Boolean] $LoglocalTimeRollover,
         
@@ -176,9 +178,11 @@ function Test-TargetResource
                 
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
-        
-        [ValidateRange(1048576,4294967295)]
-        [UInt64] $LogTruncateSize,
+
+        [ValidateScript({
+            ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
+        })]
+        [String] $LogTruncateSize,
 
         [Boolean] $LoglocalTimeRollover,
         
