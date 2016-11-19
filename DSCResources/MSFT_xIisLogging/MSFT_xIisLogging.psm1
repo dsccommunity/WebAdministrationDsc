@@ -6,7 +6,7 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResult                     = Get-Taget has been run.
+        VerboseGetTargetResult                     = Get-TargetResource has been run.
         VerboseSetTargetUpdateLogPath              = LogPath is not in the desired state and will be updated.
         VerboseSetTargetUpdateLogFlags             = LogFlags do not match and will be updated.
         VerboseSetTargetUpdateLogPeriod            = LogPeriod is not in the desired state and will be updated.
@@ -73,8 +73,8 @@ function Set-TargetResource
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
                 
-        [ValidateRange('1048576','4294967295')]
-        [String] $LogTruncateSize,
+        [ValidateRange(1048576,4294967295)]
+        [UInt64] $LogTruncateSize,
 
         [Boolean] $LoglocalTimeRollover,
         
@@ -176,9 +176,9 @@ function Test-TargetResource
                 
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
-                
-        [ValidateRange('1048576','4294967295')]
-        [String] $LogTruncateSize,
+        
+        [ValidateRange(1048576,4294967295)]
+        [UInt64] $LogTruncateSize,
 
         [Boolean] $LoglocalTimeRollover,
         

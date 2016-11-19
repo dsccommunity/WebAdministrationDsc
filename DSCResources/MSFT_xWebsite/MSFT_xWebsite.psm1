@@ -230,8 +230,8 @@ function Set-TargetResource
         [String]
         $LogPeriod,
 
-        [ValidateRange('1048576','4294967295')]
-        [String]
+        [ValidateRange(1048576, 4294967295)]
+        [UInt64]
         $LogTruncateSize,
 
         [Boolean]
@@ -817,8 +817,8 @@ function Test-TargetResource
         [String]
         $LogPeriod,
 
-        [ValidateRange('1048576','4294967295')]
-        [String]
+        [ValidateRange(1048576, 4294967295)]
+        [UInt64]
         $LogTruncateSize,
 
         [Boolean]

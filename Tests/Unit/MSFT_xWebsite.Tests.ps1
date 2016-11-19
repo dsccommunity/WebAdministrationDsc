@@ -701,6 +701,34 @@ try
                     $result | Should be $false
                 }
             }
+
+            Context 'Check LogTruncateSize is larger in string comparison' {
+                $MockLogOutput = @{
+                    directory         = $MockParameters.LogPath
+                    logExtFileFlags   = $MockParameters.LogFlags
+                    logFormat         = $MockParameters.LogFormat
+                    period            = $MockParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockParameters.LoglocalTimeRollover
+                }
+
+                Mock -CommandName Test-Path -MockWith { return $true }
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
+
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogTruncateSize '5000000' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
         }
 
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
@@ -1233,6 +1261,38 @@ try
                         -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
                     { Set-TargetResource @MockParameters } | Should Throw $ErrorRecord
+                }
+            }
+
+            Context 'LogTruncateSize is larger in string comparison' {
+                $MockLogOutput = @{
+                    directory         = $MockParameters.LogPath
+                    logExtFileFlags   = $MockParameters.LogFlags
+                    logFormat         = $MockParameters.LogFormat
+                    period            = $MockParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockParameters.LoglocalTimeRollover
+                }
+
+                Mock -CommandName Test-Path -MockWith { return $true }
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Set-ItemProperty -MockWith { }
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
+
+                $result = Set-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogTruncateSize '5000000' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should call mocks' {
+                    Assert-MockCalled -CommandName Set-ItemProperty `
+                        -ParameterFilter { $Name -eq 'LogFile.truncateSize' } `
+                        -Exactly 1
                 }
             }
         }

@@ -141,7 +141,7 @@ try
             }
             
             Context 'All Settings are incorrect' {
-            
+
                 Mock -CommandName Test-Path -MockWith { return $true }
             
                 Mock -CommandName Get-WebConfiguration `
@@ -252,6 +252,42 @@ try
                         logExtFileFlags   = $MockLogParameters.LogFlags
                         period            = $MockLogParameters.LogPeriod     
                         truncateSize      = '1048576'
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                        logFormat         = $MockLogParameters.LogFormat
+                    }
+            
+                Mock -CommandName Test-Path -MockWith { return $true }
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith { return $MockLogOutput }
+                                
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
+                
+                $result = Test-TargetResource @MockLogParameters
+
+                It 'Should return false' { 
+                    $result | Should be $false
+                }
+
+            }
+
+            Context 'Check LogTruncateSize too large for string validation' {
+                $MockLogParameters = @{
+                    LogPath              = $MockLogParameters.LogPath
+                    LogFlags             = $MockLogParameters.LogFlags
+                    LogPeriod            = $MockLogParameters.LogPeriod
+                    LogTruncateSize      = '536870912'
+                    LoglocalTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    LogFormat            = $MockLogParameters.LogFormat
+                }
+
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = '636870912'
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.LogFormat
                     }
@@ -480,6 +516,48 @@ try
 
                 It 'should call all the mocks' {
                      Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                }
+
+            }
+
+            Context 'LogTruncateSize is too large for string comparison' -Verbose {
+
+                $MockLogParameters = @{
+                    LogPath              = $MockLogParameters.LogPath
+                    LogFlags             = $MockLogParameters.LogFlags
+                    LogPeriod            = $MockLogParameters.LogPeriod
+                    LogTruncateSize      = '536870912'
+                    LoglocalTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    LogFormat            = $MockLogParameters.LogFormat
+                }
+                $MockLogOutput = 
+                    @{
+                        directory         = $MockLogParameters.LogPath
+                        logExtFileFlags   = $MockLogParameters.LogFlags
+                        period            = $MockLogParameters.LogPeriod     
+                        truncateSize      = '1048576'
+                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                        logFormat         = $MockLogParameters.LogFormat
+                    }
+            
+                Mock -CommandName Test-Path -MockWith { return $true }
+            
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith { return $MockLogOutput }
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
+                
+                Mock -CommandName Set-WebConfigurationProperty
+                
+                $result = Set-TargetResource @MockLogParameters
+
+                It 'Should call all the mocks' {
+                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                }
+
+                It 'Should have the correct LogTruncateSize' {
+                    $result.truncateSize | Should Be $MockLogParameter.LogTruncateSize
                 }
 
             }
