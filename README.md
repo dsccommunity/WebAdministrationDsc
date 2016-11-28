@@ -217,6 +217,7 @@ Currently, only FastCgiModule is supported.
 ### Unreleased
 
 * Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for #256.
+* Changed validation of LogTruncateSize for **xIisLogging** and **xWebsite** to UInt64 validation.
 
 ### 1.15.0.0
 
