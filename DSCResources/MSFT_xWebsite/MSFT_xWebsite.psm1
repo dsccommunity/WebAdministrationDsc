@@ -182,7 +182,6 @@ function Set-TargetResource
         [String]
         $Name,
 
-        [ValidateNotNullOrEmpty()]
         [String]
         $PhysicalPath,
 
@@ -497,7 +496,8 @@ function Set-TargetResource
         else
         {
             if ([String]::IsNullOrEmpty($PhysicalPath)) {
-                throw 'The PhysicalPath Parameter must be provided for a website to be created'
+                # If no physical path is provided set a default since it is required by New-WebSite if not in force mode
+                $PhysicalPath = "C:\NonExistent"
             }
 
             try

@@ -865,6 +865,32 @@ try
                 }
             }
 
+            
+            Context 'Create website with no physical path' {
+                
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+                
+                Mock -CommandName Get-Website 
+                
+                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Set-ItemProperty
+                                
+                Mock -CommandName Update-WebsiteBinding
+                
+                $MockParameters = $MockParameters.Clone()
+                $MockParameters.PhysicalPath = ''
+
+                Set-TargetResource @MockParameters
+
+                It 'Should create and start the web site' {
+                    Assert-MockCalled -CommandName New-Website -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
             Context 'Existing website cannot be started due to a binding conflict' {
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
                 Mock -CommandName Set-ItemProperty
