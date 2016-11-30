@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>6CAFC0C6-A428-4d30-A9F9-700E829FEA51</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>
+    <Name>xWebAdministration</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="DSCResources\" />
+    <Folder Include="DSCResources\MSFT_xIisFeatureDelegation\" />
+    <Folder Include="DSCResources\MSFT_xIIsHandler\" />
+    <Folder Include="DSCResources\MSFT_xIisLogging\" />
+    <Folder Include="DSCResources\MSFT_xIisMimeTypeMapping\" />
+    <Folder Include="DSCResources\MSFT_xIisModule\" />
+    <Folder Include="DSCResources\MSFT_xSSLSettings\" />
+    <Folder Include="DSCResources\MSFT_xWebApplication\" />
+    <Folder Include="DSCResources\MSFT_xWebAppPoolDefaults\" />
+    <Folder Include="DSCResources\MSFT_xWebAppPool\" />
+    <Folder Include="DSCResources\MSFT_xWebConfigKeyValue\" />
+    <Folder Include="DSCResources\MSFT_xWebSiteDefaults\" />
+    <Folder Include="DSCResources\MSFT_xWebsite\" />
+    <Folder Include="DSCResources\MSFT_xWebVirtualDirectory\" />
+    <Folder Include="Examples\" />
+    <Folder Include="Tests\" />
+    <Folder Include="Tests\Integration\" />
+    <Folder Include="Tests\Unit\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include=".gitignore" />
+    <Compile Include="appveyor.yml" />
+    <Compile Include="DSCResources\Helper.psm1" />
+    <Compile Include="DSCResources\MSFT_xIisFeatureDelegation\MSFT_xIisFeatureDelegation.psm1" />
+    <Compile Include="DSCResources\MSFT_xIisFeatureDelegation\MSFT_xIisFeatureDelegation.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xIIsHandler\MSFT_xIisHandler.psm1" />
+    <Compile Include="DSCResources\MSFT_xIIsHandler\MSFT_xIisHandler.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xIisLogging\MSFT_xIisLogging.psm1" />
+    <Compile Include="DSCResources\MSFT_xIisLogging\MSFT_xIisLogging.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xIisMimeTypeMapping\MSFT_xIisMimeTypeMapping.psm1" />
+    <Compile Include="DSCResources\MSFT_xIisMimeTypeMapping\MSFT_xIisMimeTypeMapping.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xIisModule\MSFT_xIisModule.psm1" />
+    <Compile Include="DSCResources\MSFT_xIisModule\MSFT_xIisModule.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xIisModule\xIisModuleDesigner.ps1" />
+    <Compile Include="DSCResources\MSFT_xSSLSettings\MSFT_xSSLSettings.psm1" />
+    <Compile Include="DSCResources\MSFT_xSSLSettings\MSFT_xSSLSettings.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xWebApplication\MSFT_xWebApplication.psm1" />
+    <Compile Include="DSCResources\MSFT_xWebApplication\MSFT_xWebApplication.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xWebAppPoolDefaults\MSFT_xWebAppPoolDefaults.psm1" />
+    <Compile Include="DSCResources\MSFT_xWebAppPoolDefaults\MSFT_xWebAppPoolDefaults.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xWebAppPool\MSFT_xWebAppPool.psm1" />
+    <Compile Include="DSCResources\MSFT_xWebAppPool\MSFT_xWebAppPool.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xWebConfigKeyValue\MSFT_xWebConfigKeyValue.psm1" />
+    <Compile Include="DSCResources\MSFT_xWebConfigKeyValue\MSFT_xWebConfigKeyValue.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xWebSiteDefaults\MSFT_xWebSiteDefaults.psm1" />
+    <Compile Include="DSCResources\MSFT_xWebSiteDefaults\MSFT_xWebSiteDefaults.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xWebsite\MSFT_xWebsite.psm1" />
+    <Compile Include="DSCResources\MSFT_xWebsite\MSFT_xWebsite.schema.mof" />
+    <Compile Include="DSCResources\MSFT_xWebVirtualDirectory\MSFT_xWebVirtualDirectory.psm1" />
+    <Compile Include="DSCResources\MSFT_xWebVirtualDirectory\MSFT_xWebVirtualDirectory.schema.mof" />
+    <Compile Include="Examples\README.md" />
+    <Compile Include="Examples\Sample_xIisFeatureDelegation_AllowSome.ps1" />
+    <Compile Include="Examples\Sample_xIisHandler_Remove32Bit.ps1" />
+    <Compile Include="Examples\Sample_xIisLogging_Rollover.ps1" />
+    <Compile Include="Examples\Sample_xIisLogging_Truncate.ps1" />
+    <Compile Include="Examples\Sample_xIisMimeTypeMapping_RemoveVideo.ps1" />
+    <Compile Include="Examples\Sample_xIisServerDefaults.ps1" />
+    <Compile Include="Examples\Sample_xSSLSettings_RequireCert.ps1" />
+    <Compile Include="Examples\Sample_xWebApplication_NewWebApplication.ps1" />
+    <Compile Include="Examples\Sample_xWebAppPool.ps1" />
+    <Compile Include="Examples\Sample_xWebsite_ConfigurationData.psd1" />
+    <Compile Include="Examples\Sample_xWebsite_NewWebsite.ps1" />
+    <Compile Include="Examples\Sample_xWebsite_NewWebsiteFromConfigurationData.ps1" />
+    <Compile Include="Examples\Sample_xWebsite_RemoveDefault.ps1" />
+    <Compile Include="Examples\Sample_xWebsite_WithSSLFlags.ps1" />
+    <Compile Include="HighQualityResourceKitPlan.md" />
+    <Compile Include="LICENSE" />
+    <Compile Include="README.md" />
+    <Compile Include="Tests\Integration\MSFT_xIISFeatureDelegation.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xIISFeatureDelegation.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xIISHandler.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xIISHandler.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_XIISLogging.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_XIISLogging.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xIISMimeTypeMapping.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xIISMimeTypeMapping.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xSSLSettings.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xSSLSettings.config.psd1" />
+    <Compile Include="Tests\Integration\MSFT_xSSLSettings.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebApplication.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebApplication.config.psd1" />
+    <Compile Include="Tests\Integration\MSFT_xWebApplication.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebAppPool.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebAppPool.Integration.tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebAppPoolDefaults.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebAppPoolDefaults.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebsite.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebsite.config.psd1" />
+    <Compile Include="Tests\Integration\MSFT_xWebsite.Integration.Tests.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebsiteDefaults.config.ps1" />
+    <Compile Include="Tests\Integration\MSFT_xWebsiteDefaults.Integration.Tests.ps1" />
+    <Compile Include="Tests\MockWebAdministrationWindowsFeature.psm1" />
+    <Compile Include="Tests\Unit\MSFT_xIISFeatureDelegation.tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xIISHandler.tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xIISLogging.tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xIisMimeTypeMapping.tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xSSLSettings.Tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xWebApplication.Tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xWebAppPool.Tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xWebConfigKeyValue.tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xWebsite.Tests.ps1" />
+    <Compile Include="Tests\Unit\MSFT_xWebVirtualDirectory.tests.ps1" />
+    <Compile Include="Tests\xWebAdministration.TestHarness.psm1" />
+    <Compile Include="xWebAdministration.psd1" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="Build" />
+</Project>
