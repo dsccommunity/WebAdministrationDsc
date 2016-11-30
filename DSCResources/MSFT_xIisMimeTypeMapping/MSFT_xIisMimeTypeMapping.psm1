@@ -8,7 +8,7 @@ data LocalizedData
 	ConvertFrom-StringData -StringData @'
 		NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
 		AddingType                = Adding MIMEType '{0}' for extension '{1}'
-	    UpdatingType              = Updating MIMEType to '{0}' for extension '{1}'
+		UpdatingType              = Updating MIMEType to '{0}' for extension '{1}'
 		RemovingType              = Removing MIMEType '{0}' for extension '{1}'
 		TypeExists                = MIMEType '{0}' for extension '{1}' already exist
 		TypeNotPresent            = MIMEType '{0}' for extension '{1}' is not present as requested
