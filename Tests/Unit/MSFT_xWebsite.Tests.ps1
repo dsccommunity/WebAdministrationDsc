@@ -881,11 +881,10 @@ try
                 Mock -CommandName Update-WebsiteBinding
                 
                 $MockParameters = $MockParameters.Clone()
-                $MockParameters.PhysicalPath = ''
-
-                Set-TargetResource @MockParameters
+                $MockParameters.PhysicalPath = ''              
 
                 It 'Should create and start the web site' {
+					Set-TargetResource @MockParameters
                     Assert-MockCalled -CommandName New-Website -Exactly 1
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }

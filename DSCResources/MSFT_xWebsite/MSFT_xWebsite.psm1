@@ -167,6 +167,12 @@ function Get-TargetResource
         .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the 
         target machine.
+
+        .PARAMETER PhysicalPath
+        Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
+
+        .NOTES
+        If PhysicalPath is left out or empty it will be set to a default path "C:\NonExistent" at creation.
 #>
 function Set-TargetResource
 {
