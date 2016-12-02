@@ -170,9 +170,6 @@ function Get-TargetResource
 
         .PARAMETER PhysicalPath
         Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
-
-        .NOTES
-        If PhysicalPath is left out or empty it will be set to a default path "C:\NonExistent" at creation.
 #>
 function Set-TargetResource
 {
@@ -501,11 +498,6 @@ function Set-TargetResource
         # Create website if it does not exist
         else
         {
-            if ([String]::IsNullOrEmpty($PhysicalPath)) {
-                # If no physical path is provided set a default since it is required by New-WebSite if not in force mode
-                $PhysicalPath = "C:\NonExistent"
-            }
-
             try
             {
                 $PSBoundParameters.GetEnumerator() | Where-Object -FilterScript {
@@ -523,8 +515,15 @@ function Set-TargetResource
                 {
                     $newWebsiteSplat.Add('Id', 1)
                 }
-
-                $website = New-Website @newWebsiteSplat -ErrorAction Stop
+				
+				if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                    # If no physical path is provided run New-Website with -Force flag
+                    $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
+                } else {
+                    # If physical path is provided don't run New-Website with -Force flag to verify that the path exists
+                    $website = New-Website @newWebsiteSplat -ErrorAction Stop
+                }
+                
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated `
                                         -f $Name)
             }
