@@ -516,7 +516,7 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', 1)
                 }
 				
-				if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                if ([String]::IsNullOrEmpty($PhysicalPath)) {
                     # If no physical path is provided run New-Website with -Force flag
                     $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
                 } else {
