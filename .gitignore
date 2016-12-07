@@ -1,1 +1,4 @@
 DSCResource.Tests
+node_modules
+node_modules/*
+markdownissues.txt

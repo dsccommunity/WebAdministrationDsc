@@ -3,6 +3,10 @@
 #---------------------------------#
 version: 1.15.{build}.0
 install:
+    - appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+    - npm install -g gulp    
+    - npm install
+    
     - git clone https://github.com/PowerShell/DscResource.Tests
     - ps: |
         Import-Module -Name .\DscResource.Tests\TestHelper.psm1 -Force
