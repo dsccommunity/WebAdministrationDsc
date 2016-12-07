@@ -865,6 +865,55 @@ try
                 }
             }
 
+            
+            Context 'Create website with empty physical path' {
+                
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+                
+                Mock -CommandName Get-Website 
+                
+                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Set-ItemProperty
+                                
+                Mock -CommandName Update-WebsiteBinding
+                
+                $MockParameters = $MockParameters.Clone()
+                $MockParameters.PhysicalPath = ''              
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParameters                    
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Force -eq $True } -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
+            Context 'Create website with null physical path' {
+                
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+                
+                Mock -CommandName Get-Website 
+                
+                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Set-ItemProperty
+                                
+                Mock -CommandName Update-WebsiteBinding
+                
+                $MockParameters = $MockParameters.Clone()
+                $MockParameters.PhysicalPath = $null              
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParameters                    
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Force -eq $True } -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
             Context 'Existing website cannot be started due to a binding conflict' {
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
                 Mock -CommandName Set-ItemProperty
