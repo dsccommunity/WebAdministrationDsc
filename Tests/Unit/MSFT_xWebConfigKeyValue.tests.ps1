@@ -30,7 +30,7 @@ try
         #region Function Get-TargetResource
         Describe "$($script:DSCResourceName)\Get-TargetResource" {
             Context 'Value is absent' {
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
                     return $null
                 }
 
@@ -48,15 +48,15 @@ try
                     $result.Value       | Should Be $null
                 }
 
-                It 'should have called Get-ItemValue the correct amount of times' {
+                It 'Should have called Get-ItemValue the correct amount of times' {
                     Assert-MockCalled -CommandName Get-ItemValue -Times 2 -Exactly
                 }
             }
 
             Context 'Value is present but not an attribute' {
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$IsAttribute -eq $false} -MockWith {
-                    return 'Value'
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $IsAttribute -eq $false } `
+                    -MockWith { return 'Value' }
 
                 $parameters = @{
                     WebsitePath   = 'C:\SomePath\web.config'
@@ -72,19 +72,19 @@ try
                     $result.Value       | Should Be 'Value'
                 }
 
-                It 'should have called Get-ItemValue the correct amount of times' {
+                It 'Should have called Get-ItemValue the correct amount of times' {
                     Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
                 }
             }
 
             Context 'Value is present but is an attribute' {
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
                     return $null
                 }
 
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$isAttribute -eq $true} -MockWith {
-                    return 'Value'
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $true } `
+                    -MockWith { return 'Value' }
 
                 $parameters = @{
                     WebsitePath   = 'C:\SomePath\web.config'
@@ -100,7 +100,7 @@ try
                     $result.Value       | Should Be 'Value'
                 }
 
-                It 'should have called Get-ItemValue the correct amount of times' {
+                It 'Should have called Get-ItemValue the correct amount of times' {
                     Assert-MockCalled -CommandName Get-ItemValue -Times 2 -Exactly
                 }
             }
@@ -119,9 +119,9 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$isAttribute -eq $false} -MockWith {
-                    return $null
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return $null }
 
                 $result = Test-TargetResource @parameters
 
@@ -140,9 +140,9 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$isAttribute -eq $false} -MockWith {
-                    return [string]::Empty
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return [System.String]::Empty }
 
                 $result = Test-TargetResource @parameters
 
@@ -161,9 +161,9 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$isAttribute -eq $false} -MockWith {
-                    return 'WrongValue'
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return 'WrongValue' }
 
                 $result = Test-TargetResource @parameters
 
@@ -182,9 +182,9 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$isAttribute -eq $false} -MockWith {
-                    return 'Value'
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return 'Value' }
 
                 $result = Test-TargetResource @parameters
 
@@ -203,9 +203,9 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$isAttribute -eq $false} -MockWith {
-                    return 'Value'
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return 'Value' }
 
                 $result = Test-TargetResource @parameters
 
@@ -224,9 +224,9 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -ModuleName $script:DSCResourceName -ParameterFilter {$isAttribute -eq $false} -MockWith {
-                    return $null
-                }
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return $null }
 
                 $result = Test-TargetResource @parameters
 
@@ -250,12 +250,12 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -MockWith { return $null }
-                Mock Add-Item { }
+                Mock -CommandName Get-ItemValue -MockWith { return $null }
+                Mock -CommandName Add-Item
 
-                $results = Set-TargetResource @parameters
+                Set-TargetResource @parameters
 
-                It 'should call the right Mocks' {
+                It 'Should call the right Mocks' {
                     Assert-MockCalled Get-ItemValue
                     Assert-MockCalled Add-Item
                 }
@@ -271,14 +271,14 @@ try
                     IsAttribute   = $true
                 }
 
-                Mock Get-ItemValue -MockWith { return [string]::Empty }
-                Mock Add-Item { }
+                Mock -CommandName Get-ItemValue -MockWith { return [System.String]::Empty }
+                Mock -CommandName Add-Item
 
-                $results = Set-TargetResource @parameters
+                Set-TargetResource @parameters
 
-                It 'should call the right Mocks' {
-                    Assert-MockCalled Get-ItemValue
-                    Assert-MockCalled Add-Item
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemValue
+                    Assert-MockCalled -CommandName Add-Item
                 }
             }
 
@@ -292,14 +292,14 @@ try
                     IsAttribute   = $true
                 }
 
-                Mock Get-ItemValue -MockWith { return 'Value' }
-                Mock Edit-Item { return $propertyName }
+                Mock -CommandName Get-ItemValue -MockWith { return 'Value' }
+                Mock -CommandName Edit-Item -MockWith { return $propertyName }
 
                 $results = Set-TargetResource @parameters
 
-                It 'should call the right Mocks' {
-                    Assert-MockCalled Get-ItemValue
-                    Assert-MockCalled Edit-Item
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemValue
+                    Assert-MockCalled -CommandName Edit-Item
                 }
 
                 It 'Should use the right property value' {
@@ -317,14 +317,14 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Get-ItemValue -MockWith { return 'Value' }
-                Mock Edit-Item { return $propertyName }
+                Mock -CommandName Get-ItemValue -MockWith { return 'Value' }
+                Mock -CommandName Edit-Item -MockWith { return $propertyName }
 
                 $results = Set-TargetResource @parameters
 
-                It 'should call the right Mocks' {
-                    Assert-MockCalled Get-ItemValue
-                    Assert-MockCalled Edit-Item
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemValue
+                    Assert-MockCalled -CommandName Edit-Item
                 }
 
                 It 'Should use the right property value' {
@@ -342,12 +342,12 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock Remove-Item -MockWith { }
+                Mock -CommandName Remove-Item
 
-                $results = Set-TargetResource @parameters
+                Set-TargetResource @parameters
 
-                It 'should call the right Mocks' {
-                    Assert-MockCalled Remove-Item
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Remove-Item
                 }
             }
         }
@@ -358,7 +358,7 @@ try
         #region Non-Exported Function Unit Tests
         Describe "$($script:DSCResourceName)\Add-Item" {
             Context 'IsAttribute is false' {
-                Mock Add-WebConfigurationProperty {}
+                Mock -CommandName Add-WebConfigurationProperty -MockWith {}
 
                 $parameters = @{
                     Key           = 'Key'
@@ -370,13 +370,13 @@ try
 
                 $result = Add-Item @parameters
 
-                It 'should call Add-WebConfigurationProperty' {
-                    Assert-MockCalled Add-WebConfigurationProperty
+                It 'Should call Add-WebConfigurationProperty' {
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty
                 }
             }
 
             Context 'IsAttribute is true' {
-                Mock Set-WebConfigurationProperty {}
+                Mock -CommandName Set-WebConfigurationProperty -MockWith {}
 
                 $parameters = @{
                     Key           = 'Key'
@@ -388,15 +388,15 @@ try
 
                 $result = Add-Item @parameters
 
-                It 'should call Set-WebConfigurationProperty' {
-                    Assert-MockCalled Set-WebConfigurationProperty
+                It 'Should call Set-WebConfigurationProperty' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty
                 }
             }
         }
 
         Describe "$($script:DSCResourceName)\Edit-Item" {
             Context 'IsAttribute is false' {
-                Mock Set-WebConfigurationProperty -MockWith {return $filter}
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { return $filter }
 
                 $parameters = @{
                     PropertyName = 'PropertyName'
@@ -410,16 +410,16 @@ try
                 $result = Edit-Item @parameters
 
                 It 'Should have called the right command' {
-                    $result | Should Be "AppSettings/add[@PropertyName='OldValue']"
+                    $result | Should Be "AppSettings/add[@key='OldValue']"
                 }
 
-                It 'should have called Set-WebConfigurationProperty' {
-                    Assert-MockCalled Set-WebConfigurationProperty
+                It 'Should have called Set-WebConfigurationProperty' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty
                 }
             }
 
             Context 'IsAttribute is true' {
-                Mock Set-WebConfigurationProperty -MockWith {return $filter}
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { return $filter }
 
                 $parameters = @{
                     propertyName = 'PropertyName'
@@ -436,15 +436,16 @@ try
                     $result | Should Be 'AppSettings'
                 }
 
-                It 'should have called Set-WebConfigurationProperty' {
-                    Assert-MockCalled Set-WebConfigurationProperty
+                It 'Should have called Set-WebConfigurationProperty' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty
                 }
             }
         }
 
         Describe "$($script:DSCResourceName)\Remove-Item" {
             Context 'IsAttribute is false' {
-                Mock Clear-WebConfiguration -MockWith { return $filter }
+                Mock  -CommandName Clear-WebConfiguration -MockWith { return $filter }
+
                 $parameters = @{
                     Key = 'Key'
                     IsAttribute = $false
@@ -455,18 +456,18 @@ try
                 $results = Remove-Item @parameters
 
                 It 'Should call the correct functions' {
-                    Assert-MockCalled Clear-WebConfiguration
+                    Assert-MockCalled -CommandName Clear-WebConfiguration
                 }
 
-                It 'should use the right filter' {
+                It 'Should use the right filter' {
                     $results | Should Be "AppSettings/add[@key='Key']"
                 }
 
             }
 
             Context 'IsAttribute is true' {
-                Mock Clear-WebConfiguration -MockWith { return $filter }
-                Mock Add-Item -MockWith { }
+                Mock -CommandName Clear-WebConfiguration -MockWith { return $filter }
+                Mock -CommandName Add-Item
 
                 $parameters = @{
                     Key = 'Key'
@@ -478,11 +479,11 @@ try
                 $results = Remove-Item @parameters
 
                 It 'Should call the correct functions' {
-                    Assert-MockCalled Clear-WebConfiguration -Exactly -Times 2
-                    Assert-MockCalled Add-Item
+                    Assert-MockCalled -CommandName Clear-WebConfiguration -Exactly -Times 2
+                    Assert-MockCalled -CommandName Add-Item
                 }
 
-                It 'should use the right filter' {
+                It 'Should use the right filter' {
                     $results[0] | Should Be "AppSettings/@Key"
                     $results[1] | Should Be "AppSettings/add[@key='dummyKey']"
                 }
