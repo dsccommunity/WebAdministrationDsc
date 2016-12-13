@@ -32,8 +32,8 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
@@ -49,8 +49,8 @@ try
             $env:PesterMimeType2 = $node.mimeType
 
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_AddMimeType -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_AddMimeType -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
             [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension2 + "' and @mimeType='" + "$env:PesterMimeType2" + "']"
@@ -65,8 +65,8 @@ try
             $env:PesterMimeType = $node.mimeType
 
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveMimeType -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveMimeType -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
             [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension + "' and @mimeType='" + "$env:PesterMimeType" + "']"
@@ -75,8 +75,8 @@ try
 
         It 'Removing a non existing MimeType' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveDummyMime -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveDummyMime -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
     }
