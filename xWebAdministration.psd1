@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.15.0.0'
+ModuleVersion = '1.16.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,11 +41,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Corrected name of AuthenticationInfo parameter in Readme.md.
-* Added sample for **xWebApplication** for adding new web application.
-* Corrected description for AuthenticationInfo for xWebApplication and xWebsite.
-
-'
+        ReleaseNotes = '* Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for '
 
     } # End of PSData hashtable
 
@@ -57,6 +53,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 
