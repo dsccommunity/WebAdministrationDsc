@@ -221,6 +221,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+### 1.16.0.0
+
 * Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for #256.
 * Changed **xWebConfigKeyValue** to use the key for changing existing values. Bugfix for #107.
 * Changed validation of LogTruncateSize for **xIisLogging** and **xWebsite** to UInt64 validation.
