@@ -15,6 +15,7 @@ data LocalizedData
         VerboseGetTargetPresent   = MIMEType is present
         VerboseGetTargetAbsent    = MIMEType is absent
         VerboseSetTargetError     = Cannot set type
+        PsPathRoot                = MACHINE/WEBROOT/APPHOST
 '@
 }
 
@@ -34,6 +35,10 @@ function Get-TargetResource
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $MimeType,
+		
+		[Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [String] $IisFullPath,
 
         [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
@@ -43,27 +48,30 @@ function Get-TargetResource
     # Check if WebAdministration module is present for IIS cmdlets
     Assert-Module
 
-    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
+    $mt = Get-Mapping -Extension $Extension -MimeType $MimeType -IisFullPath $IisFullPath
 
     if ($null -eq $mt)
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         return @{
-            Ensure    = 'Absent'
-            Extension = $null
-            MimeType  = $null
+            Ensure      = 'Absent'
+            Extension   = $null
+            MimeType    = $null
+            IisFullPath = $null
         }
     }
     else
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
         return @{
-            Ensure    = 'Present'
-            Extension = $mt.fileExtension
-            MimeType  = $mt.mimeType
+            Ensure      = 'Present'
+            Extension   = $mt.fileExtension
+            MimeType    = $mt.mimeType
+            IisFullPath = $IisFullPath
         }
     }
 }
+
 function Set-TargetResource
 {
     <#
@@ -80,6 +88,10 @@ function Set-TargetResource
         [ValidateNotNullOrEmpty()]
         [String] $MimeType,
 
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [String] $IisFullPath,
+
         [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
         [String] $Ensure
@@ -87,15 +99,16 @@ function Set-TargetResource
 
         Assert-Module
 
-        [String] $psPathRoot = 'MACHINE/WEBROOT/APPHOST'
         [String] $sectionNode = 'system.webServer/staticContent'
+        
+        $mt = Get-Mapping -Extension $Extension -MimeType $MimeType -IisFullPath $IisFullPath
 
-        $mt = Get-Mapping -Extension $Extension -Type $MimeType 
+        $FullPath = Get-Path -IisFullPath $IisFullPath
 
         if ($null -eq $mt -and $Ensure -eq 'Present')
         {
             # add the MimeType            
-            Add-WebConfigurationProperty -PSPath $psPathRoot `
+            Add-WebConfigurationProperty -PSPath $FullPath `
                                          -Filter $sectionNode `
                                          -Name '.' `
                                          -Value @{fileExtension="$Extension";mimeType="$MimeType"}
@@ -104,7 +117,7 @@ function Set-TargetResource
         elseif ($null -ne $mt -and $Ensure -eq 'Absent')
         {
             # remove the MimeType                      
-            Remove-WebConfigurationProperty -PSPath $psPathRoot `
+            Remove-WebConfigurationProperty -PSPath $FullPath `
                                             -Filter $sectionNode `
                                             -Name '.' `
                                             -AtElement @{fileExtension="$Extension"}
@@ -135,6 +148,10 @@ function Test-TargetResource
         [ValidateNotNullOrEmpty()]
         [String] $MimeType,
 
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [String] $IisFullPath,
+
         [ValidateSet('Present', 'Absent')]
         [Parameter(Mandatory)]
         [String] $Ensure
@@ -144,7 +161,7 @@ function Test-TargetResource
     
     Assert-Module
 
-    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
+    $mt = Get-Mapping -Extension $Extension -MimeType $MimeType -IisFullPath $IisFullPath
 
     if (($null -eq $mt -and $Ensure -eq 'Present') -or ($null -ne $mt -and $Ensure -eq 'Absent'))
     {
@@ -179,12 +196,35 @@ function Get-Mapping
     (
         [String] $Extension,
         
-        [String] $Type
+        [String] $MimeType,
+        
+        [String] $IisFullPath
     )
 
-    [String] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
-                       $Extension + "' and @mimeType='" + $Type + "']"
-    return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
+     $FullPath = Get-Path -IisFullPath $IisFullPath
+
+     [String] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
+                       $Extension + "' and @mimeType='" + $MimeType + "']"
+     Get-WebConfigurationProperty  -PSPath $FullPath -Filter $filter -Name .
+
+}
+
+function Get-Path
+{
+    [CmdletBinding()]
+    param
+    (
+        [String] $IisFullPath
+    )
+
+    [String] $FullPath = $LocalizedData.PsPathRoot
+
+        if($IisFullPath -ne '')
+        {
+            $FullPath += "/$IisFullPath"
+        }
+    
+    $FullPath
 }
 
 #endregion
