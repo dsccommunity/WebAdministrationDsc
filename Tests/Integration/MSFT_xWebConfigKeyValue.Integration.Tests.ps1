@@ -34,8 +34,8 @@ try
         #region DEFAULT TESTS
         It 'Should compile and apply the MOF without throwing' {
             {
-                & "$($script:DSCResourceName)_Config" -OutputPath $TestEnvironment.WorkingFolder
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder `
+                & "$($script:DSCResourceName)_Config" -OutputPath $TestDrive
+                Start-DscConfiguration -Path $TestDrive `
                     -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -55,8 +55,8 @@ try
 
                 $env:xWebConfigKeyValueIntegrationValueUpdated = $originalValue + "-updated"
 
-                Invoke-Expression -Command "$($script:DSCResourceName)_AppSetting_Update -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_AppSetting_Update -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should Not throw
 
             # Compare the updated value
@@ -69,8 +69,8 @@ try
 
         It 'Removing AppSetting "xWebAdministration Integration Tests Key"' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_AppSetting_Absent -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_AppSetting_Absent -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should Not throw
 
             [string] $appSetting = (Get-WebConfigurationProperty `
