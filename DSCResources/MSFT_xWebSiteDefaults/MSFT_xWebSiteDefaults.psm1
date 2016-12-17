@@ -55,7 +55,8 @@ function Set-TargetResource
         We try to cover the most common use cases
         We have a single parameter for each setting
     #>
-    
+
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [CmdletBinding()]
     param
     (    
@@ -94,6 +95,7 @@ function Test-TargetResource
         If the state is correct it will return $true
     #>
     
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [OutputType([System.Boolean])]
     param
     (    
