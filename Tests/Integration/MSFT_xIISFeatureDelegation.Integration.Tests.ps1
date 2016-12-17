@@ -39,8 +39,8 @@ try
             {
                 It 'Allow Feature Delegation'{
                     {
-                        &($script:DSCResourceName + '_AllowDelegation') -OutputPath $TestEnvironment.WorkingFolder
-                        Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                        &($script:DSCResourceName + '_AllowDelegation') -OutputPath $TestDrive
+                        Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
                     } | Should not throw
 
                     (Get-WebConfiguration /system.webserver/security/authentication/anonymousAuthentication iis:\).OverrideModeEffective  | Should be 'Allow'
@@ -57,8 +57,8 @@ try
         #         # well it doesn't test the Set Method, but does test the Test method
         #         # What if the default document module is not installed?
 
-        #         Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
-        #         Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+        #         Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestDrive"
+        #         Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
 
         #         # Now lets try to add a new default document on site level, this should fail
         #         # get the first site, it doesn't matter which one, it should fail.
@@ -86,8 +86,8 @@ try
         #    # well it doesn't test the Set Method, but does test the Test method
         #    # What if the default document module is not installed?
 
-        #    Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestEnvironment.WorkingFolder"
-        #    Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+        #    Invoke-Expression -Command "$($script:DSCResourceName)_DenyDelegation -OutputPath `$TestDrive"
+        #    Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
 
         #    # Now lets try to add a new default document on site level, this should fail
         #    # get the first site, it doesn't matter which one, it should fail.

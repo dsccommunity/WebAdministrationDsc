@@ -30,8 +30,8 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
@@ -53,8 +53,8 @@ try
                 -Filter 'system.applicationHost/sites/virtualDirectoryDefaults' `
                 -Name 'allowSubDirConfig').Value
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestEnvironment.WorkingFolder"
-            Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+            Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestDrive"
+            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
 
             $changedValue = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -filter 'system.applicationHost/sites/virtualDirectoryDefaults' -name 'allowSubDirConfig').Value
             $changedValue | should be $env:PesterVirtualDirectoryDefaults

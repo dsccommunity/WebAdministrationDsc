@@ -49,11 +49,11 @@ try
         It 'Should be able to compile and apply without throwing' {
             {
                 Invoke-Expression -Command (
-                    '{0}_Config -OutputPath $TestEnvironment.WorkingFolder -ConfigurationData $ConfigData -ErrorAction Stop' -f
+                    '{0}_Config -OutputPath $TestDrive -ConfigurationData $ConfigData -ErrorAction Stop' -f
                     $script:DSCResourceName
                 )
 
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Force -Wait -Verbose
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Force -Wait -Verbose
             } | Should Not Throw
         }
 
