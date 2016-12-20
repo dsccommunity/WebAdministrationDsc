@@ -84,11 +84,13 @@ try
             Context 'Settings are correct' {
 
                 Mock -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -MockWith {}
+                # Mock -CommandName Set-WebConfiguration -MockWith {}
 
                 Set-TargetResource -SectionName 'mockName' -OverrideMode 'Allow'
 
                 It 'should call all the mocks' {
-                    Assert-MockCalled -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -Exactly 1
+                    Assert-MockCalled -ModuleName MSFT_xIisFeatureDelegation `
+                        -CommandName Set-WebConfiguration -Exactly 1
                 }
             }
 

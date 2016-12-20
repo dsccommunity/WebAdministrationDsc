@@ -3,7 +3,7 @@ Import-Module (Join-Path $PSScriptRoot "..\Tests\xWebAdministration.TestHarness.
 $DscTestsPath = Join-Path $PSScriptRoot "..\Tests\Unit" -Resolve
 if ((Test-Path $DscTestsPath) -eq $false) {
     Write-Warning "Unable to locate DscResource.Tests repo at '$DscTestsPath', common DSC resource tests will not be executed"
-    Invoke-xWebAdministrationTests
+    Invoke-xWebAdministrationTest
 } else {
-    Invoke-xWebAdministrationTests -DscTestsPath $DscTestsPath
+    Invoke-xWebAdministrationTest -DscTestsPath $DscTestsPath
 }

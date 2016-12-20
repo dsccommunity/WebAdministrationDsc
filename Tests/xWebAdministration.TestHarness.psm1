@@ -1,4 +1,5 @@
-function Invoke-xWebAdministrationTests() {
+function Invoke-xWebAdministrationTest
+{
     param
     (
         [Parameter(Mandatory = $false)]
