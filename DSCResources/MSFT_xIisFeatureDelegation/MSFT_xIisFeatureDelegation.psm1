@@ -50,6 +50,7 @@ function Set-TargetResource
         This will set the desired state
     #>
     
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param
     (
         [Parameter(Mandatory)]
@@ -79,6 +80,7 @@ function Test-TargetResource
         If the state is correct it will return $true
     #>
     
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [OutputType([System.Boolean])]
     param
     (

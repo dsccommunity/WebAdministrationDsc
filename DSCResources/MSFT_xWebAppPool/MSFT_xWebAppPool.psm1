@@ -869,10 +869,10 @@ function Get-Property
     $firstPart = $parts[0]
 
     $value = $Object.$firstPart
-    if($parts.Count -gt 1)
+    if ($parts.Count -gt 1)
     {
         $newParts = @()
-        1..($parts.Count -1) | ForEach-Object{
+        1..($parts.Count -1) | ForEach-Object {
             $newParts += $parts[$_]
         }
 

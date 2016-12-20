@@ -167,6 +167,9 @@ function Get-TargetResource
         .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the 
         target machine.
+
+        .PARAMETER PhysicalPath
+        Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
 #>
 function Set-TargetResource
 {
@@ -182,7 +185,6 @@ function Set-TargetResource
         [String]
         $Name,
 
-        [ValidateNotNullOrEmpty()]
         [String]
         $PhysicalPath,
 
@@ -496,10 +498,6 @@ function Set-TargetResource
         # Create website if it does not exist
         else
         {
-            if ([String]::IsNullOrEmpty($PhysicalPath)) {
-                throw 'The PhysicalPath Parameter must be provided for a website to be created'
-            }
-
             try
             {
                 $PSBoundParameters.GetEnumerator() | Where-Object -FilterScript {
@@ -518,7 +516,14 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
-                $website = New-Website @newWebsiteSplat -ErrorAction Stop
+                if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                    # If no physical path is provided run New-Website with -Force flag
+                    $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
+                } else {
+                    # If physical path is provided don't run New-Website with -Force flag to verify that the path exists
+                    $website = New-Website @newWebsiteSplat -ErrorAction Stop
+                }
+                
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated `
                                         -f $Name)
             }

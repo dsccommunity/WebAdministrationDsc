@@ -1,6 +1,6 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
-
 # xWebAdministration
+
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
 The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
 
@@ -8,6 +8,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ## Contributing
+
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
 ## Resources
@@ -18,14 +19,14 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Name**: The logical name to register the module as in IIS.
 * **RequestPath**: The allowed request paths, such as *.php
 * **Verb**: An array of allowed verbs, such as get and post.
-* **SiteName**: The name of the Site to register the module for.
-If empty, the resource will register the module with all of IIS.
-* **ModuleType**: The type of the module.
-Currently, only FastCgiModule is supported.
+* **SiteName**: The name of the Site to register the module for. If empty, the resource will register the module with all of IIS.
+* **ModuleType**: The type of the module. Currently, only FastCgiModule is supported.
 * **Ensure**: Ensures that the module is **Present** or **Absent**.
 
 ### xIISLogging
+
 **Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebsite**
+
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`
 * **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
@@ -126,22 +127,22 @@ Currently, only FastCgiModule is supported.
 
 ### xWebsite
 
-* **Name**: The desired name of the website.
+* **Name** : The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
 * **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class that implements the following properties:
-    * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
-    * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
-    * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
-    * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
-    * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
-    * **CertificateThumbprint**: The thumbprint of the certificate. This property is only applicable for `https` bindings.
-    * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
-    * **SslFlags**: The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for `https` bindings. The acceptable values for this property are:
-        * **0**: The default value. The secure connection be made using an IP/Port combination. Only one certificate can be bound to a combination of IP address and the port.
-        * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
-        * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
-        * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
+  * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
+  * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
+  * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
+  * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
+  * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
+  * **CertificateThumbprint**: The thumbprint of the certificate. This property is only applicable for `https` bindings.
+  * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
+  * **SslFlags**: The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for `https` bindings. The acceptable values for this property are:
+    * **0**: The default value. The secure connection be made using an IP/Port combination. Only one certificate can be bound to a combination of IP address and the port.
+    * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
+    * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
+    * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
 * **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
@@ -173,10 +174,10 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInfo**: Web Application's authentication information in the form of an embedded instance of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** takes the following properties:
-    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
-    * **Basic**: The acceptable values for this property are: `$true`, `$false`
-    * **Digest**: The acceptable values for this property are: `$true`, `$false`
-    * **Windows**: The acceptable values for this property are: `$true`, `$false`
+  * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+  * **Basic**: The acceptable values for this property are: `$true`, `$false`
+  * **Digest**: The acceptable values for this property are: `$true`, `$false`
+  * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
 
 ### xWebVirtualDirectory
@@ -194,20 +195,24 @@ Currently, only FastCgiModule is supported.
 * **KeyValuePair**: Key value pair for AppSettings (ItemCollection format).
 
 ### xSSLSettings
+
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
 * **Ensure**: Ensures if the bindings are Present or Absent.
 
 ### xIisFeatureDelegation
+
 * **SectionName**: Relative path of the section to delegate such as **security/authentication**
 * **OverrideMode**: Mode of that section { **Allow** | **Deny** }
 
 ### xIisMimeTypeMapping
+
 * **Extension**: The file extension to map such as **.html** or **.xml**
 * **MimeType**: The MIME type to map that extension to such as **text/html**
 * **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
 
 ### xWebAppPoolDefaults
+
 * **ApplyTo**: Required Key value, always **Machine**
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
 * **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
