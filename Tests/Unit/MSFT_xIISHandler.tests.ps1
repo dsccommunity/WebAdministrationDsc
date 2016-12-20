@@ -27,8 +27,11 @@ try
 
     InModuleScope $DSCResourceName {
 
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xIISHandler'
+
         #region Function Get-TargetResource
-        Describe 'MSFT_xIISHandler\Get-TargetResource' {
+        Describe '$script:DSCResourceName\Get-TargetResource' {
             Context 'Ensure = Absent and Handler is not Present' {
                 Mock Assert-Module
                 Mock Get-Handler
@@ -54,7 +57,7 @@ try
 
 
         #region Function Test-TargetResource
-        Describe 'MSFT_xIISHandler\Test-TargetResource' {
+        Describe '$script:DSCResourceName\Test-TargetResource' {
             $Name = 'StaticFile'
 
             Context 'Handler is NULL and Ensure = Present' {
@@ -119,7 +122,7 @@ try
 
 
         #region Function Set-TargetResource
-        Describe 'MSFT_xIISHandler\Set-TargetResource' {
+        Describe '$script:DSCResourceName\Set-TargetResource' {
             Context 'Ensure = Present and Handler is NOT present' {
                 $mockName = 'StaticFile'
                 Mock Assert-Module
@@ -156,7 +159,7 @@ try
         }
         #endregion
 
-        Describe 'MSFT_xIISHandler\Add-Handler' {
+        Describe '$script:DSCResourceName\Add-Handler' {
             Context 'Should find all the handlers' {
                 foreach ($key in $script:handlers.keys)
                 {
@@ -177,7 +180,7 @@ try
             }
         }
 
-        Describe 'MSFT_xIISHandler\Get-Handler' {
+        Describe '$script:DSCResourceName\Get-Handler' {
             It 'Should call the mocks' {
                 $name = 'StaticFile'
                 $mockFilter = "system.webServer/handlers/Add[@Name='" + $name + "']"

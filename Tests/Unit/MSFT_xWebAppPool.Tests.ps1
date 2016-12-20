@@ -32,7 +32,10 @@ try
 
     InModuleScope $script:DSCResourceName {
 
-        Describe "$($script:DSCResourceName)\Get-TargetResource" {
+        $script:DSCModuleName   = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xWebAppPool'
+
+        Describe "$script:DSCResourceName\Get-TargetResource" {
 
             Mock Assert-Module
 
@@ -352,7 +355,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Test-TargetResource' responds to Ensure = 'Absent'" {
+        Describe "how '$script:DSCResourceName\Test-TargetResource' responds to Ensure = 'Absent'" {
 
             Mock Assert-Module
 
@@ -384,7 +387,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Test-TargetResource' responds to Ensure = 'Present'" {
+        Describe "how '$script:DSCResourceName\Test-TargetResource' responds to Ensure = 'Present'" {
 
             Mock Assert-Module
 
@@ -1702,7 +1705,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Absent'" {
+        Describe "how '$script:DSCResourceName\Set-TargetResource' responds to Ensure = 'Absent'" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -1782,7 +1785,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Present'" {
+        Describe "how '$script:DSCResourceName\Set-TargetResource' responds to Ensure = 'Present'" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -3274,7 +3277,7 @@ try
 
         }
 
-        Describe "MSFT_xWebAppPool\Get-Property" {
+        Describe "$script:DSCResourceName\Get-Property" {
 
             It 'Should return the value of $appPool.property1' {
                 $appPool = @{ property1 = 'result' }

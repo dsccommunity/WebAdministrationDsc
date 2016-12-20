@@ -28,6 +28,9 @@ try
 
     InModuleScope $DSCResourceName {
 
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xSSLSettings'
+
         Describe "$script:DSCResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {
                 Mock Get-TargetResource -Verifiable {return @{

@@ -25,6 +25,9 @@ try
     #region Pester Tests
 
     InModuleScope $script:DSCResourceName {
+
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xIisLogging'
         
         $MockLogParameters =
             @{

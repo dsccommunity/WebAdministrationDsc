@@ -23,7 +23,9 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     InModuleScope $script:DSCResourceName {
-        
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xWebVirtualDirectory'
+
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith {

@@ -16,7 +16,7 @@ Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdmin
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
+    -DSCResourceName $($script:DSCResourceName) `
     -TestType Unit
 #endregion
 
@@ -24,9 +24,11 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     #region Pester Tests
-    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
+    InModuleScope -ModuleName $($script:DSCResourceName) -ScriptBlock {
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xWebsite'
         
-        Describe "$script:DSCResourceName\Assert-Module" {
+        Describe "$($script:DSCResourceName)\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith { return $null }
 
@@ -36,7 +38,7 @@ try
             }
         }
 
-        Describe "how $script:DSCResourceName\Get-TargetResource responds" {
+        Describe "how $($script:DSCResourceName)\Get-TargetResource responds" {
             $MockWebBinding = @(
                 @{
                     bindingInformation   = '*:443:web01.contoso.com'
@@ -260,7 +262,7 @@ try
             }
         }
 
-        Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
+        Describe "how $($script:DSCResourceName)\Test-TargetResource responds to Ensure = 'Present'" {
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation `
                 -Namespace root/microsoft/Windows/DesiredStateConfiguration `
@@ -731,7 +733,7 @@ try
             }
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
+        Describe "how $($script:DSCResourceName)\Set-TargetResource responds to Ensure = 'Present'" {
             $MockAuthenticationInfo = New-CimInstance  `
                 -ClassName MSFT_xWebApplicationAuthenticationInformation `
                 -ClientOnly `
@@ -1346,7 +1348,7 @@ try
             }
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
+        Describe "how $($script:DSCResourceName)\Set-TargetResource responds to Ensure = 'Absent'" {
             $MockParameters = @{
                 Ensure       = 'Absent'
                 Name         = 'MockName'
@@ -1383,7 +1385,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueBinding" {
+        Describe "$($script:DSCResourceName)\Confirm-UniqueBinding" {
             Context 'Returns false when LogFlags are incorrect' {
 
                 $MockLogOutput = @{
@@ -1430,7 +1432,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueBinding" {
+        Describe "$($script:DSCResourceName)\Confirm-UniqueBinding" {
             $MockParameters = @{
                 Name = 'MockSite'
             }
@@ -1628,7 +1630,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
+        Describe "$($script:DSCResourceName)\Confirm-UniqueServiceAutoStartProviders" {
             $MockParameters = @{
                 Name = 'MockServiceAutoStartProvider'
                 Type = 'MockApplicationType'
@@ -1735,7 +1737,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\ConvertTo-CimBinding" {
+        Describe "$($script:DSCResourceName)\ConvertTo-CimBinding" {
             Context 'IPv4 address is passed and the protocol is http' {
                 $MockWebBinding = @{
                     bindingInformation = '127.0.0.1:80:MockHostName'
@@ -1867,7 +1869,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\ConvertTo-WebBinding" {
+        Describe "$($script:DSCResourceName)\ConvertTo-WebBinding" {
             Context 'Expected behaviour' {
                 $MockBindingInfo = @(
                     New-CimInstance `
@@ -2161,7 +2163,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Format-IPAddressString" {
+        Describe "$($script:DSCResourceName)\Format-IPAddressString" {
             Context 'Input value is not valid' {
                 It 'should throw an error' {
                     { Format-IPAddressString -InputString 'Invalid' } | Should Throw
@@ -2188,7 +2190,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Get-AuthenticationInfo" {
+        Describe "$($script:DSCResourceName)\Get-AuthenticationInfo" {
             $MockWebsite = @{
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
@@ -2257,7 +2259,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Get-DefaultAuthenticationInfo" {
+        Describe "$($script:DSCResourceName)\Get-DefaultAuthenticationInfo" {
             Context 'Expected behavior' {
                 It 'should not throw an error' {
                     { Get-DefaultAuthenticationInfo }|
@@ -2276,7 +2278,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Set-Authentication" {
+        Describe "$($script:DSCResourceName)\Set-Authentication" {
             Context 'Expected behavior' {
                 $MockWebsite = @{
                     Name                 = 'MockName'
@@ -2304,7 +2306,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Set-AuthenticationInfo" {
+        Describe "$($script:DSCResourceName)\Set-AuthenticationInfo" {
             Context 'Expected behavior' {
                 $MockWebsite = @{
                     Name                 = 'MockName'
@@ -2336,7 +2338,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
+        Describe "$($script:DSCResourceName)\Test-AuthenticationEnabled" {
             $MockWebsite = @{
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
@@ -2405,7 +2407,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
+        Describe "$($script:DSCResourceName)\Test-AuthenticationInfo" {
             Mock -CommandName Get-WebConfigurationProperty -MockWith {$MockWebConfiguration}
 
             $MockWebsite = @{
@@ -2480,7 +2482,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-BindingInfo" {
+        Describe "$($script:DSCResourceName)\Test-BindingInfo" {
             Context 'BindingInfo is valid' {
                 $MockBindingInfo = @(
                     New-CimInstance `
@@ -2616,7 +2618,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-PortNumber" {
+        Describe "$($script:DSCResourceName)\Test-PortNumber" {
             Context 'Input value is not valid' {
                 It 'should not throw an error' {
                     {Test-PortNumber -InputString 'InvalidString'} | Should Not Throw
@@ -2646,7 +2648,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-WebsiteBinding" {
+        Describe "$($script:DSCResourceName)\Test-WebsiteBinding" {
             $MockWebBinding = @(
                 @{
                     bindingInformation   = '*:80:'
@@ -3117,7 +3119,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Update-DefaultPage" {
+        Describe "$($script:DSCResourceName)\Update-DefaultPage" {
             $MockWebsite = @{
                 Ensure             = 'Present'
                 Name               = 'MockName'
@@ -3141,7 +3143,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Update-WebsiteBinding" {
+        Describe "$($script:DSCResourceName)\Update-WebsiteBinding" {
             $MockWebsite = @{
                 Name      = 'MockSite'
                 ItemXPath = "/system.applicationHost/sites/site[@name='MockSite']"
