@@ -1,0 +1,9 @@
+@{
+    ExcludeRules=@('PSDSCDscExamplesPresent',
+                'PSDSCDscTestsPresent',
+                'PSUseBOMForUnicodeEncodedFile',
+                'PSUseShouldProcessForStateChangingFunctions',
+                'PSUseSingularNouns',
+                'PSUseToExportFieldsInManifest',
+                'PSUseUTF8EncodingForHelpFile')
+}
