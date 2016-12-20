@@ -48,6 +48,7 @@ function Set-TargetResource
     #>
 
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     param
     (    
         [ValidateSet('Machine')]
@@ -77,8 +78,9 @@ function Test-TargetResource
     
     [CmdletBinding()]
     [OutputType([System.Boolean])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     param
-    (    
+    (
         [ValidateSet('Machine')]
         [Parameter(Mandatory = $true)]
         [String] $ApplyTo,
@@ -114,6 +116,7 @@ function Test-TargetResource
 function Confirm-Value
 {
     [CmdletBinding()]
+    [OutputType([System.Boolean])]
     param
     (  
         [String] $Path,
