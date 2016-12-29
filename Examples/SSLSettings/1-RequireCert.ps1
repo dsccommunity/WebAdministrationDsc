@@ -1,9 +1,14 @@
-configuration Sample_xSSLSetting_RequireCert
+<#
+    .EXAMPLE
+    This example shows how to set a website to require an SSL Cert.
+#>
+
+configuration Example
 {
     param
     (
         # Target nodes to apply the configuration
-        [String[]] $NodeName = 'localhost'
+        [string[]] $NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources

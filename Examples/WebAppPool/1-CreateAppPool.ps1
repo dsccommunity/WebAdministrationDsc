@@ -5,11 +5,11 @@
     This example shows how to use the xWebAppPool DSC resource to create and configure an application pool.
 #>
 
-Configuration Sample_xWebAppPool
+Configuration Example
 {
     param
     (
-        [String[]]$NodeName = 'localhost'
+        [String[]] $NodeName = 'localhost'
     )
 
     Import-DscResource -ModuleName xWebAdministration

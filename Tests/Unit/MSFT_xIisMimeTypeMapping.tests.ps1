@@ -27,7 +27,10 @@ try
     #region Pester Tests
     
     InModuleScope $DSCResourceName {
-    
+
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xIisMimeTypeMapping'
+
         $mockMapping =
         @{
             fileExtension = 'mockFileExtension'
@@ -35,7 +38,7 @@ try
         }
 
         #region testing Get-TargetResource
-        Describe 'MSFT_xIisMimeTypeMapping\Get-TargetResource' {
+        Describe "$script:DSCResourceName\Get-TargetResource" {
             Mock -CommandName Assert-Module -MockWith {}
             
             Context 'MimeType is Absent' {
@@ -63,7 +66,7 @@ try
         #endregion
 
         #region testing Set-TargetResource
-        Describe 'MSFT_xIisMimeTypeMapping\Set-TargetResource' {
+        Describe "$script:DSCResourceName\Set-TargetResource" {
             Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Add MimeType' {
@@ -109,7 +112,7 @@ try
         #endregion
         
         #region testing Test-TargetResource
-        Describe 'MSFT_xIisMimeTypeMapping\Test-TargetResource' {
+        Describe "$script:DSCResourceName\Test-TargetResource" {
             Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Mapping could not be found with Ensure = to Present' {
@@ -148,7 +151,7 @@ try
         #endregion
         
         #region Get-Mapping
-        Describe 'MSFT_xIisMimeTypeMapping\Get-Mapping' {
+        Describe "$script:DSCResourceName\Get-Mapping" {
             
             Context 'Get-mapping with Extension and Type' {
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return $mockMapping }

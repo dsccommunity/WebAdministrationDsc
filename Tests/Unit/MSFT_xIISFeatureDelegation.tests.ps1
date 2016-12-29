@@ -25,9 +25,11 @@ try
 {
     #region Pester Tests
     InModuleScope $DSCResourceName {
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xIISFeatureDelegation'
 
         #region Function Get-TargetResource
-        Describe 'MSFT_xIISFeatureDelegation\Get-TargetResource' {
+        Describe "$script:DSCResourceName\Get-TargetResource" {
             Context 'OverRideMode is present' {
                 Mock Get-OverrideMode {return 'Allow'}
                 $result = Get-TargetResource -SectionName 'serverRunTime' -OverRideMode 'Allow'
@@ -59,7 +61,7 @@ try
 
 
         #region Function Test-TargetResource
-        Describe 'MSFT_xIISFeatureDelegation\Test-TargetResource' {
+        Describe "$script:DSCResourceName\Test-TargetResource" {
             Context 'OverRideMode is present' {
                 Mock Get-OverrideMode {return 'Allow'}
                 It 'should return true' {
@@ -80,22 +82,26 @@ try
 
 
         #region Function Set-TargetResource
-        Describe 'MSFT_xIISFeatureDelegation\Set-TargetResource' {
+        Describe "$script:DSCResourceName\Set-TargetResource" {
             Context 'Settings are correct' {
-
-                Mock -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -MockWith {}
+                # Mock -CommandName Set-WebConfiguration -ModuleName $script:DSCResourceName -MockWith {}
+                Mock Set-WebConfiguration -MockWith {return $null}
 
                 Set-TargetResource -SectionName 'mockName' -OverrideMode 'Allow'
 
                 It 'should call all the mocks' {
-                    Assert-MockCalled -ModuleName MSFT_xIisFeatureDelegation -CommandName Set-WebConfiguration -Exactly 1
+                    # Assert-MockCalled -ModuleName MSFT_xIisFeatureDelegation `
+                    #     -CommandName Set-WebConfiguration -Exactly 1
+
+                    Assert-MockCalled `
+                        -CommandName Set-WebConfiguration -Exactly 1
                 }
             }
 
         }
         #endregion
 
-        Describe 'MSFT_xIISFeatureDelegation\Get-OverrideMode' {
+        Describe "$script:DSCResourceName\Get-OverrideMode" {
             $mockWebConfigOutput = 
             @{
                 Metadata = 

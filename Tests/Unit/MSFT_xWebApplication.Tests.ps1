@@ -23,6 +23,9 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
+
+        $script:DSCModuleName = 'xWebAdministration'
+        $script:DSCResourceName = 'MSFT_xWebApplication'
         
         $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                             -ClientOnly `

@@ -63,7 +63,7 @@ function Set-TargetResource
         [String] $OverrideMode
     )
 
-     Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName, $OverrideMode)
+     Write-Verbose -Message ($($LocalizedData.ChangedMessage) -f $SectionName, $OverrideMode)
      
      Set-WebConfiguration -Location '' `
                          -Filter "/system.webServer/$SectionName" `
