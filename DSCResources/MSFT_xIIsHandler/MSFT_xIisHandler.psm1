@@ -837,6 +837,7 @@ function Set-TargetResource
         handler list except for removing all and then adding them in the correct order.
     #>
     
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param
     (
         [Parameter(Mandatory)]
