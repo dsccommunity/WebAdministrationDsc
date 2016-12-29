@@ -4,7 +4,7 @@ var through2 = require("through2");
 var markdownlint = require("markdownlint");
 
 gulp.task("test-mdsyntax", function task() {
-  return gulp.src(["./*.md","./Examples/*.md","./DscResources/*.md"], { "read": false })
+  return gulp.src(["./README.md","CHANGELOG.MD","./Examples/*.md","./DscResources/*.md"], { "read": false })
     .pipe(through2.obj(function obj(file, enc, next) {
       markdownlint(
         { 

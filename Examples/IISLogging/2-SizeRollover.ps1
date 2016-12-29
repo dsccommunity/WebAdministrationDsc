@@ -1,4 +1,9 @@
-configuration Sample_xIisLogging_Rollover
+<#
+    .EXAMPLE
+    Roll over logs based on size.
+#>
+
+configuration Example
 {
     param
     (
@@ -16,7 +21,7 @@ configuration Sample_xIisLogging_Rollover
             LogPath = 'C:\IISLogFiles'
             Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
             LoglocalTimeRollover = $true
-            LogPeriod = 'Hourly'
+            LogTruncateSize = '2097152'
             LogFormat = 'W3C'
         }
     }

@@ -1,9 +1,14 @@
-configuration Sample_IISServerDefaults
+<#
+    .EXAMPLE
+    This example shows how to create a default for an App Pool
+#>
+
+configuration Example
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
+        [string[]] $NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
@@ -11,14 +16,6 @@ configuration Sample_IISServerDefaults
 
     Node $NodeName
     {
-         xWebSiteDefaults SiteDefaults
-         {
-            ApplyTo = 'Machine'
-            LogFormat = 'IIS'
-            AllowSubDirConfig = 'true'
-         }
-
-
          xWebAppPoolDefaults PoolDefaults
          {
             ApplyTo = 'Machine'

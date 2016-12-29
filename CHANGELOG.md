@@ -146,7 +146,8 @@
 
 ## 1.6.0.0
 
-* Fixed bug in xWebsite resource regarding incorrect name of personal certificate store.
+* Fixed bug in xWebsite resource regarding incorrect name of personal
+    certificate store.
 
 ## 1.5.0.0
 
@@ -198,5 +199,4 @@ Module manifest metadata changed to improve PowerShell Gallery experience.
 
 ## 1.0.0.0
 
-* Initial release with the following resources
-  * **xWebsite**
+* Initial release with the following resources: **xWebsite**

@@ -12,14 +12,14 @@ $RepoRoot = (Resolve-Path $PSScriptRoot\..\..).Path
 Describe 'xWebAdministration whole of module tests' {
 
     Context -Name "Validate example files" {
-        
+
         It "Should compile MOFs for all examples correctly" {
 
             ## For Appveyor builds copy the module to the system modules directory so it falls 
             ## in to a PSModulePath folder and is picked up correctly. 
             if ($env:APPVEYOR -eq $true) 
             {
-                Copy-item -Path "$env:APPVEYOR_BUILD_FOLDER\Modules\xWebAdministration" `
+                Copy-item -Path "$env:APPVEYOR_BUILD_FOLDER\xWebAdministration" `
                           -Destination 'C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules\xWebAdministration' `
                           -Recurse
             }
@@ -72,16 +72,18 @@ Describe 'xWebAdministration whole of module tests' {
                             -Recurse -Force -Confirm:$false
                 # Restore the load of the module to ensure future tests have access to it
                 Import-Module -Name "$RepoRoot\xWebAdministration.psd1" -Global -Force
-            }    
+            }
         }
 
         It "Should not have errors in any markdown files" {
             $runGulp = $false
-            try {
+            try
+            {
                 Start-Process -FilePath "npm" -ArgumentList "install" -WorkingDirectory $RepoRoot -Wait -PassThru -NoNewWindow
                 $runGulp = $true
             }
-            catch [System.Exception] {
+            catch [System.Exception]
+            {
                 Write-Warning -Message ("Unable to run npm to install dependencies needed to " + `
                                         "test markdown files. Please be sure that you have " + `
                                         "installed nodejs.")
@@ -90,7 +92,8 @@ Describe 'xWebAdministration whole of module tests' {
             if ($runGulp -eq $true)
             {
                 $mdErrors = 0
-                try {
+                try
+                {
                     Start-Process -FilePath "gulp" -ArgumentList "test-mdsyntax --silent" -Wait -WorkingDirectory $RepoRoot -PassThru -NoNewWindow
                     Start-Sleep -Seconds 3
                     $mdIssuesPath = Join-Path -Path $RepoRoot -ChildPath "markdownissues.txt"
@@ -106,7 +109,8 @@ Describe 'xWebAdministration whole of module tests' {
                         }
                     }
                 }
-                catch [System.Exception] {
+                catch [System.Exception]
+                {
                     Write-Warning -Message ("Unable to run gulp to test markdown files. Please " + `
                                             "be sure that you have installed nodejs and have " + `
                                             "run 'npm install -g gulp' in order to have this " + `
