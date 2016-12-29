@@ -45,7 +45,7 @@ try
         }
         #endregion
 
-        It 'Updating AppSetting "xWebAdministration Integration Tests Key"' {
+        It 'Should update the AppSetting "xWebAdministration Integration Tests Key"' {
             {
                 # Get the current value
                 [string] $originalValue = (Get-WebConfigurationProperty `
@@ -67,7 +67,7 @@ try
             $changedValue | Should Be $env:xWebConfigKeyValueIntegrationValueUpdated
         }
 
-        It 'Removing AppSetting "xWebAdministration Integration Tests Key"' {
+        It 'Should remove AppSetting "xWebAdministration Integration Tests Key"' {
             {
                 Invoke-Expression -Command "$($script:DSCResourceName)_AppSetting_Absent -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
