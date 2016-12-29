@@ -1,8 +1,8 @@
 <#
-.SYNOPSIS
-    Create a new web application on the Default Web Site
-.DESCRIPTION
-    This example shows how to use the xWebApplication DSC resource to create a new web application.
+    .SYNOPSIS
+        Create a new web application on the Default Web Site
+    .DESCRIPTION
+        This example shows how to use the xWebApplication DSC resource to create a new web application.
 #>
 Configuration Sample_xWebApplication_NewWebApplication
 {
