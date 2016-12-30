@@ -1,9 +1,9 @@
 <#
-.SYNOPSIS
-    Create a new web virtual directory on the Default Web Site
-.DESCRIPTION
-    This example shows how to use the xWebVirtualDirectory DSC resource to create a new virtual
-    directory on the Default Web Site.
+    .SYNOPSIS
+        Create a new web virtual directory on the Default Web Site
+    .DESCRIPTION
+        This example shows how to use the xWebVirtualDirectory DSC resource to create a new virtual
+        directory on the Default Web Site.
 #>
 configuration Sample_xWebVirtualDirectory_NewVirtualDirectory
 {
