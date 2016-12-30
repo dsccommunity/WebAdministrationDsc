@@ -30,7 +30,7 @@ try
                     return $null
                 }
 
-                It 'should throw an error' {
+                It 'Should throw an error' {
                     { Assert-Module } | Should Throw
                 }
             }
@@ -53,35 +53,55 @@ try
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Directory is Present and PhysicalPath is Correct' {
-                It 'should return true' {
-                    Mock Get-WebVirtualDirectory { return $virtualDir }
-                    Test-TargetResource -Website $MockSite.Website -WebApplication $MockSite.WebApplication -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -Ensure $MockSite.Ensure | Should Be $true
+                It 'Should return true' {
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
+
+                    Test-TargetResource -Website $MockSite.Website `
+                        -WebApplication $MockSite.WebApplication `
+                        -Name $MockSite.Name `
+                        -PhysicalPath $MockSite.PhysicalPath `
+                        -Ensure $MockSite.Ensure
+
+                    $result | Should Be $true
                 }
             }
 
             Context 'Directory is Present and PhysicalPath is incorrect' {
-                It 'should return false' {
+                It 'Should return false' {
                     $virtualDir = @{
                         Name = 'shared_directory'
                         PhysicalPath = 'C:\inetpub\wwwroot\shared_wrong'
                         Count = 1
                     }
 
-                    Mock Get-WebVirtualDirectory { return $virtualDir }
-                    Test-TargetResource -Website $MockSite.Website -WebApplication $MockSite.WebApplication -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -Ensure $MockSite.Ensure | Should Be $false
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
+
+                    $result = Test-TargetResource -Website $MockSite.Website `
+                        -WebApplication $MockSite.WebApplication `
+                        -Name $MockSite.Name `
+                        -PhysicalPath $MockSite.PhysicalPath `
+                        -Ensure $MockSite.Ensure
+
+                    $result | Should Be $false
                 }
             }
 
             Context 'Directory is Present and PhysicalPath is incorrect' {
-                It 'should return false' {
+                It 'Should return false' {
                     $virtualDir = @{
                         Name = 'shared_directory'
                         PhysicalPath = 'C:\inetpub\wwwroot\shared_wrong'
                         Count = 1
                     }
 
-                    Mock Get-WebVirtualDirectory { return $virtualDir }
-                    Test-TargetResource -Website $MockSite.Website -WebApplication $MockSite.WebApplication -Name $MockSite.Name -PhysicalPath $MockSite.PhysicalPath -Ensure $MockSite.Ensure | Should Be $false
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
+                    $result = Test-TargetResource -Website $MockSite.Website `
+                        -WebApplication $MockSite.WebApplication `
+                        -Name $MockSite.Name `
+                        -PhysicalPath $MockSite.PhysicalPath `
+                        -Ensure $MockSite.Ensure
+                        
+                    $result | Should Be $false
                 }
             }
         }
@@ -90,7 +110,7 @@ try
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Ensure = Absent and virtual directory does not exist' {
-                It 'should return the correct values' {
+                It 'Should return the correct values' {
                     $returnSite = @{
                         Name = 'SomeName'
                         Website = 'Website'
@@ -99,8 +119,12 @@ try
                         Ensure = 'Absent'
                     }
 
-                    Mock Get-WebVirtualDirectory { return $null }
-                    $result = Get-TargetResource -Website $returnSite.Website -WebApplication $returnSite.WebApplication -Name $returnSite.Name -PhysicalPath $returnSite.PhysicalPath
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $null }
+
+                    $result = Get-TargetResource -Website $returnSite.Website `
+                        -WebApplication $returnSite.WebApplication `
+                        -Name $returnSite.Name `
+                        -PhysicalPath $returnSite.PhysicalPath
 
                     $result.Name | Should Be $returnSite.Name
                     $result.Website | Should Be $returnSite.Website
@@ -109,6 +133,7 @@ try
                     $result.Ensure | Should Be $returnSite.Ensure
                 }
             }
+
             Context 'Ensure = Present and Physical Path Exists' {
                 $returnSite = @{
                     Name = 'SomeName'
@@ -124,8 +149,12 @@ try
                     'Count' = 1
                 }
 
-                Mock Get-WebVirtualDirectory { return $returnObj }
-                $result = Get-TargetResource -Website $returnSite.Website -WebApplication $returnSite.WebApplication -Name $returnSite.Name -PhysicalPath $returnSite.PhysicalPath
+                Mock -CommandName Get-WebVirtualDirectory -MockWith { return $returnObj }
+
+                $result = Get-TargetResource -Website $returnSite.Website `
+                    -WebApplication $returnSite.WebApplication `
+                    -Name $returnSite.Name `
+                    -PhysicalPath $returnSite.PhysicalPath
 
                 $result.Name | Should Be $returnSite.Name
                 $result.Website | Should Be $returnSite.Website
@@ -140,7 +169,7 @@ try
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Ensure = Present and virtual directory does not exist' {
-                It 'should call New-WebVirtualDirectory' {
+                It 'Should call New-WebVirtualDirectory' {
                     $mockSite = @{
                         Name = 'SomeName'
                         Website = 'Website'
@@ -148,14 +177,20 @@ try
                         PhysicalPath = 'PhysicalPath'
                     }
 
-                    Mock New-WebVirtualDirectory { return $null }
-                    $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Present'
-                    Assert-MockCalled New-WebVirtualDirectory -Exactly 1
+                    Mock -CommandName New-WebVirtualDirectory -MockWith { return $null }
+
+                    Set-TargetResource -Website $mockSite.Website `
+                        -WebApplication $mockSite.WebApplication `
+                        -Name $mockSite.Name `
+                        -PhysicalPath $mockSite.PhysicalPath `
+                        -Ensure 'Present'
+
+                    Assert-MockCalled -CommandName New-WebVirtualDirectory -Exactly 1
                 }
             }
 
             Context 'Ensure = Present and virtual directory exists' {
-                It 'should call Set-ItemProperty' {
+                It 'Should call Set-ItemProperty' {
                     $mockSite = @{
                         Name = 'SomeName'
                         Website = 'Website'
@@ -164,15 +199,21 @@ try
                         Count = 1
                     }
 
-                    Mock Get-WebVirtualDirectory { return $mockSite }
-                    Mock Set-ItemProperty { return $null }
-                    $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Present'
-                    Assert-MockCalled Set-ItemProperty -Exactly 1
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $mockSite }
+                    Mock -CommandName Set-ItemProperty -MockWith { return $null }
+
+                    Set-TargetResource -Website $mockSite.Website `
+                        -WebApplication $mockSite.WebApplication `
+                        -Name $mockSite.Name `
+                        -PhysicalPath $mockSite.PhysicalPath `
+                        -Ensure 'Present'
+
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                 }
             }
 
             Context 'Ensure = Absent' {
-                It 'should call Remove-WebVirtualDirectory' {
+                It 'Should call Remove-WebVirtualDirectory' {
                     $mockSite = @{
                         Name = 'SomeName'
                         Website = 'Website'
@@ -181,9 +222,15 @@ try
                         Count = 1
                     }
 
-                    Mock Remove-WebVirtualDirectory { return $null }
-                    $null = Set-TargetResource -Website $mockSite.Website -WebApplication $mockSite.WebApplication -Name $mockSite.Name -PhysicalPath $mockSite.PhysicalPath -Ensure 'Absent'
-                    Assert-MockCalled Remove-WebVirtualDirectory -Exactly 1
+                    Mock -CommandName Remove-WebVirtualDirectory -MockWith { return $null }
+
+                    Set-TargetResource -Website $mockSite.Website `
+                        -WebApplication $mockSite.WebApplication `
+                        -Name $mockSite.Name `
+                        -PhysicalPath $mockSite.PhysicalPath `
+                        -Ensure 'Absent'
+
+                    Assert-MockCalled -CommandName Remove-WebVirtualDirectory -Exactly 1
                 }
             }
         }

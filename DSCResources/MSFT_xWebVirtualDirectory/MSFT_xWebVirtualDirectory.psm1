@@ -22,23 +22,26 @@ function Get-TargetResource
     .SYNOPSIS
         This will return a hashtable of results 
     #>
-    
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Website,
+        [System.String]
+        $Website,
 
         [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
-        [String] $WebApplication,
+        [System.String]
+        $WebApplication,
 
         [Parameter(Mandatory = $true)]
-        [String] $Name,
+        [System.String]
+        $Name,
 
         [Parameter(Mandatory = $true)]
-        [String] $PhysicalPath
+        [System.String]
+        $PhysicalPath
     )
 
     Assert-Module
@@ -56,8 +59,8 @@ function Get-TargetResource
         $Ensure = 'Present'
     }
 
-     Write-Verbose -Message ($LocalizedData.VerboseGetTargetResource)
-     
+    Write-Verbose -Message ($LocalizedData.VerboseGetTargetResource)
+
     $returnValue = @{
         Name           = $Name
         Website        = $Website
@@ -75,25 +78,29 @@ function Set-TargetResource
     .SYNOPSIS
         This will set the desired state
     #>
-    
     [CmdletBinding()]
     param
     (
         [ValidateSet('Present','Absent')]
-        [String] $Ensure = 'Present',
-        
+        [System.String]
+        $Ensure = 'Present',
+
         [Parameter(Mandatory = $true)]
-        [String] $Website,
+        [System.String]
+        $Website,
 
         [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
-        [String] $WebApplication,
+        [System.String]
+        $WebApplication,
 
         [Parameter(Mandatory = $true)]
-        [String] $Name,
+        [System.String]
+        $Name,
 
         [Parameter(Mandatory = $true)]
-        [String] $PhysicalPath
+        [System.String]
+        $PhysicalPath
     )
 
     Assert-Module
@@ -146,26 +153,30 @@ function Test-TargetResource
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
-    
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
         [ValidateSet('Present','Absent')]
-        [String] $Ensure = 'Present',
-        
+        [System.String]
+        $Ensure = 'Present',
+
         [Parameter(Mandatory = $true)]
-        [String] $Website,
+        [System.String]
+        $Website,
 
         [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
-        [String] $WebApplication,
+        [System.String]
+        $WebApplication,
 
         [Parameter(Mandatory = $true)]
-        [String] $Name,
+        [System.String]
+        $Name,
 
         [Parameter(Mandatory = $true)]
-        [String] $PhysicalPath
+        [System.String]
+        $PhysicalPath
     )
 
     Assert-Module
