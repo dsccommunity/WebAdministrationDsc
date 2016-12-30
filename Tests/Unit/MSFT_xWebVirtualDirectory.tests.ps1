@@ -56,7 +56,7 @@ try
                 It 'Should return true' {
                     Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
 
-                    Test-TargetResource -Website $MockSite.Website `
+                    $result = Test-TargetResource -Website $MockSite.Website `
                         -WebApplication $MockSite.WebApplication `
                         -Name $MockSite.Name `
                         -PhysicalPath $MockSite.PhysicalPath `
