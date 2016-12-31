@@ -184,7 +184,7 @@ function Set-TargetResource
                     Location = "${Website}/${Name}"
                     Filter   = 'system.webServer/security/access'
                     Name     = 'sslFlags'
-                    Value    = [string]$sslflags
+                    Value    = ($sslflags -join ',')
                 }
                 Set-WebConfigurationProperty @params
             }
@@ -729,17 +729,15 @@ function Test-SslFlags
         [String] $Location
     )
 
-
     $CurrentSslFlags =  Get-SslFlags -Location $Location
 
     if(Compare-Object -ReferenceObject $CurrentSslFlags `
                         -DifferenceObject $SslFlags)
-      {
-          return $false
-      }
-        
+    {
+        return $false
+    }
+
     return $true
-    
 }
 
 #endregion

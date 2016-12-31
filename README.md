@@ -221,6 +221,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+* Changed SSLFlags for **xWebApplication** to comma seperate multiple SSL flags, fixes #232.
+
 ### 1.16.0.0
 
 * Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for #256.
