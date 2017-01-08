@@ -34,9 +34,9 @@ try
             WebAppPool               = 'MockPool'
             PhysicalPath             = 'C:\MockSite\MockApp'
             SslFlags                 = 'Ssl'
-            PreloadEnabled           = $True
+            PreloadEnabled           = $true
             ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
-            ServiceAutoStartEnabled  = $True
+            ServiceAutoStartEnabled  = $true
             ApplicationType          = 'MockApplicationType'
             AuthenticationInfo       = $MockAuthenticationInfo
             EnabledProtocols         = @('http')
@@ -48,9 +48,9 @@ try
             applicationPool          = 'MockPool'
             PhysicalPath             = 'C:\MockSite\MockApp'
             SslFlags                 = 'Ssl'
-            PreloadEnabled           = $True
+            PreloadEnabled           = $true
             ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
-            ServiceAutoStartEnabled  = $True
+            ServiceAutoStartEnabled  = $true
             ApplicationType          = 'MockApplicationType'
             AuthenticationInfo       = $MockAuthenticationInfo
             EnabledProtocols         = 'http'
@@ -1009,14 +1009,14 @@ try
 
             Context 'Tests Confirm-UniqueEnabledProtocols' {
 
-                It 'Returns true when settings match' {
+                It 'Should return true when settings match' {
 
                     Confirm-UniqueEnabledProtocols -ExistingProtocols 'http,net.tcp' `
                                                    -ProposedProtocols @('http','net.tcp') `
                                                    | Should be $true
                 }
 
-                It 'Returns false when settings do not match' {
+                It 'Should return false when settings do not match' {
                     
                     Confirm-UniqueEnabledProtocols -ExistingProtocols 'http' `
                                                    -ProposedProtocols @('http','net.tcp') `
