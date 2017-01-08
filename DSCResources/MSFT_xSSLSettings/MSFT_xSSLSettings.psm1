@@ -1,36 +1,41 @@
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
 {
     # culture="en-US"
-    ConvertFrom-StringData @'
-UnableToFindConfig = Unable to find {0} in AppHost Config.
-SettingSSLConfig   = Setting {0} SSL binding to {1}.
-SSLBindingsCorrect = SSL Bindings for {0} are correct.
-SSLBindingsAbsent  = SSL Bindings for {0} are Absent.
+    ConvertFrom-StringData -StringData @'
+        UnableToFindConfig       = Unable to find configuration in AppHost Config.
+        SettingsslConfig         = Setting {0} ssl binding to {1}.
+        sslBindingsCorrect       = ssl Bindings for {0} are correct.
+        sslBindingsAbsent        = ssl Bindings for {0} are absent.
+        VerboseGetTargetResource = Get-TargetResource has been run.
 '@
 }
 
+<#
+        .SYNOPSIS
+        This will return a hashtable of results including Name, Bindings, and Ensure 
+#>
 function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
-        [string] $Name,
+        [Parameter(Mandatory = $true)]
+        [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings
+        [String[]] $Bindings
     )
 
     Assert-Module
 
-    $Ensure = 'Absent'
+    $ensure = 'Absent'
 
     try
     {
@@ -43,44 +48,50 @@ function Get-TargetResource
 
         $sslSettings = Get-WebConfigurationProperty @params
 
-        # If SSL is configured at all this will be a string else
-        # it'll be a configuration object.
+        # If SSL is configured at all this will be a String else
+        # it willl be a configuration object.
         if ($sslSettings.GetType().FullName -eq 'System.String')
         {
             $Bindings = $sslSettings.Split(',')
-            $Ensure = 'Present'
+            $ensure = 'Present'
         }
     }
     catch [Exception]
     {
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.UnableToFindConfig) -f $Name
-        ) -join '')
+        $errorMessage = $LocalizedData.UnableToFindConfig
+        New-TerminatingError -ErrorId 'UnableToFindConfig'`
+                             -ErrorMessage  $errorMessage`
+                             -ErrorCategory 'InvalidResult'
     }
+
+    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
 
     return @{
         Name = $Name
         Bindings = $Bindings
-        Ensure = $Ensure
+        Ensure = $ensure
     }
 }
 
+<#
+        .SYNOPSIS
+        This will update the desired state based on the Bindings passed in
+#>
 function Set-TargetResource
 {
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
-        [string] $Name,
+        [Parameter(Mandatory = $true)]
+        [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings,
+        [String[]] $Bindings,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
-        $Ensure = 'Present'
+        [String] $Ensure = 'Present'
     )
 
     Assert-Module
@@ -95,11 +106,10 @@ function Set-TargetResource
             Value    = ''
         }
 
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.SettingSSLConfig) -f $Name, 'None'
-        ) -join '')
+        Write-Verbose -Message ($LocalizedData.SettingsslConfig -f $Name, 'None')
         Set-WebConfigurationProperty @params
     }
+    
     else
     {
         $sslBindings = $Bindings -join ','
@@ -111,53 +121,51 @@ function Set-TargetResource
             Value    = $sslBindings
         }
 
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.SettingSSLConfig) -f $Name, $params.Value
-        ) -join '')
+        Write-Verbose -Message ($LocalizedData.SettingsslConfig -f $Name, $params.Value)
         Set-WebConfigurationProperty @params
     }
 }
 
+<#
+        .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+#>
 function Test-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
-        [string] $Name,
+        [Parameter(Mandatory = $true)]
+        [String] $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [string[]] $Bindings,
+        [String[]] $Bindings,
 
         [ValidateSet('Present','Absent')]
-        [System.String]
-        $Ensure = 'Present'
+        [String] $Ensure = 'Present'
     )
 
     $sslSettings = Get-TargetResource -Name $Name -Bindings $Bindings
 
     if ($Ensure -eq 'Present' -and $sslSettings.Ensure -eq 'Present')
     {
-        $sslComp = Compare-Object -ReferenceObject $Bindings -DifferenceObject $sslSettings.Bindings -PassThru
+        $sslComp = Compare-Object -ReferenceObject $Bindings `
+                                  -DifferenceObject $sslSettings.Bindings `
+                                  -PassThru
         if ($null -eq $sslComp)
         {
-            Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-                $($LocalizedData.SSLBindingsCorrect) -f $Name
-            ) -join '')
-
+            Write-Verbose -Message ($LocalizedData.sslBindingsCorrect -f $Name)
             return $true;
         }
     }
 
     if ($Ensure -eq 'Absent' -and $sslSettings.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message ( @( "$($MyInvocation.MyCommand): "
-            $($LocalizedData.SSLBindingsAbsent) -f $Name
-        ) -join '')
-
+        Write-Verbose -Message ($LocalizedData.sslBindingsAbsent -f $Name)
         return $true;
     }
 

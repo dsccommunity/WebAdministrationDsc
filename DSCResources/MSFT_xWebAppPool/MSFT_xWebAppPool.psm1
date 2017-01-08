@@ -1,31 +1,30 @@
 #requires -Version 4.0 -Modules CimCmdlets
 
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
-ErrorAppCmdPathNotFound           = AppCmd.exe could not be found at path "{0}".
-VerboseAppPoolFound               = Application pool "{0}" was found.
-VerboseAppPoolNotFound            = Application pool "{0}" was not found.
-VerboseEnsureNotInDesiredState    = The "Ensure" state of application pool "{0}" does not match the desired state.
-VerbosePropertyNotInDesiredState  = The "{0}" property of application pool "{1}" does not match the desired state.
-VerboseCredentialToBeCleared      = Custom account credentials of application pool "{0}" need to be cleared because the "identityType" property is not set to "SpecificUser".
-VerboseCredentialToBeIgnored      = The "Credential" property is only valid when the "identityType" property is set to "SpecificUser".
-VerboseResourceInDesiredState     = The target resource is already in the desired state. No action is required.
-VerboseResourceNotInDesiredState  = The target resource is not in the desired state.
-VerboseNewAppPool                 = Creating application pool "{0}".
-VerboseRemoveAppPool              = Removing application pool "{0}".
-VerboseStartAppPool               = Starting application pool "{0}".
-VerboseStopAppPool                = Stopping application pool "{0}".
-VerboseSetProperty                = Setting the "{0}" property of application pool "{1}".
-VerboseClearCredential            = Clearing custom account credentials of application pool "{0}" because the "identityType" property is not set to "SpecificUser".
-VerboseRestartScheduleValueAdd    = Adding value "{0}" to the "restartSchedule" collection of application pool "{1}".
-VerboseRestartScheduleValueRemove = Removing value "{0}" from the "restartSchedule" collection of application pool "{1}".
+        ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
+        VerboseAppPoolFound               = Application pool "{0}" was found.
+        VerboseAppPoolNotFound            = Application pool "{0}" was not found.
+        VerboseEnsureNotInDesiredState    = The "Ensure" state of application pool "{0}" does not match the desired state.
+        VerbosePropertyNotInDesiredState  = The "{0}" property of application pool "{1}" does not match the desired state.
+        VerboseCredentialToBeCleared      = Custom account credentials of application pool "{0}" need to be cleared because the "identityType" property is not set to "SpecificUser".
+        VerboseCredentialToBeIgnored      = The "Credential" property is only valid when the "identityType" property is set to "SpecificUser".
+        VerboseResourceInDesiredState     = The target resource is already in the desired state. No action is required.
+        VerboseResourceNotInDesiredState  = The target resource is not in the desired state.
+        VerboseNewAppPool                 = Creating application pool "{0}".
+        VerboseRemoveAppPool              = Removing application pool "{0}".
+        VerboseStartAppPool               = Starting application pool "{0}".
+        VerboseStopAppPool                = Stopping application pool "{0}".
+        VerboseSetProperty                = Setting the "{0}" property of application pool "{1}".
+        VerboseClearCredential            = Clearing custom account credentials of application pool "{0}" because the "identityType" property is not set to "SpecificUser".
+        VerboseRestartScheduleValueAdd    = Adding value "{0}" to the "restartSchedule" collection of application pool "{1}".
+        VerboseRestartScheduleValueRemove = Removing value "{0}" from the "restartSchedule" collection of application pool "{1}".
 '@
 }
 
@@ -97,6 +96,11 @@ data PropertyData
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -166,6 +170,11 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+    
     [CmdletBinding(SupportsShouldProcess = $true)]
     param
     (
@@ -221,8 +230,8 @@ function Set-TargetResource
         [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
-            'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
-            'NetworkService', 'SpecificUser'
+                'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
+                'NetworkService', 'SpecificUser'
         )]
         [String] $identityType,
 
@@ -455,32 +464,34 @@ function Set-TargetResource
 
                 Compare-Object -ReferenceObject $restartScheduleDesired `
                     -DifferenceObject $restartScheduleCurrent |
-                ForEach-Object -Process {
+                        ForEach-Object -Process {
 
-                    if ($_.SideIndicator -eq '<=') # Add value
-                    {
-                        Write-Verbose -Message (
-                            $LocalizedData['VerboseRestartScheduleValueAdd'] -f
-                                $_.InputObject, $Name
-                        )
+                            # Add value
+                            if ($_.SideIndicator -eq '<=')
+                            {
+                                Write-Verbose -Message (
+                                    $LocalizedData['VerboseRestartScheduleValueAdd'] -f
+                                        $_.InputObject, $Name
+                                )
 
-                        Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
-                            "/+recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
-                        )
-                    }
-                    else # Remove value
-                    {
-                        Write-Verbose -Message (
-                            $LocalizedData['VerboseRestartScheduleValueRemove'] -f
-                                $_.InputObject, $Name
-                        )
+                                Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
+                                    "/+recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                                )
+                            }
+                            # Remove value
+                            else
+                            {
+                                Write-Verbose -Message (
+                                    $LocalizedData['VerboseRestartScheduleValueRemove'] -f
+                                        $_.InputObject, $Name
+                                )
 
-                        Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
-                            "/-recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
-                        )
-                    }
+                                Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
+                                    "/-recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                                )
+                            }
 
-                }
+                        }
             }
 
             if ($PSBoundParameters.ContainsKey('State') -and $appPool.state -ne $State)
@@ -527,6 +538,12 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+
     [OutputType([Boolean])]
     param
     (
@@ -582,8 +599,8 @@ function Test-TargetResource
         [UInt32] $cpuSmpProcessorAffinityMask2,
 
         [ValidateSet(
-            'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
-            'NetworkService', 'SpecificUser'
+                'ApplicationPoolIdentity', 'LocalService', 'LocalSystem',
+                'NetworkService', 'SpecificUser'
         )]
         [String] $identityType,
 
@@ -852,10 +869,10 @@ function Get-Property
     $firstPart = $parts[0]
 
     $value = $Object.$firstPart
-    if($parts.Count -gt 1)
+    if ($parts.Count -gt 1)
     {
         $newParts = @()
-        1..($parts.Count -1) | ForEach-Object{
+        1..($parts.Count -1) | ForEach-Object {
             $newParts += $parts[$_]
         }
 
@@ -868,36 +885,40 @@ function Get-Property
     }
 } 
 
+<#
+    .SYNOPSIS
+        Runs appcmd.exe - if there's an error then the application will terminate
+        
+    .PARAMETER ArgumentList
+        Optional list of string arguments to be passed into appcmd.exe    
+
+#>
 function Invoke-AppCmd
 {
     [CmdletBinding()]
     param
     (
-        [String[]] $ArgumentList,
-
-        [String] $FilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+        [String[]] $ArgumentList
     )
 
-    if (Test-Path -Path $FilePath -PathType Leaf)
+    <# 
+            This is a local preference for the function which will terminate
+            the program if there's an error invoking appcmd.exe
+    #>
+    $ErrorActionPreference = 'Stop'
+
+    $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+    
+    $appcmdResult = $(& $appcmdFilePath $ArgumentList)
+    Write-Verbose -Message $appcmdResult
+
+    if ($LASTEXITCODE -ne 0)
     {
-        $(& $FilePath $ArgumentList) | Write-Verbose
+        $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
 
-        if ($LASTEXITCODE -ne 0)
-        {
-            $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
-
-            New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
-                -ErrorMessage $errorMessage `
-                -ErrorCategory 'InvalidResult'
-        }
-    }
-    else
-    {
-        $errorMessage = $LocalizedData['ErrorAppCmdPathNotFound'] -f $FilePath
-
-        New-TerminatingError -ErrorId 'ErrorAppCmdPathNotFound' `
+        New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
             -ErrorMessage $errorMessage `
-            -ErrorCategory 'ObjectNotFound'
+            -ErrorCategory 'InvalidResult'
     }
 }
 

@@ -1,5 +1,5 @@
 # Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Localized messages
 data LocalizedData
@@ -7,6 +7,7 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
         ErrorWebApplicationTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+        VerboseGetTargetResource                               = Get-TargetResource has been run.
         VerboseSetTargetAbsent                                 = Removing existing Web Application "{0}".
         VerboseSetTargetPresent                                = Creating new Web application "{0}".
         VerboseSetTargetPhysicalPath                           = Updating physical path for Web application "{0}".
@@ -35,25 +36,26 @@ data LocalizedData
 
 function Get-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will return a hashtable of results 
+    #>
+    
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $Website,
+        [String] $Website,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $WebAppPool,
+        [String] $WebAppPool,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $PhysicalPath
+        [String] $PhysicalPath
     )
 
     Assert-Module
@@ -69,6 +71,8 @@ function Get-TargetResource
         $Ensure = 'Present'
     }
 
+    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    
     $returnValue = @{
         Website                  = $Website
         Name                     = $Name
@@ -89,28 +93,28 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This will set the desired state
+    #>
+
     [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $Website,
+        [String] $Website,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $WebAppPool,
+        [String] $WebAppPool,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $PhysicalPath,
+        [String] $PhysicalPath,
 
         [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure = 'Present',
+        [String] $Ensure = 'Present',
 
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
@@ -140,7 +144,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present')
     {
             $webApplication = Get-WebApplication -Site $Website -Name $Name
- 
+
             if ($AuthenticationInfo -eq $null)
             {
                 $AuthenticationInfo = Get-DefaultAuthenticationInfo
@@ -152,16 +156,20 @@ function Set-TargetResource
                 New-WebApplication -Site $Website -Name $Name `
                                    -PhysicalPath $PhysicalPath `
                                    -ApplicationPool $WebAppPool
+                $webApplication = Get-WebApplication -Site $Website -Name $Name
             }
 
-            #Update Physical Path if required
+            # Update Physical Path if required
             if (($PSBoundParameters.ContainsKey('PhysicalPath') -and `
                 $webApplication.physicalPath -ne $PhysicalPath))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetPhysicalPath -f $Name)
-                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
-                                             -Name physicalPath `
-                                             -Value $PhysicalPath
+                #Note: read this before touching the next line of code:
+                #      https://github.com/PowerShell/xWebAdministration/issues/222
+                Set-WebConfigurationProperty `
+                    -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
+                    -Name physicalPath `
+                    -Value $PhysicalPath
             }
 
             # Update AppPool if required
@@ -169,10 +177,14 @@ function Set-TargetResource
                 ($webApplication.applicationPool -ne $WebAppPool))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebAppPool -f $Name)
-                Set-WebConfigurationProperty -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
-                                             -Name applicationPool -Value $WebAppPool
+                #Note: read this before touching the next line of code:
+                #      https://github.com/PowerShell/xWebAdministration/issues/222
+                Set-WebConfigurationProperty `
+                    -Filter $webApplication.ItemXPath `
+                    -Name applicationPool `
+                    -Value $WebAppPool
             }
-     
+
             # Update SslFlags if required
             if ($PSBoundParameters.ContainsKey('SslFlags') -and `
                 (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
@@ -228,15 +240,18 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
                 $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
-                if (-not (Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $ServiceAutoStartProvider `
-                                                                  -ApplicationType $ApplicationType))
+                if (-not (Confirm-UniqueServiceAutoStartProviders `
+                            -ServiceAutoStartProvider $ServiceAutoStartProvider `
+                            -ApplicationType $ApplicationType))
                 {
                     Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
-                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
-                                         -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
-                                         -ErrorAction Stop
+                    Add-WebConfiguration `
+                        -filter /system.applicationHost/serviceAutoStartProviders `
+                        -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
+                        -ErrorAction Stop
                 }
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
+                Write-Verbose -Message `
+                    ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
                                  -Name serviceAutoStartProvider `
                                  -Value $ServiceAutoStartProvider `
@@ -269,29 +284,30 @@ function Set-TargetResource
 
 function Test-TargetResource
 {
+    <#
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+    #>
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $Website,
+        [String] $Website,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
+        [String] $Name,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $WebAppPool,
+        [String] $WebAppPool,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $PhysicalPath,
+        [String] $PhysicalPath,
 
         [ValidateSet('Present','Absent')]
-        [String]
-        $Ensure = 'Present',
+        [String] $Ensure = 'Present',
 
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
@@ -319,13 +335,12 @@ function Test-TargetResource
     Assert-Module
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
-    $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
     if ($AuthenticationInfo -eq $null) 
-    { 
+    {
         $AuthenticationInfo = Get-DefaultAuthenticationInfo 
     }
-    
+
     if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') 
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAbsent -f $Name)
@@ -337,7 +352,7 @@ function Test-TargetResource
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePresent -f $Name)
         return $false
     }
-    
+
     if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') 
     {
         #Check Physical Path
@@ -346,14 +361,14 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)
             return $false
         }
-        
+
         #Check AppPool
         if ($webApplication.applicationPool -ne $WebAppPool)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebAppPool -f $Name)
             return $false
         }
-        
+
         #Check SslFlags
         if ($PSBoundParameters.ContainsKey('SslFlags') -and `
             (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
@@ -367,11 +382,12 @@ function Test-TargetResource
             (-not (Test-AuthenticationInfo -Site $Website `
                                            -Name $Name `
                                            -AuthenticationInfo $AuthenticationInfo)))
-        { 
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo `
+                                    -f $Name)
             return $false
-        }       
-        
+        }
+
         #Check Preload
         if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
             $webApplication.preloadEnabled -ne $PreloadEnabled)
@@ -379,7 +395,7 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
             return $false
         } 
-             
+
         #Check AutoStartEnabled
         if($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
             $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
@@ -387,18 +403,20 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutostart -f $Name)
             return $false
         }
-        
+
         #Check AutoStartProviders 
         if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
             $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
-            if (-not (Confirm-UniqueServiceAutoStartProviders -serviceAutoStartProvider $ServiceAutoStartProvider `
-                                                              -ApplicationType $ApplicationType))
+            if (-not (Confirm-UniqueServiceAutoStartProviders `
+                        -serviceAutoStartProvider $ServiceAutoStartProvider `
+                        -ApplicationType $ApplicationType))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProviders)
                 return $false     
             }
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseWebApplicationAutoStartProviders -f $Name)
+            Write-Verbose -Message `
+                ($LocalizedData.VerboseTestTargetFalseWebApplicationAutoStartProviders -f $Name)
             return $false      
         }
         
@@ -473,21 +491,23 @@ function Confirm-UniqueEnabledProtocols
     return $true
 }
 
+#region Helper Functions
+
 function Confirm-UniqueServiceAutoStartProviders
 {
     <#
-            .SYNOPSIS
-            Helper function used to validate that the AutoStartProviders is unique to other websites.
-            returns False if the AutoStartProviders exist.
-            .PARAMETER serviceAutoStartProvider
-            Specifies the name of the AutoStartProviders.
-            .PARAMETER ExcludeStopped
-            Specifies the name of the Application Type for the AutoStartProvider.
-            .NOTES
-            This tests for the existance of a AutoStartProviders which is globally assigned. 
-            As AutoStartProviders need to be uniquely named it will check for this and error out if 
-            attempting to add a duplicatly named AutoStartProvider.
-            Name is passed in to bubble to any error messages during the test.
+    .SYNOPSIS
+       Helper function used to validate that the AutoStartProviders is unique to other 
+       websites. Returns False if the AutoStartProviders exist.
+    .PARAMETER serviceAutoStartProvider
+       Specifies the name of the AutoStartProviders.
+   .PARAMETER ExcludeStopped
+       Specifies the name of the Application Type for the AutoStartProvider.
+   .NOTES
+       This tests for the existance of a AutoStartProviders which is globally assigned. 
+       As AutoStartProviders need to be uniquely named it will check for this and error out if 
+       attempting to add a duplicatly named AutoStartProvider.
+       Name is passed in to bubble to any error messages during the test.
     #>
     
     [CmdletBinding()]
@@ -495,15 +515,14 @@ function Confirm-UniqueServiceAutoStartProviders
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]
-        $ServiceAutoStartProvider,
+        [String] $ServiceAutoStartProvider,
 
         [Parameter(Mandatory = $true)]
-        [String]
-        $ApplicationType
+        [String] $ApplicationType
     )
 
-    $WebSiteAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
+    $WebSiteAutoStartProviders = (Get-WebConfiguration `
+                            -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
     $ExistingObject = $WebSiteAutoStartProviders | `
         Where-Object -Property Name -eq -Value $serviceAutoStartProvider | `
@@ -528,9 +547,10 @@ function Confirm-UniqueServiceAutoStartProviders
                               -Property type)
                 {
                     $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure
-                    New-TerminatingError -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' `
-                                         -ErrorMessage $ErrorMessage `
-                                         -ErrorCategory 'InvalidResult'
+                    New-TerminatingError `
+                        -ErrorId 'ErrorWebApplicationTestAutoStartProviderFailure' `
+                        -ErrorMessage $ErrorMessage `
+                        -ErrorCategory 'InvalidResult'
                 }
         }
 
@@ -554,10 +574,10 @@ function Get-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String] $Site,
 
         [Parameter(Mandatory = $true)]
-        [String]$Name
+        [String] $Name
     )
 
     $authenticationProperties = @{}
@@ -600,9 +620,9 @@ function Get-SslFlags
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Location
+        [String] $Location
     )
-    
+
     $SslFlags = Get-WebConfiguration `
                 -PSPath IIS:\Sites `
                 -Location $Location `
@@ -638,16 +658,16 @@ function Set-Authentication
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String] $Site,
 
         [Parameter(Mandatory = $true)]
-        [String]$Name,
+        [String] $Name,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type,
+        [String] $Type,
 
-        [System.Boolean]$Enabled
+        [Boolean] $Enabled
     )
 
     Set-WebConfigurationProperty `
@@ -675,20 +695,23 @@ function Set-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String] $Site,
 
         [Parameter(Mandatory = $true)]
-        [String]$Name,
+        [String] $Name,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
     )
 
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
         $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-        Set-Authentication -Site $Site -Name $Name -Type $type -Enabled $enabled
+        Set-Authentication -Site $Site `
+                           -Name $Name `
+                           -Type $type `
+                           -Enabled $enabled
     }
 }
 
@@ -712,14 +735,14 @@ function Test-AuthenticationEnabled
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String] $Site,
 
         [Parameter(Mandatory = $true)]
-        [String]$Name,
+        [String] $Name,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type
+        [String] $Type
     )
 
 
@@ -727,7 +750,7 @@ function Test-AuthenticationEnabled
             -Filter /system.WebServer/security/authentication/${Type}Authentication `
             -Name enabled `
             -Location "${Site}/${Name}"
-    
+
     return $prop.Value
     
 }
@@ -754,21 +777,23 @@ function Test-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String] $Site,
 
         [Parameter(Mandatory = $true)]
-        [String]$Name,
+        [String] $Name,
 
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
     )
 
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
 
         $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-        $actual = Test-AuthenticationEnabled -Site $Site -Name $Name -Type $type
+        $actual = Test-AuthenticationEnabled -Site $Site `
+                                             -Name $Name `
+                                             -Type $type
         if ($expected -ne $actual)
         {
             return $false
@@ -797,26 +822,25 @@ function Test-SslFlags
     (
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [String[]]$SslFlags = '',
+        [String[]] $SslFlags = '',
 
         [Parameter(Mandatory = $true)]
-        [String]$Location
+        [String] $Location
     )
 
 
     $CurrentSslFlags =  Get-SslFlags -Location $Location
 
-    if (Compare-Object -ReferenceObject $CurrentSslFlags -DifferenceObject $SslFlags)
-        {
-            return $false
-        }
+    if(Compare-Object -ReferenceObject $CurrentSslFlags `
+                        -DifferenceObject $SslFlags)
+      {
+          return $false
+      }
         
     return $true
     
 }
 
+#endregion
+
 Export-ModuleMember -Function *-TargetResource
-
-
-
-
