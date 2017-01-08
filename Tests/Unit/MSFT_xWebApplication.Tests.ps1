@@ -547,10 +547,10 @@ try
 
                 $script:mockGetWebApplicationCalled = 0
                 $mockWebApplication = {
-                    $script:mockGetWebApplicationCalled++                                
+                    $script:mockGetWebApplicationCalled++
                     if($script:mockGetWebApplicationCalled -eq 1)
                     {
-                    return $null     
+                    return $null
                     }
                     else
                     {
@@ -600,11 +600,11 @@ try
                 It 'should call expected mocks' {
 
                     $Result = Set-TargetResource -Ensure 'Present' @MockParameters
-                    Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
+                    Assert-MockCalled -CommandName Get-WebApplication -Exactly 2
                     Assert-MockCalled -CommandName New-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 4
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                     Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
 
@@ -665,7 +665,7 @@ try
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Scope It -Exactly 1 `
                                       -ParameterFilter { `
-                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockApp']") -And `
                                         ($Name   -eq 'applicationPool') -And `
                                         ($Value  -eq 'MockPool') `
                                       }
