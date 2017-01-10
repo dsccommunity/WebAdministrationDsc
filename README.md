@@ -221,6 +221,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+* Added removal of self signed certificate to the integration tests of **xWebsite**, fixes #276.
+
 ### 1.16.0.0
 
 * Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for #256.
