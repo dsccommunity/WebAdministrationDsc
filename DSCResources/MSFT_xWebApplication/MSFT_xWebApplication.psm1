@@ -463,7 +463,7 @@ function Confirm-UniqueEnabledProtocols
     )
 
     $inputToCheck = @()
-    foreach($proposedProtocol in $ProposedProtocols)
+    foreach ($proposedProtocol in $ProposedProtocols)
     { 
         $inputToCheck += $proposedProtocol
     }
@@ -471,7 +471,7 @@ function Confirm-UniqueEnabledProtocols
     $existingProtocolsToCheck = $existingProtocols -split ','
 
     $existingToCheck = @()
-    foreach($existingProtocol in $existingProtocolsToCheck)
+    foreach ($existingProtocol in $existingProtocolsToCheck)
     {
         $existingToCheck += $existingProtocol.Trim()
     }

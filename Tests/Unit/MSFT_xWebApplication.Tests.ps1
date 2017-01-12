@@ -1005,7 +1005,7 @@ try
 
         }
 
-        Describe -Name "$script:DSCResourceName\Confirm-UniqueEnabledProtocols" -Fixture {
+        Describe "$script:DSCResourceName\Confirm-UniqueEnabledProtocols" {
 
             Context 'Tests Confirm-UniqueEnabledProtocols' {
 
