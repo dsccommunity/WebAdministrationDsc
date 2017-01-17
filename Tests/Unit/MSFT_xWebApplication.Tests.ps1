@@ -531,7 +531,7 @@ try
                 Mock -CommandName Remove-WebApplication
 
                 It 'should call expected mocks' {
-                    $Result = Set-TargetResource -Ensure 'Absent' @MockParameters
+                    Set-TargetResource -Ensure 'Absent' @MockParameters
                     Assert-MockCalled -CommandName Remove-WebApplication -Exactly 1
                 }
 
@@ -599,7 +599,7 @@ try
                 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 2
                     Assert-MockCalled -CommandName New-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 4
@@ -660,7 +660,7 @@ try
                 Mock -CommandName Set-ItemProperty
 
                 It 'should call expected mocks' {
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Scope It -Exactly 1 `
@@ -718,7 +718,7 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
@@ -767,7 +767,7 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
@@ -809,7 +809,7 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
@@ -849,7 +849,7 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
@@ -890,7 +890,7 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
@@ -942,7 +942,7 @@ try
                 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
@@ -995,7 +995,7 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
