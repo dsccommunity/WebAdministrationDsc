@@ -34,6 +34,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
 
+### xIISRemoteManagement
+* **Ensure**: Ensure that RemoteManagement service is installed. The acceptable values for this property are: `Present`,`Absent`
+* **Status**: Ensure that RemoteManagement is started. The acceptable values for this property are: `Started`, `Stopped`
+
 ### xWebAppPool
 
 * **Name** : Indicates the application pool name. The value must contain between `1` and `64` characters.
@@ -246,6 +250,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * Added a stubs file for the WebAdministration functions so that the unit tests do not require a server to run
 * Converted appveyor.yml to install Pester from PSGallery instead of from Chocolatey.
 * Updated appveyor.yml to use the default image.
+* Added xIISRemoteManagement resource.
 
 ### 1.12.0.0
 

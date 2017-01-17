@@ -1,0 +1,7 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("xIisRemoteManagement")]
+class MSFT_xIisRemoteManagement : OMI_BaseResource
+{
+    [Key, ValueMap{"Started","Stopped"}, Values{"Started","Stopped"}] String State;
+    [Key, ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+};
