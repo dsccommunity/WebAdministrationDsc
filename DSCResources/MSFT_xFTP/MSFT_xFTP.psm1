@@ -1209,8 +1209,6 @@ function Set-FTPAuthorization
 #>
 function Set-SslInfo
 {
-
-
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
