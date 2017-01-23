@@ -1,9 +1,9 @@
 <#
-.SYNOPSIS
-    Adds an app setting WebsiteTitle to the configuration file of the website.
-.DESCRIPTION
-    This example shows how to use the xWebConfigKeyValue DSC resource for adding an extra key and value to appSettings.
-    It will add a key WebSiteTitle with value to the configuration of the site specified.
+    .SYNOPSIS
+        Adds an app setting WebsiteTitle to the configuration file of the website.
+    .DESCRIPTION
+        This example shows how to use the xWebConfigKeyValue DSC resource for adding an extra key and value to appSettings.
+        It will add a key WebSiteTitle with value to the configuration of the site specified.
 #>
 Configuration Sample_xWebConfigKeyValue_AddAppSetting
 {
