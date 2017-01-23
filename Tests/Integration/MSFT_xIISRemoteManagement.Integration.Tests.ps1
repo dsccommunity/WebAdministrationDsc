@@ -55,7 +55,7 @@ try
             $service = (Get-Service -Name WMSVC `
                                     -ErrorAction SilentlyContinue).Status
                
-            $webMgmtService | Should Be 'True'
+            $webMgmtService | Should Be $true
             $service        | Should Be 'Running'
         }
     }    
@@ -85,7 +85,7 @@ try
             $service = (Get-Service -Name WMSVC `
                                     -ErrorAction SilentlyContinue).Status
                
-            $webMgmtService | Should Be 'False'
+            $webMgmtService | Should Be $false
             $service        | Should Be 'Stopped'
         }
     }
