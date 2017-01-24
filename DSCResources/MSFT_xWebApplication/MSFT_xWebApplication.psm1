@@ -17,7 +17,8 @@ data LocalizedData
         VerboseSetTargetPreload                                = Updating Preload for Web application "{0}".
         VerboseSetTargetAutostart                              = Updating AutoStart for Web application "{0}".
         VerboseSetTargetIISAutoStartProviders                  = Updating AutoStartProviders for IIS.
-        VerboseSetTargetWebApplicationAutoStartProviders       = Updating AutoStartProviders for Web application "{0}". 
+        VerboseSetTargetWebApplicationAutoStartProviders       = Updating AutoStartProviders for Web application "{0}".
+        VerboseSetTargetWebApplicationClearAutoStartProviders  = Removing AutoStartProviders for Web application "{0}".
         VerboseTestTargetFalseAbsent                           = Web application "{0}" is absent and should not absent.
         VerboseTestTargetFalsePresent                          = Web application $Name should be absent and is not absent.
         VerboseTestTargetFalsePhysicalPath                     = Physical path for web application "{0}" does not match desired state.
@@ -229,22 +230,34 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
                 $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
             {
-                if (-not (Confirm-UniqueServiceAutoStartProviders `
-                            -ServiceAutoStartProvider $ServiceAutoStartProvider `
-                            -ApplicationType $ApplicationType))
+                if ($ServiceAutoStartProvider -eq $null)
                 {
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
-                    Add-WebConfiguration `
-                        -filter /system.applicationHost/serviceAutoStartProviders `
-                        -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
-                        -ErrorAction Stop
+                    Write-Verbose -Message `
+                        ($LocalizedData.VerboseSetTargetWebApplicationClearAutoStartProviders `
+                         -f $Name)
+                    Clear-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
+                                       -Name serviceAutoStartProvider `
+                                       -ErrorAction Stop
                 }
-                Write-Verbose -Message `
-                    ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
-                                 -Name serviceAutoStartProvider `
-                                 -Value $ServiceAutoStartProvider `
-                                 -ErrorAction Stop
+                else
+                {
+                    if (-not (Confirm-UniqueServiceAutoStartProviders `
+                                  -ServiceAutoStartProvider $ServiceAutoStartProvider `
+                                  -ApplicationType $ApplicationType))
+                    {
+                        Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
+                        Add-WebConfiguration `
+                            -filter /system.applicationHost/serviceAutoStartProviders `
+                            -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
+                            -ErrorAction Stop
+                    }
+                    Write-Verbose -Message `
+                        ($LocalizedData.VerboseSetTargetWebApplicationAutoStartProviders -f $Name)
+                    Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
+                                     -Name serviceAutoStartProvider `
+                                     -Value $ServiceAutoStartProvider `
+                                     -ErrorAction Stop
+                }
             }
     }
 
