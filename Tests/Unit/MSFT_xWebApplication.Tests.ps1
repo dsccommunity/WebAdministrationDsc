@@ -28,20 +28,34 @@ try
                             -ClientOnly `
                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
 
-         $MockParameters = @{
+        $MockParameters = @{
             Website                  = 'MockSite'
             Name                     = 'MockApp'
             WebAppPool               = 'MockPool'
             PhysicalPath             = 'C:\MockSite\MockApp'
             SslFlags                 = 'Ssl'
-            PreloadEnabled           = $True
+            PreloadEnabled           = $true
             ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
-            ServiceAutoStartEnabled  = $True
+            ServiceAutoStartEnabled  = $true
             ApplicationType          = 'MockApplicationType'
             AuthenticationInfo       = $MockAuthenticationInfo
+            EnabledProtocols         = @('http')
         }
-        
-        $MockItemXPath = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.WebAppPool)
+
+        $MockWebApplicationOutput = @{
+            Website                  = 'MockSite'
+            Name                     = 'MockApp'
+            applicationPool          = 'MockPool'
+            PhysicalPath             = 'C:\MockSite\MockApp'
+            SslFlags                 = 'Ssl'
+            PreloadEnabled           = $true
+            ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
+            ServiceAutoStartEnabled  = $true
+            ApplicationType          = 'MockApplicationType'
+            AuthenticationInfo       = $MockAuthenticationInfo
+            EnabledProtocols         = 'http'
+            Count                    = '1'
+        }
 
         $GetWebConfigurationOutput = @(
                 @{
@@ -53,7 +67,7 @@ try
                     )
                 }
             )
-       
+
         Describe "$script:DSCResourceName\Assert-Module" {
             
             Context 'WebAdminstration module is not installed' {
@@ -65,11 +79,11 @@ try
                 It 'should throw an error' {
                     { Assert-Module } | 
                     Should Throw
- 
+
                 }
- 
+
             }
-  
+
         }
 
         Describe "$script:DSCResourceName\Get-TargetResource" {
@@ -107,26 +121,28 @@ try
                     $Result = Get-TargetResource @MockParameters
                     $Result.Ensure | Should Be 'Absent'
                 }
-  
+
             }
 
             Context 'Present should return correctly' {
+
+                Mock -CommandName Get-WebApplication -MockWith {
+                    return $MockWebApplicationOutput 
+                }
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                       return $GetWebConfigurationOutput
+                }
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $GetAuthenticationInfo
                 }
 
-                Mock -CommandName Get-WebApplication -MockWith {
-                    return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        SslFlags                 = $MockParameters.SslFlags
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        Count = 1
-                    }
-                }
+                Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
 
                 It 'should return Present' {
                     $Result = Get-TargetResource @MockParameters
@@ -170,9 +186,9 @@ try
                     $Result = Test-TargetResource -Ensure 'Absent' @MockParameters
                     $Result | Should Be $false
                 }
- 
+
             }
- 
+
         }
 
         Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
@@ -184,7 +200,7 @@ try
                 $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                     -ClientOnly `
                     -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$false}
-                
+
                 Mock -CommandName Get-WebApplication -MockWith {
                     return $null
                 }
@@ -201,23 +217,15 @@ try
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $false
                 }
- 
+
             }
 
             Context 'Web Application exists and is in the desired state' {
-                
+
                 Mock -CommandName Get-WebApplication -MockWith {
-                    return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
-                        Count                    = 1
-                    }
- 
+                    return $MockWebApplicationOutput 
                 }
+
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
                 }
@@ -234,7 +242,7 @@ try
 
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Digest') }
-            
+
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
@@ -254,23 +262,26 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
-                
+
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = 'MockPoolOther'
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count                    = 1
                     }
+ 
                 }
                 
                 It 'should return False' {
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $False
                 }
+ 
             }
 
             Context 'Web Application exists but has a different PhysicalPath' {
@@ -285,13 +296,15 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
                         PhysicalPath             = 'C:\MockSite\MockAppOther'
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
+  
                 }
 
                 It 'should return False' {
@@ -313,11 +326,12 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                         }
                     }
@@ -327,26 +341,19 @@ try
                 It 'should return False' {
                     $Result | Should Be $false
                 }
- 
+
             }
 
             Context 'Check AuthenticationInfo is different' {
-            
+
                 Mock -CommandName Get-WebApplication -MockWith {
-                        return @{
-                            ApplicationPool          = $MockParameters.WebAppPool
-                            PhysicalPath             = $MockParameters.PhysicalPath
-                            PreloadEnabled           = $MockParameters.PreloadEnabled
-                            ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
-                            ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                            ApplicationType          = $MockParameters.ApplicationType
-                            Count                    = 1
-                        }
+                    return $MockWebApplicationOutput 
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                         return $GetWebConfigurationOutput
                     }
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                         return $MockAuthenticationInfo
                     }
@@ -366,7 +373,7 @@ try
                 $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                                             -ClientOnly `
                                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
-            
+
                 $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                 
                 It 'should return False' {
@@ -376,7 +383,7 @@ try
             }
 
             Context 'Check Preload is different' {
-                
+
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
                 }
@@ -387,11 +394,13 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                         }
                     }
@@ -401,7 +410,7 @@ try
                 It 'should return False' {
                     $Result | Should Be $false
                 }
- 
+
             }
 
             Context 'Check ServiceAutoStartEnabled is different' {
@@ -416,11 +425,13 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
                         ServiceAutoStartEnabled  = 'false'
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                         }
                     }
@@ -449,24 +460,59 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
                         ServiceAutoStartProvider = 'ServiceAutoStartProviderOther'
                         ApplicationType          = 'ApplicationTypeOther'
                         Count = 1
                         }
                     }
-               
+
                 $Result = Test-TargetResource -Ensure 'Present' @MockParameters
 
                 It 'should return False' {
                     $Result | Should Be $false
                 }
 
-            }     
+            }
             
+            Context 'Check EnabledProtocols is different' {
+
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'}  -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                    return $MockAuthenticationInfo
+                }
+
+                Mock -CommandName Get-WebApplication -MockWith {
+                    return @{
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = 'http'
+                        Count = 1
+                        }
+                    }
+
+                $Result = Test-TargetResource -Ensure 'Present' @MockParameters
+
+                It 'should return False' {
+                    $Result | Should Be $false
+                }
+
+            }
+
         }
 
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
@@ -485,7 +531,7 @@ try
                 Mock -CommandName Remove-WebApplication
 
                 It 'should call expected mocks' {
-                    $Result = Set-TargetResource -Ensure 'Absent' @MockParameters
+                    Set-TargetResource -Ensure 'Absent' @MockParameters
                     Assert-MockCalled -CommandName Remove-WebApplication -Exactly 1
                 }
 
@@ -501,10 +547,10 @@ try
 
                 $script:mockGetWebApplicationCalled = 0
                 $mockWebApplication = {
-                    $script:mockGetWebApplicationCalled++                                
+                    $script:mockGetWebApplicationCalled++
                     if($script:mockGetWebApplicationCalled -eq 1)
                     {
-                        return $null
+                    return $null
                     }
                     else
                     {
@@ -539,7 +585,7 @@ try
 
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Digest') }
-            
+
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
@@ -553,10 +599,10 @@ try
                 
                 It 'should call expected mocks' {
 
-                $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 2
                     Assert-MockCalled -CommandName New-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 4
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                     Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
@@ -575,12 +621,13 @@ try
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         ApplicationPool          = 'MockPoolOther'
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockItemXPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
   
@@ -602,7 +649,7 @@ try
 
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Digest') }
-            
+
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
@@ -613,12 +660,12 @@ try
                 Mock -CommandName Set-ItemProperty
 
                 It 'should call expected mocks' {
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Scope It -Exactly 1 `
                                       -ParameterFilter { `
-                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockApp']") -And `
                                         ($Name   -eq 'applicationPool') -And `
                                         ($Value  -eq 'MockPool') `
                                       }
@@ -630,16 +677,17 @@ try
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
                         PhysicalPath             = 'C:\MockSite\MockAppOther'
-                        ItemXPath                = $MockItemXPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
- 
+
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
@@ -658,7 +706,7 @@ try
 
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Digest') }
-            
+
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
@@ -670,38 +718,34 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
-                                      -ParameterFilter { `
-                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']/virtualDirectory[@path='/']") -And `
-                                        ($Name   -eq 'physicalPath') -And `
-                                        ($Value  -eq 'C:\MockSite\MockApp') `
-                                      }
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                 }
+
             }
 
             Context 'Web Application exists but has different AuthenticationInfo' {
-            
+
                 Mock -CommandName Get-WebApplication -MockWith {
-                        return @{
-                            ApplicationPool          = $MockParameters.WebAppPool
-                            PhysicalPath             = $MockParameters.PhysicalPath
-                            ItemXPath                = $MockItemXPath
-                            PreloadEnabled           = $MockParameters.PreloadEnabled
-                            ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                            ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                            ApplicationType          = $MockParameters.ApplicationType
-                            Count = 1
-                        }
-                
+                    return @{
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
+                        Count = 1
+                    }
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                         return $GetWebConfigurationOutput
                     }
-                
+
                 Mock -CommandName Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Anonymous') }
 
@@ -710,39 +754,40 @@ try
 
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Digest') }
-            
+
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 Mock -CommandName Set-WebConfiguration
                 Mock -CommandName Set-Authentication
-            
+
                 $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                                             -ClientOnly `
                                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
-                            
+
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                 }
-            
+
             }
 
             Context 'Web Application exists but has different SslFlags' {
             
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockItemXPath
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
 
@@ -764,29 +809,30 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                 }
-            
+
             }
 
             Context 'Web Application exists but has Preload not set' {
 
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockItemXPath
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
                         PreloadEnabled           = 'false'
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
-                        ApplicationType          = $MockParameters.ApplicationType
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
 
-               }
+                }
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
                 }
@@ -803,30 +849,31 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                 }
- 
+
             }
 
             Context 'Web Application exists but has ServiceAutoStartEnabled not set' {
                
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockItemXPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
                         ServiceAutoStartEnabled  = 'false'
-                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider    
-                        ApplicationType          = $MockParameters.ApplicationType
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider    
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
- 
+
                 }
-                        
+
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
                 }
@@ -843,16 +890,16 @@ try
 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                 }
-  
+
             }
 
             Context 'Web Application exists but has different ServiceAutoStartProvider' {
-           
+
                 $GetWebConfigurationOutput = @(
                     @{
                         SectionPath = 'MockSectionPath'
@@ -864,15 +911,16 @@ try
                     }
                 )
 
-               Mock -CommandName Get-WebApplication -MockWith {
+                Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockParameters.WebAppPool
-                        PhysicalPath             = $MockParameters.PhysicalPath
-                        ItemXPath                = $MockItemXPath
-                        PreloadEnabled           = $MockParameters.PreloadEnabled
-                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled 
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
                         ServiceAutoStartProvider = 'OtherServiceAutoStartProvider'
-                        ApplicationType          = 'OtherApplicationType'                      
+                        ApplicationType          = 'OtherApplicationType'
+                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
 
@@ -894,17 +942,89 @@ try
                 
                 It 'should call expected mocks' {
 
-                    $Result = Set-TargetResource -Ensure 'Present' @MockParameters
+                    Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                 }
-            
+
             }
-        
+
+            Context 'Web Application exists but has different EnabledProtocols' {
+
+                $GetWebConfigurationOutput = @(
+                    @{
+                        SectionPath = 'MockSectionPath'
+                        PSPath      = 'MockPSPath'
+                        SslFlags    = 'Ssl'
+                        Collection  = @(
+                                    [PSCustomObject]@{Name = 'OtherMockServiceAutoStartProvider' ;Type = 'OtherMockApplicationType'}   
+                        )
+                    }
+                )
+
+                Mock -CommandName Get-WebApplication -MockWith {
+                    return @{
+                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
+                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
+                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
+                        PreloadEnabled           = $MockWebApplicationOutput.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled 
+                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
+                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
+                        EnabledProtocols         = 'http,net.tcp'
+                        Count = 1
+                    }
+
+                }
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                    return $MockAuthenticationInfo
+                }
+
+                Mock -CommandName Add-WebConfiguration
+                Mock -CommandName New-WebApplication
+                Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Set-WebConfiguration
+                Mock -CommandName Set-ItemProperty
+
+                It 'should call expected mocks' {
+
+                    Set-TargetResource -Ensure 'Present' @MockParameters
+
+                    Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
+                }
+
+            }
+
         }
-      
+
+        Describe "$script:DSCResourceName\Confirm-UniqueEnabledProtocols" {
+
+            Context 'Tests Confirm-UniqueEnabledProtocols' {
+
+                It 'Should return true when settings match' {
+
+                    Confirm-UniqueEnabledProtocols -ExistingProtocols 'http,net.tcp' `
+                                                   -ProposedProtocols @('http','net.tcp') `
+                                                   | Should be $true
+                }
+
+                It 'Should return false when settings do not match' {
+                    
+                    Confirm-UniqueEnabledProtocols -ExistingProtocols 'http' `
+                                                   -ProposedProtocols @('http','net.tcp') `
+                                                   | Should be $false
+                }
+            }
+        }
+
         Describe "$script:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
 
             $MockParameters = @{
@@ -953,14 +1073,14 @@ try
 
                 It 'should return Throw' {
 
-                $ErrorId = 'ServiceAutoStartProviderFailure'
-                $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure, 'ScriptHalted'
-                $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+                    $ErrorId = 'ServiceAutoStartProviderFailure'
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+                    $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure, 'ScriptHalted'
+                    $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                    $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 
-                {Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $MockParameters.Name -ApplicationType 'MockApplicationType2'} |
-                Should Throw $ErrorRecord
+                    {Confirm-UniqueServiceAutoStartProviders -ServiceAutoStartProvider $MockParameters.Name -ApplicationType 'MockApplicationType2'} |
+                    Should Throw $ErrorRecord
                 }
 
             }
@@ -971,7 +1091,6 @@ try
                     @{
                         Name = ''
                         Type = ''
-                        
                     }
                 )
 
@@ -995,7 +1114,7 @@ try
                         )
                     }
                 )
-                
+
                 Mock -CommandName Get-WebConfiguration -MockWith {return $GetWebConfigurationOutput}
 
                 It 'should return True' {
@@ -1046,19 +1165,19 @@ try
                 It 'should call Get-WebConfigurationProperty four times' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
-  
+
             }
 
             Context 'AuthenticationInfo is true' {
-                
+
                 $GetWebConfigurationOutput = @(
                     @{
                         Value = 'True'
                     }
                 )
-                
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
-     
+
                 It 'should all be true' {
                     $result = Get-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name 
                     $result.Anonymous | Should be True
@@ -1076,7 +1195,7 @@ try
         }
 
         Describe "$script:DSCResourceName\Get-DefaultAuthenticationInfo" {
-       
+
             Context 'Expected behavior' {
 
                 It 'should not throw an error' {
@@ -1085,7 +1204,7 @@ try
                 }
 
             }
-           
+
             Context 'Get-DefaultAuthenticationInfo should produce a false CimInstance' {
                
                 It 'should all be false' {
@@ -1095,9 +1214,9 @@ try
                     $result.Basic | Should be False
                     $result.Windows | Should be False
                 }
-   
-            }           
- 
+
+            }
+
         }
 
         Describe "$script:DSCResourceName\Get-SslFlags" {
@@ -1136,77 +1255,77 @@ try
                     Get-SslFlags -Location (${MockParameters}.Website + '\' + ${MockParameters}.Name) |
                     Should Be 'Ssl'
                 }
- 
+
             }
 
         }
 
         Describe "$script:DSCResourceName\Set-Authentication" {
 
-        Context 'Expected behavior' {
+            Context 'Expected behavior' {
 
-            Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Set-WebConfigurationProperty
 
-            It 'should not throw an error' {
+                It 'should not throw an error' {
                     { Set-Authentication -Site $MockParameters.Website -Name $MockParameters.Name -Type Basic -Enabled $true }|
                     Should Not Throw
                 }
 
-            It 'should call Set-WebConfigurationProperty once' {
+                It 'should call Set-WebConfigurationProperty once' {
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
                 }    
- 
+
             }
-  
+
         }
 
         Describe "$script:DSCResourceName\Set-AuthenticationInfo" {
-        
-        Context 'Expected behavior' {
 
-            Mock -CommandName Set-WebConfigurationProperty
+            Context 'Expected behavior' {
 
-            $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                Mock -CommandName Set-WebConfigurationProperty
+
+                $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                                                   -ClientOnly `
                                                   -Property @{Anonymous='true';Basic='false';Digest='false';Windows='false'}
 
-            It 'should not throw an error' {
+                It 'should not throw an error' {
                     { Set-AuthenticationInfo  -Site $MockParameters.Website -Name $MockParameters.Name -AuthenticationInfo $AuthenticationInfo }|
                     Should Not Throw
                 }
 
-            It 'should call should call expected mocks' {
+                It 'should call should call expected mocks' {
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 4
-                }    
-  
-            }       
+                }
 
-      }
+            }
+
+        }
         
         Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
         
-        Context 'Expected behavior' {
+            Context 'Expected behavior' {
 
-            $GetWebConfigurationOutput = @(
+                $GetWebConfigurationOutput = @(
                     @{
                         Value = 'False'
                     }
                 )
 
-            Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+                Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
 
-            It 'should not throw an error' {
+                It 'should not throw an error' {
                     { Test-AuthenticationEnabled  -Site $MockParameters.Website -Name $MockParameters.Name -Type 'Basic'}|
                     Should Not Throw
                 }
 
-            It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                }    
-    
+                }
+
             }
 
-        Context 'AuthenticationInfo is false' {
+            Context 'AuthenticationInfo is false' {
 
                 $GetWebConfigurationOutput = @(
                     @{
@@ -1227,16 +1346,16 @@ try
 
             }
 
-        Context 'AuthenticationInfo is true' {
-                
+            Context 'AuthenticationInfo is true' {
+
                 $GetWebConfigurationOutput = @(
                     @{
                         Value = 'True'
                     }
                 )
-                
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
-     
+
                 It 'should all be true' {
                     Test-AuthenticationEnabled -site $MockParameters.Website -name $MockParameters.Name -Type 'Basic' | Should be True
                 }
@@ -1244,40 +1363,40 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
                 }
-  
-            }   
-  
+
+            }
+
         }
-        
+
         Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
 
-        Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
+            Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
 
-        $GetWebConfigurationOutput = @(
+            $GetWebConfigurationOutput = @(
                     @{
                         Value = 'False'
                     }
                 )
 
-        $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+            $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                                     -ClientOnly `
                                     -Property @{Anonymous='false';Basic='true';Digest='false';Windows='false'}
-        
-        Context 'Expected behavior' {
+
+            Context 'Expected behavior' {
 
 
-            It 'should not throw an error' {
+                It 'should not throw an error' {
                     { Test-AuthenticationInfo  -Site $MockParameters.Website -Name $MockParameters.Name -AuthenticationInfo $AuthenticationInfo }|
                     Should Not Throw
                 }
 
-            It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
-                }    
- 
+                }
+
             }
 
-        Context 'Return False when AuthenticationInfo is not correct' {
+            Context 'Return False when AuthenticationInfo is not correct' {
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
 
@@ -1289,23 +1408,23 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 2
                 }
-  
+
             }
 
-        Context 'Return True when AuthenticationInfo is correct' {
+            Context 'Return True when AuthenticationInfo is correct' {
                 
                 $GetWebConfigurationOutput = @(
                     @{
                         Value = 'True'
                     }
                 )
-      
+
                 $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                                     -ClientOnly `
                                     -Property @{Anonymous='true';Basic='true';Digest='true';Windows='true'}
                 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $GetWebConfigurationOutput}
-     
+
                 It 'should return true' {
                     Test-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name -AuthenticationInfo $AuthenticationInfo | Should be True
                 }
@@ -1313,31 +1432,31 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
-  
-            }     
-  
+
+            }
+
         }
 
         Describe "$script:DSCResourceName\Test-SslFlags" {
-        
-        Context 'Expected behavior' {
 
-            Mock -CommandName Get-WebConfiguration -MockWith {
+            Context 'Expected behavior' {
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
                     return $GetWebConfigurationOutput
                 }
 
-            It 'should not throw an error' {
+                It 'should not throw an error' {
                     { Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  }|
                     Should Not Throw
                 }
 
-            It 'should call expected mocks' {
+                It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
-                }    
- 
+                }
+
             }
 
-        Context 'Return False when SslFlags are not correct' {
+            Context 'Return False when SslFlags are not correct' {
 
                 $GetWebConfigurationOutput = @(
                     @{
@@ -1349,7 +1468,7 @@ try
                     return $GetWebConfigurationOutput
                 }
 
-                
+
                 It 'should return false' {
                     Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags | Should be False
                 }
@@ -1357,15 +1476,15 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
                 }
-  
+
             }
 
-        Context 'Return True when SslFlags are correct' {
+            Context 'Return True when SslFlags are correct' {
                 
                 Mock -CommandName Get-WebConfiguration -MockWith {
                     return $GetWebConfigurationOutput
                 }
-     
+
                 It 'should return true' {
                     Test-SslFlags -Location ${MockParameters.Website}/${MockParameters.Name} -SslFlags $MockParameters.SslFlags  | Should be True
                 }
@@ -1373,11 +1492,11 @@ try
                 It 'should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
                 }
-  
+
             }
-        
-        }     
-    
+
+        }
+
     }
 
 }
