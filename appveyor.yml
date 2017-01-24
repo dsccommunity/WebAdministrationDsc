@@ -7,7 +7,7 @@ install:
     - ps: |
         Import-Module -Name .\DscResource.Tests\TestHelper.psm1 -Force
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-        Install-Module -Name Pester -Repository PSGallery -Version 3.4.3 -Force
+        Install-Module -Name Pester -Repository PSGallery -MaximumVersion 3.4.3 -Force
         Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
 
 #---------------------------------#
