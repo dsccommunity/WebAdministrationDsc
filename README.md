@@ -13,6 +13,11 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ## Resources
 
+### xIisHandler
+
+* **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
+* **Ensure**: Ensures that the handler is **Present** or **Absent**.
+
 ### xIISModule
 
 * **Path**: The path to the module to be registered.
@@ -187,19 +192,22 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **WebApplication**:  The name of the containing web application or an empty string for the containing website
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
-* **Ensure**: Ensures if the virtual directory is Present or Absent.
+* **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
 
 ### xWebConfigKeyValue
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
-* **KeyValuePair**: Key value pair for AppSettings (ItemCollection format).
+* **Key**: Key for AppSettings.
+* **Value**: Value for AppSettings.
+* **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
+* **IsAttribute**: If the given key value pair is for attribute, default is element.
 
 ### xSSLSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
-* **Ensure**: Ensures if the bindings are Present or Absent.
+* **Ensure**: Ensures if the bindings are **Present** or **Absent**.
 
 ### xIisFeatureDelegation
 
@@ -217,6 +225,15 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **ApplyTo**: Required Key value, always **Machine**
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
 * **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
+
+### xWebSiteDefaults
+
+* **Key**: Required Key value, always **Machine**
+* **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
+* **LogDirectory**: Directory for IIS logs.
+* **TraceLogDirectory**: Directory for FREB (Failed Request Tracing) logs.
+* **DefaultApplicationPool**: Name of the default application pool used by websites. 
+* **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
 ## Versions
 
@@ -238,6 +255,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * Corrected name of AuthenticationInfo parameter in Readme.md.
 * Added sample for **xWebApplication** for adding new web application.
 * Corrected description for AuthenticationInfo for xWebApplication and xWebsite.
+* Added samples for **xWebConfigKeyValue** for adding and removing appSettings.
+* Added sample for **xWebAppPoolDefaults** for configuring the application pool defaults.
+* Added sample for **xWebSiteDefaults** for configuring the site defaults.
+* Updated Readme.md for **xWebConfigKeyValue**. Added **xIISHandler** and **xWebSiteDefaults**.
 
 ### 1.14.0.0
 
