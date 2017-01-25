@@ -224,7 +224,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 * Added removal of self signed certificate to the integration tests of **xWebsite**, fixes #276.
 * Added EnabledProtocols to **xWebApplication**.
-* Added check to make sure WebAppPool exists. Bugfix for #279
+* Added check to make sure WebAppPool exists for **xWebApplication**. Bugfix for #279
 
 ### 1.16.0.0
 
