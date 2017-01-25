@@ -22,6 +22,7 @@
             CertificateStoreName        = 'MY'
             SslFlags                    = '1'
             WebApplicationSslFlags      = @('Ssl')
+            EnabledProtocols            = @('http', 'net.tcp')
         }
     )
 }
