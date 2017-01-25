@@ -528,6 +528,10 @@ try
                     return $GetWebConfigurationOutput
                 }
 
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
+                }
+
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'}  -MockWith {
                     return $null
                 }
