@@ -29,11 +29,12 @@ try
     $dscConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
     # Create a SelfSigned Cert
-    $selfSignedCert = (New-SelfSignedCertificate -DnsName $dscConfig.AllNodes.HTTPSHostname  -CertStoreLocation 'cert:\LocalMachine\My')
+    $selfSignedCert = (New-SelfSignedCertificate -DnsName $dscConfig.AllNodes.HTTPSHostname `
+        -CertStoreLocation 'cert:\LocalMachine\My')
     
     #region HelperFunctions
 
-   # Function needed to test AuthenticationInfo
+    # Function needed to test AuthenticationInfo
     function Get-AuthenticationInfo
     {
         [CmdletBinding()]
@@ -58,19 +59,19 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfig -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
 
         It 'Should Create a Started Website with correct settings' -test {
             
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfg  -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfg  -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -126,19 +127,19 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$dscConfig -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
         
         It 'Should Create a Stopped Website with correct settings' -test {
             
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$dscConfg  -OutputPath `$TestEnvironment.WorkingFolder -CertificateThumbprint `$selfSignedCert.Thumbprint"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Stopped -ConfigurationData `$dscConfg  -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -194,19 +195,19 @@ try
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$dscConfig -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$dscConfig -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
         
         It 'Should remove the Website' -test {
             
-            Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$dscConfg  -OutputPath `$TestEnvironment.WorkingFolder"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$dscConfg  -OutputPath `$TestDrive"
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -238,6 +239,7 @@ finally
     #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
+    Remove-Item -PSPath $selfSignedCert.PSPath
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion

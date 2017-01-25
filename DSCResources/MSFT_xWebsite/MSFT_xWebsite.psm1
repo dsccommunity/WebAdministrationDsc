@@ -62,7 +62,7 @@ data LocalizedData
         VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
         VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
         VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
-        VerboseTestTargetFalseLogPath = LogPath does match desired state on Website "{0}".
+        VerboseTestTargetFalseLogPath = LogPath does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
@@ -167,6 +167,9 @@ function Get-TargetResource
         .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the 
         target machine.
+
+        .PARAMETER PhysicalPath
+        Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
 #>
 function Set-TargetResource
 {
@@ -182,7 +185,6 @@ function Set-TargetResource
         [String]
         $Name,
 
-        [ValidateNotNullOrEmpty()]
         [String]
         $PhysicalPath,
 
@@ -230,7 +232,9 @@ function Set-TargetResource
         [String]
         $LogPeriod,
 
-        [ValidateRange('1048576','4294967295')]
+        [ValidateScript({
+            ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
+        })]
         [String]
         $LogTruncateSize,
 
@@ -445,9 +449,8 @@ function Set-TargetResource
 
             # Update LogPath if required
             if ($PSBoundParameters.ContainsKey('LogPath') -and `
-                ($LogPath -ne $website.logfile.LogPath))
+                ($LogPath -ne $website.logfile.directory))
             {
-
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -456,7 +459,7 @@ function Set-TargetResource
 
             # Update LogPeriod if needed
             if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-                ($LogPeriod -ne $website.logfile.LogPeriod))
+                ($LogPeriod -ne $website.logfile.period))
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
@@ -495,10 +498,6 @@ function Set-TargetResource
         # Create website if it does not exist
         else
         {
-            if ([String]::IsNullOrEmpty($PhysicalPath)) {
-                throw 'The PhysicalPath Parameter must be provided for a website to be created'
-            }
-
             try
             {
                 $PSBoundParameters.GetEnumerator() | Where-Object -FilterScript {
@@ -517,7 +516,14 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
-                $website = New-Website @newWebsiteSplat -ErrorAction Stop
+                if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                    # If no physical path is provided run New-Website with -Force flag
+                    $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
+                } else {
+                    # If physical path is provided don't run New-Website with -Force flag to verify that the path exists
+                    $website = New-Website @newWebsiteSplat -ErrorAction Stop
+                }
+                
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated `
                                         -f $Name)
             }
@@ -683,7 +689,7 @@ function Set-TargetResource
 
             # Update LogPath if required
             if ($PSBoundParameters.ContainsKey('LogPath') -and `
-                ($LogPath -ne $website.logfile.LogPath))
+                ($LogPath -ne $website.logfile.directory))
             {
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
@@ -694,7 +700,7 @@ function Set-TargetResource
 
             # Update LogPeriod if needed
             if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-                ($LogPeriod -ne $website.logfile.LogPeriod))
+                ($LogPeriod -ne $website.logfile.period))
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
@@ -818,7 +824,9 @@ function Test-TargetResource
         [String]
         $LogPeriod,
 
-        [ValidateRange('1048576','4294967295')]
+        [ValidateScript({
+            ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
+        })]
         [String]
         $LogTruncateSize,
 
@@ -995,7 +1003,7 @@ function Test-TargetResource
 
         # Check LogPath
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
-            ($LogPath -ne $website.logfile.LogPath))
+            ($LogPath -ne $website.logfile.directory))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath `
                                     -f $Name)
@@ -1004,7 +1012,7 @@ function Test-TargetResource
 
         # Check LogPeriod
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-            ($LogPeriod -ne $website.logfile.LogPeriod))
+            ($LogPeriod -ne $website.logfile.period))
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
             {

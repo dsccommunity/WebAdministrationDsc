@@ -1,6 +1,6 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
-
 # xWebAdministration
+
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
 The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
 
@@ -8,6 +8,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ## Contributing
+
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
 ## Resources
@@ -23,14 +24,14 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Name**: The logical name to register the module as in IIS.
 * **RequestPath**: The allowed request paths, such as *.php
 * **Verb**: An array of allowed verbs, such as get and post.
-* **SiteName**: The name of the Site to register the module for.
-If empty, the resource will register the module with all of IIS.
-* **ModuleType**: The type of the module.
-Currently, only FastCgiModule is supported.
+* **SiteName**: The name of the Site to register the module for. If empty, the resource will register the module with all of IIS.
+* **ModuleType**: The type of the module. Currently, only FastCgiModule is supported.
 * **Ensure**: Ensures that the module is **Present** or **Absent**.
 
 ### xIISLogging
+
 **Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebsite**
+
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`
 * **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
@@ -131,22 +132,22 @@ Currently, only FastCgiModule is supported.
 
 ### xWebsite
 
-* **Name**: The desired name of the website.
+* **Name** : The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
 * **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class that implements the following properties:
-    * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
-    * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
-    * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
-    * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
-    * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
-    * **CertificateThumbprint**: The thumbprint of the certificate. This property is only applicable for `https` bindings.
-    * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
-    * **SslFlags**: The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for `https` bindings. The acceptable values for this property are:
-        * **0**: The default value. The secure connection be made using an IP/Port combination. Only one certificate can be bound to a combination of IP address and the port.
-        * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
-        * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
-        * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
+  * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
+  * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
+  * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
+  * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
+  * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
+  * **CertificateThumbprint**: The thumbprint of the certificate. This property is only applicable for `https` bindings.
+  * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
+  * **SslFlags**: The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for `https` bindings. The acceptable values for this property are:
+    * **0**: The default value. The secure connection be made using an IP/Port combination. Only one certificate can be bound to a combination of IP address and the port.
+    * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
+    * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
+    * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
 * **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
@@ -177,12 +178,13 @@ Currently, only FastCgiModule is supported.
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Web Application's authentication information in the form of an embedded instance of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** takes the following properties:
+* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
     * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
     * **Digest**: The acceptable values for this property are: `$true`, `$false`
     * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
+* **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
 ### xWebVirtualDirectory
 
@@ -237,6 +239,19 @@ Currently, only FastCgiModule is supported.
 
 ### Unreleased
 
+* Added removal of self signed certificate to the integration tests of **xWebsite**, fixes #276.
+* Added EnabledProtocols to **xWebApplication**.
+* Changed SSLFlags for **xWebApplication** to comma seperate multiple SSL flags, fixes #232.
+
+### 1.16.0.0
+
+* Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for #256.
+* Changed **xWebConfigKeyValue** to use the key for changing existing values. Bugfix for #107.
+* Changed validation of LogTruncateSize for **xIisLogging** and **xWebsite** to UInt64 validation.
+* Make PhysicalPath optional in **xWebsite**. Bugfix for #264.
+
+### 1.15.0.0
+
 * Corrected name of AuthenticationInfo parameter in Readme.md.
 * Added sample for **xWebApplication** for adding new web application.
 * Corrected description for AuthenticationInfo for xWebApplication and xWebsite.
@@ -248,8 +263,8 @@ Currently, only FastCgiModule is supported.
 ### 1.14.0.0
 
 * xWebApplication:
-	* Fixed bug when setting PhysicalPath and WebAppPool
-	* Changes to the application pool property are now applied correctly
+  * Fixed bug when setting PhysicalPath and WebAppPool
+  * Changes to the application pool property are now applied correctly
 
 ### 1.13.0.0
 
@@ -259,8 +274,9 @@ Currently, only FastCgiModule is supported.
 * Updated appveyor.yml to use the default image.
 
 ### 1.12.0.0
+
 * **xWebAppPool** updates:
-    * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
+  * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
 
 * **xWebsite** updates:
     * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
@@ -284,25 +300,27 @@ Currently, only FastCgiModule is supported.
     * LoglocalTimeRollover
     * LogFormat
 
-* **xWebApplication** updates:
-    * Added integration tests and added option to SslFlags
+* **xWebApplication** updates: 
+    * xWebApplication integration tests updated
+    * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
+    * Added EnabledProtocols
     * Fixed:
-         * Formatted resources to DSC StyleGuideLines
-         * Logging statements
-         * Incorrect Get-TargetResource param block
-         * Test-SslFlags validation
-         * Unit test mocking of Test-SslFlags
+      * Formatted resources to DSC StyleGuideLines
+        * Logging statements
+        * Incorrect Get-TargetResource param block
+        * Test-SslFlags validation
+        * Unit test mocking of Test-SslFlags
 
 ### 1.11.0.0
 
 * **xWebAppPool** updates:
-    * Bug fixes, error handling and input validation improvements.
-    * The following properties were added: **idleTimeoutAction**, **logEventOnProcessModel**, **setProfileEnvironment**.
-    * The resource was updated to ensure a specific state only for the explicitly specified properties.
-    * The type of the following properties was changed to **Boolean**: **autoStart**, **enable32BitAppOnWin64**, **enableConfigurationOverride**,
+  * Bug fixes, error handling and input validation improvements.
+  * The following properties were added: **idleTimeoutAction**, **logEventOnProcessModel**, **setProfileEnvironment**.
+  * The resource was updated to ensure a specific state only for the explicitly specified properties.
+  * The type of the following properties was changed to **Boolean**: **autoStart**, **enable32BitAppOnWin64**, **enableConfigurationOverride**,
         **passAnonymousToken**, **cpuSmpAffinitized**, **loadUserProfile**, **manualGroupMembership**, **pingingEnabled**, **setProfileEnvironment**,
         **orphanWorkerProcess**, **rapidFailProtection**, **disallowOverlappingRotation**, **disallowRotationOnConfigChange**.
-    * Unit and integration tests updated.
+  * Unit and integration tests updated.
 * **xWebsite** updated to remove invisible Unicode "LEFT-TO-RIGHT MARK" character from the **CertificateThumbprint** property value.
 * Added Preload and ServiceAutoStart functionality to **xWebsite** and **xWebApplication**
 * Added AuthenticationInformation to **xWebsite** and **xWebApplication**
@@ -318,9 +336,9 @@ Currently, only FastCgiModule is supported.
 ### 1.9.0.0
 
 * Added the following resources:
-    * xSSLSettings
+  * xSSLSettings
 * Fixed an issue in xWebApplication where Set-TargetResource attempted to modify a folder instead of an application.
-    * Added Tests to xWebApplication which will allow more changes if desired.
+  * Added Tests to xWebApplication which will allow more changes if desired.
 * Modified README.MD to clean up Code Formatting
 * Modified all unit/integration tests to utilize template system.
 * xWebAppPool is now has feature parity to cWebAppPool - should now support most changes.
@@ -349,11 +367,11 @@ Currently, only FastCgiModule is supported.
 ### 1.7.0.0
 
 * Added following resources:
-    * xIisHandler
-    * xIisFeatureDelegation
-    * xIisMimeTypeMapping
-    * xWebAppPoolDefaults
-    * xWebSiteDefaults
+  * xIisHandler
+  * xIisFeatureDelegation
+  * xIisMimeTypeMapping
+  * xWebAppPoolDefaults
+  * xWebSiteDefaults
 * Modified xWebsite schema to make PhysicalPath required
 
 ### 1.6.0.0
@@ -363,9 +381,9 @@ Currently, only FastCgiModule is supported.
 ### 1.5.0.0
 
 * xWebsite:
-    - Fix issue with Get-Website when there are multiple sites.
-    - Fix issue when trying to add a new website when no websites currently exist.
-    - Fix typos.
+  * Fix issue with Get-Website when there are multiple sites.
+  * Fix issue when trying to add a new website when no websites currently exist.
+  * Fix typos.
 
 ### 1.4.0.0
 
@@ -384,6 +402,7 @@ Changed Key property in MSFT_xWebConfigKeyValue to be a Key, instead of Required
 ### 1.3.2.2
 
 * Documentation only change.
+
 Module manifest metadata changed to improve PowerShell Gallery experience.
 
 ### 1.3.2.1
@@ -408,7 +427,7 @@ Module manifest metadata changed to improve PowerShell Gallery experience.
 ### 1.0.0.0
 
 * Initial release with the following resources
-    - **xWebsite**
+  * **xWebsite**
 
 
 ## Examples
@@ -1011,3 +1030,4 @@ Configuration Sample_xWebAppPool
     }
 }
 ```
+
