@@ -239,6 +239,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+### 1.17.0.0
+
 * Added removal of self signed certificate to the integration tests of **xWebsite**, fixes #276.
 * Added EnabledProtocols to **xWebApplication**.
 * Changed SSLFlags for **xWebApplication** to comma seperate multiple SSL flags, fixes #232.
