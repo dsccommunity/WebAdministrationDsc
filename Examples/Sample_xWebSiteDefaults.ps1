@@ -1,8 +1,8 @@
 <#
-.SYNOPSIS
-    An example of configuring the website default settings.
-.DESCRIPTION
-    This examples show how to use xWebSiteDefaults for configuring the website default settings.
+    .SYNOPSIS
+        An example of configuring the website default settings.
+    .DESCRIPTION
+        This examples show how to use xWebSiteDefaults for configuring the website default settings.
 #>
 Configuration Sample_xWebSiteDefaults
 {
