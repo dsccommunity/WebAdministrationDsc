@@ -7,6 +7,7 @@ data LocalizedData
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
         ErrorWebApplicationTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
+        ErrorWebAppPoolFailure                                 = Desired WebAppPool does not exist.
         VerboseGetTargetResource                               = Get-TargetResource has been run.
         VerboseSetTargetAbsent                                 = Removing existing Web Application "{0}".
         VerboseSetTargetPresent                                = Creating new Web application "{0}".
@@ -299,6 +300,8 @@ function Test-TargetResource
     )
 
     Assert-Module
+
+    Test-AppPoolExists -WebAppPool $WebAppPool
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
@@ -613,6 +616,32 @@ function Set-AuthenticationInfo
                            -Name $Name `
                            -Type $type `
                            -Enabled $enabled
+    }
+}
+
+    <#
+    .SYNOPSIS
+        Helper function used to test if a desired AppPool exists.
+    .PARAMETER WebAppPool
+        Specifies the AppPool to check for existance.
+    #>
+function Test-AppPoolExists
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String] $WebAppPool
+    )
+
+    if (-not (Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' | `
+        Where-Object -FilterScript {$_.name -eq $WebAppPool}))
+    {
+        $ErrorMessage = $LocalizedData.ErrorWebAppPoolFailure
+        New-TerminatingError `
+            -ErrorId 'ErrorWebAppPoolFailure' `
+            -ErrorMessage $ErrorMessage `
+            -ErrorCategory 'InvalidResult'
     }
 }
 

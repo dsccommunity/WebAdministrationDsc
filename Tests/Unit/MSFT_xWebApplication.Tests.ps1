@@ -40,6 +40,10 @@ try
             ApplicationType          = 'MockApplicationType'
             AuthenticationInfo       = $MockAuthenticationInfo
         }
+
+        $MockAppPoolOutput = [PSCustomObject] @{
+                                Name = 'MockPool'
+                        }
         
         $MockItemXPath = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.WebAppPool)
 
@@ -147,6 +151,10 @@ try
                 return $GetAuthenticationInfo
             }
 
+            Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                    return $MockAppPoolOutput
+            }
+
             Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Web Application does not exist' {
@@ -193,6 +201,10 @@ try
                     return $GetWebConfigurationOutput
                 }
 
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
+                }
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
@@ -220,6 +232,10 @@ try
                 }
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
                 }
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
@@ -251,6 +267,10 @@ try
                     return $GetWebConfigurationOutput
                 }
 
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
+                }
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
@@ -279,6 +299,10 @@ try
                     return $GetWebConfigurationOutput
                 }
 
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
+                }
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
@@ -305,6 +329,10 @@ try
                 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
                 }
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
@@ -346,10 +374,15 @@ try
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                         return $GetWebConfigurationOutput
-                    }
+                }
+
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
+                }
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                         return $MockAuthenticationInfo
-                    }
+                }
 
                 Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Anonymous') }
@@ -381,6 +414,10 @@ try
                     return $GetWebConfigurationOutput
                 }
 
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
+                }
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
@@ -410,6 +447,10 @@ try
                     return $GetWebConfigurationOutput
                 }
 
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
+                }
+
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $MockAuthenticationInfo
                 }
@@ -437,6 +478,10 @@ try
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                     return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/applicationPools/add'}  -MockWith {
+                        return $MockAppPoolOutput
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'}  -MockWith {
@@ -501,7 +546,7 @@ try
 
                 $script:mockGetWebApplicationCalled = 0
                 $mockWebApplication = {
-                    $script:mockGetWebApplicationCalled++                                
+                    $script:mockGetWebApplicationCalled++
                     if($script:mockGetWebApplicationCalled -eq 1)
                     {
                         return $null
@@ -1182,7 +1227,47 @@ try
             }       
 
       }
-        
+
+        Describe "$script:DSCResourceName\Test-AppPoolExists" {
+
+            Context 'Should throw when the WebAppPool does not exist' {
+
+                Mock -CommandName Get-WebConfiguration -MockWith {return $null}
+
+                It 'should throw' {
+                    $ErrorId = 'WebAppPoolFailure'
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
+                    $ErrorMessage = $LocalizedData.ErrorWebAppPoolFailure, 'ScriptHalted'
+                    $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
+                    $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+
+                {Test-AppPoolExists -WebAppPool $MockParameters.WebAppPool} |
+                Should Throw #$ErrorRecord
+                }
+
+                It 'should call Get-WebConfiguration once' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+
+            }
+
+            Context 'Should not throw when the WebAppPool does exist' {
+
+                Mock -CommandName Get-WebConfiguration -MockWith {return $MockAppPoolOutput}
+
+                It 'should not throw' {
+                    {Test-AppPoolExists -WebAppPool $MockParameters.WebAppPool} |
+                    Should Not Throw
+                }
+
+                It 'should call Get-WebConfiguration once' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+
+            }
+
+        } 
+
         Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
         
         Context 'Expected behavior' {
@@ -1248,7 +1333,7 @@ try
             }   
   
         }
-        
+
         Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
 
         Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}

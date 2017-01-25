@@ -221,6 +221,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+* Added check to make sure WebAppPool exists. Bugfix for #279
+
 ### 1.16.0.0
 
 * Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for #256.
