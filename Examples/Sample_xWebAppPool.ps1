@@ -1,8 +1,8 @@
 <#
-.SYNOPSIS
-    Create and configure an application pool.
-.DESCRIPTION
-    This example shows how to use the xWebAppPool DSC resource to create and configure an application pool.
+    .SYNOPSIS
+        Create and configure an application pool.
+    .DESCRIPTION
+        This example shows how to use the xWebAppPool DSC resource to create and configure an application pool.
 #>
 
 Configuration Sample_xWebAppPool
