@@ -23,7 +23,8 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        
+        $script:DSCResourceName = 'MSFT_xWebApplication'
+
         $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                             -ClientOnly `
                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
@@ -63,7 +64,7 @@ try
                     PSPath      = 'MockPSPath'
                     SslFlags    = 'Ssl'
                     Collection  = @(
-                                [PSCustomObject]@{Name = 'MockServiceAutoStartProvider' ;Type = 'MockApplicationType'}   
+                                [PSCustomObject]@{Name = 'MockServiceAutoStartProvider' ;Type = 'MockApplicationType'}
                     )
                 }
             )
@@ -780,21 +781,27 @@ try
             
                 Mock -CommandName Get-WebApplication -MockWith {
                     return @{
-                        ApplicationPool          = $MockWebApplicationOutput.applicationPool
-                        PhysicalPath             = $MockWebApplicationOutput.PhysicalPath
-                        ItemXPath                = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockWebApplicationOutput.Website, $MockWebApplicationOutput.Name)
-                        PreloadEnabled           = 'false'
-                        ServiceAutoStartEnabled  = $MockWebApplicationOutput.ServiceAutoStartEnabled
-                        ServiceAutoStartProvider = $MockWebApplicationOutput.ServiceAutoStartProvider
-                        ApplicationType          = $MockWebApplicationOutput.ApplicationType
-                        EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
+                        ApplicationPool          = $MockParameters.WebAppPool
+                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ItemXPath                = $MockItemXPath
+                        PreloadEnabled           = $MockParameters.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
+                        ApplicationType          = $MockParameters.ApplicationType
                         Count = 1
                     }
 
                 }
 
                 Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
-                    return $GetWebConfigurationOutput
+                    return @{
+                        SectionPath = 'MockSectionPath'
+                        PSPath      = 'MockPSPath'
+                        SslFlags    = 'None'
+                        Collection  = @(
+                                    [PSCustomObject]@{Name = 'MockServiceAutoStartProvider' ;Type = 'MockApplicationType'}
+                        )
+                    }
                 }
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
@@ -807,14 +814,55 @@ try
                 Mock -CommandName Set-WebConfiguration
                 Mock -CommandName Set-ItemProperty
 
-                It 'should call expected mocks' {
-
+                It 'Should call expected mocks' {
                     Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty `
+                        -ParameterFilter { $Name -eq 'sslFlags' } `
+                        -Exactly 1
+                }
+            }
+
+            Context 'Web Application exists but has different and multiple SslFlags' {
+                Mock -CommandName Get-WebApplication -MockWith {
+                    return @{
+                        ApplicationPool          = $MockParameters.WebAppPool
+                        PhysicalPath             = $MockParameters.PhysicalPath
+                        ItemXPath                = $MockItemXPath
+                        PreloadEnabled           = $MockParameters.PreloadEnabled
+                        ServiceAutoStartEnabled  = $MockParameters.ServiceAutoStartEnabled
+                        ServiceAutoStartProvider = $MockParameters.ServiceAutoStartProvider
+                        ApplicationType          = $MockParameters.ApplicationType
+                        Count = 1
+                    }
                 }
 
+                Mock -CommandName Get-WebConfiguration `
+                    -ParameterFilter {$filter -eq 'system.webserver/security/access'} `
+                    -MockWith { return $GetWebConfigurationOutput }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                    return $MockAuthenticationInfo
+                }
+
+                Mock -CommandName Add-WebConfiguration
+                Mock -CommandName New-WebApplication
+                Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Set-WebConfiguration
+                Mock -CommandName Set-ItemProperty
+
+                It 'Should call expected mocks' {
+                    $contextParameters = $MockParameters.Clone()
+                    $contextParameters.SslFlags = @('Ssl', 'Ssl128')
+
+                    Set-TargetResource -Ensure 'Present' @contextParameters
+
+                    Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty `
+                        -ParameterFilter { $Value -eq 'Ssl,Ssl128' -and $Name -eq 'sslFlags' } `
+                        -Exactly 1
+                }
             }
 
             Context 'Web Application exists but has Preload not set' {
