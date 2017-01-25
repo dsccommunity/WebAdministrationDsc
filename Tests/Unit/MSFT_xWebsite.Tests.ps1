@@ -551,14 +551,7 @@ try
             }
 
             Context 'Check LogFlags are different' {
-                $MockLogOutput = @{
-                    directory         = $MockParameters.LogPath
-                    logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
-                    logFormat         = $MockParameters.LogFormat
-                    period            = $MockParameters.LogPeriod
-                    truncateSize      = $MockParameters.LogTruncateSize
-                    localTimeRollover = $MockParameters.LoglocalTimeRollover
-                }
+                $MockLogOutput.logExtFileFlags = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -577,16 +570,30 @@ try
                     $result | Should be $false
                 }
             }
+            
+            Context 'Check LogPeriod is equal' {
+                $MockLogOutput.period = $MockParameters.LogPeriod
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogPeriod 'Hourly' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return true' {
+                    $result | Should be $true
+                }
+            }
 
             Context 'Check LogPeriod is different' {
-                $MockLogOutput = @{
-                        directory         = $MockParameters.LogPath
-                        logExtFileFlags   = $MockParameters.LogFlags
-                        logFormat         = $MockParameters.LogFormat
-                        period            = 'Daily'
-                        truncateSize      = $MockParameters.LogTruncateSize
-                        localTimeRollover = $MockParameters.LoglocalTimeRollover
-                    }
+                $MockLogOutput.period = 'Daily'
 
                 Mock -CommandName Test-Path -MockWith {Return $true}
 

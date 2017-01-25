@@ -173,12 +173,13 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Web Application's authentication information in the form of an embedded instance of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** takes the following properties:
-  * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
-  * **Basic**: The acceptable values for this property are: `$true`, `$false`
-  * **Digest**: The acceptable values for this property are: `$true`, `$false`
-  * **Windows**: The acceptable values for this property are: `$true`, `$false`
+* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+    * **Basic**: The acceptable values for this property are: `$true`, `$false`
+    * **Digest**: The acceptable values for this property are: `$true`, `$false`
+    * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
+* **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
 ### xWebVirtualDirectory
 
@@ -221,6 +222,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+* Added removal of self signed certificate to the integration tests of **xWebsite**, fixes #276.
+* Added EnabledProtocols to **xWebApplication**.
 * Added check to make sure WebAppPool exists. Bugfix for #279
 
 ### 1.16.0.0
@@ -276,8 +279,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     * LoglocalTimeRollover
     * LogFormat
 
-* **xWebApplication** updates:
-    * Added integration tests and added option to SslFlags
+* **xWebApplication** updates: 
+    * xWebApplication integration tests updated
+    * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
+    * Added EnabledProtocols
     * Fixed:
       * Formatted resources to DSC StyleGuideLines
         * Logging statements
@@ -1004,3 +1009,4 @@ Configuration Sample_xWebAppPool
     }
 }
 ```
+
