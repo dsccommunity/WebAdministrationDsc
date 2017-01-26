@@ -41,7 +41,9 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Added removal of self signed certificate to the integration tests of **xWebsite**, fixes '
+        ReleaseNotes = '* Added removal of self signed certificate to the integration tests of **xWebsite**, fixes 276.
+* Added EnabledProtocols to **xWebApplication**.
+* Changed SSLFlags for **xWebApplication** to comma seperate multiple SSL flags, fixes 232.'
 
     } # End of PSData hashtable
 
