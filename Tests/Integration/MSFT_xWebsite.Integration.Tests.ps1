@@ -29,11 +29,12 @@ try
     $dscConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
     # Create a SelfSigned Cert
-    $selfSignedCert = (New-SelfSignedCertificate -DnsName $dscConfig.AllNodes.HTTPSHostname  -CertStoreLocation 'cert:\LocalMachine\My')
+    $selfSignedCert = (New-SelfSignedCertificate -DnsName $dscConfig.AllNodes.HTTPSHostname `
+        -CertStoreLocation 'cert:\LocalMachine\My')
     
     #region HelperFunctions
 
-   # Function needed to test AuthenticationInfo
+    # Function needed to test AuthenticationInfo
     function Get-AuthenticationInfo
     {
         [CmdletBinding()]
@@ -63,7 +64,7 @@ try
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
@@ -131,7 +132,7 @@ try
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
@@ -199,7 +200,7 @@ try
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
@@ -238,6 +239,7 @@ finally
     #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
+    Remove-Item -PSPath $selfSignedCert.PSPath
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion

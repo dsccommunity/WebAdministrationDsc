@@ -459,7 +459,7 @@ function Set-TargetResource
 
             # Update LogPeriod if needed
             if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-                ($LogPeriod -ne $website.logfile.LogPeriod))
+                ($LogPeriod -ne $website.logfile.period))
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
@@ -700,7 +700,7 @@ function Set-TargetResource
 
             # Update LogPeriod if needed
             if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-                ($LogPeriod -ne $website.logfile.LogPeriod))
+                ($LogPeriod -ne $website.logfile.period))
             {
                 if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                     {
@@ -1012,7 +1012,7 @@ function Test-TargetResource
 
         # Check LogPeriod
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-            ($LogPeriod -ne $website.logfile.LogPeriod))
+            ($LogPeriod -ne $website.logfile.period))
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
             {

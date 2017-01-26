@@ -112,6 +112,9 @@ try
             # Test WebApplication SslFlags
             Get-SslFlags -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.WebApplicationSslFlags
             
+            # Test EnabledProtocols
+            $Result.EnabledProtocols | Should Be $DSCConfig.AllNodes.EnabledProtocols
+            
             }
 
     }

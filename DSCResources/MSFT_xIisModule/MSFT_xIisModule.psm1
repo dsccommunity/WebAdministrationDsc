@@ -243,13 +243,14 @@ function Get-PSBoundParameters
 
 function Get-IisSitePath
 {
+    [OutputType([System.String])]
     [CmdletBinding()]
     param
     (
         [String] $SiteName
     )
 
-    if(-not $SiteName)
+    if (-not $SiteName)
     {
         return 'IIS:\'
     }

@@ -13,6 +13,11 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ## Resources
 
+### xIisHandler
+
+* **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
+* **Ensure**: Ensures that the handler is **Present** or **Absent**.
+
 ### xIISModule
 
 * **Path**: The path to the module to be registered.
@@ -173,12 +178,13 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Web Application's authentication information in the form of an embedded instance of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** takes the following properties:
-  * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
-  * **Basic**: The acceptable values for this property are: `$true`, `$false`
-  * **Digest**: The acceptable values for this property are: `$true`, `$false`
-  * **Windows**: The acceptable values for this property are: `$true`, `$false`
+* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+    * **Basic**: The acceptable values for this property are: `$true`, `$false`
+    * **Digest**: The acceptable values for this property are: `$true`, `$false`
+    * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
+* **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
 ### xWebVirtualDirectory
 
@@ -186,19 +192,22 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **WebApplication**:  The name of the containing web application or an empty string for the containing website
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
-* **Ensure**: Ensures if the virtual directory is Present or Absent.
+* **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
 
 ### xWebConfigKeyValue
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
-* **KeyValuePair**: Key value pair for AppSettings (ItemCollection format).
+* **Key**: Key for AppSettings.
+* **Value**: Value for AppSettings.
+* **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
+* **IsAttribute**: If the given key value pair is for attribute, default is element.
 
 ### xSSLSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
-* **Ensure**: Ensures if the bindings are Present or Absent.
+* **Ensure**: Ensures if the bindings are **Present** or **Absent**.
 
 ### xIisFeatureDelegation
 
@@ -217,9 +226,24 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
 * **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
 
+### xWebSiteDefaults
+
+* **Key**: Required Key value, always **Machine**
+* **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
+* **LogDirectory**: Directory for IIS logs.
+* **TraceLogDirectory**: Directory for FREB (Failed Request Tracing) logs.
+* **DefaultApplicationPool**: Name of the default application pool used by websites. 
+* **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
+
 ## Versions
 
 ### Unreleased
+
+### 1.17.0.0
+
+* Added removal of self signed certificate to the integration tests of **xWebsite**, fixes #276.
+* Added EnabledProtocols to **xWebApplication**.
+* Changed SSLFlags for **xWebApplication** to comma seperate multiple SSL flags, fixes #232.
 
 ### 1.16.0.0
 
@@ -233,6 +257,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * Corrected name of AuthenticationInfo parameter in Readme.md.
 * Added sample for **xWebApplication** for adding new web application.
 * Corrected description for AuthenticationInfo for xWebApplication and xWebsite.
+* Added samples for **xWebConfigKeyValue** for adding and removing appSettings.
+* Added sample for **xWebAppPoolDefaults** for configuring the application pool defaults.
+* Added sample for **xWebSiteDefaults** for configuring the site defaults.
+* Updated Readme.md for **xWebConfigKeyValue**. Added **xIISHandler** and **xWebSiteDefaults**.
 
 ### 1.14.0.0
 
@@ -274,8 +302,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     * LoglocalTimeRollover
     * LogFormat
 
-* **xWebApplication** updates:
-    * Added integration tests and added option to SslFlags
+* **xWebApplication** updates: 
+    * xWebApplication integration tests updated
+    * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
+    * Added EnabledProtocols
     * Fixed:
       * Formatted resources to DSC StyleGuideLines
         * Logging statements
@@ -1002,3 +1032,4 @@ Configuration Sample_xWebAppPool
     }
 }
 ```
+
