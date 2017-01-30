@@ -1356,15 +1356,11 @@ try
 
                 Mock -CommandName Get-WebConfiguration -MockWith {return $null}
 
-                It 'should throw' {
-                    $ErrorId = 'WebAppPoolFailure'
-                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $ErrorMessage = $LocalizedData.ErrorWebAppPoolFailure, 'ScriptHalted'
-                    $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
-                    $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+                Mock -CommandName New-TerminatingError -ModuleName Helper -MockWith { Write-Error $LocalizedData.ErrorWebAppPoolFailure}
 
-                {Test-AppPoolExists -WebAppPool $MockParameters.WebAppPool} |
-                Should Throw #$ErrorRecord
+                It 'should throw' {
+                    {Test-AppPoolExists -WebAppPool $MockParameters.WebAppPool} |
+                    Should Throw $ErrorRecord
                 }
 
                 It 'should call Get-WebConfiguration once' {

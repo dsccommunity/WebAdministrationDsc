@@ -92,10 +92,10 @@ function Get-TargetResource
 
 }
 
-    <#
-    .SYNOPSIS
-        This will set the desired state
-    #>
+<#
+.SYNOPSIS
+    This will set the desired state
+#>
 function Set-TargetResource
 {
 
