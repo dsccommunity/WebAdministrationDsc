@@ -36,8 +36,8 @@ data LocalizedData
 }
 
 <#
-.SYNOPSIS
-    This will return a hashtable of results 
+    .SYNOPSIS
+        This will return a hashtable of results 
 #>
 function Get-TargetResource
 {
@@ -93,8 +93,8 @@ function Get-TargetResource
 }
 
 <#
-.SYNOPSIS
-    This will set the desired state
+    .SYNOPSIS
+        This will set the desired state
 #>
 function Set-TargetResource
 {
@@ -284,9 +284,9 @@ function Set-TargetResource
 }
 
 <#
-.SYNOPSIS
-    This tests the desired state. If the state is not correct it will return $false.
-    If the state is correct it will return $true
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
 #>
 function Test-TargetResource
 {
@@ -440,16 +440,16 @@ function Test-TargetResource
 }
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the EnabledProtocols are unique.
-    Returns $false if EnabledProtocols are not unique and $true if they are
-.PARAMETER ExistingProtocols
-    Specifies existing SMTP bindings
-.PARAMETER ProposedProtocols
-    Specifies desired SMTP bindings.
-.NOTES
-    ExistingProtocols is a String whereas ProposedProtocols is an array of Strings 
-    so we need to do some extra work in comparing them
+    .SYNOPSIS
+        Helper function used to validate that the EnabledProtocols are unique.
+        Returns $false if EnabledProtocols are not unique and $true if they are
+    .PARAMETER ExistingProtocols
+        Specifies existing SMTP bindings
+    .PARAMETER ProposedProtocols
+        Specifies desired SMTP bindings.
+    .NOTES
+        ExistingProtocols is a String whereas ProposedProtocols is an array of Strings 
+        so we need to do some extra work in comparing them
 #>
 function Confirm-UniqueEnabledProtocols
 {
@@ -496,18 +496,18 @@ function Confirm-UniqueEnabledProtocols
 #region Helper Functions
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the AutoStartProviders is unique to other 
-    websites. Returns False if the AutoStartProviders exist.
-.PARAMETER serviceAutoStartProvider
-    Specifies the name of the AutoStartProviders.
-.PARAMETER ExcludeStopped
-    Specifies the name of the Application Type for the AutoStartProvider.
-.NOTES
-    This tests for the existance of a AutoStartProviders which is globally assigned. 
-    As AutoStartProviders need to be uniquely named it will check for this and error out if 
-    attempting to add a duplicatly named AutoStartProvider.
-    Name is passed in to bubble to any error messages during the test.
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other 
+        websites. Returns False if the AutoStartProviders exist.
+    .PARAMETER serviceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+    .PARAMETER ExcludeStopped
+        Specifies the name of the Application Type for the AutoStartProvider.
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned. 
+        As AutoStartProviders need to be uniquely named it will check for this and error out if 
+        attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
 #>
 function Confirm-UniqueServiceAutoStartProviders
 {
@@ -560,12 +560,12 @@ function Confirm-UniqueServiceAutoStartProviders
 }
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the authenticationProperties for an Application.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
 #>
 function Get-AuthenticationInfo
 {
@@ -595,8 +595,8 @@ function Get-AuthenticationInfo
 }
 
 <#
-.SYNOPSIS
-    Helper function used to build a default CimInstance for AuthenticationInformation
+    .SYNOPSIS
+        Helper function used to build a default CimInstance for AuthenticationInformation
 #>
 function Get-DefaultAuthenticationInfo
 {
@@ -606,10 +606,10 @@ function Get-DefaultAuthenticationInfo
 }
 
 <#
-.SYNOPSIS
-    Helper function used to return the SSLFlags on an Application.
-.PARAMETER Location
-    Specifies the path in the IIS: PSDrive to the Application
+    .SYNOPSIS
+        Helper function used to return the SSLFlags on an Application.
+    .PARAMETER Location
+        Specifies the path in the IIS: PSDrive to the Application
 #>
 function Get-SslFlags
 {
@@ -636,17 +636,17 @@ function Get-SslFlags
 }
 
 <#
-.SYNOPSIS
-    Helper function used to set authenticationProperties for an Application.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER Type
-    Specifies the type of Authentication, 
-Limited to the set: ('Anonymous','Basic','Digest','Windows').
-.PARAMETER Enabled
-    Whether the Authentication is enabled or not.
+    .SYNOPSIS
+        Helper function used to set authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER Type
+        Specifies the type of Authentication, 
+    Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .PARAMETER Enabled
+        Whether the Authentication is enabled or not.
 #>
 function Set-Authentication
 {
@@ -674,14 +674,14 @@ function Set-Authentication
 }
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the authenticationProperties for an Application.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER AuthenticationInfo
-    A CimInstance of what state the AuthenticationInfo should be.
+    .SYNOPSIS
+        Helper function used to validate that the authenticationProperties for an Application.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
 #>
 function Set-AuthenticationInfo
 {
@@ -710,10 +710,10 @@ function Set-AuthenticationInfo
 }
 
 <#
-.SYNOPSIS
-    Helper function used to test if a desired AppPool exists.
-.PARAMETER WebAppPool
-    Specifies the AppPool to check for existance.
+    .SYNOPSIS
+        Helper function used to test if a desired AppPool exists.
+    .PARAMETER WebAppPool
+        Specifies the AppPool to check for existance.
 #>
 function Test-AppPoolExists
 {
@@ -736,16 +736,16 @@ function Test-AppPoolExists
 }
 
 <#
-.SYNOPSIS
-    Helper function used to test the authenticationProperties state for an Application. 
-    Will return that value which will either [String] True or [String] False
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER Type
-    Specifies the type of Authentication, 
-    limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that value which will either [String] True or [String] False
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER Type
+        Specifies the type of Authentication, 
+        limited to the set: ('Anonymous','Basic','Digest','Windows').
 #>
 function Test-AuthenticationEnabled
 {
@@ -775,18 +775,18 @@ function Test-AuthenticationEnabled
 }
 
 <#
-.SYNOPSIS
-    Helper function used to test the authenticationProperties state for an Application. 
-    Will return that result which will either [boolean]$True or [boolean]$False for use in 
-    Test-TargetResource.
-    Uses Test-AuthenticationEnabled to determine this. First incorrect result will break 
-    this function out.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER AuthenticationInfo
-    A CimInstance of what state the AuthenticationInfo should be.
+    .SYNOPSIS
+        Helper function used to test the authenticationProperties state for an Application. 
+        Will return that result which will either [boolean]$True or [boolean]$False for use in 
+        Test-TargetResource.
+        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break 
+        this function out.
+    .PARAMETER Site
+        Specifies the name of the Website.
+    .PARAMETER Name
+        Specifies the name of the Application.
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
 #>
 
 function Test-AuthenticationInfo
@@ -824,13 +824,13 @@ function Test-AuthenticationInfo
 }
 
 <#
-.SYNOPSIS
-    Helper function used to test the SSLFlags on an Application. 
-    Will return $true if they match and $false if they do not.
-.PARAMETER SslFlags
-    Specifies the SslFlags to Test
-.PARAMETER Location
-    Specifies the path in the IIS: PSDrive to the Application
+    .SYNOPSIS
+        Helper function used to test the SSLFlags on an Application. 
+        Will return $true if they match and $false if they do not.
+    .PARAMETER SslFlags
+        Specifies the SslFlags to Test
+    .PARAMETER Location
+        Specifies the path in the IIS: PSDrive to the Application
 #>
 function Test-SslFlags
 {
