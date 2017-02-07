@@ -1,7 +1,7 @@
 ﻿<#
     This shows an example for all possible settings for the xWebApplication resource
 #>
-configuration MSFT_xWebApplication_Present
+configuration Example
 {
 
     param
@@ -17,7 +17,7 @@ configuration MSFT_xWebApplication_Present
     Import-DscResource -ModuleName xWebAdministration
 
     node $NodeName
-    {  
+    {
         xWebApplication WebApplication
         {
             Website = 'Website'

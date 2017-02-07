@@ -1,4 +1,9 @@
-configuration Sample_IISFeatureDelegation
+<#
+    .EXAMPLE
+    Allow Write access to some section that normally don't have it.
+#>
+
+configuration Example
 {
     param
     (
@@ -6,24 +11,16 @@ configuration Sample_IISFeatureDelegation
         [string[]] $NodeName = 'localhost'
     )
 
-    # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
+    Import-DscResource -Module xWebAdministration
 
     Node $NodeName
     {
-        # Install the IIS role
-        WindowsFeature IIS
-        {
-            Ensure = 'Present'
-            Name   = 'Web-Server'
-        }
-
-        # Allow Write access to some section that normally don't have it.
         xIisFeatureDelegation serverRuntime
         {
             SectionName  = 'serverRuntime'
             OverrideMode = 'Allow'
         }
+
         xIisFeatureDelegation anonymousAuthentication
         {
             SectionName  = 'security/authentication/anonymousAuthentication'

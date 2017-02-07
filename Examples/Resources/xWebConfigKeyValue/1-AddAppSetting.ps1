@@ -5,15 +5,17 @@
         This example shows how to use the xWebConfigKeyValue DSC resource for adding an extra key and value to appSettings.
         It will add a key WebSiteTitle with value to the configuration of the site specified.
 #>
-Configuration Sample_xWebConfigKeyValue_AddAppSetting
+Configuration Example
 {
     param
     (
         # Target nodes to apply the configuration.
-        [String[]] $NodeName    = 'localhost',
+        [String[]]
+        $NodeName    = 'localhost',
 
         # Target website to which the key should be added.
-        [String]   $WebsiteName = 'Default Web Site'
+        [String]
+        $WebsiteName = 'Default Web Site'
     )
 
     # Import the modules that define custom resources
@@ -22,7 +24,7 @@ Configuration Sample_xWebConfigKeyValue_AddAppSetting
     Node $NodeName
     {
         # Adds an extra app setting to the AppSettings section.
-        xWebConfigKeyValue DefaultSite 
+        xWebConfigKeyValue DefaultSite
         {
             Ensure          = 'Present'
             ConfigSection   = 'AppSettings'

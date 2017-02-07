@@ -1,4 +1,9 @@
-configuration Sample_xIisLogging_Truncate
+<#
+    .EXAMPLE
+    Roll over IIS logs hourly.
+#>
+
+configuration Example
 {
     param
     (
@@ -16,7 +21,7 @@ configuration Sample_xIisLogging_Truncate
             LogPath = 'C:\IISLogFiles'
             Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
             LoglocalTimeRollover = $true
-            LogTruncateSize = '2097152'
+            LogPeriod = 'Hourly'
             LogFormat = 'W3C'
         }
     }

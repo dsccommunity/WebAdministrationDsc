@@ -1,30 +1,27 @@
-configuration Sample_RemoveVideoMimeTypeMappings
+<#
+    .EXAMPLE
+    This example shows how to remove some mime types and set one mime type in particular.
+#>
+
+configuration Example
 {
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
+        [string[]] $NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
+    Import-DscResource -Module xWebAdministration
 
     Node $NodeName
     {
-        # Install the IIS role
-        WindowsFeature IIS
-        {
-            Ensure          = 'Present'
-            Name            = 'Web-Server'
-        }
-
         # Remove a bunch of Video Mime Type mappings
-        xIisMimeTypeMapping Mp2 
+        xIisMimeTypeMapping Mp2
         {
             Ensure      = 'Absent'
             Extension   = '.mp2'
             MimeType    = 'video/mpeg'
-            DependsOn   = '[WindowsFeature]IIS'
         }
 
         xIisMimeTypeMapping Mp4 
@@ -32,7 +29,6 @@ configuration Sample_RemoveVideoMimeTypeMappings
             Ensure      = 'Absent'
             Extension   = '.mp4'
             MimeType    = 'video/mp4'
-            DependsOn   = '[WindowsFeature]IIS'
         }
 
         xIisMimeTypeMapping Mpeg 
@@ -40,16 +36,13 @@ configuration Sample_RemoveVideoMimeTypeMappings
             Ensure      = 'Absent'
             Extension   = '.mpeg'
             MimeType    = 'video/mpeg'
-            DependsOn   = '[WindowsFeature]IIS'
         }
 
-        # we only allow the mpg Video extension on our server
         xIisMimeTypeMapping Mpg 
         {
             Ensure      = 'Present'
             Extension   = '.mpg'
             MimeType    = 'video/mpeg'
-            DependsOn   = '[WindowsFeature]IIS'
         }
     }
 }
