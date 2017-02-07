@@ -727,10 +727,9 @@ function Test-AppPoolExists
     if (-not (Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' | `
         Where-Object -FilterScript {$_.name -eq $WebAppPool}))
     {
-        $ErrorMessage = $LocalizedData.ErrorWebAppPoolFailure
         New-TerminatingError `
             -ErrorId 'ErrorWebAppPoolFailure' `
-            -ErrorMessage $ErrorMessage `
+            -ErrorMessage $LocalizedData.ErrorWebAppPoolFailure `
             -ErrorCategory 'InvalidResult'
     }
 }
