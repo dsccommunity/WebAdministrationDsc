@@ -1,3 +1,3 @@
 # Description
 
-DESCRIPTION NEEDED
+The resource is responsible for managing web applications.
