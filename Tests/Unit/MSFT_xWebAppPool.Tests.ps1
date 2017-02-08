@@ -31,7 +31,7 @@ try
     #region Pester Tests
 
     InModuleScope $script:DSCResourceName {
-
+        $script:DSCResourceName = 'MSFT_xWebAppPool'
         Describe "$($script:DSCResourceName)\Get-TargetResource" {
 
             Mock Assert-Module

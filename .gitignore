@@ -1,1 +1,6 @@
 DSCResource.Tests
+DscResource.Tests/*
+markdownissues.txt
+node_modules
+node_modules/*
+TestResults.xml
