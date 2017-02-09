@@ -33,16 +33,7 @@ function Invoke-xWebAdministrationTest
     Import-Module "$repoDir\xWebAdministration.psd1"
     $testsToRun = @()
 
-    # Helper tests
-    $helperTests = (Get-ChildItem (Join-Path $repoDir '\Tests\Helper\')).Name
-
-    $helperTests | ForEach-Object {
-        $testsToRun += @(@{
-                'Path' = "$repoDir\Tests\Helper\$_"
-            })
-    }
-
-    # Run Unit Tests
+    # # Run Unit Tests
     $unitTests = (Get-ChildItem (Join-Path $repoDir '\Tests\Unit\')).Name
 
     $unitTests | ForEach-Object {
