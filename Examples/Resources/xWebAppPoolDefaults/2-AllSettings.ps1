@@ -9,9 +9,8 @@ configuration Example
         # Target nodes to apply the configuration
         [String[]] $NodeName = 'localhost',
 
-        [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [String] $PhysicalPath
+        [String] $PhysicalPath = 'C:\wwwroot'
     )
 
     Import-DscResource -ModuleName xWebAdministration
