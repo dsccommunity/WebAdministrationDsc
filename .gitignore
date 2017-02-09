@@ -3,4 +3,6 @@ DscResource.Tests/*
 markdownissues.txt
 node_modules
 node_modules/*
-TestResults.xml
+TestsResults.xml
+Modules/xWebAdministration/
+
