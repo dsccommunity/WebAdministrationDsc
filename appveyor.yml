@@ -11,7 +11,7 @@ install:
         $harnessModulePath = "Tests\$($moduleName).TestHarness.psm1"
         $harnessFunctionName = "Invoke-$($moduleName)Test"
         Import-Module "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
-        Invoke-AppveyorInstallTask
+        Invoke-AppveyorInstallTask -PesterMaximumVersion 3.4.3
 
 #---------------------------------#
 #      build configuration        #
