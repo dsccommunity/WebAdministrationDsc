@@ -26,7 +26,7 @@ build: false
 test_script:
     - ps: |
         Invoke-AppveyorTestScriptTask `
-            -Type 'Harness' `
+            -Type 'Default' `
             -MainModulePath $mainModuleFolder `
             -HarnessModulePath $harnessModulePath `
             -HarnessFunctionName $harnessFunctionName
