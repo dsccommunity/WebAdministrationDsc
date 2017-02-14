@@ -7,7 +7,7 @@ install:
     - ps: |
         Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
         $moduleName = 'xWebAdministration'
-        $mainModuleFolder = "$moduleName"
+        $mainModuleFolder = "C:\projects\xwebadministration"
         $harnessModulePath = "Tests\$($moduleName).TestHarness.psm1"
         $harnessFunctionName = "Invoke-$($moduleName)Test"
         Import-Module "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
