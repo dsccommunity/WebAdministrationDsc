@@ -4,4 +4,5 @@ class MSFT_xIisRemoteManagement : OMI_BaseResource
 {
     [Key, ValueMap{"Started","Stopped"}, Values{"Started","Stopped"}] String State;
     [Key, ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Write, Description ("Whether Windows only authentication is enabled or both IIS and Windows is enabled"), ValueMap{"$true", "$false"}, Values{"$true", "$false"}] Boolean WindowsCredential
 };

@@ -12,8 +12,10 @@ data LocalizedData
         VerboseSetTargetStoppingRemoteManagement   = Stopping IIS Remote Management.
         VerboseTestTargetState                     = State is not in the desired state.
         VerboseTestTargetEnsure                    = Ensure not in the desired state.
-        VerboseGetTargetResult                     = Get-TargetResource has been run.
-        ErrorWebServerStateFailure = IIS WebServer is not installed. Please install IIS first.
+        VerboseTestTargetCredential                = Authentication not in the desired state.
+        VerboseGetTargetResult                     = Get-TargetResource is being run.
+        ErrorWebServerStateFailure                 = IIS WebServer is not installed. Please install IIS first.
+        ErrorServiceFailure                        = Failed to set state of the {0} service.
 '@
 }
 
@@ -43,6 +45,8 @@ function Get-TargetResource
         [String] $Ensure
     )
 
+    Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
+
     Assert-Module
 
     if ((Get-WindowsFeature -Name Web-Server).Installed -ne $true)
@@ -58,6 +62,9 @@ function Get-TargetResource
 
     $service = (Get-Service -Name WMSVC `
                             -ErrorAction SilentlyContinue).Status
+
+    $credential = (Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\WebManagement\Server `
+                                    -Name RequiresWindowsCredentials).RequiresWindowsCredentials
 
     if($installed -ne $true)
     {
@@ -78,11 +85,10 @@ function Get-TargetResource
     }
 
     return @{
-        State  = $State
-        Ensure = $Ensure
+        State             = $State
+        Ensure            = $Ensure
+        WindowsCredential = $credential
     }
-
-    Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
 }
 
 <#
@@ -107,7 +113,9 @@ function Set-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateSet('Present','Absent')]
-        [String] $Ensure
+        [String] $Ensure,
+
+        [Bool] $WindowsCredential
     )
 
     Assert-Module
@@ -142,17 +150,54 @@ function Set-TargetResource
                              -Name EnableRemoteManagement -Value 1
             Set-Service -Name $service `
                         -StartupType Automatic
-            Start-Service -Name $service
+            try
+            {
+                Start-Service -Name $service
+            }
+            catch
+            {
+                $errorMessage = $LocalizedData.ErrorServiceFailure -f $service
+                New-TerminatingError -ErrorId 'ServiceFailure' `
+                                     -ErrorMessage $errorMessage `
+                                     -ErrorCategory 'InvalidOperation'
+            }
         }
         if ($State -eq 'Stopped')
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetDisablingRemoteManagement)
             Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\WebManagement\Server `
                              -Name EnableRemoteManagement -Value 0
-            Set-Service -Name $service `
+            try
+            {
+                Set-Service -Name $service `
                         -StartupType Manual
-            Stop-Service -Name $service `
+                Stop-Service -Name $service `
                          -Force
+            }
+            catch
+            {
+                $errorMessage = $LocalizedData.ErrorServiceFailure -f $service
+                New-TerminatingError -ErrorId 'ServiceFailure' `
+                                     -ErrorMessage $errorMessage `
+                                     -ErrorCategory 'InvalidOperation'
+            }
+        }
+    }
+    if ($getState.WindowsCredential -ne [system.convert]::ToInt16($WindowsCredential))
+    {
+        Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\WebManagement\Server `
+                         -Name RequiresWindowsCredentials `
+                         -Value $WindowsCredential
+        try
+        {
+            Restart-Service -Name $service
+        }
+        catch
+        {
+            $errorMessage = $LocalizedData.ErrorServiceFailure -f $service
+            New-TerminatingError -ErrorId 'ServiceFailure' `
+                                    -ErrorMessage $errorMessage `
+                                    -ErrorCategory 'InvalidOperation'
         }
     }
 }
@@ -180,7 +225,9 @@ function Test-TargetResource
 
         [parameter(Mandatory = $true)]
         [ValidateSet('Present','Absent')]
-        [String] $Ensure
+        [String] $Ensure,
+
+        [Bool] $WindowsCredential
     )
     
     Assert-Module
@@ -195,6 +242,11 @@ function Test-TargetResource
     if ($getState.Ensure -ne $Ensure)
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetEnsure)
+        Return $false
+    }
+    if ($getState.WindowsCredential -ne [system.convert]::ToInt16($WindowsCredential))
+    {
+        Write-Verbose -Message ($LocalizedData.VerboseTestTargetCredential)
         Return $false
     }
     Return $true
