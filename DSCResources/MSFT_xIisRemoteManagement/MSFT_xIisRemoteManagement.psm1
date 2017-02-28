@@ -21,14 +21,14 @@ data LocalizedData
 
 <#
     .SYNOPSYS
-    The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target 
-    machine. It gives the Website info of the requested role/feature on the target machine.
+        The Get-TargetResource cmdlet is used to fetch the status of role or Website on the target 
+        machine. It gives the Website info of the requested role/feature on the target machine.
 
     .PARAMETER State
-    State of the WMSVC. Accepts only 'Started' and 'Stopped'
+        State of the WMSVC. Accepts only 'Started' and 'Stopped'
 
     .PARAMETER Ensure
-    Whether IIS RemoteManagement is installed or not. Accepts only 'Present' and 'Absent'.
+        Whether IIS RemoteManagement is installed or not. Accepts only 'Present' and 'Absent'.
 #>
 function Get-TargetResource
 {
@@ -93,14 +93,19 @@ function Get-TargetResource
 
 <#
     .SYNOPSIS
-    The Set-TargetResource cmdlet is used to configure a IIS RemoteManagement on the
-    target machine.
+        The Set-TargetResource cmdlet is used to configure a IIS RemoteManagement on the
+        target machine.
 
     .PARAMETER State
-    State of the WMSVC. Accepts only 'Started' and 'Stopped'
+        State of the WMSVC. Accepts only 'Started' and 'Stopped'
 
     .PARAMETER Ensure
-    Whether IIS RemoteManagement is installed or not. Accepts only 'Present' and 'Absent'.
+        Whether IIS RemoteManagement is installed or not. Accepts only 'Present' and 'Absent'.
+
+    .PARAMETER WindowsCredential
+        Whether IIS RemoteManagement is enabled for Windows Credentials only or Windows and
+        IIS Credentials. Accepts only $true or $false where $true is Windows only and $false is
+        Windows and IIS.
 #>
 function Set-TargetResource
 {
@@ -204,14 +209,19 @@ function Set-TargetResource
 
 <#
     .SYNOPSIS
-    The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
-    expected in the instance document.
+        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
+        expected in the instance document.
 
     .PARAMETER State
-    State of the WMSVC. Accepts only 'Started' and 'Stopped'
+        State of the WMSVC. Accepts only 'Started' and 'Stopped'
 
     .PARAMETER Ensure
-    Whether IIS RemoteManagement is installed or not. Accepts only 'Present' and 'Absent'.
+        Whether IIS RemoteManagement is installed or not. Accepts only 'Present' and 'Absent'.
+
+    .PARAMETER WindowsCredential
+        Whether IIS RemoteManagement is enabled for Windows Credentials only or Windows and
+        IIS Credentials. Accepts only $true or $false where $true is Windows only and $false is
+        Windows and IIS.
 #>
 function Test-TargetResource
 {
