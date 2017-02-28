@@ -37,6 +37,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ### xIISRemoteManagement
 * **Ensure**: Ensure that RemoteManagement service is installed. The acceptable values for this property are: `Present`,`Absent`
 * **Status**: Ensure that RemoteManagement is started. The acceptable values for this property are: `Started`, `Stopped`
+* **WindowsCredential**: Whether IIS RemoteManagement is enabled for Windows Credentials only or Windows andIIS Credentials. The acceptable values for this property are: `$true` or `$false` where `$true` is Windows only and `$false` is Windows and IIS.
 
 ### xWebAppPool
 
