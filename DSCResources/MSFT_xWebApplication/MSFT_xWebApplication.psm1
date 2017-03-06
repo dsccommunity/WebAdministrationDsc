@@ -268,7 +268,7 @@ function Set-TargetResource
                 # Make input bindings which are an array, into a string
                 $stringafiedEnabledProtocols = $EnabledProtocols -join ' '
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
-                                 -Name EnabledProtocols `
+                                 -Name enabledProtocols `
                                  -Value $stringafiedEnabledProtocols `
                                  -ErrorAction Stop
             }
