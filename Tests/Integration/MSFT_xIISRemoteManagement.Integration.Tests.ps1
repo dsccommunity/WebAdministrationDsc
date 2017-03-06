@@ -54,9 +54,13 @@ try
 
             $service = (Get-Service -Name WMSVC `
                                     -ErrorAction SilentlyContinue).Status
-               
-            $webMgmtService | Should Be $true
-            $service        | Should Be 'Running'
+
+            $windowsCredential = (Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\WebManagement\Server `
+                                    -Name RequiresWindowsCredentials).RequiresWindowsCredentials
+
+            $webMgmtService    | Should Be $true
+            $service           | Should Be 'Running'
+            $windowsCredential | Should be '1'
         }
     }    
     

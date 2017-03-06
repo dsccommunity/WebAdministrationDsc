@@ -6,6 +6,7 @@ Configuration MSFT_xIISRemoteManagement_Enabled
     {
         Ensure = 'Present'
         State  = 'Started'
+        WindowsCredential = $true
     }
 }
 
