@@ -23,6 +23,9 @@ PowerShellVersion = '4.0'
 # Minimum version of the common language runtime (CLR) required by this module
 CLRVersion = '4.0'
 
+# Required Modules - Modules that must be imported into the global environment prior to importing this module
+RequiredModules = @{ ModuleName = 'xPSDesiredStateConfiguration', 'xWebAdministration','xMySql','xPhp' }
+
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
