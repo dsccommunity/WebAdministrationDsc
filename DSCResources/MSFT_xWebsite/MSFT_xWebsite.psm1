@@ -441,10 +441,12 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
                                         -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.logFormat -Value 'W3C'
-                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+
+                # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.logFormat = 'W3C'
+                $site.LogFile.LogExtFileFlags = $LogFlags -join ','
+                $site | Set-Item
             }
 
             # Update LogPath if required
@@ -467,8 +469,19 @@ function Set-TargetResource
                     }
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.period -Value $LogPeriod
+
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.period property
+                if ([Environment]::OSVersion.Version -ge '6.2')
+                {
+                    Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                        -Name LogFile.period -Value $LogPeriod
+                }
+                else
+                {
+                    $site = Get-Item "IIS:\Sites\$Name"
+                    $site.LogFile.period = $LogPeriod
+                    $site | Set-Item
+                }
             }
 
             # Update LogTruncateSize if needed
@@ -681,10 +694,12 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
                                         -f $Name)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.logFormat -Value 'W3C'
-                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.LogExtFileFlags -Value ($LogFlags -join ',')
+
+                # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.logFormat = 'W3C'
+                $site.LogFile.LogExtFileFlags = $LogFlags -join ','
+                $site | Set-Item
             }
 
             # Update LogPath if required
@@ -709,8 +724,19 @@ function Set-TargetResource
                     }
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
-                Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                    -Name LogFile.period -Value $LogPeriod
+                
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.period property
+                if ([Environment]::OSVersion.Version -ge '6.2')
+                {
+                    Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                        -Name LogFile.period -Value $LogPeriod
+                }
+                else
+                {
+                    $site = Get-Item "IIS:\Sites\$Name"
+                    $site.LogFile.period = $LogPeriod
+                    $site | Set-Item
+                }
             }
 
             # Update LogTruncateSize if needed

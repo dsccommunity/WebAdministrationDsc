@@ -819,6 +819,10 @@ try
                 LogFile              = $MockLogOutput
             }
 
+            $MockWebsiteGetItem = $MockWebsite.Clone()
+            $MockWebsiteGetItem.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
+            $MockWebsiteGetItem = [PSCustomObject]$MockWebsiteGetItem
+
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'All properties need to be updated and website must be started' {
@@ -833,6 +837,10 @@ try
                 Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Start-Website
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+                
+                Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
 
@@ -867,7 +875,9 @@ try
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
+                    Assert-MockCalled -CommandName Get-Item -Exactly 1
+                    Assert-MockCalled -CommandName Set-Item -Exactly 1
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
             }
@@ -882,6 +892,10 @@ try
                 Mock -CommandName New-Website -MockWith { return $MockWebsite } 
 
                 Mock -CommandName Start-Website
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+                
+                Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
                                 
@@ -906,6 +920,10 @@ try
                 Mock -CommandName New-Website -MockWith { return $MockWebsite } 
 
                 Mock -CommandName Start-Website
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+                
+                Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
                                 
@@ -1011,7 +1029,7 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -1033,6 +1051,10 @@ try
                     LogFile                  = $MockLogOutput
                 }
 
+                $MockWebsiteGetItem = $MockWebsite.Clone()
+                $MockWebsiteGetItem.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
+                $MockWebsiteGetItem = [PSCustomObject]$MockWebsiteGetItem
+
                 Mock -CommandName Get-Website
 
                 Mock -CommandName Get-Command -MockWith {
@@ -1050,6 +1072,10 @@ try
                 Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+                
+                Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
 
@@ -1084,7 +1110,9 @@ try
                      Assert-MockCalled -CommandName Stop-Website -Exactly 1
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
+                     Assert-MockCalled -CommandName Get-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
@@ -1114,6 +1142,10 @@ try
                     }
                 }
 
+                $MockWebsiteGetItem = $MockWebsite.Clone()
+                $MockWebsiteGetItem.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
+                $MockWebsiteGetItem = [PSCustomObject]$MockWebsiteGetItem
+
                 Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-Command -MockWith {
@@ -1127,6 +1159,10 @@ try
                 Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+                
+                Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
 
@@ -1155,7 +1191,9 @@ try
                 It 'Should call all the mocks' {
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
+                     Assert-MockCalled -CommandName Get-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 6
                      Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 0
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
@@ -1184,6 +1222,10 @@ try
                     }
                 }
 
+                $MockWebsiteGetItem = $MockWebsite.Clone()
+                $MockWebsiteGetItem.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
+                $MockWebsiteGetItem = [PSCustomObject]$MockWebsiteGetItem
+
                 Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-Command -MockWith {
@@ -1197,6 +1239,10 @@ try
                 Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+                
+                Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
 
@@ -1225,7 +1271,9 @@ try
                 It 'Should call all the mocks' {
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                     Assert-MockCalled -CommandName Get-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 7
                      Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 1
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
