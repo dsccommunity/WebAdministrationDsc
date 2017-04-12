@@ -909,7 +909,7 @@ function Invoke-AppCmd
 
     $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
     
-    $appcmdResult = $(& $appcmdFilePath $ArgumentList)
+    $appcmdResult = [String]$(& $appcmdFilePath $ArgumentList)
     Write-Verbose -Message $appcmdResult
 
     if ($LASTEXITCODE -ne 0)
