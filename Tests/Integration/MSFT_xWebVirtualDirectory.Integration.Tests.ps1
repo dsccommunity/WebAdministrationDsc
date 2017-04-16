@@ -33,14 +33,11 @@ try
     # Create a new website, webapplication and directories for the virtual directory.
 
     New-Website -Name $DSCConfig.AllNodes.Website `
-        -Id 300 `
         -PhysicalPath $DSCConfig.AllNodes.WebsitePhysicalPath `
         -ApplicationPool $DSCConfig.AllNodes.ApplicationPool `
-        -SslFlags $DSCConfig.AllNodes.SslFlags `
-        -Port $DSCConfig.AllNodes.HTTPSPort `
+        -Port $DSCConfig.AllNodes.Port `
         -IPAddress '*' `
-        -HostHeader $DSCConfig.AllNodes.HTTPSHostname `
-        -Ssl `
+        -HostHeader $DSCConfig.AllNodes.Hostname `
         -Force `
         -ErrorAction Stop
 
@@ -97,7 +94,7 @@ try
         }
         #endregion
         
-        It 'Should remove the WebApplication' -test {
+        It 'Should remove the WebVirtualDirectory' -Test {
             Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
 
             # Build results to test
@@ -116,8 +113,14 @@ finally
     #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
-    Remove-Item -Path $DSCConfig.AllNodes.PhysicalPath
-    Remove-Item -Path $DSCConfig.AllNodes.WebApplicationPhysicalPath
+
+    if ((Test-Path -Path $DSCConfig.AllNodes.PhysicalPath)) {
+        Remove-Item -Path $DSCConfig.AllNodes.PhysicalPath
+    }
+
+    if ((Test-Path -Path $DSCConfig.AllNodes.WebApplicationPhysicalPath)) {
+        Remove-Item -Path $DSCConfig.AllNodes.WebApplicationPhysicalPath
+    }
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion
