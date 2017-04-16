@@ -18,7 +18,8 @@ class MSFT_xWebApplication : OMI_BaseResource
     [Write, Description("SSLFlags for the application"), ValueMap{"","Ssl","SslNegotiateCert","SslRequireCert","Ssl128"},Values{"","Ssl","SslNegotiateCert","SslRequireCert","Ssl128"}] String SslFlags[];
     [write, EmbeddedInstance("MSFT_xWebApplicationAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic, Digest, Windows)")] String AuthenticationInfo;
     [Write, Description ("Allows a Application to automatically start without a request")] Boolean PreloadEnabled;
-    [Write, Description ("Enables Autostart on a Application.")] Boolean ServiceAutoStartEnabled;
+    [Write, Description ("Enables Autostart on an Application.")] Boolean ServiceAutoStartEnabled;
     [Write, Description ("Adds a AutostartProvider")] String ServiceAutoStartProvider;
     [Write, Description ("Adds a AutostartProvider ApplicationType")] String ApplicationType;
+    [Write, Description ("Adds EnabledProtocols on an Application"), ValueMap{"http","https","net.tcp","net.msmq","net.pipe"},Values{"http","https","net.tcp","net.msmq","net.pipe"}] String EnabledProtocols[];
 };

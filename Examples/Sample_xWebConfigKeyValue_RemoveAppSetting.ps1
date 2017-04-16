@@ -1,9 +1,9 @@
 <#
-.SYNOPSIS
-    Removes an app setting WebsiteTitle from the configuration file of the website if present.
-.DESCRIPTION
-    This example shows how to use the xWebConfigKeyValue DSC resource for ensuring a key is not pressent in appSettings.
-    It will remove a setting with key WebSiteTitle from the configuration of the site specified.
+    .SYNOPSIS
+        Removes an app setting WebsiteTitle from the configuration file of the website if present.
+    .DESCRIPTION
+        This example shows how to use the xWebConfigKeyValue DSC resource for ensuring a key is not pressent in appSettings.
+        It will remove a setting with key WebSiteTitle from the configuration of the site specified.
 #>
 Configuration Sample_xWebConfigKeyValue_AddAppSetting
 {
