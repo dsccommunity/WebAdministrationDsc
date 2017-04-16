@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.14.0.0'
+ModuleVersion = '1.16.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,10 +41,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* xWebApplication: 
-    * Fixed bug when setting PhysicalPath and WebAppPool
-    * Changes to the application pool property are now applied correctly
-'
+        ReleaseNotes = '* Log directory configuration on **xWebsite** used the logPath attribute instead of the directory attribute. Bugfix for '
 
     } # End of PSData hashtable
 
@@ -56,6 +53,8 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
+
 
 
 

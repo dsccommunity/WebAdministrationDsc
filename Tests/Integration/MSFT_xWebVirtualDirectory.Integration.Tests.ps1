@@ -1,5 +1,5 @@
 $script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xSSLSettings'
+$script:DSCResourceName = 'MSFT_xWebVirtualDirectory'
 
 #region HEADER
 
@@ -18,46 +18,24 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration 
 #endregion
 
-[String] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
 {
     $null = Backup-WebConfiguration -Name $tempName
     
     # Now that xWebAdministration should be discoverable load the configuration data
-    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $configFile
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    . $ConfigFile
 
     $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
-    #region HelperFunctions
-
-    # Function needed to test SslFlags
-    function Get-SslFlags
-    {
-        [CmdletBinding()]
-        param
-        (
-            [Parameter(Mandatory = $true)]
-            [String] $Website
-
-        )
-        
-        Get-WebConfiguration `
-                -PSPath IIS:\Sites `
-                -Location "$Website" `
-                -Filter 'system.webserver/security/access' | `
-                 ForEach-Object { $_.sslFlags }
-    }
-
-    #endregion
-
-    # Create a new website for the SSLSettings
+    # Create a new website, webapplication and directories for the virtual directory.
 
     New-Website -Name $DSCConfig.AllNodes.Website `
-        -Id 200 `
-        -PhysicalPath $DSCConfig.AllNodes.PhysicalPath `
-        -ApplicationPool $DSCConfig.AllNodes.AppPool `
+        -Id 300 `
+        -PhysicalPath $DSCConfig.AllNodes.WebsitePhysicalPath `
+        -ApplicationPool $DSCConfig.AllNodes.ApplicationPool `
         -SslFlags $DSCConfig.AllNodes.SslFlags `
         -Port $DSCConfig.AllNodes.HTTPSPort `
         -IPAddress '*' `
@@ -65,6 +43,17 @@ try
         -Ssl `
         -Force `
         -ErrorAction Stop
+
+    New-Item -Path $DSCConfig.AllNodes.WebApplicationPhysicalPath -ItemType:Directory
+
+    New-WebApplication -Name $DSCConfig.AllNodes.WebApplication `
+        -Site $DSCConfig.AllNodes.Website `
+        -ApplicationPool $DSCConfig.AllNodes.ApplicationPool `
+        -PhysicalPath $DSCConfig.AllNodes.WebApplicationPhysicalPath `
+        -Force `
+        -ErrorAction Stop
+
+    New-Item -Path $DSCConfig.AllNodes.PhysicalPath -ItemType:Directory
 
     Describe "$($script:DSCResourceName)_Present" {
         #region DEFAULT TESTS
@@ -75,20 +64,23 @@ try
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
 
-        It 'Should add SSLBindings to a Website' -test {
-            
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
-           
-            # Test SslFlags
-            Get-SslFlags -Website $DSCConfig.AllNodes.Website | Should Be $DSCConfig.AllNodes.Bindings
-            
-            }
+        It 'Should create a WebVirtualDirectory with correct settings' -Test {
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfig  -OutputPath `$TestDrive"
 
+            # Build results to test
+            $result = Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
+                -Application $DSCConfig.AllNodes.WebApplication `
+                -Name $DSCConfig.AllNodes.WebVirtualDirectory
+
+            # Test virtual directory settings are correct
+            $result.path            | Should Be "/$($DSCConfig.AllNodes.WebVirtualDirectory)"
+            $result.physicalPath    | Should Be $DSCConfig.AllNodes.PhysicalPath
+        }
     }
 
     Describe "$($script:DSCResourceName)_Absent" {
@@ -100,20 +92,22 @@ try
             } | Should not throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
+        It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
         
-        It 'Should remove SSLBindings from a Website' -test {
-            
+        It 'Should remove the WebApplication' -test {
             Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
 
-            # Test SslFlags
-            Get-SslFlags -Website $DSCConfig.AllNodes.Website | Should BeNullOrEmpty
-            
-            }
+            # Build results to test
+            $result = Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
+                -Application $DSCConfig.AllNodes.WebApplication `
+                -Name $DSCConfig.AllNodes.WebVirtualDirectory
 
+            # Test virtual directory is removed
+            $result | Should BeNullOrEmpty 
+        }
     }
 
 }
@@ -122,6 +116,8 @@ finally
     #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
+    Remove-Item -Path $DSCConfig.AllNodes.PhysicalPath
+    Remove-Item -Path $DSCConfig.AllNodes.WebApplicationPhysicalPath
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion

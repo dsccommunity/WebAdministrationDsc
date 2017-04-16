@@ -285,7 +285,7 @@ function Test-TargetResource
 
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
-        [String[]]$SslFlags = '',
+        [String[]] $SslFlags = '',
 
         [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo,
 
@@ -301,7 +301,6 @@ function Test-TargetResource
     Assert-Module
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
-    $CurrentSslFlags = Get-SslFlags -Location "${Website}/${Name}"
 
     if ($AuthenticationInfo -eq $null) 
     {

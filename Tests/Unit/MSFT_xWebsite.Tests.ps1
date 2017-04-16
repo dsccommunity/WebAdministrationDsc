@@ -494,39 +494,52 @@ try
             }
 
             Context 'Check AutoStartProvider is different' {
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
-                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                             -Name $MockParameters.Name `
                             -PhysicalPath $MockParameters.PhysicalPath `
                             -ServiceAutoStartProvider 'MockAutoStartProviderDifferent' `
                             -ApplicationType 'MockApplicationTypeDifferent' `
                             -Verbose:$VerbosePreference
 
-                It 'should return False' {
-                    $Result | Should Be $false
+                It 'Should return False' {
+                    $result | Should Be $false
+                }
+            }
+
+            Context 'Check LogPath is equal' {
+                $MockLogOutput.directory = $MockParameters.LogPath
+
+                Mock -CommandName Test-Path -MockWith { return $true }
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
+
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                                -Name $MockParameters.Name `
+                                -PhysicalPath $MockParameters.PhysicalPath `
+                                -LogPath $MockParameters.LogPath `
+                                -Verbose:$VerbosePreference
+
+                It 'Should return true' {
+                    $result | Should be $true
                 }
             }
 
             Context 'Check LogPath is different' {
-                $MockLogOutput =
-                    @{
-                        directory         = '%SystemDrive%\inetpub\logs\LogFiles'
-                        logExtFileFlags   = $MockParameters.LogFlags
-                        logFormat         = $MockParameters.LogFormat
-                        period            = $MockParameters.LogPeriod
-                        truncateSize      = $MockParameters.LogTruncateSize
-                        localTimeRollover = $MockParameters.LoglocalTimeRollover
-                    }
+                $MockLogOutput.directory = $MockParameters.LogPath
 
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
 
-                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                 -Name $MockParameters.Name `
                                 -PhysicalPath $MockParameters.PhysicalPath `
                                 -LogPath 'C:\MockLogPath2' `
@@ -547,14 +560,14 @@ try
                     localTimeRollover = $MockParameters.LoglocalTimeRollover
                 }
 
-                Mock -CommandName Test-Path -MockWith {Return $true}
+                Mock -CommandName Test-Path -MockWith { return $true }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogOutput.logExtFileFlags }
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
 
-                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                     -Name $MockParameters.Name `
                     -PhysicalPath $MockParameters.PhysicalPath `
                     -LogFlags 'Date','Time','ClientIP','UserName','ServerIP' `
@@ -688,6 +701,34 @@ try
                     $result | Should be $false
                 }
             }
+
+            Context 'Check LogTruncateSize is larger in string comparison' {
+                $MockLogOutput = @{
+                    directory         = $MockParameters.LogPath
+                    logExtFileFlags   = $MockParameters.LogFlags
+                    logFormat         = $MockParameters.LogFormat
+                    period            = $MockParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockParameters.LoglocalTimeRollover
+                }
+
+                Mock -CommandName Test-Path -MockWith { return $true }
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
+
+                $result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogTruncateSize '5000000' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
         }
 
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
@@ -776,13 +817,13 @@ try
             Context 'All properties need to be updated and website must be started' {
                 Mock -CommandName Add-WebConfiguration
 
-                Mock -CommandName Confirm-UniqueBinding -MockWith {return $true}
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
 
-                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $false}
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $false }
 
-                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
-                Mock -CommandName Test-WebsiteBinding -MockWith {return $false}
+                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Start-Website
 
@@ -808,9 +849,9 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                $Result = Set-TargetResource @MockParameters
+                Set-TargetResource @MockParameters
 
-                It 'should call all the mocks' {
+                It 'Should call all the mocks' {
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
                     Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
@@ -820,6 +861,55 @@ try
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
+            
+            Context 'Create website with empty physical path' {
+                
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+                
+                Mock -CommandName Get-Website 
+                
+                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Set-ItemProperty
+                                
+                Mock -CommandName Update-WebsiteBinding
+                
+                $MockParameters = $MockParameters.Clone()
+                $MockParameters.PhysicalPath = ''              
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParameters                    
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Force -eq $True } -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
+            Context 'Create website with null physical path' {
+                
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+                
+                Mock -CommandName Get-Website 
+                
+                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Set-ItemProperty
+                                
+                Mock -CommandName Update-WebsiteBinding
+                
+                $MockParameters = $MockParameters.Clone()
+                $MockParameters.PhysicalPath = $null              
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParameters                    
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Force -eq $True } -Exactly 1
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
             }
@@ -911,9 +1001,9 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                $Result = Set-TargetResource @MockParameters
+                Set-TargetResource @MockParameters
 
-                It 'should call all the mocks' {
+                It 'Should call all the mocks' {
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 12
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
@@ -980,9 +1070,9 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                $Result = Set-TargetResource @MockParameters
+                Set-TargetResource @MockParameters
 
-                It 'should call all the mocks' {
+                It 'Should call all the mocks' {
                      Assert-MockCalled -CommandName New-Website -Exactly 1
                      Assert-MockCalled -CommandName Stop-Website -Exactly 1
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
@@ -994,6 +1084,146 @@ try
                      Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
                      Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                      Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
+            Context 'Website has unchanged logging directory' {
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    PhysicalPath         = 'C:\NonExistent'
+                    State                = 'Started'
+                    ApplicationPool      = 'MockPool'
+                    Bindings             = @{Collection = @($MockWebBinding)}
+                    EnabledProtocols     = 'http'
+                    ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                    Count                = 1
+                    LogFile              = @{
+                        directory         = 'C:\MockLogLocation'
+                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                        logFormat         = $MockParameters.LogFormat
+                        period            = 'Daily'
+                        truncateSize      = '1048576'
+                        localTimeRollover = 'False'
+                    }
+                }
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
+
+                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
+
+                Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Set-ItemProperty
+
+                Mock -CommandName Add-WebConfiguration
+
+                Mock -CommandName Update-DefaultPage
+
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $false }
+
+                Mock -CommandName Set-Authentication
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+                Set-TargetResource @MockParameters
+
+                It 'Should call all the mocks' {
+                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
+                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
+                     Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 0
+                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
+                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
+                     Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
+                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
+                }
+            }
+
+            Context 'Website has changed logging directory' {
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    PhysicalPath         = 'C:\NonExistent'
+                    State                = 'Started'
+                    ApplicationPool      = 'MockPool'
+                    Bindings             = @{Collection = @($MockWebBinding)}
+                    EnabledProtocols     = 'http'
+                    ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                    Count                = 1
+                    LogFile              = @{
+                        directory         = 'C:\Logs\MockLogLocation'
+                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                        logFormat         = $MockParameters.LogFormat
+                        period            = 'Daily'
+                        truncateSize      = '1048576'
+                        localTimeRollover = 'False'
+                    }
+                }
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
+
+                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
+
+                Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Set-ItemProperty
+
+                Mock -CommandName Add-WebConfiguration
+
+                Mock -CommandName Update-DefaultPage
+
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $false }
+
+                Mock -CommandName Set-Authentication
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+                Set-TargetResource @MockParameters
+
+                It 'Should call all the mocks' {
+                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
+                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                     Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 1
+                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
+                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
+                     Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
+                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                 }
             }
 
@@ -1021,11 +1251,11 @@ try
                     }
                 }
 
-                Mock -CommandName New-Website -MockWith {return $MockWebsite}
+                Mock -CommandName New-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Stop-Website
 
-                Mock -CommandName Test-WebsiteBinding -MockWith {return $false}
+                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
 
                 Mock -CommandName Update-WebsiteBinding
 
@@ -1035,14 +1265,14 @@ try
 
                 Mock -CommandName Update-DefaultPage
 
-                Mock -CommandName Confirm-UniqueBinding -MockWith {return $false}
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $false }
 
-                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith {return $true}
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $true }
 
                 Mock -CommandName Start-Website
 
 
-                It 'should throw the correct error' {
+                It 'Should throw the correct error' {
                     $ErrorId = 'WebsiteBindingConflictOnStart'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidResult
                     $ErrorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart -f $MockParameters.Name
@@ -1082,6 +1312,38 @@ try
                     { Set-TargetResource @MockParameters } | Should Throw $ErrorRecord
                 }
             }
+
+            Context 'LogTruncateSize is larger in string comparison' {
+                $MockLogOutput = @{
+                    directory         = $MockParameters.LogPath
+                    logExtFileFlags   = $MockParameters.LogFlags
+                    logFormat         = $MockParameters.LogFormat
+                    period            = $MockParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockParameters.LoglocalTimeRollover
+                }
+
+                Mock -CommandName Test-Path -MockWith { return $true }
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Set-ItemProperty -MockWith { }
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith { return $MockLogOutput.logExtFileFlags }
+
+                Set-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogTruncateSize '5000000' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should call mocks' {
+                    Assert-MockCalled -CommandName Set-ItemProperty `
+                        -ParameterFilter { $Name -eq 'LogFile.truncateSize' } `
+                        -Exactly 1
+                }
+            }
         }
 
         Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
@@ -1091,20 +1353,20 @@ try
                 PhysicalPath = 'C:\NonExistent'
             }
 
-            Mock -CommandName Get-Website -MockWith {return @{Name = $MockParameters.Name}}
+            Mock -CommandName Get-Website -MockWith { return @{Name = $MockParameters.Name} }
 
             Mock -CommandName Assert-Module -MockWith {}
 
-            It 'should call Remove-Website' {
+            It 'Should call Remove-Website' {
                 Mock -CommandName Remove-Website
 
-                $Result = Set-TargetResource @MockParameters
+                Set-TargetResource @MockParameters
 
                 Assert-MockCalled -CommandName Get-Website -Exactly 1
                 Assert-MockCalled -CommandName Remove-Website -Exactly 1
             }
 
-            It 'should throw the correct error' {
+            It 'Should throw the correct error' {
                 Mock -CommandName Remove-Website -MockWith {throw}
 
                 $ErrorId = 'WebsiteRemovalFailure'

@@ -32,8 +32,8 @@ try {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
@@ -44,8 +44,8 @@ try {
 
         It 'Changing Loggging Rollover Settings ' -test {
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestEnvironment.WorkingFolder"
-            Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+            Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestDrive"
+            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             
             $currentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
                
@@ -62,8 +62,8 @@ try {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestEnvironment.WorkingFolder"
-                Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+                Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
 
@@ -73,8 +73,8 @@ try {
         #endregion
         It 'Changing Loggging Truncate Settings ' -test {
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestEnvironment.WorkingFolder"
-            Start-DscConfiguration -Path $TestEnvironment.WorkingFolder -ComputerName localhost -Wait -Verbose -Force
+            Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestDrive"
+            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             
             $currentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
                
