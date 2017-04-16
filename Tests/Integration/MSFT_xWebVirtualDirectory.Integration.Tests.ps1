@@ -30,27 +30,10 @@ try
 
     $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
-    # Create a new website, webapplication and directories for the virtual directory.
-
-    New-Website -Name $DSCConfig.AllNodes.Website `
-        -PhysicalPath $DSCConfig.AllNodes.WebsitePhysicalPath `
-        -ApplicationPool $DSCConfig.AllNodes.ApplicationPool `
-        -Port $DSCConfig.AllNodes.Port `
-        -IPAddress '*' `
-        -HostHeader $DSCConfig.AllNodes.Hostname `
-        -Force `
-        -ErrorAction Stop
-
-    New-Item -Path $DSCConfig.AllNodes.WebApplicationPhysicalPath -ItemType:Directory
-
-    New-WebApplication -Name $DSCConfig.AllNodes.WebApplication `
-        -Site $DSCConfig.AllNodes.Website `
-        -ApplicationPool $DSCConfig.AllNodes.ApplicationPool `
-        -PhysicalPath $DSCConfig.AllNodes.WebApplicationPhysicalPath `
-        -Force `
-        -ErrorAction Stop
-
-    New-Item -Path $DSCConfig.AllNodes.PhysicalPath -ItemType:Directory
+    Describe "$($script:DSCResourceName)_Initialize" {
+        Invoke-Expression -Command "$($script:DSCResourceName)_Initialize -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
+        Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+    }
 
     Describe "$($script:DSCResourceName)_Present" {
         #region DEFAULT TESTS
