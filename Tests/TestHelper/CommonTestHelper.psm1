@@ -133,4 +133,3 @@ Export-ModuleMember -Function `
     Install-NewSelfSignedCertificateExScript, `
     Get-InvalidArgumentRecord, `
     Get-InvalidOperationRecord
-    
