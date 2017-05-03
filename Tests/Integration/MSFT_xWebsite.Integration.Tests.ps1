@@ -110,12 +110,16 @@ try
             $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTP1Hostname
             $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTP2Hostname
             $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSHostname
+            $result.bindings.Collection.BindingInformation[3]   | Should Match $dscConfig.AllNodes.HTTPSHostname
             $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTPPort
             $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTPPort
             $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSPort
             $result.bindings.Collection.certificateHash[2]      | Should Be $selfSignedCert.Thumbprint
             $result.bindings.Collection.certificateStoreName[2] | Should Be $dscConfig.AllNodes.CertificateStoreName
-            
+            $result.bindings.Collection.BindingInformation[3]   | Should Match $dscConfig.AllNodes.HTTPSPort2
+            $result.bindings.Collection.certificateHash[3]      | Should Be $selfSignedCert.Thumbprint
+            $result.bindings.Collection.certificateStoreName[3] | Should Be $dscConfig.AllNodes.CertificateStoreName
+
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
@@ -178,11 +182,15 @@ try
             $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTP1Hostname
             $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTP2Hostname
             $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSHostname
+            $result.bindings.Collection.BindingInformation[3]   | Should Match $dscConfig.AllNodes.HTTPSHostname
             $result.bindings.Collection.BindingInformation[0]   | Should Match $dscConfig.AllNodes.HTTPPort
             $result.bindings.Collection.BindingInformation[1]   | Should Match $dscConfig.AllNodes.HTTPPort
             $result.bindings.Collection.BindingInformation[2]   | Should Match $dscConfig.AllNodes.HTTPSPort
             $result.bindings.Collection.certificateHash[2]      | Should Be $selfSignedCert.Thumbprint
             $result.bindings.Collection.certificateStoreName[2] | Should Be $dscConfig.AllNodes.CertificateStoreName
+            $result.bindings.Collection.BindingInformation[3]   | Should Match $dscConfig.AllNodes.HTTPSPort2
+            $result.bindings.Collection.certificateHash[3]      | Should Be $selfSignedCert.Thumbprint
+            $result.bindings.Collection.certificateStoreName[3] | Should Be $dscConfig.AllNodes.CertificateStoreName
             
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
