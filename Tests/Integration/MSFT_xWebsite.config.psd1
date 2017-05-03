@@ -24,6 +24,7 @@
             HTTP2Hostname               = 'http2.website'
             HTTPSProtocol               = 'https'
             HTTPSPort                   = '443'
+            HTTPSPort2                  = '8444'
             HTTPSHostname               = 'https.website'
             CertificateStoreName        = 'MY'
             SslFlags                    = '1'
