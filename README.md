@@ -240,7 +240,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ### Unreleased
 
 * xWebsite:
-  * Fixed bug when setting LogPeriod in IIS 7.5 and LogFlags in any platform, fixes #299.
+  * Fixed bugs when setting log properties, fixes #299.
 
 ### 1.17.0.0
 
