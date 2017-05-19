@@ -232,7 +232,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
 * **LogDirectory**: Directory for IIS logs.
 * **TraceLogDirectory**: Directory for FREB (Failed Request Tracing) logs.
-* **DefaultApplicationPool**: Name of the default application pool used by websites. 
+* **DefaultApplicationPool**: Name of the default application pool used by websites.
 * **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
 ## Versions
@@ -305,7 +305,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     * LoglocalTimeRollover
     * LogFormat
 
-* **xWebApplication** updates: 
+* **xWebApplication** updates:
     * xWebApplication integration tests updated
     * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
     * Added EnabledProtocols
@@ -433,7 +433,6 @@ Module manifest metadata changed to improve PowerShell Gallery experience.
 
 * Initial release with the following resources
   * **xWebsite**
-
 
 ## Examples
 
@@ -1035,4 +1034,3 @@ Configuration Sample_xWebAppPool
     }
 }
 ```
-
