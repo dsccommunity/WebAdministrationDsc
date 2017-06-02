@@ -909,8 +909,8 @@ function Invoke-AppCmd
 
     $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
     
-    $appcmdResult = [String]$(& $appcmdFilePath $ArgumentList)
-    Write-Verbose -Message $appcmdResult
+    $appcmdResult = $(& $appcmdFilePath $ArgumentList)
+    Write-Verbose -Message $($appcmdResult).ToString()
 
     if ($LASTEXITCODE -ne 0)
     {
