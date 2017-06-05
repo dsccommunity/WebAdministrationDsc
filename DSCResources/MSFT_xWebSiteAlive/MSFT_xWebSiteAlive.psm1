@@ -6,7 +6,7 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        ErrorWebsiteNotRunning = The website '{0}{1}' is not correctly running.
+        ErrorWebsiteNotRunning = The website '{0}' is not correctly running.
         VerboseUrlReturnStatusCode = Url {0} returned status code {1}.
         VerboseTestTargetFalseStatusCode = Status code of url {0} does not match the desired state.
         VerboseTestTargetFalseExpectedContent = Content of url {0} does not match the desired state.
@@ -31,7 +31,7 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $RelativeUrl = '/',
+        $RelativeUrl,
 
         [int[]]
         $ValidStatusCodes = [int][Net.HttpStatusCode]::OK,
@@ -52,7 +52,7 @@ function Get-TargetResource
     }
     else
     {
-        $errorMessage = $LocalizedData.ErrorWebsiteNotRunning -f $WebSiteName, $RelativeUrl
+        $errorMessage = $LocalizedData.ErrorWebsiteNotRunning -f $WebSiteName
         New-TerminatingError -ErrorId 'WebsiteNotRunning' `
                              -ErrorMessage $errorMessage `
                              -ErrorCategory 'InvalidResult'
@@ -80,7 +80,7 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $RelativeUrl = '/',
+        $RelativeUrl,
 
         [int[]]
         $ValidStatusCodes = [int][Net.HttpStatusCode]::OK,
@@ -89,7 +89,7 @@ function Set-TargetResource
         $ExpectedContent
     )
 
-    $errorMessage = $LocalizedData.ErrorWebsiteNotRunning -f $WebSiteName, $RelativeUrl
+    $errorMessage = $LocalizedData.ErrorWebsiteNotRunning -f $WebSiteName
     New-TerminatingError -ErrorId 'WebsiteNotRunning' `
                          -ErrorMessage $errorMessage `
                          -ErrorCategory 'InvalidResult'
@@ -118,7 +118,7 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $RelativeUrl = '/',
+        $RelativeUrl,
 
         [int[]]
         $ValidStatusCodes = [int][Net.HttpStatusCode]::OK,
@@ -177,7 +177,7 @@ function Test-WebSiteRunning
         }
     }
 
-    $bindings = Get-WebBinding $WebSiteName
+    $bindings = Get-WebBinding -Name $WebSiteName
 
     foreach ($binding in $bindings)
     {

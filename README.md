@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue** and **xWebSiteAlive** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -235,9 +235,18 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **DefaultApplicationPool**: Name of the default application pool used by websites. 
 * **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
+### xWebSiteAlive
+
+* **WebSiteName**: Name of the website that must be running, such as **Default Web Site**.
+* **RelativeUrl**: A relative url to joint to each website binding.
+* **ValidStatusCodes**: A list of HTTP status codes to be considered successful results. Defaults to **200 OK**.
+* **ExpectedContent**: The content considered to be successful result.
+
 ## Versions
 
 ### Unreleased
+
+* Added **xWebSiteAlive**.
 
 ### 1.17.0.0
 
