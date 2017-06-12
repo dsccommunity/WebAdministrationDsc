@@ -1,4 +1,4 @@
-﻿# Load the Helper Module
+# Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
 
 # Localized messages
@@ -33,7 +33,7 @@ function Get-TargetResource
         [String]
         $RelativeUrl,
 
-        [int[]]
+        [UInt16[]]
         $ValidStatusCodes = [int][Net.HttpStatusCode]::OK,
 
         [String]
@@ -82,7 +82,7 @@ function Set-TargetResource
         [String]
         $RelativeUrl,
 
-        [int[]]
+        [UInt16[]]
         $ValidStatusCodes = [int][Net.HttpStatusCode]::OK,
 
         [String]
@@ -120,7 +120,7 @@ function Test-TargetResource
         [String]
         $RelativeUrl,
 
-        [int[]]
+        [UInt16[]]
         $ValidStatusCodes = [int][Net.HttpStatusCode]::OK,
 
         [String]
@@ -147,7 +147,7 @@ function Test-WebSiteRunning
         [String]
         $RelativeUrl,
 
-        [int[]]
+        [UInt16[]]
         $ValidStatusCodes,
 
         [String]

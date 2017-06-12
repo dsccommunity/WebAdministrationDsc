@@ -1,4 +1,4 @@
-﻿Configuration Sample_xWebSiteAlive_ExpectedContent
+Configuration Sample_xWebSiteAlive_ExpectedContent
 {
     Import-DscResource -Module xWebAdministration
     
@@ -23,19 +23,19 @@
 <style type="text/css">
 <!--
 body {
-	color:#000000;
-	background-color:#0072C6;
-	margin:0;
+    color:#000000;
+    background-color:#0072C6;
+    margin:0;
 }
 
 #container {
-	margin-left:auto;
-	margin-right:auto;
-	text-align:center;
-	}
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    }
 
 a img {
-	border:none;
+    border:none;
 }
 
 -->

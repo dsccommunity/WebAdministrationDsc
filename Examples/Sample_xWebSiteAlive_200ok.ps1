@@ -1,4 +1,4 @@
-﻿Configuration Sample_xWebSiteAlive_200ok
+Configuration Sample_xWebSiteAlive_200ok
 {
     Import-DscResource -Module xWebAdministration
     
