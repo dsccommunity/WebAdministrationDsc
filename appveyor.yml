@@ -2,6 +2,10 @@
 #      environment configuration  #
 #---------------------------------#
 version: 1.17.{build}.0
+
+services:
+    - iis
+
 install:
     - git clone https://github.com/PowerShell/DscResource.Tests
     - ps: |

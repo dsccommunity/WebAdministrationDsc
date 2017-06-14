@@ -18,8 +18,8 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 #endregion
 
-[string] $tempIisConfigBackupName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
-[string] $tempWebSitePhysicalPath = Join-Path $env:SystemDrive 'inetpub\wwwroot\WebsiteForxWebSiteAlive'
+$tempIisConfigBackupName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+$tempRequestFilePath = $null
 
 # Using try/finally to always cleanup.
 try
@@ -34,7 +34,7 @@ try
             @{
                 NodeName           = 'localhost'
                 WebSiteName        = 'WebsiteForxWebSiteAlive'
-                PhysicalPath       = $tempWebSitePhysicalPath
+                PhysicalPath       = Join-Path $env:SystemDrive 'inetpub\wwwroot\'
                 HTTPPort           = 80
                 RequestFileName    = 'xWebSiteAliveTest.html'
                 RequestFileContent = @'
@@ -50,8 +50,6 @@ try
         )
     }
 
-    New-Item -Path $configData.AllNodes.PhysicalPath -ItemType Directory | Out-Null
-
     New-Website -Name $configData.AllNodes.WebSiteName `
         -PhysicalPath $configData.AllNodes.PhysicalPath `
         -Port $configData.AllNodes.HTTPPort `
@@ -59,7 +57,8 @@ try
         -ErrorAction Stop
     
     # Write without a BOM
-    [IO.File]::WriteAllText((Join-Path $configData.AllNodes.PhysicalPath $configData.AllNodes.RequestFileName), $configData.AllNodes.RequestFileContent)
+    $tempRequestFilePath = Join-Path $configData.AllNodes.PhysicalPath $configData.AllNodes.RequestFileName
+    [IO.File]::WriteAllText($tempRequestFilePath, $configData.AllNodes.RequestFileContent)
 
     #region Integration Tests
     
@@ -87,7 +86,7 @@ finally
     Restore-WebConfiguration -Name $tempIisConfigBackupName
     Remove-WebConfigurationBackup -Name $tempIisConfigBackupName
 
-    Remove-Item -Path $tempWebSitePhysicalPath -Recurse -Force
+    Remove-Item -Path $tempRequestFilePath -Force
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion

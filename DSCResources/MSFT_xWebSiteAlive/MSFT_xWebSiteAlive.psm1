@@ -6,19 +6,22 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        ErrorWebsiteNotRunning = The website '{0}' is not correctly running.
-        VerboseUrlReturnStatusCode = Url {0} returned status code {1}.
-        VerboseTestTargetFalseStatusCode = Status code of url {0} does not match the desired state.
+        ErrorWebsiteNotRunning                = The website '{0}' is not correctly running.
+        VerboseGettingWebsiteBindings         = Getting bindings of the website '{0}'.
+        VerboseUrlReturnStatusCode            = Url {0} returned status code {1}.
+        VerboseTestTargetFalseStatusCode      = Status code of url {0} does not match the desired state.
         VerboseTestTargetFalseExpectedContent = Content of url {0} does not match the desired state.
 '@
 }
 
 <#
     .SYNOPSYS
-        This will return a hashtable of results.
+        This will return a hashtable of results. Once the resource state will nerver be changed to 'absent',
+        this function or will return the resource in the present state or will throw an error.
 #>
 function Get-TargetResource
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -46,7 +49,7 @@ function Get-TargetResource
             Ensure           = 'Present'
             WebSiteName      = $WebSiteName
             RelativeUrl      = $RelativeUrl
-            ValidStatusCodes = [object[]]$ValidStatusCodes
+            ValidStatusCodes = $ValidStatusCodes
             ExpectedContent  = $ExpectedContent
         }
     }
@@ -61,10 +64,11 @@ function Get-TargetResource
 
 <#
     .SYNOPSYS
-        This will set the desired state.
+        Once this resource is only for check the state, this function will always throw an error.
 #>
 function Set-TargetResource
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [CmdletBinding()]
     param
     (
@@ -97,11 +101,11 @@ function Set-TargetResource
 
 <#
     .SYNOPSYS
-        This tests the desired state. If the state is not correct it will return $false.
-        If the state is correct it will return $true.
+        This tests the desired state. It will return $true if the website is alive or $false if it is not.
 #>
 function Test-TargetResource
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -176,6 +180,8 @@ function Test-WebSiteRunning
             }
         }
     }
+
+    Write-Verbose -Message ($LocalizedData.VerboseGettingWebsiteBindings -f $WebSiteName)
 
     $bindings = Get-WebBinding -Name $WebSiteName
 
