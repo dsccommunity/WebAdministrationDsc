@@ -431,18 +431,10 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat `
                                         -f $Name)
 
-                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.logFormat property
-                if ([Environment]::OSVersion.Version -ge '6.2')
-                {
-                    Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                        -Name LogFile.logFormat -Value $LogFormat
-                }
-                else
-                {
-                    $site = Get-Item "IIS:\Sites\$Name"
-                    $site.LogFile.logFormat = $LogFormat
-                    $site | Set-Item
-                }
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogFormat property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.LogFormat = $LogFormat
+                $site | Set-Item
             }
 
             # Update LogFlags if required
@@ -454,7 +446,7 @@ function Set-TargetResource
 
                 # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
                 $site = Get-Item "IIS:\Sites\$Name"
-                $site.LogFile.logFormat = 'W3C'
+                $site.LogFile.LogFormat = 'W3C'
                 $site.LogFile.LogExtFileFlags = $LogFlags -join ','
                 $site | Set-Item
             }
@@ -480,18 +472,10 @@ function Set-TargetResource
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
 
-                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.period property
-                if ([Environment]::OSVersion.Version -ge '6.2')
-                {
-                    Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                        -Name LogFile.period -Value $LogPeriod
-                }
-                else
-                {
-                    $site = Get-Item "IIS:\Sites\$Name"
-                    $site.LogFile.period = $LogPeriod
-                    $site | Set-Item
-                }
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.Period property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.Period = $LogPeriod
+                $site | Set-Item
             }
 
             # Update LogTruncateSize if needed
@@ -509,7 +493,7 @@ function Set-TargetResource
             # Update LoglocalTimeRollover if neeed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
                 ($LoglocalTimeRollover -ne `
-                 ([System.Convert]::ToBoolean($website.logFile.localTimeRollover))))
+                 ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
                                         -f $Name)
@@ -694,18 +678,10 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
                 
-                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.logFormat property
-                if ([Environment]::OSVersion.Version -ge '6.2')
-                {
-                    Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                        -Name LogFile.logFormat -Value $LogFormat
-                }
-                else
-                {
-                    $site = Get-Item "IIS:\Sites\$Name"
-                    $site.LogFile.logFormat = $LogFormat
-                    $site | Set-Item
-                }
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogFormat property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.LogFormat = $LogFormat
+                $site | Set-Item
             }
 
             # Update LogFlags if required
@@ -717,7 +693,7 @@ function Set-TargetResource
 
                 # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
                 $site = Get-Item "IIS:\Sites\$Name"
-                $site.LogFile.logFormat = 'W3C'
+                $site.LogFile.LogFormat = 'W3C'
                 $site.LogFile.LogExtFileFlags = $LogFlags -join ','
                 $site | Set-Item
             }
@@ -745,18 +721,10 @@ function Set-TargetResource
 
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
                 
-                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.period property
-                if ([Environment]::OSVersion.Version -ge '6.2')
-                {
-                    Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                        -Name LogFile.period -Value $LogPeriod
-                }
-                else
-                {
-                    $site = Get-Item "IIS:\Sites\$Name"
-                    $site.LogFile.period = $LogPeriod
-                    $site | Set-Item
-                }
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.Period property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.Period = $LogPeriod
+                $site | Set-Item
             }
 
             # Update LogTruncateSize if needed
@@ -774,7 +742,7 @@ function Set-TargetResource
             # Update LoglocalTimeRollover if neeed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
                 ($LoglocalTimeRollover -ne `
-                 ([System.Convert]::ToBoolean($website.logFile.localTimeRollover))))
+                 ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
                                         -f $Name)
@@ -1083,7 +1051,7 @@ function Test-TargetResource
         # Check LoglocalTimeRollover
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
             ($LoglocalTimeRollover -ne `
-            ([System.Convert]::ToBoolean($website.logFile.localTimeRollover))))
+            ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover `
                                     -f $Name)
