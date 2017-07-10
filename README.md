@@ -241,6 +241,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 * Added sample for **xWebVirtualDirectory** for creating a new virtual directory. Bugfix for #195.
 * Added integration tests for **xWebVirtualDirectory**. Fixes #188.
+* xWebsite:
+  * Fixed bugs when setting log properties, fixes #299.
 
 ### 1.17.0.0
 
