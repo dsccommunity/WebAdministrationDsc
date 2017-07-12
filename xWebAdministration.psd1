@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.17.0.0'
+ModuleVersion = '1.18.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,9 +41,12 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Added removal of self signed certificate to the integration tests of **xWebsite**, fixes 276.
-* Added EnabledProtocols to **xWebApplication**.
-* Changed SSLFlags for **xWebApplication** to comma seperate multiple SSL flags, fixes 232.'
+        ReleaseNotes = '* Added sample for **xWebVirtualDirectory** for creating a new virtual directory. Bugfix for 195.
+* Added integration tests for **xWebVirtualDirectory**. Fixes 188.
+* xWebsite:
+  * Fixed bugs when setting log properties, fixes 299.
+
+'
 
     } # End of PSData hashtable
 
@@ -55,6 +58,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 
