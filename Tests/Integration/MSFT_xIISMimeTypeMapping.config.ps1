@@ -5,8 +5,8 @@ configuration MSFT_xIISMimeTypeMapping_Config
     xIIsMimeTypeMapping AddMimeType
     {
         Extension = '.PesterDummy'
-        MimeType = 'text/plain'
-        Ensure = 'Present'
+        MimeType  = 'text/plain'
+        Ensure    = 'Present'
     }
 }
 
@@ -16,9 +16,9 @@ configuration MSFT_xIISMimeTypeMapping_AddMimeType
 
     xIIsMimeTypeMapping AddMimeType2
     {
-        Extension = $env:PesterFileExtension2
-        MimeType = $env:PesterMimeType2
-        Ensure = 'Present'
+        Extension = $ConfigurationData.NonNodeData.PesterFileExtension2
+        MimeType  = $ConfigurationData.NonNodeData.PesterMimeType2
+        Ensure    = 'Present'
     }
 }
 
@@ -28,9 +28,9 @@ configuration MSFT_xIISMimeTypeMapping_RemoveMimeType
 
     xIIsMimeTypeMapping RemoveMimeType
     {
-        Extension = $env:PesterFileExtension
-        MimeType = $env:PesterMimeType
-        Ensure = 'Absent'
+        Extension = $ConfigurationData.NonNodeData.PesterFileExtension
+        MimeType  = $ConfigurationData.NonNodeData.PesterMimeType
+        Ensure    = 'Absent'
     }
 }
 
@@ -41,7 +41,7 @@ configuration MSFT_xIISMimeTypeMapping_RemoveDummyMime
     xIIsMimeTypeMapping RemoveMimeType2
     {
         Extension = '.PesterDummy2'
-        MimeType = 'text/dummy'
-        Ensure = 'Absent'
+        MimeType  = 'text/dummy'
+        Ensure    = 'Absent'
     }
 }

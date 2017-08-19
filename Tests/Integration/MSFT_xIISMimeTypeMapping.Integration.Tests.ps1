@@ -23,16 +23,17 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     #region Integration Tests
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $ConfigFile
 
     $null = Backup-WebConfiguration -Name $tempName
+
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    . $ConfigFile
 
     Describe "$($script:DSCResourceName)_Integration" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestDrive"
+                & "$($script:DSCResourceName)_Config" -OutputPath $TestDrive
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -43,39 +44,54 @@ try
         #endregion
 
         It 'Adding an existing MimeType' {
-            $node = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
+            $node = (Get-WebConfiguration -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap") | Select-Object -First 1
 
-            $env:PesterFileExtension2 = $node.fileExtension
-            $env:PesterMimeType2 = $node.mimeType
+            $configData = @{
+                AllNodes = @();
+                NonNodeData =
+                @{
+                    PesterFileExtension2 = $node.fileExtension
+                    PesterMimeType2      = $node.mimeType
+                }
+            }
 
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_AddMimeType -OutputPath `$TestDrive"
+                & "$($script:DSCResourceName)_AddMimeType" -OutputPath $TestDrive -ConfigurationData $configData
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
-            [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension2 + "' and @mimeType='" + "$env:PesterMimeType2" + "']"
-            $expected = ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count
+            $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
+                $configData.NonNodeData.PesterFileExtension2, $configData.NonNodeData.PesterMimeType2
+            $expected = ((Get-WebConfiguration  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter) | Measure-Object).Count
 
             $expected | should be 1
         }
 
         It 'Removing a MimeType' {
-            $node = (Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
-            $env:PesterFileExtension = $node.fileExtension
-            $env:PesterMimeType = $node.mimeType
+            $node = (Get-WebConfiguration  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap") | Select-Object -First 1
+            
+            $configData = @{
+                AllNodes = @();
+                NonNodeData =
+                @{
+                    PesterFileExtension = $node.fileExtension
+                    PesterMimeType      = $node.mimeType
+                }
+            }
 
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveMimeType -OutputPath `$TestDrive"
+                & "$($script:DSCResourceName)_RemoveMimeType" -OutputPath $TestDrive -ConfigurationData $configData
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
-            [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension + "' and @mimeType='" + "$env:PesterMimeType" + "']"
-            ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count | should be 0
+            $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
+                $configData.NonNodeData.PesterFileExtension, $configData.NonNodeData.PesterMimeType
+            ((Get-WebConfiguration -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter) | Measure-Object).Count | should be 0
         }
 
         It 'Removing a non existing MimeType' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveDummyMime -OutputPath `$TestDrive"
+                & "$($script:DSCResourceName)_RemoveDummyMime" -OutputPath $TestDrive
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }

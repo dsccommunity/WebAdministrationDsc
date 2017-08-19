@@ -44,8 +44,8 @@ try
                 It 'Should return the correct hashtable' {
                     $result = Get-TargetResource -Extension 'mockExtension' -MimeType 'mockType' -Ensure 'Absent'
                     $result.Ensure    | Should be 'Absent'
-                    $result.Extension | Should be $null
-                    $result.MimeType  | Should be $null
+                    $result.Extension | Should be 'mockExtension'
+                    $result.MimeType  | Should be 'mockType'
                 }
             }
             
@@ -67,44 +67,22 @@ try
             Mock -CommandName Assert-Module -MockWith {}
             
             Context 'Add MimeType' {
-                 Mock -CommandName Get-Mapping -MockWith { return $null }
                  Mock -CommandName Add-WebConfigurationProperty -MockWith {}
                  
                  Set-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
                  It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Get-Mapping -Exactly 1
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
                  }
             }
             
             Context 'Remove MimeType' {
-                 Mock -CommandName Get-Mapping -MockWith { return 'mock' }
                  Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
                  
                  Set-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
                  It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Get-Mapping -Exactly 1
                     Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 1
                  }
             }
-            
-            Context 'MimeType that does not exist trying to be removed' {
-                 Mock -CommandName Get-Mapping -MockWith { return $null }
-                 
-                 Set-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
-                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Get-Mapping -Exactly 1
-                 }
-            }
-            
-            Context 'MimeType that already exists trying to be added' {
-                 Mock -CommandName Get-Mapping -MockWith { return 'mock' }
-                 
-                 Set-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
-                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Get-Mapping -Exactly 1
-                 }
-            }     
         }
         #endregion
         
@@ -151,7 +129,7 @@ try
         Describe 'MSFT_xIisMimeTypeMapping\Get-Mapping' {
             
             Context 'Get-mapping with Extension and Type' {
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { return $mockMapping }
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockMapping }
                 
                 $result = Get-Mapping -Extension 'mockExtension' -Type 'mockType'
                 It 'should return $mockMapping' {

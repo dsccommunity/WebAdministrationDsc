@@ -11,22 +11,23 @@ data LocalizedData
         RemovingType              = Removing MIMEType '{0}' for extension '{1}'
         TypeExists                = MIMEType '{0}' for extension '{1}' already exist
         TypeNotPresent            = MIMEType '{0}' for extension '{1}' is not present as requested
-        TypeStatusUnknown         = MIMEType '{0}' for extension '{1}' is is an unknown status
         VerboseGetTargetPresent   = MIMEType is present
         VerboseGetTargetAbsent    = MIMEType is absent
-        VerboseSetTargetError     = Cannot set type
 '@
 }
+
+Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST'
+Set-Variable ConstSectionNode              -Option Constant -Value 'system.webServer/staticContent'
 
 function Get-TargetResource
 {
     <#
-    .SYNOPSIS
-        This will return a hashtable of results 
+        .SYNOPSIS
+            This will return a hashtable of results 
     #>
     [OutputType([Hashtable])]
     param
-    (        
+    (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $Extension,
@@ -50,8 +51,8 @@ function Get-TargetResource
         Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         return @{
             Ensure    = 'Absent'
-            Extension = $null
-            MimeType  = $null
+            Extension = $Extension
+            MimeType  = $MimeType
         }
     }
     else
@@ -64,14 +65,15 @@ function Get-TargetResource
         }
     }
 }
+
 function Set-TargetResource
 {
     <#
-            .SYNOPSIS
+        .SYNOPSIS
             This will set the desired state
     #>
     param
-    (    
+    (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $Extension,
@@ -85,48 +87,38 @@ function Set-TargetResource
         [String] $Ensure
     )
 
-        Assert-Module
+    Assert-Module
 
-        [String] $psPathRoot = 'MACHINE/WEBROOT/APPHOST'
-        [String] $sectionNode = 'system.webServer/staticContent'
-
-        $mt = Get-Mapping -Extension $Extension -Type $MimeType 
-
-        if ($null -eq $mt -and $Ensure -eq 'Present')
-        {
-            # add the MimeType            
-            Add-WebConfigurationProperty -PSPath $psPathRoot `
-                                         -Filter $sectionNode `
-                                         -Name '.' `
-                                         -Value @{fileExtension="$Extension";mimeType="$MimeType"}
-            Write-Verbose -Message ($LocalizedData.AddingType -f $MimeType,$Extension);
-        }
-        elseif ($null -ne $mt -and $Ensure -eq 'Absent')
-        {
-            # remove the MimeType                      
-            Remove-WebConfigurationProperty -PSPath $psPathRoot `
-                                            -Filter $sectionNode `
-                                            -Name '.' `
-                                            -AtElement @{fileExtension="$Extension"}
-            Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension);
-        }
-        else 
-        {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetError
-        }
+    if ($Ensure -eq 'Present')
+    {
+        # add the MimeType            
+        Add-WebConfigurationProperty -PSPath $ConstDefaultConfigurationPath `
+                                     -Filter $ConstSectionNode `
+                                     -Name '.' `
+                                     -Value @{fileExtension="$Extension";mimeType="$MimeType"}
+        Write-Verbose -Message ($LocalizedData.AddingType -f $MimeType,$Extension);
+    }
+    else
+    {
+        # remove the MimeType                      
+        Remove-WebConfigurationProperty -PSPath $ConstDefaultConfigurationPath `
+                                        -Filter $ConstSectionNode `
+                                        -Name '.' `
+                                        -AtElement @{fileExtension="$Extension"}
+        Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension);
+    }
 }
 
 function Test-TargetResource
 {
     <#
-    .SYNOPSIS
-        This tests the desired state. If the state is not correct it will return $false.
-        If the state is correct it will return $true
+        .SYNOPSIS
+            This tests the desired state. If the state is not correct it will return $false.
+            If the state is correct it will return $true
     #>
-
     [OutputType([System.Boolean])]
     param
-    (    
+    (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $Extension,
@@ -140,17 +132,13 @@ function Test-TargetResource
         [String] $Ensure
     )
 
-    [Boolean] $DesiredConfigurationMatch = $true;
+    $desiredConfigurationMatch = $true;
     
     Assert-Module
 
     $mt = Get-Mapping -Extension $Extension -Type $MimeType 
 
-    if (($null -eq $mt -and $Ensure -eq 'Present') -or ($null -ne $mt -and $Ensure -eq 'Absent'))
-    {
-        $DesiredConfigurationMatch = $false;
-    }
-    elseif ($null -ne $mt -and $Ensure -eq 'Present')
+    if ($null -ne $mt -and $Ensure -eq 'Present')
     {
         # Already there 
         Write-Verbose -Message ($LocalizedData.TypeExists -f $MimeType,$Extension);
@@ -162,18 +150,16 @@ function Test-TargetResource
     }
     else
     {
-        $DesiredConfigurationMatch = $false;
-        Write-Verbose -Message ($LocalizedData.TypeStatusUnknown -f $MimeType,$Extension);
+        $desiredConfigurationMatch = $false;
     }
     
-    return $DesiredConfigurationMatch
+    return $desiredConfigurationMatch
 }
 
 #region Helper Functions
 
 function Get-Mapping
 {
-   
     [CmdletBinding()]
     param
     (
@@ -182,9 +168,9 @@ function Get-Mapping
         [String] $Type
     )
 
-    [String] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
-                       $Extension + "' and @mimeType='" + $Type + "']"
-    return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
+    $filter = "$ConstSectionNode/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f $Extension, $Type
+
+    return Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter $filter
 }
 
 #endregion
