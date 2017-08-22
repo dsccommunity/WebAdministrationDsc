@@ -29,6 +29,10 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [String] $ConfigurationPath,
+
+        [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $Extension,
 
@@ -44,24 +48,31 @@ function Get-TargetResource
     # Check if WebAdministration module is present for IIS cmdlets
     Assert-Module
 
-    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
+    if (!$ConfigurationPath)
+    {
+        $ConfigurationPath = $ConstDefaultConfigurationPath
+    }
+
+    $mt = Get-Mapping -ConfigurationPath $ConfigurationPath -Extension $Extension -Type $MimeType 
 
     if ($null -eq $mt)
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         return @{
-            Ensure    = 'Absent'
-            Extension = $Extension
-            MimeType  = $MimeType
+            Ensure            = 'Absent'
+            ConfigurationPath = $ConfigurationPath
+            Extension         = $Extension
+            MimeType          = $MimeType
         }
     }
     else
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
         return @{
-            Ensure    = 'Present'
-            Extension = $mt.fileExtension
-            MimeType  = $mt.mimeType
+            Ensure            = 'Present'
+            ConfigurationPath = $ConfigurationPath
+            Extension         = $mt.fileExtension
+            MimeType          = $mt.mimeType
         }
     }
 }
@@ -74,6 +85,10 @@ function Set-TargetResource
     #>
     param
     (
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [String] $ConfigurationPath,
+
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $Extension,
@@ -89,10 +104,15 @@ function Set-TargetResource
 
     Assert-Module
 
+    if (!$ConfigurationPath)
+    {
+        $ConfigurationPath = $ConstDefaultConfigurationPath
+    }
+
     if ($Ensure -eq 'Present')
     {
         # add the MimeType            
-        Add-WebConfigurationProperty -PSPath $ConstDefaultConfigurationPath `
+        Add-WebConfigurationProperty -PSPath $ConfigurationPath `
                                      -Filter $ConstSectionNode `
                                      -Name '.' `
                                      -Value @{fileExtension="$Extension";mimeType="$MimeType"}
@@ -101,7 +121,7 @@ function Set-TargetResource
     else
     {
         # remove the MimeType                      
-        Remove-WebConfigurationProperty -PSPath $ConstDefaultConfigurationPath `
+        Remove-WebConfigurationProperty -PSPath $ConfigurationPath `
                                         -Filter $ConstSectionNode `
                                         -Name '.' `
                                         -AtElement @{fileExtension="$Extension"}
@@ -120,6 +140,10 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [String] $ConfigurationPath,
+
+        [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $Extension,
 
@@ -132,11 +156,16 @@ function Test-TargetResource
         [String] $Ensure
     )
 
-    $desiredConfigurationMatch = $true;
-    
     Assert-Module
 
-    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
+    if (!$ConfigurationPath)
+    {
+        $ConfigurationPath = $ConstDefaultConfigurationPath
+    }
+
+    $desiredConfigurationMatch = $true;
+
+    $mt = Get-Mapping -ConfigurationPath $ConfigurationPath -Extension $Extension -Type $MimeType 
 
     if ($null -ne $mt -and $Ensure -eq 'Present')
     {
@@ -163,14 +192,22 @@ function Get-Mapping
     [CmdletBinding()]
     param
     (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String] $ConfigurationPath,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [String] $Extension,
         
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [String] $Type
     )
 
     $filter = "$ConstSectionNode/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f $Extension, $Type
 
-    return Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter $filter
+    return Get-WebConfiguration -PSPath $ConfigurationPath -Filter $filter
 }
 
 #endregion

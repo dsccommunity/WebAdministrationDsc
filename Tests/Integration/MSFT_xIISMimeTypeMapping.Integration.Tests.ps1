@@ -18,6 +18,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 #endregion
 
 [string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string]$tempVirtualDirectoryPhysicalPath
 
 # Using try/finally to always cleanup even if something awful happens.
 try
@@ -29,7 +30,21 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
+    $tempVirtualDirectoryName = 'Dir01'
+    $tempVirtualDirectoryPhysicalPath = Join-Path $env:SystemDrive "inetpub\wwwroot\$tempVirtualDirectoryName"
+    $tempVirtualDirectoryIisPath = "IIS:\Sites\WebsiteForxIisMimeTypeMapping\$tempVirtualDirectoryName"
+
+    New-Website -Name 'WebsiteForxIisMimeTypeMapping' `
+        -PhysicalPath (Join-Path $env:SystemDrive 'inetpub\wwwroot\') `
+        -Force `
+        -ErrorAction Stop
+
+    New-Item -Path $tempVirtualDirectoryPhysicalPath -ItemType Directory | Out-Null
+    New-WebVirtualDirectory -Site 'WebsiteForxIisMimeTypeMapping' -Name $tempVirtualDirectoryName -PhysicalPath $tempVirtualDirectoryPhysicalPath
+
     Describe "$($script:DSCResourceName)_Integration" {
+        Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST'
+
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
@@ -44,7 +59,7 @@ try
         #endregion
 
         It 'Adding an existing MimeType' {
-            $node = (Get-WebConfiguration -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap") | Select-Object -First 1
+            $node = (Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter "system.webServer/staticContent/mimeMap") | Select-Object -First 1
 
             $configData = @{
                 AllNodes = @();
@@ -62,13 +77,13 @@ try
 
             $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
                 $configData.NonNodeData.PesterFileExtension2, $configData.NonNodeData.PesterMimeType2
-            $expected = ((Get-WebConfiguration  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter) | Measure-Object).Count
+            $expected = ((Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter $filter) | Measure-Object).Count
 
             $expected | should be 1
         }
 
         It 'Removing a MimeType' {
-            $node = (Get-WebConfiguration  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap") | Select-Object -First 1
+            $node = (Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter "system.webServer/staticContent/mimeMap") | Select-Object -First 1
             
             $configData = @{
                 AllNodes = @();
@@ -86,7 +101,7 @@ try
 
             $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
                 $configData.NonNodeData.PesterFileExtension, $configData.NonNodeData.PesterMimeType
-            ((Get-WebConfiguration -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter) | Measure-Object).Count | should be 0
+            ((Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter $filter) | Measure-Object).Count | should be 0
         }
 
         It 'Removing a non existing MimeType' {
@@ -94,6 +109,121 @@ try
                 & "$($script:DSCResourceName)_RemoveDummyMime" -OutputPath $TestDrive
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
+        }
+
+        It 'Adding to a nested path a Mime Type already existing in the configuration hierarchy' {
+            $node = (Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter "system.webServer/staticContent/mimeMap") | Select-Object -First 1
+
+            $configData = @{
+                AllNodes    = @();
+                NonNodeData =
+                @{
+                    ConfigurationPath = $tempVirtualDirectoryIisPath
+                    FileExtension     = $node.fileExtension
+                    MimeType          = $node.mimeType
+                }
+            }
+
+            {
+                & "$($script:DSCResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+            } | Should not throw
+
+            $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
+                $configData.NonNodeData.fileExtension, $configData.NonNodeData.mimeType
+            $expected = ((Get-WebConfiguration -PSPath $tempVirtualDirectoryIisPath -Filter $filter) | Measure-Object).Count
+
+            $expected | Should Be 1
+        }
+
+        It 'Adding to a nested path a Mime Type not existing in the configuration hierarchy' {
+            $configData = @{
+                AllNodes    = @();
+                NonNodeData =
+                @{
+                    ConfigurationPath = $tempVirtualDirectoryIisPath
+                    FileExtension     = 'PesterDummy3'
+                    MimeType          = 'text/dummy'
+                }
+            }
+
+            {
+                & "$($script:DSCResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+            } | Should not throw
+
+            $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
+                $configData.NonNodeData.fileExtension, $configData.NonNodeData.mimeType
+            $expected = ((Get-WebConfiguration -PSPath $tempVirtualDirectoryIisPath -Filter $filter) | Measure-Object).Count
+
+            $expected | Should Be 1
+        }
+
+        It 'Adding to a nested path a Mime Type already existing in the configuration hierarchy with a different value' {
+            $node = (Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter "system.webServer/staticContent/mimeMap") | Select-Object -Skip 1 -First 1
+
+            $configData = @{
+                AllNodes    = @();
+                NonNodeData =
+                @{
+                    ConfigurationPath = $tempVirtualDirectoryIisPath
+                    FileExtension     = $node.fileExtension
+                    MimeType          = 'text/dummy'
+                }
+            }
+
+            {
+                & "$($script:DSCResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force -ErrorAction Stop
+            } | Should Throw
+        }
+
+        It 'Removing from a nested path a Mime Type already existing in the configuration hierarchy' {
+            $node = (Get-WebConfiguration -PSPath $ConstDefaultConfigurationPath -Filter "system.webServer/staticContent/mimeMap") | Select-Object -Skip 2 -First 1
+
+            $configData = @{
+                AllNodes    = @();
+                NonNodeData =
+                @{
+                    ConfigurationPath = $tempVirtualDirectoryIisPath
+                    FileExtension     = $node.fileExtension
+                    MimeType          = $node.mimeType
+                }
+            }
+
+            {
+                & "$($script:DSCResourceName)_RemoveMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+            } | Should not throw
+
+            $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
+                $configData.NonNodeData.fileExtension, $configData.NonNodeData.mimeType
+            $expected = ((Get-WebConfiguration -PSPath $tempVirtualDirectoryIisPath -Filter $filter) | Measure-Object).Count
+
+            $expected | Should Be 0
+        }
+
+        It 'Removing from a nested path a Mime Type not existing in the configuration hierarchy' {
+            $configData = @{
+                AllNodes    = @();
+                NonNodeData =
+                @{
+                    ConfigurationPath = $tempVirtualDirectoryIisPath
+                    FileExtension     = 'PesterDummy4'
+                    MimeType          = 'text/dummy'
+                }
+            }
+
+            {
+                & "$($script:DSCResourceName)_RemoveMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+            } | Should not throw
+
+            $filter = "system.webServer/staticContent/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f `
+                $configData.NonNodeData.fileExtension, $configData.NonNodeData.mimeType
+            $expected = ((Get-WebConfiguration -PSPath $tempVirtualDirectoryIisPath -Filter $filter) | Measure-Object).Count
+
+            $expected | Should Be 0
         }
     }
     #endregion
@@ -103,6 +233,8 @@ finally
     #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
+
+    Remove-Item -Path $tempVirtualDirectoryPhysicalPath -Recurse -Force
 
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion

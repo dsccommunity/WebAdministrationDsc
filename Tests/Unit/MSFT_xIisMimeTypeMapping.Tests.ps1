@@ -27,7 +27,8 @@ try
     #region Pester Tests
     
     InModuleScope $DSCResourceName {
-    
+        Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST'
+
         $mockMapping =
         @{
             fileExtension = 'mockFileExtension'
@@ -42,10 +43,11 @@ try
                 Mock -CommandName Get-Mapping -MockWith { return $null }
                 
                 It 'Should return the correct hashtable' {
-                    $result = Get-TargetResource -Extension 'mockExtension' -MimeType 'mockType' -Ensure 'Absent'
-                    $result.Ensure    | Should be 'Absent'
-                    $result.Extension | Should be 'mockExtension'
-                    $result.MimeType  | Should be 'mockType'
+                    $result = Get-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockType' -Ensure 'Absent'
+                    $result.Ensure            | Should be 'Absent'
+                    $result.ConfigurationPath | Should be $ConstDefaultConfigurationPath
+                    $result.Extension         | Should be 'mockExtension'
+                    $result.MimeType          | Should be 'mockType'
                 }
             }
             
@@ -53,10 +55,11 @@ try
                 Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
                 
                 It 'Should return the correct hashtable' {
-                    $result = Get-TargetResource -Extension 'mockExtension' -MimeType 'mockType' -Ensure 'Absent'
-                    $result.Ensure    | Should be 'Present'
-                    $result.Extension | Should be $mockMapping.fileExtension
-                    $result.MimeType  | Should be $mockMapping.mimeType
+                    $result = Get-TargetResource -ConfigurationPath 'IIS:\DummyWebSite' -Extension 'mockExtension' -MimeType 'mockType' -Ensure 'Absent'
+                    $result.Ensure            | Should be 'Present'
+                    $result.ConfigurationPath | Should be 'IIS:\DummyWebSite'
+                    $result.Extension         | Should be $mockMapping.fileExtension
+                    $result.MimeType          | Should be $mockMapping.mimeType
                 }
             }
         }
@@ -69,18 +72,18 @@ try
             Context 'Add MimeType' {
                  Mock -CommandName Add-WebConfigurationProperty -MockWith {}
                  
-                 Set-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
+                 Set-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
                  It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -ParameterFilter { $PSPath -eq $ConstDefaultConfigurationPath } -Exactly 1
                  }
             }
             
             Context 'Remove MimeType' {
                  Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
                  
-                 Set-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
+                 Set-TargetResource -ConfigurationPath 'IIS:\DummyWebSite' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
                  It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -ParameterFilter { $PSPath -eq 'IIS:\DummyWebSite' } -Exactly 1
                  }
             }
         }
@@ -93,7 +96,7 @@ try
             Context 'Mapping could not be found with Ensure = to Present' {
                  Mock -CommandName Get-Mapping -MockWith { return $null }
                  
-                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
+                 $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
                  It 'should return false' {
                     $result | Should be $false
                  }
@@ -101,7 +104,7 @@ try
             Context 'Mapping found but Ensure = to Absent' {
                  Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
                  
-                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
+                 $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
                  It 'should return false' {
                     $result | Should be $false
                  }
@@ -109,7 +112,7 @@ try
             Context 'Mapping found and type exists' {
                  Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
                  
-                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
+                 $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
                  It 'should return true' {
                     $result | Should be $true
                  }
@@ -117,7 +120,7 @@ try
             Context 'Mapping not found and type is absent' {
                  Mock -CommandName Get-Mapping -MockWith { return $null }
                  
-                 $result = Test-TargetResource -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
+                 $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
                  It 'should return true' {
                     $result | Should be $true
                  }
@@ -131,12 +134,13 @@ try
             Context 'Get-mapping with Extension and Type' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockMapping }
                 
-                $result = Get-Mapping -Extension 'mockExtension' -Type 'mockType'
+                $result = Get-Mapping -ConfigurationPath $ConstDefaultConfigurationPath -Extension 'mockExtension' -Type 'mockType'
                 It 'should return $mockMapping' {
                     $result | Should be $mockMapping
                 }
             }
         }
+        #endregion
     }
 }
 finally
