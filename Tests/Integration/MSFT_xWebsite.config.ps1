@@ -50,6 +50,16 @@ configuration MSFT_xWebsite_Present_Started
                     CertificateThumbprint = $CertificateThumbprint
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
+                }
+                MSFT_xWebBindingInformation
+                {
+                    Protocol              = $Node.HTTPSProtocol
+                    Port                  = $Node.HTTPSPort2
+                    IPAddress             = '*'
+                    Hostname              = $Node.HTTPSHostname
+                    CertificateSubject    = $Node.HTTPSHostname
+                    CertificateStoreName  = $Node.CertificateStoreName
+                    SslFlags              = $Node.SslFlags
                 })
             DefaultPage = $Node.DefaultPage
             EnabledProtocols = $Node.EnabledProtocols
@@ -113,7 +123,17 @@ configuration MSFT_xWebsite_Present_Stopped
                     CertificateThumbprint = $CertificateThumbprint
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
-            })
+                }
+                MSFT_xWebBindingInformation
+                    {
+                    Protocol              = $Node.HTTPSProtocol
+                    Port                  = $Node.HTTPSPort2
+                    IPAddress             = '*'
+                    Hostname              = $Node.HTTPSHostname
+                    CertificateSubject    = $Node.HTTPSHostname
+                    CertificateStoreName  = $Node.CertificateStoreName
+                    SslFlags              = $Node.SslFlags
+                })
             DefaultPage = $Node.DefaultPage
             EnabledProtocols = $Node.EnabledProtocols
             PhysicalPath = $Node.PhysicalPath
