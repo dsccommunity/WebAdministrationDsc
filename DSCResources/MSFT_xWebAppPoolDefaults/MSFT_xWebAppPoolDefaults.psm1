@@ -186,28 +186,23 @@ function Set-Value
 
 function Get-Value
 {
-
+    
     [CmdletBinding()]
     param
     (  
-        [String] $Path,
-        
+        [String] $Path,      
         [String] $Name
     )
 
+    if ($Path -ne '')
     {
-        if ($Path -ne '')
-        {
-            $Path = '/' + $Path
-        }
-
-        return Get-WebConfigurationProperty `
-                -PSPath 'MACHINE/WEBROOT/APPHOST' `
-                -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
-                -Name $Name
-    
+        $Path = '/' + $Path
     }
-
+    
+    return Get-WebConfigurationProperty `
+        -PSPath 'MACHINE/WEBROOT/APPHOST' `
+        -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
+        -Name $Name
 }
 
 #endregion
