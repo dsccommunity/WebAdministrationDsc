@@ -240,6 +240,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+* **xWebAppPoolDefaults** now returns values. Bugfix for #311.
+
 ### 1.18.0.0
 
 * Added sample for **xWebVirtualDirectory** for creating a new virtual directory. Bugfix for #195.

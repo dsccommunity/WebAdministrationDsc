@@ -24,18 +24,19 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Machine')]
-        [String] $ApplyTo
+        [System.String]
+        $ApplyTo
     )
-    
+
     Assert-Module
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
 
     return @{
         ManagedRuntimeVersion = (Get-Value -Path '' -Name 'managedRuntimeVersion')
-        IdentityType          = ( Get-Value -Path 'processModel' -Name 'identityType')
+        IdentityType          = (Get-Value -Path 'processModel' -Name 'identityType')
     }
 }
 
@@ -186,28 +187,40 @@ function Set-Value
 
 function Get-Value
 {
-
     [CmdletBinding()]
     param
-    (  
-        [String] $Path,
-        
-        [String] $Name
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [System.String]
+        $Path,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Name
     )
 
+    if ($Path -ne '')
     {
-        if ($Path -ne '')
-        {
-            $Path = '/' + $Path
-        }
+        $Path = '/' + $Path
+    }
 
-        return Get-WebConfigurationProperty `
+    $result = Get-WebConfigurationProperty `
                 -PSPath 'MACHINE/WEBROOT/APPHOST' `
                 -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
                 -Name $Name
-    
+
+    if ($result -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute])
+    {
+        return $result.Value
+    } else {
+        return $result
     }
 
+    return Get-WebConfigurationProperty `
+            -PSPath 'MACHINE/WEBROOT/APPHOST' `
+            -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
+            -Name $Name
 }
 
 #endregion
