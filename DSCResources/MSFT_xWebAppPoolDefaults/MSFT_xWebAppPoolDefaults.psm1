@@ -119,12 +119,19 @@ function Confirm-Value
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
-    (  
-        [String] $Path,
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [System.String]
+        $Path,
 
-        [String] $Name,
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Name,
 
-        [String] $NewValue
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $NewValue
     )
     
     if (-not($NewValue))
@@ -150,12 +157,19 @@ function Set-Value
 {
     [CmdletBinding()]
     param
-    (  
-        [String] $Path,
-        
-        [String] $Name,
-    
-        [String] $NewValue
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [System.String]
+        $Path,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Name,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $NewValue
     )
 
     # if the variable doesn't exist, the user doesn't want to change this value
@@ -180,9 +194,7 @@ function Set-Value
         
         $relPath = $Path + '/' + $Name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
-
     }
-
 }
 
 function Get-Value
@@ -216,11 +228,6 @@ function Get-Value
     } else {
         return $result
     }
-
-    return Get-WebConfigurationProperty `
-            -PSPath 'MACHINE/WEBROOT/APPHOST' `
-            -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
-            -Name $Name
 }
 
 #endregion
