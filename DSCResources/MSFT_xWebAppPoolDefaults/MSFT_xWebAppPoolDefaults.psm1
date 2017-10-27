@@ -40,7 +40,6 @@ function Get-TargetResource
     }
 }
 
-
 function Set-TargetResource
 {
     <#
@@ -51,14 +50,16 @@ function Set-TargetResource
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     param
-    (    
-        [ValidateSet('Machine')]
+    (
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Machine')]
         [String] $ApplyTo,
 
+        [Parameter()]
         [ValidateSet('','v2.0','v4.0')]
         [String] $ManagedRuntimeVersion,
 
+        [Parameter()]
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
         [String] $IdentityType
     )
@@ -82,15 +83,20 @@ function Test-TargetResource
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     param
     (
-        [ValidateSet('Machine')]
         [Parameter(Mandatory = $true)]
-        [String] $ApplyTo,
-        
+        [ValidateSet('Machine')]
+        [System.String]
+        $ApplyTo,
+
+        [Parameter()]
         [ValidateSet('','v2.0','v4.0')]
-        [String] $ManagedRuntimeVersion,
-        
+        [System.String]
+        $ManagedRuntimeVersion,
+
+        [Parameter()]
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [String] $IdentityType
+        [System.String]
+        $IdentityType
     )
 
     Assert-Module
@@ -129,7 +135,7 @@ function Confirm-Value
         [System.String]
         $Name,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $NewValue
     )

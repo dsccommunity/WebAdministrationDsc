@@ -40,7 +40,6 @@ try
         Describe "$($script:DSCResourceName)\Get-TargetResource" {
 
             Context 'Get application pool defaults' {
-
                 $mockAppPoolDefaults = @{
                     managedRuntimeVersion = 'v4.0'
                     processModel = @{
@@ -69,6 +68,121 @@ try
                 It 'Should return processModel\identityType' {
                     $result.identityType | `
                         Should Be $mockAppPoolDefaults.processModel.identityType
+                }
+            }
+        }
+
+        Describe "$($script:DSCResourceName)\Test-TargetResource" {
+
+            $mockAppPoolDefaults = @{
+                managedRuntimeVersion = 'v4.0'
+                processModel = @{
+                    identityType = 'NetworkService'
+                }
+            }
+
+            Mock Get-WebConfigurationProperty -MockWith {
+                $path = $Filter.Replace('system.applicationHost/applicationPools/applicationPoolDefaults', '')
+
+                if ([System.String]::IsNullOrEmpty($path)) {
+                    return $mockAppPoolDefaults[$Name]
+                } else {
+                    $path = $path.Replace('/', '')
+                    return $mockAppPoolDefaults[$path][$Name]
+                }
+            }
+
+            Context 'Application pool defaults correct' {
+                $result = Test-TargetResource -ApplyTo 'Machine' `
+                            -ManagedRuntimeVersion 'v4.0' `
+                            -IdentityType 'NetworkService'
+
+                It 'Should return True' {
+                    $result | Should Be $true
+                }
+            }
+
+            Context 'Application pool different managedRuntimeVersion' {
+                $result = Test-TargetResource -ApplyTo 'Machine' `
+                            -ManagedRuntimeVersion 'v2.0' `
+                            -IdentityType 'NetworkService'
+
+                It 'Should return False' {
+                    $result | Should Be $false
+                }
+            }
+
+            Context 'Application pool different processModel/@identityType' {
+                $result = Test-TargetResource -ApplyTo 'Machine' `
+                            -ManagedRuntimeVersion 'v4.0' `
+                            -IdentityType 'LocalSystem'
+
+                It 'Should return False' {
+                    $result | Should Be $false
+                }
+            }
+
+            Context 'Application pool no value for managedRuntimeVersion' {
+                $result = Test-TargetResource -ApplyTo 'Machine' `
+                            -IdentityType 'NetworkService'
+
+                It 'Should return True' {
+                    $result | Should Be $true
+                }
+            }
+        }
+
+        Describe "$($script:DSCResourceName)\Set-TargetResource" {
+
+            $mockAppPoolDefaults = @{
+                managedRuntimeVersion = 'v4.0'
+                processModel = @{
+                    identityType = 'NetworkService'
+                }
+            }
+
+            Mock Get-WebConfigurationProperty -MockWith {
+                $path = $Filter.Replace('system.applicationHost/applicationPools/applicationPoolDefaults', '')
+
+                if ([System.String]::IsNullOrEmpty($path)) {
+                    return $mockAppPoolDefaults[$Name]
+                } else {
+                    $path = $path.Replace('/', '')
+                    return $mockAppPoolDefaults[$path][$Name]
+                }
+            }
+
+            Mock Set-WebConfigurationProperty -MockWith { }
+
+            Context 'Application pool defaults correct' {
+                Set-TargetResource -ApplyTo 'Machine' `
+                    -ManagedRuntimeVersion 'v4.0' `
+                    -IdentityType 'NetworkService'
+
+                It 'Should not call Set-WebConfigurationProperty' {
+                    Assert-MockCalled Set-WebConfigurationProperty -Exactly 0
+                }
+            }
+
+            Context 'Application pool different managedRuntimeVersion' {
+                Set-TargetResource -ApplyTo 'Machine' `
+                    -ManagedRuntimeVersion 'v2.0' `
+                    -IdentityType 'NetworkService'
+
+                It 'Should call Set-WebConfigurationProperty once' {
+                    Assert-MockCalled Set-WebConfigurationProperty -Exactly 1 `
+                        -ParameterFilter { $Name -eq 'managedRuntimeVersion' }
+                }
+            }
+
+            Context 'Application pool different processModel/@identityType' {
+                Set-TargetResource -ApplyTo 'Machine' `
+                    -ManagedRuntimeVersion 'v4.0' `
+                    -IdentityType 'LocalSystem'
+
+                It 'Should call Set-WebConfigurationProperty once' {
+                    Assert-MockCalled Set-WebConfigurationProperty -Exactly 1 `
+                        -ParameterFilter { $Name -eq 'identityType' }
                 }
             }
         }
