@@ -173,7 +173,7 @@ function Set-Value
         [System.String]
         $Name,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $NewValue
     )
