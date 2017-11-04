@@ -53,15 +53,18 @@ function Set-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateSet('Machine')]
-        [String] $ApplyTo,
+        [System.String]
+        $ApplyTo,
 
         [Parameter()]
         [ValidateSet('','v2.0','v4.0')]
-        [String] $ManagedRuntimeVersion,
+        [System.String]
+        $ManagedRuntimeVersion,
 
         [Parameter()]
         [ValidateSet('ApplicationPoolIdentity','LocalService','LocalSystem','NetworkService')]
-        [String] $IdentityType
+        [System.String]
+        $IdentityType
     )
 
     Assert-Module
