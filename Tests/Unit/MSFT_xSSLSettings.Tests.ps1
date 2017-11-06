@@ -27,6 +27,7 @@ try
     #region Pester Tests
 
     InModuleScope $DSCResourceName {
+        $script:DSCResourceName = 'MSFT_xSSLSettings'
 
         Describe "$script:DSCResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {
@@ -38,7 +39,7 @@ try
 
                 $result = Test-TargetResource -Name 'Test' -Ensure 'Present' -Bindings 'Ssl'
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return true' {
                     $result | should be $true
@@ -54,7 +55,7 @@ try
 
                 $result = Test-TargetResource -Name 'Test' -Ensure 'Absent' -Bindings 'Ssl'
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return true' {
                     $result | should be $true
@@ -70,7 +71,7 @@ try
 
                 $result = Test-TargetResource -Name 'Test' -Ensure 'Present' -Bindings 'Ssl'
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return true' {
                     $result | should be $false
@@ -90,7 +91,7 @@ try
                     Ensure = 'Present'
                 }
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return the correct bindings' {
                     $result.Bindings | should be $expected.Bindings
@@ -112,7 +113,7 @@ try
                     Ensure = 'Absent'
                 }
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return the correct bindings' {
                     $result.Bindings | should be $expected.Bindings
@@ -134,7 +135,7 @@ try
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', ''
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return the correct string' {
                     $result | Should Be $resultMessage
@@ -150,7 +151,7 @@ try
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl'
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return the correct string' {
                     $result | Should Be $resultMessage
@@ -166,7 +167,7 @@ try
                 # Check that the LocalizedData message from the Set-TargetResource is correct
                 $resultMessage = $LocalizedData.SettingSSLConfig -f 'Name', 'Ssl,SslNegotiateCert,SslRequireCert'
 
-                Assert-VerifiableMocks
+                Assert-VerifiableMock
 
                 It 'should return the correct string' {
                     $result | Should Be $resultMessage

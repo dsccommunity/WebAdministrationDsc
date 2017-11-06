@@ -83,7 +83,7 @@ try
 
         It 'Should create a WebApplication with correct settings' -test {
             
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg -OutputPath `$TestDrive"
 
             # Build results to test
             $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
@@ -113,7 +113,7 @@ try
             Get-SslFlags -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.WebApplicationSslFlags
             
             # Test EnabledProtocols
-            $Result.EnabledProtocols | Should Be $DSCConfig.AllNodes.EnabledProtocols
+            $Result.EnabledProtocols | Should Be ($DSCConfig.AllNodes.EnabledProtocols -join ',')
             
             }
 

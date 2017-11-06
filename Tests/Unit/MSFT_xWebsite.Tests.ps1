@@ -25,7 +25,8 @@ try
 {
     #region Pester Tests
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        
+        $script:DSCResourceName = 'MSFT_xWebsite'
+
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith { return $null }
@@ -3321,8 +3322,8 @@ try
 
                 Update-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo
 
-                It 'should call all the mocks' {
-                    Assert-Verifiablemocks
+                It 'Should call all the mocks' {
+                    Assert-VerifiableMock
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly $MockBindingInfo.Count
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty
                 }
