@@ -240,6 +240,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+### 1.19.0.0
+
 * **xWebAppPoolDefaults** now returns values. Fixes #311.
 * Added unit tests for **xWebAppPoolDefaults**. Fixes #183.
 
