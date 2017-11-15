@@ -266,9 +266,9 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetEnabledProtocols -f $Name)
                 # Make input bindings which are an array, into a string
-                $stringafiedEnabledProtocols = $EnabledProtocols -join ' '
+                $stringafiedEnabledProtocols = $EnabledProtocols -join ','
                 Set-ItemProperty -Path "IIS:\Sites\$Website\$Name" `
-                                 -Name EnabledProtocols `
+                                 -Name 'enabledProtocols' `
                                  -Value $stringafiedEnabledProtocols `
                                  -ErrorAction Stop
             }
@@ -625,9 +625,9 @@ function Get-SslFlags
                  ForEach-Object { $_.sslFlags }
 
     if ($null -eq $SslFlags) 
-        { 
-            [String]::Empty
-        } 
+    {
+        return [String]::Empty
+    }
 
     return $SslFlags
 }

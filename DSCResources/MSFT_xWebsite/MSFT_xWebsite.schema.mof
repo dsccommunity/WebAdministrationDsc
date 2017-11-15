@@ -7,6 +7,7 @@ class MSFT_xWebBindingInformation
     [Write] UInt16 Port;
     [Write] String HostName;
     [Write] String CertificateThumbprint;
+    [Write] String CertificateSubject;
     [Write,ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] String CertificateStoreName;
     [Write,ValueMap{"0","1","2","3"},Values{"0","1","2","3"}] String SslFlags;
 };

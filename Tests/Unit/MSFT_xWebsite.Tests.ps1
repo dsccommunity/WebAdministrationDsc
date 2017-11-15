@@ -25,7 +25,8 @@ try
 {
     #region Pester Tests
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        
+        $script:DSCResourceName = 'MSFT_xWebsite'
+
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith { return $null }
@@ -1922,7 +1923,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\ConvertTo-WebBinding" {
+        Describe "$script:DSCResourceName\ConvertTo-WebBinding" -Tag 'ConvertTo' {
             Context 'Expected behaviour' {
                 $MockBindingInfo = @(
                     New-CimInstance `
@@ -2101,7 +2102,90 @@ try
                     $ErrorRecord = New-Object `
                         -TypeName System.Management.Automation.ErrorRecord `
                         -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
+                    { ConvertTo-WebBinding -InputObject $MockBindingInfo } | Should Throw $ErrorRecord
+                }
+            }
 
+            Context 'Protocol is HTTPS and CertificateSubject is specified' {
+                $MockBindingInfo = @(
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        Protocol              = 'https'
+                        CertificateSubject    = 'TestCertificate'
+                    } -ClientOnly
+                )
+
+                Mock Find-Certificate -MockWith {
+                    return [PSCustomObject]@{
+                        Thumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                    }
+                }
+
+                It 'should not throw an error' {
+                   { ConvertTo-WebBinding -InputObject $MockBindingInfo } | Should Not Throw
+                }
+                It 'should return the correct thumbprint' {
+                    $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
+                    $Result.certificateHash | Should Be 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                }
+                It 'Should call Find-Certificate mock' {
+                    Assert-MockCalled -CommandName Find-Certificate -Times 1
+                }
+            }
+
+            Context 'Protocol is HTTPS and full CN of CertificateSubject is specified' {
+                $MockBindingInfo = @(
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        Protocol              = 'https'
+                        CertificateSubject    = 'CN=TestCertificate'
+                    } -ClientOnly
+                )
+
+                Mock Find-Certificate -MockWith {
+                    return [PSCustomObject]@{
+                        Thumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                    }
+                }
+
+                It 'should not throw an error' {
+                   { ConvertTo-WebBinding -InputObject $MockBindingInfo } | Should Not Throw
+                }
+                It 'should return the correct thumbprint' {
+                    $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
+                    $Result.certificateHash | Should Be 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                }
+                It 'Should call Find-Certificate mock' {
+                    Assert-MockCalled -CommandName Find-Certificate -Times 1
+                }
+            }
+
+            Context 'Protocol is HTTPS and invalid CertificateSubject is specified' {
+                $MockBindingInfo = @(
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        Protocol              = 'https'
+                        CertificateSubject    = 'TestCertificate'
+                        CertificateStoreName  = 'MY'
+                    } -ClientOnly
+                )
+
+                Mock Find-Certificate
+
+                It 'should throw the correct error' {
+                    $CertificateSubject = "CN=$($MockBindingInfo.CertificateSubject)"
+                    $ErrorId = 'WebBindingInvalidCertificateSubject'
+                    $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidArgument
+                    $ErrorMessage = $LocalizedData.ErrorWebBindingInvalidCertificateSubject -f $CertificateSubject, $MockBindingInfo.CertificateStoreName
+                    $Exception = New-Object `
+                        -TypeName System.InvalidOperationException `
+                        -ArgumentList $ErrorMessage
+                    $ErrorRecord = New-Object `
+                        -TypeName System.Management.Automation.ErrorRecord `
+                        -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
                     { ConvertTo-WebBinding -InputObject $MockBindingInfo } | Should Throw $ErrorRecord
                 }
             }
@@ -3238,8 +3322,8 @@ try
 
                 Update-WebsiteBinding -Name $MockWebsite.Name -BindingInfo $MockBindingInfo
 
-                It 'should call all the mocks' {
-                    Assert-Verifiablemocks
+                It 'Should call all the mocks' {
+                    Assert-VerifiableMock
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly $MockBindingInfo.Count
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty
                 }
