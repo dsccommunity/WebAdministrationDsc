@@ -1711,7 +1711,7 @@ try
                     autoStart = $false
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/autoStart:False'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.autoStart:False'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1733,7 +1733,7 @@ try
                     CLRConfigFile = 'C:\inetpub\temp\aspnet.config'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/CLRConfigFile:C:\inetpub\temp\aspnet.config'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.CLRConfigFile:C:\inetpub\temp\aspnet.config'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1755,7 +1755,7 @@ try
                     enable32BitAppOnWin64 = $true
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/enable32BitAppOnWin64:True'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.enable32BitAppOnWin64:True'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1777,7 +1777,7 @@ try
                     enableConfigurationOverride = $false
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/enableConfigurationOverride:False'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.enableConfigurationOverride:False'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1799,7 +1799,7 @@ try
                     managedPipelineMode = 'Classic'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/managedPipelineMode:Classic'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.managedPipelineMode:Classic'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1821,7 +1821,7 @@ try
                     managedRuntimeLoader = ''
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/managedRuntimeLoader:'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.managedRuntimeLoader:'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1843,7 +1843,7 @@ try
                     managedRuntimeVersion = 'v2.0'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/managedRuntimeVersion:v2.0'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.managedRuntimeVersion:v2.0'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1865,7 +1865,7 @@ try
                     passAnonymousToken = $false
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/passAnonymousToken:False'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.passAnonymousToken:False'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1887,7 +1887,7 @@ try
                     startMode = 'AlwaysRunning'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/startMode:AlwaysRunning'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.startMode:AlwaysRunning'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1909,7 +1909,7 @@ try
                     queueLength = 2000
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/queueLength:2000'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.queueLength:2000'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1933,7 +1933,7 @@ try
                     cpuAction = 'KillW3wp'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.action:KillW3wp'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.cpu.action:KillW3wp'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1957,7 +1957,7 @@ try
                     cpuLimit = 90000
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.limit:90000'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.cpu.limit:90000'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -1981,7 +1981,7 @@ try
                     cpuResetInterval = '00:10:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.resetInterval:00:10:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.cpu.resetInterval:00:10:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2005,7 +2005,7 @@ try
                     cpuSmpAffinitized = $true
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.smpAffinitized:True'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.cpu.smpAffinitized:True'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2029,7 +2029,7 @@ try
                     cpuSmpProcessorAffinityMask = 1
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.smpProcessorAffinityMask:1'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.cpu.smpProcessorAffinityMask:1'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2053,7 +2053,7 @@ try
                     cpuSmpProcessorAffinityMask2 = 1
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/cpu.smpProcessorAffinityMask2:1'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.cpu.smpProcessorAffinityMask2:1'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2077,7 +2077,7 @@ try
                     identityType = 'SpecificUser'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.identityType:SpecificUser'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.identityType:SpecificUser'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2101,7 +2101,7 @@ try
                     idleTimeout = '00:15:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.idleTimeout:00:15:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.idleTimeout:00:15:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2125,7 +2125,7 @@ try
                     idleTimeoutAction = 'Suspend'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.idleTimeoutAction:Suspend'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.idleTimeoutAction:Suspend'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2149,7 +2149,7 @@ try
                     loadUserProfile = $false
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.loadUserProfile:False'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.loadUserProfile:False'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2173,7 +2173,7 @@ try
                     logEventOnProcessModel = ''
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.logEventOnProcessModel:'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.logEventOnProcessModel:'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2197,7 +2197,7 @@ try
                     logonType = 'LogonService'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.logonType:LogonService'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.logonType:LogonService'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2221,7 +2221,7 @@ try
                     manualGroupMembership = $true
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.manualGroupMembership:True'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.manualGroupMembership:True'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2245,7 +2245,7 @@ try
                     maxProcesses = 2
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.maxProcesses:2'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.maxProcesses:2'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2269,7 +2269,7 @@ try
                     pingingEnabled = $false
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.pingingEnabled:False'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.pingingEnabled:False'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2293,7 +2293,7 @@ try
                     pingInterval = '00:01:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.pingInterval:00:01:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.pingInterval:00:01:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2317,7 +2317,7 @@ try
                     pingResponseTime = '00:02:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.pingResponseTime:00:02:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.pingResponseTime:00:02:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2341,7 +2341,7 @@ try
                     setProfileEnvironment = $true
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.setProfileEnvironment:True'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.setProfileEnvironment:True'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2365,7 +2365,7 @@ try
                     shutdownTimeLimit = '00:02:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.shutdownTimeLimit:00:02:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.shutdownTimeLimit:00:02:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2389,7 +2389,7 @@ try
                     startupTimeLimit = '00:02:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/processModel.startupTimeLimit:00:02:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.processModel.startupTimeLimit:00:02:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2413,7 +2413,7 @@ try
                     orphanActionExe = 'C:\inetpub\temp\orphanAction.exe'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanActionExe:C:\inetpub\temp\orphanAction.exe'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.orphanActionExe:C:\inetpub\temp\orphanAction.exe'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2437,7 +2437,7 @@ try
                     orphanActionParams = '/orphanActionParam1'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanActionParams:/orphanActionParam1'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.orphanActionParams:/orphanActionParam1'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2461,7 +2461,7 @@ try
                     orphanWorkerProcess = $true
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.orphanWorkerProcess:True'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.orphanWorkerProcess:True'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2485,7 +2485,7 @@ try
                     loadBalancerCapabilities = 'TcpLevel'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.loadBalancerCapabilities:TcpLevel'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.loadBalancerCapabilities:TcpLevel'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2509,7 +2509,7 @@ try
                     rapidFailProtection = $false
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.rapidFailProtection:False'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.rapidFailProtection:False'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2533,7 +2533,7 @@ try
                     rapidFailProtectionInterval = '00:10:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.rapidFailProtectionInterval:00:10:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.rapidFailProtectionInterval:00:10:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2557,7 +2557,7 @@ try
                     rapidFailProtectionMaxCrashes = 10
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.rapidFailProtectionMaxCrashes:10'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.rapidFailProtectionMaxCrashes:10'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2581,7 +2581,7 @@ try
                     autoShutdownExe = 'C:\inetpub\temp\autoShutdown.exe'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.autoShutdownExe:C:\inetpub\temp\autoShutdown.exe'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.autoShutdownExe:C:\inetpub\temp\autoShutdown.exe'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2606,7 +2606,7 @@ try
                     autoShutdownParams = '/autoShutdownParam1'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/failure.autoShutdownParams:/autoShutdownParam1'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.failure.autoShutdownParams:/autoShutdownParam1'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2630,7 +2630,7 @@ try
                     disallowOverlappingRotation = $true
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.disallowOverlappingRotation:True'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.recycling.disallowOverlappingRotation:True'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2654,7 +2654,7 @@ try
                     disallowRotationOnConfigChange = $true
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.disallowRotationOnConfigChange:True'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.recycling.disallowRotationOnConfigChange:True'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2678,7 +2678,7 @@ try
                     logEventOnRecycle = 'Time,Memory,PrivateMemory'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.logEventOnRecycle:Time,Memory,PrivateMemory'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.recycling.logEventOnRecycle:Time,Memory,PrivateMemory'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2704,7 +2704,7 @@ try
                     restartMemoryLimit = 1048576
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.memory:1048576'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.recycling.periodicRestart.memory:1048576'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2730,7 +2730,7 @@ try
                     restartPrivateMemoryLimit = 1048576
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.privateMemory:1048576'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.recycling.periodicRestart.privateMemory:1048576'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2756,7 +2756,7 @@ try
                     restartRequestsLimit = 1000
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.requests:1000'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.recycling.periodicRestart.requests:1000'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2782,7 +2782,7 @@ try
                     restartTimeLimit = '2.10:00:00'
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/recycling.periodicRestart.time:2.10:00:00'}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq '/applicationPoolDefaults.recycling.periodicRestart.time:2.10:00:00'}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
@@ -2812,14 +2812,14 @@ try
                     restartSchedule = @('08:00:00')
                 }
 
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/-recycling.periodicRestart.schedule.[value='04:00:00']"}
-                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/+recycling.periodicRestart.schedule.[value='08:00:00']"}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/-applicationPoolDefaults.recycling.periodicRestart.schedule.[value='04:00:00']"}
+                Mock Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/+applicationPoolDefaults.recycling.periodicRestart.schedule.[value='08:00:00']"}
 
                 Set-TargetResource -ApplyTo Machine @setParamsSplat
 
                 It 'Should call Invoke-AppCmd' {
-                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/-recycling.periodicRestart.schedule.[value='04:00:00']"} -Exactly 1
-                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/+recycling.periodicRestart.schedule.[value='08:00:00']"} -Exactly 1
+                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/-applicationPoolDefaults.recycling.periodicRestart.schedule.[value='04:00:00']"} -Exactly 1
+                    Assert-MockCalled Invoke-AppCmd -ParameterFilter {$ArgumentList[-1] -eq "/+applicationPoolDefaults.recycling.periodicRestart.schedule.[value='08:00:00']"} -Exactly 1
                 }
 
             }
