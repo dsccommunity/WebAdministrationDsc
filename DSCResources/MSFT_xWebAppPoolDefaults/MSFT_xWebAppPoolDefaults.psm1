@@ -5,7 +5,8 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 data LocalizedData {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResource  = Get-TargetResource has been run.
+        ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
+        VerboseGetTargetResource          = Get-TargetResource has been run.
 
         ErrorAppPoolDefaultsNotFound      = Application pool defaults element could not be located.
         VerboseAppPoolDefaultsFound       = Application pool defaults was found.
@@ -312,8 +313,6 @@ function Set-TargetResource {
 
     # Set Application Pool Properties
 
-    Write-Verbose -Message ($LocalizedData['VerboseAppPoolDefaultsFound'])
-
     $PropertyData.Where(
         {
             ($_.Name -in $PSBoundParameters.Keys) -and
@@ -331,8 +330,9 @@ function Set-TargetResource {
                 Write-Verbose -Message (
                     $LocalizedData['VerboseSetProperty'] -f $propertyName
                 )
+                
                 Invoke-AppCmd -ArgumentList (
-                    '/{0}:{1}' -f $propertyPath, $PSBoundParameters[$propertyName]
+                    '/{0}:{1}' -f "applicationPoolDefaults.$($propertyPath)", $PSBoundParameters[$propertyName]
                 )
             }
         }
@@ -346,7 +346,7 @@ function Set-TargetResource {
                 )
 
                 Invoke-AppCmd -ArgumentList (
-                    '/processModel.userName:{0}' -f $Credential.UserName
+                    '/applicationPoolDefaults.processModel.userName:{0}' -f $Credential.UserName
                 )
             }
 
@@ -358,7 +358,7 @@ function Set-TargetResource {
                 )
 
                 Invoke-AppCmd -ArgumentList (
-                    '/processModel.password:{0}' -f $clearTextPassword
+                    '/applicationPoolDefaults.processModel.password:{0}' -f $clearTextPassword
                 )
             }
         }
@@ -386,8 +386,8 @@ function Set-TargetResource {
     ) {
         Write-Verbose -Message ($LocalizedData['VerboseClearCredential'])
 
-        Invoke-AppCmd -ArgumentList '/processModel.userName:'
-        Invoke-AppCmd -ArgumentList '/processModel.password:'
+        Invoke-AppCmd -ArgumentList '/applicationPoolDefaults.processModel.userName:'
+        Invoke-AppCmd -ArgumentList '/applicationPoolDefaults.processModel.password:'
     }
 
     if ($PSBoundParameters.ContainsKey('restartSchedule')) {
@@ -421,7 +421,7 @@ function Set-TargetResource {
                 )
 
                 Invoke-AppCmd -ArgumentList (
-                    "/+recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                    "/+applicationPoolDefaults.recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
                 )
             }
             # Remove value
@@ -432,7 +432,7 @@ function Set-TargetResource {
                 )
 
                 Invoke-AppCmd -ArgumentList (
-                    "/-recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
+                    "/-applicationPoolDefaults.recycling.periodicRestart.schedule.[value='{0}']" -f $_.InputObject
                 )
             }
 
@@ -774,8 +774,9 @@ function Invoke-AppCmd {
     $ErrorActionPreference = 'Stop'
 
     $appcmdFilePath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
-    $allArguments = @("set", "config", "-section:applicationPools") + $ArgumentList
+    $allArguments = @("set", "config", "-section:system.applicationHost/applicationPools") + $ArgumentList + ("/commit:apphost")
     
+    # Write-Verbose -Message "calling $($appcmdFilePath) $($allArguments)"
     $appcmdResult = $(& $appcmdFilePath $allArguments)
     Write-Verbose -Message $($appcmdResult).ToString()
 
