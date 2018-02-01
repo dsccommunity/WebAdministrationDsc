@@ -218,8 +218,6 @@ Ensures the value of an identified property in the web.config file.
 
 Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
 
-**Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebsite**
-
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **Filter**: Filter used to locate property collection to update.
 * **CollectionName**: Name of the property collection to update.
