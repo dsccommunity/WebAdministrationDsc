@@ -204,6 +204,32 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
 * **IsAttribute**: If the given key value pair is for attribute, default is element.
 
+### xWebConfigProperty
+
+Ensures the value of an identified property in the web.config file. 
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property to update.
+* **PropertyName**: Name of the property to update.
+* **Value**: Value of the property to update.
+* **Ensure**: Ensures if the property is **Present** or **Absent**.
+
+### xWebConfigPropertyCollection
+
+Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
+
+**Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebsite**
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property collection to update.
+* **CollectionName**: Name of the property collection to update.
+* **ItemName**: Name of the property collection item to update.
+* **ItemKeyName**: Name of the key of the property collection item to update.
+* **ItemKeyValue**: Value of the key of the property collection item to update.
+* **ItemPropertyName**: Name of the property of the property collection item to update.
+* **ItemPropertyValue**: Value of the property of the property collection item to update.
+* **Ensure**: Ensures if the property is **Present** or **Absent**.
+
 ### xSSLSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
@@ -239,6 +265,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ## Versions
 
 ### Unreleased
+
+* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
 
 ### 1.19.0.0
 
