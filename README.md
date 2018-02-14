@@ -240,6 +240,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+* **xWebsite** can now handle two certificates with the same SubjectName. Fixes #333.
+
 ### 1.19.0.0
 
 * **xWebAppPoolDefaults** now returns values. Fixes #311.

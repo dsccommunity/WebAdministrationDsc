@@ -177,6 +177,7 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
         $Ensure = 'Present',
@@ -1500,8 +1501,9 @@ function ConvertTo-WebBinding
                     if ($FindCertificateSplat)
                     {
                         $FindCertificateSplat.Add('Store',$CertificateStoreName)
-                        $Certificate = Find-Certificate @FindCertificateSplat
-                        if ($Certificate)
+                        $Certificate = Find-Certificate @FindCertificateSplat `
+                            | Select-Object -First 1
+                        if ($null -ne $Certificate)
                         {
                             $certificateHash = $Certificate.Thumbprint
                         }
@@ -2141,5 +2143,3 @@ function Update-WebsiteBinding
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
-
-
