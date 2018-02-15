@@ -93,7 +93,6 @@ data LocalizedData
 #>
 function Get-TargetResource
 {
-    
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -202,6 +201,7 @@ function Set-TargetResource
         [String]
         $ApplicationPool,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo,
 
@@ -209,6 +209,7 @@ function Set-TargetResource
         [String[]]
         $DefaultPage,
 
+        [Parameter()]
         [String]
         $EnabledProtocols,
 
@@ -540,7 +541,8 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
-                if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                if ([String]::IsNullOrEmpty($PhysicalPath))
+                {
                     # If no physical path is provided run New-Website with -Force flag
                     $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
                 } else {
@@ -1177,7 +1179,7 @@ function Confirm-UniqueBinding
         [String]
         $Name,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [Switch]
         $ExcludeStopped
     )
@@ -1253,7 +1255,7 @@ function Confirm-UniqueBinding
         Name is passed in to bubble to any error messages during the test.
 #>
 function Confirm-UniqueServiceAutoStartProviders
-{   
+{
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
@@ -2096,7 +2098,7 @@ function Update-WebsiteBinding
         [String]
         $Name,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo
     )
