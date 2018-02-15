@@ -187,14 +187,17 @@ function Set-TargetResource
         [String]
         $Name,
 
+        [Parameter()]
         [String]
         $PhysicalPath,
 
+        [Parameter()]
         [ValidateSet('Started', 'Stopped')]
         [String]
         $State = 'Started',
 
         # The application pool name must contain between 1 and 64 characters
+        [Parameter()]
         [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
@@ -202,47 +205,59 @@ function Set-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo,
 
+        [Parameter()]
         [String[]]
         $DefaultPage,
 
         [String]
         $EnabledProtocols,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
+        [Parameter()]
         [Boolean]
         $PreloadEnabled,
 
+        [Parameter()]
         [Boolean]
         $ServiceAutoStartEnabled,
 
+        [Parameter()]
         [String]
         $ServiceAutoStartProvider,
 
+        [Parameter()]
         [String]
         $ApplicationType,
 
+        [Parameter()]
         [String]
         $LogPath,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]]
         $LogFlags,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String]
         $LogPeriod,
 
+        [Parameter()]
         [ValidateScript({
             ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
         })]
         [String]
         $LogTruncateSize,
 
+        [Parameter()]
         [Boolean]
         $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
         $LogFormat
@@ -784,6 +799,7 @@ function Test-TargetResource
     [OutputType([Boolean])]
     param
     (
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
         $Ensure = 'Present',
@@ -793,62 +809,79 @@ function Test-TargetResource
         [String]
         $Name,
 
+        [Parameter()]
         [String]
         $PhysicalPath,
 
+        [Parameter()]
         [ValidateSet('Started', 'Stopped')]
         [String]
         $State = 'Started',
 
         # The application pool name must contain between 1 and 64 characters
+        [Parameter()]
         [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo,
 
+        [Parameter()]
         [String[]]
         $DefaultPage,
 
+        [Parameter()]
         [String]
         $EnabledProtocols,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
-        
+
+        [Parameter()]
         [Boolean]
         $PreloadEnabled,
-        
+
+        [Parameter()]
         [Boolean]
         $ServiceAutoStartEnabled,
 
+        [Parameter()]
         [String]
         $ServiceAutoStartProvider,
-        
+
+        [Parameter()]
         [String]
         $ApplicationType,
 
+        [Parameter()]
         [String]
         $LogPath,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]]
         $LogFlags,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String]
         $LogPeriod,
 
+        [Parameter()]
         [ValidateScript({
             ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
         })]
         [String]
         $LogTruncateSize,
 
+        [Parameter()]
         [Boolean]
         $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
         $LogFormat
@@ -1701,13 +1734,17 @@ function Set-Authentication
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String]
+        $Site,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type,
+        [String]
+        $Type,
 
-        [Boolean]$Enabled
+        [Parameter()]
+        [Boolean]
+        $Enabled
     )
 
     Set-WebConfigurationProperty `
@@ -1733,11 +1770,13 @@ function Set-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String]
+        $Site,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo
     )
 
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
@@ -1766,11 +1805,13 @@ function Test-AuthenticationEnabled
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String]
+        $Site,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type
+        [String]
+        $Type
     )
 
 
@@ -1801,11 +1842,13 @@ function Test-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String]$Site,
+        [String]
+        $Site,
 
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo
     )
 
     $result = $true
