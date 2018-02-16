@@ -2298,6 +2298,47 @@ try
                     $Result.BindingInformation | Should Be '808:*'
                 }
             }
+
+            Context 'Two HTTPS binding with CertificateThumbprint' {
+                $MockBindingInfo = @(
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        Protocol                = 'https'
+                        Port                    = 443
+                        IPAddress               = '*'
+                        HostName                = 'app.contoso.local'
+                        CertificateStoreName    = 'My'
+                        CertificateThumbprint   = '5FC3F5FF2C2D01DADA175EDF046559DC960C11E6'
+                    } -ClientOnly
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        Protocol                = 'https'
+                        Port                    = 443
+                        IPAddress               = '*'
+                        HostName                = 'app.fabrikam.local'
+                        CertificateStoreName    = 'My'
+                        CertificateThumbprint   = '5C0299470B1FE717B880367E41FBC80136A3B72F'
+                    } -ClientOnly
+                )
+
+                $result = ConvertTo-WebBinding -InputObject $MockBindingInfo
+
+                It 'should return two bindings' {
+                    $result.Count | Should Be 2
+                }
+
+                It 'should have a first binding for app.contoso.local with correct certificate' {
+                    $result[0].bindingInformation | Should Be '*:443:app.contoso.local'
+                    $result[0].CertificateHash | Should Be $MockBindingInfo[0].CertificateThumbprint
+                }
+
+                It 'should have a second binding for app.fabrikam.local with correct certificate' {
+                    $result[1].bindingInformation | Should Be '*:443:app.fabrikam.local'
+                    $result[1].CertificateHash | Should Be $MockBindingInfo[1].CertificateThumbprint
+                }
+            }
         }
 
         Describe "$script:DSCResourceName\Format-IPAddressString" {

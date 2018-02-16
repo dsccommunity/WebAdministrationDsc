@@ -1499,6 +1499,7 @@ function ConvertTo-WebBinding
                 # SSL-related properties
                 if ($binding.Protocol -eq 'https')
                 {
+                    [String] $certificateHash = $null
                     if ([String]::IsNullOrEmpty($binding.CertificateThumbprint))
                     {
                         If ($Binding.CertificateSubject) 
@@ -1538,6 +1539,7 @@ function ConvertTo-WebBinding
                         $FindCertificateSplat.Add('Store',$CertificateStoreName)
                         $Certificate = Find-Certificate @FindCertificateSplat `
                             | Select-Object -First 1
+
                         if ($null -ne $Certificate)
                         {
                             $certificateHash = $Certificate.Thumbprint
@@ -2188,3 +2190,4 @@ function Update-WebsiteBinding
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
+Export-ModuleMember -Function *
