@@ -580,7 +580,7 @@ function Get-AuthenticationInfo
     $authenticationProperties = @{}
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
-        $authenticationProperties[$type] = [bool](Test-AuthenticationEnabled -Site $Site `
+        $authenticationProperties[$type] = [Boolean](Test-AuthenticationEnabled -Site $Site `
                                                                                -Name $Name `
                                                                                -Type $type)
     }
