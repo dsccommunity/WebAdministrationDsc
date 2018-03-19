@@ -39,10 +39,11 @@ data LocalizedData
         VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
         VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
         VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
-        VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
-        VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
         VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
-        VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
+        VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
+        VerboseSetTargetWebsitePreloadUpdated = Successfully updated application Preload on website "{0}".
+        VerboseSetTargetServiceAutoStartUpdated = Successfully updated application AutoStart on website "{0}".
+        VerboseSetTargetServiceAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
         VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
         VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated on Website "{0}".
@@ -62,8 +63,9 @@ data LocalizedData
         VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
         VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
         VerboseTestTargetFalseResult = The target resource is not in the desired state.
-        VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
         VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
+        VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseServiceAutoStart = Application AutoStart for website "{0}" do not match the desired state.
         VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
         VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
         VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
@@ -158,6 +160,7 @@ function Get-TargetResource
         BindingInfo              = $cimBindings
         DefaultPage              = $allDefaultPages
         EnabledProtocols         = $website.EnabledProtocols
+        ServerAutoStart          = $website.serverAutoStart
         AuthenticationInfo       = $cimAuthentication
         PreloadEnabled           = $website.applicationDefaults.preloadEnabled
         ServiceAutoStartProvider = $website.applicationDefaults.serviceAutoStartProvider
@@ -231,6 +234,10 @@ function Set-TargetResource
         [Parameter()]
         [String]
         $EnabledProtocols,
+
+        [Parameter()]
+        [Boolean]
+        $ServerAutoStart,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
@@ -421,7 +428,18 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState `
                                         -f $Name, $State)
             }
-        }
+
+            # Update ServerAutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
+                ($website.serverAutoStart -ne $ServerAutoStart))
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name serverAutoStart `
+                                 -Value $ServerAutoStart `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                                        -f $Name)
+            }
         # Create website if it does not exist
         else
         {
@@ -442,7 +460,7 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', $SiteId)
                 } elseif (-not (Get-WebSite)) {
                     # If there are no other websites and SiteId is missing, specify the Id Parameter for the new website.
-                    # Otherwise an error can occur on systems running Windows Server 2008 R2.
+                # Otherwise an error can occur on systems running Windows Server 2008 R2.
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
@@ -535,79 +553,91 @@ function Set-TargetResource
             }
         }
 
-        # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-        (-not (Test-AuthenticationInfo -Site $Name `
-                                        -AuthenticationInfo $AuthenticationInfo)))
-        {
-            Set-AuthenticationInfo -Site $Name `
-                                    -AuthenticationInfo $AuthenticationInfo `
-                                    -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
-                                    -f $Name)
-        }
-
-        # Update Preload if required
-        if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
-            ($website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
-        {
-            Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                            -Name applicationDefaults.preloadEnabled `
-                            -Value $PreloadEnabled `
-                            -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated `
-                                    -f $Name)
-        }
-
-        # Update AutoStart if required
-        if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
-            ($website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
-        {
-            Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                                -Name applicationDefaults.serviceAutoStartEnabled `
-                                -Value $ServiceAutoStartEnabled `
-                                -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
-                                    -f $Name)
-        }
-
-        # Update AutoStartProviders if required
-        if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
-            ($website.applicationDefaults.ServiceAutoStartProvider `
-            -ne $ServiceAutoStartProvider))
-        {
-            if (-not (Confirm-UniqueServiceAutoStartProviders `
-                        -ServiceAutoStartProvider $ServiceAutoStartProvider `
-                        -ApplicationType $ApplicationType))
+            # Update ServerAutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
+                ($website.serverAutoStart -ne $ServerAutoStart))
             {
-                Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
-                                        -Value @{
-                                        name=$ServiceAutoStartProvider;
-                                        type=$ApplicationType
-                                        } `
-                                        -ErrorAction Stop
-                Write-Verbose -Message `
-                                ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name serverAutoStart `
+                                 -Value $ServerAutoStart `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                                        -f $Name)
             }
-            Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                                -Name applicationDefaults.serviceAutoStartProvider `
-                                -Value $ServiceAutoStartProvider -ErrorAction Stop
-            Write-Verbose -Message `
-                            ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated `
-                            -f $Name)
-        }
+            
+            # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
+            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
+                (-not (Test-AuthenticationInfo -Site $Name `
+                                               -AuthenticationInfo $AuthenticationInfo)))
+            {
+                Set-AuthenticationInfo -Site $Name `
+                                       -AuthenticationInfo $AuthenticationInfo `
+                                       -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
+                                        -f $Name)
+            }
 
-        # Update LogFormat if Needed
-        if ($PSBoundParameters.ContainsKey('LogFormat') -and `
-            ($LogFormat -ne $website.logfile.LogFormat))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
+            # Update Preload if required
+            if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
+                ($website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                -Name applicationDefaults.preloadEnabled `
+                                -Value $PreloadEnabled `
+                                -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated `
+                                       -f $Name)
+            }
 
-            # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogFormat property
-            $site = Get-Item "IIS:\Sites\$Name"
-            $site.LogFile.LogFormat = $LogFormat
-            $site | Set-Item
-        }
+            # Update AutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
+                ($website.applicationDefaults.ServiceAutoStartEnabled -ne $ServiceAutoStartEnabled))
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name applicationDefaults.serviceAutoStartEnabled `
+                                 -Value $ServiceAutoStartEnabled `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetServiceAutoStartUpdated `
+                                        -f $Name)
+            }
+
+            # Update AutoStartProviders if required
+            if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
+                ($website.applicationDefaults.ServiceAutoStartProvider `
+                -ne $ServiceAutoStartProvider))
+            {
+                if (-not (Confirm-UniqueServiceAutoStartProviders `
+                            -ServiceAutoStartProvider $ServiceAutoStartProvider `
+                            -ApplicationType $ApplicationType))
+                {
+                    Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
+                                         -Value @{
+                                        name=$ServiceAutoStartProvider;
+                                            type=$ApplicationType
+                                          } `
+                                         -ErrorAction Stop
+                    Write-Verbose -Message `
+                                    ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
+                }
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name applicationDefaults.serviceAutoStartProvider `
+                                 -Value $ServiceAutoStartProvider -ErrorAction Stop
+                Write-Verbose -Message `
+                                ($LocalizedData.VerboseSetTargetServiceAutoStartProviderUpdated `
+                                -f $Name)
+            }
+
+            # Update LogFormat if Needed
+            if ($PSBoundParameters.ContainsKey('LogFormat') -and `
+                ($LogFormat -ne $website.logfile.LogFormat))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
+
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogFormat property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.LogFormat = $LogFormat
+                $site | Set-Item
+            }
 
         # Update LogTargetW3C if Needed
         if ($PSBoundParameters.ContainsKey('LogTargetW3C') `
@@ -622,70 +652,70 @@ function Set-TargetResource
                                     -f $Name, $LogTargetW3C)
         }
 
-        # Update LogFlags if required
-        if ($PSBoundParameters.ContainsKey('LogFlags') -and `
-            (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
-                                    -f $Name)
+            # Update LogFlags if required
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
+                (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
+                                        -f $Name)
 
-            # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
-            $site = Get-Item "IIS:\Sites\$Name"
-            $site.LogFile.LogFormat = 'W3C'
-            $site.LogFile.LogExtFileFlags = $LogFlags -join ','
-            $site | Set-Item
-        }
+                # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.LogFormat = 'W3C'
+                $site.LogFile.LogExtFileFlags = $LogFlags -join ','
+                $site | Set-Item
+            }
 
-        # Update LogPath if required
-        if ($PSBoundParameters.ContainsKey('LogPath') -and `
-            ($LogPath -ne $website.logfile.directory))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
-                                    -f $Name)
-            Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                -Name LogFile.directory -value $LogPath
-        }
+            # Update LogPath if required
+            if ($PSBoundParameters.ContainsKey('LogPath') -and `
+                ($LogPath -ne $website.logfile.directory))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
+                                        -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.directory -value $LogPath
+            }
 
-        # Update LogPeriod if needed
-        if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
-            ($LogPeriod -ne $website.logfile.period))
-        {
-            if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
-                {
-                    Write-Verbose -Message ($LocalizedData.WarningLogPeriod `
-                                            -f $Name)
-                }
+            # Update LogPeriod if needed
+            if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
+                ($LogPeriod -ne $website.logfile.period))
+            {
+                if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
+                    {
+                        Write-Verbose -Message ($LocalizedData.WarningLogPeriod `
+                                                -f $Name)
+                    }
 
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
 
-            # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.Period property
-            $site = Get-Item "IIS:\Sites\$Name"
-            $site.LogFile.Period = $LogPeriod
-            $site | Set-Item
-        }
+                # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.Period property
+                $site = Get-Item "IIS:\Sites\$Name"
+                $site.LogFile.Period = $LogPeriod
+                $site | Set-Item
+            }
 
-        # Update LogTruncateSize if needed
-        if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
-            ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
-                                    -f $Name)
-            Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                -Name LogFile.truncateSize -Value $LogTruncateSize
-            Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                -Name LogFile.period -Value 'MaxSize'
-        }
+            # Update LogTruncateSize if needed
+            if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
+                ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
+                                        -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.truncateSize -Value $LogTruncateSize
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.period -Value 'MaxSize'
+            }
 
         # Update LoglocalTimeRollover if needed
-        if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
-            ($LoglocalTimeRollover -ne `
-                ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
-                                    -f $Name)
-            Set-ItemProperty -Path "IIS:\Sites\$Name" `
-                -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
-        }
+            if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
+                ($LoglocalTimeRollover -ne `
+                 ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
+            {
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
+                                        -f $Name)
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
+            }
 
         # Update LogCustomFields if needed
         if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
@@ -771,6 +801,10 @@ function Test-TargetResource
         [Parameter()]
         [String]
         $EnabledProtocols,
+
+        [Parameter()]
+        [Boolean]
+        $ServerAutoStart,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
@@ -926,6 +960,15 @@ function Test-TargetResource
             }
         }
 
+        #Check ServerAutoStart
+        if($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
+            $website.serverAutoStart -ne $ServerAutoStart)
+        {
+            $inDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart `
+                                    -f $Name)
+        }
+        
         #Check AuthenticationInfo
         if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
             (-not (Test-AuthenticationInfo -Site $Name `
@@ -949,7 +992,7 @@ function Test-TargetResource
             $website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart `
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseServiceAutoStart `
                                     -f $Name)
         }
 
@@ -1052,7 +1095,7 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTargetW3C `
                                     -f $Name)
             return $false
-        }
+    }
 
         # Check LogCustomFields if needed
         if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
