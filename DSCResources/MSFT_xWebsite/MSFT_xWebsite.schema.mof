@@ -21,6 +21,14 @@ class MSFT_xWebAuthenticationInformation
     [Write] Boolean Windows;
 };
 
+[ClassVersion("1.0.0")]
+class MSFT_xLogCustomFieldInformation
+{
+    [Write] String LogFieldName;
+    [Write] String SourceName;
+    [Write, ValueMap{"RequestHeader","ResponseHeader","ServerVariable"},Values{"RequestHeader","ResponseHeader","ServerVariable"}] String SourceType;
+};
+
 [ClassVersion("2.0.0"), FriendlyName("xWebsite")]
 class MSFT_xWebsite : OMI_BaseResource
 {
@@ -43,4 +51,5 @@ class MSFT_xWebsite : OMI_BaseResource
     [Write, Description ("How large the file should be before it is truncated")] String LogTruncateSize;
     [Write, Description ("Use the localtime for file naming and rollover")] Boolean LoglocalTimeRollover;
     [Write, Description ("Format of the Logfiles. Only W3C supports LogFlags"), ValueMap{"IIS","W3C","NCSA"}, Values{"IIS","W3C","NCSA"}] String LogFormat;
+    [Write, EmbeddedInstance("MSFT_xLogCustomFieldInformation"), Description("Custom log file field information")] String LogCustomFields[];
 };
