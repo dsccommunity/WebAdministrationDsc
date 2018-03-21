@@ -123,7 +123,11 @@ try
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
-            }
+            #Test LogCustomFields is correct
+            $result.LogCustomFields.LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName
+            $result.LogCustomFields.SourceName | Should Be $dscConfig.AllNodes.SourceName
+            $result.LogCustomFields.SourceType | Should Be $dscConfig.AllNodes.SourceType
+        }
 
     }
 
@@ -195,7 +199,11 @@ try
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
-            }
+            #Test LogCustomFields is correct
+            $result.LogCustomFields.LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName
+            $result.LogCustomFields.SourceName | Should Be $dscConfig.AllNodes.SourceName
+            $result.LogCustomFields.SourceType | Should Be $dscConfig.AllNodes.SourceType
+        }
 
     }
 
