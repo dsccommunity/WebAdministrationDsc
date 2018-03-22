@@ -268,8 +268,8 @@ try
 
                 It 'should return LogCustomFields' {
                     $Result.LogCustomFields.LogFieldName | Should Be $MockLogCustomFields.LogFieldName
-                    $Result.LogCustomFields.SourceName | Should Be $MockLogCustomFields.SourceName
-                    $Result.LogCustomFields.SourceType | Should Be $MockLogCustomFields.SourceType
+                    $Result.LogCustomFields.SourceName   | Should Be $MockLogCustomFields.SourceName
+                    $Result.LogCustomFields.SourceType   | Should Be $MockLogCustomFields.SourceType
                 }
             }
         }
@@ -791,7 +791,7 @@ try
                 $MockDifferentLogCustomFields = @{
                     LogFieldName = 'DifferentField'
                     SourceName   = 'Accept-Encoding'
-                    SourceType   = 'DifferentSourceType'                                
+                    SourceType   = 'DifferentSourceType'
                 }
 
                 Mock -CommandName Get-WebConfigurationProperty `
@@ -803,7 +803,7 @@ try
 
                 It 'Should return false' {
                     $result | Should be $false
-                }                
+                }
             }
         }
 
@@ -882,7 +882,7 @@ try
             $MockLogCustomFields = @{
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
-                SourceType   = 'RequestHeader'        
+                SourceType   = 'RequestHeader'
             }
 
             $MockLogOutput =
@@ -3613,7 +3613,7 @@ try
 
             Context 'Create new LogCustomField'{
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return $false }
-                Mock -CommandName Add-WebConfigurationProperty
+                Mock -CommandName New-ItemProperty
 
                 It 'should not throw an error' {
                     { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields } | Should Not Throw
@@ -3621,14 +3621,13 @@ try
 
                 It 'should call should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -CommandName New-ItemProperty -Exactly 1
                 }
             }
 
             Context 'Modify existing LogCustomField'{
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return $true }
-                Mock -CommandName Add-WebConfigurationProperty
-                Mock -CommandName Clear-WebConfiguration
+                Mock -CommandName Set-ItemProperty
 
                 It 'should not throw an error' {
                     { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields } | Should Not Throw
@@ -3636,8 +3635,7 @@ try
 
                 It 'should call should call expected mocks' {
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Clear-WebConfiguration -Exactly 1
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
                 }
             }
         }

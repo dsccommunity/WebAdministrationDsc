@@ -125,8 +125,8 @@ try
 
             #Test LogCustomFields is correct
             $result.logFile.customFields.Collection.LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName
-            $result.logFile.customFields.Collection.SourceName | Should Be $dscConfig.AllNodes.SourceName
-            $result.logFile.customFields.Collection.SourceType | Should Be $dscConfig.AllNodes.SourceType
+            $result.logFile.customFields.Collection.SourceName   | Should Be $dscConfig.AllNodes.SourceName
+            $result.logFile.customFields.Collection.SourceType   | Should Be $dscConfig.AllNodes.SourceType
         }
 
     }
