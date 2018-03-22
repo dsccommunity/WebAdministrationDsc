@@ -1851,20 +1851,22 @@ function Set-LogCustomField
     {
         $filterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields/add[@logFieldName='{1}']" -f $Site, $customField.LogFieldName
 
-        $presentCustomLog = Get-WebConfigurationProperty -Filter $filterString -Name "."
-        if ($presentCustomLog)
-        {
-            Clear-WebConfiguration -Filter $filterString
-        }
-
-        $addFilterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields" -f $Site
         $addHashTable = @{
             logFieldName = $customField.LogFieldName
             sourceName = $customField.SourceName
             sourceType = $customField.SourceType
         }
 
-        Add-WebConfigurationProperty -Filter $addFilterString -Name "." -Value $addHashTable       
+        $presentCustomLog = Get-WebConfigurationProperty -Filter $filterString -Name "."
+
+        if ($presentCustomLog)
+        {
+            Set-ItemProperty "IIS:\Sites\$Name" -Name 'logfile.customFields.collection' -Value $addHashTable
+        }
+        else
+        {
+            New-ItemProperty "IIS:\Sites\$Name" -Name 'logfile.customFields.collection' -Value $addHashTable
+        }
     }
 }
 
