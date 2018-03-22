@@ -28,6 +28,9 @@
             HTTPSHostname               = 'https.website'
             CertificateStoreName        = 'MY'
             SslFlags                    = '1'
+            LogFieldName                = 'ClientEncoding'
+            SourceName                  = 'Accept-Encoding'
+            SourceType                  = 'RequestHeader'
         }
     )
 }

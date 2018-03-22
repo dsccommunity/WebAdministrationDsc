@@ -68,6 +68,14 @@ configuration MSFT_xWebsite_Present_Started
             ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
             State = 'Started'
+            LogCustomFields    = @(
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName
+                    SourceName   = $Node.SourceName
+                    SourceType   = $Node.SourceType
+                }
+            )
         }
     }
 }
@@ -141,6 +149,14 @@ configuration MSFT_xWebsite_Present_Stopped
             ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
             State = 'Stopped'
+            LogCustomFields    = @(
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName
+                    SourceName   = $Node.SourceName
+                    SourceType   = $Node.SourceType
+                }
+            )
         }
     }
 }
