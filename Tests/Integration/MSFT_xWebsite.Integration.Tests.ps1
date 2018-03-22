@@ -124,9 +124,9 @@ try
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
             #Test LogCustomFields is correct
-            $result.LogCustomFields.LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName
-            $result.LogCustomFields.SourceName | Should Be $dscConfig.AllNodes.SourceName
-            $result.LogCustomFields.SourceType | Should Be $dscConfig.AllNodes.SourceType
+            $result.logFile.customFields.Collection.LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName
+            $result.logFile.customFields.Collection.SourceName | Should Be $dscConfig.AllNodes.SourceName
+            $result.logFile.customFields.Collection.SourceType | Should Be $dscConfig.AllNodes.SourceType
         }
 
     }
