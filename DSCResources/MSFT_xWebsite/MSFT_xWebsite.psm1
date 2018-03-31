@@ -1663,9 +1663,10 @@ function Get-AuthenticationInfo
                                                                                -Type $type)
     }
 
-    return New-CimInstance `
+    $authenticationStatus = New-CimInstance `
             -ClassName MSFT_xWebAuthenticationInformation `
-            -ClientOnly -Property $authenticationProperties
+            -ClientOnly -Property $authenticationProperties 
+    return $authenticationStatus | Select-Object -Property Anonymous,Basic,Digest,Windows
 }
 
 <#
