@@ -154,7 +154,7 @@ function Get-TargetResource
         BindingInfo              = $cimBindings
         DefaultPage              = $allDefaultPages
         EnabledProtocols         = $website.EnabledProtocols
-        AuthenticationInfo       = $cimAuthentication
+        AuthenticationInfo       = [string[]]$cimAuthentication
         PreloadEnabled           = $website.applicationDefaults.preloadEnabled
         ServiceAutoStartProvider = $website.applicationDefaults.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $website.applicationDefaults.serviceAutoStartEnabled
@@ -1849,24 +1849,16 @@ function Set-LogCustomField
 
     foreach ($customField in $LogCustomField)
     {
-        $filterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields/add[@logFieldName='{1}']" -f $Site, $customField.LogFieldName
-
         $addHashTable = @{
             logFieldName = $customField.LogFieldName
             sourceName = $customField.SourceName
             sourceType = $customField.SourceType
         }
-
-        $presentCustomLog = Get-WebConfigurationProperty -Filter $filterString -Name "."
-
-        if ($presentCustomLog)
-        {
-            Set-ItemProperty "IIS:\Sites\$Name" -Name 'logfile.customFields.collection' -Value $addHashTable
-        }
-        else
-        {
-            New-ItemProperty "IIS:\Sites\$Name" -Name 'logfile.customFields.collection' -Value $addHashTable
-        }
+                
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $addHashTable
+        
+        # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $addHashTable     
     }
 }
 
