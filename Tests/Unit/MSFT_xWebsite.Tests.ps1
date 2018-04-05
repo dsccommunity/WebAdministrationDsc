@@ -957,9 +957,7 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                Mock -CommandName Add-WebConfigurationProperty
-
-                Mock -CommandName Get-WebConfigurationProperty
+                Mock -CommandName Set-WebConfigurationProperty
 
                 Mock -CommandName Test-LogCustomField -MockWith { return $false }
 
@@ -978,8 +976,7 @@ try
                     Assert-MockCalled -CommandName Set-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
                 }
             }
@@ -3633,30 +3630,26 @@ try
             )
 
             Context 'Create new LogCustomField'{
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { return $false }
-                Mock -CommandName New-ItemProperty
+                Mock -CommandName Set-WebConfigurationProperty
 
                 It 'should not throw an error' {
                     { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields } | Should Not Throw
                 }
 
                 It 'should call should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName New-ItemProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
             }
 
             Context 'Modify existing LogCustomField'{
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { return $true }
-                Mock -CommandName Set-ItemProperty
+                Mock -CommandName Set-WebConfigurationProperty
 
                 It 'should not throw an error' {
                     { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields } | Should Not Throw
                 }
 
                 It 'should call should call expected mocks' {
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
             }
         }
