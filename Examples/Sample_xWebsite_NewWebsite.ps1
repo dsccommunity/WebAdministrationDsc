@@ -73,6 +73,7 @@ configuration Sample_xWebsite_NewWebsite
             Name            = $WebSiteName
             SiteId       = $SiteId
             State           = 'Started'
+            ServerAutoStart = $true
             PhysicalPath    = $DestinationPath
             DependsOn       = '[File]WebContent'
         }
