@@ -1,3 +1,7 @@
+# Suppressing this rule because Write-Verbose is called in Helper functions
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSDSCUseVerboseMessageInDSCResource', '')]
+param ()
+
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
