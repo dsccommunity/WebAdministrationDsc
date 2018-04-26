@@ -124,9 +124,12 @@ try
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
             #Test LogCustomFields is correct
-            $result.logFile.customFields.Collection.LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName
-            $result.logFile.customFields.Collection.SourceName   | Should Be $dscConfig.AllNodes.SourceName
-            $result.logFile.customFields.Collection.SourceType   | Should Be $dscConfig.AllNodes.SourceType
+            $result.logFile.customFields.Collection[0].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName1
+            $result.logFile.customFields.Collection[0].SourceName   | Should Be $dscConfig.AllNodes.SourceName1
+            $result.logFile.customFields.Collection[0].SourceType   | Should Be $dscConfig.AllNodes.SourceType1
+            $result.logFile.customFields.Collection[1].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName2
+            $result.logFile.customFields.Collection[1].SourceName   | Should Be $dscConfig.AllNodes.SourceName2
+            $result.logFile.customFields.Collection[1].SourceType   | Should Be $dscConfig.AllNodes.SourceType2
         }
 
     }
@@ -200,9 +203,12 @@ try
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
             #Test LogCustomFields is correct
-            $result.logFile.customFields.Collection.LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName
-            $result.logFile.customFields.Collection.SourceName | Should Be $dscConfig.AllNodes.SourceName
-            $result.logFile.customFields.Collection.SourceType | Should Be $dscConfig.AllNodes.SourceType
+            $result.logFile.customFields.Collection[0].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName1
+            $result.logFile.customFields.Collection[0].SourceName   | Should Be $dscConfig.AllNodes.SourceName1
+            $result.logFile.customFields.Collection[0].SourceType   | Should Be $dscConfig.AllNodes.SourceType1
+            $result.logFile.customFields.Collection[1].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName2
+            $result.logFile.customFields.Collection[1].SourceName   | Should Be $dscConfig.AllNodes.SourceName2
+            $result.logFile.customFields.Collection[1].SourceType   | Should Be $dscConfig.AllNodes.SourceType2
         }
 
     }

@@ -86,11 +86,18 @@ try
                     -ClientOnly
             )
 
-            $MockLogCustomFields = @{
-                LogFieldName = 'ClientEncoding'
-                SourceName   = 'Accept-Encoding'
-                SourceType   = 'RequestHeader'
-            }
+            $mockLogCustomFields = @(
+                @{
+                    LogFieldName = 'LogField1'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                }
+                @{
+                    LogFieldName = 'LogField2'
+                    SourceName   = 'Warning'
+                    SourceType   = 'ResponseHeader'
+                }
+            )
 
             $MockLogOutput = @{
                 directory         = '%SystemDrive%\inetpub\logs\LogFiles'
@@ -99,7 +106,7 @@ try
                 period            = 'Daily'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
-                customFields      = @{Collection = @($MockLogCustomFields)}
+                customFields      = @{Collection = $mockLogCustomFields}
             }
 
             $MockWebsite = @{
@@ -272,9 +279,12 @@ try
                 }
 
                 It 'should return LogCustomFields' {
-                    $Result.LogCustomFields.LogFieldName | Should Be $MockLogCustomFields.LogFieldName
-                    $Result.LogCustomFields.SourceName   | Should Be $MockLogCustomFields.SourceName
-                    $Result.LogCustomFields.SourceType   | Should Be $MockLogCustomFields.SourceType
+                    $Result.LogCustomFields[0].LogFieldName | Should Be $mockLogCustomFields[0].LogFieldName
+                    $Result.LogCustomFields[0].SourceName   | Should Be $mockLogCustomFields[0].SourceName
+                    $Result.LogCustomFields[0].SourceType   | Should Be $mockLogCustomFields[0].SourceType
+                    $Result.LogCustomFields[1].LogFieldName | Should Be $mockLogCustomFields[1].LogFieldName
+                    $Result.LogCustomFields[1].SourceName   | Should Be $mockLogCustomFields[1].SourceName
+                    $Result.LogCustomFields[1].SourceType   | Should Be $mockLogCustomFields[1].SourceType
                 }
             }
         }
@@ -295,14 +305,24 @@ try
             )
 
             $MockCimLogCustomFields = @(
-                New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                (New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
-                        LogFieldName = 'ClientEncoding'
+                        LogFieldName = 'LogField1'
                         SourceName   = 'Accept-Encoding'
                         SourceType   = 'RequestHeader'
                     } `
                     -ClientOnly
+                ),
+                (New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'LogField2'
+                        SourceName   = 'Warning'
+                        SourceType   = 'ResponseHeader'
+                    } `
+                    -ClientOnly
+                )
             )
 
             $MockParameters = @{
@@ -344,11 +364,18 @@ try
                 }
             )
 
-            $MockLogCustomFields = @{
-                LogFieldName = 'ClientEncoding'
-                SourceName   = 'Accept-Encoding'
-                SourceType   = 'RequestHeader'
-            }
+            $mockLogCustomFields = @(
+                @{
+                    LogFieldName = 'LogField1'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                }
+                @{
+                    LogFieldName = 'LogField2'
+                    SourceName   = 'Warning'
+                    SourceType   = 'ResponseHeader'
+                }
+            )
 
             $MockLogOutput = @{
                 directory         = '%SystemDrive%\inetpub\logs\LogFiles'
@@ -357,7 +384,7 @@ try
                 period            = 'Daily'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
-                customFields      = @{Collection = @($MockLogCustomFields)}
+                customFields      = @{Collection = $mockLogCustomFields}
             }
 
             $MockWebsite = @{
@@ -779,7 +806,12 @@ try
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
 
                 Mock -CommandName Get-WebConfigurationProperty `
-                    -MockWith {return $MockLogCustomFields }
+                    -MockWith { return $mockLogCustomFields[0] } `
+                    -ParameterFilter { $Filter -match $MockParameters.LogCustomFields[0].LogFieldName }
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                -MockWith { return $mockLogCustomFields[1] } `
+                -ParameterFilter { $Filter -match $MockParameters.LogCustomFields[1].LogFieldName }
 
                 $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
                     -Name $MockParameters.Name `
@@ -884,11 +916,18 @@ try
                 }
             )
 
-            $MockLogCustomFields = @{
-                LogFieldName = 'ClientEncoding'
-                SourceName   = 'Accept-Encoding'
-                SourceType   = 'RequestHeader'
-            }
+            $mockLogCustomFields = @(
+                @{
+                    LogFieldName = 'LogField1'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                }
+                @{
+                    LogFieldName = 'LogField2'
+                    SourceName   = 'Warning'
+                    SourceType   = 'ResponseHeader'
+                }
+            )
 
             $MockLogOutput =
                 @{
@@ -898,7 +937,7 @@ try
                     period            = 'Daily'
                     truncateSize      = '1048576'
                     localTimeRollover = 'False'
-                    customFields      = @{Collection = @($MockLogCustomFields)}
+                    customFields      = @{Collection = $mockLogCustomFields}
                 }
 
             $MockWebsite = @{
@@ -3540,25 +3579,35 @@ try
         }
 
         Describe "$script:DSCResourceName\ConvertTo-CimLogCustomFields"{
-            $MockLogCustomFields = @{
-                LogFieldName = 'ClientEncoding'
-                SourceName   = 'Accept-Encoding'
-                SourceType   = 'RequestHeader'
-            }
+            $mockLogCustomFields = @(
+                @{
+                    LogFieldName = 'LogField1'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                }
+                @{
+                    LogFieldName = 'LogField2'
+                    SourceName   = 'Warning'
+                    SourceType   = 'ResponseHeader'
+                }
+            )
 
             Context 'Expected behavior'{
-                $Result = ConvertTo-CimLogCustomFields -InputObject $MockLogCustomFields
+                $Result = ConvertTo-CimLogCustomFields -InputObject $mockLogCustomFields
 
                 It 'should return the LogFieldName' {
-                    $Result.LogFieldName | Should Be $MockLogCustomFields.LogFieldName
+                    $Result[0].LogFieldName | Should Be $mockLogCustomFields[0].LogFieldName
+                    $Result[0].LogFieldName | Should Be $mockLogCustomFields[0].LogFieldName
                 }
 
                 It 'should return the SourceName' {
-                    $Result.SourceName | Should Be $MockLogCustomFields.SourceName
+                    $Result[0].SourceName | Should Be $mockLogCustomFields[0].SourceName
+                    $Result[0].SourceName | Should Be $mockLogCustomFields[0].SourceName
                 }
 
-                It 'should return the LogFieldName' {
-                    $Result.SourceType | Should Be $MockLogCustomFields.SourceType
+                It 'should return the SourceType' {
+                    $Result[0].SourceType | Should Be $mockLogCustomFields[0].SourceType
+                    $Result[0].SourceType | Should Be $mockLogCustomFields[0].SourceType
                 }
             }
         }

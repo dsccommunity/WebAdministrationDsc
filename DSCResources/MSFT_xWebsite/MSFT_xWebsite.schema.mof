@@ -51,5 +51,5 @@ class MSFT_xWebsite : OMI_BaseResource
     [Write, Description ("How large the file should be before it is truncated")] String LogTruncateSize;
     [Write, Description ("Use the localtime for file naming and rollover")] Boolean LoglocalTimeRollover;
     [Write, Description ("Format of the Logfiles. Only W3C supports LogFlags"), ValueMap{"IIS","W3C","NCSA"}, Values{"IIS","W3C","NCSA"}] String LogFormat;
-    [Write, EmbeddedInstance("MSFT_xLogCustomFieldInformation"), Description("Custom logging field information")] String LogCustomFields[];
+    [Write, EmbeddedInstance("MSFT_xLogCustomFieldInformation"), Description("Custom logging field information in the form of an array of embedded instances of MSFT_xLogCustomFieldInformation CIM class")] String LogCustomFields[];
 };

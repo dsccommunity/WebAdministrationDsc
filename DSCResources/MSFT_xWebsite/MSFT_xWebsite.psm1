@@ -133,7 +133,7 @@ function Get-TargetResource
                                 Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | `
                                 Select-Object Name,Type
         
-        $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection)
+        $cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
     }
     # Multiple websites with the same name exist. This is not supported and is an error
     else
@@ -499,7 +499,7 @@ function Set-TargetResource
                     -Name LogFile.period -Value 'MaxSize'
             }
 
-            # Update LoglocalTimeRollover if neeed
+            # Update LoglocalTimeRollover if needed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
                 ($LoglocalTimeRollover -ne `
                  ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
@@ -508,15 +508,6 @@ function Set-TargetResource
                                         -f $Name)
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
-            }
-
-            # Update LogCustomFields if neeed
-            if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
-                (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields `
-                                        -f $Name)
-                Set-LogCustomField -Site $Name -LogCustomField $LogCustomFields
             }
         }
         # Create website if it does not exist
@@ -756,7 +747,7 @@ function Set-TargetResource
                     -Name LogFile.period -Value 'MaxSize'
             }
 
-            # Update LoglocalTimeRollover if neeed
+            # Update LoglocalTimeRollover if needed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
                 ($LoglocalTimeRollover -ne `
                  ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
@@ -766,15 +757,15 @@ function Set-TargetResource
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }
+        }
 
-            # Update LogCustomFields if neeed
-            if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
-                (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
-            {
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields `
-                                        -f $Name)
-                Set-LogCustomField -Site $Name -LogCustomField $LogCustomFields
-            }
+        # Update LogCustomFields if needed
+        if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
+        (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields `
+                                    -f $Name)
+            Set-LogCustomField -Site $Name -LogCustomField $LogCustomFields
         }
     }
     # Remove website
@@ -1087,7 +1078,7 @@ function Test-TargetResource
             return $false
         }
 
-        # Check LogCustomFields if neeed
+        # Check LogCustomFields if needed
         if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
             (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
         {
@@ -1631,7 +1622,7 @@ function ConvertTo-WebBinding
 function ConvertTo-CimLogCustomFields
 {
     [CmdletBinding()]
-    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
+    [OutputType([Microsoft.Management.Infrastructure.CimInstance[]])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -1857,10 +1848,11 @@ function Set-LogCustomField
         }
     }
 
-    Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
-
     # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
-    Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
+    for ($i = 1; $i -le 2; $i++)
+    { 
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
+    }
 }
 
 <#
@@ -2153,9 +2145,9 @@ function Test-LogCustomField
 
         if ($presentCustomField)
         {
-            $sourceNameMatch = $customField.SourceName -eq $presentCustomField.sourceName
+            $sourceNameMatch = $customField.SourceName -eq $presentCustomField.SourceName
             $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
-            if(-not ($sourceNameMatch -and $sourceTypeMatch))
+            if (-not ($sourceNameMatch -and $sourceTypeMatch))
             {
                 $inDesiredSate = $false
             }
@@ -2163,7 +2155,7 @@ function Test-LogCustomField
         else
         {
             $inDesiredSate = $false
-        }      
+        }
     }
 
     return $inDesiredSate

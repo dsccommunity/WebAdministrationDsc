@@ -71,11 +71,17 @@ configuration MSFT_xWebsite_Present_Started
                 LogCustomFields    = @(
                     MSFT_xLogCustomFieldInformation
                     {
-                        LogFieldName = $Node.LogFieldName
-                        SourceName   = $Node.SourceName
-                        SourceType   = $Node.SourceType
+                        LogFieldName = $Node.LogFieldName1
+                        SourceName   = $Node.SourceName1
+                        SourceType   = $Node.SourceType1
                     }
-            )
+                    MSFT_xLogCustomFieldInformation
+                    {
+                        LogFieldName = $Node.LogFieldName2
+                        SourceName   = $Node.SourceName2
+                        SourceType   = $Node.SourceType2
+                    }
+                )
         }
     }
 }
@@ -152,9 +158,15 @@ configuration MSFT_xWebsite_Present_Stopped
             LogCustomFields    = @(
                 MSFT_xLogCustomFieldInformation
                 {
-                    LogFieldName = $Node.LogFieldName
-                    SourceName   = $Node.SourceName
-                    SourceType   = $Node.SourceType
+                    LogFieldName = $Node.LogFieldName1
+                    SourceName   = $Node.SourceName1
+                    SourceType   = $Node.SourceType1
+                }
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName2
+                    SourceName   = $Node.SourceName2
+                    SourceType   = $Node.SourceType2
                 }
             )
         }
