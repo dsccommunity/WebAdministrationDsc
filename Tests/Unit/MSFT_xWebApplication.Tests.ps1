@@ -1,4 +1,4 @@
-﻿
+
 $script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebApplication'
 
@@ -57,6 +57,8 @@ try
             EnabledProtocols         = 'http'
             Count                    = '1'
         }
+        
+        $MockItemXPath = ("/system.applicationHost/sites/site[@name='{0}']/application[@path='/{1}']" -f $MockParameters.Website, $MockParameters.WebAppPool)
 
         $GetWebConfigurationOutput = @(
                 @{
@@ -275,14 +277,12 @@ try
                         EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count                    = 1
                     }
- 
                 }
                 
                 It 'should return False' {
                     $Result = Test-TargetResource -Ensure 'Present' @MockParameters
                     $Result | Should Be $False
                 }
- 
             }
 
             Context 'Web Application exists but has a different PhysicalPath' {
@@ -305,7 +305,6 @@ try
                         EnabledProtocols         = $MockWebApplicationOutput.EnabledProtocols
                         Count = 1
                     }
-  
                 }
 
                 It 'should return False' {
@@ -722,9 +721,13 @@ try
                     Set-TargetResource -Ensure 'Present' @MockParameters
 
                     Assert-MockCalled -CommandName Get-WebApplication -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1 `
+                                      -ParameterFilter { `
+                                        ($Filter -eq "/system.applicationHost/sites/site[@name='MockSite']/application[@path='/MockPool']") -And `
+                                        ($Name   -eq 'physicalPath') -And `
+                                        ($Value  -eq 'C:\MockSite\MockApp') `
+                                      }
                 }
-
             }
 
             Context 'Web Application exists but has different AuthenticationInfo' {
