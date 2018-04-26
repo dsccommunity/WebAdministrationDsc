@@ -1659,13 +1659,14 @@ function Get-AuthenticationInfo
     $authenticationProperties = @{}
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
-        $authenticationProperties[$type] = [String](Test-AuthenticationEnabled -Site $Site `
+        $authenticationProperties[$type] = [Boolean](Test-AuthenticationEnabled -Site $Site `
                                                                                -Type $type)
     }
 
     return New-CimInstance `
             -ClassName MSFT_xWebAuthenticationInformation `
-            -ClientOnly -Property $authenticationProperties
+            -ClientOnly -Property $authenticationProperties `
+            -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
 }
 
 <#
