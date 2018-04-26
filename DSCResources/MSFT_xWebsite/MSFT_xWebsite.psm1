@@ -1677,7 +1677,8 @@ function Get-DefaultAuthenticationInfo
 {
     New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
         -ClientOnly `
-        -Property @{ Anonymous = $false; Basic = $false; Digest = $false; Windows = $false }
+        -Property @{ Anonymous = $false; Basic = $false; Digest = $false; Windows = $false } `
+        -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
 }
 
 <#
