@@ -263,6 +263,7 @@ Ensures the value of an identified property collection item's property in the we
 ## Versions
 
 ### Unreleased
+* Fix Get-DSCLocalconfiguration failure with xWebApplication and xWebSite resources (Fix #314).
 
 * Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
 
