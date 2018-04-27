@@ -239,6 +239,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ## Versions
 
 ### Unreleased
+* Fix Get-DSCLocalconfiguration failure with xWebApplication and xWebSite resources (Fix #314).
 
 ### 1.19.0.0
 
