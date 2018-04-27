@@ -1,0 +1,9 @@
+[ClassVersion("1.0.0"), FriendlyName("xWebSiteAlive")]
+class MSFT_xWebSiteAlive : OMI_BaseResource
+{
+    [Write, ValueMap{"Present", "Absent"}, Values{"Present", "Absent"}] String Ensure;
+    [Key] String WebSiteName;
+    [Key] String RelativeUrl;
+    [Write] UInt16 ValidStatusCodes[];
+    [Write] String ExpectedContent;
+};
