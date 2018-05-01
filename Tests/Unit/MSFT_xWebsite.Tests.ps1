@@ -12,8 +12,6 @@ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCR
 
 Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
-
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
@@ -26,6 +24,13 @@ try
     #region Pester Tests
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
         $script:DSCResourceName = 'MSFT_xWebsite'
+
+        # Make sure we don't have the original module in memory.
+        Remove-Module -Name 'WebAdministration' -ErrorAction SilentlyContinue
+
+        # Load the stubs
+        $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+        Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1') -Force
 
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
