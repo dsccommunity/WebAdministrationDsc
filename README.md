@@ -263,6 +263,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * Added .vscode\settings.json so that code can be easily formatted in VSCode
   closer according to the style guideline.
 * Updated README.md with a branches section, and added Codecov badges.
+* Fix unit test for helper function `Find-Certificate` that could not find the test
+  helper function `Install-NewSelfSignedCertificateExScript`.
 
 ### 1.19.0.0
 
