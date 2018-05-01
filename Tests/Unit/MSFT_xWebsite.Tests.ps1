@@ -1020,6 +1020,10 @@ try
                 }
             }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> xWebAdministration: Added support for codecov (#350)
             Context 'Create website with empty physical path' {
 
                 Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
