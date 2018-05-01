@@ -258,13 +258,16 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
-* Fix Get-DSCLocalconfiguration failure with xWebApplication and xWebSite resources (Fix #314).
+* Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
+  (issue #302 and issue #314).
 * Add Codecov support.
 * Added .vscode\settings.json so that code can be easily formatted in VSCode
   closer according to the style guideline.
 * Updated README.md with a branches section, and added Codecov badges.
 * Fix unit test for helper function `Find-Certificate` that could not find the test
   helper function `Install-NewSelfSignedCertificateExScript`.
+* Fix unit tests for xWebSite that failed because `Get-Command` wasn't properly
+  mocked.
 
 ### 1.19.0.0
 

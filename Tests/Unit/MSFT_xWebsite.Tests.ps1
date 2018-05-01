@@ -571,7 +571,7 @@ try
                     $result | Should be $false
                 }
             }
-            
+
             Context 'Check LogPeriod is equal' {
                 $MockLogOutput.period = $MockParameters.LogPeriod
 
@@ -840,7 +840,7 @@ try
                 Mock -CommandName Start-Website
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
-                
+
                 Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
@@ -883,58 +883,70 @@ try
                 }
             }
 
-            
+
             Context 'Create website with empty physical path' {
-                
+
                 Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
-                
-                Mock -CommandName Get-Website 
-                
-                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+
+                Mock -CommandName Get-Website
+
+                Mock -Commandname Get-Command -MockWith {
+                    return Get-Command -Name New-WebSite
+                } -ParameterFilter {
+                    $Module -eq 'WebAdministration'
+                }
+
+                Mock -CommandName New-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Start-Website
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
-                
+
                 Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
-                                
+
                 Mock -CommandName Update-WebsiteBinding
-                
+
                 $MockParameters = $MockParameters.Clone()
-                $MockParameters.PhysicalPath = ''              
+                $MockParameters.PhysicalPath = ''
 
                 It 'Should create and start the web site' {
-                    Set-TargetResource @MockParameters                    
+                    Set-TargetResource @MockParameters
                     Assert-MockCalled -CommandName New-Website -ParameterFilter { $Force -eq $True } -Exactly 1
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
             }
 
             Context 'Create website with null physical path' {
-                
+
                 Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
-                
-                Mock -CommandName Get-Website 
-                
-                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+
+                Mock -CommandName Get-Website
+
+                Mock -Commandname Get-Command -MockWith {
+                    return Get-Command -Name New-WebSite
+                } -ParameterFilter {
+                    $Module -eq 'WebAdministration'
+                }
+
+                Mock -CommandName New-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Start-Website
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
-                
+
                 Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
-                                
+
                 Mock -CommandName Update-WebsiteBinding
-                
+
                 $MockParameters = $MockParameters.Clone()
-                $MockParameters.PhysicalPath = $null              
+                $MockParameters.PhysicalPath = $null
 
                 It 'Should create and start the web site' {
-                    Set-TargetResource @MockParameters                    
+                    Set-TargetResource @MockParameters
                     Assert-MockCalled -CommandName New-Website -ParameterFilter { $Force -eq $True } -Exactly 1
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
@@ -1066,7 +1078,7 @@ try
                     }
                 }
 
-                Mock -CommandName New-Website -MockWith { return $MockWebsite } 
+                Mock -CommandName New-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Stop-Website
 
@@ -1075,7 +1087,7 @@ try
                 Mock -CommandName Update-WebsiteBinding
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
-                
+
                 Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
@@ -1162,7 +1174,7 @@ try
                 Mock -CommandName Update-WebsiteBinding
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
-                
+
                 Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
@@ -1242,7 +1254,7 @@ try
                 Mock -CommandName Update-WebsiteBinding
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
-                
+
                 Mock -CommandName Set-Item
 
                 Mock -CommandName Set-ItemProperty
