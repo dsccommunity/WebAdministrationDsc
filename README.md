@@ -266,8 +266,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * Updated README.md with a branches section, and added Codecov badges.
 * Fix unit test for helper function `Find-Certificate` that could not find the test
   helper function `Install-NewSelfSignedCertificateExScript`.
-* Fix unit tests for xWebSite that failed because `Get-Command` wasn't properly
-  mocked.
+* Fix unit tests for xWebSite that failed because `Get-Command` and 'Stop-WebStie`
+  wasn't properly mocked.
 
 ### 1.19.0.0
 

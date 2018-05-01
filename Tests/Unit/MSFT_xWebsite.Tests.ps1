@@ -890,7 +890,7 @@ try
 
                 Mock -CommandName Get-Website
 
-                Mock -Commandname Get-Command -MockWith {
+                Mock -CommandName Get-Command -MockWith {
                     return Get-Command -Name New-WebSite
                 } -ParameterFilter {
                     $Module -eq 'WebAdministration'
@@ -899,6 +899,8 @@ try
                 Mock -CommandName New-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Start-Website
+
+                Mock -CommandName Stop-Website
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
 
@@ -924,7 +926,7 @@ try
 
                 Mock -CommandName Get-Website
 
-                Mock -Commandname Get-Command -MockWith {
+                Mock -CommandName Get-Command -MockWith {
                     return Get-Command -Name New-WebSite
                 } -ParameterFilter {
                     $Module -eq 'WebAdministration'
@@ -933,6 +935,8 @@ try
                 Mock -CommandName New-Website -MockWith { return $MockWebsite }
 
                 Mock -CommandName Start-Website
+
+                Mock -CommandName Stop-Website
 
                 Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
 
