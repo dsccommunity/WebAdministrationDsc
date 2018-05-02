@@ -10,10 +10,10 @@ $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 }
 
 Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\TestHelper\CommonTestHelper.psm1')
 Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResources\Helper.psm1')
 #endregion
+
+Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\TestHelper\CommonTestHelper.psm1') -Force -Global
 
 # Begin Testing
 try

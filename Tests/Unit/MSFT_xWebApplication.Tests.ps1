@@ -1195,7 +1195,7 @@ try
 
                 $GetWebConfigurationOutput = @(
                     @{
-                        Value = 'False'
+                        Value = $false
                     }
                 )
 
@@ -1204,10 +1204,10 @@ try
                 
                 It 'should all be false' {
                     $result = Get-AuthenticationInfo -site $MockParameters.Website -name $MockParameters.Name 
-                    $result.Anonymous | Should be False
-                    $result.Digest | Should be False
-                    $result.Basic | Should be False
-                    $result.Windows | Should be False
+                    $result.Anonymous | Should be $false
+                    $result.Digest | Should be $false
+                    $result.Basic | Should be $false
+                    $result.Windows | Should be $false
                 }
 
                 It 'should call Get-WebConfigurationProperty four times' {

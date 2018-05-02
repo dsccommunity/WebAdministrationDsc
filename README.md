@@ -1,11 +1,29 @@
 # xWebAdministration
 
-[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xwebadministration/branch/master)
-
 The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## Branches
+
+### master
+
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/xWebAdministration/branch/master)
+[![codecov](https://codecov.io/gh/PowerShell/xWebAdministration/branch/master/graph/badge.svg)](https://codecov.io/gh/PowerShell/xWebAdministration/branch/master)
+
+This is the branch containing the latest release -
+no contributions should be made directly to this branch.
+
+### dev
+
+[![Build status](https://ci.appveyor.com/api/projects/status/gnsxkjxht31ctan1/branch/dev?svg=true)](https://ci.appveyor.com/project/PowerShell/xWebAdministration/branch/dev)
+[![codecov](https://codecov.io/gh/PowerShell/xWebAdministration/branch/dev/graph/badge.svg)](https://codecov.io/gh/PowerShell/xWebAdministration/branch/dev)
+
+This is the development branch
+to which contributions should be proposed by contributors as pull requests.
+This development branch will periodically be merged to the master branch,
+and be released to [PowerShell Gallery](https://www.powershellgallery.com/).
 
 ## Contributing
 
@@ -239,6 +257,19 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ## Versions
 
 ### Unreleased
+
+### 1.20.0.0
+
+* Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
+  (issue #302 and issue #314).
+* Add Codecov support.
+* Added .vscode\settings.json so that code can be easily formatted in VSCode
+  closer according to the style guideline.
+* Updated README.md with a branches section, and added Codecov badges.
+* Fix unit test for helper function `Find-Certificate` that could not find the test
+  helper function `Install-NewSelfSignedCertificateExScript`.
+* Fix unit tests for xWebSite that failed because `Get-Command` and 'Stop-WebStie`
+  wasn't properly mocked.
 
 ### 1.19.0.0
 

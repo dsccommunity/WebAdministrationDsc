@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.19.0.0'
+moduleVersion = '1.20.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,8 +41,16 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* **xWebAppPoolDefaults** now returns values. Fixes 311.
-* Added unit tests for **xWebAppPoolDefaults**. Fixes 183.
+        ReleaseNotes = '* Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
+  (issue 302 and issue 314).
+* Add Codecov support.
+* Added .vscode\settings.json so that code can be easily formatted in VSCode
+  closer according to the style guideline.
+* Updated README.md with a branches section, and added Codecov badges.
+* Fix unit test for helper function `Find-Certificate` that could not find the test
+  helper function `Install-NewSelfSignedCertificateExScript`.
+* Fix unit tests for xWebSite that failed because `Get-Command` and "Stop-WebStie`
+  wasn"t properly mocked.
 
 '
 
@@ -56,6 +64,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 
