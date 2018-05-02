@@ -258,6 +258,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### Unreleased
 
+### 1.20.0.0
+
 * Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
   (issue #302 and issue #314).
 * Add Codecov support.
