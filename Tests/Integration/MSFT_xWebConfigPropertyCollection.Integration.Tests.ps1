@@ -27,12 +27,16 @@ $TestEnvironment = Initialize-TestEnvironment `
     -TestType Integration
 #endregion
 
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+
 # Using try/finally to always cleanup.
 try
 {
     #region Integration Tests
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $configFile
+
+    $null = Backup-WebConfiguration -Name $tempName
 
     # Constants for Tests
     $websiteName = New-Guid
@@ -121,19 +125,10 @@ try
 }
 finally
 {
-    if (Get-Module -Name 'MockWebAdministrationWindowsFeature')
-    {
-        Write-Information 'Removing MockWebAdministrationWindowsFeature module...'
-        Remove-Module -Name 'MockWebAdministrationWindowsFeature'
-    }
-    $mocks = (Get-ChildItem Function:) | Where-Object { $_.Source -eq 'MockWebAdministrationWindowsFeature' }
-    if ($mocks)
-    {
-        Write-Information 'Removing MockWebAdministrationWindowsFeature functions...'
-        $mocks | Remove-Item
-    }
-
     #region FOOTER
+    Restore-WebConfiguration -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName
+
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion
 }
