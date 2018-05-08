@@ -339,6 +339,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ## Versions
 
 ### Unreleased
+* Added missing settings for **xWebAppPoolDefaults**. Fixes #105.
 
 * Added missing settings for **xWebAppPoolDefaults**. Fixes #105.
 
