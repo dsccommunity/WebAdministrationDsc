@@ -261,8 +261,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ## Versions
 
 ### Unreleased
-* Updated **xIISModule** to add handler to specified site (issue #305).
-* Updated **xIISModule** to parse verbs correctly (issue #323).
+* Updated **xIISModule** to add handler to specified site (#305).
+* Updated **xIISModule** to parse verbs correctly (#323).
 * Updated **xWebSite** to include ability to manage custom logging fields
 
 ### 1.20.0.0
