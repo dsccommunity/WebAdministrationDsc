@@ -261,6 +261,9 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ## Versions
 
 ### Unreleased
+
+* Changes to xWebAdministration
+  * Moved file Codecov.yml that was added to the wrong path in previous release.
 * Updated **xWebSite** to include ability to manage custom logging fields
 
 ### 1.20.0.0
