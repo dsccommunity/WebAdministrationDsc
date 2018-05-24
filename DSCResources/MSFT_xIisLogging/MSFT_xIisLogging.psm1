@@ -23,13 +23,13 @@ data LocalizedData
         VerboseTestTargetFalseLogFormat            = LogFormat does not match desired state.
         VerboseTestTargetFalseLogCustomFields      = LogCustomFields does not match desired state.
         WarningLogPeriod                           = LogTruncateSize has is an input as will overwrite this desired state.
-        WarningIncorrectLogFormat                  = LogFormat is not W3C, as a result LogFlags will not be used. 
+        WarningIncorrectLogFormat                  = LogFormat is not W3C, as a result LogFlags will not be used.
 '@
 }
 
 <#
         .SYNOPSIS
-        This will return a hashtable of results about the given LogPath 
+        This will return a hashtable of results about the given LogPath
 #>
 function Get-TargetResource
 {
@@ -38,14 +38,14 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $LogPath              
+        [String] $LogPath
     )
 
         Assert-Module
 
         $currentLogSettings = Get-WebConfiguration `
                                 -filter '/system.applicationHost/sites/siteDefaults/Logfile'
-                                
+
         Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
 
      $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $currentLogSettings.logFile.customFields.Collection)
@@ -57,34 +57,34 @@ function Get-TargetResource
             LogTruncateSize      = $currentLogSettings.truncateSize
             LoglocalTimeRollover = $currentLogSettings.localTimeRollover
             LogFormat            = $currentLogSettings.logFormat
-			LogCustomFields      = $cimLogCustomFields
+    	LogCustomFields      = $cimLogCustomFields
         }
 }
 
 <#
         .SYNOPSIS
         This will set the desired state
-		.PARAMETER LogPath
-        Path to the logfile		
-		
-		.PARAMETER LogFlags
-        Specifies flags to check
-		Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
+    .PARAMETER LogPath
+        Path to the logfile
 
-		.PARAMETER LogPeriod
+    .PARAMETER LogFlags
+        Specifies flags to check
+    Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
+
+    .PARAMETER LogPeriod
         Specifies the log period.
         Limited to the set: ('Hourly','Daily','Weekly','Monthly','MaxSize')
 
-		.PARAMETER LogTruncateSize
+    .PARAMETER LogTruncateSize
         Specifies log truncate size
-		Limited to the range (1048576 - 4294967295)
+    Limited to the range (1048576 - 4294967295)
 
-		.PARAMETER LoglocalTimeRollover
+    .PARAMETER LoglocalTimeRollover
         Sets log local time rollover
 
-		.PARAMETER LogFormat
+    .PARAMETER LogFormat
         Specifies log format
-		Limited to the set: ('IIS','W3C','NCSA')
+    Limited to the set: ('IIS','W3C','NCSA')
 
         .PARAMETER LogCustomField
         A CimInstance collection of what state the LogCustomField should be.
@@ -97,10 +97,10 @@ function Set-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [String] $LogPath,
-        
+
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]] $LogFlags,
-                
+
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
 
@@ -110,18 +110,18 @@ function Set-TargetResource
         [String] $LogTruncateSize,
 
         [Boolean] $LoglocalTimeRollover,
-        
+
         [ValidateSet('IIS','W3C','NCSA')]
         [String] $LogFormat,
 
-		[Microsoft.Management.Infrastructure.CimInstance[]] 
-		$LogCustomFields
+    [Microsoft.Management.Infrastructure.CimInstance[]]
+    $LogCustomFields
     )
-    
+
         Assert-Module
-    
+
         $currentLogState = Get-TargetResource -LogPath $LogPath
-        
+
         # Update LogFormat if needed
         if ($PSBoundParameters.ContainsKey('LogFormat') -and `
             ($LogFormat -ne $currentLogState.LogFormat))
@@ -131,7 +131,7 @@ function Set-TargetResource
                 -Name logFormat `
                 -Value $LogFormat
         }
-        
+
         # Update LogPath if needed
         if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $currentLogState.LogPath))
         {
@@ -140,10 +140,10 @@ function Set-TargetResource
                 -Name directory `
                 -Value $LogPath
         }
-        
+
         # Update Logflags if needed; also sets logformat to W3C
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
-            (-not (Compare-LogFlags -LogFlags $LogFlags))) 
+            (-not (Compare-LogFlags -LogFlags $LogFlags)))
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
@@ -153,7 +153,7 @@ function Set-TargetResource
                 -Name logExtFileFlags `
                 -Value ($LogFlags -join ',')
         }
-        
+
         # Update Log Period if needed
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
             ($LogPeriod -ne $currentLogState.LogPeriod))
@@ -161,13 +161,13 @@ function Set-TargetResource
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                 {
                     Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
-                }              
+                }
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
                 -Name period `
                 -Value $LogPeriod
         }
-        
+
         # Update LogTruncateSize if needed
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $currentLogState.LogTruncateSize))
@@ -180,7 +180,7 @@ function Set-TargetResource
                 -Name period `
                 -Value 'MaxSize'
         }
-        
+
         # Update LoglocalTimeRollover if needed
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
             ($LoglocalTimeRollover -ne `
@@ -192,14 +192,14 @@ function Set-TargetResource
                 -Value $LoglocalTimeRollover
         }
 
-	    # Update LogCustomFields if neeed  
-		if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
-			(-not (Test-LogCustomField -LogCustomField $LogCustomFields)))  
-		{  
-			Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields)
-        
-			Set-LogCustomField -LogCustomField $LogCustomFields  
-		}  
+	    # Update LogCustomFields if neeed
+    if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
+    	(-not (Test-LogCustomField -LogCustomField $LogCustomFields)))
+    {
+    	Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields)
+
+    	Set-LogCustomField -LogCustomField $LogCustomFields
+    }
 }
 
 <#
@@ -207,27 +207,27 @@ function Set-TargetResource
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
 
-		.PARAMETER LogPath
+    .PARAMETER LogPath
         Path to the logfile
 
-		.PARAMETER LogFlags
+    .PARAMETER LogFlags
         Specifies flags to check
-		Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
+    Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
 
-		.PARAMETER LogPeriod
+    .PARAMETER LogPeriod
         Specifies the log period.
         Limited to the set: ('Hourly','Daily','Weekly','Monthly','MaxSize')
 
-		.PARAMETER LogTruncateSize
+    .PARAMETER LogTruncateSize
         Specifies log truncate size
-		Limited to the range (1048576 - 4294967295)
+    Limited to the range (1048576 - 4294967295)
 
-		.PARAMETER LoglocalTimeRollover
+    .PARAMETER LoglocalTimeRollover
         Sets log local time rollover
 
-		.PARAMETER LogFormat
+    .PARAMETER LogFormat
         Specifies log format
-		Limited to the set: ('IIS','W3C','NCSA')
+    Limited to the set: ('IIS','W3C','NCSA')
 
         .PARAMETER LogCustomField
         A CimInstance collection of what state the LogCustomField should be.
@@ -241,10 +241,10 @@ function Test-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [String] $LogPath,
-        
+
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]] $LogFlags,
-                
+
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
 
@@ -254,18 +254,18 @@ function Test-TargetResource
         [String] $LogTruncateSize,
 
         [Boolean] $LoglocalTimeRollover,
-        
+
         [ValidateSet('IIS','W3C','NCSA')]
         [String] $LogFormat,
 
-		[Microsoft.Management.Infrastructure.CimInstance[]]  
-		$LogCustomFields 
+    [Microsoft.Management.Infrastructure.CimInstance[]]
+    $LogCustomFields
     )
-    
+
         Assert-Module
 
         $currentLogState = Get-TargetResource -LogPath $LogPath
-        
+
         # Check LogFormat
         if ($PSBoundParameters.ContainsKey('LogFormat'))
         {
@@ -275,38 +275,38 @@ function Test-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
             }
-            
+
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
             if($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $currentLogState.LogFormat -ne 'W3C')
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
             }
-            
-            # Check LogFormat 
+
+            # Check LogFormat
             if ($LogFormat -ne $currentLogState.LogFormat)
             {
                 Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFormat)
-                return $false 
+                return $false
             }
         }
-        
+
         # Check LogFlags
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
-            (-not (Compare-LogFlags -LogFlags $LogFlags)))  
+            (-not (Compare-LogFlags -LogFlags $LogFlags)))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
             return $false
         }
-            
+
         # Check LogPath
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $currentLogState.LogPath))
-        { 
+        {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath)
-            return $false 
+            return $false
         }
-        
+
         # Check LogPeriod
         if ($PSBoundParameters.ContainsKey('LogPeriod') -and `
             ($LogPeriod -ne $currentLogState.LogPeriod))
@@ -315,11 +315,11 @@ function Test-TargetResource
             {
                 Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
             }
-               
+
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPeriod)
-            return $false   
+            return $false
         }
-        
+
         # Check LogTruncateSize
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $currentLogState.LogTruncateSize))
@@ -327,7 +327,7 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize)
             return $false
         }
-        
+
         # Check LoglocalTimeRollover
         if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
             ($LoglocalTimeRollover -ne `
@@ -337,13 +337,13 @@ function Test-TargetResource
             return $false
         }
 
-	    # Check LogCustomFields if neeed  
-		if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
-			(-not (Test-LogCustomField -LogCustomFields $LogCustomFields)))  
-		{  
-			Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields)  
-			return $false  
-		}      
+	    # Check LogCustomFields if neeed
+    if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
+    	(-not (Test-LogCustomField -LogCustomFields $LogCustomFields)))
+    {
+    	Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields)
+    	return $false
+    }
 
         return $true
 
@@ -381,45 +381,45 @@ function Compare-LogFlags
     {
         return $false
     }
-    
+
     return $true
 
 }
-<#  
-	.SYNOPSIS  
-	Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.  
-#>  
-function ConvertTo-CimLogCustomFields  
-{  
-    [CmdletBinding()]  
-	[OutputType([Microsoft.Management.Infrastructure.CimInstance])]  
-	param  
-	(  
-        [Parameter(Mandatory = $true)]  
-        [AllowEmptyCollection()]  
-        [AllowNull()]  
-        [Object[]] $InputObject  
-	)  
+<#
+	.SYNOPSIS
+	Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+#>
+function ConvertTo-CimLogCustomFields
+{
+    [CmdletBinding()]
+	[OutputType([Microsoft.Management.Infrastructure.CimInstance])]
+	param
+	(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [Object[]] $InputObject
+	)
 
-    $cimClassName = 'MSFT_xLogCustomFieldInformation'  
-    $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'  
-    $cimCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection`1[Microsoft.Management.Infrastructure.CimInstance]'  
-        
-    foreach ($customField in $InputObject)  
-    {  
-        $cimProperties = @{  
-            LogFieldName = $customField.LogFieldName  
-            SourceName   = $customField.SourceName  
-            SourceType   = $customField.SourceType  
-        }  
+    $cimClassName = 'MSFT_xLogCustomFieldInformation'
+    $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
+    $cimCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection`1[Microsoft.Management.Infrastructure.CimInstance]'
+
+    foreach ($customField in $InputObject)
+    {
+        $cimProperties = @{
+            LogFieldName = $customField.LogFieldName
+            SourceName   = $customField.SourceName
+            SourceType   = $customField.SourceType
+        }
 
         $cimCollection += (New-CimInstance -ClassName $cimClassName `
             -Namespace $cimNamespace `
             -Property $cimProperties `
-            -ClientOnly)  
-    }  
+            -ClientOnly)
+    }
 
-    return $cimCollection  
+    return $cimCollection
  }
 
  <#
@@ -448,17 +448,17 @@ function Set-LogCustomField
 
 	foreach ($customField in $LogCustomField)
     {
-		$setCustomFields += @{
-			logFieldName = $customField.LogFieldName
-			sourceName = $customField.SourceName
-			sourceType = $customField.SourceType
-		}
+    $setCustomFields += @{
+    	logFieldName = $customField.LogFieldName
+    	sourceName = $customField.SourceName
+    	sourceType = $customField.SourceType
+    }
 	}
 
-    # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider 
+    # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
 	for ($i = 1; $i -le 1; $i++)
 	{
-		Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/Sites/SiteDefaults/logFile/customFields" -Name "." -Value $setCustomFields
+    Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/Sites/SiteDefaults/logFile/customFields" -Name "." -Value $setCustomFields
 	}
 }
 
@@ -503,7 +503,7 @@ function Test-LogCustomField
         else
         {
             $inDesiredSate = $false
-        }      
+        }
     }
 
     return $inDesiredSate

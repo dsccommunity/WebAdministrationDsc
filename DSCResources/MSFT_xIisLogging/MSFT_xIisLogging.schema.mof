@@ -1,4 +1,12 @@
-[ClassVersion("1.0.0"), FriendlyName("xIisLogging")] 
+[ClassVersion("1.0.0")]
+class MSFT_xLogCustomFieldInformation
+{
+    [Write] String LogFieldName;
+    [Write] String SourceName;
+    [Write, ValueMap{"RequestHeader","ResponseHeader","ServerVariable"},Values{"RequestHeader","ResponseHeader","ServerVariable"}] String SourceType;
+};
+
+[ClassVersion("1.0.0"), FriendlyName("xIisLogging")]
 class MSFT_xIisLogging : OMI_BaseResource
 {
     [Key, Description ("The directory to be used for logfiles")] String LogPath;
@@ -10,10 +18,4 @@ class MSFT_xIisLogging : OMI_BaseResource
 	[Write, EmbeddedInstance("MSFT_xLogCustomFieldInformation"), Description("Custom logging field information in the form of an array of embedded instances of MSFT_xLogCustomFieldInformation CIM class")] String LogCustomFields[];
 };
 
-[ClassVersion("1.0.0")]  
-class MSFT_xLogCustomFieldInformation  
-{  
-    [Write] String LogFieldName;  
-    [Write] String SourceName;  
-    [Write, ValueMap{"RequestHeader","ResponseHeader","ServerVariable"},Values{"RequestHeader","ResponseHeader","ServerVariable"}] String SourceType;
-};  
+

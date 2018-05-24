@@ -9,14 +9,14 @@ configuration MSFT_xIisLogging_Rollover
         LoglocalTimeRollover = $true
         LogPeriod = 'Hourly'
         LogFormat = 'W3C'
-        LogCustomFields  = @( 
-            MSFT_xLogCustomFieldInformation 
-            { 
-                LogFieldName = 'ClientEncoding' 
-                SourceName   = 'Accept-Encoding' 
-                SourceType   = 'RequestHeader' 
-            } 
-		)
+        LogCustomFields  = @(
+            MSFT_xLogCustomFieldInformation
+            {
+                LogFieldName = 'ClientEncoding'
+                SourceName   = 'Accept-Encoding'
+                SourceType   = 'RequestHeader'
+            }
+    )
     }
 }
 
@@ -31,13 +31,13 @@ configuration MSFT_xIisLogging_Truncate
         LoglocalTimeRollover = $true
         LogTruncateSize = '2097152'
         LogFormat = 'W3C'
-        LogCustomFields    = @( 
-            MSFT_xLogCustomFieldInformation 
-            { 
-                LogFieldName = 'ClientEncoding' 
-                SourceName   = 'Accept-Encoding' 
-                SourceType   = 'RequestHeader' 
-            } 
-        ) 
+        LogCustomFields    = @(
+            MSFT_xLogCustomFieldInformation
+            {
+                LogFieldName = 'ClientEncoding'
+                SourceName   = 'Accept-Encoding'
+                SourceType   = 'RequestHeader'
+            }
+        )
     }
 }

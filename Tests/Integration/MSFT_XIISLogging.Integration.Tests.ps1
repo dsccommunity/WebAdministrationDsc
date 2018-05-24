@@ -15,7 +15,7 @@ Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
-    -TestType Integration 
+    -TestType Integration
 
 #endregion
 
@@ -46,21 +46,21 @@ try {
 
             Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestDrive"
             Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            
+
             $currentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
-               
+
             $currentLogSettings.directory | Should Be 'C:\IISLogFiles'
             $currentLogSettings.logExtFileFlags | Should Be 'Date,Time,ClientIP,UserName,ServerIP'
             $currentLogSettings.logformat | Should Be 'W3C'
             $currentLogSettings.period | Should Be 'Hourly'
             $currentLogSettings.localTimeRollover | Should Be 'True'
             $currentLogSettings.logformat | Should be 'W3C'
-            $currentLogSettings.LogCustomFields.LogFieldName | Should Be 'ClientEncoding' 
-            $currentLogSettings.LogCustomFields.SourceName | Should Be 'Accept-Encoding'
-            $currentLogSettings.LogCustomFields.SourceType | Should Be 'RequestHeader' 
+            $currentLogSettings.LogCustomFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
+            $currentLogSettings.LogCustomFields.Collection[0].SourceName | Should Be 'Accept-Encoding'
+            $currentLogSettings.LogCustomFields.Collection[0].SourceType | Should Be 'RequestHeader'
         }
-    }    
-    
+    }
+
     Describe "$($script:DSCResourceName)_Truncate" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
@@ -78,18 +78,18 @@ try {
 
             Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestDrive"
             Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            
+
             $currentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
-               
+
             $currentLogSettings.directory | Should Be 'C:\IISLogFiles'
             $currentLogSettings.logExtFileFlags | Should Be 'Date,Time,ClientIP,UserName,ServerIP'
             $currentLogSettings.logformat | Should Be 'W3C'
             $currentLogSettings.TruncateSize | Should Be '2097152'
             $currentLogSettings.localTimeRollover | Should Be 'True'
-            $currentLogSettings.logformat | Should be 'W3C'    
-            $currentLogSettings.LogCustomFields.LogFieldName | Should Be 'ClientEncoding' 
-            $currentLogSettings.LogCustomFields.SourceName | Should Be 'Accept-Encoding'
-            $currentLogSettings.LogCustomFields.SourceType | Should Be 'RequestHeader' 
+            $currentLogSettings.logformat | Should be 'W3C'
+            $currentLogSettings.LogCustomFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
+            $currentLogSettings.LogCustomFields.Collection[0].SourceName | Should Be 'Accept-Encoding'
+            $currentLogSettings.LogCustomFields.Collection[0].SourceType | Should Be 'RequestHeader'
         }
     }
 }
