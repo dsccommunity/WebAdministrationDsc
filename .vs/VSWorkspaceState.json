@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\DSCResources",
+    "\\DSCResources\\MSFT_xIisLogging",
+    "\\Tests",
+    "\\Tests\\Unit"
+  ],
+  "SelectedNode": "\\DSCResources\\MSFT_xIisLogging\\MSFT_xIisLogging.psm1",
+  "PreviewInSolutionExplorer": false
+}
