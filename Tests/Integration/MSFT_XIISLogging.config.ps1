@@ -10,7 +10,7 @@ configuration MSFT_xIisLogging_Rollover
         LogPeriod = 'Hourly'
         LogFormat = 'W3C'
         LogCustomFields  = @(
-            MSFT_xLogCustomFieldInformation
+            [MSFT_xLogCustomFieldInformation]
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
@@ -32,7 +32,7 @@ configuration MSFT_xIisLogging_Truncate
         LogTruncateSize = '2097152'
         LogFormat = 'W3C'
         LogCustomFields    = @(
-            MSFT_xLogCustomFieldInformation
+            [MSFT_xLogCustomFieldInformation]
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'

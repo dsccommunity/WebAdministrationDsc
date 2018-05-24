@@ -55,9 +55,9 @@ try {
             $currentLogSettings.period | Should Be 'Hourly'
             $currentLogSettings.localTimeRollover | Should Be 'True'
             $currentLogSettings.logformat | Should be 'W3C'
-            $currentLogSettings.LogCustomFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
-            $currentLogSettings.LogCustomFields.Collection[0].SourceName | Should Be 'Accept-Encoding'
-            $currentLogSettings.LogCustomFields.Collection[0].SourceType | Should Be 'RequestHeader'
+            $currentLogSettings.LogCustomFields.LogFieldName | Should Be 'ClientEncoding'
+            $currentLogSettings.LogCustomFields.SourceName | Should Be 'Accept-Encoding'
+            $currentLogSettings.LogCustomFields.SourceType | Should Be 'RequestHeader'
         }
     }
 
@@ -87,9 +87,9 @@ try {
             $currentLogSettings.TruncateSize | Should Be '2097152'
             $currentLogSettings.localTimeRollover | Should Be 'True'
             $currentLogSettings.logformat | Should be 'W3C'
-            $currentLogSettings.LogCustomFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
-            $currentLogSettings.LogCustomFields.Collection[0].SourceName | Should Be 'Accept-Encoding'
-            $currentLogSettings.LogCustomFields.Collection[0].SourceType | Should Be 'RequestHeader'
+            $currentLogSettings.LogCustomFields.LogFieldName | Should Be 'ClientEncoding'
+            $currentLogSettings.LogCustomFields.SourceName | Should Be 'Accept-Encoding'
+            $currentLogSettings.LogCustomFields.SourceType | Should Be 'RequestHeader'
         }
     }
 }
