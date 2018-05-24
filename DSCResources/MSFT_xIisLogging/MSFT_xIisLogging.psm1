@@ -57,7 +57,7 @@ function Get-TargetResource
             LogTruncateSize      = $currentLogSettings.truncateSize
             LoglocalTimeRollover = $currentLogSettings.localTimeRollover
             LogFormat            = $currentLogSettings.logFormat
-    	LogCustomFields      = $cimLogCustomFields
+         LogCustomFields      = $cimLogCustomFields
         }
 }
 
@@ -192,13 +192,13 @@ function Set-TargetResource
                 -Value $LoglocalTimeRollover
         }
 
-	    # Update LogCustomFields if neeed
+         # Update LogCustomFields if neeed
     if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
-    	(-not (Test-LogCustomField -LogCustomField $LogCustomFields)))
+         (-not (Test-LogCustomField -LogCustomField $LogCustomFields)))
     {
-    	Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields)
+         Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields)
 
-    	Set-LogCustomField -LogCustomField $LogCustomFields
+         Set-LogCustomField -LogCustomField $LogCustomFields
     }
 }
 
@@ -337,12 +337,12 @@ function Test-TargetResource
             return $false
         }
 
-	    # Check LogCustomFields if neeed
+         # Check LogCustomFields if neeed
     if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
-    	(-not (Test-LogCustomField -LogCustomFields $LogCustomFields)))
+         (-not (Test-LogCustomField -LogCustomFields $LogCustomFields)))
     {
-    	Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields)
-    	return $false
+         Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields)
+         return $false
     }
 
         return $true
@@ -386,20 +386,20 @@ function Compare-LogFlags
 
 }
 <#
-	.SYNOPSIS
-	Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+     .SYNOPSIS
+     Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
 #>
 function ConvertTo-CimLogCustomFields
 {
     [CmdletBinding()]
-	[OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-	param
-	(
+     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
+     param
+     (
         [Parameter(Mandatory = $true)]
         [AllowEmptyCollection()]
         [AllowNull()]
         [Object[]] $InputObject
-	)
+     )
 
     $cimClassName = 'MSFT_xLogCustomFieldInformation'
     $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
@@ -446,20 +446,20 @@ function Set-LogCustomField
 
     $setCustomFields = @()
 
-	foreach ($customField in $LogCustomField)
+     foreach ($customField in $LogCustomField)
     {
     $setCustomFields += @{
-    	logFieldName = $customField.LogFieldName
-    	sourceName = $customField.SourceName
-    	sourceType = $customField.SourceType
+         logFieldName = $customField.LogFieldName
+         sourceName = $customField.SourceName
+         sourceType = $customField.SourceType
     }
-	}
+     }
 
     # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
-	for ($i = 1; $i -le 1; $i++)
-	{
+     for ($i = 1; $i -le 1; $i++)
+     {
     Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/Sites/SiteDefaults/logFile/customFields" -Name "." -Value $setCustomFields
-	}
+     }
 }
 
 <#

@@ -159,7 +159,7 @@ try
                     -MockWith { return $MockLogOutput.logExtFileFlags }
 
         Mock -CommandName Test-LogCustomField `
-        	-MockWith { return $MockLogCustomFields }
+             -MockWith { return $MockLogCustomFields }
 
 
                 $result = Test-TargetResource @MockLogParameters
@@ -392,7 +392,7 @@ try
 
             }
 
-    	Context 'Check LogCustomFields is equal' {
+         Context 'Check LogCustomFields is equal' {
                 #region Mocks for Test-TargetResource
                 Mock -CommandName Test-Path -MockWith { return $true }
                 Mock -CommandName Get-TargetResource -MockWith { return $MockLogParameters }
@@ -408,7 +408,7 @@ try
                 }
             }
 
-    	Context 'Check LogCustomFields is different' {
+         Context 'Check LogCustomFields is different' {
                 $MockDifferentLogCustomFields = @{
                     LogFieldName = 'DifferentField'
                     SourceName   = 'Accept-Encoding'

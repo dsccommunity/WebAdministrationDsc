@@ -16,7 +16,7 @@ configuration MSFT_xIisLogging_Rollover
                 SourceName   = 'Accept-Encoding' 
                 SourceType   = 'RequestHeader' 
             } 
-		)
+          )
     }
 }
 
