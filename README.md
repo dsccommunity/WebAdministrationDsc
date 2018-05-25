@@ -224,7 +224,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### xWebConfigProperty
 
-Ensures the value of an identified property in the web.config file. 
+Ensures the value of an identified property in the web.config file.
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **Filter**: Filter used to locate property to update.
@@ -282,6 +282,7 @@ Ensures the value of an identified property collection item's property in the we
 
 ### Unreleased
 
+* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
 * Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
   (issue #302 and issue #314).
 * Add Codecov support.
@@ -292,8 +293,6 @@ Ensures the value of an identified property collection item's property in the we
   helper function `Install-NewSelfSignedCertificateExScript`.
 * Fix unit tests for xWebSite that failed because `Get-Command` and 'Stop-WebStie`
   wasn't properly mocked.
-
-* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
 
 ### 1.19.0.0
 
