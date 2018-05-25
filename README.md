@@ -283,6 +283,12 @@ Ensures the value of an identified property collection item's property in the we
 ### Unreleased
 
 * Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
+* Changes to xWebAdministration
+  * Moved file Codecov.yml that was added to the wrong path in previous release.
+* Updated **xWebSite** to include ability to manage custom logging fields
+
+### 1.20.0.0
+
 * Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
   (issue #302 and issue #314).
 * Add Codecov support.
