@@ -49,6 +49,7 @@ data LocalizedData
         VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
+        VerboseSetTargetUpdateLogCustomFields = LogCustomFields is not in the desired state and will be updated on Website "{0}"
         VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
         VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
         VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
@@ -69,6 +70,7 @@ data LocalizedData
         VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
         VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogCustomFields = LogCustomFields does not match desired state on Website "{0}".
         VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
         VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
         VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
@@ -130,6 +132,8 @@ function Get-TargetResource
         $webConfiguration = $websiteAutoStartProviders | `
                                 Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | `
                                 Select-Object Name,Type
+        
+        $cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
     }
     # Multiple websites with the same name exist. This is not supported and is an error
     else
@@ -161,6 +165,7 @@ function Get-TargetResource
         LogtruncateSize          = $website.logfile.truncateSize
         LoglocalTimeRollover     = $website.logfile.localTimeRollover
         LogFormat                = $website.logfile.logFormat
+        LogCustomFields          = $cimLogCustomFields
     }
 }
 
@@ -244,7 +249,10 @@ function Set-TargetResource
 
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
-        $LogFormat
+        $LogFormat,
+
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomFields
     )
 
     Assert-Module
@@ -491,7 +499,7 @@ function Set-TargetResource
                     -Name LogFile.period -Value 'MaxSize'
             }
 
-            # Update LoglocalTimeRollover if neeed
+            # Update LoglocalTimeRollover if needed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
                 ($LoglocalTimeRollover -ne `
                  ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
@@ -501,7 +509,6 @@ function Set-TargetResource
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }
-
         }
         # Create website if it does not exist
         else
@@ -740,7 +747,7 @@ function Set-TargetResource
                     -Name LogFile.period -Value 'MaxSize'
             }
 
-            # Update LoglocalTimeRollover if neeed
+            # Update LoglocalTimeRollover if needed
             if ($PSBoundParameters.ContainsKey('LoglocalTimeRollover') -and `
                 ($LoglocalTimeRollover -ne `
                  ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
@@ -750,6 +757,15 @@ function Set-TargetResource
                 Set-ItemProperty -Path "IIS:\Sites\$Name" `
                     -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
             }
+        }
+
+        # Update LogCustomFields if needed
+        if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
+        (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields `
+                                    -f $Name)
+            Set-LogCustomField -Site $Name -LogCustomField $LogCustomFields
         }
     }
     # Remove website
@@ -850,7 +866,10 @@ function Test-TargetResource
 
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
-        $LogFormat
+        $LogFormat,
+
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomFields
     )
 
     Assert-Module
@@ -1055,6 +1074,15 @@ function Test-TargetResource
             ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover `
+                                    -f $Name)
+            return $false
+        }
+
+        # Check LogCustomFields if needed
+        if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
+            (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields `
                                     -f $Name)
             return $false
         }
@@ -1588,6 +1616,44 @@ function ConvertTo-WebBinding
 }
 
 <#
+        .SYNOPSIS
+        Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+#>
+function ConvertTo-CimLogCustomFields
+{
+    [CmdletBinding()]
+    [OutputType([Microsoft.Management.Infrastructure.CimInstance[]])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [Object[]]
+        $InputObject
+    )
+    
+    $cimClassName = 'MSFT_xLogCustomFieldInformation'
+    $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
+    $cimCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection`1[Microsoft.Management.Infrastructure.CimInstance]'
+    
+    foreach ($customField in $InputObject)
+    {
+        $cimProperties = @{
+            LogFieldName = $customField.LogFieldName
+            SourceName   = $customField.SourceName
+            SourceType   = $customField.SourceType
+        }
+
+        $cimCollection += (New-CimInstance -ClassName $cimClassName `
+                        -Namespace $cimNamespace `
+                        -Property $cimProperties `
+                        -ClientOnly)
+    }
+
+    return $cimCollection
+}
+
+<#
         .SYNOPSYS
         Formats the input IP address string for use in the bindingInformation attribute.
 #>
@@ -1744,6 +1810,48 @@ function Set-AuthenticationInfo
     {
         $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
         Set-Authentication -Site $Site -Type $type -Enabled $enabled
+    }
+}
+
+<#
+        .SYNOPSIS
+        Helper function used to set the LogCustomField for a website.
+
+        .PARAMETER Site
+        Specifies the name of the Website.
+
+        .PARAMETER LogCustomField
+        A CimInstance collection of what the LogCustomField should be.
+#>
+function Set-LogCustomField
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Site,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomField
+    )
+
+    $setCustomFields = @()
+    foreach ($customField in $LogCustomField)
+    {
+        $setCustomFields += @{
+            logFieldName = $customField.LogFieldName
+            sourceName = $customField.SourceName
+            sourceType = $customField.SourceType
+        }
+    }
+
+    # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
+    for ($i = 1; $i -le 2; $i++)
+    { 
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
     }
 }
 
@@ -2004,6 +2112,57 @@ function Test-WebsiteBinding
 
 <#
         .SYNOPSIS
+        Helper function used to test the LogCustomField state for a website.
+
+        .PARAMETER Site
+        Specifies the name of the Website.
+
+        .PARAMETER LogCustomField
+        A CimInstance collection of what state the LogCustomField should be.
+#>
+function Test-LogCustomField
+{
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Site,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomField
+    )
+
+    $inDesiredSate = $true
+
+    foreach ($customField in $LogCustomField)
+    {
+        $filterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields/add[@logFieldName='{1}']" -f $Site, $customField.LogFieldName
+        $presentCustomField = Get-WebConfigurationProperty -Filter $filterString -Name "."
+
+        if ($presentCustomField)
+        {
+            $sourceNameMatch = $customField.SourceName -eq $presentCustomField.SourceName
+            $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
+            if (-not ($sourceNameMatch -and $sourceTypeMatch))
+            {
+                $inDesiredSate = $false
+            }
+        }
+        else
+        {
+            $inDesiredSate = $false
+        }
+    }
+
+    return $inDesiredSate
+}
+
+<#
+        .SYNOPSIS
         Helper function used to update default pages of website.
 #>
 function Update-DefaultPage
@@ -2143,5 +2302,3 @@ function Update-WebsiteBinding
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
-
-
