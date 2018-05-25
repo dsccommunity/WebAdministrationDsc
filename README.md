@@ -238,7 +238,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### xIisFeatureDelegation
 
-* **SectionName**: Relative path of the section to delegate such as **security/authentication**
+* **Filter**: Specifies the IIS configuration section to lock or unlock in this format: **/system.webserver/security/authentication/anonymousAuthentication**
+* **Path**: Specifies the configuration path. This can be either an IIS configuration path in the format computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 * **OverrideMode**: Mode of that section { **Allow** | **Deny** }
 
 ### xIisMimeTypeMapping
@@ -273,6 +274,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * Updated **xIISLogging** to include ability to manage custom logging fields
   ([issue #267](https://github.com/PowerShell/xWebAdministration/issues/267)).
   [@ldillonel](https://github.com/ldillonel)
+* Updated **xWebSite** to include ability to manage custom logging fields
+* Breaking Change: Updated **xIisFeatureDelegation** to be able to manage any configuration section
 
 ### 1.20.0.0
 

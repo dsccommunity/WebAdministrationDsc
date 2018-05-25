@@ -6,97 +6,143 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
+        GetOverrideMode           = Getting override mode for '{0}'.
         NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
         UnableToGetConfig         = Unable to get configuration data for '{0}'.
-        ChangedMessage            = Changed overrideMode for '{0}' to '{1}'.
         VerboseGetTargetResource  = Get-TargetResource has been run.
+        VerboseSetTargetResource  = Changed overrideMode for '{0}' to '{1}'.
 '@
 }
 
+<#
+    .SYNOPSIS
+        This will return a hashtable of results
+
+    .PARAMETER Filter
+        Specifies the IIS configuration section to lock or unlock.
+
+    .PARAMETER Path
+        Specifies the configuration path. This can be either an IIS configuration path in the format
+        computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+    .PARAMETER OverrideMode
+        Determines whether to lock or unlock the specified section.
+#>
 function Get-TargetResource
 {
-    <#
-      .SYNOPSIS
-        This will return a hashtable of results 
-    #>
-    
     [OutputType([Hashtable])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] $SectionName,
+        [String]
+        $Filter,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('Allow', 'Deny')]
-        [String] $OverrideMode
+        [String]
+        $OverrideMode,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Path
     )
 
-    [String] $oMode = Get-OverrideMode -Section $SectionName
+    [String] $currentOverrideMode = Get-OverrideMode -Filter $Filter -Path $Path
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
 
     return @{
-        SectionName  = $SectionName
-        OverrideMode = $oMode
+        Path         = $Path
+        Filter       = $Filter
+        OverrideMode = $OverrideMode
     }
 }
 
+<#
+    .SYNOPSIS
+        This will set the resource to the desired state.
+
+    .PARAMETER Filter
+        Specifies the IIS configuration section to lock or unlock.
+
+    .PARAMETER Path
+        Specifies the configuration path. This can be either an IIS configuration path in the format
+        computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+    .PARAMETER OverrideMode
+        Determines whether to lock or unlock the specified section.
+#>
 function Set-TargetResource
 {
-    <#
-      .SYNOPSIS
-        This will set the desired state
-    #>
-    
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] $SectionName,
+        [String]
+        $Filter,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('Allow', 'Deny')]
-        [String] $OverrideMode
+        [String]
+        $OverrideMode,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Path
     )
 
-     Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName, $OverrideMode)
-     
-     Set-WebConfiguration -Location '' `
-                         -Filter "/system.webServer/$SectionName" `
-                         -PSPath 'machine/webroot/apphost' `
-                         -Metadata 'overrideMode' `
-                         -Value $OverrideMode
+     Write-Verbose -Message ( $($LocalizedData.VerboseSetTargetResource) -f $Filter, $OverrideMode )
+
+     Set-WebConfiguration -Filter $Filter -PsPath $PsPath -Metadata 'overrideMode' -Value $OverrideMode
 }
 
+<#
+    .SYNOPSIS
+        This will return whether the resource is in desired state.
+
+    .PARAMETER Filter
+        Specifies the IIS configuration section to lock or unlock.
+
+    .PARAMETER OverrideMode
+        Determines whether to lock or unlock the specified section.
+
+    .PARAMETER Path
+        Specifies the configuration path. This can be either an IIS configuration path in the format
+        computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+#>
 function Test-TargetResource
 {
-    <#
-      .SYNOPSIS
-        This tests the desired state. If the state is not correct it will return $false.
-        If the state is correct it will return $true
-    #>
-    
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] $SectionName,
+        [String]
+        $Filter,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('Allow', 'Deny')]
-        [String] $OverrideMode
+        [String]
+        $OverrideMode,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Path
     )
 
-    [String] $oMode = Get-OverrideMode -Section $SectionName
+    [String] $currentOverrideMode = Get-OverrideMode -Filter $Filter -Path $Path
 
-    if ($oMode -eq $OverrideMode)
+    if ($currentOverrideMode -eq $OverrideMode)
     {
         return $true
     }
@@ -105,39 +151,51 @@ function Test-TargetResource
 }
 
 #region Helper functions
+<#
+    .SYNOPSIS
+        This will return the current override mode for the specified configsection.
+
+    .PARAMETER Filter
+        Specifies the IIS configuration section.
+
+    .PARAMETER PsPath
+        Specifies the configuration path. This can be either an IIS configuration path in the format
+        computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+#>
 function Get-OverrideMode
 {
-    <#
-            .NOTES
-            Check for a single value.
-            If $oMode is anything but Allow or Deny, we have a problem with our 
-            Get-WebConfiguration call or the ApplicationHost.config file is corrupted.
-    #>
-    
+    [OutputType([System.String])]
     param
     (
-        [String] $Section
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Filter,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Path
     )
 
     Assert-Module
 
-    Write-Verbose -Message 'Getting override mode'
-    
-    $webConfig = Get-WebConfiguration -Location '' `
-                                      -Filter /system.webServer/$Section `
-                                      -Metadata
+    Write-Verbose -Message ( $($LocalizedData.ChangedMessage) -f $Filter )
 
-    $oMode = $webConfig.Metadata.effectiveOverrideMode
+    $webConfig = Get-WebConfiguration -PsPath $Path -Filter $Filter -Metadata
 
-    if ($oMode -notmatch "^(Allow|Deny)$")
+    $currentOverrideMode = $webConfig.Metadata.effectiveOverrideMode
+
+    if ($currentOverrideMode -notmatch "^(Allow|Deny)$")
     {
-        $errorMessage = $($LocalizedData.UnableToGetConfig) -f $Section
+        $errorMessage = $($LocalizedData.UnableToGetConfig) -f $Filter
         New-TerminatingError -ErrorId UnableToGetConfig `
                              -ErrorMessage $errorMessage `
                              -ErrorCategory:InvalidResult
     }
 
-    return $oMode
+    return $currentOverrideMode
 }
 
 

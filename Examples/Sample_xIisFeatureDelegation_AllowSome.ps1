@@ -2,12 +2,14 @@ configuration Sample_IISFeatureDelegation
 {
     param
     (
-        # Target nodes to apply the configuration
-        [string[]] $NodeName = 'localhost'
+        [Parameter()]
+        [string[]]
+        $NodeName = 'localhost'
     )
 
     # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
+    Import-DscResource -Module xWebAdministration
+    Import-DscResource -Module PSDesiredStateConfiguration
 
     Node $NodeName
     {
@@ -21,19 +23,23 @@ configuration Sample_IISFeatureDelegation
         # Allow Write access to some section that normally don't have it.
         xIisFeatureDelegation serverRuntime
         {
-            SectionName  = 'serverRuntime'
+            Filter       = '/system.webserver/serverRuntime'
             OverrideMode = 'Allow'
-        }
-        xIisFeatureDelegation anonymousAuthentication
-        {
-            SectionName  = 'security/authentication/anonymousAuthentication'
-            OverrideMode = 'Allow'
+            Path         = 'MACHINE/WEBROOT/APPHOST'
         }
 
-        xIisFeatureDelegation ipSecurity
+        xIisFeatureDelegation anonymousAuthentication
         {
-            SectionName  = 'security/ipSecurity'
+            Filter       = '/system.webserver/security/authentication/anonymousAuthentication'
             OverrideMode = 'Allow'
+            Path         = 'MACHINE/WEBROOT/APPHOST'
+        }
+
+        xIisFeatureDelegation sessionState
+        {
+            Filter       = '/system.web/sessionState'
+            OverrideMode = 'Allow'
+            Path         = 'MACHINE/WEBROOT/APPHOST'
         }
     }
 }
