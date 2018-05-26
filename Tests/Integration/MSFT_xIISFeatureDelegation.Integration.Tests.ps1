@@ -104,8 +104,6 @@ try
 
             It 'Should Deny Feature Delegation' {
                 { Add-WebConfigurationProperty @testAddWebConfigurationProperty } | Should Throw
-
-                { Remove-WebConfigurationProperty @testRemoveWebConfigurationProperty } | Should Throw
             }
         }
     #endregion
