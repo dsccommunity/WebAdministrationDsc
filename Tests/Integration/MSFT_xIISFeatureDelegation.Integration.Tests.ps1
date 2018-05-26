@@ -76,15 +76,12 @@ try
             }
 
             $siteName = (Get-ChildItem -Path iis:\sites | Select-Object -First 1).Name
-            $testValue = @{Value = 'pesterpage.cgi'}
             $testAddWebConfigurationProperty = @{
                 PSPath = "MACHINE/WEBROOT/APPHOST/$siteName"
                 Filter = 'system.webServer/defaultDocument/files'
-                Name = '.'
+                Name   = '.'
+                Value  = 'pesterpage.cgi'
             }
-            $testRemoveWebConfigurationProperty = $testAddWebConfigurationProperty.Clone()
-            $testRemoveWebConfigurationProperty.Add('AtElement', $testValue)
-            $testAddWebConfigurationProperty.Add('Value', $testValue)
 
             It 'Should compile and apply the MOF without throwing' {
                 {
