@@ -197,8 +197,6 @@ function Get-OverrideMode
 
     return $currentOverrideMode
 }
-
-
 #endregion
 
 Export-ModuleMember -function *-TargetResource
