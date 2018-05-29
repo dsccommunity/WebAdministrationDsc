@@ -81,7 +81,6 @@ $ConfigurationData = @{
             ResourceType         = 'Unspecified'
             AllowPathInfo        = $false
             ResponseBufferLimit  = 0
-            PhysicalPath         = "C:\Temp"
             Type                 = $null
             PreCondition         = $null
         }

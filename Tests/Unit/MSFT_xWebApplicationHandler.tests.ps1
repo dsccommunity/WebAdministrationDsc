@@ -26,9 +26,7 @@ try
     InModuleScope $DSCResourceName {
 
         $customWebHandlerParameters = @{
-            NodeName             = 'LocalHost'
             PSPath               = 'MACHINE/WEBROOT/APPHOST'
-            Location             = 'Webtest'
             Name                 = 'ATest-WebHandler'
             Path                 = '*'
             Verb                 = '*'
@@ -38,7 +36,6 @@ try
             ResourceType         = 'Unspecified'
             AllowPathInfo        = $false
             ResponseBufferLimit  = 0
-            PhysicalPath         = "C:\Temp"
             Type                 = $null
             PreCondition         = $null
         }
