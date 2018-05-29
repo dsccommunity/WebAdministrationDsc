@@ -5,7 +5,7 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Import Localization Strings
 $localizedData = Get-LocalizedData `
-    -ResourceName 'MN_CustomWebHandler' `
+    -ResourceName 'MSFT_xWebApplicationHandler' `
     -ResourcePath (Split-Path -Parent $Script:MyInvocation.MyCommand.Path)
 
 <#
@@ -19,7 +19,7 @@ $localizedData = Get-LocalizedData `
         Specifies an IIS configuration path.
 
 #>
-function Get-TargetResource 
+function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
@@ -37,7 +37,7 @@ function Get-TargetResource
     $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
 
     $webHandler = Get-WebConfigurationProperty -PSPath $PSPath -Filter $filter -Name '.'
-    
+
     $returnValue = @{
         Name                = $webhandler.Name
         Path                = $webHandler.Path
@@ -53,12 +53,12 @@ function Get-TargetResource
         PSPath              = $PSPath
     }
 
-    if (! [string]::IsNullOrEmpty($webHandler.Name)) 
+    if (! [string]::IsNullOrEmpty($webHandler.Name))
     {
         Write-Verbose -Message ($localizedData.VerboseGetTargetPresent -f $Name)
         $returnValue.Add('Ensure', 'Present')
     }
-    else 
+    else
     {
         Write-Verbose -Message ($localizedData.VerboseGetTargetAbsent -f $Name)
         $returnValue.Add('Ensure', 'Absent')
@@ -79,10 +79,10 @@ function Get-TargetResource
 
     .PARAMETER Path
         Specifies the physical path to the handler. This parameter applies to native modules only.
-    
+
     .PARAMETER Verb
         Specifies the HTTP verbs that are handled by the new handler.
-    
+
     .PARAMETER PSPath
         Specifies an IIS configuration path.
 
@@ -106,10 +106,10 @@ function Get-TargetResource
         Specifies the type of resource to which the handler mapping applies.
 
     .PARAMETER AllowPathInfo
-        Specifies whether the handler processes full path information in a URI, 
-        such as contoso/marketing/imageGallery.aspx. If the value is true, the 
-        handler processes the full path, contoso/marketing/imageGallery. 
-        If the value is false, the handler processes only the last section of 
+        Specifies whether the handler processes full path information in a URI,
+        such as contoso/marketing/imageGallery.aspx. If the value is true, the
+        handler processes the full path, contoso/marketing/imageGallery.
+        If the value is false, the handler processes only the last section of
         the path, /imageGallery.
 
     .PARAMETER ResponseBufferLimit
@@ -128,14 +128,14 @@ function Set-TargetResource
         [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure = 'Present',
-        
+
         [Parameter()]
         [System.String]
         $Path,
 
         [Parameter()]
         [System.String]
-        $Verb,       
+        $Verb,
 
         [Parameter(Mandatory = $true)]
         [System.String[]]
@@ -216,10 +216,10 @@ function Set-TargetResource
 
     .PARAMETER Path
         Specifies the physical path to the handler. This parameter applies to native modules only.
-    
+
     .PARAMETER Verb
         Specifies the HTTP verbs that are handled by the new handler.
-    
+
     .PARAMETER PSPath
         Specifies an IIS configuration path.
 
@@ -243,10 +243,10 @@ function Set-TargetResource
         Specifies the type of resource to which the handler mapping applies.
 
     .PARAMETER AllowPathInfo
-        Specifies whether the handler processes full path information in a URI, 
-        such as contoso/marketing/imageGallery.aspx. If the value is true, the 
-        handler processes the full path, contoso/marketing/imageGallery. 
-        If the value is false, the handler processes only the last section of 
+        Specifies whether the handler processes full path information in a URI,
+        such as contoso/marketing/imageGallery.aspx. If the value is true, the
+        handler processes the full path, contoso/marketing/imageGallery.
+        If the value is false, the handler processes only the last section of
         the path, /imageGallery.
 
     .PARAMETER ResponseBufferLimit
@@ -266,14 +266,14 @@ function Test-TargetResource
         [ValidateSet("Present", "Absent")]
         [System.String]
         $Ensure = 'Present',
-        
+
         [Parameter()]
         [System.String]
         $Path,
 
         [Parameter()]
         [System.String]
-        $Verb,       
+        $Verb,
 
         [Parameter(Mandatory = $true)]
         [System.String[]]
@@ -299,7 +299,7 @@ function Test-TargetResource
         [ValidateSet("None", "Read", "Write", "Script", "Execute")]
         [System.String]
         $RequireAccess,
-        
+
         [Parameter()]
         [System.String[]]
         $ResourceType,

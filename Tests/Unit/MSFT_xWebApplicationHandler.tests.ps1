@@ -30,7 +30,7 @@ try
             PSPath               = 'MACHINE/WEBROOT/APPHOST'
             Location             = 'Webtest'
             Name                 = 'ATest-WebHandler'
-            Path                 = '*'     
+            Path                 = '*'
             Verb                 = '*'
             Modules              = 'IsapiModule'
             RequireAccess        = 'None'
@@ -56,7 +56,7 @@ try
             ResponseBufferLimit = $customWebHandlerParameters.ResponseBufferLimit
             Type                = $customWebHandlerParameters.Type
             PreCondition        = $customWebHandlerParameters.PreCondition
-        }       
+        }
 
         $GetTargetRequiredParams = @{
             Name     = $customWebHandlerParameters.Name
@@ -66,14 +66,14 @@ try
         $customWebHandlerAbsentParameters = $customWebHandlerParameters.clone()
         $customWebHandlerAbsentParameters.Ensure = 'Absent'
 
-        Describe 'MN_CustomWebHandler/Get-TargetResource' {
-        
+        Describe 'MSFT_xWebApplicationHandler/Get-TargetResource' {
+
             Context 'Web handler is Absent' {
-            
+
                 Mock Get-WebConfigurationProperty
-            
+
                 It 'should return Absent web handler' {
-                
+
                     $result = Get-TargetResource @GetTargetRequiredParams
 
                     $result.Ensure              | Should be 'Absent'
@@ -95,7 +95,7 @@ try
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
                 It 'should return existing web handler' {
-                
+
                     $result = Get-TargetResource @GetTargetRequiredParams
 
                     $result.Ensure              | Should be 'Present'
@@ -113,16 +113,16 @@ try
             }
         }
 
-        Describe 'MN_CustomWebHandler/Set-TargetResource' {
+        Describe 'MSFT_xWebApplicationHandler/Set-TargetResource' {
 
             Mock Set-WebConfigurationProperty
             Mock Remove-WebHandler
             Mock Add-WebConfigurationProperty
-        
+
             Context 'Ensure = Present and Web handler is Present' {
 
                 It 'should not throw error' {
-                    
+
                     Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
                     {Set-TargetResource @customWebHandlerParameters} | Should not throw
@@ -152,7 +152,7 @@ try
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 0
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
                     Assert-MockCalled -CommandName Remove-WebHandler -Exactly 0
-        
+
                 }
             }
 
@@ -175,10 +175,10 @@ try
             }
         }
 
-        Describe 'MN_CustomWebHandler/Test-TargetResource' {
+        Describe 'MSFT_xWebApplicationHandler/Test-TargetResource' {
 
             Context 'Web Handler is Present' {
-        
+
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
                 It 'should return true when Ensure = Present' {
@@ -192,7 +192,7 @@ try
                 }
             }
 
-            Context 'Web Handler is Present but non-compliant' {            
+            Context 'Web Handler is Present but non-compliant' {
 
                 It 'should return false if Name is non-compliant' {
 
@@ -304,9 +304,9 @@ try
                     Test-TargetResource @customWebHandlerParameters | Should be $false
                 }
             }
-            
+
             Context 'Web Handler is Absent' {
-        
+
                 Mock Get-WebConfigurationProperty
 
                 It 'should return true when Ensure = Absent' {
