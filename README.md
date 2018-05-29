@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty** and **xWebConfigPropertyCollection** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue** and **xWebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -292,24 +292,32 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **DefaultApplicationPool**: Name of the default application pool used by websites.
 * **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
+#### xWebApplicationHandler
+
+* **[String] Name** _(Key)_: Specifies the name of the new request handler
+* **[String] Path** _(Required)_: Specifies the physical path to the handler. This parameter applies to native modules only
+* **[String] Verb** _(Required)_: Specifies the HTTP verbs that are handled by the new handler
+* **[String] Modules** _(Write)_: Specifies the modules used for the handler
+* **[String[]] PSPath** _(Write)_: Specifies an IIS configuration path
+* **[String] PreCondition** _(Write)_: Specifies preconditions for the new handler
+* **[String] RequiredAccess** _(Write)_: Specifies the user rights that are required for the new handler
+* **[String] ScriptProcessor** _(Write)_: Specifies the script processor that runs for the module
+* **[String] Type** _(Write)_: Specifies the managed type of the new module. This parameter applies to managed modules only
+* **[String] ResourceType** _(Write)_: Specifies the resource type this handler runs. See [ResourceType](https://docs.microsoft.com/en-us/iis/configuration/system.webserver/handlers/add)
+* **[Boolean] AllowPathInfo** _(Write)_: Specifies whether the handler processes full  path information in a URI,
+such as contoso/marketing/imageGallery.aspx. If the value is true, the
+handler processes the full path, contoso/marketing/imageGallery.
+If the value is false, the handler processes only the last section of
+the path, /imageGallery.
+* **[Int] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs
+
 ## Versions
 
 ### Unreleased
 
-* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
-* Fixed Get-DscConfiguration throw in xWebSite; addresses [#372](https://github.com/PowerShell/xWebAdministration/issues/372). [Reggie Gibson (@regedit32)](https://github.com/regedit32)
-
-### 2.0.0.0
-* Changes to xWebAdministration
-  * Moved file Codecov.yml that was added to the wrong path in previous release.
-* Updated **xWebSite** to include ability to manage custom logging fields.
-  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
-* Updated **xIISLogging** to include ability to manage custom logging fields
-  ([issue #267](https://github.com/PowerShell/xWebAdministration/issues/267)).
-  [@ldillonel](https://github.com/ldillonel)
-* BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
-  configuration section.
-  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+* Added **xWebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes #337
+* Added **xWebApplicationHandler** integration tests
+* Added **xWebApplicationHandler** unit tests
 
 ### 1.20.0.0
 
@@ -1084,6 +1092,24 @@ configuration Sample_EndToEndxWebAdministration
             IsAttribute = $false
             WebsitePath = "IIS:\sites\" + $Node.WebsiteName
             DependsOn = @("[File]CreateWebConfig")
+        }
+
+        #Add a webApplicationHandler
+        xWebApplicationHandler  WebHandlerTest
+        {
+            PSPath               = $Node.PSPath
+            Name                 = 'ATest-WebHandler'
+            Path                 = '*'
+            Verb                 = '*'
+            Modules              = 'IsapiModule'
+            RequireAccess        = 'None'
+            ScriptProcessor      = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            ResourceType         = 'Unspecified'
+            AllowPathInfo        = $false
+            ResponseBufferLimit  = 0
+            PhysicalPath         = $Node.PhysicalPathWebApplication
+            Type                 = $null
+            PreCondition         = $null
         }
     }
 }

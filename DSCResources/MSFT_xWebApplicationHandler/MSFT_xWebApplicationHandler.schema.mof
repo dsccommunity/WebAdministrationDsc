@@ -1,0 +1,17 @@
+[ClassVersion("1.0.0.0"), FriendlyName("xWebApplicationHandler")]
+class MSFT_xWebApplicationHandler : OMI_BaseResource
+{
+    [Key, Description("Specifies the name of the new request handler")] String Name;
+    [Write, Description("Specifies where the handler should exist on the system"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Write, Description("Specifies the physical path to the handler. This parameter applies to native modules only")] String Path;
+    [Write, Description("Specifies the HTTP verbs that are handled by the new handler")] String Verb;
+    [Required, Write, Description("Specifies an IIS configuration path")] String PSPath[];
+    [Write, Description("Specifies the managed type of the new module. This parameter applies to managed modules only")] String Type;
+    [Write, Description("Specifies the modules used for the handler")] String Modules;
+    [Write, Description("Specifies the script processor that runs for the module")] String ScriptProcessor;
+    [Write, Description("Specifies preconditions for the new handler")] String PreCondition;
+    [Write, Description("Specifies the user rights that are required for the new handler"), ValueMap{"None","Read","Write","Script","Execute",""}, Values{"None","Read","Write","Script","Execute",""}] String RequireAccess;
+    [Write, Description("Specifies the resource type this handler runs")] String ResourceType;
+    [Write, Description("Specifies whether the handler processes full  path information in a URI")] Boolean AllowPathInfo;
+    [Write, Description("Specifies the maximum size, in bytes, of the response buffer for a request handler runs")] String ResponseBufferLimit;
+};
