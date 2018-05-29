@@ -77,7 +77,6 @@ function Get-TargetResource
 #>
 function Set-TargetResource
 {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -97,9 +96,9 @@ function Set-TargetResource
         $Path
     )
 
-     Write-Verbose -Message ( $($LocalizedData.VerboseSetTargetResource) -f $Filter, $OverrideMode )
+     Write-Verbose -Message ( $LocalizedData.VerboseSetTargetResource -f $Filter, $OverrideMode )
 
-     Set-WebConfiguration -Filter $Filter -PsPath $PsPath -Metadata 'overrideMode' -Value $OverrideMode
+     Set-WebConfiguration -Filter $Filter -PsPath $Path -Metadata 'overrideMode' -Value $OverrideMode
 }
 
 <#
@@ -119,7 +118,6 @@ function Set-TargetResource
 #>
 function Test-TargetResource
 {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [OutputType([System.Boolean])]
     param
     (
@@ -158,7 +156,7 @@ function Test-TargetResource
     .PARAMETER Filter
         Specifies the IIS configuration section.
 
-    .PARAMETER PsPath
+    .PARAMETER Path
         Specifies the configuration path. This can be either an IIS configuration path in the format
         computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 
@@ -181,7 +179,7 @@ function Get-OverrideMode
 
     Assert-Module
 
-    Write-Verbose -Message ( $($LocalizedData.ChangedMessage) -f $Filter )
+    Write-Verbose -Message ( $LocalizedData.GetOverrideMode -f $Filter )
 
     $webConfig = Get-WebConfiguration -PsPath $Path -Filter $Filter -Metadata
 

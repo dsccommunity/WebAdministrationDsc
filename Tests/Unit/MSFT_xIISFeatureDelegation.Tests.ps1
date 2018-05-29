@@ -51,8 +51,8 @@ try
 
         #region Function Get-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Get-TargetResource' {
-            Context 'OverrideMode is set to Allow' {
-                Mock Get-WebConfiguration {return $mockAllowOverrideMode}
+            Context 'When OverrideMode is set to Allow' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
                 $result = Get-TargetResource @allowTargetResourceParameters
 
                 It 'Should return the correct properties' {
@@ -61,8 +61,8 @@ try
                     $result.OverrideMode | Should Be $allowTargetResourceParameters.OverrideMode
                 }
             }
-            Context 'OverRideMode is set to Deny' {
-                Mock Get-WebConfiguration {return $mockDenyOverrideMode}
+            Context 'When OverrideMode is set to Deny' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
                 $result = Get-TargetResource @denytargetResourceParameters
 
                 It 'Should return the correct properties' {
@@ -76,28 +76,28 @@ try
 
         #region Function Test-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Test-TargetResource' {
-            Context 'OverrideMode is set to Allow' {
-                Mock Get-WebConfiguration {return $mockAllowOverrideMode}
+            Context 'When OverrideMode is set to Allow' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
                 It 'Should return True when in desired state' {
                     $results = Test-TargetResource @allowTargetResourceParameters
                     $results | Should Be $true
                 }
 
-                Mock Get-WebConfiguration {return $mockDenyOverrideMode}
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
                 It 'Should return False when not in desired state' {
                     $results = Test-TargetResource @allowTargetResourceParameters
                     $results | Should Be $false
                 }
             }
 
-            Context 'OverideMode is set to Deny' {
-                Mock Get-WebConfiguration {return $mockDenyOverrideMode}
+            Context 'When OverrideMode is set to Deny' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
                 It 'Should return True when in desired state' {
                     $results = Test-TargetResource @denyTargetResourceParameters
                     $results | Should Be $true
                 }
 
-                Mock Get-WebConfiguration {return $mockAllowOverrideMode}
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
                 It 'Should return False when not in desired state' {
                     $results = Test-TargetResource @denyTargetResourceParameters
                     $results | Should Be $false
@@ -108,14 +108,14 @@ try
 
         #region Function Set-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Set-TargetResource' {
-            Context 'Resource not in desired state' {
+            Context 'When resource not in desired state' {
 
-                Mock Set-WebConfiguration
+                Mock -CommandName Set-WebConfiguration -ParameterFilter { $Filter -eq $allowTargetResourceParameters.Filter -and $PsPath -eq $allowTargetResourceParameters.Path }
 
                 Set-TargetResource @allowTargetResourceParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled Set-WebConfiguration -Exactly 1
+                    Assert-MockCalled Set-WebConfiguration -Exactly -Times 1
                 }
             }
         }
@@ -133,29 +133,37 @@ try
 
             Mock -CommandName Assert-Module -MockWith {}
 
-            Context 'OverrideMode is invalid' {
+            Context 'When OverrideMode is invalid' {
                 It 'Should throw an error on null' {
-                    Mock Get-WebConfiguration { return $mockWebConfigOutput }
+                    Mock -CommandName Get-WebConfiguration  -MockWith { return $mockWebConfigOutput }
 
                     {Get-OverrideMode @getOverrideModeParameters} | Should Throw ($LocalizedData.UnableToGetConfig -f $getOverrideModeParameters.Filter)
                 }
 
                 It 'Should throw an error on the wrong value' {
                     $mockWebConfigOutput.Metadata.effectiveOverrideMode = 'Wrong'
-                    Mock Get-WebConfiguration { return $mockWebConfigOutput }
+                    Mock -CommandName Get-WebConfiguration  -MockWith { return $mockWebConfigOutput }
 
                     {Get-OverrideMode @getOverrideModeParameters} | Should Throw ($LocalizedData.UnableToGetConfig -f $getOverrideModeParameters.Filter)
                 }
             }
 
-            Context 'OverrideMode is valid' {
-                Mock -CommandName Get-WebConfiguration -MockWith {return $mockAllowOverrideMode}
+            Context 'When OverrideMode is Allow' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
 
                 $overrideMode = Get-OverrideMode @getOverrideModeParameters
                 It 'Should be Allow' {
                     $overrideMode | Should Be 'Allow'
                 }
+            }
 
+            Context 'When OverrideMode is Deny' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
+
+                $overrideMode = Get-OverrideMode @getOverrideModeParameters
+                It 'Should be Deny' {
+                    $overrideMode | Should Be 'Deny'
+                }
             }
         }
     }

@@ -40,6 +40,7 @@ try
 
         Context 'Allow Feature Delegation'{
             $currentOverrideMode = (Get-WebConfiguration -Filter '/system.web/customErrors' -Pspath iis:\ -Metadata).Metadata.effectiveOverrideMode
+            $configurationName = "$($script:DSCResourceName)_AllowDelegation"
             #For this test we want the target section to start at effectiveOverrideMode 'Deny'
             If ( $currentOverrideMode -ne 'Deny')
             {
@@ -48,7 +49,7 @@ try
 
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_AllowDelegation" -OutputPath $TestDrive
+                    & $configurationName -OutputPath $TestDrive
 
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
@@ -59,16 +60,29 @@ try
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
             }
 
-            It 'Should return $True for Test-DscConfiguration' {
-                Test-DscConfiguration | Should be $True
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should be $true
+            }
+
+            It 'Should have set the resource and all the parameters should match' {
+                $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
+                    $_.ConfigurationName -eq $configurationName
+                } | Where-Object -FilterScript {
+                    $_.ResourceId -eq '[xIisFeatureDelegation]AllowDelegation'
+                }
+
+                $resourceCurrentState.Filter       | Should Be '/system.web/customErrors'
+                $resourceCurrentState.OverrideMode | Should Be 'Allow'
+                $resourceCurrentState.Path         | Should Be 'MACHINE/WEBROOT/APPHOST'
             }
         }
 
         Context 'Deny Feature Delegation'{
             $currentOverrideMode = (Get-WebConfiguration -Filter 'system.webServer/defaultDocument' -Pspath 'MACHINE/WEBROOT/APPHOST' -Metadata).Metadata.effectiveOverrideMode
+            $configurationName = "$($script:DSCResourceName)_DenyDelegation"
             #For this test we want the target section to start at effectiveOverrideMode 'Allow'
             If ( $currentOverrideMode -ne 'Allow')
             {
@@ -85,22 +99,34 @@ try
 
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_DenyDelegation" -OutputPath $TestDrive
+                    & $configurationName -OutputPath $TestDrive
 
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
             }
 
-            It 'Should return $True for Test-DscConfiguration' {
-                Test-DscConfiguration | Should be $True
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should be $true
             }
 
             It 'Should Deny Feature Delegation' {
                 { Add-WebConfigurationProperty @testAddWebConfigurationProperty } | Should Throw
+            }
+
+            It 'Should have set the resource and all the parameters should match' {
+                $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
+                    $_.ConfigurationName -eq $configurationName
+                } | Where-Object -FilterScript {
+                    $_.ResourceId -eq '[xIisFeatureDelegation]DenyDelegation'
+                }
+
+                $resourceCurrentState.Filter       | Should Be '/system.webServer/defaultDocument'
+                $resourceCurrentState.OverrideMode | Should Be 'Deny'
+                $resourceCurrentState.Path         | Should Be 'MACHINE/WEBROOT/APPHOST'
             }
         }
     #endregion

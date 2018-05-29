@@ -1,4 +1,9 @@
-configuration Sample_IISFeatureDelegation
+<#
+    .SYNOPSIS
+        This example will install the IIS Windows Feature and unlocks the IIS configuration
+        sections specified by the Filter setting.
+#>
+configuration Example
 {
     param
     (
@@ -7,9 +12,8 @@ configuration Sample_IISFeatureDelegation
         $NodeName = 'localhost'
     )
 
-    # Import the module that defines custom resources
     Import-DscResource -Module xWebAdministration
-    Import-DscResource -Module PSDesiredStateConfiguration
+    Import-DscResource -Module PSDscResources
 
     Node $NodeName
     {
