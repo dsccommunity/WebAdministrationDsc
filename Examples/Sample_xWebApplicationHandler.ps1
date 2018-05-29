@@ -3,26 +3,24 @@ param
         [Parameter(Mandatory = $true)]
         [System.String]
         $TargetName,
-        
+
         [Parameter(Mandatory = $true)]
         [System.String]
         $OutputPath
     )
 
-Configuration Sample_WebHandler
+Configuration Example
 {
     Import-DscResource -ModuleName PSDesiredStateConfiguration, xWebAdministration
-    
+
     Node $TargetName
     {
-        
+
         xWebApplicationHandler  WebHandlerTest
         {
-            NodeName             = 'LocalHost'
             PSPath               = 'MACHINE/WEBROOT/APPHOST'
-            Location             = 'Webtest'
             Name                 = 'ATest-WebHandler'
-            Path                 = '*'     
+            Path                 = '*'
             Verb                 = '*'
             Modules              = 'IsapiModule'
             RequireAccess        = 'None'
@@ -37,4 +35,4 @@ Configuration Sample_WebHandler
     }
 }
 
-$null = Sample_WebHandler -OutputPath $OutputPath
+$null = Example -OutputPath $OutputPath
