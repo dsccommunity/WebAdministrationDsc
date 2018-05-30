@@ -65,7 +65,7 @@ try
 
         Describe 'MSFT_xWebApplicationHandler/Get-TargetResource' {
 
-            Context 'Web handler is Absent' {
+            Context 'When Web handler is Absent' {
 
                 Mock Get-WebConfigurationProperty
 
@@ -87,7 +87,7 @@ try
                 }
             }
 
-            Context 'Web handler is Present' {
+            Context 'When Web handler is Present' {
 
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
@@ -116,7 +116,7 @@ try
             Mock Remove-WebHandler
             Mock Add-WebConfigurationProperty
 
-            Context 'Ensure = Present and Web handler is Present' {
+            Context 'When Ensure = Present and Web handler is Present' {
 
                 It 'should not throw error' {
 
@@ -127,14 +127,14 @@ try
 
                 It 'should call expected mocks' {
 
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 0
-                    Assert-MockCalled -CommandName Remove-WebHandler -Exactly 0
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 0
+                    Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 0
                 }
             }
 
-            Context 'Ensure = Present but Web handler is Absent' {
+            Context 'When Ensure = Present but Web handler is Absent' {
 
                 Mock Get-WebConfigurationProperty
 
@@ -145,15 +145,15 @@ try
 
                 It 'should call the expected mocks' {
 
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 0
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Remove-WebHandler -Exactly 0
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 0
 
                 }
             }
 
-            Context 'Ensure = Absent but Web Handler is Present' {
+            Context 'When Ensure = Absent but Web Handler is Present' {
 
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
@@ -164,17 +164,17 @@ try
 
                 It 'should call the expected mocks' {
 
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 0
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 0
-                    Assert-MockCalled -CommandName Remove-WebHandler -Exactly 1
+                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 0
+                    Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 1
                 }
             }
         }
 
         Describe 'MSFT_xWebApplicationHandler/Test-TargetResource' {
 
-            Context 'Web Handler is Present' {
+            Context 'When Web Handler is Present' {
 
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
@@ -189,7 +189,7 @@ try
                 }
             }
 
-            Context 'Web Handler is Present but non-compliant' {
+            Context 'When Web Handler is Present but non-compliant' {
 
                 It 'should return false if Name is non-compliant' {
 
@@ -302,7 +302,7 @@ try
                 }
             }
 
-            Context 'Web Handler is Absent' {
+            Context 'When Web Handler is Absent' {
 
                 Mock Get-WebConfigurationProperty
 
