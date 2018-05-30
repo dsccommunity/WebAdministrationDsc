@@ -318,6 +318,9 @@ the path, /imageGallery.
 * Added **xWebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes #337
 * Added **xWebApplicationHandler** integration tests
 * Added **xWebApplicationHandler** unit tests
+* Changes to xWebAdministration
+  * Moved file Codecov.yml that was added to the wrong path in previous release.
+* Updated **xWebSite** to include ability to manage custom logging fields
 
 ### 1.20.0.0
 
