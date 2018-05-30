@@ -16,8 +16,6 @@ $TestEnvironment = Initialize-TestEnvironment `
     -DSCResourceName $script:DSCResourceName `
     -TestType Integration
 
-Install-Module -Name 'xWebAdministration' -Force
-
 # Using try/finally to always cleanup even if something awful happens.
 try
 {
@@ -90,6 +88,5 @@ try
 
 finally
 {
-    Uninstall-Module -Name 'xWebAdministration'
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
 }
