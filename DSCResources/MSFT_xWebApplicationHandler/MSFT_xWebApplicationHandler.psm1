@@ -295,6 +295,7 @@ function Test-TargetResource
         [System.String]
         $PreCondition,
 
+
         [Parameter()]
         [ValidateSet("None", "Read", "Write", "Script", "Execute")]
         [System.String]
@@ -332,6 +333,7 @@ function Test-TargetResource
         }
         else
         {
+            $currentHandler.Remove('Ensure')
             foreach ($key in $currentHandler.GetEnumerator())
             {
                 $keyName = $($key.name)
