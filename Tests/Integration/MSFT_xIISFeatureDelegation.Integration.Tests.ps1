@@ -56,7 +56,7 @@ try
             }
 
             It 'Should be set to Allow Feature Delegation'{
-                (Get-WebConfiguration -Filter '/system.web/customErrors' -Pspath 'MACHINE/WEBROOT/APPHOST' -Metadata).Metadata.effectiveOverrideMode | Should be 'Allow'
+                (Get-WebConfiguration -Filter '/system.web/customErrors' -Pspath 'MACHINE/WEBROOT/APPHOST' -Metadata).Metadata.effectiveOverrideMode | Should Be 'Allow'
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
@@ -64,7 +64,7 @@ try
             }
 
             It 'Should return $true for Test-DscConfiguration' {
-                Test-DscConfiguration | Should be $true
+                Test-DscConfiguration | Should Be $true
             }
 
             It 'Should have set the resource and all the parameters should match' {
@@ -110,7 +110,7 @@ try
             }
 
             It 'Should return $true for Test-DscConfiguration' {
-                Test-DscConfiguration | Should be $true
+                Test-DscConfiguration | Should Be $true
             }
 
             It 'Should Deny Feature Delegation' {

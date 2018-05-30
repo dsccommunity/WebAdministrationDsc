@@ -30,6 +30,7 @@ data LocalizedData
 #>
 function Get-TargetResource
 {
+    [CmdletBinding()]
     [OutputType([Hashtable])]
     param
     (
@@ -57,7 +58,7 @@ function Get-TargetResource
     return @{
         Path         = $Path
         Filter       = $Filter
-        OverrideMode = $OverrideMode
+        OverrideMode = $currentOverrideMode
     }
 }
 
@@ -77,6 +78,7 @@ function Get-TargetResource
 #>
 function Set-TargetResource
 {
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -118,6 +120,7 @@ function Set-TargetResource
 #>
 function Test-TargetResource
 {
+    [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
@@ -163,6 +166,7 @@ function Test-TargetResource
 #>
 function Get-OverrideMode
 {
+    [CmdletBinding()]
     [OutputType([System.String])]
     param
     (

@@ -31,6 +31,7 @@ try
                 effectiveOverrideMode = 'Allow'
             }
         }
+
         $mockDenyOverrideMode = @{
             Metadata = @{
                 effectiveOverrideMode = 'Deny'
@@ -121,6 +122,7 @@ try
         }
         #endregion
 
+        #region Helper functions
         Describe 'MSFT_xIISFeatureDelegation\Get-OverrideMode' {
             $mockWebConfigOutput = @{
                 Metadata = @{
@@ -166,6 +168,7 @@ try
                 }
             }
         }
+        #endregion
     }
     #endregion
 }
