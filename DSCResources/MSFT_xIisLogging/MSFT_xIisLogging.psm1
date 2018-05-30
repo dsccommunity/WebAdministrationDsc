@@ -28,7 +28,7 @@ data LocalizedData
 }
 
 <#
-        .SYNOPSIS
+    .SYNOPSIS
         This will return a hashtable of results about the given LogPath
 #>
 function Get-TargetResource
@@ -41,35 +41,36 @@ function Get-TargetResource
         [String] $LogPath
     )
 
-        Assert-Module
+    Assert-Module
 
-        $currentLogSettings = Get-WebConfiguration `
-                                -filter '/system.applicationHost/sites/siteDefaults/Logfile'
+    $currentLogSettings = Get-WebConfiguration `
+        -filter '/system.applicationHost/sites/siteDefaults/Logfile'
 
-        Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
+    Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
 
-     $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $currentLogSettings.logFile.customFields.Collection)
+    $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $currentLogSettings.logFile.customFields.Collection)
 
-       return @{
-            LogPath              = $currentLogSettings.directory
-            LogFlags             = [Array]$currentLogSettings.LogExtFileFlags
-            LogPeriod            = $currentLogSettings.period
-            LogTruncateSize      = $currentLogSettings.truncateSize
-            LoglocalTimeRollover = $currentLogSettings.localTimeRollover
-            LogFormat            = $currentLogSettings.logFormat
-         LogCustomFields      = $cimLogCustomFields
-        }
+    return @{
+        LogPath              = $currentLogSettings.directory
+        LogFlags             = [Array]$currentLogSettings.LogExtFileFlags
+        LogPeriod            = $currentLogSettings.period
+        LogTruncateSize      = $currentLogSettings.truncateSize
+        LoglocalTimeRollover = $currentLogSettings.localTimeRollover
+        LogFormat            = $currentLogSettings.logFormat
+        LogCustomFields      = $cimLogCustomFields
+    }
 }
 
 <#
-        .SYNOPSIS
+    .SYNOPSIS
         This will set the desired state
+
     .PARAMETER LogPath
         Path to the logfile
 
     .PARAMETER LogFlags
         Specifies flags to check
-    Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
+        Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
 
     .PARAMETER LogPeriod
         Specifies the log period.
@@ -77,16 +78,16 @@ function Get-TargetResource
 
     .PARAMETER LogTruncateSize
         Specifies log truncate size
-    Limited to the range (1048576 - 4294967295)
+        Limited to the range (1048576 - 4294967295)
 
     .PARAMETER LoglocalTimeRollover
         Sets log local time rollover
 
     .PARAMETER LogFormat
         Specifies log format
-    Limited to the set: ('IIS','W3C','NCSA')
+        Limited to the set: ('IIS','W3C','NCSA')
 
-        .PARAMETER LogCustomField
+    .PARAMETER LogCustomField
         A CimInstance collection of what state the LogCustomField should be.
 
 #>
@@ -203,7 +204,7 @@ function Set-TargetResource
 }
 
 <#
-        .SYNOPSIS
+    .SYNOPSIS
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
 
@@ -212,7 +213,7 @@ function Set-TargetResource
 
     .PARAMETER LogFlags
         Specifies flags to check
-    Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
+        Limited to the set: ('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')
 
     .PARAMETER LogPeriod
         Specifies the log period.
@@ -220,16 +221,16 @@ function Set-TargetResource
 
     .PARAMETER LogTruncateSize
         Specifies log truncate size
-    Limited to the range (1048576 - 4294967295)
+        Limited to the range (1048576 - 4294967295)
 
     .PARAMETER LoglocalTimeRollover
         Sets log local time rollover
 
     .PARAMETER LogFormat
         Specifies log format
-    Limited to the set: ('IIS','W3C','NCSA')
+        Limited to the set: ('IIS','W3C','NCSA')
 
-        .PARAMETER LogCustomField
+    .PARAMETER LogCustomField
         A CimInstance collection of what state the LogCustomField should be.
 
 #>
@@ -352,11 +353,11 @@ function Test-TargetResource
 #region Helper functions
 
 <#
-        .SYNOPSIS
+    .SYNOPSIS
         Helper function used to validate the logflags status.
         Returns False if the loglfags do not match and true if they do
 
-        .PARAMETER LogFlags
+    .PARAMETER LogFlags
         Specifies flags to check
 #>
 function Compare-LogFlags
@@ -386,13 +387,18 @@ function Compare-LogFlags
 
 }
 <#
-     .SYNOPSIS
-     Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+    .SYNOPSIS
+        Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+
+    .PARAMETER InputObject
+        Specifies input object passed in
+
 #>
 function ConvertTo-CimLogCustomFields
 {
     [CmdletBinding()]
-     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
+
+    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
      param
      (
         [Parameter(Mandatory = $true)]
@@ -423,13 +429,10 @@ function ConvertTo-CimLogCustomFields
  }
 
  <#
-        .SYNOPSIS
+    .SYNOPSIS
         Helper function used to set the LogCustomField for a website.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
-
-        .PARAMETER LogCustomField
+    .PARAMETER LogCustomField
         A CimInstance collection of what the LogCustomField should be.
 #>
 function Set-LogCustomField
@@ -446,30 +449,27 @@ function Set-LogCustomField
 
     $setCustomFields = @()
 
-     foreach ($customField in $LogCustomField)
+    foreach ($customField in $LogCustomField)
     {
-    $setCustomFields += @{
-         logFieldName = $customField.LogFieldName
-         sourceName = $customField.SourceName
-         sourceType = $customField.SourceType
+        $setCustomFields += @{
+            logFieldName = $customField.LogFieldName
+            sourceName   = $customField.SourceName
+            sourceType   = $customField.SourceType
+        }
     }
-     }
 
-    # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
-     for ($i = 1; $i -le 1; $i++)
-     {
+    <#
+        Set-WebConfigurationProperty updates logfile.customFields.
+    #>
+
     Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/Sites/SiteDefaults/logFile/customFields" -Name "." -Value $setCustomFields
-     }
 }
 
 <#
-        .SYNOPSIS
+    .SYNOPSIS
         Helper function used to test the LogCustomField state for a website.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
-
-        .PARAMETER LogCustomField
+    .PARAMETER LogCustomField
         A CimInstance collection of what state the LogCustomField should be.
 #>
 function Test-LogCustomField
@@ -478,7 +478,7 @@ function Test-LogCustomField
     [OutputType([Boolean])]
     param
     (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields

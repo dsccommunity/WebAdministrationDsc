@@ -54,10 +54,13 @@ try {
             $currentLogSettings.logformat | Should Be 'W3C'
             $currentLogSettings.period | Should Be 'Hourly'
             $currentLogSettings.localTimeRollover | Should Be 'True'
-            $currentLogSettings.customFields.Collection.LogFieldName | Should Be 'ClientEncoding'
-            $currentLogSettings.customFields.Collection.SourceName | Should Be 'Accept-Encoding'
-            $currentLogSettings.customFields.Collection.SourceType | Should Be 'RequestHeader'
-        }
+            $currentLogSettings.customFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
+            $currentLogSettings.customFields.Collection[0].SourceName | Should Be 'Accept-Encoding'
+            $currentLogSettings.customFields.Collection[0].SourceType | Should Be 'RequestHeader'
+            $currentLogSettings.customFields.Collection[1].LogFieldName | Should Be 'X-Powered-By'
+            $currentLogSettings.customFields.Collection[1].SourceName | Should Be 'ASP.NET'
+            $currentLogSettings.customFields.Collection[1].SourceType | Should Be 'ResponseHeader'
+       }
     }
 
     Describe "$($script:DSCResourceName)_Truncate" {
@@ -85,9 +88,12 @@ try {
             $currentLogSettings.logformat | Should Be 'W3C'
             $currentLogSettings.TruncateSize | Should Be '2097152'
             $currentLogSettings.localTimeRollover | Should Be 'True'
-            $currentLogSettings.customFields.Collection.LogFieldName | Should Be 'ClientEncoding'
-            $currentLogSettings.customFields.Collection.SourceName | Should Be 'Accept-Encoding'
-            $currentLogSettings.customFields.Collection.SourceType | Should Be 'RequestHeader'
+            $currentLogSettings.customFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
+            $currentLogSettings.customFields.Collection[0].SourceName | Should Be 'Accept-Encoding'
+            $currentLogSettings.customFields.Collection[0].SourceType | Should Be 'RequestHeader'
+            $currentLogSettings.customFields.Collection[1].LogFieldName | Should Be 'X-Powered-By'
+            $currentLogSettings.customFields.Collection[1].SourceName | Should Be 'ASP.NET'
+            $currentLogSettings.customFields.Collection[1].SourceType | Should Be 'ResponseHeader'
         }
     }
 }
