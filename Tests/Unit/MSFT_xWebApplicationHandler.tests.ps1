@@ -36,8 +36,8 @@ try
             ResourceType         = 'Unspecified'
             AllowPathInfo        = $false
             ResponseBufferLimit  = 0
-            Type                 = $null
-            PreCondition         = $null
+            Type                 = 'SampleHandler'
+            PreCondition         = 'ISAPIMode'
         }
 
         $mockCompliantHandler = @{
