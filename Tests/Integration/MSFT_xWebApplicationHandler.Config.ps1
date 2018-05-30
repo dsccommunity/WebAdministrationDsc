@@ -6,7 +6,7 @@ Configuration MSFT_xWebApplicationHandler_AddHandler
     {
         xWebSite IISWebSite
         {
-            Name                 = $node.Location
+            Name                 = 'WebTest'
             State                = "Stopped"
             Ensure               = "Present"
             PhysicalPath         = "$env:SystemDrive\inetpub\wwwroot"
@@ -61,7 +61,7 @@ Configuration MSFT_xWebApplicationHandler_RemoveHandler
             Name                 = $node.Location
             Ensure               = "Absent"
             PhysicalPath         = "$env:SystemDrive\inetpub\wwwroot"
-            DependsOn            = "[CustomWebHandler]WebHandlerTest"
+            DependsOn            = "[xWebApplicationHandler]WebHandlerTest"
         }
     }
 }
@@ -81,8 +81,9 @@ $ConfigurationData = @{
             ResourceType         = 'Unspecified'
             AllowPathInfo        = $false
             ResponseBufferLimit  = 0
-            Type                 = $null
-            PreCondition         = $null
+            PhysicalPath         = "C:\Temp"
+            Type                 = 'SampleHandler'
+            PreCondition         = 'IsapiModule'
         }
     )
 }

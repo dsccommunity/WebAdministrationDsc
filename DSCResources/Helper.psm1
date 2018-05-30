@@ -9,7 +9,7 @@ data LocalizedData
 
 <#
         .SYNOPSIS
-        Internal function to throw terminating error with specified 
+        Internal function to throw terminating error with specified
         errroCategory, errorId and errorMessage
         .PARAMETER ErrorId
         Specifies the Id error message.
@@ -259,5 +259,3 @@ function Get-LocalizedData
 
     return $localizedData
 }
-
-Export-ModuleMember -Function 'Get-LocalizedData'
