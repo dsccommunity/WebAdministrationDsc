@@ -21,7 +21,6 @@ data LocalizedData
         VerboseTestTargetFalseLogTruncateSize      = LogTruncateSize does not match desired state.
         VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
         VerboseTestTargetFalseLogFormat            = LogFormat does not match desired state.
-        VerboseTestTargetFalseLogCustomFields      = LogCustomFields does not match desired state.
         WarningLogPeriod                           = LogTruncateSize has is an input as will overwrite this desired state.
         WarningIncorrectLogFormat                  = LogFormat is not W3C, as a result LogFlags will not be used.
 '@
