@@ -1,3 +1,7 @@
+# Suppressing this rule because Write-Verbose is called in Helper functions
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSDSCUseVerboseMessageInDSCResource', '')]
+param ()
+
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -13,14 +17,14 @@ data LocalizedData
 '@
 }
 
+<#
+        .SYNOPSIS
+        This will return a hashtable of results 
+#>
 function Get-TargetResource
 {
-    <#
-      .SYNOPSIS
-        This will return a hashtable of results 
-    #>
-    
-    [OutputType([Hashtable])]
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory)]
@@ -43,6 +47,10 @@ function Get-TargetResource
     }
 }
 
+<#
+        .SYNOPSIS
+        This will set the desired state
+#>
 function Set-TargetResource
 {
     <#
@@ -66,21 +74,21 @@ function Set-TargetResource
      Write-Verbose($($LocalizedData.ChangedMessage) -f $SectionName, $OverrideMode)
      
      Set-WebConfiguration -Location '' `
-                         -Filter "/system.webServer/$SectionName" `
-                         -PSPath 'machine/webroot/apphost' `
-                         -Metadata 'overrideMode' `
-                         -Value $OverrideMode
+                          -Filter "/system.webServer/$SectionName" `
+                          -PSPath 'machine/webroot/apphost' `
+                          -Metadata 'overrideMode' `
+                          -Value $OverrideMode
 }
 
-function Test-TargetResource
-{
-    <#
-      .SYNOPSIS
+<#
+        .SYNOPSIS
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
-    #>
-    
+#>
+function Test-TargetResource
+{
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
+    [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
@@ -105,15 +113,19 @@ function Test-TargetResource
 }
 
 #region Helper functions
+
+<#
+    .SYNOPSIS
+        Checks for a single value.
+    .NOTES
+        If $oMode is anything but Allow or Deny, we have a problem with our 
+        Get-WebConfiguration call or the ApplicationHost.config file is corrupted.
+#>
 function Get-OverrideMode
 {
-    <#
-            .NOTES
-            Check for a single value.
-            If $oMode is anything but Allow or Deny, we have a problem with our 
-            Get-WebConfiguration call or the ApplicationHost.config file is corrupted.
-    #>
     
+    [CmdletBinding()]
+    [OutputType([PSObject])]
     param
     (
         [String] $Section
