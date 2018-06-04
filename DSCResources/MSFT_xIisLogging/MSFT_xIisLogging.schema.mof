@@ -1,4 +1,12 @@
-[ClassVersion("1.0.0"), FriendlyName("xIisLogging")] 
+[ClassVersion("1.0.0")]
+class MSFT_xLogCustomFieldInformation
+{
+    [Required, Description("Name for the custom field")] String LogFieldName;
+    [Required, Description("Name for the source type")] String SourceName;
+    [Required, Description("Specify the source type"), ValueMap{"RequestHeader","ResponseHeader","ServerVariable"},Values{"RequestHeader","ResponseHeader","ServerVariable"}] String SourceType;
+};
+
+[ClassVersion("1.0.0"), FriendlyName("xIisLogging")]
 class MSFT_xIisLogging : OMI_BaseResource
 {
     [Key, Description ("The directory to be used for logfiles")] String LogPath;
@@ -7,4 +15,7 @@ class MSFT_xIisLogging : OMI_BaseResource
     [Write, Description ("How large the file should be before it is truncated")] String LogTruncateSize;
     [Write, Description ("Use the localtime for file naming and rollover")] Boolean LoglocalTimeRollover;
     [Write, Description ("Format of the Logfiles. Only W3C supports LogFlags"), ValueMap{"IIS","W3C","NCSA"}, Values{"IIS","W3C","NCSA"}] String LogFormat;
+    [Write, EmbeddedInstance("MSFT_xLogCustomFieldInformation"), Description("Custom logging field information in the form of an array of embedded instances of MSFT_xLogCustomFieldInformation CIM class")] String LogCustomFields[];
 };
+
+
