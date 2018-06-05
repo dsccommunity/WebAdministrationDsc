@@ -1,7 +1,8 @@
 <#
     .SYNOPSIS
         This example will install the IIS Windows Feature and unlocks the IIS configuration
-        sections specified by the Filter setting.
+        sections specified by the Filter setting. This example uses the IIS Configuration Path format
+        for the 'Path' setting.
 #>
 configuration Example
 {
