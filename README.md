@@ -276,8 +276,9 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * Updated **xIISLogging** to include ability to manage custom logging fields
   ([issue #267](https://github.com/PowerShell/xWebAdministration/issues/267)).
   [@ldillonel](https://github.com/ldillonel)
-* Updated **xWebSite** to include ability to manage custom logging fields
-* BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any configuration section
+* BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
+  configuration section.
+  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
 
 ### 1.20.0.0
 
