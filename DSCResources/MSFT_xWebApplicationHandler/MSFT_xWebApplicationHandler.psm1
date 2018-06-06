@@ -302,7 +302,7 @@ function Test-TargetResource
         $RequireAccess,
 
         [Parameter()]
-        [System.String[]]
+        [System.String]
         $ResourceType,
 
         [Parameter()]
