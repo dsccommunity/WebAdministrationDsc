@@ -1,10 +1,11 @@
-$script:DSCModuleName      = 'xWebAdministration'
-$script:DSCResourceName    = 'MSFT_xWebApplicationHandler'
+$script:DSCModuleName   = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xWebApplication'
 
+#region HEADER
+
+# Integration Test Template Version: 1.1.0
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-
      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
     & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
@@ -15,81 +16,144 @@ $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
     -TestType Integration
+#endregion
 
-Install-Module -Name 'xWebAdministration' -Force
+[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
-# Using try/finally to always cleanup even if something awful happens.
 try
 {
+    $null = Backup-WebConfiguration -Name $tempName
+
+    # Now that xWebAdministration should be discoverable load the configuration data
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    Describe "$($script:DSCResourceName)_Integration" {
-        $Name = $ConfigurationData.AllNodes.Name
-        $filter = "system.webServer/handlers/Add[@Name='$Name']"
+    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
-        It 'Should compile and apply the MOF without throwing' {
+    #region HelperFunctions
+
+    # Function needed to test AuthenticationInfo
+    Function Get-AuthenticationInfo ($Type, $Website, $WebApplication)
+    {
+        (Get-WebConfigurationProperty `
+            -Filter /system.WebServer/security/authentication/${Type}Authentication `
+            -Name enabled `
+            -Location "${Website}/${WebApplication}").Value
+    }
+
+    # Function needed to test SslFlags
+    Function Get-SslFlags ($Website, $WebApplication)
+    {
+        Get-WebConfiguration `
+                -PSPath IIS:\Sites `
+                -Location "${Website}/${WebApplication}" `
+                -Filter 'system.webserver/security/access' | `
+                 ForEach-Object { $_.sslFlags }
+    }
+
+    #endregion
+
+    # Create a new website for the WebApplication
+
+    New-Website -Name $DSCConfig.AllNodes.Website `
+        -Id 100 `
+        -PhysicalPath $DSCConfig.AllNodes.PhysicalPath `
+        -ApplicationPool $DSCConfig.AllNodes.AppPool `
+        -SslFlags $DSCConfig.AllNodes.SslFlags `
+        -Port $DSCConfig.AllNodes.HTTPSPort `
+        -IPAddress '*' `
+        -HostHeader $DSCConfig.AllNodes.HTTPSHostname `
+        -Ssl `
+        -Force `
+        -ErrorAction Stop
+
+    Describe "$($script:DSCResourceName)_Present" {
+        #region DEFAULT TESTS
+        It 'Should compile without throwing' {
             {
-                $configurationParameters = @{
-                    OutputPath        = $TestDrive
-                    ConfigurationData = $ConfigurationData
-                }
-
-                & "$($script:DSCResourceName)_Addhandler" @configurationParameters
-
+                Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | should not throw
+            } | Should not throw
         }
 
         It 'should be able to call Get-DscConfiguration without throwing' {
-            { Get-DscConfiguration -Verbose -ErrorAction Stop } | should Not throw
+            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
+        #endregion
 
-        It 'should be able to call Test-DscConfiguration and return true' {
-            $results = Test-DscConfiguration -Verbose -ErrorAction Stop
-            $results | Should Be $true
-        }
+        It 'Should create a WebApplication with correct settings' -test {
 
-        It 'should add a handler' {
-            $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg -OutputPath `$TestDrive"
 
-            $handler.Modules             | should be $ConfigurationData.AllNodes.Modules
-            $handler.Name                | should be $ConfigurationData.AllNodes.Name
-            $handler.Path                | should be $ConfigurationData.AllNodes.Path
-            $handler.Verb                | should be $ConfigurationData.AllNodes.Verb
-            $handler.RequireAccess       | should be $ConfigurationData.AllNodes.RequireAccess
-            $handler.ScriptProcessor     | should be $ConfigurationData.AllNodes.ScriptProcessor
-            $handler.ResourceType        | should be $ConfigurationData.AllNodes.ResourceType
-            $handler.AllowPathInfo       | should be $ConfigurationData.AllNodes.AllowPathInfo
-            $handler.ResponseBufferLimit | should be $ConfigurationData.AllNodes.ResponseBufferLimit
-        }
+            # Build results to test
+            $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
+            $ServiceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
-        It 'should remove a handler' {
+            # Test WebApplication basic settings are correct
+            $Result.Path            | Should Match $DSCConfig.AllNodes.WebApplication
+            $Result.PhysicalPath    | Should Be $DSCConfig.AllNodes.PhysicalPath
+            $Result.ApplicationPool | Should Be $DSCConfig.AllNodes.ApplicationPool
 
-            $configurationParameters = @{
-                OutputPath        = $TestDrive
-                ConfigurationData = $ConfigurationData
+            # Test Website AuthenticationInfo are correct
+            Get-AuthenticationInfo -Type 'Anonymous' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.AuthenticationInfoAnonymous
+            Get-AuthenticationInfo -Type 'Basic' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication     | Should Be $DSCConfig.AllNodes.AuthenticationInfoBasic
+            Get-AuthenticationInfo -Type 'Digest' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication    | Should Be $DSCConfig.AllNodes.AuthenticationInfoDigest
+            Get-AuthenticationInfo -Type 'Windows' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication   | Should Be $DSCConfig.AllNodes.AuthenticationInfoWindows
+
+            # Test WebApplication settings
+            $Result.PreloadEnabled           | Should Be $DSCConfig.AllNodes.PreloadEnabled
+            $Result.ServiceAutoStartProvider | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
+            $Result.ServiceAutoStartEnabled  | Should Be $DSCConfig.AllNodes.ServiceAutoStartEnabled
+
+            # Test the serviceAutoStartProviders are present in IIS config
+            $ServiceAutoStartProviders.Name | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
+            $ServiceAutoStartProviders.Type | Should Be $DSCConfig.AllNodes.ApplicationType
+
+            # Test WebApplication SslFlags
+            Get-SslFlags -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.WebApplicationSslFlags
+
+            # Test EnabledProtocols
+            $Result.EnabledProtocols | Should Be ($DSCConfig.AllNodes.EnabledProtocols -join ',')
+
             }
 
-            & "$($script:DSCResourceName)_Removehandler" @configurationParameters
-
-            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            try
-            {
-                $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
-            }
-            catch
-            {
-                $handler = $null
-            }
-
-            $handler | should be $null
-        }
     }
-}
 
+    Describe "$($script:DSCResourceName)_Absent" {
+        #region DEFAULT TESTS
+        It 'Should compile without throwing' {
+            {
+                Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+            } | Should not throw
+        }
+
+        It 'should be able to call Get-DscConfiguration without throwing' {
+            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+        }
+        #endregion
+
+        It 'Should remove the WebApplication' -test {
+
+            Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
+
+            # Build results to test
+            $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
+
+            # Test WebApplication is removed
+            $Result | Should BeNullOrEmpty
+
+            }
+
+    }
+
+}
 finally
 {
-    Uninstall-Module -Name 'xWebAdministration'
+    #region FOOTER
+    Restore-WebConfiguration -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName
+
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
+    #endregion
 }
