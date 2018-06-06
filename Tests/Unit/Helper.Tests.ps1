@@ -471,6 +471,36 @@ try
                 }
             }
         }
+
+        Describe 'Get-LocalizedData' {
+            $mockTestPath = {
+                return $mockTestPathReturnValue
+            }
+
+            $mockImportLocalizedData = {
+                $BaseDirectory | Should Be $mockExpectedLanguagePath
+            }
+
+            BeforeEach {
+                Mock -CommandName Test-Path -MockWith $mockTestPath -Verifiable
+                Mock -CommandName Import-LocalizedData -MockWith $mockImportLocalizedData -Verifiable
+            }
+
+            Context 'When loading localized data for English' {
+                Mock -CommandName Join-Path -MockWith {
+                    return 'en-US'
+                } -Verifiable
+
+                $mockExpectedLanguagePath = 'en-US'
+                $mockTestPathReturnValue = $true
+
+                It 'Should call Import-LocalizedData with en-US language' {
+                    { Get-LocalizedData -ResourceName 'DummyResource' -ResourcePath ..\..\DSCResources\MSFT_xWebApplicationHandler\en-us\MSFT_xWebApplicationHandler.strings.psd1} | Should Not Throw
+                }
+            }
+
+            Assert-VerifiableMock
+        }
     }
 }
 finally
