@@ -13,5 +13,5 @@ class MSFT_xWebApplicationHandler : OMI_BaseResource
     [Write, Description("Specifies the user rights that are required for the new handler"), ValueMap{"None","Read","Write","Script","Execute",""}, Values{"None","Read","Write","Script","Execute",""}] String RequireAccess;
     [Write, Description("Specifies the resource type this handler runs")] String ResourceType;
     [Write, Description("Specifies whether the handler processes full  path information in a URI")] Boolean AllowPathInfo;
-    [Write, Description("Specifies the maximum size, in bytes, of the response buffer for a request handler runs")] Int ResponseBufferLimit;
+    [Write, Description("Specifies the maximum size, in bytes, of the response buffer for a request handler runs")] sint64 ResponseBufferLimit;
 };

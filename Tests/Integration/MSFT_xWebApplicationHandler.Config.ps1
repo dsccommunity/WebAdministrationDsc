@@ -4,14 +4,6 @@ Configuration MSFT_xWebApplicationHandler_AddHandler
 
     Node 'localhost'
     {
-        xWebSite IISWebSite
-        {
-            Name                 = 'WebTest'
-            State                = "Stopped"
-            Ensure               = "Present"
-            PhysicalPath         = "$env:SystemDrive\inetpub\wwwroot"
-        }
-
         xWebApplicationHandler WebHandlerTest
         {
             PSPath               = $node.PSPath
