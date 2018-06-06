@@ -19,7 +19,6 @@ Configuration MSFT_xWebApplicationHandler_AddHandler
             Type                 = $node.Type
             PreCondition         = $node.PreCondition
             Ensure               = 'Present'
-            DependsOn            = "[xWebSite]IISWebSite"
         }
     }
 }
