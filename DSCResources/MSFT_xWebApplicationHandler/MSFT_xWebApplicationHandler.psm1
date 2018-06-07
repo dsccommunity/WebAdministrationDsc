@@ -1,5 +1,3 @@
-
-
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
@@ -125,7 +123,7 @@ function Set-TargetResource
         $Name,
 
         [Parameter()]
-        [ValidateSet("Present", "Absent")]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
 
@@ -158,7 +156,7 @@ function Set-TargetResource
         $PreCondition,
 
         [Parameter()]
-        [ValidateSet("None", "Read", "Write", "Script", "Execute")]
+        [ValidateSet('None', 'Read', 'Write', 'Script', 'Execute')]
         [System.String]
         $RequireAccess,
 
@@ -263,7 +261,7 @@ function Test-TargetResource
         $Name,
 
         [Parameter()]
-        [ValidateSet("Present", "Absent")]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
 
@@ -297,7 +295,7 @@ function Test-TargetResource
 
 
         [Parameter()]
-        [ValidateSet("None", "Read", "Write", "Script", "Execute")]
+        [ValidateSet('None', 'Read', 'Write', 'Script', 'Execute')]
         [System.String]
         $RequireAccess,
 
@@ -316,27 +314,26 @@ function Test-TargetResource
 
     $currentHandler = Get-TargetResource -Name $Name -PSPath $PSPath
 
-    $inDesiredState = $True
+    $inDesiredState = $true
     if ($Ensure -eq 'Absent')
     {
-        $currentHandler.Remove('Ensure')
         if (! [string]::IsNullOrEmpty($currentHandler.Name))
         {
-            $inDesiredState = $False
+            $inDesiredState = $false
         }
     }
     else #ensure -eq 'Present'
     {
         if ([string]::IsNullOrEmpty($currentHandler.Name))
         {
-            $inDesiredState = $False
+            $inDesiredState = $false
         }
         else
         {
             $currentHandler.Remove('Ensure')
             foreach ($key in $currentHandler.GetEnumerator())
             {
-                $keyName = $($key.name)
+                $keyName = $key.Name
                 if ($PSBoundParameters.$keyName -ne $currentHandler.$keyName)
                 {
                     $inDesiredState = $false
