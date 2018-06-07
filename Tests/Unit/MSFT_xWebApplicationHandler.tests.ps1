@@ -122,7 +122,7 @@ try
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
-                    {Set-TargetResource @customWebHandlerParameters} | Should -Not throw
+                    {Set-TargetResource @customWebHandlerParameters} | Should -Not -Throw
                 }
 
                 It 'Should call expected mocks' {
@@ -140,7 +140,7 @@ try
 
                 It 'Should not throw error' {
 
-                    {Set-TargetResource @customWebHandlerParameters} | Should -Not throw
+                    {Set-TargetResource @customWebHandlerParameters} | Should -Not -Throw
                 }
 
                 It 'Should call the expected mocks' {
@@ -159,7 +159,7 @@ try
 
                 It 'Should not throw error' {
 
-                    {Set-TargetResource @customWebHandlerAbsentParameters} | Should -Not throw
+                    {Set-TargetResource @customWebHandlerAbsentParameters} | Should -Not -Throw
                 }
 
                 It 'Should call the expected mocks' {

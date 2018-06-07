@@ -169,7 +169,7 @@ function Set-TargetResource
         $AllowPathInfo,
 
         [Parameter()]
-        [System.UInt64]
+        [System.Int64]
         $ResponseBufferLimit
     )
 
@@ -308,7 +308,7 @@ function Test-TargetResource
         $AllowPathInfo,
 
         [Parameter()]
-        [System.UInt64]
+        [System.Int64]
         $ResponseBufferLimit
     )
 

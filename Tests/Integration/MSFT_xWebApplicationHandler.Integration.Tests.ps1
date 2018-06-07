@@ -36,11 +36,11 @@ try
                     & "$($script:DSCResourceName)_Addhandler" @configurationParameters
 
                     Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-                } | should -Not throw
+                } | Should -Not -Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { Get-DscConfiguration -Verbose -ErrorAction Stop } | should -Not throw
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
             }
 
             It 'Should be able to call Test-DscConfiguration and return true' {
@@ -51,15 +51,15 @@ try
             It 'Should add a handler' {
                 $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
 
-                $handler.Modules             | should -Be $ConfigurationData.AllNodes.Modules
-                $handler.Name                | should -Be $ConfigurationData.AllNodes.Name
-                $handler.Path                | should -Be $ConfigurationData.AllNodes.Path
-                $handler.Verb                | should -Be $ConfigurationData.AllNodes.Verb
-                $handler.RequireAccess       | should -Be $ConfigurationData.AllNodes.RequireAccess
-                $handler.ScriptProcessor     | should -Be $ConfigurationData.AllNodes.ScriptProcessor
-                $handler.ResourceType        | should -Be $ConfigurationData.AllNodes.ResourceType
-                $handler.AllowPathInfo       | should -Be $ConfigurationData.AllNodes.AllowPathInfo
-                $handler.ResponseBufferLimit | should -Be $ConfigurationData.AllNodes.ResponseBufferLimit
+                $handler.Modules             | Should -Be $ConfigurationData.AllNodes.Modules
+                $handler.Name                | Should -Be $ConfigurationData.AllNodes.Name
+                $handler.Path                | Should -Be $ConfigurationData.AllNodes.Path
+                $handler.Verb                | Should -Be $ConfigurationData.AllNodes.Verb
+                $handler.RequireAccess       | Should -Be $ConfigurationData.AllNodes.RequireAccess
+                $handler.ScriptProcessor     | Should -Be $ConfigurationData.AllNodes.ScriptProcessor
+                $handler.ResourceType        | Should -Be $ConfigurationData.AllNodes.ResourceType
+                $handler.AllowPathInfo       | Should -Be $ConfigurationData.AllNodes.AllowPathInfo
+                $handler.ResponseBufferLimit | Should -Be $ConfigurationData.AllNodes.ResponseBufferLimit
             }
         }
 
@@ -83,7 +83,7 @@ try
                     $handler = $null
                 }
 
-                $handler | should be $null
+                $handler | Should be $null
             }
         }
     }
