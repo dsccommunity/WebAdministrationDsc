@@ -140,7 +140,7 @@ try
 
                 It 'Should not throw error' {
 
-                    {Set-TargetResource @customWebHandlerParameters} | Should --Not throw
+                    {Set-TargetResource @customWebHandlerParameters} | Should -Not throw
                 }
 
                 It 'Should call the expected mocks' {
