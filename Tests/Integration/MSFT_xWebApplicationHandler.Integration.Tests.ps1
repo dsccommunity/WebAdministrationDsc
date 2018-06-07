@@ -49,11 +49,11 @@ try
             }
 
             It 'Should add a handler' {
-                $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
+                $handler = Get-WebConfigurationProperty -pspath $handler.Path -filter $filter -Name .
 
                 $handler.Modules             | Should -Be $ConfigurationData.AllNodes.Modules
                 $handler.Name                | Should -Be $ConfigurationData.AllNodes.Name
-                $handler.Path                | Should -Be $ConfigurationData.AllNodes.Path
+                $handler.Path                | Should -Be $ConfigurationData.AllNodes.PhysicalHandlerPath
                 $handler.Verb                | Should -Be $ConfigurationData.AllNodes.Verb
                 $handler.RequireAccess       | Should -Be $ConfigurationData.AllNodes.RequireAccess
                 $handler.ScriptProcessor     | Should -Be $ConfigurationData.AllNodes.ScriptProcessor
@@ -76,7 +76,7 @@ try
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
                 try
                 {
-                    $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
+                    $handler = Get-WebConfigurationProperty -pspath $handler.Path -filter $filter -Name .
                 }
                 catch
                 {

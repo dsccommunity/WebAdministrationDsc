@@ -1,21 +1,21 @@
 $ConfigurationData = @{
     AllNodes = @(
         @{
-            NodeName             = 'LocalHost'
-            PSPath               = 'MACHINE/WEBROOT/APPHOST'
-            Location             = 'Webtest'
-            Name                 = 'ATest-WebHandler'
-            Path                 = '*'
-            Verb                 = '*'
-            Modules              = 'IsapiModule'
-            RequireAccess        = 'None'
-            ScriptProcessor      = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
-            ResourceType         = 'Unspecified'
-            AllowPathInfo        = $false
-            ResponseBufferLimit  = 0
-            PhysicalPath         = "C:\Temp"
-            Type                 = 'SampleHandler'
-            PreCondition         = 'IsapiModule'
+            NodeName            = 'LocalHost'
+            Path                = 'MACHINE/WEBROOT/APPHOST'
+            Location            = 'Webtest'
+            Name                = 'ATest-WebHandler'
+            PhysicalHandlerPath = '*'
+            Verb                = '*'
+            Modules             = 'IsapiModule'
+            RequireAccess       = 'None'
+            ScriptProcessor     = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            ResourceType        = 'Unspecified'
+            AllowPathInfo       = $false
+            ResponseBufferLimit = 0
+            PhysicalPath        = "C:\Temp"
+            Type                = 'SampleHandler'
+            PreCondition        = 'IsapiModule'
         }
     )
 }
@@ -28,19 +28,19 @@ Configuration MSFT_xWebApplicationHandler_AddHandler
     {
         xWebApplicationHandler WebHandlerTest
         {
-            PSPath               = $node.PSPath
-            Name                 = $node.Name
-            Path                 = $node.Path
-            Verb                 = $node.Verb
-            Modules              = $node.Modules
-            RequireAccess        = $node.RequireAccess
-            ScriptProcessor      = $node.ScriptProcessor
-            ResourceType         = $node.ResourceType
-            AllowPathInfo        = $node.AllowPathInfo
-            ResponseBufferLimit  = $node.ResponseBufferLimit
-            Type                 = $node.Type
-            PreCondition         = $node.PreCondition
-            Ensure               = 'Present'
+            Path                = 'MACHINE/WEBROOT/APPHOST'
+            Name                = 'ATest-WebHandler'
+            PhysicalHandlerPath = '*'
+            Verb                = '*'
+            Modules             = 'IsapiModule'
+            RequireAccess       = 'None'
+            ScriptProcessor     = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            ResourceType        = 'Unspecified'
+            AllowPathInfo       = $false
+            ResponseBufferLimit = 0
+            Type                = 'SampleHandler'
+            PreCondition        = 'IsapiModule'
+            Ensure              = 'Present'
         }
     }
 }
@@ -54,27 +54,27 @@ Configuration MSFT_xWebApplicationHandler_RemoveHandler
     {
         xWebApplicationHandler WebHandlerTest
         {
-            PSPath               = $node.PSPath
-            Name                 = $node.Name
-            Path                 = $node.Path
-            Verb                 = $node.Verb
-            Modules              = $node.Modules
-            RequireAccess        = $node.RequireAccess
-            ScriptProcessor      = $node.ScriptProcessor
-            ResourceType         = $node.ResourceType
-            AllowPathInfo        = $node.AllowPathInfo
-            ResponseBufferLimit  = $node.ResponseBufferLimit
-            Type                 = $node.Type
-            PreCondition         = $node.PreCondition
-            Ensure               = 'Absent'
+            Path                = 'MACHINE/WEBROOT/APPHOST'
+            Name                = 'ATest-WebHandler'
+            PhysicalHandlerPath = '*'
+            Verb                = '*'
+            Modules             = 'IsapiModule'
+            RequireAccess       = 'None'
+            ScriptProcessor     = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            ResourceType        = 'Unspecified'
+            AllowPathInfo       = $false
+            ResponseBufferLimit = 0
+            Type                = 'SampleHandler'
+            PreCondition        = 'IsapiModule'
+            Ensure              = 'Absent'
         }
 
         xWebsite Remove_IISWebsite
         {
-            Name                 = $node.Location
-            Ensure               = "Absent"
-            PhysicalPath         = "$env:SystemDrive\inetpub\wwwroot"
-            DependsOn            = "[xWebApplicationHandler]WebHandlerTest"
+            Name         = $node.Location
+            Ensure       = "Absent"
+            PhysicalPath = "$env:SystemDrive\inetpub\wwwroot"
+            DependsOn    = "[xWebApplicationHandler]WebHandlerTest"
         }
     }
 }

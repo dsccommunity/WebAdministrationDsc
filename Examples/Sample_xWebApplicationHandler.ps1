@@ -7,9 +7,9 @@ Configuration Example
 
         xWebApplicationHandler  WebHandlerTest
         {
-            PSPath               = 'MACHINE/WEBROOT/APPHOST'
+            Path                 = 'MACHINE/WEBROOT/APPHOST'
             Name                 = 'ATest-WebHandler'
-            Path                 = '*'
+            PhysicalHandlerPath  = '*'
             Verb                 = '*'
             Modules              = 'IsapiModule'
             RequireAccess        = 'None'

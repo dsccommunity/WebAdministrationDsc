@@ -13,7 +13,7 @@ $localizedData = Get-LocalizedData `
     .PARAMETER Name
         Specifies the name of the new request handler.
 
-    .PARAMETER PSPath
+    .PARAMETER Path
         Specifies an IIS configuration path.
 
 #>
@@ -29,16 +29,16 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String[]]
-        $PSPath
+        $Path
     )
 
     $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
 
-    $webHandler = Get-WebConfigurationProperty -PSPath $PSPath -Filter $filter -Name '.'
+    $webHandler = Get-WebConfigurationProperty -PSPath $Path -Filter $filter -Name '.'
 
     $returnValue = @{
         Name                = $webhandler.Name
-        Path                = $webHandler.Path
+        PhysicalHandlerPath = $webHandler.Path
         Verb                = $webHandler.Verb
         Type                = $webHandler.Type
         Modules             = $webHandler.Modules
@@ -48,7 +48,7 @@ function Get-TargetResource
         AllowPathInfo       = $webHandler.AllowPathInfo
         ResourceType        = $webHandler.ResourceType
         ResponseBufferLimit = $webHandler.ResponseBufferLimit
-        PSPath              = $PSPath
+        Path                = $Path
     }
 
     if (-not [string]::IsNullOrEmpty($webHandler.Name))
@@ -75,13 +75,13 @@ function Get-TargetResource
     .PARAMETER Name
         Specifies the name of the new request handler.
 
-    .PARAMETER Path
+    .PARAMETER PhysicalHandlerPath
         Specifies the physical path to the handler. This parameter applies to native modules only.
 
     .PARAMETER Verb
         Specifies the HTTP verbs that are handled by the new handler.
 
-    .PARAMETER PSPath
+    .PARAMETER Path
         Specifies an IIS configuration path.
 
     .PARAMETER Type
@@ -129,7 +129,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $Path,
+        $PhysicalHandlerPath,
 
         [Parameter()]
         [System.String]
@@ -137,7 +137,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String[]]
-        $PSPath,
+        $Path,
 
         [Parameter()]
         [System.String]
@@ -175,28 +175,32 @@ function Set-TargetResource
 
     $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
 
-    $currentHandler = Get-WebConfigurationProperty -PSPath $PSPath -Filter $filter -Name '.'
+    $currentHandler = Get-WebConfigurationProperty -PSPath $Path -Filter $filter -Name '.'
 
     $null = $PSBoundParameters.Remove('Ensure')
-    $null = $PSBoundParameters.Remove('PSPath')
+    $null = $PSBoundParameters.Remove('Path')
 
     $attributes = @{}
     $PSBoundParameters.GetEnumerator() | ForEach-Object {$attributes.add($_.Key, $_.Value)}
 
+    # Rename PhysicalHandlerPath key to Path
+    $attributes.Path = $attributes.PhysicalHandlerPath
+    $null = $attributes.Remove('PhysicalHandlerPath')
+
     if ($Ensure -eq 'Present' -and (-not [string]::IsNullOrEmpty($currentHandler.Name)))
     {
         Write-Verbose -Message ($localizedData.UpdatingHandler -f $Name)
-        Set-WebConfigurationProperty -Filter $filter -PSPath $PSPath -Name '.' -Value $attributes
+        Set-WebConfigurationProperty -Filter $filter -PSPath $Path -Name '.' -Value $attributes
     }
     elseif ($Ensure -eq 'Present')
     {
         Write-Verbose -Message ($localizedData.AddingHandler -f $Name)
-        Add-WebConfigurationProperty -Filter 'system.webServer/handlers' -PSPath $PSPath -Name '.' -Value $attributes
+        Add-WebConfigurationProperty -Filter 'system.webServer/handlers' -PSPath $Path -Name '.' -Value $attributes
     }
     else
     {
         Write-Verbose -Message ($localizedData.RemovingHandler -f $Name)
-        Remove-WebHandler -Name $Name -PSPath $PSPath
+        Remove-WebHandler -Name $Name -PSPath $Path
     }
 }
 
@@ -212,13 +216,13 @@ function Set-TargetResource
     .PARAMETER Name
         Specifies the name of the new request handler.
 
-    .PARAMETER Path
+    .PARAMETER PhysicalHandlerPath
         Specifies the physical path to the handler. This parameter applies to native modules only.
 
     .PARAMETER Verb
         Specifies the HTTP verbs that are handled by the new handler.
 
-    .PARAMETER PSPath
+    .PARAMETER Path
         Specifies an IIS configuration path.
 
     .PARAMETER Type
@@ -267,7 +271,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $Path,
+        $PhysicalHandlerPath,
 
         [Parameter()]
         [System.String]
@@ -275,7 +279,7 @@ function Test-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String[]]
-        $PSPath,
+        $Path,
 
         [Parameter()]
         [System.String]
@@ -292,7 +296,6 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $PreCondition,
-
 
         [Parameter()]
         [ValidateSet('None', 'Read', 'Write', 'Script', 'Execute')]
@@ -312,7 +315,7 @@ function Test-TargetResource
         $ResponseBufferLimit
     )
 
-    $currentHandler = Get-TargetResource -Name $Name -PSPath $PSPath
+    $currentHandler = Get-TargetResource -Name $Name -Path $Path
 
     $inDesiredState = $true
     if ($Ensure -eq 'Absent')

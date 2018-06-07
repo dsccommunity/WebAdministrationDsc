@@ -26,24 +26,24 @@ try
     InModuleScope $DSCResourceName {
 
         $customWebHandlerParameters = @{
-            PSPath               = 'MACHINE/WEBROOT/APPHOST'
-            Name                 = 'ATest-WebHandler'
-            Path                 = '*'
-            Verb                 = '*'
-            Modules              = 'IsapiModule'
-            RequireAccess        = 'None'
-            ScriptProcessor      = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
-            ResourceType         = 'Unspecified'
-            AllowPathInfo        = $false
-            ResponseBufferLimit  = 0
-            Type                 = 'SampleHandler'
-            PreCondition         = 'ISAPIMode'
+            Path                = 'MACHINE/WEBROOT/APPHOST'
+            Name                = 'ATest-WebHandler'
+            PhysicalHandlerPath = '*'
+            Verb                = '*'
+            Modules             = 'IsapiModule'
+            RequireAccess       = 'None'
+            ScriptProcessor     = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            ResourceType        = 'Unspecified'
+            AllowPathInfo       = $false
+            ResponseBufferLimit = 0
+            Type                = 'SampleHandler'
+            PreCondition        = 'ISAPIMode'
         }
 
         $mockCompliantHandler = @{
             Name                = $customWebHandlerParameters.Name
-            PSPath              = $customWebHandlerParameters.PSPath
-            Path                = $customWebHandlerParameters.Path
+            PSPath              = $customWebHandlerParameters.Path
+            Path                = $customWebHandlerParameters.PhysicalHandlerPath
             Verb                = $customWebHandlerParameters.Verb
             Modules             = $customWebHandlerParameters.Modules
             RequireAccess       = $customWebHandlerParameters.RequireAccess
@@ -56,8 +56,8 @@ try
         }
 
         $GetTargetRequiredParams = @{
-            Name     = $customWebHandlerParameters.Name
-            PSPath   = $customWebHandlerParameters.PSPath
+            Name = $customWebHandlerParameters.Name
+            Path = $customWebHandlerParameters.Path
         }
 
         $customWebHandlerAbsentParameters = $customWebHandlerParameters.clone()
@@ -76,7 +76,7 @@ try
                     $result.Ensure              | Should Be 'Absent'
                     $result.Name                | Should Be $null
                     $result.Verb                | Should Be $null
-                    $result.Path                | Should Be $null
+                    $result.PhysicalHandlerPath | Should Be $null
                     $result.Modules             | Should Be $null
                     $result.RequiredAccess      | Should Be $null
                     $result.ScriptProcessor     | Should Be $null
@@ -98,7 +98,7 @@ try
                     $result.Ensure              | Should Be 'Present'
                     $result.Name                | Should Be $mockCompliantHandler.Name
                     $result.Verb                | Should Be $mockCompliantHandler.Verb
-                    $result.Path                | Should Be $mockCompliantHandler.Path
+                    $result.PhysicalHandlerPath | Should Be $mockCompliantHandler.Path
                     $result.Modules             | Should Be $mockCompliantHandler.Modules
                     $result.RequiredAccess      | Should Be $mockCompliantHandler.RequiredAccess
                     $result.ScriptProcessor     | Should Be $mockCompliantHandler.ScriptProcessor

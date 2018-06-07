@@ -3,9 +3,9 @@ class MSFT_xWebApplicationHandler : OMI_BaseResource
 {
     [Key, Description("Specifies the name of the new request handler.")] String Name;
     [Write, Description("Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
-    [Write, Description("Specifies the physical path to the handler. This parameter applies to native modules only.")] String Path;
+    [Write, Description("Specifies the physical path to the handler. This parameter applies to native modules only.")] String physicalHandlerPath;
     [Write, Description("Specifies the HTTP verbs that are handled by the new handler.")] String Verb;
-    [Required, Write, Description("Specifies an IIS configuration path.")] String PSPath[];
+    [Required, Write, Description("Specifies an IIS configuration path.")] String Path[];
     [Write, Description("Specifies the managed type of the new module. This parameter applies to managed modules only.")] String Type;
     [Write, Description("Specifies the modules used for the handler.")] String Modules;
     [Write, Description("Specifies the script processor that runs for the module.")] String ScriptProcessor;

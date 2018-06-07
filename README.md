@@ -220,10 +220,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **[String] Ensure** : Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
 { *Present* | Absent }
 * **[String] Name** _(Key)_: Specifies the name of the new request handler.
-* **[String] Path** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.
+* **[String] PhysicalHandlerPath** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.
 * **[String] Verb** _(Write)_: Specifies the HTTP verbs that are handled by the new handler.
 * **[String] Modules** _(Write)_: Specifies the modules used for the handler.
-* **[String[]] PSPath** _(Required)_: Specifies an IIS configuration path.
+* **[String[]] Path** _(Required)_: Specifies an IIS configuration path.
 * **[String] PreCondition** _(Write)_: Specifies preconditions for the new handler.
 * **[String] RequiredAccess** _(Write)_: Specifies the user rights that are required for the new handler. { None | Read | Write | Script | Execute }
 * **[String] ScriptProcessor** _(Write)_: Specifies the script processor that runs for the module.
