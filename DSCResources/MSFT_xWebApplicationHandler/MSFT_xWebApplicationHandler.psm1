@@ -51,7 +51,7 @@ function Get-TargetResource
         PSPath              = $PSPath
     }
 
-    if (! [string]::IsNullOrEmpty($webHandler.Name))
+    if (-not [string]::IsNullOrEmpty($webHandler.Name))
     {
         Write-Verbose -Message ($localizedData.VerboseGetTargetPresent -f $Name)
         $returnValue.Add('Ensure', 'Present')
@@ -169,7 +169,7 @@ function Set-TargetResource
         $AllowPathInfo,
 
         [Parameter()]
-        [System.Int64]
+        [System.UInt64]
         $ResponseBufferLimit
     )
 
@@ -183,7 +183,7 @@ function Set-TargetResource
     $attributes = @{}
     $PSBoundParameters.GetEnumerator() | ForEach-Object {$attributes.add($_.Key, $_.Value)}
 
-    if ($Ensure -eq 'Present' -and (! [string]::IsNullOrEmpty($currentHandler.Name)))
+    if ($Ensure -eq 'Present' -and (-not [string]::IsNullOrEmpty($currentHandler.Name)))
     {
         Write-Verbose -Message ($localizedData.UpdatingHandler -f $Name)
         Set-WebConfigurationProperty -Filter $filter -PSPath $PSPath -Name '.' -Value $attributes
@@ -308,7 +308,7 @@ function Test-TargetResource
         $AllowPathInfo,
 
         [Parameter()]
-        [System.Int64]
+        [System.UInt64]
         $ResponseBufferLimit
     )
 
@@ -317,7 +317,7 @@ function Test-TargetResource
     $inDesiredState = $true
     if ($Ensure -eq 'Absent')
     {
-        if (! [string]::IsNullOrEmpty($currentHandler.Name))
+        if (-not [string]::IsNullOrEmpty($currentHandler.Name))
         {
             $inDesiredState = $false
         }

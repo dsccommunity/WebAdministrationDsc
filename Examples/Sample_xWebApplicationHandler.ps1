@@ -1,19 +1,8 @@
-param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $TargetName,
-
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $OutputPath
-    )
-
 Configuration Example
 {
-    Import-DscResource -ModuleName PSDesiredStateConfiguration, xWebAdministration
+    Import-DscResource -ModuleName xWebAdministration
 
-    Node $TargetName
+    Node 'localhost'
     {
 
         xWebApplicationHandler  WebHandlerTest
@@ -28,11 +17,9 @@ Configuration Example
             ResourceType         = 'Unspecified'
             AllowPathInfo        = $false
             ResponseBufferLimit  = 0
-            PhysicalPath         = "C:\Temp"
+            PhysicalPath         = "C:\temp"
             Type                 = $null
             PreCondition         = $null
         }
     }
 }
-
-$null = Example -OutputPath $OutputPath

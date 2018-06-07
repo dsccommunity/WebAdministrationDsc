@@ -69,21 +69,21 @@ try
 
                 Mock Get-WebConfigurationProperty
 
-                It 'should return Absent web handler' {
+                It 'Should return Absent web handler' {
 
                     $result = Get-TargetResource @GetTargetRequiredParams
 
-                    $result.Ensure              | Should be 'Absent'
-                    $result.Name                | Should be $null
-                    $result.Verb                | Should be $null
-                    $result.Path                | Should be $null
-                    $result.Modules             | Should be $null
-                    $result.RequiredAccess      | Should be $null
-                    $result.ScriptProcessor     | Should be $null
-                    $result.AllowPathInfo       | Should be $null
-                    $result.ResponseBufferLimit | Should be $null
-                    $result.Type                | Should be $null
-                    $result.PreCondition        | Should be $null
+                    $result.Ensure              | Should Be 'Absent'
+                    $result.Name                | Should Be $null
+                    $result.Verb                | Should Be $null
+                    $result.Path                | Should Be $null
+                    $result.Modules             | Should Be $null
+                    $result.RequiredAccess      | Should Be $null
+                    $result.ScriptProcessor     | Should Be $null
+                    $result.AllowPathInfo       | Should Be $null
+                    $result.ResponseBufferLimit | Should Be $null
+                    $result.Type                | Should Be $null
+                    $result.PreCondition        | Should Be $null
                 }
             }
 
@@ -91,21 +91,21 @@ try
 
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
-                It 'should return existing web handler' {
+                It 'Should return existing web handler' {
 
                     $result = Get-TargetResource @GetTargetRequiredParams
 
-                    $result.Ensure              | Should be 'Present'
-                    $result.Name                | Should be $mockCompliantHandler.Name
-                    $result.Verb                | Should be $mockCompliantHandler.Verb
-                    $result.Path                | Should be $mockCompliantHandler.Path
-                    $result.Modules             | Should be $mockCompliantHandler.Modules
-                    $result.RequiredAccess      | Should be $mockCompliantHandler.RequiredAccess
-                    $result.ScriptProcessor     | Should be $mockCompliantHandler.ScriptProcessor
-                    $result.AllowPathInfo       | Should be $mockCompliantHandler.AllowPathInfo
-                    $result.ResponseBufferLimit | Should be $mockCompliantHandler.ResponseBufferLimit
-                    $result.Type                | Should be $mockCompliantHandler.Type
-                    $result.PreCondition        | Should be $mockCompliantHandler.PreCondition
+                    $result.Ensure              | Should Be 'Present'
+                    $result.Name                | Should Be $mockCompliantHandler.Name
+                    $result.Verb                | Should Be $mockCompliantHandler.Verb
+                    $result.Path                | Should Be $mockCompliantHandler.Path
+                    $result.Modules             | Should Be $mockCompliantHandler.Modules
+                    $result.RequiredAccess      | Should Be $mockCompliantHandler.RequiredAccess
+                    $result.ScriptProcessor     | Should Be $mockCompliantHandler.ScriptProcessor
+                    $result.AllowPathInfo       | Should Be $mockCompliantHandler.AllowPathInfo
+                    $result.ResponseBufferLimit | Should Be $mockCompliantHandler.ResponseBufferLimit
+                    $result.Type                | Should Be $mockCompliantHandler.Type
+                    $result.PreCondition        | Should Be $mockCompliantHandler.PreCondition
                 }
             }
         }
@@ -118,14 +118,14 @@ try
 
             Context 'When Ensure = Present and Web handler is Present' {
 
-                It 'should not throw error' {
+                It 'Should not throw error' {
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
-                    {Set-TargetResource @customWebHandlerParameters} | Should not throw
+                    {Set-TargetResource @customWebHandlerParameters} | Should -Not throw
                 }
 
-                It 'should call expected mocks' {
+                It 'Should call expected mocks' {
 
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 1
@@ -138,12 +138,12 @@ try
 
                 Mock Get-WebConfigurationProperty
 
-                It 'should not throw error' {
+                It 'Should not throw error' {
 
-                    {Set-TargetResource @customWebHandlerParameters} | Should not throw
+                    {Set-TargetResource @customWebHandlerParameters} | Should --Not throw
                 }
 
-                It 'should call the expected mocks' {
+                It 'Should call the expected mocks' {
 
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
@@ -157,12 +157,12 @@ try
 
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
-                It 'should not throw error' {
+                It 'Should not throw error' {
 
-                    {Set-TargetResource @customWebHandlerAbsentParameters} | Should not throw
+                    {Set-TargetResource @customWebHandlerAbsentParameters} | Should -Not throw
                 }
 
-                It 'should call the expected mocks' {
+                It 'Should call the expected mocks' {
 
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
@@ -178,127 +178,127 @@ try
 
                 Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
-                It 'should return true when Ensure = Present' {
+                It 'Should return true when Ensure = Present' {
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $true
+                    Test-TargetResource @customWebHandlerParameters | Should Be $true
                 }
 
-                It 'should return false when Ensure = Absent' {
+                It 'Should return false when Ensure = Absent' {
 
-                    Test-TargetResource @customWebHandlerAbsentParameters | should be $false
+                    Test-TargetResource @customWebHandlerAbsentParameters | Should Be $false
                 }
             }
 
             Context 'When Web Handler is Present but non-compliant' {
 
-                It 'should return false if Name is non-compliant' {
+                It 'Should return false if Name is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Name = 'wrong-name'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if Path is non-compliant' {
+                It 'Should return false if Path is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Path = 'WrongPath'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if Verb is non-compliant' {
+                It 'Should return false if Verb is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Verb = 'Wrong verb'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if Modules is non-compliant' {
+                It 'Should return false if Modules is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Modules = 'Wrong Module'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if RequireAccess is non-compliant' {
+                It 'Should return false if RequireAccess is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.RequireAccess = 'Wrong'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if ScriptProcessor is non-compliant' {
+                It 'Should return false if ScriptProcessor is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.ScriptProcessor = 'C:\inetpub\wwwroot\wrong.dll'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if ResourceType is non-compliant' {
+                It 'Should return false if ResourceType is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.ResourceType = 'WrongType'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if AllowPathInfo is non-compliant' {
+                It 'Should return false if AllowPathInfo is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.AllowPathInfo = $true
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if ResponseBufferLimit is non-compliant' {
+                It 'Should return false if ResponseBufferLimit is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.ResponseBufferLimit = 12345
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if Type is non-compliant' {
+                It 'Should return false if Type is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Type = 'WrongType'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
 
-                It 'should return false if precondition is non-compliant' {
+                It 'Should return false if precondition is non-compliant' {
 
                     $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Precondition = 'wrongPrecondition'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
             }
 
@@ -306,21 +306,22 @@ try
 
                 Mock Get-WebConfigurationProperty
 
-                It 'should return true when Ensure = Absent' {
+                It 'Should return true when Ensure = Absent' {
 
-                    Test-TargetResource @customWebHandlerAbsentParameters | Should be $true
+                    Test-TargetResource @customWebHandlerAbsentParameters | Should Be $true
                 }
 
-                It 'should return false when Ensure = Present' {
+                It 'Should return false when Ensure = Present' {
 
-                    Test-TargetResource @customWebHandlerParameters | Should be $false
+                    Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
             }
         }
     }
 }
 
-finally {
+finally
+{
     #region Footer
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion

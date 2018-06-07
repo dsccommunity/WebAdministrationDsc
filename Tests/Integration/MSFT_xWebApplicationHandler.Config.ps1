@@ -1,3 +1,25 @@
+$ConfigurationData = @{
+    AllNodes = @(
+        @{
+            NodeName             = 'LocalHost'
+            PSPath               = 'MACHINE/WEBROOT/APPHOST'
+            Location             = 'Webtest'
+            Name                 = 'ATest-WebHandler'
+            Path                 = '*'
+            Verb                 = '*'
+            Modules              = 'IsapiModule'
+            RequireAccess        = 'None'
+            ScriptProcessor      = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            ResourceType         = 'Unspecified'
+            AllowPathInfo        = $false
+            ResponseBufferLimit  = 0
+            PhysicalPath         = "C:\Temp"
+            Type                 = 'SampleHandler'
+            PreCondition         = 'IsapiModule'
+        }
+    )
+}
+
 Configuration MSFT_xWebApplicationHandler_AddHandler
 {
     Import-DSCResource -ModuleName xWebAdministration
@@ -55,26 +77,4 @@ Configuration MSFT_xWebApplicationHandler_RemoveHandler
             DependsOn            = "[xWebApplicationHandler]WebHandlerTest"
         }
     }
-}
-
-$ConfigurationData = @{
-    AllNodes = @(
-        @{
-            NodeName             = 'LocalHost'
-            PSPath               = 'MACHINE/WEBROOT/APPHOST'
-            Location             = 'Webtest'
-            Name                 = 'ATest-WebHandler'
-            Path                 = '*'
-            Verb                 = '*'
-            Modules              = 'IsapiModule'
-            RequireAccess        = 'None'
-            ScriptProcessor      = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
-            ResourceType         = 'Unspecified'
-            AllowPathInfo        = $false
-            ResponseBufferLimit  = 0
-            PhysicalPath         = "C:\Temp"
-            Type                 = 'SampleHandler'
-            PreCondition         = 'IsapiModule'
-        }
-    )
 }

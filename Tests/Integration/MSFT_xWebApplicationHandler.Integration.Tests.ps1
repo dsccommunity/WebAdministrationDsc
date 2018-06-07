@@ -4,7 +4,6 @@ $script:DSCResourceName    = 'MSFT_xWebApplicationHandler'
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-
      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
     & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
@@ -26,62 +25,66 @@ try
         $Name = $ConfigurationData.AllNodes.Name
         $filter = "system.webServer/handlers/Add[@Name='$Name']"
 
-        It 'Should compile and apply the MOF without throwing' {
-            {
+        Context 'When using MSFT_xWebApplicationHandler_AddHandler' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath        = $TestDrive
+                        ConfigurationData = $ConfigurationData
+                    }
+
+                    & "$($script:DSCResourceName)_Addhandler" @configurationParameters
+
+                    Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+                } | should -Not throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | should -Not throw
+            }
+
+            It 'Should be able to call Test-DscConfiguration and return true' {
+                $results = Test-DscConfiguration -Verbose -ErrorAction Stop
+                $results | Should -Be $true
+            }
+
+            It 'Should add a handler' {
+                $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
+
+                $handler.Modules             | should -Be $ConfigurationData.AllNodes.Modules
+                $handler.Name                | should -Be $ConfigurationData.AllNodes.Name
+                $handler.Path                | should -Be $ConfigurationData.AllNodes.Path
+                $handler.Verb                | should -Be $ConfigurationData.AllNodes.Verb
+                $handler.RequireAccess       | should -Be $ConfigurationData.AllNodes.RequireAccess
+                $handler.ScriptProcessor     | should -Be $ConfigurationData.AllNodes.ScriptProcessor
+                $handler.ResourceType        | should -Be $ConfigurationData.AllNodes.ResourceType
+                $handler.AllowPathInfo       | should -Be $ConfigurationData.AllNodes.AllowPathInfo
+                $handler.ResponseBufferLimit | should -Be $ConfigurationData.AllNodes.ResponseBufferLimit
+            }
+        }
+
+        Context 'When using MSFT_xWebApplicationHandler_RemoveHandler' {
+            It 'Should remove a handler' {
+
                 $configurationParameters = @{
                     OutputPath        = $TestDrive
                     ConfigurationData = $ConfigurationData
                 }
 
-                & "$($script:DSCResourceName)_Addhandler" @configurationParameters
+                & "$($script:DSCResourceName)_Removehandler" @configurationParameters
 
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | should not throw
-        }
+                try
+                {
+                    $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
+                }
+                catch
+                {
+                    $handler = $null
+                }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
-            { Get-DscConfiguration -Verbose -ErrorAction Stop } | should Not throw
-        }
-
-        It 'should be able to call Test-DscConfiguration and return true' {
-            $results = Test-DscConfiguration -Verbose -ErrorAction Stop
-            $results | Should Be $true
-        }
-
-        It 'should add a handler' {
-            $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name .
-            
-            $handler.Modules             | should be $ConfigurationData.AllNodes.Modules
-            $handler.Name                | should be $ConfigurationData.AllNodes.Name
-            $handler.Path                | should be $ConfigurationData.AllNodes.Path
-            $handler.Verb                | should be $ConfigurationData.AllNodes.Verb
-            $handler.RequireAccess       | should be $ConfigurationData.AllNodes.RequireAccess
-            $handler.ScriptProcessor     | should be $ConfigurationData.AllNodes.ScriptProcessor
-            $handler.ResourceType        | should be $ConfigurationData.AllNodes.ResourceType
-            $handler.AllowPathInfo       | should be $ConfigurationData.AllNodes.AllowPathInfo
-            $handler.ResponseBufferLimit | should be $ConfigurationData.AllNodes.ResponseBufferLimit
-        }
-
-        It 'should remove a handler' {
-        
-            $configurationParameters = @{
-                OutputPath        = $TestDrive
-                ConfigurationData = $ConfigurationData
+                $handler | should be $null
             }
-
-            & "$($script:DSCResourceName)_Removehandler" @configurationParameters
- 
-            Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            try
-            {
-                $handler = Get-WebConfigurationProperty -pspath $handler.PSPath -filter $filter -Name . 
-            }
-            catch
-            {
-                $handler = $null
-            }
-            
-            $handler | should be $null
         }
     }
 }
