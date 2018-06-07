@@ -2,7 +2,7 @@
 class MSFT_xWebApplicationHandler : OMI_BaseResource
 {
     [Key, Description("Specifies the name of the new request handler.")] String Name;
-    [Write, Description("Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Write, Description("Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
     [Write, Description("Specifies the physical path to the handler. This parameter applies to native modules only.")] String Path;
     [Write, Description("Specifies the HTTP verbs that are handled by the new handler.")] String Verb;
     [Required, Write, Description("Specifies an IIS configuration path.")] String PSPath[];
@@ -13,5 +13,5 @@ class MSFT_xWebApplicationHandler : OMI_BaseResource
     [Write, Description("Specifies the user rights that are required for the new handler."), ValueMap{"None","Read","Write","Script","Execute"}, Values{"None","Read","Write","Script","Execute"}] String RequireAccess;
     [Write, Description("Specifies the resource type this handler runs.")] String ResourceType;
     [Write, Description("Specifies whether the handler processes full path information in a URI, such as contoso/marketing/imageGallery.aspx. If the value is true, the handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.")] Boolean AllowPathInfo;
-    [Write, Description("Specifies the maximum size, in bytes, of the response buffer for a request handler runs.")] sint64 ResponseBufferLimit;
+    [Write, Description("Specifies the maximum size, in bytes, of the response buffer for a request handler runs.")] uint64 ResponseBufferLimit;
 };

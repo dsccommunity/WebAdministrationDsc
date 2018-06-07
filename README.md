@@ -31,11 +31,9 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ## Resources
 
-### xIisHandler
+### xIisHandler (DEPRECATED)
 
-(DEPRECATED)
-
-* Please use xWebApplicationHandler resource instead. xIISHandler will be removed in future release
+"Please use xWebApplicationHandler resource instead. xIISHandler will be removed in future release"
 
 * **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
 * **Ensure**: Ensures that the handler is **Present** or **Absent**.
@@ -219,20 +217,21 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 #### xWebApplicationHandler
 
-* **Ensure** : Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist.
+* **[String] Ensure** : Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
+{ *Present* | Absent }
 * **[String] Name** _(Key)_: Specifies the name of the new request handler.
-* **[String] Path** _(Required)_: Specifies the physical path to the handler. This parameter applies to native modules only.
-* **[String] Verb**_(Read)_: Specifies the HTTP verbs that are handled by the new handler.
+* **[String] Path** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.
+* **[String] Verb** _(Write)_: Specifies the HTTP verbs that are handled by the new handler.
 * **[String] Modules** _(Write)_: Specifies the modules used for the handler.
 * **[String[]] PSPath** _(Required)_: Specifies an IIS configuration path.
 * **[String] PreCondition** _(Write)_: Specifies preconditions for the new handler.
 * **[String] RequiredAccess** _(Write)_: Specifies the user rights that are required for the new handler. { None | Read | Write | Script | Execute }
 * **[String] ScriptProcessor** _(Write)_: Specifies the script processor that runs for the module.
 * **[String] Type** _(Write)_: Specifies the managed type of the new module. This parameter applies to managed modules only.
-* **[String] ResourceType** _(Write)_: Specifies the resource type this handler runs. See [ResourceType](https://docs.microsoft.com/en-us/iis/configuration/system.webserver/handlers/add)
+* **[String] ResourceType** _(Write)_: Specifies the resource type this handler runs. See [ResourceType](https://docs.microsoft.com/en-us/iis/configuration/system.webserver/handlers/add).
 * **[Boolean] AllowPathInfo** _(Write)_: Specifies whether the handler processes full path information in a URI, such as contoso/marketing/imageGallery.aspx. If the value is true, the
 handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.
-* **[Int] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs.
+* **[UInt64] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs.
 
 ### xWebVirtualDirectory
 
