@@ -387,7 +387,7 @@ function Compare-LogFlags
 }
 <#
     .SYNOPSIS
-        Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+        Converts IIS custom log field collection to instances of the MSFT_xLogCustomField CIM class.
 
     .PARAMETER InputObject
         Specifies input object passed in
@@ -406,7 +406,7 @@ function ConvertTo-CimLogCustomFields
         [Object[]] $InputObject
      )
 
-    $cimClassName = 'MSFT_xLogCustomFieldInformation'
+    $cimClassName = 'MSFT_xLogCustomField'
     $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
     $cimCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection`1[Microsoft.Management.Infrastructure.CimInstance]'
 

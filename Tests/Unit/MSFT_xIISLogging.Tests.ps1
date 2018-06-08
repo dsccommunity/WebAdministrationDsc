@@ -33,7 +33,7 @@ try
         }
 
     $MockCimLogCustomFields = @(
-        New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+        New-CimInstance -ClassName MSFT_xLogCustomField `
             -Namespace root/microsoft/Windows/DesiredStateConfiguration `
             -Property @{
                 LogFieldName = 'ClientEncoding'
@@ -715,7 +715,7 @@ try
 
     Describe "$script:DSCResourceName\Test-LogCustomField" {
             $MockCimLogCustomFields = @(
-                New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                New-CimInstance -ClassName MSFT_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                     LogFieldName = 'ClientEncoding'
@@ -813,7 +813,7 @@ try
     Describe "$script:DSCResourceName\Set-LogCustomField" {
 
             $MockCimLogCustomFields = @(
-                New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                New-CimInstance -ClassName MSFT_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         LogFieldName = 'ClientEncoding'
