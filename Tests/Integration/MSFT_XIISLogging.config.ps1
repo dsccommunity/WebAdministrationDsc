@@ -10,13 +10,13 @@ configuration MSFT_xIisLogging_Rollover
         LogPeriod = 'Hourly'
         LogFormat = 'W3C'
         LogCustomFields  = @(
-            MSFT_xLogCustomFieldInformation
+            MSFT_xLogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            MSFT_xLogCustomFieldInformation
+            MSFT_xLogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'
@@ -38,13 +38,13 @@ configuration MSFT_xIisLogging_Truncate
         LogTruncateSize = '2097152'
         LogFormat = 'W3C'
         LogCustomFields    = @(
-            MSFT_xLogCustomFieldInformation
+            MSFT_xLogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            MSFT_xLogCustomFieldInformation
+            MSFT_xLogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'
