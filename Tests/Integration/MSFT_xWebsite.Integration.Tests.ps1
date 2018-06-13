@@ -123,7 +123,14 @@ try
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
-            }
+            #Test LogCustomFields is correct
+            $result.logFile.customFields.Collection[0].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName1
+            $result.logFile.customFields.Collection[0].SourceName   | Should Be $dscConfig.AllNodes.SourceName1
+            $result.logFile.customFields.Collection[0].SourceType   | Should Be $dscConfig.AllNodes.SourceType1
+            $result.logFile.customFields.Collection[1].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName2
+            $result.logFile.customFields.Collection[1].SourceName   | Should Be $dscConfig.AllNodes.SourceName2
+            $result.logFile.customFields.Collection[1].SourceType   | Should Be $dscConfig.AllNodes.SourceType2
+        }
 
     }
 
@@ -195,7 +202,14 @@ try
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
-            }
+            #Test LogCustomFields is correct
+            $result.logFile.customFields.Collection[0].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName1
+            $result.logFile.customFields.Collection[0].SourceName   | Should Be $dscConfig.AllNodes.SourceName1
+            $result.logFile.customFields.Collection[0].SourceType   | Should Be $dscConfig.AllNodes.SourceType1
+            $result.logFile.customFields.Collection[1].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName2
+            $result.logFile.customFields.Collection[1].SourceName   | Should Be $dscConfig.AllNodes.SourceName2
+            $result.logFile.customFields.Collection[1].SourceType   | Should Be $dscConfig.AllNodes.SourceType2
+        }
 
     }
 

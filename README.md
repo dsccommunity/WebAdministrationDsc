@@ -56,6 +56,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
+* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomField** CIM class that implements the following properties:
+  * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
+  * **SourceName**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
+  * **SourceType**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
 
 ### xWebAppPool
 
@@ -185,6 +189,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
+* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomFieldInformation** CIM class that implements the following properties:
+  * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
+  * **SourceName**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
+  * **SourceType**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
 
 ### xWebApplication
 
@@ -230,8 +238,11 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### xIisFeatureDelegation
 
-* **SectionName**: Relative path of the section to delegate such as **security/authentication**
+This resource manages the IIS configuration section locking (overrideMode) to control what configuration can be set in web.config.
+
+* **Filter**: Specifies the IIS configuration section to lock or unlock in this format: **/system.webserver/security/authentication/anonymousAuthentication**
 * **OverrideMode**: Mode of that section { **Allow** | **Deny** }
+* **Path**: Specifies the configuration path. This can be either an IIS configuration path in the format computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site. *WARNING: both path types can be used to manage the same feature delegation, however, there is no way to control if two resources in the configuration set the same feature delegation*.
 
 ### xIisMimeTypeMapping
 
@@ -257,6 +268,19 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ## Versions
 
 ### Unreleased
+
+### 2.0.0.0
+
+* Changes to xWebAdministration
+  * Moved file Codecov.yml that was added to the wrong path in previous release.
+* Updated **xWebSite** to include ability to manage custom logging fields.
+  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+* Updated **xIISLogging** to include ability to manage custom logging fields
+  ([issue #267](https://github.com/PowerShell/xWebAdministration/issues/267)).
+  [@ldillonel](https://github.com/ldillonel)
+* BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
+  configuration section.
+  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
 
 ### 1.20.0.0
 
