@@ -1,27 +1,16 @@
-# Examples provided elsewhere.
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCDscExamplesPresent", "")]
-# Tests provided elsewhere.
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCDscTestsPresent", "")]
-param()
-
 # Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-    VerboseGetTargetCheckingTarget         = Checking for the existence of property "{0}" in collection item "{1}/{2}" with key "{3}={4}" using filter "{5}" located at "{6}".
-    VerboseGetTargetItemNotFound           = Collection item "{0}/{1}" with key "{2}={3}" has not been found.
-    VerboseGetTargetPropertyNotFound       = Property "{0}" has not been found.
-    VerboseGetTargetPropertyFound          = Property "{0}" has been found.
-    VerboseSetTargetCheckingTarget         = Checking for the existence of property "{0}" in collection item "{1}/{2}" with key "{3}={4}" using filter "{5}" located at "{6}".
+    VerboseTargetCheckingTarget            = Checking for the existence of property "{0}" in collection item "{1}/{2}" with key "{3}={4}" using filter "{5}" located at "{6}".
+    VerboseTargetItemNotFound              = Collection item "{0}/{1}" with key "{2}={3}" has not been found.
+    VerboseTargetPropertyNotFound          = Property "{0}" has not been found.
+    VerboseTargetPropertyFound             = Property "{0}" has been found.
     VerboseSetTargetAddItem                = Collection item "{0}/{1}" with key "{2}={3}" does not exist, adding with property "{4}".
     VerboseSetTargetEditItem               = Collection item "{0}/{1}" with key "{2}={3}" exists, editing property "{4}".
     VerboseSetTargetRemoveItem             = Property "{0}" exists, removing property.
-    VerboseTestTargetCheckingTarget        = Checking for the existence of property "{0}" in collection item "{1}/{2}" with key "{3}={4}" using filter "{5}" located at "{6}".
-    VerboseTestTargetItemNotFound          = Collection item "{0}/{1}" with key "{2}={3}" has not been found.
-    VerboseTestTargetPropertyNotFound      = Property "{0}" has not been found.
     VerboseTestTargetPropertyValueNotFound = Property "{0}" has not been found with expected value.
-    VerboseTestTargetPropertyFound         = Property "{0}" has been found.
 '@
 }
 
@@ -68,7 +57,7 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $CollectionName,
 
         [Parameter(Mandatory = $true)]
@@ -91,62 +80,59 @@ function Get-TargetResource
         [string]
         $ItemPropertyName
     )
-    process
+    # Retrieve the values of the existing property collection item if present.
+    Write-Verbose `
+        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
+
+    $existingItem = Get-ItemValues `
+                        -WebsitePath $WebsitePath `
+                        -Filter $Filter `
+                        -CollectionName $CollectionName `
+                        -ItemName $ItemName `
+                        -ItemKeyName $ItemKeyName `
+                        -ItemKeyValue $ItemKeyValue
+
+    $result = @{
+        WebsitePath = $WebsitePath
+        Filter = $Filter
+        CollectionName = $CollectionName
+        ItemName = $ItemName
+        ItemKeyName = $ItemKeyName
+        ItemKeyValue = $ItemKeyValue
+    }
+
+    if ($null -eq $existingItem)
     {
-        # Retrieve the values of the existing property collection item if present.
+        # Property collection item with specified key was not found.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseGetTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
-
-        $existingItem = Get-ItemValues `
-                            -WebsitePath $WebsitePath `
-                            -Filter $Filter `
-                            -CollectionName $CollectionName `
-                            -ItemName $ItemName `
-                            -ItemKeyName $ItemKeyName `
-                            -ItemKeyValue $ItemKeyValue
-        
-        $result = @{
-            WebsitePath = $WebsitePath
-            Filter = $Filter
-            CollectionName = $CollectionName
-            ItemName = $ItemName
-            ItemKeyName = $ItemKeyName
-            ItemKeyValue = $ItemKeyValue
-        }
-
-        if ($null -eq $existingItem)
-        {
-            # Property collection item with specified key was not found.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseGetTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
-
-            return $result + @{
-                Ensure = 'Absent'
-                ItemPropertyName = $ItemPropertyName
-                ItemPropertyValue = $null
-            }
-        }
-        if ($existingItem.Keys -notcontains $ItemPropertyName)
-        {
-            # Property collection item with specified key was found, but property was not present.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseGetTargetPropertyNotFound -f $ItemPropertyName )
-
-            return $result + @{
-                Ensure = 'Absent'
-                ItemPropertyName = $ItemPropertyName
-                ItemPropertyValue = $null
-            }
-        }
-        # Property collection item with specified key was found.
-        Write-Verbose `
-            -Message ($LocalizedData.VerboseGetTargetPropertyFound -f $ItemPropertyName )
+            -Message ($LocalizedData.VerboseTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
 
         return $result + @{
-            Ensure = 'Present'
+            Ensure = 'Absent'
             ItemPropertyName = $ItemPropertyName
-            ItemPropertyValue = $existingItem[$ItemPropertyName].ToString()
+            ItemPropertyValue = $null
         }
+    }
+    if ($existingItem.Keys -notcontains $ItemPropertyName)
+    {
+        # Property collection item with specified key was found, but property was not present.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
+
+        return $result + @{
+            Ensure = 'Absent'
+            ItemPropertyName = $ItemPropertyName
+            ItemPropertyValue = $null
+        }
+    }
+    # Property collection item with specified key was found.
+    Write-Verbose `
+        -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
+
+    return $result + @{
+        Ensure = 'Present'
+        ItemPropertyName = $ItemPropertyName
+        ItemPropertyValue = $existingItem[$ItemPropertyName].ToString()
     }
 }
 
@@ -183,8 +169,6 @@ function Get-TargetResource
 #>
 function Set-TargetResource
 {
-    # ShouldProcess not implemented for custom DSC resource.
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     [CmdletBinding()]
     param
     (
@@ -195,7 +179,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $Filter,
 
         [Parameter(Mandatory = $true)]
@@ -215,7 +199,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $ItemKeyValue,
 
         [Parameter(Mandatory = $true)]
@@ -232,64 +216,61 @@ function Set-TargetResource
         [string]
         $Ensure = 'Present'
     )
-    process
+    if ($Ensure -eq 'Present')
     {
-        if ($Ensure -eq 'Present')
+        # Retrieve the values of the existing property collection item if present.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
+
+        $existingItem = Get-ItemValues `
+                            -WebsitePath $WebsitePath `
+                            -Filter $Filter `
+                            -CollectionName $CollectionName `
+                            -ItemName $ItemName `
+                            -ItemKeyName $ItemKeyName `
+                            -ItemKeyValue $ItemKeyValue
+
+        if (-not($existingItem))
         {
-            # Retrieve the values of the existing property collection item if present.
+            # Property collection item with specified key was not found.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
-
-            $existingItem = Get-ItemValues `
-                                -WebsitePath $WebsitePath `
-                                -Filter $Filter `
-                                -CollectionName $CollectionName `
-                                -ItemName $ItemName `
-                                -ItemKeyName $ItemKeyName `
-                                -ItemKeyValue $ItemKeyValue
-
-            if (-not($existingItem))
-            {
-                # Property collection item with specified key was not found.
-                Write-Verbose `
-                    -Message ($LocalizedData.VerboseSetTargetAddItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
-
-                $filter = "$($Filter)/$($CollectionName)"
-                # Use Add- in this case to add the element (including the key/value) and also the specified property name/value.
-                Add-WebConfigurationProperty `
-                    -PSPath $WebsitePath `
-                    -Filter $filter `
-                    -Name '.' `
-                    -Value $(@{$ItemKeyName=$ItemKeyValue;$ItemPropertyName=$ItemPropertyValue})
-            }
-            else
-            {
-                # Property collection item with specified key was found.
-                Write-Verbose `
-                    -Message ($LocalizedData.VerboseSetTargetEditItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
-
-                $filter = "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
-                # Use Set- in this case to update the specified property of the element with the specified key/value.
-                Set-WebConfigurationProperty `
-                    -PSPath $WebsitePath `
-                    -Filter $filter `
-                    -Name $ItemPropertyName `
-                    -Value $ItemPropertyValue
-            }
-        }
-        else
-        {
-            # Remove the specified property from the element with the specified key/value.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $ItemPropertyName )
+                -Message ($LocalizedData.VerboseSetTargetAddItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
 
             $filter = "$($Filter)/$($CollectionName)"
-            Remove-WebConfigurationProperty `
+            # Use Add- in this case to add the element (including the key/value) and also the specified property name/value.
+            Add-WebConfigurationProperty `
                 -PSPath $WebsitePath `
                 -Filter $filter `
                 -Name '.' `
-                -AtElement @{$ItemKeyName=$ItemKeyValue}
+                -Value $(@{$ItemKeyName=$ItemKeyValue;$ItemPropertyName=$ItemPropertyValue})
         }
+        else
+        {
+            # Property collection item with specified key was found.
+            Write-Verbose `
+                -Message ($LocalizedData.VerboseSetTargetEditItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
+
+            $filter = "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
+            # Use Set- in this case to update the specified property of the element with the specified key/value.
+            Set-WebConfigurationProperty `
+                -PSPath $WebsitePath `
+                -Filter $filter `
+                -Name $ItemPropertyName `
+                -Value $ItemPropertyValue
+        }
+    }
+    else
+    {
+        # Remove the specified property from the element with the specified key/value.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $ItemPropertyName )
+
+        $filter = "$($Filter)/$($CollectionName)"
+        Remove-WebConfigurationProperty `
+            -PSPath $WebsitePath `
+            -Filter $filter `
+            -Name '.' `
+            -AtElement @{$ItemKeyName=$ItemKeyValue}
     }
 }
 
@@ -337,12 +318,12 @@ function Test-TargetResource
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $Filter,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $CollectionName,
 
         [Parameter(Mandatory = $true)]
@@ -374,68 +355,65 @@ function Test-TargetResource
         [string]
         $Ensure = 'Present'
     )
-    process
+    # Retrieve the values of the existing property collection item if present.
+    Write-Verbose `
+        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
+
+    $existingItem = Get-ItemValues `
+                        -WebsitePath $WebsitePath `
+                        -Filter $Filter `
+                        -CollectionName $CollectionName `
+                        -ItemName $ItemName `
+                        -ItemKeyName $ItemKeyName `
+                        -ItemKeyValue $ItemKeyValue
+
+    if ($Ensure -eq 'Present')
     {
-        # Retrieve the values of the existing property collection item if present.
+        if ($null -eq $existingItem)
+        {
+            # Property collection item with specified key was not found.
+            Write-Verbose `
+                -Message ($LocalizedData.VerboseTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
+
+            return $false
+        }
+        if ($existingItem.Keys -notcontains $ItemPropertyName)
+        {
+            # Property collection item with specified key was found, but property was not present.
+            Write-Verbose `
+                -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
+
+            return $false
+        }
+        if ($existingItem[$ItemPropertyName].ToString() -ne $ItemPropertyValue)
+        {
+            # Property collection item with specified key was found, but property did not have expected value.
+            Write-Verbose `
+                -Message ($LocalizedData.VerboseTestTargetPropertyValueNotFound -f $ItemPropertyName )
+
+            return $false
+        }
+        # Property collection item with specified key was found & had expected value.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTestTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
+            -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
 
-        $existingItem = Get-ItemValues `
-                            -WebsitePath $WebsitePath `
-                            -Filter $Filter `
-                            -CollectionName $CollectionName `
-                            -ItemName $ItemName `
-                            -ItemKeyName $ItemKeyName `
-                            -ItemKeyValue $ItemKeyValue
-
-        if ($Ensure -eq 'Present')
+        return $true
+    }
+    else
+    {
+        if ( ($null -ne $existingItem) -and ($existingItem.Keys -contains $ItemPropertyName) )
         {
-            if ($null -eq $existingItem)
-            {
-                # Property collection item with specified key was not found.
-                Write-Verbose `
-                   -Message ($LocalizedData.VerboseTestTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
-
-                return $false
-            }
-            if ($existingItem.Keys -notcontains $ItemPropertyName)
-            {
-                # Property collection item with specified key was found, but property was not present.
-                Write-Verbose `
-                   -Message ($LocalizedData.VerboseTestTargetPropertyNotFound -f $ItemPropertyName )
-
-                return $false
-            }
-            if ($existingItem[$ItemPropertyName].ToString() -ne $ItemPropertyValue)
-            {
-                # Property collection item with specified key was found, but property did not have expected value.
-                Write-Verbose `
-                   -Message ($LocalizedData.VerboseTestTargetPropertyValueNotFound -f $ItemPropertyName )
-
-                return $false
-            }
-            # Property collection item with specified key was found & had expected value.
+            # Property collection item with specified key was found & property was present.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseTestTargetPropertyFound -f $ItemPropertyName )
+                -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
 
-            return $true
+            return $false
         }
-        else
-        {
-            if ( ($null -ne $existingItem) -and ($existingItem.Keys -contains $ItemPropertyName) )
-            {
-                # Property collection item with specified key was found & property was present.
-                Write-Verbose `
-                   -Message ($LocalizedData.VerboseTestTargetPropertyFound -f $ItemPropertyName )
+        # Property collection item with specified key was either not found or property was not present.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
 
-                return $false
-            }
-            # Property collection item with specified key was either not found or property was not present.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseTestTargetPropertyNotFound -f $ItemPropertyName )
-
-            return $true
-        }
+        return $true
     }
 }
 
@@ -465,8 +443,8 @@ function Test-TargetResource
 #>
 function Get-ItemValues
 {
-    # Evaluated, choose not to.
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "")]
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -491,7 +469,7 @@ function Get-ItemValues
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $ItemKeyName,
 
         [Parameter(Mandatory = $true)]
@@ -499,26 +477,23 @@ function Get-ItemValues
         [string]
         $ItemKeyValue
     )
-    process
+    # Construct the complete filter we'll use to locate the collection item with the specified key/value in the property collection, then retrieve it if we can.
+    $filter = "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
+
+    $item = Get-WebConfigurationProperty `
+                -PSPath $WebsitePath `
+                -Filter $filter `
+                -Name "." `
+                -ErrorAction SilentlyContinue
+
+    if ($item)
     {
-        # Construct the complete filter we'll use to locate the collection item with the specified key/value in the property collection, then retrieve it if we can.
-        $filter = "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
-
-        $item = Get-WebConfigurationProperty `
-                    -PSPath $WebsitePath `
-                    -Filter $filter `
-                    -Name "." `
-                    -ErrorAction SilentlyContinue
-
-        if ($item)
-        {
-            # If the property collection item exists, construct & return a hashtable containing the current values of all non-key properties.
-            $result = @{}
-            $item.Attributes.ForEach({ if ($_.Name -ne $ItemKeyName) { $result.Add($_.Name, $_.Value) } })
-            return $result
-        }
-        return $null
+        # If the property collection item exists, construct & return a hashtable containing the current values of all non-key properties.
+        $result = @{}
+        $item.Attributes.ForEach({ if ($_.Name -ne $ItemKeyName) { $result.Add($_.Name, $_.Value) } })
+        return $result
     }
+    return $null
 }
 
 # endregion

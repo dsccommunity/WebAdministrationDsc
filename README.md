@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty** and **xWebConfigPropertyCollection** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -226,6 +226,9 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
 * **IsAttribute**: If the given key value pair is for attribute, default is element.
 
+NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
+It may be removed in a future release.
+
 ### xWebConfigProperty
 
 Ensures the value of an identified property in the web.config file.
@@ -234,7 +237,7 @@ Ensures the value of an identified property in the web.config file.
 * **Filter**: Filter used to locate property to update.
 * **PropertyName**: Name of the property to update.
 * **Value**: Value of the property to update.
-* **Ensure**: Ensures if the property is **Present** or **Absent**.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
 ### xWebConfigPropertyCollection
 
@@ -248,7 +251,7 @@ Ensures the value of an identified property collection item's property in the we
 * **ItemKeyValue**: Value of the key of the property collection item to update.
 * **ItemPropertyName**: Name of the property of the property collection item to update.
 * **ItemPropertyValue**: Value of the property of the property collection item to update.
-* **Ensure**: Ensures if the property is **Present** or **Absent**.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
 ### xSSLSettings
 

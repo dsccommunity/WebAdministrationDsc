@@ -1,25 +1,13 @@
-# Examples provided elsewhere.
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCDscExamplesPresent", "")]
-# Tests provided elsewhere.
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCDscTestsPresent", "")]
-param()
-
 # Localized messages
 data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-    VerboseGetTargetCheckingTarget    = Checking for the existence of property "{0}" using filter "{1}" located at "{2}".
-    VerboseGetTargetAttributeCheck    = Checking if property "{0}" is an attribute.
-    VerboseGetTargetPropertyNotFound  = Property "{0}" has not been found.
-    VerboseGetTargetPropertyFound     = Property "{0}" has been found.
-    VerboseSetTargetCheckingProperty  = Checking for existence of property "{0}".
-    VerboseSetTargetAddItem           = Property "{0}" does not exist, adding property.
-    VerboseSetTargetEditItem          = Property "{0}" exists, editing property.
+    VerboseTargetCheckingTarget       = Checking for the existence of property "{0}" using filter "{1}" located at "{2}".
+    VerboseTargetPropertyNotFound     = Property "{0}" has not been found.
+    VerboseTargetPropertyFound        = Property "{0}" has been found.
+    VerboseSetTargetEditItem          = Ensuring property "{0}" is set.
     VerboseSetTargetRemoveItem        = Property "{0}" exists, removing property.
-    VerboseTestTargetCheckingTarget   = Checking for the existence of property "{0}" using filter "{1}" located at "{2}".
-    VerboseTestTargetPropertyNotFound = Property "{0}" has not been found.
-    VerboseTestTargetPropertyWasFound = Property "{0}" has been found.
 '@
 }
 
@@ -57,39 +45,36 @@ function Get-TargetResource
         [string]
         $PropertyName
     )
-    process
+    # Retrieve the value of the existing property if present.
+    Write-Verbose `
+        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
+
+    $existingValue = Get-ItemValue `
+                        -WebsitePath $WebsitePath `
+                        -Filter $Filter `
+                        -PropertyName $PropertyName
+
+    if (-not($existingValue))
     {
-        # Retrieve the value of the existing property if present.
+        # Property was not found.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseGetTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
+            -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName )
 
-        $existingValue = Get-ItemValue `
-                            -WebsitePath $WebsitePath `
-                            -Filter $Filter `
-                            -PropertyName $PropertyName
-
-        if (-not($existingValue))
-        {
-            # Property was not found.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseGetTargetPropertyNotFound -f $PropertyName )
-
-             return @{
-                 Ensure = 'Absent'
-                 PropertyName = $PropertyName
-                 Value = $existingValue
-            }
+            return @{
+                Ensure = 'Absent'
+                PropertyName = $PropertyName
+                Value = $existingValue
         }
+    }
 
-        # Property was found.
-        Write-Verbose `
-            -Message ($LocalizedData.VerboseGetTargetPropertyFound -f $PropertyName )
+    # Property was found.
+    Write-Verbose `
+        -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName )
 
-        return @{
-            Ensure = 'Present'
-            PropertyName = $PropertyName
-            Value = $existingValue
-        }
+    return @{
+        Ensure = 'Present'
+        PropertyName = $PropertyName
+        Value = $existingValue
     }
 }
 
@@ -114,8 +99,6 @@ function Get-TargetResource
 #>
 function Set-TargetResource
 {
-    # ShouldProcess not implemented for custom DSC resource.
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     [CmdletBinding()]
     param
     (
@@ -131,7 +114,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $PropertyName,
 
         [Parameter()]
@@ -143,32 +126,29 @@ function Set-TargetResource
         [string]
         $Ensure = 'Present'
     )
-    process
+    if ($Ensure -eq 'Present')
     {
-        if ($Ensure -eq 'Present')
-        {
-            # Property needs to be updated.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetCheckingProperty -f $PropertyName )
+        # Property needs to be updated.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName )
 
-            Set-WebConfigurationProperty `
-                -Filter $Filter `
+        Set-WebConfigurationProperty `
+            -Filter $Filter `
+            -PSPath $WebsitePath `
+            -Name $PropertyName `
+            -Value $Value `
+            -WarningAction Stop
+    }
+    else
+    {
+        # Property needs to be removed.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName )
+
+        Clear-WebConfiguration `
+                -Filter "$($Filter)/@$($PropertyName)" `
                 -PSPath $WebsitePath `
-                -Name $PropertyName `
-                -Value $Value `
                 -WarningAction Stop
-        }
-        else
-        {
-            # Property needs to be removed.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName )
-
-            Clear-WebConfiguration `
-                    -Filter "$($Filter)/@$($PropertyName)" `
-                    -PSPath $WebsitePath `
-                    -WarningAction Stop
-        }
     }
 }
 
@@ -221,45 +201,42 @@ function Test-TargetResource
         [string]
         $Ensure = 'Present'
     )
-    process
+    # Retrieve the value of the existing property if present.
+    Write-Verbose `
+        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
+
+    $existingValue = Get-ItemValue `
+                        -WebsitePath $WebsitePath `
+                        -Filter $Filter `
+                        -PropertyName $PropertyName
+
+    if ($Ensure -eq 'Present')
     {
-        # Retrieve the value of the existing property if present.
-        Write-Verbose `
-            -Message ($LocalizedData.VerboseTestTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
-
-        $existingValue = Get-ItemValue `
-                            -WebsitePath $WebsitePath `
-                            -Filter $Filter `
-                            -PropertyName $PropertyName
-
-        if ($Ensure -eq 'Present')
+        if ( ($null -eq $existingValue) -or ($existingValue.ToString() -ne $Value) )
         {
-            if ( ($null -eq $existingValue) -or ($existingValue.ToString() -ne $Value) )
-            {
-                # Property was not found or didn't have expected value.
-                Write-Verbose `
-                    -Message ($LocalizedData.VerboseTestTargetPropertyNotFound -f $PropertyName )
+            # Property was not found or didn't have expected value.
+            Write-Verbose `
+                -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName )
 
-                return $false
-            }
+            return $false
         }
-        else
-        {
-            if ( ($null -ne $existingValue) -and ($existingValue.ToString().Length -ne 0 ) )
-            {
-                # Property was found.
-                 Write-Verbose `
-                    -Message ($LocalizedData.VerboseTestTargetPropertyWasFound -f $PropertyName )
-
-                return $false
-            }
-        }
-
-        Write-Verbose `
-                -Message ($LocalizedData.VerboseTestTargetPropertyWasFound -f $PropertyName)
-
-        return $true
     }
+    else
+    {
+        if ( ($null -ne $existingValue) -and ($existingValue.ToString().Length -ne 0 ) )
+        {
+            # Property was found.
+                Write-Verbose `
+                -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName )
+
+            return $false
+        }
+    }
+
+    Write-Verbose `
+            -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
+
+    return $true
 }
 
 # region Helper Functions
@@ -279,11 +256,13 @@ function Test-TargetResource
 #>
 function Get-ItemValue
 {
+    [CmdletBinding()]
+    [OutputType([System.Object])]
     param
     (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [string] 
+        [string]
         $WebsitePath,
 
         [Parameter(Mandatory = $true)]
@@ -296,21 +275,18 @@ function Get-ItemValue
         [string]
         $PropertyName
     )
-    process
-    {
-        # Retrieve the value of the specified property if present.
-        $value = Get-WebConfigurationProperty `
-                    -PSPath $WebsitePath `
-                    -Filter $Filter `
-                    -Name $PropertyName
+    # Retrieve the value of the specified property if present.
+    $value = Get-WebConfigurationProperty `
+                -PSPath $WebsitePath `
+                -Filter $Filter `
+                -Name $PropertyName
 
-        # Return the value of the property if located.
-        if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute])
-        {
-            return $value.Value
-        }
-        return $value
+    # Return the value of the property if located.
+    if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute])
+    {
+        return $value.Value
     }
+    return $value
 }
 
 # endregion
