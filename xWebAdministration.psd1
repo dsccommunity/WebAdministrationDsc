@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '1.20.0.0'
+moduleVersion = '2.0.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,16 +41,16 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
-  (issue 302 and issue 314).
-* Add Codecov support.
-* Added .vscode\settings.json so that code can be easily formatted in VSCode
-  closer according to the style guideline.
-* Updated README.md with a branches section, and added Codecov badges.
-* Fix unit test for helper function `Find-Certificate` that could not find the test
-  helper function `Install-NewSelfSignedCertificateExScript`.
-* Fix unit tests for xWebSite that failed because `Get-Command` and "Stop-WebStie`
-  wasn"t properly mocked.
+        ReleaseNotes = '* Changes to xWebAdministration
+  * Moved file Codecov.yml that was added to the wrong path in previous release.
+* Updated **xWebSite** to include ability to manage custom logging fields.
+  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+* Updated **xIISLogging** to include ability to manage custom logging fields
+  ([issue 267](https://github.com/PowerShell/xWebAdministration/issues/267)).
+  [@ldillonel](https://github.com/ldillonel)
+* BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
+  configuration section.
+  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
 
 '
 
@@ -64,6 +64,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 

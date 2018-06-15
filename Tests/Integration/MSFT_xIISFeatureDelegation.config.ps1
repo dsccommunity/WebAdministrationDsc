@@ -4,7 +4,8 @@ configuration MSFT_xIISFeatureDelegation_AllowDelegation
 
     xIisFeatureDelegation AllowDelegation
     {
-        SectionName = 'security/authentication/anonymousAuthentication'
+        Path = 'MACHINE/WEBROOT/APPHOST'
+        Filter = '/system.web/customErrors'
         OverrideMode = 'Allow'
     }
 }
@@ -15,7 +16,8 @@ configuration MSFT_xIISFeatureDelegation_DenyDelegation
 
     xIisFeatureDelegation DenyDelegation
     {
-        SectionName = 'defaultDocument'
+        Path = 'MACHINE/WEBROOT/APPHOST'
+        Filter = '/system.webServer/defaultDocument'
         OverrideMode = 'Deny'
     }
 }
