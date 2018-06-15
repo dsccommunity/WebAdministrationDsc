@@ -24,7 +24,7 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 Import-Module WebAdministration -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:dscModuleName `
-    -DSCResourceName $script:dcsResourceName `
+    -DSCResourceName $script:dscResourceName `
     -TestType Integration
 #endregion
 
