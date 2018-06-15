@@ -1,7 +1,7 @@
 
 $script:dscModuleName = 'xWebAdministration'
 $script:dscResourceFriendlyName = 'xWebConfigProperty'
-$script:dcsResourceName = "MSFT_$($script:dscResourceFriendlyName)"
+$script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
 
 #region HEADER
 # Integration Test Template Version: 1.3.0
