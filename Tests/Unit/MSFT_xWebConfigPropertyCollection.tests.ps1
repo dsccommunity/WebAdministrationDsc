@@ -33,19 +33,41 @@ try
         $script:DSCModuleName = 'xWebAdministration'
         $script:DSCResourceName = 'MSFT_xWebConfigPropertyCollection'
 
+        $script:presentParameters = @{
+            WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
+            Filter            = 'system.webServer/advancedLogging/server'
+            CollectionName    = 'verbs'
+            ItemName          = 'add'
+            ItemKeyName       = 'verb'
+            ItemKeyValue      = 'TRACE'
+            ItemPropertyName  = 'allowed'
+            ItemPropertyValue = 'false'
+            Ensure            = 'Present'
+        }
+
+        $script:absentParameters = @{
+            WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
+            Filter            = 'system.webServer/advancedLogging/server'
+            CollectionName    = 'verbs'
+            ItemName          = 'add'
+            ItemKeyName       = 'verb'
+            ItemKeyValue      = 'TRACE'
+            ItemPropertyName  = 'allowed'
+            Ensure            = 'Absent'
+        }
+
         #region Function Get-TargetResource
         Describe "$($script:DSCResourceName)\Get-TargetResource" {
+            $parameters = @{
+                WebsitePath      = 'MACHINE/WEBROOT/APPHOST'
+                Filter           = 'system.webServer/advancedLogging/server'
+                CollectionName   = 'verbs'
+                ItemName         = 'add'
+                ItemKeyName      = 'verb'
+                ItemKeyValue     = 'TRACE'
+                ItemPropertyName = 'allowed'
+            }
             Context 'Collection item does not exist' {
-                $parameters = @{
-                    WebsitePath      = 'MACHINE/WEBROOT/APPHOST'
-                    Filter           = 'system.webServer/advancedLogging/server'
-                    CollectionName   = 'verbs'
-                    ItemName         = 'add'
-                    ItemKeyName      = 'verb'
-                    ItemKeyValue     = 'TRACE'
-                    ItemPropertyName = 'allowed'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return $null
                 }
@@ -53,14 +75,14 @@ try
                 $result = Get-TargetResource @parameters
 
                 It 'Should return the correct values' {
-                    $result.WebsitePath       | Should -Be 'MACHINE/WEBROOT/APPHOST'
-                    $result.Filter            | Should -Be 'system.webServer/advancedLogging/server'
-                    $result.CollectionName    | Should -Be 'verbs'
-                    $result.ItemName          | Should -Be 'add'
-                    $result.ItemKeyName       | Should -Be 'verb'
-                    $result.ItemKeyValue      | Should -Be 'TRACE'
+                    $result.WebsitePath       | Should -Be $parameters.WebsitePath
+                    $result.Filter            | Should -Be $parameters.Filter
+                    $result.CollectionName    | Should -Be $parameters.CollectionName
+                    $result.ItemName          | Should -Be $parameters.ItemName
+                    $result.ItemKeyName       | Should -Be $parameters.ItemKeyName
+                    $result.ItemKeyValue      | Should -Be $parameters.ItemKeyValue
                     $result.Ensure            | Should -Be 'Absent'
-                    $result.ItemPropertyName  | Should -Be 'allowed'
+                    $result.ItemPropertyName  | Should -Be $parameters.ItemPropertyName
                     $result.ItemPropertyValue | Should -Be $null
                 }
 
@@ -70,16 +92,6 @@ try
             }
 
             Context 'Collection item exists but does not contain property' {
-                $parameters = @{
-                    WebsitePath      = 'MACHINE/WEBROOT/APPHOST'
-                    Filter           = 'system.webServer/advancedLogging/server'
-                    CollectionName   = 'verbs'
-                    ItemName         = 'add'
-                    ItemKeyName      = 'verb'
-                    ItemKeyValue     = 'TRACE'
-                    ItemPropertyName = 'allowed'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return @(@{
                         Name = 'Property1'
@@ -90,14 +102,14 @@ try
                 $result = Get-TargetResource @parameters
 
                 It 'Should return the correct values' {
-                    $result.WebsitePath       | Should -Be 'MACHINE/WEBROOT/APPHOST'
-                    $result.Filter            | Should -Be 'system.webServer/advancedLogging/server'
-                    $result.CollectionName    | Should -Be 'verbs'
-                    $result.ItemName          | Should -Be 'add'
-                    $result.ItemKeyName       | Should -Be 'verb'
-                    $result.ItemKeyValue      | Should -Be 'TRACE'
+                    $result.WebsitePath       | Should -Be $parameters.WebsitePath
+                    $result.Filter            | Should -Be $parameters.Filter
+                    $result.CollectionName    | Should -Be $parameters.CollectionName
+                    $result.ItemName          | Should -Be $parameters.ItemName
+                    $result.ItemKeyName       | Should -Be $parameters.ItemKeyName
+                    $result.ItemKeyValue      | Should -Be $parameters.ItemKeyValue
                     $result.Ensure            | Should -Be 'Absent'
-                    $result.ItemPropertyName  | Should -Be 'allowed'
+                    $result.ItemPropertyName  | Should -Be $parameters.ItemPropertyName
                     $result.ItemPropertyValue | Should -Be $null
                 }
 
@@ -107,16 +119,6 @@ try
             }
 
             Context 'Collection item exists and contains property' {
-                $parameters = @{
-                    WebsitePath      = 'MACHINE/WEBROOT/APPHOST'
-                    Filter           = 'system.webServer/advancedLogging/server'
-                    CollectionName   = 'verbs'
-                    ItemName         = 'add'
-                    ItemKeyName      = 'verb'
-                    ItemKeyValue     = 'TRACE'
-                    ItemPropertyName = 'allowed'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
@@ -127,14 +129,14 @@ try
                 $result = Get-TargetResource @parameters
 
                 It 'Should return the correct values' {
-                    $result.WebsitePath       | Should -Be 'MACHINE/WEBROOT/APPHOST'
-                    $result.Filter            | Should -Be 'system.webServer/advancedLogging/server'
-                    $result.CollectionName    | Should -Be 'verbs'
-                    $result.ItemName          | Should -Be 'add'
-                    $result.ItemKeyName       | Should -Be 'verb'
-                    $result.ItemKeyValue      | Should -Be 'TRACE'
+                    $result.WebsitePath       | Should -Be $parameters.WebsitePath
+                    $result.Filter            | Should -Be $parameters.Filter
+                    $result.CollectionName    | Should -Be $parameters.CollectionName
+                    $result.ItemName          | Should -Be $parameters.ItemName
+                    $result.ItemKeyName       | Should -Be $parameters.ItemKeyName
+                    $result.ItemKeyValue      | Should -Be $parameters.ItemKeyValue
                     $result.Ensure            | Should -Be 'Present'
-                    $result.ItemPropertyName  | Should -Be 'allowed'
+                    $result.ItemPropertyName  | Should -Be $parameters.ItemPropertyName
                     $result.ItemPropertyValue | Should -Be 'false'
                 }
 
@@ -149,23 +151,11 @@ try
         #region Function Test-TargetResource
         Describe "$($script:DSCResourceName)\Test-TargetResource" {
             Context 'Ensure is present but collection item does not exist' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    ItemPropertyValue = 'false'
-                    Ensure            = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return $null
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -173,18 +163,6 @@ try
             }
 
             Context 'Ensure is present and collection item exists but does not contain property' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    ItemPropertyValue = 'false'
-                    Ensure            = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return @(@{
                         Name = 'Property1'
@@ -192,7 +170,7 @@ try
                     })
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -200,18 +178,6 @@ try
             }
 
             Context 'Ensure is present and collection item and property exists but value is wrong' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    ItemPropertyValue = 'false'
-                    Ensure            = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
@@ -219,7 +185,7 @@ try
                     }
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -227,18 +193,6 @@ try
             }
 
             Context 'Ensure is present and collection item and property exists and value is same' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    ItemPropertyValue = 'false'
-                    Ensure            = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
@@ -246,7 +200,7 @@ try
                     }
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return true' {
                     $result | Should -Be $true
@@ -254,17 +208,6 @@ try
             }
 
             Context 'Ensure is absent but collection item and property exists' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    Ensure            = 'Absent'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
@@ -272,7 +215,7 @@ try
                     }
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:absentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -280,22 +223,11 @@ try
             }
 
             Context 'Ensure is absent and collection item and property do not exist' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    Ensure            = 'Absent'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return $null
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:absentParameters
 
                 It 'Should return true' {
                     $result | Should -Be $true
@@ -307,24 +239,12 @@ try
         #region Function Set-TargetResource
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
             Context 'Ensure is present and collection item and property do not exist' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    ItemPropertyValue = 'false'
-                    Ensure            = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return $null
                 }
                 Mock -CommandName Add-WebConfigurationProperty -MockWith {}
 
-                $result = Set-TargetResource @parameters
+                Set-TargetResource @script:presentParameters
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
@@ -333,18 +253,6 @@ try
             }
 
             Context 'Ensure is present and collection item and property exist' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    ItemPropertyValue = 'false'
-                    Ensure            = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
@@ -353,7 +261,7 @@ try
                 }
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
 
-                $result = Set-TargetResource @parameters
+                Set-TargetResource @script:presentParameters
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
@@ -362,20 +270,9 @@ try
             }
 
             Context 'Ensure is absent' {
-                $parameters = @{
-                    WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
-                    Filter            = 'system.webServer/advancedLogging/server'
-                    CollectionName    = 'verbs'
-                    ItemName          = 'add'
-                    ItemKeyName       = 'verb'
-                    ItemKeyValue      = 'TRACE'
-                    ItemPropertyName  = 'allowed'
-                    Ensure            = 'Absent'
-                }
-
                 Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
 
-                $result = Set-TargetResource @parameters
+                Set-TargetResource @script:absentParameters
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Times 1 -Exactly
@@ -389,16 +286,16 @@ try
         #region Non-Exported Function Unit Tests
 
         Describe "$($script:DSCResourceName)\Get-ItemValues" {
-            Context 'Collection item does not exist' {
-                $parameters = @{
-                    WebsitePath    = 'MACHINE/WEBROOT/APPHOST'
-                    Filter         = 'system.webServer/advancedLogging/server'
-                    CollectionName = 'verbs'
-                    ItemName       = 'add'
-                    ItemKeyName    = 'verb'
-                    ItemKeyValue   = 'TRACE'
-                }
+            $parameters = @{
+                WebsitePath    = 'MACHINE/WEBROOT/APPHOST'
+                Filter         = 'system.webServer/advancedLogging/server'
+                CollectionName = 'verbs'
+                ItemName       = 'add'
+                ItemKeyName    = 'verb'
+                ItemKeyValue   = 'TRACE'
+            }
 
+            Context 'Collection item does not exist' {
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return $null
                 }
@@ -415,15 +312,6 @@ try
             }
 
             Context 'Collection item exists' {
-                $parameters = @{
-                    WebsitePath    = 'MACHINE/WEBROOT/APPHOST'
-                    Filter         = 'system.webServer/advancedLogging/server'
-                    CollectionName = 'verbs'
-                    ItemName       = 'add'
-                    ItemKeyName    = 'verb'
-                    ItemKeyValue   = 'TRACE'
-                }
-
                 Mock -CommandName Get-WebConfigurationProperty -MockWith {
                     return @{
                         Attributes = @(

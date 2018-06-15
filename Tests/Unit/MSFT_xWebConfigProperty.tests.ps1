@@ -33,6 +33,21 @@ try
         $script:DSCModuleName = 'xWebAdministration'
         $script:DSCResourceName = 'MSFT_xWebConfigProperty'
 
+        $script:presentParameters = @{
+            WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+            Filter       = 'system.webServer/advancedLogging/server'
+            PropertyName = 'enabled'
+            Value        = 'true'
+            Ensure       = 'Present'
+        }
+
+        $script:absentParameters = @{
+            WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+            Filter       = 'system.webServer/advancedLogging/server'
+            PropertyName = 'enabled'
+            Ensure       = 'Absent'
+        }
+
         #region Function Get-TargetResource
         Describe "$($script:DSCResourceName)\Get-TargetResource" {
             Context 'Value is absent' {
@@ -67,7 +82,7 @@ try
                 }
 
                 Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
-                    return 'true' 
+                    return 'true'
                 }
 
                 $result = Get-TargetResource @parameters
@@ -88,19 +103,11 @@ try
         #region Function Test-TargetResource
         Describe "$($script:DSCResourceName)\Test-TargetResource" {
             Context 'Ensure is present but value is null' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Value        = 'true'
-                    Ensure       = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
-                    return $null 
+                    return $null
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -108,19 +115,11 @@ try
             }
 
             Context 'Ensure is present but value is an empty string' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Value        = 'true'
-                    Ensure       = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
                     return [System.String]::Empty
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -128,19 +127,11 @@ try
             }
 
             Context 'Ensure is present but value is wrong' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Value        = 'true'
-                    Ensure       = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
                     return 'false'
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -148,19 +139,11 @@ try
             }
 
             Context 'Ensure is present and the value is the same' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Value        = 'true'
-                    Ensure       = 'Present'
-                }
-
                 Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
                     return 'true'
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:presentParameters
 
                 It 'Should return true' {
                     $result | Should -Be $true
@@ -168,18 +151,11 @@ try
             }
 
             Context 'Ensure is absent but value is not null' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Ensure       = 'Absent'
-                }
-
                 Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
                     return 'true'
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:absentParameters
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -187,18 +163,11 @@ try
             }
 
             Context 'Ensure is absent and value is null' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Ensure       = 'Absent'
-                }
-
                 Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
                     return $null
                 }
 
-                $result = Test-TargetResource @parameters
+                $result = Test-TargetResource @script:absentParameters
 
                 It 'Should return true' {
                     $result | Should -Be $true
@@ -210,17 +179,9 @@ try
         #region Function Set-TargetResource
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
             Context 'Ensure is present' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Value        = 'true'
-                    Ensure       = 'Present'
-                }
-
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
 
-                $result = Set-TargetResource @parameters
+                Set-TargetResource @script:presentParameters
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
@@ -228,16 +189,9 @@ try
             }
 
             Context 'Ensure is absent' {
-                $parameters = @{
-                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
-                    Filter       = 'system.webServer/advancedLogging/server'
-                    PropertyName = 'enabled'
-                    Ensure       = 'Absent'
-                }
-
                 Mock -CommandName Clear-WebConfiguration -MockWith {}
 
-                $result = Set-TargetResource @parameters
+                Set-TargetResource @script:absentParameters
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Clear-WebConfiguration -Times 1 -Exactly

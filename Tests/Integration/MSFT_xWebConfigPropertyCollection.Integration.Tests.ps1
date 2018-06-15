@@ -1,9 +1,11 @@
 
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebConfigPropertyCollection'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceFriendlyName = 'xWebConfigPropertyCollection'
+$script:dcsResourceName = "MSFT_$($script:dscResourceFriendlyName)"
 
 #region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+# Integration Test Template Version: 1.3.0
+[String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
       (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
@@ -17,24 +19,23 @@ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCR
     }
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 # Ensure the WebAdministration module is imported into the current session!
 Import-Module WebAdministration -Force
-
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dcsResourceName `
     -TestType Integration
 #endregion
 
-[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[string] $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 # Using try/finally to always cleanup.
 try
 {
     #region Integration Tests
-    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $configFile
+    $configurationFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
+    . $configurationFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
@@ -45,10 +46,10 @@ try
     $env:xWebConfigPropertyCollectionCollectionName   = 'appSettings'
     $env:xWebConfigPropertyCollectionItemName         = 'add'
     $env:xWebConfigPropertyCollectionItemKeyName      = 'key'
-    $env:xWebConfigPropertyCollectionItemKeyValue     = $script:DSCResourceName
+    $env:xWebConfigPropertyCollectionItemKeyValue     = $script:dscResourceName
     $env:xWebConfigPropertyCollectionItemPropertyName = 'value'
 
-    Describe "$($script:DSCResourceName)_Integration" {
+    Describe "$($script:dscResourceName)_Integration" {
         # Ensure the WinRM service required by DSC is running.
         Get-Service -Name 'WinRM' | Where-Object { $_.Status -ne 'Running' } | Start-Service
 
@@ -66,7 +67,7 @@ try
             {
                 $env:xWebConfigPropertyCollectionItemPropertyValueAdd = 'ADD'
 
-                Invoke-Expression -Command "$($script:DSCResourceName)_Add -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_Add -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } `
             | Should -Not -Throw
@@ -90,7 +91,7 @@ try
             {
                 $env:xWebConfigPropertyCollectionItemPropertyValueUpdate = 'UPDATE'
 
-                Invoke-Expression -Command "$($script:DSCResourceName)_Update -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_Update -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } `
             | Should -Not -Throw
@@ -103,7 +104,7 @@ try
 
         It 'Should remove configuration property' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Remove -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_Remove -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } `
             | Should -Not -Throw

@@ -11,7 +11,7 @@ Configuration Sample_xWebConfigProperty_Add
     param
     (
         # Target nodes to apply the configuration.
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [String[]]
         $NodeName = 'localhost'
     )
@@ -26,7 +26,7 @@ Configuration Sample_xWebConfigProperty_Add
             WebsitePath = 'IIS:\Sites\Default Web Site'
             Filter = 'system.webServer/directoryBrowse'
             PropertyName = 'enabled'
-            Value='false'
+            Value = 'false'
             Ensure = 'Present'
         }
     }

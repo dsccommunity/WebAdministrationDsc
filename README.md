@@ -217,7 +217,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
 
-### xWebConfigKeyValue
+### xWebConfigKeyValue (DEPRECATED)
+
+>NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
+>It may be removed in a future release.
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
@@ -225,9 +228,6 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Value**: Value for AppSettings.
 * **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
 * **IsAttribute**: If the given key value pair is for attribute, default is element.
-
-NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
-It may be removed in a future release.
 
 ### xWebConfigProperty
 

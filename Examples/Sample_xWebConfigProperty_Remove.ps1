@@ -11,7 +11,7 @@ Configuration Sample_xWebConfigProperty_Remove
     param
     (
         # Target nodes to apply the configuration.
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [String[]]
         $NodeName = 'localhost'
     )

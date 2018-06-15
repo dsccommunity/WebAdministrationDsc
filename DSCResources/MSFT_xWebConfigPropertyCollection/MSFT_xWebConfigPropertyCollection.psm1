@@ -99,6 +99,9 @@ function Get-TargetResource
         ItemName = $ItemName
         ItemKeyName = $ItemKeyName
         ItemKeyValue = $ItemKeyValue
+        ItemPropertyName = $ItemPropertyName
+        Ensure = 'Present'
+        ItemPropertyValue = $null
     }
 
     if ($null -eq $existingItem)
@@ -107,33 +110,28 @@ function Get-TargetResource
         Write-Verbose `
             -Message ($LocalizedData.VerboseTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
 
-        return $result + @{
-            Ensure = 'Absent'
-            ItemPropertyName = $ItemPropertyName
-            ItemPropertyValue = $null
-        }
+        $result.Ensure = 'Absent'
+        $result.ItemPropertyValue = $null
     }
-    if ($existingItem.Keys -notcontains $ItemPropertyName)
+    elseif ($existingItem.Keys -notcontains $ItemPropertyName)
     {
         # Property collection item with specified key was found, but property was not present.
         Write-Verbose `
             -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
 
-        return $result + @{
-            Ensure = 'Absent'
-            ItemPropertyName = $ItemPropertyName
-            ItemPropertyValue = $null
-        }
+        $result.Ensure = 'Absent'
+        $result.ItemPropertyValue = $null
     }
-    # Property collection item with specified key was found.
-    Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
+    else
+    {
+        # Property collection item with specified key was found.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
 
-    return $result + @{
-        Ensure = 'Present'
-        ItemPropertyName = $ItemPropertyName
-        ItemPropertyValue = $existingItem[$ItemPropertyName].ToString()
+        $result.Ensure = 'Present'
+        $result.ItemPropertyValue = $existingItem[$ItemPropertyName].ToString()
     }
+    return $result
 }
 
 <#

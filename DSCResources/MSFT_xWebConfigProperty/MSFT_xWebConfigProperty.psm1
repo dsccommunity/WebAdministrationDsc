@@ -54,28 +54,30 @@ function Get-TargetResource
                         -Filter $Filter `
                         -PropertyName $PropertyName
 
+    $result = @{
+        WebsitePath = $WebsitePath
+        Filter = $Filter
+        PropertyName = $PropertyName
+        Ensure = 'Present'
+        Value = $existingValue
+    }
+
     if (-not($existingValue))
     {
         # Property was not found.
         Write-Verbose `
             -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName )
 
-            return @{
-                Ensure = 'Absent'
-                PropertyName = $PropertyName
-                Value = $existingValue
-        }
+        $result.Ensure = 'Absent'
+    }
+    else
+    {
+        # Property was found.
+        Write-Verbose `
+            -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName )
     }
 
-    # Property was found.
-    Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName )
-
-    return @{
-        Ensure = 'Present'
-        PropertyName = $PropertyName
-        Value = $existingValue
-    }
+    return $result
 }
 
 <#
@@ -205,14 +207,14 @@ function Test-TargetResource
     Write-Verbose `
         -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
 
-    $existingValue = Get-ItemValue `
+    $targetResource = Get-TargetResource `
                         -WebsitePath $WebsitePath `
                         -Filter $Filter `
                         -PropertyName $PropertyName
 
     if ($Ensure -eq 'Present')
     {
-        if ( ($null -eq $existingValue) -or ($existingValue.ToString() -ne $Value) )
+        if ( ($null -eq $targetResource.Value) -or ($targetResource.Value.ToString() -ne $Value) )
         {
             # Property was not found or didn't have expected value.
             Write-Verbose `
@@ -223,7 +225,7 @@ function Test-TargetResource
     }
     else
     {
-        if ( ($null -ne $existingValue) -and ($existingValue.ToString().Length -ne 0 ) )
+        if ( ($null -ne $targetResource.Value) -and ($targetResource.Value.ToString().Length -ne 0 ) )
         {
             # Property was found.
                 Write-Verbose `

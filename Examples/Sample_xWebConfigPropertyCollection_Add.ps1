@@ -11,7 +11,7 @@ Configuration Sample_xWebConfigPropertyCollection_Add
     param
     (
         # Target nodes to apply the configuration.
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [String[]]
         $NodeName = 'localhost'
     )
@@ -21,8 +21,6 @@ Configuration Sample_xWebConfigPropertyCollection_Add
 
     Node $NodeName
     {
-        # Disables the HTTP TRACE method at the server level.
-        
         xWebConfigPropertyCollection "$($NodeName) - Disable HTTP TRACE method"
         {
             WebsitePath = 'MACHINE/WEBROOT/APPHOST'
