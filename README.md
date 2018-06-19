@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty** and **xWebConfigPropertyCollection** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -221,7 +221,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
 
-### xWebConfigKeyValue
+### xWebConfigKeyValue (DEPRECATED)
+
+>NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
+>It may be removed in a future release.
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
@@ -229,6 +232,30 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Value**: Value for AppSettings.
 * **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
 * **IsAttribute**: If the given key value pair is for attribute, default is element.
+
+### xWebConfigProperty
+
+Ensures the value of an identified property in the web.config file.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property to update.
+* **PropertyName**: Name of the property to update.
+* **Value**: Value of the property to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
+
+### xWebConfigPropertyCollection
+
+Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property collection to update.
+* **CollectionName**: Name of the property collection to update.
+* **ItemName**: Name of the property collection item to update.
+* **ItemKeyName**: Name of the key of the property collection item to update.
+* **ItemKeyValue**: Value of the key of the property collection item to update.
+* **ItemPropertyName**: Name of the property of the property collection item to update.
+* **ItemPropertyValue**: Value of the property of the property collection item to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
 ### xSSLSettings
 
@@ -269,8 +296,9 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-### 2.0.0.0
+* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
 
+### 2.0.0.0
 * Changes to xWebAdministration
   * Moved file Codecov.yml that was added to the wrong path in previous release.
 * Updated **xWebSite** to include ability to manage custom logging fields.
