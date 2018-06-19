@@ -133,7 +133,7 @@ function Get-TargetResource
                                 Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | `
                                 Select-Object Name,Type
 
-        [Array]$cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
+        [Array] $cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
     }
     # Multiple websites with the same name exist. This is not supported and is an error
     else
