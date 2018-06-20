@@ -297,6 +297,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ### Unreleased
 
 * Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
+* Fixed Get-DscConfiguration throw in xWebSite; addresses [#372](https://github.com/PowerShell/xWebAdministration/issues/372). [Reggie Gibson (@regedit32)](https://github.com/regedit32)
 
 ### 2.0.0.0
 * Changes to xWebAdministration
