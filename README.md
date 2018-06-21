@@ -33,7 +33,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### xIisHandler (DEPRECATED)
 
-"Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release"
+> Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release
 
 * **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
 * **Ensure**: Ensures that the handler is **Present** or **Absent**.
@@ -217,7 +217,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 #### WebApplicationHandler
 
-* **[String] Ensure** : Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
+* **[String] Ensure** _(Write)_: Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
 { *Present* | Absent }
 * **[String] Name** _(Key)_: Specifies the name of the new request handler.
 * **[String] PhysicalHandlerPath** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.

@@ -175,19 +175,19 @@ function Set-TargetResource
 
     $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
 
-    $currentHandler = Get-WebConfigurationProperty -PSPath $Path -Filter $filter -Name '.'
+    $currentHandler = Get-TargetResource -Name $Name -Path $Path
 
     $null = $PSBoundParameters.Remove('Ensure')
     $null = $PSBoundParameters.Remove('Path')
 
     $attributes = @{}
-    $PSBoundParameters.GetEnumerator() | ForEach-Object {$attributes.add($_.Key, $_.Value)}
+    $PSBoundParameters.GetEnumerator() | ForEach-Object -Process {$attributes.add($_.Key, $_.Value)}
 
     # Rename PhysicalHandlerPath key to Path
     $attributes.Path = $attributes.PhysicalHandlerPath
     $null = $attributes.Remove('PhysicalHandlerPath')
 
-    if ($Ensure -eq 'Present' -and (-not [string]::IsNullOrEmpty($currentHandler.Name)))
+    if ($currentHandler.Ensure -eq 'Present')
     {
         Write-Verbose -Message ($localizedData.UpdatingHandler -f $Name)
         Set-WebConfigurationProperty -Filter $filter -PSPath $Path -Name '.' -Value $attributes

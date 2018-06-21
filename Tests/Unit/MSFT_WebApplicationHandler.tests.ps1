@@ -55,6 +55,22 @@ try
             PreCondition        = $customWebHandlerParameters.PreCondition
         }
 
+        $mockGetTargetResource = @{
+            Name                = 'ATest-WebHandler'
+            PhysicalHandlerPath = '*'
+            Verb                = '*'
+            Type                = 'SampleHandler'
+            Modules             = 'IsapiModule'
+            ScriptProcessor     = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            PreCondition        = 'ISAPIMode'
+            RequireAccess       = 'None'
+            AllowPathInfo       = $false
+            ResourceType        = 'Unspecified'
+            ResponseBufferLimit = 0
+            Path                = 'MACHINE/WEBROOT/APPHOST'
+            Ensure              = 'present'
+        }
+
         $GetTargetRequiredParams = @{
             Name = $customWebHandlerParameters.Name
             Path = $customWebHandlerParameters.Path
@@ -120,14 +136,14 @@ try
 
                 It 'Should not throw error' {
 
-                    Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
+                    Mock Get-TargetResource -MockWith {$mockGetTargetResource}
 
                     {Set-TargetResource @customWebHandlerParameters} | Should -Not -Throw
                 }
 
                 It 'Should call expected mocks' {
 
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Get-TargetResource -Exactly -Times 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 1
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 0
                     Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 0
@@ -136,7 +152,7 @@ try
 
             Context 'When Ensure = Present but Web handler is Absent' {
 
-                Mock Get-WebConfigurationProperty
+                Mock Get-TargetResource
 
                 It 'Should not throw error' {
 
@@ -145,7 +161,7 @@ try
 
                 It 'Should call the expected mocks' {
 
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Get-TargetResource -Exactly -Times 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 1
                     Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 0
@@ -155,7 +171,10 @@ try
 
             Context 'When Ensure = Absent but Web Handler is Present' {
 
-                Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
+                $mockAbsentGetTargetResource = $mockGetTargetResource.clone()
+                $mockAbsentGetTargetResource.Ensure = 'Absent'
+
+                Mock Get-TargetResource -MockWith {$mockAbsentGetTargetResource}
 
                 It 'Should not throw error' {
 
@@ -164,7 +183,7 @@ try
 
                 It 'Should call the expected mocks' {
 
-                    Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly -Times 1
+                    Assert-MockCalled -CommandName Get-TargetResource -Exactly -Times 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 0
                     Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 1

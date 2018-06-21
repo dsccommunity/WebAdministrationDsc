@@ -64,16 +64,32 @@ try
         }
 
         Context 'When using MSFT_WebApplicationHandler_RemoveHandler' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath        = $TestDrive
+                        ConfigurationData = $ConfigurationData
+                    }
+
+                    & "$($script:DSCResourceName)_Removehandler" @configurationParameters
+
+                    Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Test-DscConfiguration and return true' {
+                $results = Test-DscConfiguration -Verbose -ErrorAction Stop
+                $results | Should -Be $true
+            }
+
             It 'Should remove a handler' {
 
-                $configurationParameters = @{
-                    OutputPath        = $TestDrive
-                    ConfigurationData = $ConfigurationData
-                }
+                $handler = Get-WebConfigurationProperty -pspath $handler.Path -filter $filter -Name .
 
-                & "$($script:DSCResourceName)_Removehandler" @configurationParameters
-
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
                 try
                 {
                     $handler = Get-WebConfigurationProperty -pspath $handler.Path -filter $filter -Name .
