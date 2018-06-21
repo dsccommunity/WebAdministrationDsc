@@ -20,13 +20,13 @@ $ConfigurationData = @{
     )
 }
 
-Configuration MSFT_xWebApplicationHandler_AddHandler
+Configuration MSFT_WebApplicationHandler_AddHandler
 {
     Import-DSCResource -ModuleName xWebAdministration
 
     Node 'localhost'
     {
-        xWebApplicationHandler WebHandlerTest
+        WebApplicationHandler WebHandlerTest
         {
             Path                = 'MACHINE/WEBROOT/APPHOST'
             Name                = 'ATest-WebHandler'
@@ -45,14 +45,14 @@ Configuration MSFT_xWebApplicationHandler_AddHandler
     }
 }
 
-Configuration MSFT_xWebApplicationHandler_RemoveHandler
+Configuration MSFT_WebApplicationHandler_RemoveHandler
 {
     Import-DSCResource -ModuleName PSDesiredStateConfiguration
     Import-DSCResource -ModuleName xWebAdministration
 
     Node 'localhost'
     {
-        xWebApplicationHandler WebHandlerTest
+        WebApplicationHandler WebHandlerTest
         {
             Path                = 'MACHINE/WEBROOT/APPHOST'
             Name                = 'ATest-WebHandler'
@@ -74,7 +74,7 @@ Configuration MSFT_xWebApplicationHandler_RemoveHandler
             Name         = $node.Location
             Ensure       = "Absent"
             PhysicalPath = "$env:SystemDrive\inetpub\wwwroot"
-            DependsOn    = "[xWebApplicationHandler]WebHandlerTest"
+            DependsOn    = "[WebApplicationHandler]WebHandlerTest"
         }
     }
 }

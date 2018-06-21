@@ -5,7 +5,7 @@ Configuration Example
     Node 'localhost'
     {
 
-        xWebApplicationHandler  WebHandlerTest
+        WebApplicationHandler  WebHandlerTest
         {
             Path                 = 'MACHINE/WEBROOT/APPHOST'
             Name                 = 'ATest-WebHandler'

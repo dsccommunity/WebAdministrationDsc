@@ -3,7 +3,7 @@ Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
 # Import Localization Strings
 $localizedData = Get-LocalizedData `
-    -ResourceName 'MSFT_xWebApplicationHandler' `
+    -ResourceName 'MSFT_WebApplicationHandler' `
     -ResourcePath (Split-Path -Parent $Script:MyInvocation.MyCommand.Path)
 
 <#
@@ -169,7 +169,7 @@ function Set-TargetResource
         $AllowPathInfo,
 
         [Parameter()]
-        [System.uInt64]
+        [System.uInt32]
         $ResponseBufferLimit
     )
 
@@ -311,7 +311,7 @@ function Test-TargetResource
         $AllowPathInfo,
 
         [Parameter()]
-        [System.uInt64]
+        [System.uInt32]
         $ResponseBufferLimit
     )
 

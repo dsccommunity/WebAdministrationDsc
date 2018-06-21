@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue** and **xWebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -33,7 +33,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ### xIisHandler (DEPRECATED)
 
-"Please use xWebApplicationHandler resource instead. xIISHandler will be removed in future release"
+"Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release"
 
 * **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
 * **Ensure**: Ensures that the handler is **Present** or **Absent**.
@@ -215,7 +215,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
 * **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
-#### xWebApplicationHandler
+#### WebApplicationHandler
 
 * **[String] Ensure** : Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
 { *Present* | Absent }
@@ -316,9 +316,10 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-* Added **xWebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes #337
-* Added **xWebApplicationHandler** integration tests
-* Added **xWebApplicationHandler** unit tests
+
+* Added **WebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes #337
+* Added **WebApplicationHandler** integration tests
+* Added **WebApplicationHandler** unit tests
 * Deprecated xIISHandler resource. This resource will be removed in future release
 * Changes to xWebAdministration
   * Moved file Codecov.yml that was added to the wrong path in previous release.
@@ -1100,7 +1101,7 @@ configuration Sample_EndToEndxWebAdministration
         }
 
         #Add a webApplicationHandler
-        xWebApplicationHandler  WebHandlerTest
+        WebApplicationHandler  WebHandlerTest
         {
             PSPath               = $Node.PSPath
             Name                 = 'ATest-WebHandler'

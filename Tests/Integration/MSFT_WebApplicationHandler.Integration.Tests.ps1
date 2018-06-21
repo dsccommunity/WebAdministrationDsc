@@ -1,5 +1,5 @@
 $script:DSCModuleName      = 'xWebAdministration'
-$script:DSCResourceName    = 'MSFT_xWebApplicationHandler'
+$script:DSCResourceName    = 'MSFT_WebApplicationHandler'
 
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
@@ -25,7 +25,7 @@ try
         $Name = $ConfigurationData.AllNodes.Name
         $filter = "system.webServer/handlers/Add[@Name='$Name']"
 
-        Context 'When using MSFT_xWebApplicationHandler_AddHandler' {
+        Context 'When using MSFT_WebApplicationHandler_AddHandler' {
             It 'Should compile and apply the MOF without throwing' {
                 {
                     $configurationParameters = @{
@@ -63,7 +63,7 @@ try
             }
         }
 
-        Context 'When using MSFT_xWebApplicationHandler_RemoveHandler' {
+        Context 'When using MSFT_WebApplicationHandler_RemoveHandler' {
             It 'Should remove a handler' {
 
                 $configurationParameters = @{

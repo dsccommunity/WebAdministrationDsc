@@ -1,5 +1,5 @@
 $script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebApplicationHandler'
+$script:DSCResourceName = 'MSFT_WebApplicationHandler'
 
 #region Header
 #Unit Test Template Version: 1.0.0
@@ -63,7 +63,7 @@ try
         $customWebHandlerAbsentParameters = $customWebHandlerParameters.clone()
         $customWebHandlerAbsentParameters.Ensure = 'Absent'
 
-        Describe 'MSFT_xWebApplicationHandler/Get-TargetResource' {
+        Describe 'MSFT_WebApplicationHandler/Get-TargetResource' {
 
             Context 'When Web handler is Absent' {
 
@@ -110,7 +110,7 @@ try
             }
         }
 
-        Describe 'MSFT_xWebApplicationHandler/Set-TargetResource' {
+        Describe 'MSFT_WebApplicationHandler/Set-TargetResource' {
 
             Mock Set-WebConfigurationProperty
             Mock Remove-WebHandler
@@ -172,7 +172,7 @@ try
             }
         }
 
-        Describe 'MSFT_xWebApplicationHandler/Test-TargetResource' {
+        Describe 'MSFT_WebApplicationHandler/Test-TargetResource' {
 
             Context 'When Web Handler is Present' {
 
