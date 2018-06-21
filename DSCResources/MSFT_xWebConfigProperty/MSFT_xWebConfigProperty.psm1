@@ -134,6 +134,24 @@ function Set-TargetResource
         Write-Verbose `
             -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName )
 
+        $propertyType = Get-ItemPropertyType -WebsitePath $WebsitePath -Filter $Filter -PropertyName $PropertyName
+
+        switch ($propertyType )
+        {
+            'Int32'
+            {
+                [Int32] $value = [convert]::ToInt32($value, 10)
+            }
+            'UInt32'
+            {
+                [UInt32] $value = [convert]::ToUInt32($value, 10)
+            }
+            'Int64'
+            {
+                [Int64] $value = [convert]::ToInt64($value, 10)
+            }
+        }
+
         Set-WebConfigurationProperty `
             -Filter $Filter `
             -PSPath $WebsitePath `
@@ -289,6 +307,48 @@ function Get-ItemValue
         return $value.Value
     }
     return $value
+}
+
+<#
+.SYNOPSIS
+    Gets the current data type of the property.
+
+.PARAMETER WebsitePath
+    Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Filter used to locate property to retrieve.
+
+.PARAMETER PropertyName
+    Name of the property to retrieve.
+#>
+function Get-ItemPropertyType
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName
+    )
+
+    $webConfiguration = Get-WebConfiguration -Filter $Filter -PsPath $WebsitePath
+
+    $property = $webConfiguration.Schema.AttributeSchemas | Where-Object -FilterScript {$_.Name -eq $propertyName}
+
+    return $property.ClrType.Name
 }
 
 # endregion
