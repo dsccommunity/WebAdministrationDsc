@@ -4,10 +4,10 @@ Configuration MSFT_xWebConfigProperty_Add
 
     xWebConfigProperty IntegrationTest
     {
-        WebsitePath  = $env:xWebConfigPropertyWebsitePath
-        Filter       = $env:xWebConfigPropertyFilter
-        PropertyName = $env:xWebConfigPropertyPropertyName
-        Value        = $env:xWebConfigPropertyPropertyValueAdd
+        WebsitePath  = $Node.WebsitePath
+        Filter       = $Node.Filter
+        PropertyName = $Node.PropertyName
+        Value        = $Node.AddValue
         Ensure       = 'Present'
     }
 }
@@ -18,10 +18,24 @@ Configuration MSFT_xWebConfigProperty_Update
 
     xWebConfigProperty IntegrationTest
     {
-        WebsitePath  = $env:xWebConfigPropertyWebsitePath
-        Filter       = $env:xWebConfigPropertyFilter
-        PropertyName = $env:xWebConfigPropertyPropertyName
-        Value        = $env:xWebConfigPropertyPropertyValueUpdate
+        WebsitePath  = $Node.WebsitePath
+        Filter       = $Node.Filter
+        PropertyName = $Node.PropertyName
+        Value        = $Node.UpdateValue
+        Ensure       = 'Present'
+    }
+}
+
+Configuration MSFT_xWebConfigProperty_Integer
+{
+    Import-DscResource -ModuleName xWebAdministration
+
+    xWebConfigProperty IntegrationTest
+    {
+        WebsitePath  = $Node.WebsitePath
+        Filter       = $Node.IntegerFilter
+        PropertyName = $Node.IntergerPropertyName
+        Value        = $Node.IntegerValue
         Ensure       = 'Present'
     }
 }
@@ -32,9 +46,9 @@ Configuration MSFT_xWebConfigProperty_Remove
 
     xWebConfigProperty IntegrationTest
     {
-        WebsitePath  = $env:xWebConfigPropertyWebsitePath
-        Filter       = $env:xWebConfigPropertyFilter
-        PropertyName = $env:xWebConfigPropertyPropertyName
+        WebsitePath  = $Node.WebsitePath
+        Filter       = $Node.Filter
+        PropertyName = $Node.PropertyName
         Ensure       = 'Absent'
     }
 }

@@ -180,6 +180,7 @@ try
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
             Context 'Ensure is present' {
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
+                Mock -CommandName Get-ItemPropertyType -MockWith {}
 
                 Set-TargetResource @script:presentParameters
 
@@ -190,6 +191,7 @@ try
 
             Context 'Ensure is absent' {
                 Mock -CommandName Clear-WebConfiguration -MockWith {}
+                Mock -CommandName Get-ItemPropertyType -MockWith {}
 
                 Set-TargetResource @script:absentParameters
 
@@ -200,10 +202,32 @@ try
         }
         #endregion Function Set-TargetResource
 
-        #endregion Exported Function Unit Tests
-
         #region Non-Exported Function Unit Tests
+        Describe "$($script:DSCResourceName)\Get-ItemPropertyType" {
+            $propertyType = 'UInt32'
+            $parameters = @{
+                WebsitePath  = 'IIS:\'
+                Filter       = 'system.webServer/security/dynamicIpSecurity/denyByConcurrentRequests'
+                PropertyName = 'maxConcurrentRequests'
+            }
 
+            Mock -CommandName 'Get-WebConfiguration' -MockWith {
+                @{
+                    Schema = @{
+                        AttributeSchemas = @{
+                            Name    = $parameters.PropertyName
+                            ClrType = @{
+                                Name = $propertyType
+                            }
+                        }
+                    }
+                }
+            }
+
+            It 'Should return the expected ClrType' {
+                Get-ItemPropertyType @parameters | Should Be $propertyType
+            }
+        }
         #endregion Non-Exported Function Unit Tests
     }
 }
