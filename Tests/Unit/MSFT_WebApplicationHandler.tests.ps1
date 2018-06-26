@@ -68,7 +68,23 @@ try
             ResourceType        = 'Unspecified'
             ResponseBufferLimit = 0
             Path                = 'MACHINE/WEBROOT/APPHOST'
-            Ensure              = 'present'
+            Ensure              = 'Present'
+        }
+
+        $mockAbsentGetTargetResource = @{
+            Name                = $null
+            PhysicalHandlerPath = $null
+            Verb                = $null
+            Type                = $null
+            Modules             = $null
+            ScriptProcessor     = $null
+            PreCondition        = $null
+            RequireAccess       = $null
+            AllowPathInfo       = $null
+            ResourceType        = $null
+            ResponseBufferLimit = $null
+            Path                = $null
+            Ensure              = 'Absent'
         }
 
         $GetTargetRequiredParams = @{
@@ -152,7 +168,7 @@ try
 
             Context 'When Ensure = Present but Web handler is Absent' {
 
-                Mock Get-TargetResource
+                Mock Get-TargetResource -MockWith {$mockAbsentGetTargetResource}
 
                 It 'Should not throw error' {
 
@@ -171,10 +187,7 @@ try
 
             Context 'When Ensure = Absent but Web Handler is Present' {
 
-                $mockAbsentGetTargetResource = $mockGetTargetResource.clone()
-                $mockAbsentGetTargetResource.Ensure = 'Absent'
-
-                Mock Get-TargetResource -MockWith {$mockAbsentGetTargetResource}
+                Mock Get-TargetResource -MockWith {$mockGetTargetResource}
 
                 It 'Should not throw error' {
 
@@ -187,6 +200,24 @@ try
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 0
                     Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 1
+                }
+            }
+
+            Context 'When Ensure = Absent and Web Handler is Absent' {
+
+                Mock Get-TargetResource -MockWith {$mockAbsentGetTargetResource}
+
+                It 'Should not throw error' {
+
+                    {Set-TargetResource @customWebHandlerAbsentParameters} | Should -Not -Throw
+                }
+
+                It 'Should do nothing'{
+
+                    Assert-MockCalled -CommandName Get-TargetResource -Exactly -Times 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly -Times 0
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly -Times 0
+                    Assert-MockCalled -CommandName Remove-WebHandler -Exactly -Times 0
                 }
             }
         }

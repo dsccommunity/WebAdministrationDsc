@@ -187,20 +187,30 @@ function Set-TargetResource
     $attributes.Path = $attributes.PhysicalHandlerPath
     $null = $attributes.Remove('PhysicalHandlerPath')
 
-    if ($currentHandler.Ensure -eq 'Present')
+    if ($Ensure -eq 'Present')
     {
-        Write-Verbose -Message ($localizedData.UpdatingHandler -f $Name)
-        Set-WebConfigurationProperty -Filter $filter -PSPath $Path -Name '.' -Value $attributes
+        if ($currentHandler.Ensure -eq 'Present')
+        {
+            Write-Verbose -Message ($localizedData.UpdatingHandler -f $Name)
+            Set-WebConfigurationProperty -Filter $filter -PSPath $Path -Name '.' -Value $attributes
+        }
+        else
+        {
+            Write-Verbose -Message ($localizedData.AddingHandler -f $Name)
+            Add-WebConfigurationProperty -Filter 'system.webServer/handlers' -PSPath $Path -Name '.' -Value $attributes
+        }
     }
-    elseif ($Ensure -eq 'Present')
+    elseif ($Ensure -eq 'Absent')
     {
-        Write-Verbose -Message ($localizedData.AddingHandler -f $Name)
-        Add-WebConfigurationProperty -Filter 'system.webServer/handlers' -PSPath $Path -Name '.' -Value $attributes
-    }
-    else
-    {
-        Write-Verbose -Message ($localizedData.RemovingHandler -f $Name)
-        Remove-WebHandler -Name $Name -PSPath $Path
+        if ($currentHandler.Ensure -eq 'Present')
+        {
+            Write-Verbose -Message ($localizedData.RemovingHandler -f $Name)
+            Remove-WebHandler -Name $Name -PSPath $Path
+        }
+        else
+        {
+            Write-Verbose -Message 'Current Handler is in desired state (Absent)'
+        }
     }
 }
 

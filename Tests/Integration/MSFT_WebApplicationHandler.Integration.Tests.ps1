@@ -26,6 +26,7 @@ try
         $filter = "system.webServer/handlers/Add[@Name='$Name']"
 
         Context 'When using MSFT_WebApplicationHandler_AddHandler' {
+
             It 'Should compile and apply the MOF without throwing' {
                 {
                     $configurationParameters = @{
@@ -40,7 +41,7 @@ try
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+                {$script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
             }
 
             It 'Should be able to call Test-DscConfiguration and return true' {
@@ -48,18 +49,18 @@ try
                 $results | Should -Be $true
             }
 
-            It 'Should add a handler' {
-                $handler = Get-WebConfigurationProperty -pspath $handler.Path -filter $filter -Name .
+            It 'Should have set the resource and all the parameters should match' {
+                $resourceCurrentState = $script:currentConfiguration
 
-                $handler.Modules             | Should -Be $ConfigurationData.AllNodes.Modules
-                $handler.Name                | Should -Be $ConfigurationData.AllNodes.Name
-                $handler.Path                | Should -Be $ConfigurationData.AllNodes.PhysicalHandlerPath
-                $handler.Verb                | Should -Be $ConfigurationData.AllNodes.Verb
-                $handler.RequireAccess       | Should -Be $ConfigurationData.AllNodes.RequireAccess
-                $handler.ScriptProcessor     | Should -Be $ConfigurationData.AllNodes.ScriptProcessor
-                $handler.ResourceType        | Should -Be $ConfigurationData.AllNodes.ResourceType
-                $handler.AllowPathInfo       | Should -Be $ConfigurationData.AllNodes.AllowPathInfo
-                $handler.ResponseBufferLimit | Should -Be $ConfigurationData.AllNodes.ResponseBufferLimit
+                $resourceCurrentState.Modules             | Should -Be $ConfigurationData.AllNodes.Modules
+                $resourceCurrentState.Name                | Should -Be $ConfigurationData.AllNodes.Name
+                $resourceCurrentState.PhysicalHandlerPath | Should -Be $ConfigurationData.AllNodes.PhysicalHandlerPath
+                $resourceCurrentState.Verb                | Should -Be $ConfigurationData.AllNodes.Verb
+                $resourceCurrentState.RequireAccess       | Should -Be $ConfigurationData.AllNodes.RequireAccess
+                $resourceCurrentState.ScriptProcessor     | Should -Be $ConfigurationData.AllNodes.ScriptProcessor
+                $resourceCurrentState.ResourceType        | Should -Be $ConfigurationData.AllNodes.ResourceType
+                $resourceCurrentState.AllowPathInfo       | Should -Be $ConfigurationData.AllNodes.AllowPathInfo
+                $resourceCurrentState.ResponseBufferLimit | Should -Be $ConfigurationData.AllNodes.ResponseBufferLimit
             }
         }
 
