@@ -178,20 +178,36 @@ try
 
         #region Function Set-TargetResource
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
-            Context 'Ensure is present' {
+            Context 'Ensure is present - String Value' {
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Convert-PropertyValue -MockWith {}
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
-                Mock -CommandName Get-ItemPropertyType -MockWith {}
 
                 Set-TargetResource @script:presentParameters
 
                 It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
+                }
+            }
+
+            Context 'Ensure is present - Integer Value' {
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'Int32' }
+                Mock -CommandName Convert-PropertyValue -MockWith { return '32' }
+                Mock -CommandName Set-WebConfigurationProperty -MockWith {}
+
+                Set-TargetResource @script:presentParameters
+
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 1 -Exactly
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
                 }
             }
 
             Context 'Ensure is absent' {
                 Mock -CommandName Clear-WebConfiguration -MockWith {}
-                Mock -CommandName Get-ItemPropertyType -MockWith {}
 
                 Set-TargetResource @script:absentParameters
 
@@ -225,8 +241,23 @@ try
             }
 
             It 'Should return the expected ClrType' {
-                Get-ItemPropertyType @parameters | Should Be $propertyType
+                Get-ItemPropertyType @parameters | Should -Be $propertyType
             }
+        }
+
+        Describe "$($script:DSCResourceName)\Convert-PropertyValue" {
+            $cases = @(
+                @{DataType = 'Int32'},
+                @{DataType = 'Int64'},
+                @{DataType = 'UInt32'}
+            )
+            It 'Should return <dataType> value' -TestCases $cases {
+                param ($DataType)
+                $returnValue = Convert-PropertyValue -PropertyType $dataType -InputValue 32
+
+                $returnValue | Should -BeOfType [$dataType]
+            }
+
         }
         #endregion Non-Exported Function Unit Tests
     }
