@@ -25,7 +25,6 @@ $TestEnvironment = Initialize-TestEnvironment `
 # Using try/finally to always cleanup.
 try
 {
-    # Ensure the WinRM service required by DSC is running.
     $configurationFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configurationFile
 
@@ -33,9 +32,8 @@ try
 
     #region Integration Tests
     Describe "$($script:dscResourceName)_Integration" {
-        # Constants for Tests
-        $websiteName = New-Guid
         # Create the website we'll use for testing purposes.
+        $websiteName = New-Guid
         if (-not(Get-Website -Name $websiteName))
         {
             $websitePhysicalPath = "$($TestDrive)\$($websiteName)"
