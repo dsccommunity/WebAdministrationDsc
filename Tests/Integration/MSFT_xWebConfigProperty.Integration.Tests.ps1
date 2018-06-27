@@ -1,6 +1,6 @@
-
 $script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = "MSFT_xWebConfigProperty"
+$script:dscResourceFriendlyName = 'xWebConfigProperty'
+$script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
 
 #region HEADER
 # Integration Test Template Version: 1.3.0
@@ -10,7 +10,6 @@ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCR
 {
     & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
 }
-
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 # Ensure the WebAdministration module is imported into the current session!
@@ -27,48 +26,45 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     # Ensure the WinRM service required by DSC is running.
-    Get-Service -Name 'WinRM' | Where-Object { $_.Status -ne 'Running' } | Start-Service
-
     $configurationFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configurationFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    # Constants for Tests
-    $websiteName = New-Guid
-    # Create the website we'll use for testing purposes.
-    if (-not(Get-Website -Name $websiteName))
-    {
-        $websitePhysicalPath = "$($TestDrive)\$($websiteName)"
-        New-Item -Path $websitePhysicalPath -ItemType Directory -Force | Out-Null
-        New-Website -Name $websiteName -PhysicalPath $websitePhysicalPath | Out-Null
-    }
-
-    $ConfigurationData = @{
-        AllNodes = @(
-            @{
-                WebsitePath          = "IIS:\Sites\$($websiteName)"
-                Filter               = 'system.webServer/directoryBrowse'
-                PropertyName         = 'enabled'
-                AddValue             = $true
-                UpdateValue          = $false
-                IntegerFilter        = '/SYSTEM.WEB/TRACE'
-                IntergerPropertyName = 'requestLimit'
-                IntegerValue         = [string](Get-Random -Minimum 11 -Maximum 1000)
-            }
-        )
-    }
-
     #region Integration Tests
     Describe "$($script:dscResourceName)_Integration" {
+        # Constants for Tests
+        $websiteName = New-Guid
+        # Create the website we'll use for testing purposes.
+        if (-not(Get-Website -Name $websiteName))
+        {
+            $websitePhysicalPath = "$($TestDrive)\$($websiteName)"
+            New-Item -Path $websitePhysicalPath -ItemType Directory -Force | Out-Null
+            New-Website -Name $websiteName -PhysicalPath $websitePhysicalPath | Out-Null
+        }
+
+        $ConfigurationData = @{
+            AllNodes = @(
+                @{
+                    NodeName             = 'localhost'
+                    WebsitePath          = "IIS:\Sites\$($websiteName)"
+                    Filter               = 'system.webServer/directoryBrowse'
+                    PropertyName         = 'enabled'
+                    AddValue             = $true
+                    UpdateValue          = $false
+                    IntegerFilter        = '/SYSTEM.WEB/TRACE'
+                    IntergerPropertyName = 'requestLimit'
+                    IntegerValue         = [string](Get-Random -Minimum 11 -Maximum 1000)
+                }
+            )
+        }
+
         $startDscConfigurationParameters = @{
             Path              = $TestDrive
-            ConfigurationData = $ConfigurationData
             ComputerName      = 'localhost'
             Wait              = $true
             Verbose           = $true
             Force             = $true
-            ErrorAction       = 'Stop'
         }
 
         $websitePath          = $ConfigurationData.AllNodes.WebsitePath
@@ -80,11 +76,10 @@ try
         $intergerPropertyName = $ConfigurationData.AllNodes.IntergerPropertyName
         $integerValue         = $ConfigurationData.AllNodes.IntegerValue
 
-
         Context 'When Adding Property' {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:dscResourceName)_Add" -OutputPath $TestDrive
+                    & "$($script:dscResourceName)_Add" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should -Not -Throw
             }
@@ -98,8 +93,7 @@ try
             }
 
             It 'Should have the correct value of the configuration property' {
-                # Get the new value.
-                [string] $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name $propertyName).Value
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name $propertyName).Value
 
                 $value | Should -Be $addValue
             }
@@ -108,13 +102,13 @@ try
         Context 'When Updating a Property' {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:dscResourceName)_Update" -OutputPath $TestDrive
+                    & "$($script:dscResourceName)_Update" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should -Not -Throw
             }
 
             It 'Should update the configuration property correctly' {
-                [string] $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name $propertyName).Value
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name $propertyName).Value
 
                 $value | Should -Be $updateValue
             }
@@ -131,7 +125,7 @@ try
         Context 'When Removing a Property' {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:dscResourceName)_Remove" -OutputPath $TestDrive
+                    & "$($script:dscResourceName)_Remove" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should -Not -Throw
             }
@@ -157,7 +151,7 @@ try
         Context 'When Updating a Integer Property' {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:dscResourceName)_Integer" -OutputPath $TestDrive
+                    & "$($script:dscResourceName)_Integer" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should -Not -Throw
             }
