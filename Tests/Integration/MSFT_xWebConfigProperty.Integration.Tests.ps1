@@ -1,4 +1,3 @@
-
 $script:dscModuleName = 'xWebAdministration'
 $script:dscResourceFriendlyName = 'xWebConfigProperty'
 $script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
@@ -7,16 +6,9 @@ $script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
 # Integration Test Template Version: 1.3.0
 [String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    if (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip'))
-    {
-        Expand-Archive -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip') -DestinationPath (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests') -Force
-    }
-    else
-    {
-        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
-    }
+    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
 }
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
@@ -33,23 +25,15 @@ $TestEnvironment = Initialize-TestEnvironment `
 # Using try/finally to always cleanup.
 try
 {
-    #region Integration Tests
     $configurationFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configurationFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    # Constants for Tests
-    $websiteName = New-Guid
-    $env:xWebConfigPropertyWebsitePath  = "IIS:\Sites\$($websiteName)"
-    $env:xWebConfigPropertyFilter       = 'system.webServer/directoryBrowse'
-    $env:xWebConfigPropertyPropertyName = 'enabled'
-
+    #region Integration Tests
     Describe "$($script:dscResourceName)_Integration" {
-        # Ensure the WinRM service required by DSC is running.
-        Get-Service -Name 'WinRM' | Where-Object { $_.Status -ne 'Running' } | Start-Service
-
         # Create the website we'll use for testing purposes.
+        $websiteName = New-Guid
         if (-not(Get-Website -Name $websiteName))
         {
             $websitePhysicalPath = "$($TestDrive)\$($websiteName)"
@@ -57,74 +41,132 @@ try
             New-Website -Name $websiteName -PhysicalPath $websitePhysicalPath | Out-Null
         }
 
-        # Get the current value & either default or set it to the opposite of what it is already.
-        $value = (Get-WebConfigurationProperty -PSPath $($env:xWebConfigPropertyWebsitePath) -Filter $($env:xWebConfigPropertyFilter) -Name $($env:xWebConfigPropertyPropertyName)).Value
-        if ($null -ne $value)
-        {
-            $env:xWebConfigPropertyPropertyValueAdd = -not([bool]$value)
-        }
-        else
-        {
-            $env:xWebConfigPropertyPropertyValueAdd = $false
-        }
-
-        It 'Should compile and apply the MOF without throwing' {
-            {
-                Invoke-Expression -Command "$($script:dscResourceName)_Add -OutputPath `$TestDrive"
-                #& "$($script:dscResourceName)_Add" -OutputPath $TestDrive
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } `
-            | Should -Not -Throw
-        }
-
-        It 'Should be able to call Get-DscConfiguration without throwing' {
-            {
-                Get-DscConfiguration -Verbose -ErrorAction Stop
-            } `
-            | Should -Not -Throw
-        }
-
-        It 'Should have the correct value of the configuration property' {
-            # Get the new value.
-            [string] $value = (Get-WebConfigurationProperty -PSPath $env:xWebConfigPropertyWebsitePath -Filter $env:xWebConfigPropertyFilter -Name $env:xWebConfigPropertyPropertyName).Value
-
-            $value | Should -Be $env:xWebConfigPropertyPropertyValueAdd
-        }
-
-        It 'Should update the configuration property correctly' {
-            {
-                # Get the current value set it to the opposite of what it is already.
-                $value = (Get-WebConfigurationProperty -PSPath $($env:xWebConfigPropertyWebsitePath) -Filter $($env:xWebConfigPropertyFilter) -Name $($env:xWebConfigPropertyPropertyName)).Value
-                if ($null -ne $value)
-                {
-                    $env:xWebConfigPropertyPropertyValueUpdate = -not([bool]$value)
+        $ConfigurationData = @{
+            AllNodes = @(
+                @{
+                    NodeName             = 'localhost'
+                    WebsitePath          = "IIS:\Sites\$($websiteName)"
+                    Filter               = 'system.webServer/directoryBrowse'
+                    PropertyName         = 'enabled'
+                    AddValue             = $true
+                    UpdateValue          = $false
+                    IntegerFilter        = '/SYSTEM.WEB/TRACE'
+                    IntergerPropertyName = 'requestLimit'
+                    IntegerValue         = [string](Get-Random -Minimum 11 -Maximum 1000)
                 }
-
-                Invoke-Expression -Command "$($script:dscResourceName)_Update -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } `
-            | Should -Not -Throw
-
-            # Get the new value.
-            [string] $value = (Get-WebConfigurationProperty -PSPath $env:xWebConfigPropertyWebsitePath -Filter $env:xWebConfigPropertyFilter -Name $env:xWebConfigPropertyPropertyName).Value
-
-            $value | Should -Be $env:xWebConfigPropertyPropertyValueUpdate
+            )
         }
 
-        It 'Should remove configuration property' {
-            {
-                Invoke-Expression -Command "$($script:dscResourceName)_Remove -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } `
-            | Should -Not -Throw
+        $startDscConfigurationParameters = @{
+            Path              = $TestDrive
+            ComputerName      = 'localhost'
+            Wait              = $true
+            Verbose           = $true
+            Force             = $true
+        }
 
-            # Get the value.
-            # Because configuration properties can be inherited (& I'm not aware of a reliable way to determine if the value returned is inherited or set explicitly),
-            # we instead read the config file as XML directly & attempt to locate the property under test.
+        $websitePath          = $ConfigurationData.AllNodes.WebsitePath
+        $filter               = $ConfigurationData.AllNodes.Filter
+        $propertyName         = $ConfigurationData.AllNodes.PropertyName
+        $addValue             = $ConfigurationData.AllNodes.AddValue
+        $updateValue          = $ConfigurationData.AllNodes.UpdateValue
+        $integerFilter        = $ConfigurationData.AllNodes.IntegerFilter
+        $intergerPropertyName = $ConfigurationData.AllNodes.IntergerPropertyName
+        $integerValue         = $ConfigurationData.AllNodes.IntegerValue
 
-            $value = ([xml] ((Get-WebConfigFile -PSPath $env:xWebConfigPropertyWebsitePath) | Get-Content)).SelectSingleNode("//$($env:xWebConfigPropertyFilter)/@$($env:xWebConfigPropertyPropertyName)")
+        Context 'When Adding Property' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Add" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
 
-            $value | Should -Be $null
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+
+            It 'Should have the correct value of the configuration property' {
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name $propertyName).Value
+
+                $value | Should -Be $addValue
+            }
+        }
+
+        Context 'When Updating a Property' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Update" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should update the configuration property correctly' {
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name $propertyName).Value
+
+                $value | Should -Be $updateValue
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+        }
+
+        Context 'When Removing a Property' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Remove" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should remove configuration property' {
+                # Get the value.
+                # Because configuration properties can be inherited (& I'm not aware of a reliable way to determine if the value returned is inherited or set explicitly),
+                # we instead read the config file as XML directly & attempt to locate the property under test.
+
+                $value = ([xml] ((Get-WebConfigFile -PSPath $websitePath) | Get-Content)).SelectSingleNode("//$($filter)/@$($propertyName)")
+                $value | Should -Be $null
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+        }
+
+        Context 'When Updating a Integer Property' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Integer" -OutputPath $TestDrive -ConfigurationData $ConfigurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should update the configuration integer property correctly' {
+                [string] $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $integerFilter -Name $intergerPropertyName).Value
+
+                $value | Should -Be $integerValue
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
         }
 
         # Remove the website we created for testing purposes.

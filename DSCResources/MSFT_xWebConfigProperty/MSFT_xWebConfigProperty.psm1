@@ -134,6 +134,13 @@ function Set-TargetResource
         Write-Verbose `
             -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName )
 
+        $propertyType = Get-ItemPropertyType -WebsitePath $WebsitePath -Filter $Filter -PropertyName $PropertyName
+
+        if ($propertyType -match 'Int32|Int64')
+        {
+            $value = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value
+        }
+
         Set-WebConfigurationProperty `
             -Filter $Filter `
             -PSPath $WebsitePath `
@@ -288,6 +295,92 @@ function Get-ItemValue
     {
         return $value.Value
     }
+    return $value
+}
+
+<#
+.SYNOPSIS
+    Gets the current data type of the property.
+
+.PARAMETER WebsitePath
+    Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Filter used to locate property to retrieve.
+
+.PARAMETER PropertyName
+    Name of the property to retrieve.
+#>
+function Get-ItemPropertyType
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName
+    )
+
+    $webConfiguration = Get-WebConfiguration -Filter $Filter -PsPath $WebsitePath
+
+    $property = $webConfiguration.Schema.AttributeSchemas | Where-Object -FilterScript {$_.Name -eq $propertyName}
+
+    return $property.ClrType.Name
+}
+
+<#
+.SYNOPSIS
+    Converts the property from string to appropriate data type.
+
+.PARAMETER PropertyType
+    Property type to be converted to.
+
+.PARAMETER InputValue
+    Value to be converted.
+#>
+function Convert-PropertyValue
+{
+    [CmdletBinding()]
+    [OutputType([System.ValueType])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $PropertyType,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $InputValue
+    )
+
+    switch ($PropertyType )
+    {
+        'Int32'
+        {
+            [Int32] $value = [convert]::ToInt32($InputValue, 10)
+        }
+        'UInt32'
+        {
+            [UInt32] $value = [convert]::ToUInt32($InputValue, 10)
+        }
+        'Int64'
+        {
+            [Int64] $value = [convert]::ToInt64($InputValue, 10)
+        }
+    }
+
     return $value
 }
 

@@ -178,18 +178,36 @@ try
 
         #region Function Set-TargetResource
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
-            Context 'Ensure is present' {
-                Mock -CommandName Set-WebConfigurationProperty -MockWith {}
+            Context 'Ensure is present - String Value' {
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Convert-PropertyValue
+                Mock -CommandName Set-WebConfigurationProperty
 
                 Set-TargetResource @script:presentParameters
 
                 It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
+                }
+            }
+
+            Context 'Ensure is present - Integer Value' {
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'Int32' }
+                Mock -CommandName Convert-PropertyValue -MockWith { return '32' }
+                Mock -CommandName Set-WebConfigurationProperty
+
+                Set-TargetResource @script:presentParameters
+
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 1 -Exactly
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
                 }
             }
 
             Context 'Ensure is absent' {
-                Mock -CommandName Clear-WebConfiguration -MockWith {}
+                Mock -CommandName Clear-WebConfiguration
 
                 Set-TargetResource @script:absentParameters
 
@@ -200,10 +218,47 @@ try
         }
         #endregion Function Set-TargetResource
 
-        #endregion Exported Function Unit Tests
-
         #region Non-Exported Function Unit Tests
+        Describe "$($script:DSCResourceName)\Get-ItemPropertyType" {
+            $propertyType = 'UInt32'
+            $parameters = @{
+                WebsitePath  = 'IIS:\'
+                Filter       = 'system.webServer/security/dynamicIpSecurity/denyByConcurrentRequests'
+                PropertyName = 'maxConcurrentRequests'
+            }
 
+            Mock -CommandName 'Get-WebConfiguration' -MockWith {
+                @{
+                    Schema = @{
+                        AttributeSchemas = @{
+                            Name    = $parameters.PropertyName
+                            ClrType = @{
+                                Name = $propertyType
+                            }
+                        }
+                    }
+                }
+            }
+
+            It 'Should return the expected ClrType' {
+                Get-ItemPropertyType @parameters | Should -Be $propertyType
+            }
+        }
+
+        Describe "$($script:DSCResourceName)\Convert-PropertyValue" {
+            $cases = @(
+                @{DataType = 'Int32'},
+                @{DataType = 'Int64'},
+                @{DataType = 'UInt32'}
+            )
+            It 'Should return <dataType> value' -TestCases $cases {
+                param ($DataType)
+                $returnValue = Convert-PropertyValue -PropertyType $dataType -InputValue 32
+
+                $returnValue | Should -BeOfType [$dataType]
+            }
+
+        }
         #endregion Non-Exported Function Unit Tests
     }
 }
