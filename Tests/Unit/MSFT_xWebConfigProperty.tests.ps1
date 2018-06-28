@@ -180,8 +180,8 @@ try
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
             Context 'Ensure is present - String Value' {
                 Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
-                Mock -CommandName Convert-PropertyValue -MockWith {}
-                Mock -CommandName Set-WebConfigurationProperty -MockWith {}
+                Mock -CommandName Convert-PropertyValue
+                Mock -CommandName Set-WebConfigurationProperty
 
                 Set-TargetResource @script:presentParameters
 
@@ -195,7 +195,7 @@ try
             Context 'Ensure is present - Integer Value' {
                 Mock -CommandName Get-ItemPropertyType -MockWith { return 'Int32' }
                 Mock -CommandName Convert-PropertyValue -MockWith { return '32' }
-                Mock -CommandName Set-WebConfigurationProperty -MockWith {}
+                Mock -CommandName Set-WebConfigurationProperty
 
                 Set-TargetResource @script:presentParameters
 
@@ -207,7 +207,7 @@ try
             }
 
             Context 'Ensure is absent' {
-                Mock -CommandName Clear-WebConfiguration -MockWith {}
+                Mock -CommandName Clear-WebConfiguration
 
                 Set-TargetResource @script:absentParameters
 

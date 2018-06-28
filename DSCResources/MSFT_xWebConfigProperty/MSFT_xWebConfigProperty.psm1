@@ -341,14 +341,14 @@ function Get-ItemPropertyType
 }
 
 <#
-    .SYNOPSIS
-        Converts the property from string to appropriate data type.
+.SYNOPSIS
+    Converts the property from string to appropriate data type.
 
-    .PARAMETER PropertyType
-        Property type to be converted to.
+.PARAMETER PropertyType
+    Property type to be converted to.
 
-    .PARAMETER InputValue
-        Value to be converted.
+.PARAMETER InputValue
+    Value to be converted.
 #>
 function Convert-PropertyValue
 {
