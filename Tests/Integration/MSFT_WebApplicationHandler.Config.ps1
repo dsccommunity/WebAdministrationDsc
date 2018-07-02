@@ -68,13 +68,5 @@ Configuration MSFT_WebApplicationHandler_RemoveHandler
             PreCondition        = 'IsapiModule'
             Ensure              = 'Absent'
         }
-
-        xWebsite Remove_IISWebsite
-        {
-            Name         = $node.Location
-            Ensure       = "Absent"
-            PhysicalPath = "$env:SystemDrive\inetpub\wwwroot"
-            DependsOn    = "[WebApplicationHandler]WebHandlerTest"
-        }
     }
 }

@@ -79,7 +79,7 @@ try
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+                {$script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
             }
 
             It 'Should be able to call Test-DscConfiguration and return true' {
@@ -89,18 +89,17 @@ try
 
             It 'Should remove a handler' {
 
-                $handler = Get-WebConfigurationProperty -pspath $handler.Path -filter $filter -Name .
+                $resourceCurrentState = $script:currentConfiguration
 
-                try
-                {
-                    $handler = Get-WebConfigurationProperty -pspath $handler.Path -filter $filter -Name .
-                }
-                catch
-                {
-                    $handler = $null
-                }
-
-                $handler | Should be $null
+                $resourceCurrentState.Modules             | Should -BeNullOrEmpty
+                $resourceCurrentState.Name                | Should -BeNullOrEmpty
+                $resourceCurrentState.PhysicalHandlerPath | Should -BeNullOrEmpty
+                $resourceCurrentState.Verb                | Should -BeNullOrEmpty
+                $resourceCurrentState.RequireAccess       | Should -BeNullOrEmpty
+                $resourceCurrentState.ScriptProcessor     | Should -BeNullOrEmpty
+                $resourceCurrentState.ResourceType        | Should -BeNullOrEmpty
+                $resourceCurrentState.AllowPathInfo       | Should -BeNullOrEmpty
+                $resourceCurrentState.ResponseBufferLimit | Should -BeNullOrEmpty
             }
         }
     }
