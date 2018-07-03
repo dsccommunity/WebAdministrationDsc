@@ -316,8 +316,8 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-* Added new resources xWebConfigProperty and xWebConfigPropertyCollection extending functionality provided by xWebConfigKeyValue, addresses #249.
-* Fixed Get-DscConfiguration throw in xWebSite; addresses #372. Reggie Gibson (@regedit32)
+* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
+* Fixed Get-DscConfiguration throw in xWebSite; addresses [#372](https://github.com/PowerShell/xWebAdministration/issues/372). [Reggie Gibson (@regedit32)](https://github.com/regedit32)
 * Added **WebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes #337
 * Added **WebApplicationHandler** integration tests
 * Added **WebApplicationHandler** unit tests
@@ -328,10 +328,16 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### 2.0.0.0
 * Changes to xWebAdministration
-    * Moved file Codecov.yml that was added to the wrong path in previous release.
-* Updated xWebSite to include ability to manage custom logging fields. Reggie Gibson (@regedit32)
-* Updated xIISLogging to include ability to manage custom logging fields (issue #267). @ldillonel
-* BREAKING CHANGE: Updated xIisFeatureDelegation to be able to manage any configuration section. Reggie Gibson (@regedit32)
+  * Moved file Codecov.yml that was added to the wrong path in previous release.
+* Updated **xWebSite** to include ability to manage custom logging fields.
+  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+* Updated **xIISLogging** to include ability to manage custom logging fields
+  ([issue #267](https://github.com/PowerShell/xWebAdministration/issues/267)).
+  [@ldillonel](https://github.com/ldillonel)
+* BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
+  configuration section.
+  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+
 
 ### 1.20.0.0
 
