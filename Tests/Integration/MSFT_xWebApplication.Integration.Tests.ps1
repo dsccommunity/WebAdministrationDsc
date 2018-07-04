@@ -15,7 +15,7 @@ Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
-    -TestType Integration 
+    -TestType Integration
 #endregion
 
 [string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
@@ -23,7 +23,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     $null = Backup-WebConfiguration -Name $tempName
-    
+
     # Now that xWebAdministration should be discoverable load the configuration data
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
@@ -33,7 +33,7 @@ try
     #region HelperFunctions
 
     # Function needed to test AuthenticationInfo
-    Function Get-AuthenticationInfo ($Type, $Website, $WebApplication) 
+    Function Get-AuthenticationInfo ($Type, $Website, $WebApplication)
     {
         (Get-WebConfigurationProperty `
             -Filter /system.WebServer/security/authentication/${Type}Authentication `
@@ -42,8 +42,8 @@ try
     }
 
     # Function needed to test SslFlags
-    Function Get-SslFlags ($Website, $WebApplication) 
-    { 
+    Function Get-SslFlags ($Website, $WebApplication)
+    {
         Get-WebConfiguration `
                 -PSPath IIS:\Sites `
                 -Location "${Website}/${WebApplication}" `
@@ -82,24 +82,24 @@ try
         #endregion
 
         It 'Should create a WebApplication with correct settings' -test {
-            
+
             Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg -OutputPath `$TestDrive"
 
             # Build results to test
             $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
             $ServiceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
-            
+
             # Test WebApplication basic settings are correct
             $Result.Path            | Should Match $DSCConfig.AllNodes.WebApplication
             $Result.PhysicalPath    | Should Be $DSCConfig.AllNodes.PhysicalPath
             $Result.ApplicationPool | Should Be $DSCConfig.AllNodes.ApplicationPool
-            
+
             # Test Website AuthenticationInfo are correct
             Get-AuthenticationInfo -Type 'Anonymous' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.AuthenticationInfoAnonymous
             Get-AuthenticationInfo -Type 'Basic' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication     | Should Be $DSCConfig.AllNodes.AuthenticationInfoBasic
             Get-AuthenticationInfo -Type 'Digest' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication    | Should Be $DSCConfig.AllNodes.AuthenticationInfoDigest
             Get-AuthenticationInfo -Type 'Windows' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication   | Should Be $DSCConfig.AllNodes.AuthenticationInfoWindows
-            
+
             # Test WebApplication settings
             $Result.PreloadEnabled           | Should Be $DSCConfig.AllNodes.PreloadEnabled
             $Result.ServiceAutoStartProvider | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
@@ -108,13 +108,13 @@ try
             # Test the serviceAutoStartProviders are present in IIS config
             $ServiceAutoStartProviders.Name | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
             $ServiceAutoStartProviders.Type | Should Be $DSCConfig.AllNodes.ApplicationType
-           
+
             # Test WebApplication SslFlags
             Get-SslFlags -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.WebApplicationSslFlags
-            
+
             # Test EnabledProtocols
             $Result.EnabledProtocols | Should Be ($DSCConfig.AllNodes.EnabledProtocols -join ',')
-            
+
             }
 
     }
@@ -132,17 +132,17 @@ try
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
-        
+
         It 'Should remove the WebApplication' -test {
-            
+
             Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
 
             # Build results to test
             $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
-            
+
             # Test WebApplication is removed
-            $Result | Should BeNullOrEmpty 
-            
+            $Result | Should BeNullOrEmpty
+
             }
 
     }

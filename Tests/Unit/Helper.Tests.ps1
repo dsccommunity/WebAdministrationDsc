@@ -471,6 +471,52 @@ try
                 }
             }
         }
+
+        Describe 'Get-LocalizedData' {
+            $mockTestPath = {
+                return $mockTestPathReturnValue
+            }
+
+            $mockImportLocalizedData = {
+                $BaseDirectory | Should Be $mockExpectedLanguagePath
+            }
+
+            BeforeEach {
+                Mock -CommandName Import-LocalizedData -MockWith $mockImportLocalizedData -Verifiable
+            }
+
+            Context 'When loading localized data for English' {
+
+                $mockExpectedLanguagePath = 'en-US'
+                $mockTestPathReturnValue = $true
+
+                It 'Should call Get-LocalizedData with en-US language' {
+                    Mock -CommandName Test-Path -MockWith $mockTestPath -Verifiable
+                    Mock -CommandName Join-Path -MockWith {
+                        return 'en-US'
+                    } -Verifiable
+
+                    { Get-LocalizedData -ResourceName 'DummyResource' -ResourcePath ..\..\DSCResources\MSFT_xWebApplicationHandler\en-us\MSFT_xWebApplicationHandler.strings.psd1} | Should Not Throw
+                }
+
+                It 'Should call Get-LocalizedData and fallback to en-US if input language does not exist' {
+
+                    Mock -CommandName Test-Path -MockWith {$false} -Verifiable
+                    Mock -CommandName Join-Path -MockWith {
+                        '..\..\DSCResources\MSFT_xWebApplicationHandler\en-us\Dummy.strings.psd1\DummyPath'
+                    } -Verifiable
+                    Mock -CommandName Import-LocalizedData -Verifiable
+
+                    { Get-LocalizedData -ResourceName 'DummyResource' -ResourcePath ..\..\DSCResources\MSFT_xWebApplicationHandler\en-us\Dummy.strings.psd1} | Should -Not -Throw
+
+                    Assert-MockCalled -CommandName Join-Path -Exactly -Times 2 -Scope It
+                    Assert-MockCalled -CommandName Test-Path -Exactly -Times 1 -Scope It
+                    Assert-MockCalled -CommandName Import-LocalizedData -Exactly -Times 1 -Scope It
+                }
+            }
+
+            Assert-VerifiableMock
+        }
     }
 }
 finally
