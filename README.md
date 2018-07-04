@@ -322,9 +322,6 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * Added **WebApplicationHandler** integration tests
 * Added **WebApplicationHandler** unit tests
 * Deprecated xIISHandler resource. This resource will be removed in future release
-* Changes to xWebAdministration
-  * Moved file Codecov.yml that was added to the wrong path in previous release.
-* Updated **xWebSite** to include ability to manage custom logging fields
 
 ### 2.0.0.0
 * Changes to xWebAdministration
