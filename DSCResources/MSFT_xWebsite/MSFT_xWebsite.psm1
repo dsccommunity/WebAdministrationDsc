@@ -489,7 +489,7 @@ function Set-TargetResource
 
             # Update LogTruncateSize if needed
             if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
-                ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
+                ($LogTruncateSize -ne $website.logfile.TruncateSize))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
                                         -f $Name)
@@ -737,7 +737,7 @@ function Set-TargetResource
 
             # Update LogTruncateSize if needed
             if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
-                ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
+                ($LogTruncateSize -ne $website.logfile.TruncateSize))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
                                         -f $Name)
@@ -1061,7 +1061,7 @@ function Test-TargetResource
 
         # Check LogTruncateSize
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
-            ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
+            ($LogTruncateSize -ne $website.logfile.TruncateSize))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize `
                                     -f $Name)
