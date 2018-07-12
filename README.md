@@ -322,6 +322,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * Added **WebApplicationHandler** integration tests
 * Added **WebApplicationHandler** unit tests
 * Deprecated xIISHandler resource. This resource will be removed in future release
+* Fixed Test-TargetResource in xWebsite when LogTruncateSize parameter is passed; addresses [#380](https://github.com/PowerShell/xWebAdministration/issues/380). [Nick Germany (@nickgw)](https://github.com/nickgw)
 
 ### 2.0.0.0
 * Changes to xWebAdministration
