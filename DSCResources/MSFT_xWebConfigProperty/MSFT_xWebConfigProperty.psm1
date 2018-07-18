@@ -138,14 +138,14 @@ function Set-TargetResource
 
         if ($propertyType -match 'Int32|Int64')
         {
-            $value = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value
+            $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value
         }
 
         Set-WebConfigurationProperty `
             -Filter $Filter `
             -PSPath $WebsitePath `
             -Name $PropertyName `
-            -Value $Value `
+            -Value $setValue `
             -WarningAction Stop
     }
     else

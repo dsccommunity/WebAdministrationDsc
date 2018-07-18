@@ -1,29 +1,24 @@
 
+#region HEADER
 $script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebConfigPropertyCollection'
 
-#region HEADER
+# Unit Test Template Version: 1.2.2
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    if (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip'))
-    {
-        Expand-Archive -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip') -DestinationPath (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests') -Force
-    }
-    else
-    {
-        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
-    }
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1') -Force -Scope Global
+Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
+    -ResourceType 'Mof' `
     -TestType Unit
+
 #endregion HEADER
 
 # Begin Testing
@@ -345,6 +340,48 @@ try
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Times 1 -Exactly
                 }
             }
+        }
+
+        Describe "$($script:DSCResourceName)\Get-ItemPropertyType" {
+            $propertyType = 'UInt32'
+            $parameters = @{
+                WebsitePath  = 'IIS:\'
+                Filter       = 'system.webServer/security/requestFiltering/requestLimits/headerlimits'
+                PropertyName = 'Sizelimit'
+                AddElement   = 'Add'
+            }
+
+            Mock -CommandName 'Get-WebConfiguration' -MockWith {
+                @{
+                    Schema = @{
+                        CollectionSchema = @{
+                            Name    = $parameters.PropertyName
+                            ClrType = @{
+                                Name = $propertyType
+                            }
+                        }
+                    }
+                }
+            }
+
+            It 'Should return the expected ClrType' {
+                Get-ItemPropertyType @parameters | Should -Be $propertyType
+            }
+        }
+
+        Describe "$($script:DSCResourceName)\Convert-PropertyValue" {
+            $cases = @(
+                @{DataType = 'Int32'},
+                @{DataType = 'Int64'},
+                @{DataType = 'UInt32'}
+            )
+            It 'Should return <dataType> value' -TestCases $cases {
+                param ($DataType)
+                $returnValue = Convert-PropertyValue -PropertyType $dataType -InputValue 32
+
+                $returnValue | Should -BeOfType [$dataType]
+            }
+
         }
 
         #endregion Non-Exported Function Unit Tests
