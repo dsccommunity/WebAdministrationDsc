@@ -233,17 +233,35 @@ try
 
         #region Function Set-TargetResource
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
-            Context 'Ensure is present and collection item and property do not exist' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
-                    return $null
-                }
-                Mock -CommandName Add-WebConfigurationProperty -MockWith {}
+            Context 'Ensure is present and collection item and property do not exist - String ItemPropertyValue' {
+                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
+                Mock -CommandName Add-WebConfigurationProperty
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Convert-PropertyValue
 
                 Set-TargetResource @script:presentParameters
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
+                }
+            }
+
+            Context 'Ensure is present and collection item and property do not exist - Integer ItemPropertyValue' {
+                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
+                Mock -CommandName Add-WebConfigurationProperty
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'Int64' }
+                Mock -CommandName Convert-PropertyValue
+
+                Set-TargetResource @script:presentParameters
+
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 1 -Exactly
                 }
             }
 
@@ -255,12 +273,16 @@ try
                     }
                 }
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Convert-PropertyValue
 
                 Set-TargetResource @script:presentParameters
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
                 }
             }
 
@@ -351,15 +373,21 @@ try
                 AddElement   = 'Add'
             }
 
-            Mock -CommandName 'Get-WebConfiguration' -MockWith {
+            Mock -CommandName Get-WebConfiguration  -MockWith {
                 @{
                     Schema = @{
                         CollectionSchema = @{
-                            Name    = $parameters.PropertyName
-                            ClrType = @{
-                                Name = $propertyType
-                            }
+                            AddElementNames = 'Add'
                         }
+                    }
+                }
+            }
+
+            Mock -CommandName Get-AddElementSchema -MockWith {
+                @{
+                    Name    = $parameters.PropertyName
+                    ClrType = @{
+                        Name = $propertyType
                     }
                 }
             }

@@ -551,11 +551,42 @@ function Get-ItemPropertyType
 
     $webConfiguration = Get-WebConfiguration -Filter $Filter -PsPath $WebsitePath
 
-    $addElementSchema = $webConfiguration.Schema.CollectionSchema.GetAddElementSchema($AddElement)
+    $addElementSchema = Get-AddElementSchema -AddElement $AddElement -WebConfiguration $webConfiguration
 
-    $property = $addElementSchema.AttributeSchemas | Where-Object -FilterScript {$_.Name -eq $PropertyName}
+    $property = $addElementSchema | Where-Object -FilterScript {$_.Name -eq $PropertyName}
 
     return $property.ClrType.Name
+}
+
+<#
+.SYNOPSIS
+    Gets the current data type of the property.
+
+.PARAMETER AddElement
+    Name of the Add Element to retrieve schema from.
+
+.PARAMETER WebConfiguration
+    Web configuration Element to retrieve the schema from.
+
+#>
+function Get-AddElementSchema
+{
+    [CmdletBinding()]
+    [OutputType([Microsoft.IIs.PowerShell.Framework.ConfigurationAttributeSchema])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $AddElement,
+
+        [Parameter(Mandatory = $true)]
+        [object]
+        $WebConfiguration
+    )
+
+    $addElementSchema = $WebConfiguration.Schema.CollectionSchema.GetAddElementSchema($AddElement)
+
+    return $addElementSchema.AttributeSchemas
 }
 
 <#
