@@ -236,7 +236,7 @@ try
             Context 'Ensure is present and collection item and property do not exist - String ItemPropertyValue' {
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
                 Mock -CommandName Add-WebConfigurationProperty
-                Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
 
                 Set-TargetResource @script:presentParameters
@@ -244,7 +244,7 @@ try
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
-                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
                     Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
                 }
             }
@@ -252,7 +252,7 @@ try
             Context 'Ensure is present and collection item and property do not exist - Integer ItemPropertyValue' {
                 Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
                 Mock -CommandName Add-WebConfigurationProperty
-                Mock -CommandName Get-ItemPropertyType -MockWith { return 'Int64' }
+                Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'Int64' }
                 Mock -CommandName Convert-PropertyValue
 
                 Set-TargetResource @script:presentParameters
@@ -260,7 +260,7 @@ try
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
-                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
                     Assert-MockCalled -CommandName Convert-PropertyValue -Times 1 -Exactly
                 }
             }
@@ -273,7 +273,7 @@ try
                     }
                 }
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
-                Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
 
                 Set-TargetResource @script:presentParameters
@@ -281,7 +281,7 @@ try
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
-                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
                     Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
                 }
             }
@@ -364,7 +364,7 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Get-ItemPropertyType" {
+        Describe "$($script:DSCResourceName)\Get-CollectionItemPropertyType" {
             $propertyType = 'UInt32'
             $parameters = @{
                 WebsitePath  = 'IIS:\'
@@ -393,7 +393,7 @@ try
             }
 
             It 'Should return the expected ClrType' {
-                Get-ItemPropertyType @parameters | Should -Be $propertyType
+                Get-CollectionItemPropertyType @parameters | Should -Be $propertyType
             }
         }
 

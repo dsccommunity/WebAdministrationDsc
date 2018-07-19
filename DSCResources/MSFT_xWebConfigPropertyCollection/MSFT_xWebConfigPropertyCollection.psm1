@@ -228,7 +228,7 @@ function Set-TargetResource
                             -ItemKeyName $ItemKeyName `
                             -ItemKeyValue $ItemKeyValue
 
-        $propertyType = Get-ItemPropertyType -WebsitePath $WebsitePath -Filter "$Filter/$CollectionName" -PropertyName $ItemPropertyName -AddElement $ItemName
+        $propertyType = Get-CollectionItemPropertyType -WebsitePath $WebsitePath -Filter "$Filter/$CollectionName" -PropertyName $ItemPropertyName -AddElement $ItemName
 
         if ($propertyType -match 'Int32|Int64')
         {
@@ -522,7 +522,7 @@ function Get-ItemValues
 .PARAMETER AddElement
     Name of the Add Element to retrieve schema from.
 #>
-function Get-ItemPropertyType
+function Get-CollectionItemPropertyType
 {
     [CmdletBinding()]
     [OutputType([System.String])]
