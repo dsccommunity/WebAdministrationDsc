@@ -140,6 +140,10 @@ function Set-TargetResource
         {
             $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value
         }
+        else
+        {
+            $setValue = $Value
+        }
 
         Set-WebConfigurationProperty `
             -Filter $Filter `
