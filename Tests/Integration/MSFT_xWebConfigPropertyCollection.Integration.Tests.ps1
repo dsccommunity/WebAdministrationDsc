@@ -48,6 +48,7 @@ try
         $configurationData = @{
             AllNodes = @(
                 @{
+                    NodeName                 = 'localhost'
                     WebsitePath              = "IIS:\Sites\$($websiteName)"
                     Filter                   = '.'
                     CollectionName           = 'appSettings'
@@ -91,7 +92,8 @@ try
             Force             = $true
         }
 
-        $filter = "$($filter)/$($collectionName)/$($itemName)[@$($itemKeyName)='$($itemKeyValue)']/@value"
+        $filterValue = "$($filter)/$($collectionName)/$($itemName)[@$($itemKeyName)='$($itemKeyValue)']/@$itemPropertyName"
+        $integerFilterValue = "$($integerFilter)/$($integerCollectionName)/$($itemName)[@$($integerItemKeyName)='$($integerItemKeyValue)']/@$integerItemPropertyName"
 
         Context 'When Adding Collection item' {
             It 'Should compile and apply the MOF without throwing' {
@@ -111,7 +113,7 @@ try
 
             It 'Should have the correct value of the configuration property collection item' {
                 # Get the new value.
-                [string] $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name "." -ErrorAction SilentlyContinue).Value
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filterValue -Name "." -ErrorAction SilentlyContinue).Value
 
                 $value | Should -Be $itemPropertyValueAdd
             }
@@ -134,7 +136,7 @@ try
             }
 
             It 'Should update the configuration property collection item correctly' {
-                [string] $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name "." -ErrorAction SilentlyContinue).Value
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filterValue -Name "." -ErrorAction SilentlyContinue).Value
 
                 $value | Should -Be $itemPropertyValueUpdate
             }
@@ -157,14 +159,33 @@ try
             }
 
             It 'Should remove configuration property' {
-                [string] $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filter -Name "." -ErrorAction SilentlyContinue).Value
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filterValue -Name "." -ErrorAction SilentlyContinue).Value
 
                 $value | Should -BeNullOrEmpty
             }
         }
 
         Context 'When Updating Collection item with integer property value' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Integer" -OutputPath $TestDrive -ConfigurationData $configurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
 
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+
+            It 'Should update the integer property collection item correctly' {
+                $integerValue = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $integerFilterValue -Name "." -ErrorAction SilentlyContinue).Value
+
+                $integerValue | Should -Be $integerItemPropertyValue
+            }
         }
 
         # Remove the website we created for testing purposes.

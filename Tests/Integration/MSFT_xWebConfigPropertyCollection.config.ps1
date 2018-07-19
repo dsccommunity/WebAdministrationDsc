@@ -60,3 +60,24 @@ Configuration MSFT_xWebConfigPropertyCollection_Remove
         }
     }
 }
+
+Configuration MSFT_xWebConfigPropertyCollection_Integer
+{
+    Import-DscResource -ModuleName xWebAdministration
+
+    node localhost
+    {
+        xWebConfigPropertyCollection IntegrationTest
+        {
+            WebsitePath       = $Node.WebsitePath
+            Filter            = $Node.IntegerFilter
+            CollectionName    = $Node.IntegerCollectionName
+            ItemName          = $Node.ItemName
+            ItemKeyName       = $Node.IntegerItemKeyName
+            ItemKeyValue      = $Node.IntegerItemKeyValue
+            ItemPropertyName  = $Node.IntegerItemPropertyName
+            ItemPropertyValue = $Node.IntegerItemPropertyValue
+            Ensure            = 'Present'
+        }
+    }
+}
