@@ -239,9 +239,9 @@ try
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
 
-                Set-TargetResource @script:presentParameters
-
                 It 'Should call the right Mocks' {
+                    Set-TargetResource @script:presentParameters
+
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
                     Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
@@ -255,9 +255,9 @@ try
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'Int64' }
                 Mock -CommandName Convert-PropertyValue
 
-                Set-TargetResource @script:presentParameters
-
                 It 'Should call the right Mocks' {
+                    Set-TargetResource @script:presentParameters
+
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
                     Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
@@ -276,9 +276,9 @@ try
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
 
-                Set-TargetResource @script:presentParameters
-
                 It 'Should call the right Mocks' {
+                    Set-TargetResource @script:presentParameters
+
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
                     Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
@@ -289,9 +289,9 @@ try
             Context 'Ensure is absent' {
                 Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
 
-                Set-TargetResource @script:absentParameters
-
                 It 'Should call the right Mocks' {
+                    Set-TargetResource @script:absentParameters
+
                     Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Times 1 -Exactly
                 }
             }
@@ -401,7 +401,8 @@ try
             $cases = @(
                 @{DataType = 'Int32'},
                 @{DataType = 'Int64'},
-                @{DataType = 'UInt32'}
+                @{DataType = 'UInt32'},
+                @{DataType = 'UInt64'}
             )
             It 'Should return <dataType> value' -TestCases $cases {
                 param ($DataType)

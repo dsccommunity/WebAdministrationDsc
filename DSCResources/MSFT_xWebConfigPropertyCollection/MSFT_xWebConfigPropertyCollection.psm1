@@ -505,7 +505,6 @@ function Get-ItemValues
     return $null
 }
 
-
 <#
 .SYNOPSIS
     Gets the current data type of the property.
@@ -627,6 +626,10 @@ function Convert-PropertyValue
         'Int64'
         {
             [Int64] $value = [convert]::ToInt64($InputValue, 10)
+        }
+        'UInt64'
+        {
+            [UInt64] $value = [convert]::ToUInt64($InputValue, 10)
         }
     }
 
