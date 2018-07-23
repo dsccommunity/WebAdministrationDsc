@@ -7,21 +7,16 @@ $script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
 # Integration Test Template Version: 1.3.0
 [String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    if (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip'))
-    {
-        Expand-Archive -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip') -DestinationPath (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests') -Force
-    }
-    else
-    {
-        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
-    }
+    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
 }
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
+
 # Ensure the WebAdministration module is imported into the current session!
 Import-Module WebAdministration -Force
+
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:dscModuleName `
     -DSCResourceName $script:dscResourceName `
@@ -40,20 +35,9 @@ try
     $null = Backup-WebConfiguration -Name $tempName
 
     # Constants for Tests
-    $websiteName = New-Guid
-    $env:xWebConfigPropertyCollectionWebsitePath      = "IIS:\Sites\$($websiteName)"
-    $env:xWebConfigPropertyCollectionFilter           = '.'
-    $env:xWebConfigPropertyCollectionCollectionName   = 'appSettings'
-    $env:xWebConfigPropertyCollectionItemName         = 'add'
-    $env:xWebConfigPropertyCollectionItemKeyName      = 'key'
-    $env:xWebConfigPropertyCollectionItemKeyValue     = $script:dscResourceName
-    $env:xWebConfigPropertyCollectionItemPropertyName = 'value'
-
     Describe "$($script:dscResourceName)_Integration" {
-        # Ensure the WinRM service required by DSC is running.
-        Get-Service -Name 'WinRM' | Where-Object { $_.Status -ne 'Running' } | Start-Service
-
         # Create the website we'll use for testing purposes.
+        $websiteName = New-Guid
         if (-not(Get-Website -Name $websiteName))
         {
             $websitePhysicalPath = "$($TestDrive)\$($websiteName)"
@@ -61,58 +45,147 @@ try
             New-Website -Name $websiteName -PhysicalPath $websitePhysicalPath | Out-Null
         }
 
-        $filter = "$($env:xWebConfigPropertyCollectionFilter)/$($env:xWebConfigPropertyCollectionCollectionName)/$($env:xWebConfigPropertyCollectionItemName)[@$($env:xWebConfigPropertyCollectionItemKeyName)='$($env:xWebConfigPropertyCollectionItemKeyValue)']/@value"
-
-        It 'Should compile and apply the MOF without throwing' {
-            {
-                $env:xWebConfigPropertyCollectionItemPropertyValueAdd = 'ADD'
-
-                Invoke-Expression -Command "$($script:dscResourceName)_Add -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } `
-            | Should -Not -Throw
+        $configurationData = @{
+            AllNodes = @(
+                @{
+                    NodeName                 = 'localhost'
+                    WebsitePath              = "IIS:\Sites\$($websiteName)"
+                    Filter                   = '.'
+                    CollectionName           = 'appSettings'
+                    ItemName                 = 'add'
+                    ItemKeyName              = 'key'
+                    ItemKeyValue             = $script:dscResourceName
+                    ItemPropertyName         = 'value'
+                    ItemPropertyValueAdd     = 'ADD'
+                    ItemPropertyValueUpdate  = 'UPDATE'
+                    IntegerFilter            = 'system.webServer/security/requestFiltering/requestLimits'
+                    IntegerCollectionName    = 'headerlimits'
+                    IntegerItemKeyName       = 'Header'
+                    IntegerItemKeyValue      = 'Content-Type'
+                    IntegerItemPropertyName  = 'Sizelimit'
+                    IntegerItemPropertyValue = [string](Get-Random -Minimum 11 -Maximum 100)
+                }
+            )
         }
 
-        It 'Should be able to call Get-DscConfiguration without throwing' {
-            {
-                Get-DscConfiguration -Verbose -ErrorAction Stop
-            } `
-            | Should -Not -Throw
+        $websitePath              = $ConfigurationData.AllNodes.WebsitePath
+        $filter                   = $ConfigurationData.AllNodes.Filter
+        $collectionName           = $ConfigurationData.AllNodes.CollectionName
+        $itemName                 = $ConfigurationData.AllNodes.ItemName
+        $itemKeyName              = $ConfigurationData.AllNodes.ItemKeyName
+        $itemKeyValue             = $ConfigurationData.AllNodes.ItemKeyValue
+        $itemPropertyName         = $ConfigurationData.AllNodes.ItemPropertyName
+        $itemPropertyValueAdd     = $ConfigurationData.AllNodes.ItemPropertyValueAdd
+        $itemPropertyValueUpdate  = $ConfigurationData.AllNodes.ItemPropertyValueUpdate
+        $integerFilter            = $ConfigurationData.AllNodes.IntegerFilter
+        $integerCollectionName    = $ConfigurationData.AllNodes.IntegerCollectionName
+        $integerItemKeyName       = $ConfigurationData.AllNodes.IntegerItemKeyName
+        $integerItemKeyValue      = $ConfigurationData.AllNodes.IntegerItemKeyValue
+        $integerItemPropertyName  = $ConfigurationData.AllNodes.IntegerItemPropertyName
+        $integerItemPropertyValue = $ConfigurationData.AllNodes.IntegerItemPropertyValue
+
+        $startDscConfigurationParameters = @{
+            Path              = $TestDrive
+            ComputerName      = 'localhost'
+            Wait              = $true
+            Verbose           = $true
+            Force             = $true
         }
 
-        It 'Should have the correct value of the configuration property collection item' {
-            # Get the new value.
-            [string] $value = (Get-WebConfigurationProperty -PSPath $env:xWebConfigPropertyCollectionWebsitePath -Filter $filter -Name "." -ErrorAction SilentlyContinue).Value
+        $filterValue = "$($filter)/$($collectionName)/$($itemName)[@$($itemKeyName)='$($itemKeyValue)']/@$itemPropertyName"
+        $integerFilterValue = "$($integerFilter)/$($integerCollectionName)/$($itemName)[@$($integerItemKeyName)='$($integerItemKeyValue)']/@$integerItemPropertyName"
 
-            $value | Should -Be $env:xWebConfigPropertyCollectionItemPropertyValueAdd
+        Context 'When Adding Collection item' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Add" -OutputPath $TestDrive -ConfigurationData $configurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+
+            It 'Should have the correct value of the configuration property collection item' {
+                # Get the new value.
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filterValue -Name "." -ErrorAction SilentlyContinue).Value
+
+                $value | Should -Be $itemPropertyValueAdd
+            }
         }
 
-        It 'Should update the configuration property collection item correctly' {
-            {
-                $env:xWebConfigPropertyCollectionItemPropertyValueUpdate = 'UPDATE'
+        Context 'When Updating Collection item' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Update" -OutputPath $TestDrive -ConfigurationData $configurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
 
-                Invoke-Expression -Command "$($script:dscResourceName)_Update -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } `
-            | Should -Not -Throw
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
 
-            # Get the new value.
-            [string] $value = (Get-WebConfigurationProperty -PSPath $env:xWebConfigPropertyCollectionWebsitePath -Filter $filter -Name "." -ErrorAction SilentlyContinue).Value
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
 
-            $value | Should -Be $env:xWebConfigPropertyCollectionItemPropertyValueUpdate
+            It 'Should update the configuration property collection item correctly' {
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filterValue -Name "." -ErrorAction SilentlyContinue).Value
+
+                $value | Should -Be $itemPropertyValueUpdate
+            }
         }
 
-        It 'Should remove configuration property' {
-            {
-                Invoke-Expression -Command "$($script:dscResourceName)_Remove -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } `
-            | Should -Not -Throw
+        Context 'When Removing Collection item' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Remove" -OutputPath $TestDrive -ConfigurationData $configurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
 
-            # Get the value.
-            [string] $value = (Get-WebConfigurationProperty -PSPath $env:xWebConfigPropertyCollectionWebsitePath -Filter $filter -Name "." -ErrorAction SilentlyContinue).Value
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
 
-            $value | Should -BeNullOrEmpty
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+
+            It 'Should remove configuration property' {
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $filterValue -Name "." -ErrorAction SilentlyContinue).Value
+
+                $value | Should -BeNullOrEmpty
+            }
+        }
+
+        Context 'When Updating Collection item with integer property value' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_Integer" -OutputPath $TestDrive -ConfigurationData $configurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+
+            It 'Should update the integer property collection item correctly' {
+                $integerValue = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $integerFilterValue -Name "." -ErrorAction SilentlyContinue).Value
+
+                $integerValue | Should -Be $integerItemPropertyValue
+            }
         }
 
         # Remove the website we created for testing purposes.

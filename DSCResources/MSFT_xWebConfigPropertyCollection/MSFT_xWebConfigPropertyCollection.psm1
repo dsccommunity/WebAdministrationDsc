@@ -228,6 +228,17 @@ function Set-TargetResource
                             -ItemKeyName $ItemKeyName `
                             -ItemKeyValue $ItemKeyValue
 
+        $propertyType = Get-CollectionItemPropertyType -WebsitePath $WebsitePath -Filter "$Filter/$CollectionName" -PropertyName $ItemPropertyName -AddElement $ItemName
+
+        if ($propertyType -match 'Int32|Int64')
+        {
+            $setItemPropertyValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $ItemPropertyValue
+        }
+        else
+        {
+            $setItemPropertyValue = $ItemPropertyValue
+        }
+
         if (-not($existingItem))
         {
             # Property collection item with specified key was not found.
@@ -240,7 +251,7 @@ function Set-TargetResource
                 -PSPath $WebsitePath `
                 -Filter $filter `
                 -Name '.' `
-                -Value $(@{$ItemKeyName=$ItemKeyValue;$ItemPropertyName=$ItemPropertyValue})
+                -Value $(@{$ItemKeyName=$ItemKeyValue;$ItemPropertyName=$setItemPropertyValue})
         }
         else
         {
@@ -254,7 +265,7 @@ function Set-TargetResource
                 -PSPath $WebsitePath `
                 -Filter $filter `
                 -Name $ItemPropertyName `
-                -Value $ItemPropertyValue
+                -Value $setItemPropertyValue
         }
     }
     else
@@ -492,6 +503,137 @@ function Get-ItemValues
         return $result
     }
     return $null
+}
+
+<#
+.SYNOPSIS
+    Gets the current data type of the property.
+
+.PARAMETER WebsitePath
+    Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Filter used to locate property to retrieve.
+
+.PARAMETER PropertyName
+    Name of the property to retrieve.
+
+.PARAMETER AddElement
+    Name of the Add Element to retrieve schema from.
+#>
+function Get-CollectionItemPropertyType
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $AddElement
+    )
+
+    $webConfiguration = Get-WebConfiguration -Filter $Filter -PsPath $WebsitePath
+
+    $addElementSchema = Get-AddElementSchema -AddElement $AddElement -WebConfiguration $webConfiguration
+
+    $property = $addElementSchema | Where-Object -FilterScript {$_.Name -eq $PropertyName}
+
+    return $property.ClrType.Name
+}
+
+<#
+.SYNOPSIS
+    Gets the current data type of the property.
+
+.PARAMETER AddElement
+    Name of the Add Element to retrieve schema from.
+
+.PARAMETER WebConfiguration
+    Web configuration Element to retrieve the schema from.
+
+#>
+function Get-AddElementSchema
+{
+    [CmdletBinding()]
+    [OutputType([Microsoft.IIs.PowerShell.Framework.ConfigurationAttributeSchema])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $AddElement,
+
+        [Parameter(Mandatory = $true)]
+        [object]
+        $WebConfiguration
+    )
+
+    $addElementSchema = $WebConfiguration.Schema.CollectionSchema.GetAddElementSchema($AddElement)
+
+    return $addElementSchema.AttributeSchemas
+}
+
+<#
+.SYNOPSIS
+    Converts the property from string to appropriate data type.
+
+.PARAMETER PropertyType
+    Property type to be converted to.
+
+.PARAMETER InputValue
+    Value to be converted.
+#>
+function Convert-PropertyValue
+{
+    [CmdletBinding()]
+    [OutputType([System.ValueType])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $PropertyType,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $InputValue
+    )
+
+    switch ($PropertyType)
+    {
+        'Int32'
+        {
+            [Int32] $value = [convert]::ToInt32($InputValue, 10)
+        }
+        'UInt32'
+        {
+            [UInt32] $value = [convert]::ToUInt32($InputValue, 10)
+        }
+        'Int64'
+        {
+            [Int64] $value = [convert]::ToInt64($InputValue, 10)
+        }
+        'UInt64'
+        {
+            [UInt64] $value = [convert]::ToUInt64($InputValue, 10)
+        }
+    }
+
+    return $value
 }
 
 # endregion

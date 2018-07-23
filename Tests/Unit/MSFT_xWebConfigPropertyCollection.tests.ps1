@@ -1,29 +1,24 @@
 
+#region HEADER
 $script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebConfigPropertyCollection'
 
-#region HEADER
+# Unit Test Template Version: 1.2.2
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    if (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip'))
-    {
-        Expand-Archive -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip') -DestinationPath (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests') -Force
-    }
-    else
-    {
-        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
-    }
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1') -Force -Scope Global
+Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
+    -ResourceType 'Mof' `
     -TestType Unit
+
 #endregion HEADER
 
 # Begin Testing
@@ -238,17 +233,35 @@ try
 
         #region Function Set-TargetResource
         Describe "$($script:DSCResourceName)\Set-TargetResource" {
-            Context 'Ensure is present and collection item and property do not exist' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
-                    return $null
-                }
-                Mock -CommandName Add-WebConfigurationProperty -MockWith {}
-
-                Set-TargetResource @script:presentParameters
+            Context 'Ensure is present and collection item and property do not exist - String ItemPropertyValue' {
+                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
+                Mock -CommandName Add-WebConfigurationProperty
+                Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Convert-PropertyValue
 
                 It 'Should call the right Mocks' {
+                    Set-TargetResource @script:presentParameters
+
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
+                }
+            }
+
+            Context 'Ensure is present and collection item and property do not exist - Integer ItemPropertyValue' {
+                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
+                Mock -CommandName Add-WebConfigurationProperty
+                Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'Int64' }
+                Mock -CommandName Convert-PropertyValue
+
+                It 'Should call the right Mocks' {
+                    Set-TargetResource @script:presentParameters
+
+                    Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 1 -Exactly
                 }
             }
 
@@ -260,21 +273,25 @@ try
                     }
                 }
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
-
-                Set-TargetResource @script:presentParameters
+                Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Convert-PropertyValue
 
                 It 'Should call the right Mocks' {
+                    Set-TargetResource @script:presentParameters
+
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
                 }
             }
 
             Context 'Ensure is absent' {
                 Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
 
-                Set-TargetResource @script:absentParameters
-
                 It 'Should call the right Mocks' {
+                    Set-TargetResource @script:absentParameters
+
                     Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Times 1 -Exactly
                 }
             }
@@ -345,6 +362,55 @@ try
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Times 1 -Exactly
                 }
             }
+        }
+
+        Describe "$($script:DSCResourceName)\Get-CollectionItemPropertyType" {
+            $propertyType = 'UInt32'
+            $parameters = @{
+                WebsitePath  = 'IIS:\'
+                Filter       = 'system.webServer/security/requestFiltering/requestLimits/headerlimits'
+                PropertyName = 'Sizelimit'
+                AddElement   = 'Add'
+            }
+
+            Mock -CommandName Get-WebConfiguration  -MockWith {
+                @{
+                    Schema = @{
+                        CollectionSchema = @{
+                            AddElementNames = 'Add'
+                        }
+                    }
+                }
+            }
+
+            Mock -CommandName Get-AddElementSchema -MockWith {
+                @{
+                    Name    = $parameters.PropertyName
+                    ClrType = @{
+                        Name = $propertyType
+                    }
+                }
+            }
+
+            It 'Should return the expected ClrType' {
+                Get-CollectionItemPropertyType @parameters | Should -Be $propertyType
+            }
+        }
+
+        Describe "$($script:DSCResourceName)\Convert-PropertyValue" {
+            $cases = @(
+                @{DataType = 'Int32'},
+                @{DataType = 'Int64'},
+                @{DataType = 'UInt32'},
+                @{DataType = 'UInt64'}
+            )
+            It 'Should return <dataType> value' -TestCases $cases {
+                param ($DataType)
+                $returnValue = Convert-PropertyValue -PropertyType $dataType -InputValue 32
+
+                $returnValue | Should -BeOfType [$dataType]
+            }
+
         }
 
         #endregion Non-Exported Function Unit Tests
