@@ -200,10 +200,12 @@ try
 finally
 {
     #region FOOTER
+    Restore-TestEnvironment -TestEnvironment $TestEnvironment
+
+    # Addresses Issue #385: xWebConfigPropertyCollection: Timing issue in integration tests
+    Start-Sleep -Seconds 4
+
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
-
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
     #endregion
 }
-
