@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '2.0.0.0'
+moduleVersion = '2.1.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,16 +41,12 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Changes to xWebAdministration
-  * Moved file Codecov.yml that was added to the wrong path in previous release.
-* Updated **xWebSite** to include ability to manage custom logging fields.
-  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
-* Updated **xIISLogging** to include ability to manage custom logging fields
-  ([issue 267](https://github.com/PowerShell/xWebAdministration/issues/267)).
-  [@ldillonel](https://github.com/ldillonel)
-* BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
-  configuration section.
-  [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+        ReleaseNotes = '* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses 249.
+* Fixed Get-DscConfiguration throw in xWebSite; addresses [372](https://github.com/PowerShell/xWebAdministration/issues/372). [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+* Added **WebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes 337
+* Added **WebApplicationHandler** integration tests
+* Added **WebApplicationHandler** unit tests
+* Deprecated xIISHandler resource. This resource will be removed in future release
 
 '
 
@@ -64,6 +60,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 

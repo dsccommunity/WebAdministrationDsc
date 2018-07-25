@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings** and **xWebConfigKeyValue** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -31,7 +31,9 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ## Resources
 
-### xIisHandler
+### xIisHandler (DEPRECATED)
+
+> Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release
 
 * **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
 * **Ensure**: Ensures that the handler is **Present** or **Absent**.
@@ -213,6 +215,24 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
 * **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
+#### WebApplicationHandler
+
+* **[String] Ensure** _(Write)_: Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
+{ *Present* | Absent }
+* **[String] Name** _(Key)_: Specifies the name of the new request handler.
+* **[String] PhysicalHandlerPath** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.
+* **[String] Verb** _(Write)_: Specifies the HTTP verbs that are handled by the new handler.
+* **[String] Modules** _(Write)_: Specifies the modules used for the handler.
+* **[String[]] Path** _(Required)_: Specifies an IIS configuration path.
+* **[String] PreCondition** _(Write)_: Specifies preconditions for the new handler.
+* **[String] RequiredAccess** _(Write)_: Specifies the user rights that are required for the new handler. { None | Read | Write | Script | Execute }
+* **[String] ScriptProcessor** _(Write)_: Specifies the script processor that runs for the module.
+* **[String] Type** _(Write)_: Specifies the managed type of the new module. This parameter applies to managed modules only.
+* **[String] ResourceType** _(Write)_: Specifies the resource type this handler runs. See [ResourceType](https://docs.microsoft.com/en-us/iis/configuration/system.webserver/handlers/add).
+* **[Boolean] AllowPathInfo** _(Write)_: Specifies whether the handler processes full path information in a URI, such as contoso/marketing/imageGallery.aspx. If the value is true, the
+handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.
+* **[UInt64] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs.
+
 ### xWebVirtualDirectory
 
 * **Website**: Name of website with which virtual directory is associated
@@ -221,7 +241,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
 
-### xWebConfigKeyValue
+### xWebConfigKeyValue (DEPRECATED)
+
+>NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
+>It may be removed in a future release.
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **ConfigSection**: Section to update (only AppSettings supported as of now).
@@ -229,6 +252,30 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Value**: Value for AppSettings.
 * **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
 * **IsAttribute**: If the given key value pair is for attribute, default is element.
+
+### xWebConfigProperty
+
+Ensures the value of an identified property in the web.config file.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property to update.
+* **PropertyName**: Name of the property to update.
+* **Value**: Value of the property to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
+
+### xWebConfigPropertyCollection
+
+Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property collection to update.
+* **CollectionName**: Name of the property collection to update.
+* **ItemName**: Name of the property collection item to update.
+* **ItemKeyName**: Name of the key of the property collection item to update.
+* **ItemKeyValue**: Value of the key of the property collection item to update.
+* **ItemPropertyName**: Name of the property of the property collection item to update.
+* **ItemPropertyValue**: Value of the property of the property collection item to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
 ### xSSLSettings
 
@@ -269,8 +316,16 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-### 2.0.0.0
+### 2.1.0.0
 
+* Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
+* Fixed Get-DscConfiguration throw in xWebSite; addresses [#372](https://github.com/PowerShell/xWebAdministration/issues/372). [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+* Added **WebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes #337
+* Added **WebApplicationHandler** integration tests
+* Added **WebApplicationHandler** unit tests
+* Deprecated xIISHandler resource. This resource will be removed in future release
+
+### 2.0.0.0
 * Changes to xWebAdministration
   * Moved file Codecov.yml that was added to the wrong path in previous release.
 * Updated **xWebSite** to include ability to manage custom logging fields.
@@ -281,6 +336,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
   configuration section.
   [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+
 
 ### 1.20.0.0
 
@@ -1055,6 +1111,24 @@ configuration Sample_EndToEndxWebAdministration
             IsAttribute = $false
             WebsitePath = "IIS:\sites\" + $Node.WebsiteName
             DependsOn = @("[File]CreateWebConfig")
+        }
+
+        #Add a webApplicationHandler
+        WebApplicationHandler WebHandlerTest
+        {
+            PSPath               = $Node.PSPath
+            Name                 = 'ATest-WebHandler'
+            Path                 = '*'
+            Verb                 = '*'
+            Modules              = 'IsapiModule'
+            RequireAccess        = 'None'
+            ScriptProcessor      = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            ResourceType         = 'Unspecified'
+            AllowPathInfo        = $false
+            ResponseBufferLimit  = 0
+            PhysicalPath         = $Node.PhysicalPathWebApplication
+            Type                 = $null
+            PreCondition         = $null
         }
     }
 }
