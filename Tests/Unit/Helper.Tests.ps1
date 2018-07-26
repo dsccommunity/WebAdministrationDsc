@@ -496,18 +496,18 @@ try
                         return 'en-US'
                     } -Verifiable
 
-                    { Get-LocalizedData -ResourceName 'DummyResource' -ResourcePath ..\..\DSCResources\MSFT_xWebApplicationHandler\en-us\MSFT_xWebApplicationHandler.strings.psd1} | Should Not Throw
+                    { Get-LocalizedData -ResourceName 'DummyResource' -ResourcePath '..\..\DSCResources\MSFT_WebApplicationHandler\en-us\MSFT_WebApplicationHandler.strings.psd1'} | Should Not Throw
                 }
 
                 It 'Should call Get-LocalizedData and fallback to en-US if input language does not exist' {
 
                     Mock -CommandName Test-Path -MockWith {$false} -Verifiable
                     Mock -CommandName Join-Path -MockWith {
-                        '..\..\DSCResources\MSFT_xWebApplicationHandler\en-us\Dummy.strings.psd1\DummyPath'
+                        '..\..\DSCResources\MSFT_WebApplicationHandler\en-us\Dummy.strings.psd1'
                     } -Verifiable
                     Mock -CommandName Import-LocalizedData -Verifiable
 
-                    { Get-LocalizedData -ResourceName 'DummyResource' -ResourcePath ..\..\DSCResources\MSFT_xWebApplicationHandler\en-us\Dummy.strings.psd1} | Should -Not -Throw
+                    { Get-LocalizedData -ResourceName 'DummyResource' -ResourcePath '..\..\DSCResources\MSFT_WebApplicationHandler\en-us\Dummy.strings.psd1' } | Should -Not -Throw
 
                     Assert-MockCalled -CommandName Join-Path -Exactly -Times 2 -Scope It
                     Assert-MockCalled -CommandName Test-Path -Exactly -Times 1 -Scope It
