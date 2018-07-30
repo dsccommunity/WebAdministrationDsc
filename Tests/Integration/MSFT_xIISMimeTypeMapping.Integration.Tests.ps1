@@ -163,11 +163,11 @@ try
                 }
             }
 
-            It 'Should not throw when adding to a nested path a Mime Type already existing in the configuration hierarchy with a different value' {
+            It 'Should throw when adding to a nested path a Mime Type already existing in the configuration hierarchy with a different value' {
                 {
                     & "$($script:DSCResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force -ErrorAction Stop
-                } | Should not Throw
+                } | Should Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
