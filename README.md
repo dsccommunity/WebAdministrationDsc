@@ -215,7 +215,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
 * **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
-#### WebApplicationHandler
+### WebApplicationHandler
 
 * **[String] Ensure** _(Write)_: Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
 { *Present* | Absent }
@@ -315,6 +315,11 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
+
+* Changes to xWebAdministration
+  * Update section header for WebApplicationHandler in README.
+  * Fix tests for helper function `Get-LocalizedData` in Helper.Tests.ps1
+    that referenced the wrong path.
 
 ### 2.1.0.0
 
