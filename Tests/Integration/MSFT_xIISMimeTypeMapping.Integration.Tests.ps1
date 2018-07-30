@@ -1,5 +1,5 @@
 
-$script:DSCModuleName      = 'MSFT_WebAdministration'
+$script:DSCModuleName      = 'xWebAdministration'
 $script:DSCResourceName    = 'MSFT_xIISMimeTypeMapping'
 
 #region HEADER
