@@ -17,7 +17,7 @@ Import-Module (Join-Path -Path $moduleRoot -ChildPath 'Tests\MockWebAdministrati
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
-    -TestType Unit 
+    -TestType Unit
 #endregion HEADER
 
 
@@ -25,7 +25,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     #region Pester Tests
-    
+
     InModuleScope $DSCResourceName {
         Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST'
 
@@ -38,10 +38,10 @@ try
         #region testing Get-TargetResource
         Describe 'MSFT_xIisMimeTypeMapping\Get-TargetResource' {
             Mock -CommandName Assert-Module -MockWith {}
-            
+
             Context 'MimeType is Absent' {
                 Mock -CommandName Get-Mapping -MockWith { return $null }
-                
+
                 It 'Should return the correct hashtable' {
                     $result = Get-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockType' -Ensure 'Absent'
                     $result.Ensure            | Should be 'Absent'
@@ -50,10 +50,10 @@ try
                     $result.MimeType          | Should be 'mockType'
                 }
             }
-            
+
             Context 'MimeType is Present' {
                 Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
-                
+
                 It 'Should return the correct hashtable' {
                     $result = Get-TargetResource -ConfigurationPath 'IIS:\DummyWebSite' -Extension 'mockExtension' -MimeType 'mockType' -Ensure 'Absent'
                     $result.Ensure            | Should be 'Present'
@@ -68,34 +68,38 @@ try
         #region testing Set-TargetResource
         Describe 'MSFT_xIisMimeTypeMapping\Set-TargetResource' {
             Mock -CommandName Assert-Module -MockWith {}
-            
+
             Context 'Add MimeType' {
-                 Mock -CommandName Add-WebConfigurationProperty -MockWith {}
-                 
-                 Set-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
-                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -ParameterFilter { $PSPath -eq $ConstDefaultConfigurationPath } -Exactly 1
-                 }
+                Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
+                Mock -CommandName Add-WebConfigurationProperty -MockWith {}
+
+                Set-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
+                It 'should call all the mocks' {
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 0
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 1
+                }
             }
-            
+
             Context 'Remove MimeType' {
-                 Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
-                 
-                 Set-TargetResource -ConfigurationPath 'IIS:\DummyWebSite' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
-                 It 'should call all the mocks' {
-                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -ParameterFilter { $PSPath -eq 'IIS:\DummyWebSite' } -Exactly 1
-                 }
+                Mock -CommandName Add-WebConfigurationProperty -MockWith {}
+                Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
+
+                Set-TargetResource -ConfigurationPath 'IIS:\DummyWebSite' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
+                It 'should call all the mocks' {
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Exactly 0
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 1
+                }
             }
         }
         #endregion
-        
+
         #region testing Test-TargetResource
         Describe 'MSFT_xIisMimeTypeMapping\Test-TargetResource' {
             Mock -CommandName Assert-Module -MockWith {}
-            
+
             Context 'Mapping could not be found with Ensure = to Present' {
                  Mock -CommandName Get-Mapping -MockWith { return $null }
-                 
+
                  $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
                  It 'should return false' {
                     $result | Should be $false
@@ -103,7 +107,7 @@ try
             }
             Context 'Mapping found but Ensure = to Absent' {
                  Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
-                 
+
                  $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
                  It 'should return false' {
                     $result | Should be $false
@@ -111,7 +115,7 @@ try
             }
             Context 'Mapping found and type exists' {
                  Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
-                 
+
                  $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Present'
                  It 'should return true' {
                     $result | Should be $true
@@ -119,7 +123,7 @@ try
             }
             Context 'Mapping not found and type is absent' {
                  Mock -CommandName Get-Mapping -MockWith { return $null }
-                 
+
                  $result = Test-TargetResource -ConfigurationPath '' -Extension 'mockExtension' -MimeType 'mockMimeType' -Ensure 'Absent'
                  It 'should return true' {
                     $result | Should be $true
@@ -127,14 +131,14 @@ try
             }
         }
         #endregion
-        
+
         #region Get-Mapping
         Describe 'MSFT_xIisMimeTypeMapping\Get-Mapping' {
-            
+
             Context 'Get-mapping with Extension and Type' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockMapping }
-                
-                $result = Get-Mapping -ConfigurationPath $ConstDefaultConfigurationPath -Extension 'mockExtension' -Type 'mockType'
+
+                $result = Get-Mapping -ConfigurationPath '' -Extension 'mockExtension' -Type 'mockType'
                 It 'should return $mockMapping' {
                     $result | Should be $mockMapping
                 }
@@ -147,6 +151,6 @@ finally
 {
     #region FOOTER
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
+    Remove-Module -Name MockWebAdministrationWindowsFeature
     #endregion
-
 }
