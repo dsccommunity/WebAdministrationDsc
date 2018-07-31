@@ -316,12 +316,15 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-<<<<<<< HEAD
 * Changes to xWebAdministration
   * Update section header for WebApplicationHandler in README.
   * Fix tests for helper function `Get-LocalizedData` in Helper.Tests.ps1
     that referenced the wrong path.
+<<<<<<< HEAD
 * Remove duplication in MSFT_xWebsite.psm1. [Krzysztof Morcinek (@kmorcinek)](https://github.com/kmorcinek)
+=======
+  * Updates **xIISMimeTypeMapping** to add MIME type mapping for nested paths
+>>>>>>> updates to tests and for comments on PR
 
 ### 2.1.0.0
 
@@ -347,8 +350,6 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### 1.20.0.0
 
-=======
->>>>>>> xWebAdministration: Added support for codecov (#350)
 * Fix Get-DscConfiguration failure with xWebApplication and xWebSite resources
   (issue #302 and issue #314).
 * Add Codecov support.

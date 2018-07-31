@@ -1,36 +1,36 @@
 configuration MSFT_xIISMimeTypeMapping_AddMimeType
 {
-    Import-DscResource -ModuleName MN_WebAdministration
+    Import-DscResource -ModuleName xWebAdministration
 
-    MN_xIIsMimeTypeMapping AddMimeType2
+    xIISMimeTypeMapping AddMimeType2
     {
         ConfigurationPath = ''
-        Extension = $ConfigurationData.NonNodeData.PesterFileExtension2
-        MimeType  = $ConfigurationData.NonNodeData.PesterMimeType2
+        Extension = $ConfigurationData.NonNodeData.FileExtension
+        MimeType  = $ConfigurationData.NonNodeData.MimeType
         Ensure    = 'Present'
     }
 }
 
 configuration MSFT_xIISMimeTypeMapping_RemoveMimeType
 {
-    Import-DscResource -ModuleName MN_WebAdministration
+    Import-DscResource -ModuleName xWebAdministration
 
-    MN_xIIsMimeTypeMapping RemoveMimeType
+    xIISMimeTypeMapping RemoveMimeType
     {
         ConfigurationPath = ''
-        Extension = $ConfigurationData.NonNodeData.PesterFileExtension
-        MimeType  = $ConfigurationData.NonNodeData.PesterMimeType
+        Extension = $ConfigurationData.NonNodeData.FileExtension
+        MimeType  = $ConfigurationData.NonNodeData.MimeType
         Ensure    = 'Absent'
     }
 }
 
 Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeNestedPath
 {
-    Import-DscResource -ModuleName MN_WebAdministration
+    Import-DscResource -ModuleName xWebAdministration
 
-    MN_xIIsMimeTypeMapping AddMimeTypeNestedPath
+    xIISMimeTypeMapping AddMimeTypeNestedPath
     {
-        ConfigurationPath = $ConfigurationData.NonNodeData.ConfigurationPath
+        ConfigurationPath = $ConfigurationData.NonNodeData.VirtualConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
         MimeType          = $ConfigurationData.NonNodeData.MimeType
         Ensure            = 'Present'
@@ -39,11 +39,11 @@ Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeNestedPath
 
 Configuration MSFT_xIISMimeTypeMapping_RemoveMimeTypeNestedPath
 {
-    Import-DscResource -ModuleName MN_WebAdministration
+    Import-DscResource -ModuleName xWebAdministration
 
-    MN_xIIsMimeTypeMapping RemoveMimeTypeNestedPath
+    xIISMimeTypeMapping RemoveMimeTypeNestedPath
     {
-        ConfigurationPath = $ConfigurationData.NonNodeData.ConfigurationPath
+        ConfigurationPath = $ConfigurationData.NonNodeData.VirtualConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
         MimeType          = $ConfigurationData.NonNodeData.MimeType
         Ensure            = 'Absent'
@@ -52,11 +52,11 @@ Configuration MSFT_xIISMimeTypeMapping_RemoveMimeTypeNestedPath
 
 Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeAtServer
 {
-    Import-DscResource -ModuleName MN_WebAdministration
+    Import-DscResource -ModuleName xWebAdministration
 
-    MN_xIIsMimeTypeMapping AddMimeTypeAtServer
+    xIISMimeTypeMapping AddMimeTypeAtServer
     {
-        ConfigurationPath = $ConfigurationData.NonNodeData.ConfigurationPath
+        ConfigurationPath = $ConfigurationData.NonNodeData.ServerConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
         MimeType          = $ConfigurationData.NonNodeData.MimeType
         Ensure            = 'Present'
@@ -65,11 +65,11 @@ Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeAtServer
 
 Configuration MSFT_xIISMimeTypeMapping_RemoveMimeTypeAtServer
 {
-    Import-DscResource -ModuleName MN_WebAdministration
+    Import-DscResource -ModuleName xWebAdministration
 
-    MN_xIIsMimeTypeMapping AddMimeTypeAtServer
+    xIISMimeTypeMapping AddMimeTypeAtServer
     {
-        ConfigurationPath = $ConfigurationData.NonNodeData.ConfigurationPath
+        ConfigurationPath = $ConfigurationData.NonNodeData.ServerConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
         MimeType          = $ConfigurationData.NonNodeData.MimeType
         Ensure            = 'Absent'
