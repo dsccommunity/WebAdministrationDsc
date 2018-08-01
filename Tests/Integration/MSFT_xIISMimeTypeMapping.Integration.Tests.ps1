@@ -1,6 +1,6 @@
 
-$script:DSCModuleName      = 'xWebAdministration'
-$script:DSCResourceName    = 'MSFT_xIISMimeTypeMapping'
+$script:DSCModuleName   = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xIISMimeTypeMapping'
 
 #region HEADER
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -33,11 +33,11 @@ try
 
         #region Test Setup
         $tempVirtualDirectoryName = 'Dir01'
-        $tempVirtualDirectoryPhysicalPath = Join-Path $env:SystemDrive "inetpub\wwwroot\$tempVirtualDirectoryName"
+        $tempVirtualDirectoryPhysicalPath = Join-Path $TestDrive "inetpub\wwwroot\$tempVirtualDirectoryName"
         $tempVirtualDirectoryIisPath = "IIS:\Sites\WebsiteForxIisMimeTypeMapping\$tempVirtualDirectoryName"
 
         New-Website -Name 'WebsiteForxIisMimeTypeMapping' `
-            -PhysicalPath (Join-Path $env:SystemDrive 'inetpub\wwwroot\') `
+            -PhysicalPath (Join-Path $TestDrive 'inetpub\wwwroot\') `
             -Force `
             -ErrorAction Stop
 
@@ -57,11 +57,11 @@ try
             }
 
         $startDscConfigurationParameters = @{
-            Path = $TestDrive
-            ComputerName = localhost
-            Wait = $true
-            Verbose = $true
-            Force = $true
+            Path         = $TestDrive
+            ComputerName = 'localhost'
+            Wait         = $true
+            Verbose      = $true
+            Force        = $true
         }
 
         Context "When Adding a MimeType" {
@@ -77,9 +77,9 @@ try
             }
 
             It 'Should add a MimeType' {
-                $Script:CurrentConfiguration.Ensure | Should Be 'Present'
+                $Script:CurrentConfiguration.Ensure    | Should Be 'Present'
                 $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
-                $Script:CurrentConfiguration.MimeType | Should Be $configData.NonNodeData.MimeType
+                $Script:CurrentConfiguration.MimeType  | Should Be $configData.NonNodeData.MimeType
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
@@ -101,9 +101,9 @@ try
             }
 
             It 'Should remove MimeType' {
-                $Script:CurrentConfiguration.Ensure | Should Be 'Absent'
+                $Script:CurrentConfiguration.Ensure    | Should Be 'Absent'
                 $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
-                $Script:CurrentConfiguration.MimeType | Should Be $configData.NonNodeData.MimeType
+                $Script:CurrentConfiguration.MimeType  | Should Be $configData.NonNodeData.MimeType
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
@@ -125,9 +125,9 @@ try
 
             It 'Should be add a MimeType to a Nested Path' {
                 $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.VirtualConfigurationPath
-                $Script:CurrentConfiguration.Ensure | Should Be 'Present'
-                $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
-                $Script:CurrentConfiguration.MimeType | Should Be $configData.NonNodeData.MimeType
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Present'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
@@ -149,9 +149,9 @@ try
 
             It 'Should remove a MimeType from a Nested Path' {
                 $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.VirtualConfigurationPath
-                $Script:CurrentConfiguration.Ensure | Should Be 'Absent'
-                $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
-                $Script:CurrentConfiguration.MimeType | Should Be $configData.NonNodeData.MimeType
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Absent'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
@@ -173,9 +173,9 @@ try
 
             It 'Should Add a MimeType at the Server Level' {
                 $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.ServerConfigurationPath
-                $Script:CurrentConfiguration.Ensure | Should Be 'Present'
-                $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
-                $Script:CurrentConfiguration.MimeType | Should Be $configData.NonNodeData.MimeType
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Present'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
@@ -197,9 +197,9 @@ try
 
             It 'Should Remove a MimeType at the Server Level' {
                 $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.ServerConfigurationPath
-                $Script:CurrentConfiguration.Ensure | Should Be 'Absent'
-                $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
-                $Script:CurrentConfiguration.MimeType | Should Be $configData.NonNodeData.MimeType
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Absent'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
