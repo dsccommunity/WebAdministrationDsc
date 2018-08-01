@@ -320,6 +320,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
   * Update section header for WebApplicationHandler in README.
   * Fix tests for helper function `Get-LocalizedData` in Helper.Tests.ps1
     that referenced the wrong path.
+* Remove duplication in MSFT_xWebsite.psm1. [Krzysztof Morcinek (@kmorcinek)](https://github.com/kmorcinek)
 
 ### 2.1.0.0
 
