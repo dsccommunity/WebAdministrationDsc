@@ -24,7 +24,7 @@ Set-Variable ConstSectionNode              -Option Constant -Value 'system.webSe
         This will return a hashtable of results.
 
     .PARAMETER ConfigurationPath
-        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\\sites\\Default Web Site.
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 
     .PARAMETER Extension
         The file extension to map such as .html or .xml.
@@ -94,10 +94,10 @@ function Get-TargetResource
 
 <#
     .SYNOPSIS
-        This will return a hashtable of results.
+        This will set the desired state.
 
     .PARAMETER ConfigurationPath
-        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\\sites\\Default Web Site.
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 
     .PARAMETER Extension
         The file extension to map such as .html or .xml.
@@ -164,7 +164,7 @@ function Set-TargetResource
         This will return a hashtable of results.
 
     .PARAMETER ConfigurationPath
-        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\\sites\\Default Web Site.
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 
     .PARAMETER Extension
         The file extension to map such as .html or .xml.
@@ -207,7 +207,7 @@ function Test-TargetResource
         $ConfigurationPath = $ConstDefaultConfigurationPath
     }
 
-    $desiredConfigurationMatch = $true;
+    $desiredConfigurationMatch = $true
 
     $currentMimeTypeMapping = Get-Mapping -ConfigurationPath $ConfigurationPath -Extension $Extension -Type $MimeType
 
@@ -231,7 +231,7 @@ function Test-TargetResource
 
 <#
     .PARAMETER ConfigurationPath
-        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\\sites\\Default Web Site.
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 
     .PARAMETER Extension
         The file extension to map such as .html or .xml.
