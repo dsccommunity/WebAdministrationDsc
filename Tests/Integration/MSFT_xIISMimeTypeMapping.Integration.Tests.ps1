@@ -69,11 +69,11 @@ try
                 {
                     & "$($script:DSCResourceName)_AddMimeType" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
-                } | Should Not throw
+                } | Should Not Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
             }
 
             It 'Should add a MimeType' {
@@ -93,11 +93,11 @@ try
                 {
                     & "$($script:DSCResourceName)_RemoveMimeType" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
-                } | Should Not throw
+                } | Should Not Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
             }
 
             It 'Should remove MimeType' {
@@ -116,11 +116,11 @@ try
                 {
                     & "$($script:DSCResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
-                } | Should Not throw
+                } | Should Not Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
             }
 
             It 'Should be add a MimeType to a Nested Path' {
@@ -140,11 +140,11 @@ try
                 {
                     & "$($script:DSCResourceName)_RemoveMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
-                } | Should Not throw
+                } | Should Not Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
             }
 
             It 'Should remove a MimeType from a Nested Path' {
@@ -164,11 +164,11 @@ try
                 {
                     & "$($script:DSCResourceName)_AddMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
-                } | Should Not throw
+                } | Should Not Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
             }
 
             It 'Should Add a MimeType at the Server Level' {
@@ -188,11 +188,11 @@ try
                 {
                     & "$($script:DSCResourceName)_RemoveMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
-                } | Should Not throw
+                } | Should Not Throw
             }
 
             It 'Should be able to call Get-DscConfiguration without throwing' {
-                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
             }
 
             It 'Should Remove a MimeType at the Server Level' {
