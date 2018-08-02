@@ -57,10 +57,10 @@ try
                 It 'Should return the correct hashtable' {
                     $result = Get-TargetResource @defaultParameters -Ensure 'Absent'
 
-                    $result.Ensure            | Should be 'Absent'
-                    $result.ConfigurationPath | Should be $ConstDefaultConfigurationPath
-                    $result.Extension         | Should be 'mockExtension'
-                    $result.MimeType          | Should be 'mockType'
+                    $result.Ensure            | Should Be 'Absent'
+                    $result.ConfigurationPath | Should Be $ConstDefaultConfigurationPath
+                    $result.Extension         | Should Be 'mockExtension'
+                    $result.MimeType          | Should Be 'mockType'
                 }
             }
 
@@ -70,10 +70,10 @@ try
                 It 'Should return the correct hashtable' {
                     $result = Get-TargetResource @configPathParameters -Ensure 'Absent'
 
-                    $result.Ensure            | Should be 'Present'
-                    $result.ConfigurationPath | Should be 'IIS:\DummyWebSite'
-                    $result.Extension         | Should be $mockMapping.fileExtension
-                    $result.MimeType          | Should be $mockMapping.mimeType
+                    $result.Ensure            | Should Be 'Present'
+                    $result.ConfigurationPath | Should Be 'IIS:\DummyWebSite'
+                    $result.Extension         | Should Be $mockMapping.fileExtension
+                    $result.MimeType          | Should Be $mockMapping.mimeType
                 }
             }
         }
@@ -116,7 +116,7 @@ try
 
                  $result = Test-TargetResource @defaultParameters -Ensure 'Present'
                  It 'Should return false' {
-                    $result | Should be $false
+                    $result | Should Be $false
                  }
             }
             Context 'When Mapping found but Ensure = to Absent' {
@@ -124,7 +124,7 @@ try
 
                  $result = Test-TargetResource @defaultParameters -Ensure 'Absent'
                  It 'Should return false' {
-                    $result | Should be $false
+                    $result | Should Be $false
                  }
             }
             Context 'When Mapping found and type exists' {
@@ -132,7 +132,7 @@ try
 
                  $result = Test-TargetResource @defaultParameters -Ensure 'Present'
                  It 'Should return true' {
-                    $result | Should be $true
+                    $result | Should Be $true
                  }
             }
             Context 'When Mapping not found and type is absent' {
@@ -140,7 +140,7 @@ try
 
                  $result = Test-TargetResource @defaultParameters -Ensure 'Absent'
                  It 'Should return true' {
-                    $result | Should be $true
+                    $result | Should Be $true
                  }
             }
         }
@@ -154,7 +154,7 @@ try
 
                 $result = Get-Mapping -ConfigurationPath '' -Extension 'mockExtension' -Type 'mockType'
                 It 'should return $mockMapping' {
-                    $result | Should be $mockMapping
+                    $result | Should Be $mockMapping
                 }
             }
         }

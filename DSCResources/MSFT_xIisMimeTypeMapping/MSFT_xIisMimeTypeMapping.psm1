@@ -161,7 +161,8 @@ function Set-TargetResource
 
 <#
     .SYNOPSIS
-        This will return a hashtable of results.
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
 
     .PARAMETER ConfigurationPath
         This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
