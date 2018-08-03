@@ -11,180 +11,258 @@ data LocalizedData
         RemovingType              = Removing MIMEType '{0}' for extension '{1}'
         TypeExists                = MIMEType '{0}' for extension '{1}' already exist
         TypeNotPresent            = MIMEType '{0}' for extension '{1}' is not present as requested
-        TypeStatusUnknown         = MIMEType '{0}' for extension '{1}' is is an unknown status
         VerboseGetTargetPresent   = MIMEType is present
         VerboseGetTargetAbsent    = MIMEType is absent
-        VerboseSetTargetError     = Cannot set type
 '@
 }
 
+Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST' -Scope Script
+Set-Variable ConstSectionNode              -Option Constant -Value 'system.webServer/staticContent' -Scope Script
+
+<#
+    .SYNOPSIS
+        This will return a hashtable of results.
+
+    .PARAMETER ConfigurationPath
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+    .PARAMETER Extension
+        The file extension to map such as .html or .xml.
+
+    .PARAMETER MimeType
+        The MIME type to map that extension to such as text/html.
+
+    .PARAMETER Ensure
+        Ensures that the MIME type mapping is Present or Absent.
+#>
 function Get-TargetResource
 {
-    <#
-    .SYNOPSIS
-        This will return a hashtable of results 
-    #>
+    [CmdletBinding()]
     [OutputType([Hashtable])]
     param
-    (        
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [String] $Extension,
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [String]
+        $ConfigurationPath,
 
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [String] $MimeType,
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Extension,
 
+        [Parameter(Mandatory = $true)]
+        [String]
+        $MimeType,
+
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Present', 'Absent')]
-        [Parameter(Mandatory)]
-        [String] $Ensure
+        [String]
+        $Ensure
     )
-    
+
     # Check if WebAdministration module is present for IIS cmdlets
     Assert-Module
 
-    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
+    if (!$ConfigurationPath)
+    {
+        $ConfigurationPath = $ConstDefaultConfigurationPath
+    }
 
-    if ($null -eq $mt)
+    $currentMimeTypeMapping = Get-Mapping -ConfigurationPath $ConfigurationPath -Extension $Extension -Type $MimeType
+
+    if ($null -eq $currentMimeTypeMapping)
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
         return @{
-            Ensure    = 'Absent'
-            Extension = $null
-            MimeType  = $null
+            Ensure            = 'Absent'
+            ConfigurationPath = $ConfigurationPath
+            Extension         = $Extension
+            MimeType          = $MimeType
         }
     }
     else
     {
         Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
         return @{
-            Ensure    = 'Present'
-            Extension = $mt.fileExtension
-            MimeType  = $mt.mimeType
+            Ensure            = 'Present'
+            ConfigurationPath = $ConfigurationPath
+            Extension         = $currentMimeTypeMapping.fileExtension
+            MimeType          = $currentMimeTypeMapping.mimeType
         }
     }
 }
+
+<#
+    .SYNOPSIS
+        This will set the desired state.
+
+    .PARAMETER ConfigurationPath
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+    .PARAMETER Extension
+        The file extension to map such as .html or .xml.
+
+    .PARAMETER MimeType
+        The MIME type to map that extension to such as text/html.
+
+    .PARAMETER Ensure
+        Ensures that the MIME type mapping is Present or Absent.
+#>
 function Set-TargetResource
 {
-    <#
-            .SYNOPSIS
-            This will set the desired state
-    #>
+    [CmdletBinding()]
     param
-    (    
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [String] $Extension,
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [String]
+        $ConfigurationPath,
 
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [String] $MimeType,
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Extension,
 
+        [Parameter(Mandatory = $true)]
+        [String]
+        $MimeType,
+
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Present', 'Absent')]
-        [Parameter(Mandatory)]
-        [String] $Ensure
+        [String]
+        $Ensure
     )
 
-        Assert-Module
-
-        [String] $psPathRoot = 'MACHINE/WEBROOT/APPHOST'
-        [String] $sectionNode = 'system.webServer/staticContent'
-
-        $mt = Get-Mapping -Extension $Extension -Type $MimeType 
-
-        if ($null -eq $mt -and $Ensure -eq 'Present')
-        {
-            # add the MimeType            
-            Add-WebConfigurationProperty -PSPath $psPathRoot `
-                                         -Filter $sectionNode `
-                                         -Name '.' `
-                                         -Value @{fileExtension="$Extension";mimeType="$MimeType"}
-            Write-Verbose -Message ($LocalizedData.AddingType -f $MimeType,$Extension);
-        }
-        elseif ($null -ne $mt -and $Ensure -eq 'Absent')
-        {
-            # remove the MimeType                      
-            Remove-WebConfigurationProperty -PSPath $psPathRoot `
-                                            -Filter $sectionNode `
-                                            -Name '.' `
-                                            -AtElement @{fileExtension="$Extension"}
-            Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension);
-        }
-        else 
-        {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetError
-        }
-}
-
-function Test-TargetResource
-{
-    <#
-    .SYNOPSIS
-        This tests the desired state. If the state is not correct it will return $false.
-        If the state is correct it will return $true
-    #>
-
-    [OutputType([System.Boolean])]
-    param
-    (    
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [String] $Extension,
-
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [String] $MimeType,
-
-        [ValidateSet('Present', 'Absent')]
-        [Parameter(Mandatory)]
-        [String] $Ensure
-    )
-
-    [Boolean] $DesiredConfigurationMatch = $true;
-    
     Assert-Module
 
-    $mt = Get-Mapping -Extension $Extension -Type $MimeType 
+    if (!$ConfigurationPath)
+    {
+        $ConfigurationPath = $ConstDefaultConfigurationPath
+    }
 
-    if (($null -eq $mt -and $Ensure -eq 'Present') -or ($null -ne $mt -and $Ensure -eq 'Absent'))
+    if ($Ensure -eq 'Present')
     {
-        $DesiredConfigurationMatch = $false;
-    }
-    elseif ($null -ne $mt -and $Ensure -eq 'Present')
-    {
-        # Already there 
-        Write-Verbose -Message ($LocalizedData.TypeExists -f $MimeType,$Extension);
-    }
-    elseif ($null -eq $mt -and $Ensure -eq 'Absent')
-    {
-        # TypeNotPresent
-        Write-Verbose -Message ($LocalizedData.TypeNotPresent -f $MimeType,$Extension);
+        # add the MimeType
+        Add-WebConfigurationProperty -PSPath $ConfigurationPath `
+                                     -Filter $ConstSectionNode `
+                                     -Name '.' `
+                                     -Value @{fileExtension="$Extension";mimeType="$MimeType"}
+        Write-Verbose -Message ($LocalizedData.AddingType -f $MimeType,$Extension)
     }
     else
     {
-        $DesiredConfigurationMatch = $false;
-        Write-Verbose -Message ($LocalizedData.TypeStatusUnknown -f $MimeType,$Extension);
+        # remove the MimeType
+        Remove-WebConfigurationProperty -PSPath $ConfigurationPath `
+                                        -Filter $ConstSectionNode `
+                                        -Name '.' `
+                                        -AtElement @{fileExtension="$Extension"}
+        Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension)
     }
-    
-    return $DesiredConfigurationMatch
+}
+
+<#
+    .SYNOPSIS
+        This tests the desired state. If the state is not correct it will return $false.
+        If the state is correct it will return $true
+
+    .PARAMETER ConfigurationPath
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+    .PARAMETER Extension
+        The file extension to map such as .html or .xml.
+
+    .PARAMETER MimeType
+        The MIME type to map that extension to such as text/html.
+
+    .PARAMETER Ensure
+        Ensures that the MIME type mapping is Present or Absent.
+#>
+function Test-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [String]
+        $ConfigurationPath,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Extension,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $MimeType,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Present', 'Absent')]
+        [String]
+        $Ensure
+    )
+
+    Assert-Module
+
+    if (!$ConfigurationPath)
+    {
+        $ConfigurationPath = $ConstDefaultConfigurationPath
+    }
+
+    $desiredConfigurationMatch = $true
+
+    $currentMimeTypeMapping = Get-Mapping -ConfigurationPath $ConfigurationPath -Extension $Extension -Type $MimeType
+
+    if ($null -ne $currentMimeTypeMapping -and $Ensure -eq 'Present')
+    {
+        Write-Verbose -Message ($LocalizedData.TypeExists -f $MimeType,$Extension)
+    }
+    elseif ($null -eq $currentMimeTypeMapping -and $Ensure -eq 'Absent')
+    {
+        Write-Verbose -Message ($LocalizedData.TypeNotPresent -f $MimeType,$Extension)
+    }
+    else
+    {
+        $desiredConfigurationMatch = $false
+    }
+
+    return $desiredConfigurationMatch
 }
 
 #region Helper Functions
 
+<#
+    .PARAMETER ConfigurationPath
+        This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
+
+    .PARAMETER Extension
+        The file extension to map such as .html or .xml.
+
+    .PARAMETER Type
+        The MIME type to map that extension to such as text/html.
+#>
 function Get-Mapping
 {
-   
     [CmdletBinding()]
+    [OutputType([PSObject])]
     param
     (
-        [String] $Extension,
-        
-        [String] $Type
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [String]
+        $ConfigurationPath,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Extension,
+
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Type
     )
 
-    [String] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + `
-                       $Extension + "' and @mimeType='" + $Type + "']"
-    return Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .
+    $filter = "$ConstSectionNode/mimeMap[@fileExtension='{0}' and @mimeType='{1}']" -f $Extension, $Type
+
+    return Get-WebConfiguration -PSPath $ConfigurationPath -Filter $filter
 }
 
 #endregion

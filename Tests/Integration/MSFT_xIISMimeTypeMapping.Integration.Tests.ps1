@@ -1,6 +1,6 @@
 
-$script:DSCModuleName      = 'xWebAdministration'
-$script:DSCResourceName    = 'MSFT_xIISMimeTypeMapping'
+$script:DSCModuleName   = 'xWebAdministration'
+$script:DSCResourceName = 'MSFT_xIISMimeTypeMapping'
 
 #region HEADER
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -23,61 +23,188 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     #region Integration Tests
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
-    . $ConfigFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    Describe "$($script:DSCResourceName)_Integration" {
-        #region DEFAULT TESTS
-        It 'Should compile without throwing' {
-            {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
-        }
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    . $ConfigFile
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
-            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
-        }
+    Describe "$($script:DSCResourceName)_Integration Default tests" {
+
+        #region Test Setup
+        $tempVirtualDirectoryName = 'Dir01'
+        $tempVirtualDirectoryPhysicalPath = Join-Path $TestDrive "inetpub\wwwroot\$tempVirtualDirectoryName"
+        $tempVirtualDirectoryIisPath = "IIS:\Sites\WebsiteForxIisMimeTypeMapping\$tempVirtualDirectoryName"
+
+        New-Website -Name 'WebsiteForxIisMimeTypeMapping' `
+            -PhysicalPath (Join-Path $TestDrive 'inetpub\wwwroot\') `
+            -Force `
+            -ErrorAction Stop
+
+        New-Item -Path $tempVirtualDirectoryPhysicalPath -ItemType Directory | Out-Null
+        New-WebVirtualDirectory -Site 'WebsiteForxIisMimeTypeMapping' -Name $tempVirtualDirectoryName -PhysicalPath $tempVirtualDirectoryPhysicalPath
         #endregion
 
-        It 'Adding an existing MimeType' {
-            $node = (Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
+        $configData = @{
+                AllNodes    = @();
+                NonNodeData =
+                @{
+                    ServerConfigurationPath  = 'IIS:\'
+                    VirtualConfigurationPath = $tempVirtualDirectoryIisPath
+                    FileExtension            = '.Pester'
+                    MimeType                 = 'text/dummy'
+                }
+            }
 
-            $env:PesterFileExtension2 = $node.fileExtension
-            $env:PesterMimeType2 = $node.mimeType
-
-            {
-                Invoke-Expression -Command "$($script:DSCResourceName)_AddMimeType -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
-
-            [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension2 + "' and @mimeType='" + "$env:PesterMimeType2" + "']"
-            $expected = ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count
-
-            $expected | should be 1
+        $startDscConfigurationParameters = @{
+            Path         = $TestDrive
+            ComputerName = 'localhost'
+            Wait         = $true
+            Verbose      = $true
+            Force        = $true
         }
 
-        It 'Removing a MimeType' {
-            $node = (Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.webServer/staticContent/mimeMap" -Name .) | Select-Object -First 1
-            $env:PesterFileExtension = $node.fileExtension
-            $env:PesterMimeType = $node.mimeType
+        Context "When Adding a MimeType" {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:DSCResourceName)_AddMimeType" -OutputPath $TestDrive -ConfigurationData $configData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should Not Throw
+            }
 
-            {
-                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveMimeType -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
+            }
 
-            [string] $filter = "system.webServer/staticContent/mimeMap[@fileExtension='" + $env:PesterFileExtension + "' and @mimeType='" + "$env:PesterMimeType" + "']"
-            ((Get-WebConfigurationProperty  -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $filter -Name .) | Measure-Object).Count | should be 0
+            It 'Should add a MimeType' {
+                $Script:CurrentConfiguration.Ensure    | Should Be 'Present'
+                $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType  | Should Be $configData.NonNodeData.MimeType
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should Be $true
+            }
         }
 
-        It 'Removing a non existing MimeType' {
-            {
-                Invoke-Expression -Command "$($script:DSCResourceName)_RemoveDummyMime -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+        Context "When Removing a MimeType" {
+
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:DSCResourceName)_RemoveMimeType" -OutputPath $TestDrive -ConfigurationData $configData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should Not Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
+            }
+
+            It 'Should remove MimeType' {
+                $Script:CurrentConfiguration.Ensure    | Should Be 'Absent'
+                $Script:CurrentConfiguration.Extension | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType  | Should Be $configData.NonNodeData.MimeType
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should Be $true
+            }
+        }
+
+        Context "When Adding a MimeType in a Nested Path" {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:DSCResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should Not Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
+            }
+
+            It 'Should be add a MimeType to a Nested Path' {
+                $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.VirtualConfigurationPath
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Present'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should Be $true
+            }
+        }
+
+        Context "When Removing a MimeType from a Nested Path" {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:DSCResourceName)_RemoveMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should Not Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
+            }
+
+            It 'Should remove a MimeType from a Nested Path' {
+                $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.VirtualConfigurationPath
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Absent'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should Be $true
+            }
+        }
+
+        Context "When Adding a MimeType at the Server Level" {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:DSCResourceName)_AddMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should Not Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
+            }
+
+            It 'Should Add a MimeType at the Server Level' {
+                $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.ServerConfigurationPath
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Present'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should Be $true
+            }
+        }
+
+        Context "When Removing MimeType at the Server Level" {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:DSCResourceName)_RemoveMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should Not Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { $script:CurrentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
+            }
+
+            It 'Should Remove a MimeType at the Server Level' {
+                $Script:CurrentConfiguration.ConfigurationPath | Should Be $configData.NonNodeData.ServerConfigurationPath
+                $Script:CurrentConfiguration.Ensure            | Should Be 'Absent'
+                $Script:CurrentConfiguration.Extension         | Should Be $configData.NonNodeData.FileExtension
+                $Script:CurrentConfiguration.MimeType          | Should Be $configData.NonNodeData.MimeType
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration -Verbose | Should Be $true
+            }
         }
     }
     #endregion
