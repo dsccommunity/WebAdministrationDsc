@@ -16,8 +16,8 @@ data LocalizedData
 '@
 }
 
-Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST'
-Set-Variable ConstSectionNode              -Option Constant -Value 'system.webServer/staticContent'
+Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST' -Scope Script
+Set-Variable ConstSectionNode              -Option Constant -Value 'system.webServer/staticContent' -Scope Script
 
 <#
     .SYNOPSIS
