@@ -91,7 +91,7 @@ try
             Ensure              = 'Absent'
         }
 
-        $GetTargetRequiredParams = @{
+        $GetTargetRequiredParameters = @{
             Name     = $customWebHandlerParameters.Name
             Path     = $customWebHandlerParameters.Path
             Location = $customWebHandlerParameters.Location
@@ -108,7 +108,7 @@ try
 
                 It 'Should return Absent web handler' {
 
-                    $result = Get-TargetResource @GetTargetRequiredParams
+                    $result = Get-TargetResource @GetTargetRequiredParameters
 
                     $result.Ensure              | Should -Be 'Absent'
                     $result.Name                | Should -Be $null
@@ -123,7 +123,7 @@ try
                     $result.Type                | Should -Be $null
                     $result.ResourceType        | Should -Be $null
                     $result.PreCondition        | Should -Be $null
-                    $result.Location            | Should -Be $GetTargetRequiredparameters.Location
+                    $result.Location            | Should -Be $GetTargetRequiredParameters.Location
                 }
             }
 
@@ -133,7 +133,7 @@ try
 
                 It 'Should return existing web handler' {
 
-                    $result = Get-TargetResource @GetTargetRequiredParams
+                    $result = Get-TargetResource @GetTargetRequiredParameters
 
                     $result.Ensure              | Should -Be 'Present'
                     $result.Name                | Should -Be $mockCompliantHandler.Name
