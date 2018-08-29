@@ -10,6 +10,9 @@ $localizedData = Get-LocalizedData `
     .SYNOPSIS
         This will return a hashtable of results.
 
+    .PARAMETER Location
+        Specifies The location of the configuration setting.
+
     .PARAMETER Name
         Specifies the name of the new request handler.
 
@@ -23,6 +26,10 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
+        [Parameter()]
+        [System.string]
+        $Location,
+
         [Parameter(Mandatory = $true)]
         [System.String]
         $Name,
@@ -34,7 +41,7 @@ function Get-TargetResource
 
     $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
 
-    $webHandler = Get-WebConfigurationProperty -PSPath $Path -Filter $filter -Name '.'
+    $webHandler = Get-WebConfigurationProperty -PSPath $Path -Filter $filter -Name '.' -Location $Location
 
     $returnValue = @{
         Name                = $webhandler.Name
@@ -48,6 +55,7 @@ function Get-TargetResource
         AllowPathInfo       = $webHandler.AllowPathInfo
         ResourceType        = $webHandler.ResourceType
         ResponseBufferLimit = $webHandler.ResponseBufferLimit
+        Location            = $Location
         Path                = $Path
     }
 
@@ -70,7 +78,10 @@ function Get-TargetResource
         This will set the desired state.
 
     .PARAMETER Ensure
-        Specifies whether the handler should be present
+        Specifies whether the handler should be present.
+
+    .PARAMETER Location
+        Specifies The location of the configuration setting.
 
     .PARAMETER Name
         Specifies the name of the new request handler.
@@ -128,6 +139,10 @@ function Set-TargetResource
         $Ensure = 'Present',
 
         [Parameter()]
+        [System.string]
+        $Location,
+
+        [Parameter()]
         [System.String]
         $PhysicalHandlerPath,
 
@@ -175,10 +190,9 @@ function Set-TargetResource
 
     $filter = "system.webServer/handlers/Add[@Name='" + $Name + "']"
 
-    $currentHandler = Get-TargetResource -Name $Name -Path $Path
+    $currentHandler = Get-TargetResource -Name $Name -Path $Path -Location $Location
 
     $null = $PSBoundParameters.Remove('Ensure')
-    $null = $PSBoundParameters.Remove('Path')
 
     $attributes = @{}
     $PSBoundParameters.GetEnumerator() | ForEach-Object -Process {$attributes.add($_.Key, $_.Value)}
@@ -192,12 +206,12 @@ function Set-TargetResource
         if ($currentHandler.Ensure -eq 'Present')
         {
             Write-Verbose -Message ($localizedData.UpdatingHandler -f $Name)
-            Set-WebConfigurationProperty -Filter $filter -PSPath $Path -Name '.' -Value $attributes
+            Set-WebConfigurationProperty -Filter $filter -PSPath $Path -Name '.' -Value $attributes -Location $Location
         }
         else
         {
             Write-Verbose -Message ($localizedData.AddingHandler -f $Name)
-            Add-WebConfigurationProperty -Filter 'system.webServer/handlers' -PSPath $Path -Name '.' -Value $attributes
+            Add-WebConfigurationProperty -Filter 'system.webServer/handlers' -PSPath $Path -Name '.' -Value $attributes -Location $Location
         }
     }
     elseif ($Ensure -eq 'Absent')
@@ -205,7 +219,7 @@ function Set-TargetResource
         if ($currentHandler.Ensure -eq 'Present')
         {
             Write-Verbose -Message ($localizedData.RemovingHandler -f $Name)
-            Remove-WebHandler -Name $Name -PSPath $Path
+            Remove-WebHandler -Name $Name -PSPath $Path -Location $Location
         }
         else
         {
@@ -222,6 +236,9 @@ function Set-TargetResource
 
     .PARAMETER Ensure
         Specifies whether the handler should be present
+
+    .PARAMETER Location
+        Specifies The location of the configuration setting.
 
     .PARAMETER Name
         Specifies the name of the new request handler.
@@ -280,6 +297,10 @@ function Test-TargetResource
         $Ensure = 'Present',
 
         [Parameter()]
+        [System.string]
+        $Location,
+
+        [Parameter()]
         [System.String]
         $PhysicalHandlerPath,
 
@@ -325,7 +346,7 @@ function Test-TargetResource
         $ResponseBufferLimit
     )
 
-    $currentHandler = Get-TargetResource -Name $Name -Path $Path
+    $currentHandler = Get-TargetResource -Name $Name -Path $Path -Location $Location
 
     $inDesiredState = $true
     if ($Ensure -eq 'Absent')

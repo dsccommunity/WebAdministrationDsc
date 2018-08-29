@@ -38,6 +38,7 @@ try
             ResponseBufferLimit = 0
             Type                = 'SampleHandler'
             PreCondition        = 'ISAPIMode'
+            Location            = 'Default Web Site/TestDir'
         }
 
         $mockCompliantHandler = @{
@@ -53,6 +54,7 @@ try
             ResponseBufferLimit = $customWebHandlerParameters.ResponseBufferLimit
             Type                = $customWebHandlerParameters.Type
             PreCondition        = $customWebHandlerParameters.PreCondition
+            Location            = $customWebHandlerParameters.Location
         }
 
         $mockGetTargetResource = @{
@@ -69,6 +71,7 @@ try
             ResponseBufferLimit = 0
             Path                = 'MACHINE/WEBROOT/APPHOST'
             Ensure              = 'Present'
+            Location            = 'Default Web Site/TestDir'
         }
 
         $mockAbsentGetTargetResource = @{
@@ -84,12 +87,14 @@ try
             ResourceType        = $null
             ResponseBufferLimit = $null
             Path                = $null
+            Location            = $null
             Ensure              = 'Absent'
         }
 
         $GetTargetRequiredParams = @{
-            Name = $customWebHandlerParameters.Name
-            Path = $customWebHandlerParameters.Path
+            Name     = $customWebHandlerParameters.Name
+            Path     = $customWebHandlerParameters.Path
+            Location = $customWebHandlerParameters.Location
         }
 
         $customWebHandlerAbsentParameters = $customWebHandlerParameters.clone()
@@ -105,17 +110,20 @@ try
 
                     $result = Get-TargetResource @GetTargetRequiredParams
 
-                    $result.Ensure              | Should Be 'Absent'
-                    $result.Name                | Should Be $null
-                    $result.Verb                | Should Be $null
-                    $result.PhysicalHandlerPath | Should Be $null
-                    $result.Modules             | Should Be $null
-                    $result.RequiredAccess      | Should Be $null
-                    $result.ScriptProcessor     | Should Be $null
-                    $result.AllowPathInfo       | Should Be $null
-                    $result.ResponseBufferLimit | Should Be $null
-                    $result.Type                | Should Be $null
-                    $result.PreCondition        | Should Be $null
+                    $result.Ensure              | Should -Be 'Absent'
+                    $result.Name                | Should -Be $null
+                    $result.Verb                | Should -Be $null
+                    $result.PhysicalHandlerPath | Should -Be $null
+                    $result.Path                | Should -Be $GetTargetRequiredParameters.Path
+                    $result.Modules             | Should -Be $null
+                    $result.RequiredAccess      | Should -Be $null
+                    $result.ScriptProcessor     | Should -Be $null
+                    $result.AllowPathInfo       | Should -Be $null
+                    $result.ResponseBufferLimit | Should -Be $null
+                    $result.Type                | Should -Be $null
+                    $result.ResourceType        | Should -Be $null
+                    $result.PreCondition        | Should -Be $null
+                    $result.Location            | Should -Be $GetTargetRequiredparameters.Location
                 }
             }
 
@@ -127,17 +135,19 @@ try
 
                     $result = Get-TargetResource @GetTargetRequiredParams
 
-                    $result.Ensure              | Should Be 'Present'
-                    $result.Name                | Should Be $mockCompliantHandler.Name
-                    $result.Verb                | Should Be $mockCompliantHandler.Verb
-                    $result.PhysicalHandlerPath | Should Be $mockCompliantHandler.Path
-                    $result.Modules             | Should Be $mockCompliantHandler.Modules
-                    $result.RequiredAccess      | Should Be $mockCompliantHandler.RequiredAccess
-                    $result.ScriptProcessor     | Should Be $mockCompliantHandler.ScriptProcessor
-                    $result.AllowPathInfo       | Should Be $mockCompliantHandler.AllowPathInfo
-                    $result.ResponseBufferLimit | Should Be $mockCompliantHandler.ResponseBufferLimit
-                    $result.Type                | Should Be $mockCompliantHandler.Type
-                    $result.PreCondition        | Should Be $mockCompliantHandler.PreCondition
+                    $result.Ensure              | Should -Be 'Present'
+                    $result.Name                | Should -Be $mockCompliantHandler.Name
+                    $result.Verb                | Should -Be $mockCompliantHandler.Verb
+                    $result.PhysicalHandlerPath | Should -Be $mockCompliantHandler.Path
+                    $result.Path                | Should -Be $mockCompliantHandler.PSPath
+                    $result.Modules             | Should -Be $mockCompliantHandler.Modules
+                    $result.RequiredAccess      | Should -Be $mockCompliantHandler.RequiredAccess
+                    $result.ScriptProcessor     | Should -Be $mockCompliantHandler.ScriptProcessor
+                    $result.AllowPathInfo       | Should -Be $mockCompliantHandler.AllowPathInfo
+                    $result.ResponseBufferLimit | Should -Be $mockCompliantHandler.ResponseBufferLimit
+                    $result.Type                | Should -Be $mockCompliantHandler.Type
+                    $result.PreCondition        | Should -Be $mockCompliantHandler.PreCondition
+                    $result.Location            | Should -Be $mockCompliantHandler.Location
                 }
             }
         }
@@ -240,10 +250,12 @@ try
             }
 
             Context 'When Web Handler is Present but non-compliant' {
+                BeforeEach {
+                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
+                }
 
                 It 'Should return false if Name is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Name = 'wrong-name'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -253,7 +265,6 @@ try
 
                 It 'Should return false if Path is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Path = 'WrongPath'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -263,7 +274,6 @@ try
 
                 It 'Should return false if Verb is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Verb = 'Wrong verb'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -273,7 +283,6 @@ try
 
                 It 'Should return false if Modules is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Modules = 'Wrong Module'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -283,7 +292,6 @@ try
 
                 It 'Should return false if RequireAccess is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.RequireAccess = 'Wrong'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -293,7 +301,6 @@ try
 
                 It 'Should return false if ScriptProcessor is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.ScriptProcessor = 'C:\inetpub\wwwroot\wrong.dll'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -303,7 +310,6 @@ try
 
                 It 'Should return false if ResourceType is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.ResourceType = 'WrongType'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -313,7 +319,6 @@ try
 
                 It 'Should return false if AllowPathInfo is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.AllowPathInfo = $true
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -323,7 +328,6 @@ try
 
                 It 'Should return false if ResponseBufferLimit is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.ResponseBufferLimit = 12345
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -333,7 +337,6 @@ try
 
                 It 'Should return false if Type is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Type = 'WrongType'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}
@@ -343,7 +346,6 @@ try
 
                 It 'Should return false if precondition is non-compliant' {
 
-                    $mockNonCompliantHandler = $mockCompliantHandler.clone()
                     $mockNonCompliantHandler.Precondition = 'wrongPrecondition'
 
                     Mock Get-WebConfigurationProperty -MockWith {$mockNonCompliantHandler}

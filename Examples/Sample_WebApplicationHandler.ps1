@@ -20,6 +20,7 @@ Configuration Example
             PhysicalPath         = "C:\temp"
             Type                 = $null
             PreCondition         = $null
+            Location             = 'Default Web Site/TestDir'
         }
     }
 }
