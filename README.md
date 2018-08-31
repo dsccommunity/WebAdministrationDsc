@@ -220,6 +220,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **[String] Ensure** _(Write)_: Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
 { *Present* | Absent }
 * **[String] Name** _(Key)_: Specifies the name of the new request handler.
+* **[String] Location** _(Write)_: Specifies The location of the configuration setting. Location tags are frequently used for configuration settings that must be set more precisely than per application or per virtual directory.
 * **[String] PhysicalHandlerPath** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.
 * **[String] Verb** _(Write)_: Specifies the HTTP verbs that are handled by the new handler.
 * **[String] Modules** _(Write)_: Specifies the modules used for the handler.
@@ -316,6 +317,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+* Added new parameter 'Location' to **WebApplcationHandler** extending functionality to address [392]
 * Changes to xWebAdministration
   * Update section header for WebApplicationHandler in README.
   * Fix tests for helper function `Get-LocalizedData` in Helper.Tests.ps1
@@ -1136,6 +1138,7 @@ configuration Sample_EndToEndxWebAdministration
             PhysicalPath         = $Node.PhysicalPathWebApplication
             Type                 = $null
             PreCondition         = $null
+            Location             = 'Default Web Site/TestDir
         }
     }
 }
