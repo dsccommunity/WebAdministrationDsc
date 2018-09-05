@@ -14,4 +14,5 @@ class MSFT_WebApplicationHandler : OMI_BaseResource
     [Write, Description("Specifies the resource type this handler runs.")] String ResourceType;
     [Write, Description("Specifies whether the handler processes full path information in a URI, such as contoso/marketing/imageGallery.aspx. If the value is true, the handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.")] Boolean AllowPathInfo;
     [Write, Description("Specifies the maximum size, in bytes, of the response buffer for a request handler runs.")] uint32 ResponseBufferLimit;
+    [Write, Description("Specifies The location of the configuration setting. Location tags are frequently used for configuration settings that must be set more precisely than per application or per virtual directory.")] String Location;
 };

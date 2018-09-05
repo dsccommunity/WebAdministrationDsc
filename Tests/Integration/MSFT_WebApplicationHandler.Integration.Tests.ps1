@@ -15,15 +15,23 @@ $TestEnvironment = Initialize-TestEnvironment `
     -DSCResourceName $script:DSCResourceName `
     -TestType Integration
 
+[string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+
 # Using try/finally to always cleanup even if something awful happens.
 try
 {
+    $null = Backup-WebConfiguration -Name $tempName
+
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
     Describe "$($script:DSCResourceName)_Integration" {
-        $Name = $ConfigurationData.AllNodes.Name
-        $filter = "system.webServer/handlers/Add[@Name='$Name']"
+
+        #region Test Setup
+
+        New-WebVirtualDirectory -Site 'Default Web Site' -Name $ConfigurationData.AllNodes.VirtualDirectoryName -PhysicalPath $TestDrive
+
+        #endregion
 
         Context 'When using MSFT_WebApplicationHandler_AddHandler' {
 
@@ -52,8 +60,11 @@ try
             It 'Should have set the resource and all the parameters should match' {
                 $resourceCurrentState = $script:currentConfiguration
 
+                $resourceCurrentState.Path                | Should -Be $ConfigurationData.AllNodes.Path
                 $resourceCurrentState.Modules             | Should -Be $ConfigurationData.AllNodes.Modules
+                $resourceCurrentState.PreCondition        | Should -Be $ConfigurationData.AllNodes.PreCondition
                 $resourceCurrentState.Name                | Should -Be $ConfigurationData.AllNodes.Name
+                $resourceCurrentState.Type                | Should -Be $ConfigurationData.AllNodes.Type
                 $resourceCurrentState.PhysicalHandlerPath | Should -Be $ConfigurationData.AllNodes.PhysicalHandlerPath
                 $resourceCurrentState.Verb                | Should -Be $ConfigurationData.AllNodes.Verb
                 $resourceCurrentState.RequireAccess       | Should -Be $ConfigurationData.AllNodes.RequireAccess
@@ -61,6 +72,8 @@ try
                 $resourceCurrentState.ResourceType        | Should -Be $ConfigurationData.AllNodes.ResourceType
                 $resourceCurrentState.AllowPathInfo       | Should -Be $ConfigurationData.AllNodes.AllowPathInfo
                 $resourceCurrentState.ResponseBufferLimit | Should -Be $ConfigurationData.AllNodes.ResponseBufferLimit
+                $resourceCurrentState.Location            | Should -Be "Default Web Site/$($ConfigurationData.AllNodes.VirtualDirectoryName)"
+                $resourceCurrentState.Ensure              | Should -Be 'Present'
             }
         }
 
@@ -91,8 +104,11 @@ try
 
                 $resourceCurrentState = $script:currentConfiguration
 
+                $resourceCurrentState.Ensure              | Should -Be 'Absent'
                 $resourceCurrentState.Modules             | Should -BeNullOrEmpty
+                $resourceCurrentState.PreCondition        | Should -BeNullOrEmpty
                 $resourceCurrentState.Name                | Should -BeNullOrEmpty
+                $resourceCurrentState.Type                | Should -BeNullOrEmpty
                 $resourceCurrentState.PhysicalHandlerPath | Should -BeNullOrEmpty
                 $resourceCurrentState.Verb                | Should -BeNullOrEmpty
                 $resourceCurrentState.RequireAccess       | Should -BeNullOrEmpty
@@ -100,6 +116,8 @@ try
                 $resourceCurrentState.ResourceType        | Should -BeNullOrEmpty
                 $resourceCurrentState.AllowPathInfo       | Should -BeNullOrEmpty
                 $resourceCurrentState.ResponseBufferLimit | Should -BeNullOrEmpty
+                $resourceCurrentState.Location            | Should -Be "Default Web Site/$($ConfigurationData.AllNodes.VirtualDirectoryName)"
+                $resourceCurrentState.Path                | Should -Be $ConfigurationData.AllNodes.Path
             }
         }
     }
@@ -107,5 +125,12 @@ try
 
 finally
 {
+    #region FOOTER
+
+    Restore-WebConfiguration -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName
+
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
+
+    #endregion
 }
