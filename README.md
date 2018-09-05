@@ -317,6 +317,8 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+### 2.2.0.0
+
 * Added new parameter 'Location' to **WebApplcationHandler** extending functionality to address [392]
 * Changes to xWebAdministration
   * Update section header for WebApplicationHandler in README.
