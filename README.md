@@ -320,6 +320,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * Update appveyor.yml to use the default template.
 * Added default template file .gitattributes, and added default settings for
   Visual Studio Code.
+* Line endings was fixed in files that was committed with wrong line ending.
 
 ### 2.2.0.0
 
