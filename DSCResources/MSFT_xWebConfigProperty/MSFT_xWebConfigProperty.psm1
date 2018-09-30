@@ -21,6 +21,9 @@ data LocalizedData
 .PARAMETER Filter
     Required. Filter used to locate property to update.
 
+.PARAMETER Location
+    Required. Location tag to use for property.
+
 .PARAMETER PropertyName
     Required. Name of the property to update.
 #>
@@ -41,40 +44,44 @@ function Get-TargetResource
         $Filter,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $PropertyName
     )
     # Retrieve the value of the existing property if present.
     Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
+        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath)
 
-    $existingValue = Get-ItemValue `
-                        -WebsitePath $WebsitePath `
+    $existingValue = Get-ItemValue -WebsitePath $WebsitePath `
                         -Filter $Filter `
+                        -Location $Location `
                         -PropertyName $PropertyName
 
     $result = @{
         WebsitePath = $WebsitePath
         Filter = $Filter
+        Location = $Location
         PropertyName = $PropertyName
         Ensure = 'Present'
         Value = $existingValue
     }
 
-    if (-not($existingValue))
+    if ( -not($existingValue) )
     {
         # Property was not found.
-        Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName )
+        Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName)
 
         $result.Ensure = 'Absent'
     }
     else
     {
         # Property was found.
-        Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName )
+        Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName)
     }
 
     return $result
@@ -89,6 +96,9 @@ function Get-TargetResource
 
 .PARAMETER Filter
     Required. Filter used to locate property to update.
+
+.PARAMETER Location
+    Required. Location tag to use for property.
 
 .PARAMETER PropertyName
     Required. Name of the property to update.
@@ -115,6 +125,11 @@ function Set-TargetResource
         $Filter,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $PropertyName,
@@ -131,13 +146,15 @@ function Set-TargetResource
     if ($Ensure -eq 'Present')
     {
         # Property needs to be updated.
-        Write-Verbose `
-            -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName )
+        Write-Verbose -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName)
 
-        $propertyType = Get-ItemPropertyType -WebsitePath $WebsitePath -Filter $Filter -PropertyName $PropertyName
+        $propertyType = Get-ItemPropertyType -WebsitePath $WebsitePath `
+                            -Filter $Filter `
+                            -Location $Location `
+                            -PropertyName $PropertyName
 
         if ($propertyType -match 'Int32|Int64')
-        {
+		{
             $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value
         }
         else
@@ -145,23 +162,22 @@ function Set-TargetResource
             $setValue = $Value
         }
 
-        Set-WebConfigurationProperty `
+        Set-WebConfigurationProperty -PSPath $WebsitePath `
             -Filter $Filter `
-            -PSPath $WebsitePath `
+            -Location $Location `
             -Name $PropertyName `
             -Value $setValue `
-            -WarningAction Stop
+            -WarningAction "Stop"
     }
     else
     {
         # Property needs to be removed.
-        Write-Verbose `
-            -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName )
+        Write-Verbose -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName)
 
-        Clear-WebConfiguration `
-                -Filter "$($Filter)/@$($PropertyName)" `
-                -PSPath $WebsitePath `
-                -WarningAction Stop
+        Clear-WebConfiguration -PSPath $WebsitePath `
+            -Filter "$($Filter)/@$($PropertyName)" `
+            -Location $Location `
+            -WarningAction "Stop"
     }
 }
 
@@ -174,6 +190,9 @@ function Set-TargetResource
 
 .PARAMETER Filter
     Required. Filter used to locate property to update.
+
+.PARAMETER Location
+    Required. Location tag to use for property.
 
 .PARAMETER PropertyName
     Required. Name of the property to update.
@@ -201,6 +220,11 @@ function Test-TargetResource
         $Filter,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $PropertyName,
@@ -215,21 +239,21 @@ function Test-TargetResource
         $Ensure = 'Present'
     )
     # Retrieve the value of the existing property if present.
-    Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
+    Write-Verbose -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath)
 
-    $targetResource = Get-TargetResource `
-                        -WebsitePath $WebsitePath `
+    $targetResource = Get-TargetResource -WebsitePath $WebsitePath `
                         -Filter $Filter `
-                        -PropertyName $PropertyName
+                        -PropertyName $PropertyName `
+                        -Location $Location
+
+    $targetResource = Get-TargetResource @Get_TargetResource_param
 
     if ($Ensure -eq 'Present')
     {
         if ( ($null -eq $targetResource.Value) -or ($targetResource.Value.ToString() -ne $Value) )
         {
             # Property was not found or didn't have expected value.
-            Write-Verbose `
-                -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName )
+            Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName)
 
             return $false
         }
@@ -239,15 +263,13 @@ function Test-TargetResource
         if ( ($null -ne $targetResource.Value) -and ($targetResource.Value.ToString().Length -ne 0 ) )
         {
             # Property was found.
-                Write-Verbose `
-                -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName )
+            Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
 
             return $false
         }
     }
 
-    Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
+    Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
 
     return $true
 }
@@ -263,6 +285,9 @@ function Test-TargetResource
 
 .PARAMETER Filter
     Required. Filter used to locate property to retrieve.
+
+.PARAMETER Location
+    Optional. Location tag to use for property.
 
 .PARAMETER PropertyName
     Required. Name of the property to retrieve.
@@ -283,16 +308,22 @@ function Get-ItemValue
         [string]
         $Filter,
 
+        [Parameter(Mandatory = $false)]
+        [string]
+        $Location,
+
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $PropertyName
     )
+
     # Retrieve the value of the specified property if present.
-    $value = Get-WebConfigurationProperty `
-                -PSPath $WebsitePath `
+
+    $value = Get-WebConfigurationProperty -PSPath $WebsitePath `
                 -Filter $Filter `
-                -Name $PropertyName
+                -Name $PropertyName `
+                -Location $Location
 
     # Return the value of the property if located.
     if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute])
@@ -307,13 +338,16 @@ function Get-ItemValue
     Gets the current data type of the property.
 
 .PARAMETER WebsitePath
-    Path to website location (IIS or WebAdministration format).
+    Required. Path to website location (IIS or WebAdministration format).
 
 .PARAMETER Filter
-    Filter used to locate property to retrieve.
+    Required. Filter used to locate property to retrieve.
+
+.PARAMETER Location
+    Optional. Location tag to use for property.
 
 .PARAMETER PropertyName
-    Name of the property to retrieve.
+    Required. Name of the property to retrieve.
 #>
 function Get-ItemPropertyType
 {
@@ -331,15 +365,22 @@ function Get-ItemPropertyType
         [string]
         $Filter,
 
+        [Parameter(Mandatory = $false)]
+        [string]
+        $Location,
+
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $PropertyName
     )
 
-    $webConfiguration = Get-WebConfiguration -Filter $Filter -PsPath $WebsitePath
 
-    $property = $webConfiguration.Schema.AttributeSchemas | Where-Object -FilterScript {$_.Name -eq $propertyName}
+    $webConfiguration = Get-WebConfiguration -Filter $Filter `
+                        -PsPath $WebsitePath `
+                        -Location $Location
+
+    $property = $webConfiguration.Schema.AttributeSchemas | Where-Object -FilterScript { $_.Name -eq $propertyName }
 
     return $property.ClrType.Name
 }

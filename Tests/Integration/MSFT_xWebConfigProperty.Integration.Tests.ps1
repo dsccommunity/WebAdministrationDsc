@@ -47,6 +47,7 @@ try
                     NodeName             = 'localhost'
                     WebsitePath          = "IIS:\Sites\$($websiteName)"
                     Filter               = 'system.webServer/directoryBrowse'
+                    Location             = ''
                     PropertyName         = 'enabled'
                     AddValue             = $true
                     UpdateValue          = $false

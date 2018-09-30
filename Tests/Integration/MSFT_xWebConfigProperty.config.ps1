@@ -8,6 +8,7 @@ Configuration MSFT_xWebConfigProperty_Add
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.Filter
+            Location     = $Node.Location
             PropertyName = $Node.PropertyName
             Value        = $Node.AddValue
             Ensure       = 'Present'
@@ -25,6 +26,7 @@ Configuration MSFT_xWebConfigProperty_Update
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.Filter
+            Location     = $Node.Location
             PropertyName = $Node.PropertyName
             Value        = $Node.UpdateValue
             Ensure       = 'Present'
@@ -42,6 +44,7 @@ Configuration MSFT_xWebConfigProperty_Integer
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.IntegerFilter
+            Location     = $Node.Location
             PropertyName = $Node.IntergerPropertyName
             Value        = $Node.IntegerValue
             Ensure       = 'Present'
@@ -59,6 +62,7 @@ Configuration MSFT_xWebConfigProperty_Remove
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.Filter
+            Location     = $Node.Location
             PropertyName = $Node.PropertyName
             Ensure       = 'Absent'
         }

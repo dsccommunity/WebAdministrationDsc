@@ -33,27 +33,44 @@ try
         $script:DSCModuleName = 'xWebAdministration'
         $script:DSCResourceName = 'MSFT_xWebConfigProperty'
 
-        $script:presentParameters = @{
+        $script:presentParametersEmptyLocation = @{
             WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
             Filter       = 'system.webServer/advancedLogging/server'
+            Location     = ''
             PropertyName = 'enabled'
             Value        = 'true'
             Ensure       = 'Present'
         }
-
-        $script:absentParameters = @{
+        $script:presentParametersPresentLocation = @{
+            WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+            Filter       = 'system.webServer/asp/session'
+            Location     = 'Default Web Site'
+            PropertyName = 'keepSessionIdSecure'
+            Value        = 'true'
+            Ensure       = 'Present'
+        }
+        $script:absentParametersEmptyLocation = @{
             WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
             Filter       = 'system.webServer/advancedLogging/server'
+            Location     = ''
             PropertyName = 'enabled'
+            Ensure       = 'Absent'
+        }
+        $script:absentParametersPresentLocation = @{
+            WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+            Filter       = 'system.webServer/asp/session'
+            Location     = 'Default Web Site'
+            PropertyName = 'keepSessionIdSecure'
             Ensure       = 'Absent'
         }
 
         #region Function Get-TargetResource
         Describe "$($script:DSCResourceName)\Get-TargetResource" {
-            Context 'Value is absent' {
+            Context 'Value is absent with empty location' {
                 $parameters = @{
                     WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
                     Filter       = 'system.webServer/advancedLogging/server'
+                    Location     = ''
                     PropertyName = 'enabled'
                 }
 
@@ -74,10 +91,36 @@ try
                 }
             }
 
-            Context 'Value is present' {
+            Context 'Value is absent with present location' {
+                $parameters = @{
+                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+                    Filter       = 'system.webServer/security/access'
+                    Location     = 'Default Web Site'
+                    PropertyName = 'keepSessionIdSecure'
+                }
+
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return $null
+                }
+
+                $result = Get-TargetResource @parameters
+
+                It 'Should return the correct values' {
+                    $result.Ensure       | Should -Be 'Absent'
+                    $result.PropertyName | Should -Be 'keepSessionIdSecure'
+                    $result.Value        | Should -Be $null
+                }
+
+                It 'Should have called Get-ItemValue the correct amount of times' {
+                    Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
+                }
+            }
+
+            Context 'Value is present with empty location' {
                 $parameters = @{
                     WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
                     Filter       = 'system.webServer/advancedLogging/server'
+                    Location     = ''
                     PropertyName = 'enabled'
                 }
 
@@ -97,6 +140,31 @@ try
                     Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
                 }
             }
+
+            Context 'Value is present with present location' {
+                $parameters = @{
+                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+                    Filter       = 'system.webServer/asp/session'
+                    Location     = 'Default Web Site'
+                    PropertyName = 'keepSessionIdSecure'
+                }
+
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return 'true'
+                }
+
+                $result = Get-TargetResource @parameters
+
+                It 'Should return the correct values' {
+                    $result.Ensure       | Should -Be 'Present'
+                    $result.PropertyName | Should -Be 'keepSessionIdSecure'
+                    $result.Value        | Should -Be 'true'
+                }
+
+                It 'Should have called Get-ItemValue the correct amount of times' {
+                    Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
+                }
+            }
         }
         #endregion Function Get-TargetResource
 
@@ -107,7 +175,19 @@ try
                     return $null
                 }
 
-                $result = Test-TargetResource @script:presentParameters
+                $result = Test-TargetResource @script:presentParametersEmptyLocation
+
+                It 'Should return false' {
+                    $result | Should -Be $false
+                }
+            }
+
+            Context 'Ensure is present but value is null at location' {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return $null
+                }
+
+                $result = Test-TargetResource @script:presentParametersPresentLocation
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -119,7 +199,19 @@ try
                     return [System.String]::Empty
                 }
 
-                $result = Test-TargetResource @script:presentParameters
+                $result = Test-TargetResource @script:presentParametersEmptyLocation
+
+                It 'Should return false' {
+                    $result | Should -Be $false
+                }
+            }
+
+            Context 'Ensure is present but value is an empty string at location' {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return [System.String]::Empty
+                }
+
+                $result = Test-TargetResource @script:presentParametersPresentLocation
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -131,7 +223,19 @@ try
                     return 'false'
                 }
 
-                $result = Test-TargetResource @script:presentParameters
+                $result = Test-TargetResource @script:presentParametersEmptyLocation
+
+                It 'Should return false' {
+                    $result | Should -Be $false
+                }
+            }
+
+            Context 'Ensure is present but value is wrong at location' {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return 'false'
+                }
+
+                $result = Test-TargetResource @script:presentParametersPresentLocation
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -143,7 +247,19 @@ try
                     return 'true'
                 }
 
-                $result = Test-TargetResource @script:presentParameters
+                $result = Test-TargetResource @script:presentParametersEmptyLocation
+
+                It 'Should return true' {
+                    $result | Should -Be $true
+                }
+            }
+
+            Context 'Ensure is present and the value is the same at location' {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return 'true'
+                }
+
+                $result = Test-TargetResource @script:presentParametersPresentLocation
 
                 It 'Should return true' {
                     $result | Should -Be $true
@@ -155,7 +271,19 @@ try
                     return 'true'
                 }
 
-                $result = Test-TargetResource @script:absentParameters
+                $result = Test-TargetResource @script:absentParametersEmptyLocation
+
+                It 'Should return false' {
+                    $result | Should -Be $false
+                }
+            }
+
+            Context 'Ensure is absent but value is not null at location' {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return 'true'
+                }
+
+                $result = Test-TargetResource @script:absentParametersPresentLocation
 
                 It 'Should return false' {
                     $result | Should -Be $false
@@ -167,7 +295,19 @@ try
                     return $null
                 }
 
-                $result = Test-TargetResource @script:absentParameters
+                $result = Test-TargetResource @script:absentParametersEmptyLocation
+
+                It 'Should return true' {
+                    $result | Should -Be $true
+                }
+            }
+
+            Context 'Ensure is absent and value is null at location' {
+                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                    return $null
+                }
+
+                $result = Test-TargetResource @script:absentParametersPresentLocation
 
                 It 'Should return true' {
                     $result | Should -Be $true
@@ -183,7 +323,21 @@ try
                 Mock -CommandName Convert-PropertyValue
                 Mock -CommandName Set-WebConfigurationProperty
 
-                Set-TargetResource @script:presentParameters
+                Set-TargetResource @script:presentParametersEmptyLocation
+
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
+                }
+            }
+
+            Context 'Ensure is present - String Value at location' {
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
+                Mock -CommandName Convert-PropertyValue
+                Mock -CommandName Set-WebConfigurationProperty
+
+                Set-TargetResource @script:presentParametersPresentLocation
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
@@ -197,7 +351,21 @@ try
                 Mock -CommandName Convert-PropertyValue -MockWith { return '32' }
                 Mock -CommandName Set-WebConfigurationProperty
 
-                Set-TargetResource @script:presentParameters
+                Set-TargetResource @script:presentParametersEmptyLocation
+
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Convert-PropertyValue -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
+                }
+            }
+
+            Context 'Ensure is present - Integer Value at location' {
+                Mock -CommandName Get-ItemPropertyType -MockWith { return 'Int32' }
+                Mock -CommandName Convert-PropertyValue -MockWith { return '32' }
+                Mock -CommandName Set-WebConfigurationProperty
+
+                Set-TargetResource @script:presentParametersPresentLocation
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Get-ItemPropertyType -Times 1 -Exactly
@@ -209,7 +377,17 @@ try
             Context 'Ensure is absent' {
                 Mock -CommandName Clear-WebConfiguration
 
-                Set-TargetResource @script:absentParameters
+                Set-TargetResource @script:absentParametersEmptyLocation
+
+                It 'Should call the right Mocks' {
+                    Assert-MockCalled -CommandName Clear-WebConfiguration -Times 1 -Exactly
+                }
+            }
+
+            Context 'Ensure is absent at location' {
+                Mock -CommandName Clear-WebConfiguration
+
+                Set-TargetResource @script:absentParametersPresentLocation
 
                 It 'Should call the right Mocks' {
                     Assert-MockCalled -CommandName Clear-WebConfiguration -Times 1 -Exactly
