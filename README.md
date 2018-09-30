@@ -261,6 +261,7 @@ Ensures the value of an identified property in the web.config file.
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **Filter**: Filter used to locate property to update.
 * **PropertyName**: Name of the property to update.
+* **Location**: Name of the location to update.
 * **Value**: Value of the property to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
@@ -317,12 +318,24 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+* Added new parameter 'Location' to **xWebConfigProperty** extending functionality to allow writing of locked sections in ApplicationHost.Config
+=======
+>>>>>>> 2951a5c... Code review modifications
 ### 2.4.0.0
 
 * Explicitly removed extra hidden files from release package
 
 ### 2.3.0.0
 
+<<<<<<< HEAD
+=======
+* Added new reosurce xWebConfigProperty extening functionality provided by xWebConfigProperty to allow writing of locked sections in ApplicationHost.Config
+>>>>>>> 88e6a09... Added documentation to README.MD and samples
+=======
+>>>>>>> 2951a5c... Code review modifications
 * Update appveyor.yml to use the default template.
 * Added default template file .gitattributes, and added default settings for
   Visual Studio Code.

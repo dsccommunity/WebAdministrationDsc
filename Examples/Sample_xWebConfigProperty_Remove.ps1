@@ -25,6 +25,7 @@ Configuration Sample_xWebConfigProperty_Remove
         {
             WebsitePath = 'IIS:\Sites\Default Web Site'
             Filter = 'system.webServer/directoryBrowse'
+            Location = ''
             PropertyName = 'enabled'
             Ensure = 'Absent'
         }
