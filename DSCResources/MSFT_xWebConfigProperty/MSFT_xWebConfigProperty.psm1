@@ -22,7 +22,7 @@ data LocalizedData
     Required. Filter used to locate property to update.
 
 .PARAMETER Location
-	Required. Location tag to use for property.
+    Required. Location tag to use for property.
 
 .PARAMETER PropertyName
     Required. Name of the property to update.
@@ -68,7 +68,7 @@ function Get-TargetResource
     $result = @{
         WebsitePath = $WebsitePath
         Filter = $Filter
-		Location = $Location
+        Location = $Location
         PropertyName = $PropertyName
         Ensure = 'Present'
         Value = $existingValue
@@ -99,7 +99,7 @@ function Get-TargetResource
     Required. Filter used to locate property to update.
 
 .PARAMETER Location
-	Required. Location tag to use for property.
+    Required. Location tag to use for property.
 
 .PARAMETER PropertyName
     Required. Name of the property to update.
@@ -147,20 +147,20 @@ function Set-TargetResource
     if ($Ensure -eq 'Present') {
         # Property needs to be updated.
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName)
-		
-		$Get_ItemPropertyType_param = @{
-			WebsitePath = $WebsitePath
-			Filter = $Filter 
+        
+        $Get_ItemPropertyType_param = @{
+            WebsitePath = $WebsitePath
+            Filter = $Filter 
             Location = $Location
-			PropertyName = $PropertyName		
+            PropertyName = $PropertyName        
         }
 
         $propertyType = Get-ItemPropertyType @Get_ItemPropertyType_param
 
         if ($propertyType -match 'Int32|Int64') 
-			{ $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value }
+            { $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value }
         else 
-			{ $setValue = $Value }
+            { $setValue = $Value }
 
         $Set_WebConfigurationProperty_param = @{
             PSPath = $WebsitePath
@@ -199,7 +199,7 @@ function Set-TargetResource
     Required. Filter used to locate property to update.
 
 .PARAMETER Location
-	Required. Location tag to use for property.
+    Required. Location tag to use for property.
 
 .PARAMETER PropertyName
     Required. Name of the property to update.
@@ -268,7 +268,7 @@ function Test-TargetResource
     else {
         if ( ($null -ne $targetResource.Value) -and ($targetResource.Value.ToString().Length -ne 0 ) ) {
             # Property was found.
-			Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
+            Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
 
             return $false
         }
@@ -292,7 +292,7 @@ function Test-TargetResource
     Required. Filter used to locate property to retrieve.
 
 .PARAMETER Location
-	Optional. Location tag to use for property.
+    Optional. Location tag to use for property.
 
 .PARAMETER PropertyName
     Required. Name of the property to retrieve.
@@ -351,8 +351,8 @@ function Get-ItemValue
     Required. Filter used to locate property to retrieve.
 
 .PARAMETER Location
-	Optional. Location tag to use for property.
-	
+    Optional. Location tag to use for property.
+    
 .PARAMETER PropertyName
     Required. Name of the property to retrieve.
 #>

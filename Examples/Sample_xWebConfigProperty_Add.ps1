@@ -25,7 +25,7 @@ Configuration Sample_xWebConfigProperty_Add
         {
             WebsitePath = 'IIS:\Sites\Default Web Site'
             Filter = 'system.webServer/directoryBrowse'
-			Location = ''
+            Location = ''
             PropertyName = 'enabled'
             Value = 'false'
             Ensure = 'Present'
