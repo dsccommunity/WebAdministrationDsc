@@ -1,1 +1,444 @@
-﻿‣潌慣楬敺⁤敭獳条獥਍慤慴䰠捯污穩摥慄慴਍ൻ †⌠挠汵畴敲∽湥唭≓਍††潃癮牥䙴潲⵭瑓楲杮慄慴ⴠ瑓楲杮慄慴䀠ധ †嘠牥潢敳慔杲瑥桃捥楫杮慔杲瑥†††㴠䌠敨正湩⁧潦⁲桴⁥硥獩整据⁥景瀠潲数瑲⁹笢細•獵湩⁧楦瑬牥∠ㅻ≽氠捯瑡摥愠⁴笢紲⸢਍††敖扲獯呥牡敧側潲数瑲乹瑯潆湵⁤††‽牐灯牥祴∠ほ≽栠獡渠瑯戠敥⁮潦湵⹤਍††敖扲獯呥牡敧側潲数瑲䙹畯摮††††‽牐灯牥祴∠ほ≽栠獡戠敥⁮潦湵⹤਍††敖扲獯卥瑥慔杲瑥摅瑩瑉浥†††††‽湅畳楲杮瀠潲数瑲⁹笢細•獩猠瑥മ †嘠牥潢敳敓呴牡敧剴浥癯䥥整⁭†††㴠倠潲数瑲⁹笢細•硥獩獴‬敲潭楶杮瀠潲数瑲⹹਍䀧਍ൽഊ㰊ണ⸊奓低卐卉਍††敇獴琠敨挠牵敲瑮瘠污敵漠⁦桴⁥慴杲瑥爠獥畯捲⁥牰灯牥祴മഊ⸊䅐䅒䕍䕔⁒敗獢瑩健瑡൨ †删煥極敲⹤倠瑡⁨潴眠扥楳整氠捯瑡潩⁮䤨卉漠⁲敗䅢浤湩獩牴瑡潩⁮潦浲瑡⸩਍਍倮剁䵁呅剅䘠汩整൲ †删煥極敲⹤䘠汩整⁲獵摥琠⁯潬慣整瀠潲数瑲⁹潴甠摰瑡⹥਍਍倮剁䵁呅剅䰠捯瑡潩൮ †删煥極敲⹤䰠捯瑡潩⁮慴⁧潴甠敳映牯瀠潲数瑲⹹਍਍倮剁䵁呅剅倠潲数瑲乹浡൥ †删煥極敲⹤丠浡⁥景琠敨瀠潲数瑲⁹潴甠摰瑡⹥਍㸣਍畦据楴湯䜠瑥吭牡敧剴獥畯捲൥笊਍††䍛摭敬䉴湩楤杮⤨൝ †嬠畏灴瑵祔数嬨祓瑳浥䌮汯敬瑣潩獮䠮獡瑨扡敬⥝൝ †瀠牡浡਍††ന †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠敗獢瑩健瑡ⱨ਍਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††噛污摩瑡乥瑯畎汬牏浅瑰⡹崩਍††††獛牴湩嵧਍††††䘤汩整Ⱳ਍਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††䅛汬睯浅瑰卹牴湩⡧崩਍††††獛牴湩嵧਍††††䰤捯瑡潩Ɱ਍਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††噛污摩瑡乥瑯畎汬牏浅瑰⡹崩਍††††獛牴湩嵧਍††††値潲数瑲乹浡൥ †⤠਍††‣敒牴敩敶琠敨瘠污敵漠⁦桴⁥硥獩楴杮瀠潲数瑲⁹晩瀠敲敳瑮മ †圠楲整嘭牥潢敳ⴠ敍獳条⁥␨潌慣楬敺䑤瑡⹡敖扲獯呥牡敧䍴敨正湩呧牡敧⁴昭␠牐灯牥祴慎敭‬䘤汩整Ⱳ␠敗獢瑩健瑡⥨਍਍††䜤瑥䥟整噭污敵灟牡浡㴠䀠ൻ †††圠扥楳整慐桴㴠␠敗獢瑩健瑡൨ †††䘠汩整⁲‽䘤汩整൲ †††䰠捯瑡潩⁮‽䰤捯瑡潩൮ †††倠潲数瑲乹浡⁥‽値潲数瑲乹浡൥ †素਍਍††攤楸瑳湩噧污敵㴠䜠瑥䤭整噭污敵䀠敇彴瑉浥慖畬彥慰慲൭ഊ †␠敲畳瑬㴠䀠ൻ †††圠扥楳整慐桴㴠␠敗獢瑩健瑡൨ †††䘠汩整⁲‽䘤汩整൲ †††䰠捯瑡潩⁮‽䰤捯瑡潩൮ †††倠潲数瑲乹浡⁥‽値潲数瑲乹浡൥ †††䔠獮牵⁥‽倧敲敳瑮ധ †††嘠污敵㴠␠硥獩楴杮慖畬൥ †素਍਍††晩⠠ⴠ潮⡴攤楸瑳湩噧污敵  ൻ †††⌠倠潲数瑲⁹慷⁳潮⁴潦湵⹤਍††††牗瑩ⵥ敖扲獯⁥䴭獥慳敧⠠䰤捯污穩摥慄慴嘮牥潢敳慔杲瑥牐灯牥祴潎䙴畯摮ⴠ⁦値潲数瑲乹浡⥥਍਍††††爤獥汵⹴湅畳敲㴠✠扁敳瑮ധ †素਍††汥敳笠਍††††‣牐灯牥祴眠獡映畯摮മ †††圠楲整嘭牥潢敳ⴠ敍獳条⁥␨潌慣楬敺䑤瑡⹡敖扲獯呥牡敧側潲数瑲䙹畯摮ⴠ⁦値潲数瑲乹浡⥥਍††ൽഊ †爠瑥牵⁮爤獥汵൴紊਍਍⌼਍匮乙偏䥓൓ †匠瑥⁳桴⁥慶畬⁥景琠敨琠牡敧⁴敲潳牵散瀠潲数瑲⹹਍਍倮剁䵁呅剅圠扥楳整慐桴਍††敒畱物摥‮慐桴琠⁯敷獢瑩⁥潬慣楴湯⠠䥉⁓牯圠扥摁業楮瑳慲楴湯映牯慭⥴മഊ⸊䅐䅒䕍䕔⁒楆瑬牥਍††敒畱物摥‮楆瑬牥甠敳⁤潴氠捯瑡⁥牰灯牥祴琠⁯灵慤整മഊ⸊䅐䅒䕍䕔⁒潌慣楴湯਍††敒畱物摥‮潌慣楴湯琠条琠⁯獵⁥潦⁲牰灯牥祴മഊ⸊䅐䅒䕍䕔⁒牐灯牥祴慎敭਍††敒畱物摥‮慎敭漠⁦桴⁥牰灯牥祴琠⁯灵慤整മഊ⸊䅐䅒䕍䕔⁒慖畬൥ †嘠污敵漠⁦桴⁥牰灯牥祴琠⁯灵慤整മഊ⸊䅐䅒䕍䕔⁒湅畳敲਍††牐獥湥⁴牯䄠獢湥⹴䐠晥畡瑬⁳潴倠敲敳瑮മ⌊ാ昊湵瑣潩⁮敓⵴慔杲瑥敒潳牵散਍ൻ †嬠浃汤瑥楂摮湩⡧崩਍††慰慲൭ †⠠਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††噛污摩瑡乥瑯畎汬牏浅瑰⡹崩਍††††獛牴湩嵧਍††††圤扥楳整慐桴ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠楆瑬牥ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠汁潬䕷灭祴瑓楲杮⤨൝ †††嬠瑳楲杮൝ †††␠潌慣楴湯ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠牐灯牥祴慎敭ബഊ †††嬠慐慲敭整⡲崩਍††††獛牴湩嵧਍††††嘤污敵ബഊ †††嬠慐慲敭整⡲崩਍††††噛污摩瑡卥瑥✨牐獥湥❴✬扁敳瑮⤧൝ †††嬠瑳楲杮൝ †††␠湅畳敲㴠✠牐獥湥❴਍††ഩ †椠⁦␨湅畳敲ⴠ煥✠牐獥湥❴ ൻ †††⌠倠潲数瑲⁹敮摥⁳潴戠⁥灵慤整⹤਍††††牗瑩ⵥ敖扲獯⁥䴭獥慳敧⠠䰤捯污穩摥慄慴嘮牥潢敳敓呴牡敧䕴楤䥴整⁭昭␠牐灯牥祴慎敭ഩ †††ഠ †††␠敇彴瑉浥牐灯牥祴祔数灟牡浡㴠䀠ൻ †††††圠扥楳整慐桴㴠␠敗獢瑩健瑡൨ †††††䘠汩整⁲‽䘤汩整⁲਍††††††潌慣楴湯㴠␠潌慣楴湯਍††††††牐灯牥祴慎敭㴠␠牐灯牥祴慎敭††††਍††††ൽഊ †††␠牰灯牥祴祔数㴠䜠瑥䤭整偭潲数瑲呹灹⁥䝀瑥䥟整偭潲数瑲呹灹彥慰慲൭ഊ †††椠⁦␨牰灯牥祴祔数ⴠ慭捴⁨䤧瑮㈳䥼瑮㐶⤧ഠ †††††笠␠敳噴污敵㴠䌠湯敶瑲倭潲数瑲噹污敵ⴠ牐灯牥祴祔数␠牰灯牥祴祔数ⴠ湉異噴污敵␠慖畬⁥ൽ †††攠獬⁥਍††††††⁻猤瑥慖畬⁥‽嘤污敵素਍਍††††匤瑥坟扥潃普杩牵瑡潩偮潲数瑲役慰慲⁭‽筀਍††††††卐慐桴㴠␠敗獢瑩健瑡൨ †††††䘠汩整⁲‽䘤汩整൲ †††††䰠捯瑡潩⁮‽䰤捯瑡潩൮ †††††丠浡⁥‽値潲数瑲乹浡൥ †††††嘠污敵㴠␠敳噴污敵਍††††††慗湲湩䅧瑣潩⁮‽匢潴≰਍††††ൽഊ †††匠瑥圭扥潃普杩牵瑡潩偮潲数瑲⁹區瑥坟扥潃普杩牵瑡潩偮潲数瑲役慰慲൭ †素਍††汥敳笠਍††††‣牐灯牥祴渠敥獤琠⁯敢爠浥癯摥മ †††圠楲整嘭牥潢敳ⴠ敍獳条⁥␨潌慣楬敺䑤瑡⹡敖扲獯卥瑥慔杲瑥敒潭敶瑉浥ⴠ⁦値潲数瑲乹浡⥥਍††††਍††††䌤敬牡坟扥潃普杩牵瑡潩彮慰慲⁭‽筀਍††††††卐慐桴㴠␠敗獢瑩健瑡൨ †††††䘠汩整⁲∽⠤䘤汩整⥲䀯⠤値潲数瑲乹浡⥥ഢ †††††䰠捯瑡潩⁮‽䰤捯瑡潩൮ †††††圠牡楮杮捁楴湯㴠∠瑓灯ഢ †††素਍਍††††汃慥⵲敗䍢湯楦畧慲楴湯䀠汃慥彲敗䍢湯楦畧慲楴湯灟牡浡਍††ൽ紊਍਍⌼਍匮乙偏䥓൓ †吠獥獴琠敨瘠污敵漠⁦桴⁥慴杲瑥爠獥畯捲⁥牰灯牥祴മഊ⸊䅐䅒䕍䕔⁒敗獢瑩健瑡൨ †删煥極敲⹤倠瑡⁨潴眠扥楳整氠捯瑡潩⁮䤨卉漠⁲敗䅢浤湩獩牴瑡潩⁮潦浲瑡⸩਍਍倮剁䵁呅剅䘠汩整൲ †删煥極敲⹤䘠汩整⁲獵摥琠⁯潬慣整瀠潲数瑲⁹潴甠摰瑡⹥਍਍倮剁䵁呅剅䰠捯瑡潩൮ †删煥極敲⹤䰠捯瑡潩⁮慴⁧潴甠敳映牯瀠潲数瑲⹹਍਍倮剁䵁呅剅倠潲数瑲乹浡൥ †删煥極敲⹤丠浡⁥景琠敨瀠潲数瑲⁹潴甠摰瑡⹥਍਍倮剁䵁呅剅嘠污敵਍††慖畬⁥景琠敨瀠潲数瑲⁹潴甠摰瑡⹥਍਍倮剁䵁呅剅䔠獮牵൥ †倠敲敳瑮漠⁲扁敳瑮‮敄慦汵獴琠⁯牐獥湥⹴਍㸣਍畦据楴湯吠獥⵴慔杲瑥敒潳牵散਍ൻ †嬠浃汤瑥楂摮湩⡧崩਍††佛瑵異呴灹⡥卛獹整⹭潂汯慥嵮崩਍††慰慲൭ †⠠਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††噛污摩瑡乥瑯畎汬牏浅瑰⡹崩਍††††獛牴湩嵧਍††††圤扥楳整慐桴ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠楆瑬牥ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠汁潬䕷灭祴瑓楲杮⤨൝ †††嬠瑳楲杮൝ †††␠潌慣楴湯ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠牐灯牥祴慎敭ബഊ †††嬠慐慲敭整⡲崩਍††††獛牴湩嵧਍††††嘤污敵ബഊ †††嬠慐慲敭整⡲崩਍††††噛污摩瑡卥瑥✨牐獥湥❴✬扁敳瑮⤧൝ †††嬠瑳楲杮൝ †††␠湅畳敲㴠✠牐獥湥❴਍††ഩ †⌠删瑥楲癥⁥桴⁥慶畬⁥景琠敨攠楸瑳湩⁧牰灯牥祴椠⁦牰獥湥⹴਍††牗瑩ⵥ敖扲獯⁥䴭獥慳敧⠠䰤捯污穩摥慄慴嘮牥潢敳慔杲瑥桃捥楫杮慔杲瑥ⴠ⁦値潲数瑲乹浡ⱥ␠楆瑬牥‬圤扥楳整慐桴ഩഊ †␠敇彴慔杲瑥敒潳牵散灟牡浡㴠䀠ൻ †††圠扥楳整慐桴㴠␠敗獢瑩健瑡൨ †††䘠汩整⁲‽䘤汩整൲ †††倠潲数瑲乹浡⁥‽値潲数瑲乹浡൥ †††䰠捯瑡潩⁮‽䰤捯瑡潩൮ †素਍਍††琤牡敧剴獥畯捲⁥‽敇⵴慔杲瑥敒潳牵散䀠敇彴慔杲瑥敒潳牵散灟牡浡਍਍††晩⠠䔤獮牵⁥攭ⁱ倧敲敳瑮⤧笠਍††††晩⠠⠠渤汵⁬攭ⁱ琤牡敧剴獥畯捲⹥慖畬⥥ⴠ牯⠠琤牡敧剴獥畯捲⹥慖畬⹥潔瑓楲杮⤨ⴠ敮␠慖畬⥥⤠笠਍††††††‣牐灯牥祴眠獡渠瑯映畯摮漠⁲楤湤琧栠癡⁥硥数瑣摥瘠污敵മ †††††圠楲整嘭牥潢敳ⴠ敍獳条⁥␨潌慣楬敺䑤瑡⹡敖扲獯呥牡敧側潲数瑲乹瑯潆湵⁤昭␠牐灯牥祴慎敭ഩഊ †††††爠瑥牵⁮昤污敳਍††††ൽ †素਍††汥敳笠਍††††晩⠠⠠渤汵⁬渭⁥琤牡敧剴獥畯捲⹥慖畬⥥ⴠ湡⁤␨慴杲瑥敒潳牵散嘮污敵吮卯牴湩⡧⸩敌杮桴ⴠ敮〠⤠⤠笠਍††††††‣牐灯牥祴眠獡映畯摮മ †††††圠楲整嘭牥潢敳ⴠ敍獳条⁥␨潌慣楬敺䑤瑡⹡敖扲獯呥牡敧側潲数瑲坹獡潆湵⁤昭␠牐灯牥祴慎敭ഩഊ †††††爠瑥牵⁮昤污敳਍††††ൽ †素਍਍††牗瑩ⵥ敖扲獯⁥䴭獥慳敧⠠䰤捯污穩摥慄慴嘮牥潢敳慔杲瑥牐灯牥祴慗䙳畯摮ⴠ⁦値潲数瑲乹浡⥥਍਍††敲畴湲␠牴敵਍ൽഊ⌊爠来潩⁮效灬牥䘠湵瑣潩獮਍਍⌼਍匮乙偏䥓൓ †䜠瑥⁳桴⁥畣牲湥⁴慶畬⁥景琠敨瀠潲数瑲⹹਍਍倮剁䵁呅剅圠扥楳整慐桴਍††敒畱物摥‮慐桴琠⁯敷獢瑩⁥潬慣楴湯⠠䥉⁓牯圠扥摁業楮瑳慲楴湯映牯慭⥴മഊ⸊䅐䅒䕍䕔⁒楆瑬牥਍††敒畱物摥‮楆瑬牥甠敳⁤潴氠捯瑡⁥牰灯牥祴琠⁯敲牴敩敶മഊ⸊䅐䅒䕍䕔⁒潌慣楴湯਍††灏楴湯污‮潌慣楴湯琠条琠⁯獵⁥潦⁲牰灯牥祴മഊ⸊䅐䅒䕍䕔⁒牐灯牥祴慎敭਍††敒畱物摥‮慎敭漠⁦桴⁥牰灯牥祴琠⁯敲牴敩敶മ⌊ാ昊湵瑣潩⁮敇⵴瑉浥慖畬൥笊਍††䍛摭敬䉴湩楤杮⤨൝ †嬠畏灴瑵祔数嬨祓瑳浥伮橢捥嵴崩਍††慰慲൭ †⠠਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††噛污摩瑡乥瑯畎汬牏浅瑰⡹崩਍††††獛牴湩嵧਍††††圤扥楳整慐桴ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠楆瑬牥ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽昤污敳崩਍††††獛牴湩嵧਍††††䰤捯瑡潩Ɱ਍਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††噛污摩瑡乥瑯畎汬牏浅瑰⡹崩਍††††獛牴湩嵧਍††††値潲数瑲乹浡൥ †⤠਍਍††‣敒牴敩敶琠敨瘠污敵漠⁦桴⁥灳捥晩敩⁤牰灯牥祴椠⁦牰獥湥⹴਍††䜤瑥坟扥潃普杩牵瑡潩偮潲数瑲役慰慲⁭‽筀਍††††卐慐桴㴠␠敗獢瑩健瑡൨ †††䘠汩整⁲‽䘤汩整൲ †††丠浡⁥‽値潲数瑲乹浡൥ †††䰠捯瑡潩⁮‽䰤捯瑡潩൮ †素਍††਍††瘤污敵㴠䜠瑥圭扥潃普杩牵瑡潩偮潲数瑲⁹䝀瑥坟扥潃普杩牵瑡潩偮潲数瑲役慰慲൭ഊ †⌠删瑥牵⁮桴⁥慶畬⁥景琠敨瀠潲数瑲⁹晩氠捯瑡摥മ †椠⁦␨慶畬⁥椭⁳䵛捩潲潳瑦䤮獉倮睯牥桓汥⹬牆浡睥牯⹫潃普杩牵瑡潩䅮瑴楲畢整⥝笠਍††††敲畴湲␠慶畬⹥慖畬൥ †素਍††敲畴湲␠慶畬൥紊਍਍⌼਍匮乙偏䥓൓ †䜠瑥⁳桴⁥畣牲湥⁴慤慴琠灹⁥景琠敨瀠潲数瑲⹹਍਍倮剁䵁呅剅圠扥楳整慐桴਍††敒畱物摥‮慐桴琠⁯敷獢瑩⁥潬慣楴湯⠠䥉⁓牯圠扥摁業楮瑳慲楴湯映牯慭⥴മഊ⸊䅐䅒䕍䕔⁒楆瑬牥਍††敒畱物摥‮楆瑬牥甠敳⁤潴氠捯瑡⁥牰灯牥祴琠⁯敲牴敩敶മഊ⸊䅐䅒䕍䕔⁒潌慣楴湯਍††灏楴湯污‮潌慣楴湯琠条琠⁯獵⁥潦⁲牰灯牥祴മ †ഠ⸊䅐䅒䕍䕔⁒牐灯牥祴慎敭਍††敒畱物摥‮慎敭漠⁦桴⁥牰灯牥祴琠⁯敲牴敩敶മ⌊ാ昊湵瑣潩⁮敇⵴瑉浥牐灯牥祴祔数਍ൻ †嬠浃汤瑥楂摮湩⡧崩਍††佛瑵異呴灹⡥卛獹整⹭瑓楲杮⥝൝ †瀠牡浡਍††ന †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠敗獢瑩健瑡ⱨ਍਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠牴敵崩਍††††噛污摩瑡乥瑯畎汬牏浅瑰⡹崩਍††††獛牴湩嵧਍††††䘤汩整Ⱳ਍਍††††偛牡浡瑥牥䴨湡慤潴祲㴠␠慦獬⥥൝ †††嬠瑳楲杮൝ †††␠潌慣楴湯ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠慖楬慤整潎乴汵佬䕲灭祴⤨൝ †††嬠瑳楲杮൝ †††␠牐灯牥祴慎敭਍††ഩഊ †␠敇彴敗䍢湯楦畧慲楴湯灟牡浡㴠䀠ൻ †††䘠汩整⁲‽䘤汩整⁲਍††††獐慐桴㴠␠敗獢瑩健瑡൨ †††䰠捯瑡潩⁮‽䰤捯瑡潩൮ †素਍਍††眤扥潃普杩牵瑡潩⁮‽敇⵴敗䍢湯楦畧慲楴湯䀠敇彴敗䍢湯楦畧慲楴湯灟牡浡਍਍††瀤潲数瑲⁹‽眤扥潃普杩牵瑡潩⹮捓敨慭䄮瑴楲畢整捓敨慭⁳⁼桗牥ⵥ扏敪瑣ⴠ楆瑬牥捓楲瑰笠␠⹟慎敭ⴠ煥␠牰灯牥祴慎敭素਍਍††敲畴湲␠牰灯牥祴䌮牬祔数丮浡൥紊਍਍⌼਍匮乙偏䥓൓ †䌠湯敶瑲⁳桴⁥牰灯牥祴映潲⁭瑳楲杮琠⁯灡牰灯楲瑡⁥慤慴琠灹⹥਍਍倮剁䵁呅剅倠潲数瑲呹灹൥ †倠潲数瑲⁹祴数琠⁯敢挠湯敶瑲摥琠⹯਍਍倮剁䵁呅剅䤠灮瑵慖畬൥ †嘠污敵琠⁯敢挠湯敶瑲摥മ⌊ാ昊湵瑣潩⁮潃癮牥⵴牐灯牥祴慖畬൥笊਍††䍛摭敬䉴湩楤杮⤨൝ †嬠畏灴瑵祔数嬨祓瑳浥嘮污敵祔数⥝൝ †瀠牡浡਍††ന †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠瑳楲杮൝ †††␠牐灯牥祴祔数ബഊ †††嬠慐慲敭整⡲慍摮瑡牯⁹‽琤畲⥥൝ †††嬠瑳楲杮൝ †††␠湉異噴污敵਍††ഩഊ †猠楷捴⁨␨牐灯牥祴祔数⤠਍††ൻ †††✠湉㍴✲਍††††ൻ †††††嬠湉㍴崲␠慶畬⁥‽捛湯敶瑲㩝吺䥯瑮㈳␨湉異噴污敵‬〱ഩ †††素਍††††唧湉㍴✲਍††††ൻ †††††嬠䥕瑮㈳⁝瘤污敵㴠嬠潣癮牥嵴㨺潔䥕瑮㈳␨湉異噴污敵‬〱ഩ †††素਍††††䤧瑮㐶ധ †††笠਍††††††䥛瑮㐶⁝瘤污敵㴠嬠潣癮牥嵴㨺潔湉㙴⠴䤤灮瑵慖畬ⱥㄠ⤰਍††††ൽ †素਍਍††敲畴湲␠慶畬൥紊਍਍‣湥牤来潩൮ഊ䔊灸牯⵴潍畤敬敍扭牥ⴠ畆据楴湯⨠吭牡敧剴獥畯捲൥
+﻿# Localized messages
+data LocalizedData
+{
+    # culture="en-US"
+    ConvertFrom-StringData -StringData @'
+    VerboseTargetCheckingTarget       = Checking for the existence of property "{0}" using filter "{1}" located at "{2}".
+    VerboseTargetPropertyNotFound     = Property "{0}" has not been found.
+    VerboseTargetPropertyFound        = Property "{0}" has been found.
+    VerboseSetTargetEditItem          = Ensuring property "{0}" is set.
+    VerboseSetTargetRemoveItem        = Property "{0}" exists, removing property.
+'@
+}
+
+<#
+.SYNOPSIS
+    Gets the current value of the target resource property.
+
+.PARAMETER WebsitePath
+    Required. Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Required. Filter used to locate property to update.
+
+.PARAMETER Location
+    Required. Location tag to use for property.
+
+.PARAMETER PropertyName
+    Required. Name of the property to update.
+#>
+function Get-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName
+    )
+    # Retrieve the value of the existing property if present.
+    Write-Verbose -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath)
+
+    $Get_ItemValue_param = @{
+        WebsitePath = $WebsitePath
+        Filter = $Filter
+        Location = $Location
+        PropertyName = $PropertyName
+    }
+
+    $existingValue = Get-ItemValue @Get_ItemValue_param
+
+    $result = @{
+        WebsitePath = $WebsitePath
+        Filter = $Filter
+        Location = $Location
+        PropertyName = $PropertyName
+        Ensure = 'Present'
+        Value = $existingValue
+    }
+
+    if ( -not($existingValue) ) {
+        # Property was not found.
+        Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName)
+
+        $result.Ensure = 'Absent'
+    }
+    else {
+        # Property was found.
+        Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName)
+    }
+
+    return $result
+}
+
+<#
+.SYNOPSIS
+    Sets the value of the target resource property.
+
+.PARAMETER WebsitePath
+    Required. Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Required. Filter used to locate property to update.
+
+.PARAMETER Location
+    Required. Location tag to use for property.
+
+.PARAMETER PropertyName
+    Required. Name of the property to update.
+
+.PARAMETER Value
+    Value of the property to update.
+
+.PARAMETER Ensure
+    Present or Absent. Defaults to Present.
+#>
+function Set-TargetResource
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName,
+
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Present','Absent')]
+        [string]
+        $Ensure = 'Present'
+    )
+    if ($Ensure -eq 'Present') {
+        # Property needs to be updated.
+        Write-Verbose -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName)
+
+        $Get_ItemPropertyType_param = @{
+            WebsitePath = $WebsitePath
+            Filter = $Filter
+            Location = $Location
+            PropertyName = $PropertyName
+        }
+
+        $propertyType = Get-ItemPropertyType @Get_ItemPropertyType_param
+
+        if ($propertyType -match 'Int32|Int64')
+            { $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value }
+        else
+            { $setValue = $Value }
+
+        $Set_WebConfigurationProperty_param = @{
+            PSPath = $WebsitePath
+            Filter = $Filter
+            Location = $Location
+            Name = $PropertyName
+            Value = $setValue
+            WarningAction = "Stop"
+        }
+
+        Set-WebConfigurationProperty @Set_WebConfigurationProperty_param
+    }
+    else {
+        # Property needs to be removed.
+        Write-Verbose -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName)
+
+        $Clear_WebConfiguration_param = @{
+            PSPath = $WebsitePath
+            Filter ="$($Filter)/@$($PropertyName)"
+            Location = $Location
+            WarningAction = "Stop"
+        }
+
+        Clear-WebConfiguration @Clear_WebConfiguration_param
+    }
+}
+
+<#
+.SYNOPSIS
+    Tests the value of the target resource property.
+
+.PARAMETER WebsitePath
+    Required. Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Required. Filter used to locate property to update.
+
+.PARAMETER Location
+    Required. Location tag to use for property.
+
+.PARAMETER PropertyName
+    Required. Name of the property to update.
+
+.PARAMETER Value
+    Value of the property to update.
+
+.PARAMETER Ensure
+    Present or Absent. Defaults to Present.
+#>
+function Test-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName,
+
+        [Parameter()]
+        [string]
+        $Value,
+
+        [Parameter()]
+        [ValidateSet('Present','Absent')]
+        [string]
+        $Ensure = 'Present'
+    )
+    # Retrieve the value of the existing property if present.
+    Write-Verbose -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath)
+
+    $Get_TargetResource_param = @{
+        WebsitePath = $WebsitePath
+        Filter = $Filter
+        PropertyName = $PropertyName
+        Location = $Location
+    }
+
+    $targetResource = Get-TargetResource @Get_TargetResource_param
+
+    if ($Ensure -eq 'Present') {
+        if ( ($null -eq $targetResource.Value) -or ($targetResource.Value.ToString() -ne $Value) ) {
+            # Property was not found or didn't have expected value.
+            Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName)
+
+            return $false
+        }
+    }
+    else {
+        if ( ($null -ne $targetResource.Value) -and ($targetResource.Value.ToString().Length -ne 0 ) ) {
+            # Property was found.
+            Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
+
+            return $false
+        }
+    }
+
+    Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
+
+    return $true
+}
+
+# region Helper Functions
+
+<#
+.SYNOPSIS
+    Gets the current value of the property.
+
+.PARAMETER WebsitePath
+    Required. Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Required. Filter used to locate property to retrieve.
+
+.PARAMETER Location
+    Optional. Location tag to use for property.
+
+.PARAMETER PropertyName
+    Required. Name of the property to retrieve.
+#>
+function Get-ItemValue
+{
+    [CmdletBinding()]
+    [OutputType([System.Object])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName
+    )
+
+    # Retrieve the value of the specified property if present.
+    $Get_WebConfigurationProperty_param = @{
+        PSPath = $WebsitePath
+        Filter = $Filter
+        Name = $PropertyName
+        Location = $Location
+    }
+
+    $value = Get-WebConfigurationProperty @Get_WebConfigurationProperty_param
+
+    # Return the value of the property if located.
+    if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute]) {
+        return $value.Value
+    }
+    return $value
+}
+
+<#
+.SYNOPSIS
+    Gets the current data type of the property.
+
+.PARAMETER WebsitePath
+    Required. Path to website location (IIS or WebAdministration format).
+
+.PARAMETER Filter
+    Required. Filter used to locate property to retrieve.
+
+.PARAMETER Location
+    Optional. Location tag to use for property.
+
+.PARAMETER PropertyName
+    Required. Name of the property to retrieve.
+#>
+function Get-ItemPropertyType
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $WebsitePath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Filter,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $Location,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $PropertyName
+    )
+
+    $Get_WebConfiguration_param = @{
+        Filter = $Filter
+        PsPath = $WebsitePath
+        Location = $Location
+    }
+
+    $webConfiguration = Get-WebConfiguration @Get_WebConfiguration_param
+
+    $property = $webConfiguration.Schema.AttributeSchemas | Where-Object -FilterScript { $_.Name -eq $propertyName }
+
+    return $property.ClrType.Name
+}
+
+<#
+.SYNOPSIS
+    Converts the property from string to appropriate data type.
+
+.PARAMETER PropertyType
+    Property type to be converted to.
+
+.PARAMETER InputValue
+    Value to be converted.
+#>
+function Convert-PropertyValue
+{
+    [CmdletBinding()]
+    [OutputType([System.ValueType])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $PropertyType,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $InputValue
+    )
+
+    switch ($PropertyType )
+    {
+        'Int32'
+        {
+            [Int32] $value = [convert]::ToInt32($InputValue, 10)
+        }
+        'UInt32'
+        {
+            [UInt32] $value = [convert]::ToUInt32($InputValue, 10)
+        }
+        'Int64'
+        {
+            [Int64] $value = [convert]::ToInt64($InputValue, 10)
+        }
+    }
+
+    return $value
+}
+
+# endregion
+
+Export-ModuleMember -Function *-TargetResource
