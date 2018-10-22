@@ -1,4 +1,4 @@
-﻿# Localized messages
+# Localized messages
 data LocalizedData
 {
     # culture="en-US"
@@ -147,19 +147,19 @@ function Set-TargetResource
     if ($Ensure -eq 'Present') {
         # Property needs to be updated.
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName)
-
+        
         $Get_ItemPropertyType_param = @{
             WebsitePath = $WebsitePath
-            Filter = $Filter
+            Filter = $Filter 
             Location = $Location
-            PropertyName = $PropertyName
+            PropertyName = $PropertyName        
         }
 
         $propertyType = Get-ItemPropertyType @Get_ItemPropertyType_param
 
-        if ($propertyType -match 'Int32|Int64')
+        if ($propertyType -match 'Int32|Int64') 
             { $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value }
-        else
+        else 
             { $setValue = $Value }
 
         $Set_WebConfigurationProperty_param = @{
@@ -176,7 +176,7 @@ function Set-TargetResource
     else {
         # Property needs to be removed.
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName)
-
+        
         $Clear_WebConfiguration_param = @{
             PSPath = $WebsitePath
             Filter ="$($Filter)/@$($PropertyName)"
@@ -330,7 +330,7 @@ function Get-ItemValue
         Name = $PropertyName
         Location = $Location
     }
-
+    
     $value = Get-WebConfigurationProperty @Get_WebConfigurationProperty_param
 
     # Return the value of the property if located.
@@ -352,7 +352,7 @@ function Get-ItemValue
 
 .PARAMETER Location
     Optional. Location tag to use for property.
-
+    
 .PARAMETER PropertyName
     Required. Name of the property to retrieve.
 #>
@@ -383,7 +383,7 @@ function Get-ItemPropertyType
     )
 
     $Get_WebConfiguration_param = @{
-        Filter = $Filter
+        Filter = $Filter 
         PsPath = $WebsitePath
         Location = $Location
     }
