@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '2.2.0.0'
+moduleVersion = '2.3.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,13 +41,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Added new parameter "Location" to **WebApplcationHandler** extending functionality to address [392]
-* Changes to xWebAdministration
-  * Update section header for WebApplicationHandler in README.
-  * Fix tests for helper function `Get-LocalizedData` in Helper.Tests.ps1
-    that referenced the wrong path.
-* Remove duplication in MSFT_xWebsite.psm1. [Krzysztof Morcinek (@kmorcinek)](https://github.com/kmorcinek)
-* Updates **xIISMimeTypeMapping** to add MIME type mapping for nested paths
+        ReleaseNotes = '* Update appveyor.yml to use the default template.
+* Added default template file .gitattributes, and added default settings for
+  Visual Studio Code.
+* Line endings was fixed in files that was committed with wrong line ending.
 
 '
 
@@ -61,6 +58,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 
