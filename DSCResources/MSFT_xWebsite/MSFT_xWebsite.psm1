@@ -846,7 +846,7 @@ function Test-TargetResource
                                            -AuthenticationInfo $AuthenticationInfo)))
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
         }
 
         if($PSBoundParameters.ContainsKey('AnonymousCredentials') -and `
