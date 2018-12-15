@@ -3,6 +3,9 @@ $script:DSCModuleName   = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebsite'
 
 #region HEADER
+$culture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')
+[System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
+[System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
@@ -86,6 +89,11 @@ try
                     -ClientOnly
             )
 
+            $MockAnonymousCredentials = @{
+               enabled = $true
+               userName = "TestUser"
+               password = "secret"
+            }
             $mockLogCustomFields = @(
                 @{
                     LogFieldName = 'LogField1'
@@ -170,6 +178,10 @@ try
                 Mock -CommandName Get-WebConfigurationProperty `
                     -MockWith {return $MockAuthenticationInfo}
 
+                Mock -CommandName Get-WebConfiguration `
+                    -ParameterFilter {$filter -eq 'system.webServer/security/authentication/anonymousAuthentication'} `
+                    -MockWith { return $MockAnonymousCredentials}
+
                 Mock -CommandName Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Anonymous') }
 
@@ -183,14 +195,6 @@ try
                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 $Result = Get-TargetResource -Name $MockWebsite.Name
-
-                It 'should call Get-Website once' {
-                    Assert-MockCalled -CommandName Get-Website -Exactly 1
-                }
-
-                It 'should call Get-WebConfiguration twice' {
-                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 2
-                }
 
                 It 'should return Ensure' {
                     $Result.Ensure | Should Be 'Present'
@@ -236,6 +240,11 @@ try
                     $Result.AuthenticationInfo.CimInstanceProperties['Basic'].Value     | Should Be 'false'
                     $Result.AuthenticationInfo.CimInstanceProperties['Digest'].Value    | Should Be 'false'
                     $Result.AuthenticationInfo.CimInstanceProperties['Windows'].Value   | Should Be 'true'
+                }
+
+                It 'should return AnonymousCredentials' {
+                    $Result.AnonymousCredentials.CimInstanceProperties['UserName'].Value | Should Be 'TestUser'
+                    $Result.AnonymousCredentials.CimInstanceProperties['Password'].Value | Should Be 'secret'
                 }
 
                 It 'should return Preload' {
@@ -524,6 +533,32 @@ try
                             -PhysicalPath $MockParameters.PhysicalPath `
                             -AuthenticationInfo $MockAuthenticationInfo `
                             -Verbose:$VerbosePreference
+
+                It 'should return False' {
+                    $Result | Should Be $false
+                }
+            }
+
+            Context 'Check AnonymousCredentials is different' {
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-WebConfiguration `
+                    -ParameterFilter {$filter -eq 'system.webServer/security/authentication/anonymousAuthentication'} `
+                    -MockWith { return @{
+                        enabled = $true
+                        userName = "fake"
+                        password = "none"
+                    }}
+
+                $MockAnonymousCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{ UserName="TestUser"; Password="secret" }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -AnonymousCredentials  $MockAnonymousCredentials`
+                    -Verbose:$VerbosePreference
 
                 It 'should return False' {
                     $Result | Should Be $false
