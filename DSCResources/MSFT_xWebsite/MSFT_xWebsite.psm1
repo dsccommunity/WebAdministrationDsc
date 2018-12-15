@@ -537,7 +537,7 @@ function Set-TargetResource
             (Test-AuthenticationEnabled -Site $Name -Type 'Anonymous' ) -and `
                ( -not (Test-AnonymousCredentials -Site $Name -Credentials $AnonymousCredentials)))
         {
-            Set-AnonymousAuthenticationCredentials -Site $Site -Credentials $AnonymousCredentials -ErrorAction Stop
+            Set-AnonymousAuthenticationCredentials -Site $Name -Credentials $AnonymousCredentials -ErrorAction Stop
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetAnonymousCredentialsUpdated `
                                     -f $Name)
         }
@@ -910,7 +910,7 @@ function Test-TargetResource
                                            -AuthenticationInfo $AuthenticationInfo)))
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
         }
 
         if($PSBoundParameters.ContainsKey('AnonymousCredentials') -and `
@@ -2279,7 +2279,7 @@ function Test-AnonymousCredentials
         return $false
     }
 
-    ($currentCredentials.UserName -eq $Credentials.User) -and ($currentCredentials.Password -eq $Credentials.Password)
+    ($currentCredentials.UserName -eq $Credentials.UserName) -and ($currentCredentials.Password -eq $Credentials.Password)
 }
  <#
         .SYNOPSIS
@@ -2324,8 +2324,8 @@ function Set-AnonymousAuthenticationCredentials
         $Credentials
     )
     $anonymousAuthenticationConfigurationPath = 'system.webServer/security/authentication/anonymousAuthentication'
-    Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'userName' $Credentials.User
-    Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'password' $Credentials.Password
+    Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'userName' -Value $Credentials.UserName
+    Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'password' -Value $Credentials.Password
 }
 
 #endregion
