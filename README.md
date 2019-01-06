@@ -316,7 +316,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
-
+* xWebSite: Full path is used to get list of default documents
 ### 2.3.0.0
 
 * Update appveyor.yml to use the default template.
