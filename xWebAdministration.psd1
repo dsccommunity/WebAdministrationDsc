@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '2.3.0.0'
+moduleVersion = '2.4.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,10 +41,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Update appveyor.yml to use the default template.
-* Added default template file .gitattributes, and added default settings for
-  Visual Studio Code.
-* Line endings was fixed in files that was committed with wrong line ending.
+        ReleaseNotes = '* Explicitly removed extra hidden files from release package
 
 '
 
@@ -58,6 +55,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 

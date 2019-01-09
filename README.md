@@ -317,6 +317,10 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+### 2.4.0.0
+
+* Explicitly removed extra hidden files from release package
+
 ### 2.3.0.0
 
 * Update appveyor.yml to use the default template.
