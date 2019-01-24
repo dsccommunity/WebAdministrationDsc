@@ -261,16 +261,6 @@ Ensures the value of an identified property in the web.config file.
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **Filter**: Filter used to locate property to update.
 * **PropertyName**: Name of the property to update.
-* **Value**: Value of the property to update.
-* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
-
-### xWebConfigPropertyLocation
-
-Ensures the value of an identified property in the ApplicationHost.config file under Location section.
-
-* **WebsitePath**: Path to website location (IIS or WebAdministration format).
-* **Filter**: Filter used to locate property to update.
-* **PropertyName**: Name of the property to update.
 * **Location**: Name of the location to update.
 * **Value**: Value of the property to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
