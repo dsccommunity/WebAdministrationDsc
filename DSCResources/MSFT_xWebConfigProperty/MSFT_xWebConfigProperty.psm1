@@ -54,16 +54,13 @@ function Get-TargetResource
         $PropertyName
     )
     # Retrieve the value of the existing property if present.
-    Write-Verbose -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath)
+    Write-Verbose `
+        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath)
 
-    $Get_ItemValue_param = @{
-        WebsitePath = $WebsitePath
-        Filter = $Filter
-        Location = $Location
-        PropertyName = $PropertyName
-    }
-
-    $existingValue = Get-ItemValue @Get_ItemValue_param
+    $existingValue = Get-ItemValue -WebsitePath $WebsitePath `
+                        -Filter $Filter `
+                        -Location $Location `
+                        -PropertyName $PropertyName
 
     $result = @{
         WebsitePath = $WebsitePath
@@ -147,44 +144,32 @@ function Set-TargetResource
     if ($Ensure -eq 'Present') {
         # Property needs to be updated.
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName)
-        
-        $Get_ItemPropertyType_param = @{
-            WebsitePath = $WebsitePath
-            Filter = $Filter 
-            Location = $Location
-            PropertyName = $PropertyName        
-        }
 
-        $propertyType = Get-ItemPropertyType @Get_ItemPropertyType_param
+        $propertyType = Get-ItemPropertyType -WebsitePath $WebsitePath `
+                            -Filter $Filter `
+                            -Location $Location `
+                            -PropertyName $PropertyName
 
-        if ($propertyType -match 'Int32|Int64') 
+        if ($propertyType -match 'Int32|Int64')
             { $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value }
-        else 
+        else
             { $setValue = $Value }
 
-        $Set_WebConfigurationProperty_param = @{
-            PSPath = $WebsitePath
-            Filter = $Filter
-            Location = $Location
-            Name = $PropertyName
-            Value = $setValue
-            WarningAction = "Stop"
-        }
-
-        Set-WebConfigurationProperty @Set_WebConfigurationProperty_param
+        Set-WebConfigurationProperty -PSPath $WebsitePath `
+            -Filter $Filter `
+            -Location $Location `
+            -Name $PropertyName `
+            -Value $setValue `
+            -WarningAction "Stop"
     }
     else {
         # Property needs to be removed.
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName)
-        
-        $Clear_WebConfiguration_param = @{
-            PSPath = $WebsitePath
-            Filter ="$($Filter)/@$($PropertyName)"
-            Location = $Location
-            WarningAction = "Stop"
-        }
 
-        Clear-WebConfiguration @Clear_WebConfiguration_param
+        Clear-WebConfiguration -PSPath $WebsitePath `
+            -Filter "$($Filter)/@$($PropertyName)" `
+            -Location $Location `
+            -WarningAction "Stop"
     }
 }
 
@@ -248,14 +233,10 @@ function Test-TargetResource
     # Retrieve the value of the existing property if present.
     Write-Verbose -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath)
 
-    $Get_TargetResource_param = @{
-        WebsitePath = $WebsitePath
-        Filter = $Filter
-        PropertyName = $PropertyName
-        Location = $Location
-    }
-
-    $targetResource = Get-TargetResource @Get_TargetResource_param
+    $targetResource = Get-TargetResource -WebsitePath $WebsitePath `
+                        -Filter $Filter `
+                        -PropertyName $PropertyName `
+                        -Location $Location
 
     if ($Ensure -eq 'Present') {
         if ( ($null -eq $targetResource.Value) -or ($targetResource.Value.ToString() -ne $Value) ) {
@@ -324,14 +305,10 @@ function Get-ItemValue
     )
 
     # Retrieve the value of the specified property if present.
-    $Get_WebConfigurationProperty_param = @{
-        PSPath = $WebsitePath
-        Filter = $Filter
-        Name = $PropertyName
-        Location = $Location
-    }
-    
-    $value = Get-WebConfigurationProperty @Get_WebConfigurationProperty_param
+    $value = Get-WebConfigurationProperty -PSPath $WebsitePath `
+                -Filter $Filter `
+                -Name $PropertyName `
+                -Location $Location
 
     # Return the value of the property if located.
     if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute]) {
@@ -352,7 +329,7 @@ function Get-ItemValue
 
 .PARAMETER Location
     Optional. Location tag to use for property.
-    
+
 .PARAMETER PropertyName
     Required. Name of the property to retrieve.
 #>
@@ -382,13 +359,9 @@ function Get-ItemPropertyType
         $PropertyName
     )
 
-    $Get_WebConfiguration_param = @{
-        Filter = $Filter 
-        PsPath = $WebsitePath
-        Location = $Location
-    }
-
-    $webConfiguration = Get-WebConfiguration @Get_WebConfiguration_param
+    $webConfiguration = Get-WebConfiguration -Filter $Filter `
+                        -PsPath $WebsitePath `
+                        -Location $Location
 
     $property = $webConfiguration.Schema.AttributeSchemas | Where-Object -FilterScript { $_.Name -eq $propertyName }
 
