@@ -245,11 +245,6 @@ function Test-TargetResource
                         -Filter $Filter `
                         -PropertyName $PropertyName `
                         -Location $Location
-<<<<<<< HEAD
-
-    $targetResource = Get-TargetResource @Get_TargetResource_param
-=======
->>>>>>> 4e039a5669a7f7e3561f7177bb9ea800066d32b4
 
     if ($Ensure -eq 'Present')
     {
@@ -322,10 +317,6 @@ function Get-ItemValue
     )
 
     # Retrieve the value of the specified property if present.
-<<<<<<< HEAD
-
-=======
->>>>>>> 4e039a5669a7f7e3561f7177bb9ea800066d32b4
     $value = Get-WebConfigurationProperty -PSPath $WebsitePath `
                 -Filter $Filter `
                 -Name $PropertyName `
@@ -381,18 +372,11 @@ function Get-ItemPropertyType
         $PropertyName
     )
 
-<<<<<<< HEAD
 
     $webConfiguration = Get-WebConfiguration -Filter $Filter `
                         -PsPath $WebsitePath `
                         -Location $Location
 
-=======
-    $webConfiguration = Get-WebConfiguration -Filter $Filter `
-                        -PsPath $WebsitePath `
-                        -Location $Location
-
->>>>>>> 4e039a5669a7f7e3561f7177bb9ea800066d32b4
     $property = $webConfiguration.Schema.AttributeSchemas | Where-Object -FilterScript { $_.Name -eq $propertyName }
 
     return $property.ClrType.Name

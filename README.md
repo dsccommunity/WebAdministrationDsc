@@ -319,11 +319,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ### Unreleased
 
 * Added new parameter 'Location' to **xWebConfigProperty** extending functionality to allow writing of locked sections in ApplicationHost.Config
-<<<<<<< HEAD
 * xWebSite: Full path is used to get list of default documents
-=======
-=======
->>>>>>> 4e039a5669a7f7e3561f7177bb9ea800066d32b4
 
 ### 2.4.0.0
 
