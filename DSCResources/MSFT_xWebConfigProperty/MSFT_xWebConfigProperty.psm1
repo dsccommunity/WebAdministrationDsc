@@ -154,7 +154,7 @@ function Set-TargetResource
                             -PropertyName $PropertyName
 
         if ($propertyType -match 'Int32|Int64')
-		{
+        {
             $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value
         }
         else
