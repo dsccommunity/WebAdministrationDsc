@@ -71,13 +71,15 @@ function Get-TargetResource
         Value = $existingValue
     }
 
-    if ( -not($existingValue) ) {
+    if ( -not($existingValue) )
+    {
         # Property was not found.
         Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName)
 
         $result.Ensure = 'Absent'
     }
-    else {
+    else
+    {
         # Property was found.
         Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName)
     }
@@ -141,7 +143,8 @@ function Set-TargetResource
         [string]
         $Ensure = 'Present'
     )
-    if ($Ensure -eq 'Present') {
+    if ($Ensure -eq 'Present')
+    {
         # Property needs to be updated.
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName)
 
@@ -151,9 +154,13 @@ function Set-TargetResource
                             -PropertyName $PropertyName
 
         if ($propertyType -match 'Int32|Int64')
-            { $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value }
+        {
+            $setValue = Convert-PropertyValue -PropertyType $propertyType -InputValue $Value
+        }
         else
-            { $setValue = $Value }
+        {
+            $setValue = $Value
+        }
 
         Set-WebConfigurationProperty -PSPath $WebsitePath `
             -Filter $Filter `
@@ -162,7 +169,8 @@ function Set-TargetResource
             -Value $setValue `
             -WarningAction "Stop"
     }
-    else {
+    else
+    {
         # Property needs to be removed.
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName)
 
@@ -238,16 +246,20 @@ function Test-TargetResource
                         -PropertyName $PropertyName `
                         -Location $Location
 
-    if ($Ensure -eq 'Present') {
-        if ( ($null -eq $targetResource.Value) -or ($targetResource.Value.ToString() -ne $Value) ) {
+    if ($Ensure -eq 'Present')
+    {
+        if ( ($null -eq $targetResource.Value) -or ($targetResource.Value.ToString() -ne $Value) )
+        {
             # Property was not found or didn't have expected value.
             Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName)
 
             return $false
         }
     }
-    else {
-        if ( ($null -ne $targetResource.Value) -and ($targetResource.Value.ToString().Length -ne 0 ) ) {
+    else
+    {
+        if ( ($null -ne $targetResource.Value) -and ($targetResource.Value.ToString().Length -ne 0 ) )
+        {
             # Property was found.
             Write-Verbose -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
 
@@ -311,7 +323,8 @@ function Get-ItemValue
                 -Location $Location
 
     # Return the value of the property if located.
-    if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute]) {
+    if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute])
+    {
         return $value.Value
     }
     return $value

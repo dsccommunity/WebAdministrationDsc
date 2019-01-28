@@ -318,8 +318,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-<<<<<<< HEAD
-* Added new reosurce xWebConfigProperty extening functionality provided by xWebConfigProperty to allow writing of locked sections in ApplicationHost.Config
+* Added new parameter 'Location' to **xWebConfigProperty** extending functionality to allow writing of locked sections in ApplicationHost.Config
 =======
 ### 2.4.0.0
 
@@ -327,7 +326,6 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### 2.3.0.0
 
->>>>>>> 0b60a44eea60673f883544ecbf5cd294ecc750a8
 * Update appveyor.yml to use the default template.
 * Added default template file .gitattributes, and added default settings for
   Visual Studio Code.
