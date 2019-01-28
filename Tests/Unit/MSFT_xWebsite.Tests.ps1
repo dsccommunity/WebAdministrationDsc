@@ -160,7 +160,7 @@ try
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
 
                 Mock -CommandName Get-WebConfiguration  `
-                        -ParameterFilter {$filter -eq '//defaultDocument/files/*'} `
+                        -ParameterFilter {$filter -eq '/system.webServer/defaultDocument/files/*'} `
                         -MockWith { return @{value = 'index.html'} }
 
                 Mock -CommandName Get-WebConfiguration `
