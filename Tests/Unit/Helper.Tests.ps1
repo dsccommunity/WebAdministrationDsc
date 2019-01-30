@@ -224,7 +224,7 @@ try
                 }
             }
 
-            Context 'Subject only is passed and subject match has different order then certificate' {
+            Context 'Subject only is passed and certificate with a different subject order exists' {
                 It 'should not throw exception' {
                     { $script:result = Find-Certificate -Subject $certSubjectLongReverse -Store 'LongSubject' } | Should Not Throw
                 }
@@ -239,7 +239,7 @@ try
                 }
             }
 
-            Context 'Subject only is passed and subject match no space' {
+            Context 'Subject only is passed and certificate subject without spaces exists' {
                 It 'should not throw exception' {
                     { $script:result = Find-Certificate -Subject $certSubjectNoSpace -Store 'LongSubject' } | Should Not Throw
                 }
