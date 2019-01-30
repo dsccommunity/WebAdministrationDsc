@@ -36,6 +36,9 @@ try
             $certEKUReverse = @('Client authentication','Server Authentication')
             $certEKUNoMatch = $certEKU + @('Encrypting File System')
             $certSubject = 'CN=contoso, DC=com'
+            $certSubjectLong = 'CN=contoso, E=myemail@contoso.com, O=Fabrikam., OU=IT, L=Location, S=State, C=Country'
+            $certSubjectNoSpace = 'CN=contoso,E=myemail@contoso.com,O=Fabrikam.,OU=IT,L=Location,S=State,C=Country'
+            $certSubjectLongReverse = 'E=myemail@contoso.com,O=Fabrikam.,L=Location,CN=contoso,OU=IT,S=State,C=Country'
             $certFriendlyName = 'Contoso Test Cert'
             $validCert = New-SelfSignedCertificateEx `
                 -Subject $certSubject `
@@ -50,6 +53,21 @@ try
             $validThumbprint = $validCert.Thumbprint
             $validCert = Get-Item -Path "cert:\CurrentUser\My\$validThumbprint"
             Remove-Item -Path $validCert.PSPath -Force
+
+            # Generate the long subject certificate for testing but remove it from the store straight away
+            $validCertSubjectLong = New-SelfSignedCertificateEx `
+                -Subject $certSubjectLong `
+                -KeyUsage $certKeyUsage `
+                -KeySpec 'Exchange' `
+                -EKU $certEKU `
+                -SubjectAlternativeName $certDNSNames `
+                -FriendlyName $certFriendlyName `
+                -StoreLocation 'CurrentUser' `
+                -Exportable
+            # Pull the generated certificate from the store so we have the friendlyname
+            $longThumbprint = $validCertSubjectLong.Thumbprint
+            $validCertSubjectLong = Get-Item -Path "cert:\CurrentUser\My\$longThumbprint"
+            Remove-Item -Path $validCertSubjectLong.PSPath -Force
 
             # Generate the Expired certificate for testing but remove it from the store straight away
             $expiredCert = New-SelfSignedCertificateEx `
@@ -92,6 +110,11 @@ try
                     'cert:\LocalMachine\Expired'
                     {
                         return @( $expiredCert )
+                    }
+
+                    'cert:\LocalMachine\LongSubject'
+                    {
+                        return @( $validCertSubjectLong )
                     }
 
                     default
@@ -193,6 +216,36 @@ try
 
                 It 'should return null' {
                     $script:result | Should BeNullOrEmpty
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Test-Path -Exactly -Times 1
+                    Assert-MockCalled -CommandName Get-ChildItem -Exactly -Times 1
+                }
+            }
+
+            Context 'Subject only is passed and subject match has different order then certificate' {
+                It 'should not throw exception' {
+                    { $script:result = Find-Certificate -Subject $certSubjectLongReverse -Store 'LongSubject' } | Should Not Throw
+                }
+
+                It 'should return expected certificate' {
+                    $script:result.Thumbprint | Should Be $longThumbprint
+                }
+
+                It 'should call expected mocks' {
+                    Assert-MockCalled -CommandName Test-Path -Exactly -Times 1
+                    Assert-MockCalled -CommandName Get-ChildItem -Exactly -Times 1
+                }
+            }
+
+            Context 'Subject only is passed and subject match no space' {
+                It 'should not throw exception' {
+                    { $script:result = Find-Certificate -Subject $certSubjectNoSpace -Store 'LongSubject' } | Should Not Throw
+                }
+
+                It 'should return expected certificate' {
+                    $script:result.Thumbprint | Should Be $longThumbprint
                 }
 
                 It 'should call expected mocks' {
