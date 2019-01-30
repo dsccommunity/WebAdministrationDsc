@@ -27,7 +27,7 @@ and be released to [PowerShell Gallery](https://www.powershellgallery.com/).
 
 ## Contributing
 
-Please check out common DSC Resources [contributing guidelines](https ://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
+Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
 ## Resources
 
