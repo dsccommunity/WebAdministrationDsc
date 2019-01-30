@@ -27,7 +27,7 @@ and be released to [PowerShell Gallery](https://www.powershellgallery.com/).
 
 ## Contributing
 
-Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
+Please check out common DSC Resources [contributing guidelines](http ://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
 ## Resources
 
@@ -316,7 +316,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
-
+* Helper: Fixed subject comparison for multiple entries
 * xWebSite: Full path is used to get list of default documents
 
 ### 2.4.0.0

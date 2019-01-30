@@ -165,7 +165,7 @@ function Find-Certificate
 
     if ($PSBoundParameters.ContainsKey('Subject'))
     {
-        $certFilters += @('($_.Subject -eq $Subject)')
+        $certFilters += @('(@(Compare-Object -ReferenceObject (($_.Subject -split ", ").trim()|sort-object) -DifferenceObject (($subject -split ",").trim()|sort-object)| Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
     } # if
 
     if ($PSBoundParameters.ContainsKey('Issuer'))
