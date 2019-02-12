@@ -28,6 +28,7 @@ data LocalizedData
         ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
         ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
         ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
+        VerboseSetTargetUpdatedSiteId = Site Id for website "{0}" has been updated to "{1}".
         VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
         VerboseGetTargetAbsent = No Website exists with this name.
         VerboseGetTargetPresent = A single Website exists with this name
@@ -51,6 +52,7 @@ data LocalizedData
         VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
         VerboseSetTargetUpdateLogCustomFields = LogCustomFields is not in the desired state and will be updated on Website "{0}"
         VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
+        VerboseTestTargetFalseSiteId = Site Id of website "{0}" does not match the desired state.
         VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
         VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
         VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
@@ -191,6 +193,11 @@ function Set-TargetResource
         [String]
         $Name,
 
+        # To avoid confusion we use SiteId instead of just Id
+        [Parameter()]
+        [UInt32]
+        $SiteId,
+
         [String]
         $PhysicalPath,
 
@@ -263,6 +270,19 @@ function Set-TargetResource
     {
         if ($null -ne $website)
         {
+            # Update Site Id if required
+            # Note: Set-ItemProperty is case sensitive. only works with id, not Id or ID
+            if ($SiteId -gt 0 -and `
+                $website.Id -ne $SiteId)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name id `
+                    -Value $SiteId `
+                    -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedSiteId `
+                    -f $Name, $SiteId)
+            }
+
             # Update Physical Path if required
             if ([String]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
                 $website.PhysicalPath -ne $PhysicalPath)
@@ -383,12 +403,18 @@ function Set-TargetResource
                 } | ForEach-Object -Begin {
                         $newWebsiteSplat = @{}
                 } -Process {
-                    $newWebsiteSplat.Add($_.Key, $_.Value)
+                    # New-WebSite has Id parameter instead of SiteId, so we are replacing
+                    if ($_.Key -eq "SiteId")
+                    {
+                        $newWebsiteSplat.Add('Id', $_.Value)
+                    } else {
+                        $newWebsiteSplat.Add($_.Key, $_.Value)
+                    }
                 }
 
-                # If there are no other websites, specify the Id Parameter for the new website.
+                # If there are no other websites, specify the Id Parameter for the new website if it's missing.
                 # Otherwise an error can occur on systems running Windows Server 2008 R2.
-                if (-not (Get-Website))
+                if (-not (Get-Website) -and -not $newWebsiteSplat.ContainsKey('Id'))
                 {
                     $newWebsiteSplat.Add('Id', 1)
                 }
@@ -670,6 +696,10 @@ function Test-TargetResource
         [String]
         $Name,
 
+        [Parameter()]
+        [UInt32]
+        $SiteId,
+
         [String]
         $PhysicalPath,
 
@@ -753,6 +783,15 @@ function Test-TargetResource
     if ($Ensure -eq 'Present' -and `
         $null -ne $website)
     {
+        # Check Site Id property.
+        if ($SiteId -gt 0 -and `
+        $website.Id -ne $SiteId)
+        {
+            $inDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSiteId `
+            -f $Name)
+        }
+
         # Check Physical Path property
         if ([String]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
             $website.PhysicalPath -ne $PhysicalPath)
