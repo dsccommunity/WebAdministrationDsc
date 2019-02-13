@@ -125,7 +125,7 @@ function Get-TargetResource
         $cimBindings = @(ConvertTo-CimBinding -InputObject $website.bindings.Collection)
 
         $allDefaultPages = @(
-            Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
+            Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
             ForEach-Object -Process {Write-Output -InputObject $_.value}
         )
         $cimAuthentication = Get-AuthenticationInfo -Site $Name
@@ -844,7 +844,7 @@ function Test-TargetResource
             $null -ne $DefaultPage)
         {
             $allDefaultPages = @(
-                Get-WebConfiguration -Filter '//defaultDocument/files/*' `
+                Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
                                      -PSPath "IIS:\Sites\$Name" |
                 ForEach-Object -Process { Write-Output -InputObject $_.value }
             )
@@ -2081,7 +2081,7 @@ function Update-DefaultPage
     )
 
     $allDefaultPages = @(
-        Get-WebConfiguration -Filter '//defaultDocument/files/*' `
+        Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
                              -PSPath "IIS:\Sites\$Name" |
         ForEach-Object -Process { Write-Output -InputObject $_.value }
     )
@@ -2090,7 +2090,7 @@ function Update-DefaultPage
     {
         if ($allDefaultPages -inotcontains $page)
         {
-            Add-WebConfiguration -Filter '//defaultDocument/files' `
+            Add-WebConfiguration -Filter '/system.webServer/defaultDocument/files' `
                                  -PSPath "IIS:\Sites\$Name" `
                                  -Value @{ value = $page }
             Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `

@@ -319,6 +319,11 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ### Unreleased
 
 * Added SiteId to xWebSite to address [396]
+* xWebSite: Full path is used to get list of default documents
+
+### 2.4.0.0
+
+* Explicitly removed extra hidden files from release package
 
 ### 2.3.0.0
 
