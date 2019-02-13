@@ -51,7 +51,7 @@ try
             LogTruncateSize      = '2097152'
             LoglocalTimeRollover = $true
             LogFormat            = 'W3C'
-            LogFormatW3C         = 'File,ETW'
+            LogTargetW3C         = 'File,ETW'
             LogCustomFields      = $MockCimLogCustomFields
         }
 
@@ -60,7 +60,7 @@ try
                 directory         = '%SystemDrive%\inetpub\logs\LogFiles'
                 logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                 logFormat         = 'W3C'
-                LogFormatW3C      = 'File,ETW'
+                LogTargetW3C      = 'File,ETW'
                 period            = 'Daily'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
@@ -126,8 +126,8 @@ try
                     $result.LogFormat | Should Be $MockLogOutput.logFormat
                 }
 
-                It 'Should return LogFormatW3C' {
-                    $result.LogFormatW3C | Should Be $MockLogOutput.logFormatW3C
+                It 'Should return LogTargetW3C' {
+                    $result.LogTargetW3C | Should Be $MockLogOutput.logTargetW3C
                 }
 
                 It 'Should return LogCustomFields' {
@@ -153,7 +153,7 @@ try
                     truncateSize      = $MockLogParameters.LogTruncateSize
                     localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     logFormat         = $MockLogParameters.LogFormat
-                    logFormatW3C      = $MockLogParameters.LogFormatW3C
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
                     customFields      = $MockLogParameters.LogCustomFields
                 }
 
@@ -399,7 +399,7 @@ try
 
             }
 
-            Context 'Check LogFormatW3C should return false' {
+            Context 'Check LogTargetW3C should return false' {
 
                 $MockLogOutput =
                     @{
@@ -409,7 +409,7 @@ try
                         truncateSize      = $MockLogParameters.LogTruncateSize
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.LogFormat
-                        LogFormatW3C      = 'File'
+                        LogTargetW3C      = 'File'
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -478,7 +478,7 @@ try
                         directory         = '%SystemDrive%\inetpub\logs\LogFiles'
                         logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                         logFormat         = 'IIS'
-                        logFormatW3C      = 'File'
+                        logTargetW3C      = 'File'
                         period            = 'Daily'
                         truncateSize      = '1048576'
                         localTimeRollover = 'False'
@@ -512,7 +512,7 @@ try
                         truncateSize      = $MockLogParameters.LogTruncateSize
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.LogFormat
-                        logFormatW3C      = $MockLogParameters.LogFormatW3C
+                        logTargetW3C      = $MockLogParameters.LogTargetW3C
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -543,7 +543,7 @@ try
                         truncateSize      = $MockLogParameters.LogTruncateSize
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.LogFormat
-                        logFormatW3C      = $MockLogParameters.LogFormatW3C
+                        logTargetW3C      = $MockLogParameters.LogTargetW3C
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -574,7 +574,7 @@ try
                         truncateSize      = $MockLogParameters.LogTruncateSize
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.LogFormat
-                        logFormatW3C      = $MockLogParameters.LogFormatW3C
+                        logTargetW3C      = $MockLogParameters.LogTargetW3C
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -605,7 +605,7 @@ try
                         truncateSize      = '1048576'
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.LogFormat
-                        logFormatW3C      = $MockLogParameters.LogFormatW3C
+                        logTargetW3C      = $MockLogParameters.LogTargetW3C
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -635,7 +635,7 @@ try
                     LogTruncateSize      = '536870912'
                     LoglocalTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     LogFormat            = $MockLogParameters.LogFormat
-                    logFormatW3C      = $MockLogParameters.LogFormatW3C
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
                 }
                 $MockLogOutput =
                     @{
@@ -645,7 +645,7 @@ try
                         truncateSize      = '1048576'
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.LogFormat
-                        logFormatW3C      = $MockLogParameters.LogFormatW3C
+                        logTargetW3C      = $MockLogParameters.LogTargetW3C
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -680,7 +680,7 @@ try
                         truncateSize      = $MockLogParameters.LogTruncateSize
                         localTimeRollover = 'False'
                         logFormat         = $MockLogParameters.LogFormat
-                        logFormatW3C      = $MockLogParameters.LogFormatW3C
+                        logTargetW3C      = $MockLogParameters.LogTargetW3C
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -711,7 +711,7 @@ try
                         truncateSize      = $MockLogParameters.LogTruncateSize
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = 'IIS'
-                        logFormatW3C      = $MockLogParameters.LogFormatW3C
+                        logTargetW3C      = $MockLogParameters.LogTargetW3C
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
@@ -732,7 +732,7 @@ try
 
             }
 
-            Context 'LogFormatW3C is incorrect' {
+            Context 'LogTargetW3C is incorrect' {
 
                 $MockLogOutput =
                     @{
@@ -742,7 +742,7 @@ try
                         truncateSize      = $MockLogParameters.LogTruncateSize
                         localTimeRollover = $MockLogParameters.LoglocalTimeRollover
                         logFormat         = $MockLogParameters.logFormat
-                        logFormatW3C      = 'File'
+                        logTargetW3C      = 'File'
                     }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
