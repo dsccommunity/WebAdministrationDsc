@@ -150,6 +150,7 @@ function Get-TargetResource
     return @{
         Ensure                   = $ensureResult
         Name                     = $Name
+        SiteId                   = $website.id
         PhysicalPath             = $website.PhysicalPath
         State                    = $website.State
         ApplicationPool          = $website.ApplicationPool
