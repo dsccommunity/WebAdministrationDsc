@@ -13,7 +13,7 @@ data LocalizedData
         VerboseSetTargetUpdateLogTruncateSize      = TruncateSize is not in the desired state and will be updated.
         VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover is not in the desired state and will be updated.
         VerboseSetTargetUpdateLogFormat            = LogFormat is not in the desired state and will be updated
-        VerboseSetTargetUpdateLogFormatW3C            = LogFormatW3C is not in the desired state and will be updated
+        VerboseSetTargetUpdateLogFormatW3C         = LogFormatW3C is not in the desired state and will be updated
         VerboseSetTargetUpdateLogCustomFields      = LogCustomFields is not in the desired state and will be updated.
         VerboseTestTargetUpdateLogCustomFields     = LogCustomFields is not in the desired state and will be updated.
         VerboseTestTargetFalseLogPath              = LogPath does match desired state.
