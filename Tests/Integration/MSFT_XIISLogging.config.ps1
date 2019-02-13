@@ -9,7 +9,6 @@ configuration MSFT_xIisLogging_Rollover
         LoglocalTimeRollover = $true
         LogPeriod = 'Hourly'
         LogFormat = 'W3C'
-        LogTargetW3C = 'File,ETW'
         LogCustomFields  = @(
             MSFT_xLogCustomField
             {

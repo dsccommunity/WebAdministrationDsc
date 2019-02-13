@@ -52,7 +52,6 @@ try {
             $currentLogSettings.directory | Should Be 'C:\IISLogFiles'
             $currentLogSettings.logExtFileFlags | Should Be 'Date,Time,ClientIP,UserName,ServerIP'
             $currentLogSettings.logformat | Should Be 'W3C'
-            $currentLogSettings.logTargetW3C | Should Be 'File,ETW'
             $currentLogSettings.period | Should Be 'Hourly'
             $currentLogSettings.localTimeRollover | Should Be 'True'
             $currentLogSettings.customFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
