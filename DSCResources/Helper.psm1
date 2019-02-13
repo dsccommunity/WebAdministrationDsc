@@ -165,7 +165,10 @@ function Find-Certificate
 
     if ($PSBoundParameters.ContainsKey('Subject'))
     {
-        $certFilters += @('(@(Compare-Object -ReferenceObject (($_.Subject -split ", ").trim()|sort-object) -DifferenceObject (($subject -split ",").trim()|sort-object)| Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
+        $certFilters += @('(@(Compare-Object `
+                            -ReferenceObject (($_.Subject -split ", ").trim()|sort-object) `
+                            -DifferenceObject (($subject -split ",").trim()|sort-object)| `
+                            Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
     } # if
 
     if ($PSBoundParameters.ContainsKey('Issuer'))
@@ -180,17 +183,26 @@ function Find-Certificate
 
     if ($PSBoundParameters.ContainsKey('DNSName'))
     {
-        $certFilters += @('(@(Compare-Object -ReferenceObject $_.DNSNameList.Unicode -DifferenceObject $DNSName | Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
+        $certFilters += @('(@(Compare-Object `
+                            -ReferenceObject $_.DNSNameList.Unicode `
+                            -DifferenceObject $DNSName | `
+                            Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
     } # if
 
     if ($PSBoundParameters.ContainsKey('KeyUsage'))
     {
-        $certFilters += @('(@(Compare-Object -ReferenceObject ($_.Extensions.KeyUsages -split ", ") -DifferenceObject $KeyUsage | Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
+        $certFilters += @('(@(Compare-Object `
+                            -ReferenceObject ($_.Extensions.KeyUsages -split ", ") `
+                            -DifferenceObject $KeyUsage | `
+                            Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
     } # if
 
     if ($PSBoundParameters.ContainsKey('EnhancedKeyUsage'))
     {
-        $certFilters += @('(@(Compare-Object -ReferenceObject ($_.EnhancedKeyUsageList.FriendlyName) -DifferenceObject $EnhancedKeyUsage | Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
+        $certFilters += @('(@(Compare-Object `
+                            -ReferenceObject ($_.EnhancedKeyUsageList.FriendlyName) `
+                            -DifferenceObject $EnhancedKeyUsage | `
+                            Where-Object -Property SideIndicator -eq "=>").Count -eq 0)')
     } # if
 
     # Join all the filters together

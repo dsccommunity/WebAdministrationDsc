@@ -316,7 +316,11 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
-* Helper: Fixed subject comparison for multiple entries
+* Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
+  helper function `Install-NewSelfSignedCertificateExScript`.
+* Update unit test for helper function `Find-Certificate` to check for multiple
+  subject names in different orders.
+* Fixed subject comparison for multiple entries in **Find-Certificate**
 * xWebSite: Full path is used to get list of default documents
 
 ### 2.4.0.0
