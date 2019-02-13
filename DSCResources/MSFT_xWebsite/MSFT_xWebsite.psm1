@@ -177,6 +177,9 @@ function Get-TargetResource
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the
         target machine.
 
+        .PARAMETER SiteId
+            Optional. Specifies the IIS site Id for the web site.
+
         .PARAMETER PhysicalPath
         Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
 #>
@@ -681,6 +684,10 @@ function Set-TargetResource
         .SYNOPSIS
         The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
         expected in the instance document.
+
+        .PARAMETER SiteId
+            Optional. Specifies the IIS site Id for the web site.
+
 #>
 function Test-TargetResource
 {
@@ -785,12 +792,10 @@ function Test-TargetResource
         $null -ne $website)
     {
         # Check Site Id property.
-        if ($SiteId -gt 0 -and `
-        $website.Id -ne $SiteId)
+        if ($SiteId -gt 0 -and $website.Id -ne $SiteId)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSiteId `
-            -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSiteId -f $Name)
         }
 
         # Check Physical Path property
