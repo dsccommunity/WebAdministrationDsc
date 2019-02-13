@@ -38,7 +38,6 @@ configuration MSFT_xIisLogging_Truncate
         LoglocalTimeRollover = $true
         LogTruncateSize = '2097152'
         LogFormat = 'W3C'
-        LogTargetW3C = 'File,ETW'
         LogCustomFields    = @(
             MSFT_xLogCustomField
             {
