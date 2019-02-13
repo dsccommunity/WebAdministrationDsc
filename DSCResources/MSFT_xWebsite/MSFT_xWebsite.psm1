@@ -407,19 +407,15 @@ function Set-TargetResource
                 } | ForEach-Object -Begin {
                         $newWebsiteSplat = @{}
                 } -Process {
-                    # New-WebSite has Id parameter instead of SiteId, so we are replacing
-                    if ($_.Key -eq "SiteId")
-                    {
-                        $newWebsiteSplat.Add('Id', $_.Value)
-                    } else {
-                        $newWebsiteSplat.Add($_.Key, $_.Value)
-                    }
+                    $newWebsiteSplat.Add($_.Key, $_.Value)
                 }
 
-                # If there are no other websites, specify the Id Parameter for the new website if it's missing.
-                # Otherwise an error can occur on systems running Windows Server 2008 R2.
-                if (-not (Get-Website) -and -not $newWebsiteSplat.ContainsKey('Id'))
-                {
+                # New-WebSite has Id parameter instead of SiteId, so it's getting mapped to Id
+                if ($PSBoundParameters.ContainsKey('SiteId')) {
+                    $newWebsiteSplat.Add('Id', $SiteId)
+                } elseif (-not (Get-WebSite)) {
+                    # If there are no other websites and SiteId is missing, specify the Id Parameter for the new website.
+                    # Otherwise an error can occur on systems running Windows Server 2008 R2.
                     $newWebsiteSplat.Add('Id', 1)
                 }
 

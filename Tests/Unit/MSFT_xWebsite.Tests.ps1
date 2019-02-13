@@ -111,6 +111,7 @@ try
 
             $MockWebsite = @{
                 Name                 = 'MockName'
+                Id                   = 1234
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
                 ApplicationPool      = 'MockPool'
@@ -198,6 +199,10 @@ try
 
                 It 'should return Name' {
                     $Result.Name | Should Be $MockWebsite.Name
+                }
+
+                It 'should return SiteId' {
+                    $Result.SiteId | Should Be $MockWebsite.Id
                 }
 
                 It 'should return PhysicalPath' {
@@ -389,6 +394,7 @@ try
 
             $MockWebsite = @{
                 Name                 = 'MockName'
+                SiteId               = 1234
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
                 ApplicationPool      = 'MockPool'
@@ -408,6 +414,18 @@ try
                             -Ensure $MockParameters.Ensure `
                             -Name $MockParameters.Name `
                             -PhysicalPath $MockParameters.PhysicalPath
+
+                It 'should return False' {
+                    $Result | Should Be $false
+                }
+            }
+            Context 'Check SiteId is different' {
+                Mock -CommandName Get-Website -MockWith {$MockWebsite}
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                            -Name $MockParameters.Name `
+                            -SiteId 12345 `
+                            -Verbose:$VerbosePreference
 
                 It 'should return False' {
                     $Result | Should Be $false
@@ -878,6 +896,7 @@ try
             $MockParameters = @{
                 Ensure                   = 'Present'
                 Name                     = 'MockName'
+                SiteId                   = 1234
                 PhysicalPath             = 'C:\NonExistent'
                 State                    = 'Started'
                 ApplicationPool          = 'MockPool'
@@ -942,6 +961,7 @@ try
 
             $MockWebsite = @{
                 Name                 = 'MockName'
+                Id                   = 1234
                 PhysicalPath         = 'C:\Different'
                 State                = 'Stopped'
                 ApplicationPool      = 'MockPoolDifferent'
@@ -1017,6 +1037,81 @@ try
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
+                }
+            }
+
+            Context 'Create website without SiteId' {
+
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+
+                Mock -CommandName Get-Website
+
+                Mock -CommandName Get-Command -MockWith {
+                    return Get-Command -Name New-WebSite
+                } -ParameterFilter {
+                    $Module -eq 'WebAdministration'
+                }
+
+                $MockWebSiteNoSiteId = $MockWebsite.Clone()
+                $MockWebSiteNoSiteId.Id = 1
+                $MockWebsiteGetItemNew = $MockWebSiteNoSiteId.Clone()
+                $MockWebsiteGetItemNew.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
+                $MockWebsiteGetItemNew = [PSCustomObject]$MockWebsiteGetItemNew
+
+                Mock -CommandName New-Website -MockWith { return $MockWebSiteNoSiteId }
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Stop-Website
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItemNew }
+
+                Mock -CommandName Set-Item
+
+                Mock -CommandName Set-ItemProperty
+
+                Mock -CommandName Update-WebsiteBinding
+
+                $MockParametersNew = $MockParameters.Clone()
+                $MockParametersNew.Remove('SiteId')
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParametersNew
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Id -eq 1 } -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
+            Context 'Create website with SiteId' {
+
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+
+                Mock -CommandName Get-Website
+
+                Mock -CommandName Get-Command -MockWith {
+                    return Get-Command -Name New-WebSite
+                } -ParameterFilter {
+                    $Module -eq 'WebAdministration'
+                }
+
+                Mock -CommandName New-Website -MockWith { return $MockWebSite }
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Stop-Website
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+
+                Mock -CommandName Set-Item
+
+                Mock -CommandName Set-ItemProperty
+
+                Mock -CommandName Update-WebsiteBinding
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParameters
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Id -eq 1234 } -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
             }
 
@@ -1346,7 +1441,7 @@ try
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Get-Item -Exactly 2
                      Assert-MockCalled -CommandName Set-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 5
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 6
                      Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 0
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
@@ -1426,7 +1521,7 @@ try
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Get-Item -Exactly 2
                      Assert-MockCalled -CommandName Set-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 6
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 7
                      Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 1
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
