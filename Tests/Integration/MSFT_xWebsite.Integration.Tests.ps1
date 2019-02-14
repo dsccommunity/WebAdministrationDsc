@@ -104,7 +104,7 @@ try
 
             # Test Website basic settings are correct
             $result.Name             | Should Be $dscConfig.AllNodes.Website
-            $result.SiteId           | Should Be $dscConfig.AllNodes.SiteId
+            $result.Id               | Should Be $dscConfig.AllNodes.SiteId
             $result.PhysicalPath     | Should Be $dscConfig.AllNodes.PhysicalPath
             $result.State            | Should Be 'Started'
             $result.ApplicationPool  | Should Be $dscConfig.AllNodes.ApplicationPool
@@ -185,7 +185,7 @@ try
             # Test Website basic settings are correct
             $result.Name             | Should Be $dscConfig.AllNodes.Website
             $result.PhysicalPath     | Should Be $dscConfig.AllNodes.PhysicalPath
-            $result.SiteId           | Should Be $dscConfig.AllNodes.SiteId
+            $result.Id               | Should Be $dscConfig.AllNodes.SiteId
             $result.State            | Should Be 'Stopped'
             $result.ApplicationPool  | Should Be $dscConfig.AllNodes.ApplicationPool
             $result.EnabledProtocols | Should Be $dscConfig.AllNodes.EnabledProtocols
