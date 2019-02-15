@@ -364,7 +364,6 @@ function Test-TargetResource
             return $false
         }
 
-
         # Check LogTargetW3C
         if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
             ($LogTargetW3C -ne $currentLogState.LogTargetW3C))
