@@ -13,6 +13,7 @@ data LocalizedData
         VerboseSetTargetUpdateLogTruncateSize      = TruncateSize is not in the desired state and will be updated.
         VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover is not in the desired state and will be updated.
         VerboseSetTargetUpdateLogFormat            = LogFormat is not in the desired state and will be updated
+        VerboseSetTargetUpdateLogTargetW3C         = LogTargetW3C is not in the desired state and will be updated
         VerboseSetTargetUpdateLogCustomFields      = LogCustomFields is not in the desired state and will be updated.
         VerboseTestTargetUpdateLogCustomFields     = LogCustomFields is not in the desired state and will be updated.
         VerboseTestTargetFalseLogPath              = LogPath does match desired state.
@@ -21,6 +22,7 @@ data LocalizedData
         VerboseTestTargetFalseLogTruncateSize      = LogTruncateSize does not match desired state.
         VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state.
         VerboseTestTargetFalseLogFormat            = LogFormat does not match desired state.
+        VerboseTestTargetFalseLogTargetW3C         = LogTargetW3C does not match desired state.
         WarningLogPeriod                           = LogTruncateSize has is an input as will overwrite this desired state.
         WarningIncorrectLogFormat                  = LogFormat is not W3C, as a result LogFlags will not be used.
 '@
@@ -56,6 +58,7 @@ function Get-TargetResource
         LogTruncateSize      = $currentLogSettings.truncateSize
         LoglocalTimeRollover = $currentLogSettings.localTimeRollover
         LogFormat            = $currentLogSettings.logFormat
+        LogTargetW3C         = $currentLogSettings.logTargetW3C
         LogCustomFields      = $cimLogCustomFields
     }
 }
@@ -86,6 +89,10 @@ function Get-TargetResource
         Specifies log format
         Limited to the set: ('IIS','W3C','NCSA')
 
+    .PARAMETER LogTargetW3C
+        Specifies W3C log format
+        Limited to the set: ('File','ETW','File,ETW')
+
     .PARAMETER LogCustomField
         A CimInstance collection of what state the LogCustomField should be.
 
@@ -114,8 +121,11 @@ function Set-TargetResource
         [ValidateSet('IIS','W3C','NCSA')]
         [String] $LogFormat,
 
-    [Microsoft.Management.Infrastructure.CimInstance[]]
-    $LogCustomFields
+        [ValidateSet('File','ETW','File,ETW')]
+        [String] $LogTargetW3C,
+
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomFields
     )
 
         Assert-Module
@@ -192,6 +202,16 @@ function Set-TargetResource
                 -Value $LoglocalTimeRollover
         }
 
+        # Update LogTargetW3C if needed
+        if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
+            ($LogTargetW3C -ne $currentLogState.LogTargetW3C))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C)
+            Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
+                -Name logTargetW3C `
+                -Value $LogTargetW3C
+        }
+
          # Update LogCustomFields if neeed
     if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
          (-not (Test-LogCustomField -LogCustomField $LogCustomFields)))
@@ -229,6 +249,10 @@ function Set-TargetResource
         Specifies log format
         Limited to the set: ('IIS','W3C','NCSA')
 
+    .PARAMETER LogTargetW3C
+        Specifies W3C log format
+        Limited to the set: ('File','ETW','File,ETW')
+
     .PARAMETER LogCustomField
         A CimInstance collection of what state the LogCustomField should be.
 
@@ -257,6 +281,9 @@ function Test-TargetResource
 
         [ValidateSet('IIS','W3C','NCSA')]
         [String] $LogFormat,
+
+        [ValidateSet('File','ETW','File,ETW')]
+        [String] $LogTargetW3C,
 
     [Microsoft.Management.Infrastructure.CimInstance[]]
     $LogCustomFields
@@ -337,13 +364,21 @@ function Test-TargetResource
             return $false
         }
 
+            # Check LogTruncateSize
+        if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
+            ($LogTargetW3C -ne $currentLogState.LogTargetW3C))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTargetW3C)
+            return $false
+        }
+
          # Check LogCustomFields if neeed
-    if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
-         (-not (Test-LogCustomField -LogCustomFields $LogCustomFields)))
-    {
+        if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
+            (-not (Test-LogCustomField -LogCustomFields $LogCustomFields)))
+        {
          Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields)
          return $false
-    }
+        }
 
         return $true
 
