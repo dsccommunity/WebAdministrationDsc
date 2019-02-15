@@ -16,6 +16,7 @@ configuration MSFT_xWebsite_Present_Started
         xWebsite Website
         {
             Name = $Node.Website
+            SiteId = $Node.SiteId
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool

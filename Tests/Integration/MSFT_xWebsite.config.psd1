@@ -10,6 +10,7 @@
             ApplicationPool             = 'DefaultAppPool'
             DefaultPage                 = 'Website.html'
             EnabledProtocols            = 'http'
+            SiteId                      = 1234
             PhysicalPath                = 'C:\inetpub\wwwroot'
             PreloadEnabled              = $true
             ServiceAutoStartEnabled     = $true
