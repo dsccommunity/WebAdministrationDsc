@@ -635,7 +635,7 @@ try
                     LogTruncateSize      = '536870912'
                     LoglocalTimeRollover = $MockLogParameters.LoglocalTimeRollover
                     LogFormat            = $MockLogParameters.LogFormat
-                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                    logTargetW3C         = $MockLogParameters.LogTargetW3C
                 }
                 $MockLogOutput =
                     @{
