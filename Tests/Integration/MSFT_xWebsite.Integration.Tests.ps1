@@ -142,6 +142,9 @@ try
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
 
+            #Test LogTargetW3C is correct
+            $result.logFile.LogTargetW3C | Should Be $dscConfig.AllNodes.LogTargetW3C
+
             #Test LogCustomFields is correct
             $result.logFile.customFields.Collection[0].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName1
             $result.logFile.customFields.Collection[0].SourceName   | Should Be $dscConfig.AllNodes.SourceName1

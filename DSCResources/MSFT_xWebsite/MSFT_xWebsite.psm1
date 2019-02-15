@@ -49,6 +49,7 @@ data LocalizedData
         VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
+        VerboseSetTargetUpdateLogTargetW3C = LogTargetW3C is not in the desired state and will be updated
         VerboseSetTargetUpdateLogCustomFields = LogCustomFields is not in the desired state and will be updated on Website "{0}"
         VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
         VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
@@ -70,6 +71,7 @@ data LocalizedData
         VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
         VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogTargetW3C         = LogTargetW3C does not match desired state.
         VerboseTestTargetFalseLogCustomFields = LogCustomFields does not match desired state on Website "{0}".
         VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
         VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
@@ -165,6 +167,7 @@ function Get-TargetResource
         LogtruncateSize          = $website.logfile.truncateSize
         LoglocalTimeRollover     = $website.logfile.localTimeRollover
         LogFormat                = $website.logfile.logFormat
+        LogTargetW3C             = $website.logfile.logTargetW3C
         LogCustomFields          = $cimLogCustomFields
     }
 }
@@ -250,6 +253,9 @@ function Set-TargetResource
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
         $LogFormat,
+
+        [ValidateSet('File','ETW','File,ETW')]
+        [String] $LogTargetW3C,
 
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
@@ -555,6 +561,18 @@ function Set-TargetResource
             $site | Set-Item
         }
 
+        # Update LogTargetW3C if Needed
+        if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
+            ($LogTargetW3C -ne $website.logfile.LogTargetW3C))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C -f $Name)
+
+            # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogFormat property
+            $site = Get-Item "IIS:\Sites\$Name"
+            $site.LogFile.LogTargetW3C = $LogTargetW3C
+            $site | Set-Item
+        }
+
         # Update LogFlags if required
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
             (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
@@ -729,6 +747,10 @@ function Test-TargetResource
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
         $LogFormat,
+
+        [ValidateSet('File','ETW','File,ETW')]
+        [String]
+        $LogTargetW3C,
 
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
@@ -936,6 +958,15 @@ function Test-TargetResource
             ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover `
+                                    -f $Name)
+            return $false
+        }
+
+        # Check LogTargetW3C
+        if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
+            ($LogTargetW3C -ne $website.logfile.LogTargetW3C))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTargetW3C `
                                     -f $Name)
             return $false
         }
