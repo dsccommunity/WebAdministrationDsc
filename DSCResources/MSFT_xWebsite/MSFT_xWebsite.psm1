@@ -266,7 +266,8 @@ function Set-TargetResource
         $LogFormat,
 
         [ValidateSet('File','ETW','File,ETW')]
-        [String] $LogTargetW3C,
+        [String]
+        $LogTargetW3C,
 
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
@@ -593,7 +594,7 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C -f $Name)
 
-            # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogFormat property
+            # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogTargetW3C property
             $site = Get-Item "IIS:\Sites\$Name"
             $site.LogFile.LogTargetW3C = $LogTargetW3C
             $site | Set-Item
@@ -617,7 +618,6 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $website.logfile.directory))
         {
-
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
                                     -f $Name)
             Set-ItemProperty -Path "IIS:\Sites\$Name" `

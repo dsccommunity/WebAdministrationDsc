@@ -1003,7 +1003,7 @@ try
                     logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                     logFormat         = 'IIS'
                     period            = 'Daily'
-                    LogTargetW3C      = 'File,ETW'
+                    LogTargetW3C      = 'ETW'
                     truncateSize      = '1048576'
                     localTimeRollover = 'False'
                     customFields      = @{Collection = $mockLogCustomFields}
@@ -1081,8 +1081,8 @@ try
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                    Assert-MockCalled -CommandName Get-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-Item -Exactly 3
+                    Assert-MockCalled -CommandName Get-Item -Exactly 4
+                    Assert-MockCalled -CommandName Set-Item -Exactly 4
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2

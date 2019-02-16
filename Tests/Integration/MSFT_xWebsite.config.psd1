@@ -35,7 +35,7 @@
             LogFieldName2                = 'CustomField2'
             SourceName2                  = 'Warning'
             SourceType2                  = 'ResponseHeader'
-            LogTargetW3C                 = 'File'
+            LogTargetW3C                 = 'ETW'
         }
     )
 }
