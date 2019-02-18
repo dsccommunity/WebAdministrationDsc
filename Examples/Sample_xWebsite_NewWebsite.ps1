@@ -10,6 +10,10 @@ configuration Sample_xWebsite_NewWebsite
         [ValidateNotNullOrEmpty()]
         [String] $WebSiteName,
 
+        # Optional Site Id for the website
+        [Parameter()]
+        [UInt32] $SiteId,
+
         # Source Path for Website content
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -41,7 +45,7 @@ configuration Sample_xWebsite_NewWebsite
         }
 
         # Stop the default website
-        xWebsite DefaultSite 
+        xWebsite DefaultSite
         {
             Ensure          = 'Present'
             Name            = 'Default Web Site'
@@ -59,13 +63,14 @@ configuration Sample_xWebsite_NewWebsite
             Recurse         = $true
             Type            = 'Directory'
             DependsOn       = '[WindowsFeature]AspNet45'
-        }       
+        }
 
         # Create the new Website
         xWebsite NewWebsite
         {
             Ensure          = 'Present'
             Name            = $WebSiteName
+            SiteId          = $SiteId
             State           = 'Started'
             PhysicalPath    = $DestinationPath
             DependsOn       = '[File]WebContent'

@@ -34,6 +34,7 @@ class MSFT_xWebsite : OMI_BaseResource
 {
     [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
     [Key] String Name;
+    [Write] UInt32 SiteId;
     [Write] String PhysicalPath;
     [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
     [Write] String ApplicationPool;
