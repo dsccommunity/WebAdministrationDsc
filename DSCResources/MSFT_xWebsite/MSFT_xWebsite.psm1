@@ -589,15 +589,16 @@ function Set-TargetResource
         }
 
         # Update LogTargetW3C if Needed
-        if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
-            ($LogTargetW3C -ne $website.logfile.LogTargetW3C))
+        if ($PSBoundParameters.ContainsKey('LogTargetW3C') `
+            -and $website.logfile.LogTargetW3C `
+            -ne $LogTargetW3C)
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C -f $Name)
-
-            # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogTargetW3C property
-            $site = Get-Item "IIS:\Sites\$Name"
-            $site.LogFile.LogTargetW3C = $LogTargetW3C
-            $site | Set-Item
+            Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                -Name logfile.logTargetW3C `
+                                -Value $LogTargetW3C `
+                                -ErrorAction Stop
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C `
+                                    -f $Name, $LogTargetW3C)
         }
 
         # Update LogFlags if required
