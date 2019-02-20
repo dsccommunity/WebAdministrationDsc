@@ -104,6 +104,7 @@ try
                 logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                 logFormat         = $MockParameters.LogFormat
                 period            = 'Daily'
+                logTargetW3C      = 'File,ETW'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
                 customFields      = @{Collection = $mockLogCustomFields}
@@ -271,6 +272,10 @@ try
                     $Result.LogPeriod | Should Be $MockWebsite.Logfile.period
                 }
 
+                It 'should return LogTargetW3C' {
+                    $Result.TargetW3C | Should Be $MockWebsite.Logfile.TargetW3C
+                }
+
                 It 'should return LogTruncateSize' {
                     $Result.LogTruncateSize | Should Be $MockWebsite.Logfile.truncateSize
                 }
@@ -346,6 +351,7 @@ try
                 LogPath                  = 'C:\MockLogLocation'
                 LogFlags                 = 'Date','Time','ClientIP','UserName','ServerIP'
                 LogPeriod                = 'Hourly'
+                LogTargetW3C             = 'File,ETW'
                 LogTruncateSize          = '2000000'
                 LoglocalTimeRollover     = $True
                 LogCustomFields          = $MockCimLogCustomFields
@@ -387,6 +393,7 @@ try
                 logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                 logFormat         = $MockParameters.LogFormat
                 period            = 'Daily'
+                LogTargetW3C      = 'File,ETW'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
                 customFields      = @{Collection = $mockLogCustomFields}
@@ -792,6 +799,47 @@ try
                 }
             }
 
+            Context 'Check LogTargetW3C is different' {
+                $MockLogOutput = @{
+                        directory         = $MockParameters.LogPath
+                        logExtFileFlags   = $MockParameters.LogFlags
+                        logFormat         = $MockParameters.LogFormat
+                        logTargetW3C      = 'ETW'
+                        period            = $MockParameters.LogPeriod
+                        truncateSize      = $MockParameters.LogTruncateSize
+                        localTimeRollover = $MockParameters.LoglocalTimeRollover
+                    }
+
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    PhysicalPath         = 'C:\NonExistent'
+                    State                = 'Started'
+                    ApplicationPool      = 'MockPool'
+                    Bindings             = @{Collection = @($MockWebBinding)}
+                    EnabledProtocols     = 'http'
+                    ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                    LogFile              = $MockLogOutput
+                    Count                = 1
+                }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogTargetW3C 'File,ETW' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
+
             Context 'Check LogTruncateSize is larger in string comparison' {
                 $MockLogOutput = @{
                     directory         = $MockParameters.LogPath
@@ -914,6 +962,7 @@ try
                 LogTruncateSize          = '2000000'
                 LoglocalTimeRollover     = $True
                 LogFormat                = 'W3C'
+                LogTargetW3C             = 'File,ETW'
                 LogCustomFields          = $MockCimLogCustomFields
             }
 
@@ -954,6 +1003,7 @@ try
                     logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                     logFormat         = 'IIS'
                     period            = 'Daily'
+                    LogTargetW3C      = 'ETW'
                     truncateSize      = '1048576'
                     localTimeRollover = 'False'
                     customFields      = @{Collection = $mockLogCustomFields}
@@ -1033,7 +1083,7 @@ try
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Get-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
@@ -1277,7 +1327,7 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -1360,7 +1410,7 @@ try
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Get-Item -Exactly 1
                      Assert-MockCalled -CommandName Set-Item -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 7
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
@@ -1385,6 +1435,7 @@ try
                         logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                         logFormat         = $MockParameters.LogFormat
                         period            = 'Daily'
+                        logTargetW3C      = 'File,ETW'
                         truncateSize      = '1048576'
                         localTimeRollover = 'False'
                     }
@@ -1465,6 +1516,7 @@ try
                         logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                         logFormat         = $MockParameters.LogFormat
                         period            = 'Daily'
+                        logTargetW3C      = 'File,ETW'
                         truncateSize      = '1048576'
                         localTimeRollover = 'False'
                     }
@@ -1621,6 +1673,7 @@ try
                     directory         = $MockParameters.LogPath
                     logExtFileFlags   = $MockParameters.LogFlags
                     logFormat         = $MockParameters.LogFormat
+                    logTargetW3C      = $MockParameters.LogTargetW3C
                     period            = $MockParameters.LogPeriod
                     truncateSize      = '1048576'
                     localTimeRollover = $MockParameters.LoglocalTimeRollover

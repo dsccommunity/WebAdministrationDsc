@@ -90,7 +90,7 @@ try
 
         It 'Should Create a Started Website with correct settings' -test {
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfg  -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -142,6 +142,9 @@ try
 
             #Test DefaultPage is correct
             $defultPages[0] | Should Match $dscConfig.AllNodes.DefaultPage
+
+            #Test LogTargetW3C is correct
+            $result.logFile.LogTargetW3C | Should Be $dscConfig.AllNodes.LogTargetW3C
 
             #Test LogCustomFields is correct
             $result.logFile.customFields.Collection[0].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName1
