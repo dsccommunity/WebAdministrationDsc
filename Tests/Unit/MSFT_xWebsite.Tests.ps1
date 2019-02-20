@@ -1083,7 +1083,7 @@ try
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Get-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
