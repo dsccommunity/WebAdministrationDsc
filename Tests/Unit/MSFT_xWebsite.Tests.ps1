@@ -104,6 +104,7 @@ try
                 logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                 logFormat         = $MockParameters.LogFormat
                 period            = 'Daily'
+                logTargetW3C      = 'File,ETW'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
                 customFields      = @{Collection = $mockLogCustomFields}
@@ -111,6 +112,7 @@ try
 
             $MockWebsite = @{
                 Name                 = 'MockName'
+                Id                   = 1234
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
                 ApplicationPool      = 'MockPool'
@@ -160,7 +162,7 @@ try
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
 
                 Mock -CommandName Get-WebConfiguration  `
-                        -ParameterFilter {$filter -eq '//defaultDocument/files/*'} `
+                        -ParameterFilter {$filter -eq '/system.webServer/defaultDocument/files/*'} `
                         -MockWith { return @{value = 'index.html'} }
 
                 Mock -CommandName Get-WebConfiguration `
@@ -198,6 +200,10 @@ try
 
                 It 'should return Name' {
                     $Result.Name | Should Be $MockWebsite.Name
+                }
+
+                It 'should return SiteId' {
+                    $Result.SiteId | Should Be $MockWebsite.Id
                 }
 
                 It 'should return PhysicalPath' {
@@ -264,6 +270,10 @@ try
 
                 It 'should return LogPeriod' {
                     $Result.LogPeriod | Should Be $MockWebsite.Logfile.period
+                }
+
+                It 'should return LogTargetW3C' {
+                    $Result.TargetW3C | Should Be $MockWebsite.Logfile.TargetW3C
                 }
 
                 It 'should return LogTruncateSize' {
@@ -341,6 +351,7 @@ try
                 LogPath                  = 'C:\MockLogLocation'
                 LogFlags                 = 'Date','Time','ClientIP','UserName','ServerIP'
                 LogPeriod                = 'Hourly'
+                LogTargetW3C             = 'File,ETW'
                 LogTruncateSize          = '2000000'
                 LoglocalTimeRollover     = $True
                 LogCustomFields          = $MockCimLogCustomFields
@@ -382,6 +393,7 @@ try
                 logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                 logFormat         = $MockParameters.LogFormat
                 period            = 'Daily'
+                LogTargetW3C      = 'File,ETW'
                 truncateSize      = '1048576'
                 localTimeRollover = 'False'
                 customFields      = @{Collection = $mockLogCustomFields}
@@ -389,6 +401,7 @@ try
 
             $MockWebsite = @{
                 Name                 = 'MockName'
+                SiteId               = 1234
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
                 ApplicationPool      = 'MockPool'
@@ -408,6 +421,18 @@ try
                             -Ensure $MockParameters.Ensure `
                             -Name $MockParameters.Name `
                             -PhysicalPath $MockParameters.PhysicalPath
+
+                It 'should return False' {
+                    $Result | Should Be $false
+                }
+            }
+            Context 'Check SiteId is different' {
+                Mock -CommandName Get-Website -MockWith {$MockWebsite}
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                            -Name $MockParameters.Name `
+                            -SiteId 12345 `
+                            -Verbose:$VerbosePreference
 
                 It 'should return False' {
                     $Result | Should Be $false
@@ -774,6 +799,47 @@ try
                 }
             }
 
+            Context 'Check LogTargetW3C is different' {
+                $MockLogOutput = @{
+                        directory         = $MockParameters.LogPath
+                        logExtFileFlags   = $MockParameters.LogFlags
+                        logFormat         = $MockParameters.LogFormat
+                        logTargetW3C      = 'ETW'
+                        period            = $MockParameters.LogPeriod
+                        truncateSize      = $MockParameters.LogTruncateSize
+                        localTimeRollover = $MockParameters.LoglocalTimeRollover
+                    }
+
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    PhysicalPath         = 'C:\NonExistent'
+                    State                = 'Started'
+                    ApplicationPool      = 'MockPool'
+                    Bindings             = @{Collection = @($MockWebBinding)}
+                    EnabledProtocols     = 'http'
+                    ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                    LogFile              = $MockLogOutput
+                    Count                = 1
+                }
+
+                Mock -CommandName Test-Path -MockWith {Return $true}
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockLogOutput.logExtFileFlags }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -LogTargetW3C 'File,ETW' `
+                    -Verbose:$VerbosePreference
+
+                It 'Should return false' {
+                    $result | Should be $false
+                }
+            }
+
             Context 'Check LogTruncateSize is larger in string comparison' {
                 $MockLogOutput = @{
                     directory         = $MockParameters.LogPath
@@ -878,6 +944,7 @@ try
             $MockParameters = @{
                 Ensure                   = 'Present'
                 Name                     = 'MockName'
+                SiteId                   = 1234
                 PhysicalPath             = 'C:\NonExistent'
                 State                    = 'Started'
                 ApplicationPool          = 'MockPool'
@@ -895,6 +962,7 @@ try
                 LogTruncateSize          = '2000000'
                 LoglocalTimeRollover     = $True
                 LogFormat                = 'W3C'
+                LogTargetW3C             = 'File,ETW'
                 LogCustomFields          = $MockCimLogCustomFields
             }
 
@@ -935,6 +1003,7 @@ try
                     logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                     logFormat         = 'IIS'
                     period            = 'Daily'
+                    LogTargetW3C      = 'ETW'
                     truncateSize      = '1048576'
                     localTimeRollover = 'False'
                     customFields      = @{Collection = $mockLogCustomFields}
@@ -942,6 +1011,7 @@ try
 
             $MockWebsite = @{
                 Name                 = 'MockName'
+                Id                   = 1234
                 PhysicalPath         = 'C:\Different'
                 State                = 'Stopped'
                 ApplicationPool      = 'MockPoolDifferent'
@@ -1013,10 +1083,85 @@ try
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Get-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
+                }
+            }
+
+            Context 'Create website without SiteId' {
+
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+
+                Mock -CommandName Get-Website
+
+                Mock -CommandName Get-Command -MockWith {
+                    return Get-Command -Name New-WebSite
+                } -ParameterFilter {
+                    $Module -eq 'WebAdministration'
+                }
+
+                $MockWebSiteNoSiteId = $MockWebsite.Clone()
+                $MockWebSiteNoSiteId.Id = 1
+                $MockWebsiteGetItemNew = $MockWebSiteNoSiteId.Clone()
+                $MockWebsiteGetItemNew.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
+                $MockWebsiteGetItemNew = [PSCustomObject]$MockWebsiteGetItemNew
+
+                Mock -CommandName New-Website -MockWith { return $MockWebSiteNoSiteId }
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Stop-Website
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItemNew }
+
+                Mock -CommandName Set-Item
+
+                Mock -CommandName Set-ItemProperty
+
+                Mock -CommandName Update-WebsiteBinding
+
+                $MockParametersNew = $MockParameters.Clone()
+                $MockParametersNew.Remove('SiteId')
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParametersNew
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Id -eq 1 } -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
+                }
+            }
+
+            Context 'Create website with SiteId' {
+
+                Mock -CommandName Confirm-UniqueBinding -MockWith { return $true }
+
+                Mock -CommandName Get-Website
+
+                Mock -CommandName Get-Command -MockWith {
+                    return Get-Command -Name New-WebSite
+                } -ParameterFilter {
+                    $Module -eq 'WebAdministration'
+                }
+
+                Mock -CommandName New-Website -MockWith { return $MockWebSite }
+
+                Mock -CommandName Start-Website
+
+                Mock -CommandName Stop-Website
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+
+                Mock -CommandName Set-Item
+
+                Mock -CommandName Set-ItemProperty
+
+                Mock -CommandName Update-WebsiteBinding
+
+                It 'Should create and start the web site' {
+                    Set-TargetResource @MockParameters
+                    Assert-MockCalled -CommandName New-Website -ParameterFilter { $Id -eq 1234 } -Exactly 1
+                    Assert-MockCalled -CommandName Start-Website -Exactly 1
                 }
             }
 
@@ -1182,7 +1327,7 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -1265,7 +1410,7 @@ try
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Get-Item -Exactly 1
                      Assert-MockCalled -CommandName Set-Item -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 7
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
@@ -1290,86 +1435,7 @@ try
                         logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
                         logFormat         = $MockParameters.LogFormat
                         period            = 'Daily'
-                        truncateSize      = '1048576'
-                        localTimeRollover = 'False'
-                    }
-                }
-
-                $MockWebsiteGetItem = $MockWebsite.Clone()
-                $MockWebsiteGetItem.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
-                $MockWebsiteGetItem = [PSCustomObject]$MockWebsiteGetItem
-
-                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
-
-                Mock -CommandName Get-Command -MockWith {
-                    return @{
-                        Parameters = @{
-                            Name = 'MockName'
-                        }
-                    }
-                }
-
-                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
-
-                Mock -CommandName Update-WebsiteBinding
-
-                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
-
-                Mock -CommandName Set-Item
-
-                Mock -CommandName Set-ItemProperty
-
-                Mock -CommandName Add-WebConfiguration
-
-                Mock -CommandName Update-DefaultPage
-
-                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $false }
-
-                Mock -CommandName Set-Authentication
-
-                Mock -CommandName Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-
-                Mock -CommandName Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Basic') }
-
-                Mock -CommandName Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Digest') }
-
-                Mock -CommandName Test-AuthenticationEnabled { return $false } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
-
-                Set-TargetResource @MockParameters
-
-                It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Get-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 5
-                     Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 0
-                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
-                     Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
-                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                }
-            }
-
-            Context 'Website has changed logging directory' {
-                $MockWebsite = @{
-                    Name                 = 'MockName'
-                    PhysicalPath         = 'C:\NonExistent'
-                    State                = 'Started'
-                    ApplicationPool      = 'MockPool'
-                    Bindings             = @{Collection = @($MockWebBinding)}
-                    EnabledProtocols     = 'http'
-                    ApplicationDefaults  = $MockPreloadAndAutostartProviders
-                    Count                = 1
-                    LogFile              = @{
-                        directory         = 'C:\Logs\MockLogLocation'
-                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
-                        logFormat         = $MockParameters.LogFormat
-                        period            = 'Daily'
+                        logTargetW3C      = 'File,ETW'
                         truncateSize      = '1048576'
                         localTimeRollover = 'False'
                     }
@@ -1427,6 +1493,87 @@ try
                      Assert-MockCalled -CommandName Get-Item -Exactly 2
                      Assert-MockCalled -CommandName Set-Item -Exactly 2
                      Assert-MockCalled -CommandName Set-ItemProperty -Exactly 6
+                     Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 0
+                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
+                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
+                     Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
+                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
+                }
+            }
+
+            Context 'Website has changed logging directory' {
+                $MockWebsite = @{
+                    Name                 = 'MockName'
+                    PhysicalPath         = 'C:\NonExistent'
+                    State                = 'Started'
+                    ApplicationPool      = 'MockPool'
+                    Bindings             = @{Collection = @($MockWebBinding)}
+                    EnabledProtocols     = 'http'
+                    ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                    Count                = 1
+                    LogFile              = @{
+                        directory         = 'C:\Logs\MockLogLocation'
+                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                        logFormat         = $MockParameters.LogFormat
+                        period            = 'Daily'
+                        logTargetW3C      = 'File,ETW'
+                        truncateSize      = '1048576'
+                        localTimeRollover = 'False'
+                    }
+                }
+
+                $MockWebsiteGetItem = $MockWebsite.Clone()
+                $MockWebsiteGetItem.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
+                $MockWebsiteGetItem = [PSCustomObject]$MockWebsiteGetItem
+
+                Mock -CommandName Get-Website -MockWith { return $MockWebsite }
+
+                Mock -CommandName Get-Command -MockWith {
+                    return @{
+                        Parameters = @{
+                            Name = 'MockName'
+                        }
+                    }
+                }
+
+                Mock -CommandName Test-WebsiteBinding -MockWith { return $false }
+
+                Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Get-Item -MockWith { return $MockWebsiteGetItem }
+
+                Mock -CommandName Set-Item
+
+                Mock -CommandName Set-ItemProperty
+
+                Mock -CommandName Add-WebConfiguration
+
+                Mock -CommandName Update-DefaultPage
+
+                Mock -CommandName Confirm-UniqueServiceAutoStartProviders -MockWith { return $false }
+
+                Mock -CommandName Set-Authentication
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+                Set-TargetResource @MockParameters
+
+                It 'Should call all the mocks' {
+                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
+                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
+                     Assert-MockCalled -CommandName Get-Item -Exactly 2
+                     Assert-MockCalled -CommandName Set-Item -Exactly 2
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 7
                      Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 1
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
@@ -1526,6 +1673,7 @@ try
                     directory         = $MockParameters.LogPath
                     logExtFileFlags   = $MockParameters.LogFlags
                     logFormat         = $MockParameters.LogFormat
+                    logTargetW3C      = $MockParameters.LogTargetW3C
                     period            = $MockParameters.LogPeriod
                     truncateSize      = '1048576'
                     localTimeRollover = $MockParameters.LoglocalTimeRollover

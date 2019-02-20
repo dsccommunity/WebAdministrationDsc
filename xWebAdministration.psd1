@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '2.4.0.0'
+moduleVersion = '2.5.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,7 +41,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Explicitly removed extra hidden files from release package
+        ReleaseNotes = '* Added SiteId to xWebSite to address [396]
+* xWebSite: Full path is used to get list of default documents
+* xIISLogging: Added support for LogTargetW3C
+* xWebsite: Added support for LogTargetW3C
 
 '
 
@@ -55,6 +58,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 

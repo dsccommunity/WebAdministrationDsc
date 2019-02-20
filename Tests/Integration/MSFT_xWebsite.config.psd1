@@ -10,6 +10,7 @@
             ApplicationPool             = 'DefaultAppPool'
             DefaultPage                 = 'Website.html'
             EnabledProtocols            = 'http'
+            SiteId                      = 1234
             PhysicalPath                = 'C:\inetpub\wwwroot'
             PreloadEnabled              = $true
             ServiceAutoStartEnabled     = $true
@@ -34,6 +35,7 @@
             LogFieldName2                = 'CustomField2'
             SourceName2                  = 'Warning'
             SourceType2                  = 'ResponseHeader'
+            LogTargetW3C                 = 'ETW'
         }
     )
 }

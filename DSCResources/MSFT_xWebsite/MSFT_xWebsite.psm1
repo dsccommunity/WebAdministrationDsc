@@ -28,6 +28,7 @@ data LocalizedData
         ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
         ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
         ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
+        VerboseSetTargetUpdatedSiteId = Site Id for website "{0}" has been updated to "{1}".
         VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
         VerboseGetTargetAbsent = No Website exists with this name.
         VerboseGetTargetPresent = A single Website exists with this name
@@ -49,8 +50,10 @@ data LocalizedData
         VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
+        VerboseSetTargetUpdateLogTargetW3C = LogTargetW3C is not in the desired state and will be updated on Website "{0}".
         VerboseSetTargetUpdateLogCustomFields = LogCustomFields is not in the desired state and will be updated on Website "{0}"
         VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
+        VerboseTestTargetFalseSiteId = Site Id of website "{0}" does not match the desired state.
         VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
         VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
         VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
@@ -70,6 +73,7 @@ data LocalizedData
         VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
         VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogTargetW3C = LogTargetW3C does not match desired state on Website "{0}".
         VerboseTestTargetFalseLogCustomFields = LogCustomFields does not match desired state on Website "{0}".
         VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
         VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
@@ -123,7 +127,7 @@ function Get-TargetResource
         $cimBindings = @(ConvertTo-CimBinding -InputObject $website.bindings.Collection)
 
         $allDefaultPages = @(
-            Get-WebConfiguration -Filter '//defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
+            Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
             ForEach-Object -Process {Write-Output -InputObject $_.value}
         )
         $cimAuthentication = Get-AuthenticationInfo -Site $Name
@@ -148,6 +152,7 @@ function Get-TargetResource
     return @{
         Ensure                   = $ensureResult
         Name                     = $Name
+        SiteId                   = $website.id
         PhysicalPath             = $website.PhysicalPath
         State                    = $website.State
         ApplicationPool          = $website.ApplicationPool
@@ -165,6 +170,7 @@ function Get-TargetResource
         LogtruncateSize          = $website.logfile.truncateSize
         LoglocalTimeRollover     = $website.logfile.localTimeRollover
         LogFormat                = $website.logfile.logFormat
+        LogTargetW3C             = $website.logfile.logTargetW3C
         LogCustomFields          = $cimLogCustomFields
     }
 }
@@ -173,6 +179,9 @@ function Get-TargetResource
         .SYNOPSYS
         The Set-TargetResource cmdlet is used to create, delete or configure a website on the
         target machine.
+
+        .PARAMETER SiteId
+            Optional. Specifies the IIS site Id for the web site.
 
         .PARAMETER PhysicalPath
         Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
@@ -190,6 +199,11 @@ function Set-TargetResource
         [ValidateNotNullOrEmpty()]
         [String]
         $Name,
+
+        # To avoid confusion we use SiteId instead of just Id
+        [Parameter()]
+        [UInt32]
+        $SiteId,
 
         [String]
         $PhysicalPath,
@@ -251,6 +265,10 @@ function Set-TargetResource
         [String]
         $LogFormat,
 
+        [ValidateSet('File','ETW','File,ETW')]
+        [String]
+        $LogTargetW3C,
+
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
     )
@@ -263,6 +281,19 @@ function Set-TargetResource
     {
         if ($null -ne $website)
         {
+            # Update Site Id if required
+            # Note: Set-ItemProperty is case sensitive. only works with id, not Id or ID
+            if ($SiteId -gt 0 -and `
+                $website.Id -ne $SiteId)
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                    -Name id `
+                    -Value $SiteId `
+                    -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedSiteId `
+                    -f $Name, $SiteId)
+            }
+
             # Update Physical Path if required
             if ([String]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
                 $website.PhysicalPath -ne $PhysicalPath)
@@ -386,10 +417,12 @@ function Set-TargetResource
                     $newWebsiteSplat.Add($_.Key, $_.Value)
                 }
 
-                # If there are no other websites, specify the Id Parameter for the new website.
-                # Otherwise an error can occur on systems running Windows Server 2008 R2.
-                if (-not (Get-Website))
-                {
+                # New-WebSite has Id parameter instead of SiteId, so it's getting mapped to Id
+                if ($PSBoundParameters.ContainsKey('SiteId')) {
+                    $newWebsiteSplat.Add('Id', $SiteId)
+                } elseif (-not (Get-WebSite)) {
+                    # If there are no other websites and SiteId is missing, specify the Id Parameter for the new website.
+                    # Otherwise an error can occur on systems running Windows Server 2008 R2.
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
@@ -555,6 +588,19 @@ function Set-TargetResource
             $site | Set-Item
         }
 
+        # Update LogTargetW3C if Needed
+        if ($PSBoundParameters.ContainsKey('LogTargetW3C') `
+            -and $website.logfile.LogTargetW3C `
+            -ne $LogTargetW3C)
+        {
+            Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                -Name logfile.logTargetW3C `
+                                -Value $LogTargetW3C `
+                                -ErrorAction Stop
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C `
+                                    -f $Name, $LogTargetW3C)
+        }
+
         # Update LogFlags if required
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
             (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
@@ -573,7 +619,6 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $website.logfile.directory))
         {
-
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
                                     -f $Name)
             Set-ItemProperty -Path "IIS:\Sites\$Name" `
@@ -654,6 +699,10 @@ function Set-TargetResource
         .SYNOPSIS
         The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
         expected in the instance document.
+
+        .PARAMETER SiteId
+            Optional. Specifies the IIS site Id for the web site.
+
 #>
 function Test-TargetResource
 {
@@ -669,6 +718,10 @@ function Test-TargetResource
         [ValidateNotNullOrEmpty()]
         [String]
         $Name,
+
+        [Parameter()]
+        [UInt32]
+        $SiteId,
 
         [String]
         $PhysicalPath,
@@ -730,6 +783,10 @@ function Test-TargetResource
         [String]
         $LogFormat,
 
+        [ValidateSet('File','ETW','File,ETW')]
+        [String]
+        $LogTargetW3C,
+
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
     )
@@ -753,6 +810,13 @@ function Test-TargetResource
     if ($Ensure -eq 'Present' -and `
         $null -ne $website)
     {
+        # Check Site Id property.
+        if ($SiteId -gt 0 -and $website.Id -ne $SiteId)
+        {
+            $inDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSiteId -f $Name)
+        }
+
         # Check Physical Path property
         if ([String]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
             $website.PhysicalPath -ne $PhysicalPath)
@@ -805,7 +869,7 @@ function Test-TargetResource
             $null -ne $DefaultPage)
         {
             $allDefaultPages = @(
-                Get-WebConfiguration -Filter '//defaultDocument/files/*' `
+                Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
                                      -PSPath "IIS:\Sites\$Name" |
                 ForEach-Object -Process { Write-Output -InputObject $_.value }
             )
@@ -936,6 +1000,15 @@ function Test-TargetResource
             ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover `
+                                    -f $Name)
+            return $false
+        }
+
+        # Check LogTargetW3C
+        if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
+            ($LogTargetW3C -ne $website.logfile.LogTargetW3C))
+        {
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTargetW3C `
                                     -f $Name)
             return $false
         }
@@ -2042,7 +2115,7 @@ function Update-DefaultPage
     )
 
     $allDefaultPages = @(
-        Get-WebConfiguration -Filter '//defaultDocument/files/*' `
+        Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
                              -PSPath "IIS:\Sites\$Name" |
         ForEach-Object -Process { Write-Output -InputObject $_.value }
     )
@@ -2051,7 +2124,7 @@ function Update-DefaultPage
     {
         if ($allDefaultPages -inotcontains $page)
         {
-            Add-WebConfiguration -Filter '//defaultDocument/files' `
+            Add-WebConfiguration -Filter '/system.webServer/defaultDocument/files' `
                                  -PSPath "IIS:\Sites\$Name" `
                                  -Value @{ value = $page }
             Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
