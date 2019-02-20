@@ -1081,7 +1081,7 @@ try
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                    Assert-MockCalled -CommandName Get-Item -Exactly 4
+                    Assert-MockCalled -CommandName Get-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-Item -Exactly 4
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
@@ -1327,7 +1327,7 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -1410,7 +1410,7 @@ try
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Get-Item -Exactly 1
                      Assert-MockCalled -CommandName Set-Item -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 7
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
