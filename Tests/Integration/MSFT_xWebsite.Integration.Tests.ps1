@@ -90,7 +90,7 @@ try
 
         It 'Should Create a Started Website with correct settings' -test {
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfg  -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+            Invoke-Expression -Command "$($script:DSCResourceName)_Present_Started -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
