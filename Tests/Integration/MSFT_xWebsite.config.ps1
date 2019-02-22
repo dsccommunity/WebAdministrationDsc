@@ -69,6 +69,7 @@ configuration MSFT_xWebsite_Present_Started
                 ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
                 ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
                 State = 'Started'
+                LogTargetW3C = 'ETW'
                 LogCustomFields    = @(
                     MSFT_xLogCustomFieldInformation
                     {
