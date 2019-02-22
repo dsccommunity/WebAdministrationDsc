@@ -42,7 +42,7 @@ try {
         }
         #endregion
 
-        It 'Changing Loggging Rollover Settings ' -test {
+        It 'Changing Logging Rollover Settings ' -test {
 
             Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestDrive"
             Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
@@ -52,6 +52,7 @@ try {
             $currentLogSettings.directory | Should Be 'C:\IISLogFiles'
             $currentLogSettings.logExtFileFlags | Should Be 'Date,Time,ClientIP,UserName,ServerIP'
             $currentLogSettings.logformat | Should Be 'W3C'
+            $currentLogSettings.logTargetW3C | Should Be 'File,ETW'
             $currentLogSettings.period | Should Be 'Hourly'
             $currentLogSettings.localTimeRollover | Should Be 'True'
             $currentLogSettings.customFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'
@@ -86,6 +87,7 @@ try {
             $currentLogSettings.directory | Should Be 'C:\IISLogFiles'
             $currentLogSettings.logExtFileFlags | Should Be 'Date,Time,ClientIP,UserName,ServerIP'
             $currentLogSettings.logformat | Should Be 'W3C'
+            $currentLogSettings.logTargetW3C | Should Be 'File,ETW'
             $currentLogSettings.TruncateSize | Should Be '2097152'
             $currentLogSettings.localTimeRollover | Should Be 'True'
             $currentLogSettings.customFields.Collection[0].LogFieldName | Should Be 'ClientEncoding'

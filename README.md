@@ -58,6 +58,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
+* **LogTargetW3C**: Log Target of the W3C Logfiles. The acceptable values for this property are: `File`,`ETW`,`File,ETW`
 * **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomField** CIM class that implements the following properties:
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
   * **SourceName**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
@@ -157,6 +158,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 ### xWebsite
 
 * **Name** : The desired name of the website.
+* **SiteId** : Optional. The desired IIS site Id for the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
 * **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class that implements the following properties:
@@ -188,6 +190,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`
 * **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
+* **LogTargetW3C**: Log Target of the W3C Logfiles. The acceptable values for this property are: `File`,`ETW`,`File,ETW`
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
@@ -316,6 +319,13 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
+
+### 2.5.0.0
+
+* Added SiteId to xWebSite to address [396]
+* xWebSite: Full path is used to get list of default documents
+* xIISLogging: Added support for LogTargetW3C
+* xWebsite: Added support for LogTargetW3C
 
 ### 2.4.0.0
 
@@ -1195,6 +1205,7 @@ configuration Sample_IISServerDefaults
          {
             ApplyTo = 'Machine'
             LogFormat = 'IIS'
+            LogTargetW3C = 'File,ETW'
             AllowSubDirConfig = 'true'
          }
 
