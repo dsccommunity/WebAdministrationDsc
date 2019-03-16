@@ -319,6 +319,10 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
+* Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
+  helper function `Install-NewSelfSignedCertificateExScript`.
+* Updated unit test for helper function `Find-Certificate` to check for multiple
+  subject names in different orders.
 
 ### 2.5.0.0
 
