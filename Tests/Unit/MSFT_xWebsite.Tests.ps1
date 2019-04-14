@@ -2793,22 +2793,13 @@ try
         }
         Describe "$script:DSCResourceName\Set-Authentication" {
             Context 'Expected behavior' {
-                $MockWebsite = @{
-                    Name                 = 'MockName'
-                    PhysicalPath         = 'C:\NonExistent'
-                    State                = 'Started'
-                    ApplicationPool      = 'MockPool'
-                    Bindings             = @{Collection = @($MockWebBinding)}
-                    EnabledProtocols     = 'http'
-                    ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                    Count                = 1
-                }
+                $MockWebsiteName = 'MockName'
 
                 Mock -CommandName Set-WebConfigurationProperty
 
                 It 'should not throw an error' {
                     { Set-Authentication `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -Type Basic `
                         -Enabled $true } | Should Not Throw
                 }
@@ -2821,16 +2812,7 @@ try
 
         Describe "$script:DSCResourceName\Set-AuthenticationInfo" {
             Context 'Expected behavior' {
-                $MockWebsite = @{
-                    Name                 = 'MockName'
-                    PhysicalPath         = 'C:\NonExistent'
-                    State                = 'Started'
-                    ApplicationPool      = 'MockPool'
-                    Bindings             = @{Collection = @($MockWebBinding)}
-                    EnabledProtocols     = 'http'
-                    ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                    Count                = 1
-                }
+                $MockWebsiteName  = 'MockName'
 
                 Mock -CommandName Set-WebConfigurationProperty
 
@@ -2841,7 +2823,7 @@ try
 
                 It 'should not throw an error' {
                     { Set-AuthenticationInfo `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -AuthenticationInfo $AuthenticationInfo } | Should Not Throw
                 }
 
@@ -2852,16 +2834,7 @@ try
         }
 
         Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
-            $MockWebsite = @{
-                Name                 = 'MockName'
-                PhysicalPath         = 'C:\NonExistent'
-                State                = 'Started'
-                ApplicationPool      = 'MockPool'
-                Bindings             = @{Collection = @($MockWebBinding)}
-                EnabledProtocols     = 'http'
-                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                Count                = 1
-            }
+            $MockWebsiteName  = 'MockName'
 
             Context 'Expected behavior' {
                 $MockWebConfiguration = @(
@@ -2874,7 +2847,7 @@ try
 
                 It 'should not throw an error' {
                     { Test-AuthenticationEnabled `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -Type 'Basic'} | Should Not Throw
                 }
 
@@ -2893,7 +2866,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration }
 
                 It 'should return false' {
-                    Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic' | Should be False
+                    Test-AuthenticationEnabled -Site $MockWebsiteName -Type 'Basic' | Should be False
                 }
 
                 It 'should call expected mocks' {
@@ -2911,7 +2884,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
 
                 It 'should all be true' {
-                    Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic' | Should be True
+                    Test-AuthenticationEnabled -Site $MockWebsiteName -Type 'Basic' | Should be True
                 }
 
                 It 'should call expected mocks' {
