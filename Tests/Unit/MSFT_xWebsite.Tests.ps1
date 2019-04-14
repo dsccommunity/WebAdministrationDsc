@@ -2981,6 +2981,82 @@ try
                 }
             }
         }
+        Describe "$script:DSCResourceName\Test-AnonymousCredentials" {
+           $MockWebsiteName  = 'MockName'
+
+           Context "When expecting given username and password but anonymous authentication is disabled" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{enabled = $false}}
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When expecting given username and password but anonymous credentials are different" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "OtherUser"; password = "NonSecret"; } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When expecting given username and password but login is different" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "OtherUser"; password = "Secret" } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When expecting given username and password but password is different" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "SampleUser"; password = "NoSecret" } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When current anonymous credentials are the same as expected"  {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "SampleUser"; password = "Secret" } }
+
+                It "Should return true" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $true
+                }
+           }
+
+           Context "When expecting no credentials but there are any" {
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{  enabled = $true;  userName = "SampleUser";  password = "Secret"; } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName | Should -Be $false
+                }
+           }
+        }
 
         Describe "$script:DSCResourceName\Test-BindingInfo" {
             Context 'BindingInfo is valid' {
