@@ -40,6 +40,7 @@ data LocalizedData
         VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
         VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
         VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
+        VerboseSetTargetAnonymousCredentialsUpdated = Successfully updated AnonymousCredentials on website "{0}".
         VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
         VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
         VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
@@ -65,6 +66,7 @@ data LocalizedData
         VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
         VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
         VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
+        VerboseTestTargetFalseAnonymousCredentials = AnonymousCredentials for website "{0}" is not in the desired state.
         VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
         VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
         VerboseTestTargetFalseLogPath = LogPath does not match desired state on Website "{0}".
@@ -138,6 +140,7 @@ function Get-TargetResource
                                 Select-Object Name,Type
 
         [Array] $cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
+        $anonymousCredentials = Get-AnonymousCredentials -Site $Name
     }
     # Multiple websites with the same name exist. This is not supported and is an error
     else
@@ -160,6 +163,7 @@ function Get-TargetResource
         DefaultPage              = $allDefaultPages
         EnabledProtocols         = $website.EnabledProtocols
         AuthenticationInfo       = $cimAuthentication
+        AnonymousCredentials     = $anonymousCredentials
         PreloadEnabled           = $website.applicationDefaults.preloadEnabled
         ServiceAutoStartProvider = $website.applicationDefaults.serviceAutoStartProvider
         ServiceAutoStartEnabled  = $website.applicationDefaults.serviceAutoStartEnabled
@@ -228,6 +232,9 @@ function Set-TargetResource
 
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
+
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AnonymousCredentials,
 
         [Boolean]
         $PreloadEnabled,
@@ -526,6 +533,15 @@ function Set-TargetResource
                                     -f $Name)
         }
 
+        if($PSBoundParameters.ContainsKey('AnonymousCredentials') -and `
+            (Test-AuthenticationEnabled -Site $Name -Type 'Anonymous' ) -and `
+               ( -not (Test-AnonymousCredentials -Site $Name -Credentials $AnonymousCredentials)))
+        {
+            Set-AnonymousAuthenticationCredentials -Site $Name -Credentials $AnonymousCredentials -ErrorAction Stop
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetAnonymousCredentialsUpdated `
+                                    -f $Name)
+        }
+
         # Update Preload if required
         if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
             ($website.applicationDefaults.preloadEnabled -ne $PreloadEnabled))
@@ -747,6 +763,9 @@ function Test-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AnonymousCredentials,
+
         [Boolean]
         $PreloadEnabled,
 
@@ -891,7 +910,14 @@ function Test-TargetResource
                                            -AuthenticationInfo $AuthenticationInfo)))
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
+        }
+
+        if($PSBoundParameters.ContainsKey('AnonymousCredentials') -and `
+           (-not (Test-AnonymousCredentials -Site $Name -Credentials $AnonymousCredentials)))
+        {
+            $inDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAnonymousCredentials -f $Name)
         }
 
         #Check Preload
@@ -2231,6 +2257,90 @@ function Update-WebsiteBinding
                     -ErrorCategory 'InvalidOperation'
             }
         }
+    }
+}
+
+
+function Test-AnonymousCredentials
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site,
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $Credentials
+    )
+
+    $currentCredentials = Get-AnonymousCredentials -Site $Site
+
+    if($currentCredentials -eq $null)
+    {
+        return $false
+    }
+
+    ($currentCredentials.UserName -eq $Credentials.UserName) -and ($currentCredentials.Password -eq $Credentials.Password)
+}
+ <#
+        .SYNOPSIS
+        Helper function to extract credentials for anonymous authentication
+
+        .PARAMETER Site
+        Specifies the name of the Website.
+#>
+function Get-AnonymousCredentials
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site
+    )
+    $anonymousAuthentication = Get-WebConfiguration -Filter 'system.webServer/security/authentication/anonymousAuthentication' -PSPath "IIS:\Sites\$Site"
+    if($anonymousAuthentication.enabled)
+    {
+         New-CimInstance -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+        -ClientOnly `
+        -Property @{
+            UserName = ConvertTo-NotNullString -Value $anonymousAuthentication.userName
+            Password = ConvertTo-NotNullString -Value $anonymousAuthentication.password
+        }
+    }
+}
+ <#
+        .SYNOPSIS
+        Helper function used to set credentials for anonymous authentication
+         .PARAMETER Site
+        Specifies the name of the Website.
+         .PARAMETER Credentials
+        A CimInstance of what state the Credentials should be
+#>
+function Set-AnonymousAuthenticationCredentials
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]$Site,
+
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $Credentials
+    )
+    $anonymousAuthenticationConfigurationPath = 'system.webServer/security/authentication/anonymousAuthentication'
+    Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'userName' -Value $Credentials.UserName
+    Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'password' -Value $Credentials.Password
+}
+
+function ConvertTo-NotNullString
+ {
+    param (
+        [string] $Value
+    )
+    if([string]::IsNullOrEmpty($Value))
+    {
+        return [string]::Empty
+    }else{
+        return $Value
     }
 }
 

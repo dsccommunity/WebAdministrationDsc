@@ -3,6 +3,9 @@ $script:DSCModuleName   = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebsite'
 
 #region HEADER
+$culture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')
+[System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture
+[System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
@@ -86,6 +89,11 @@ try
                     -ClientOnly
             )
 
+            $MockAnonymousCredentials = @{
+               enabled = $true
+               userName = "TestUser"
+               password = "secret"
+            }
             $mockLogCustomFields = @(
                 @{
                     LogFieldName = 'LogField1'
@@ -172,6 +180,10 @@ try
                 Mock -CommandName Get-WebConfigurationProperty `
                     -MockWith {return $MockAuthenticationInfo}
 
+                Mock -CommandName Get-WebConfiguration `
+                    -ParameterFilter {$filter -eq 'system.webServer/security/authentication/anonymousAuthentication'} `
+                    -MockWith { return $MockAnonymousCredentials}
+
                 Mock -CommandName Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Anonymous') }
 
@@ -185,14 +197,6 @@ try
                     -ParameterFilter { ($Type -eq 'Windows') }
 
                 $Result = Get-TargetResource -Name $MockWebsite.Name
-
-                It 'should call Get-Website once' {
-                    Assert-MockCalled -CommandName Get-Website -Exactly 1
-                }
-
-                It 'should call Get-WebConfiguration twice' {
-                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 2
-                }
 
                 It 'should return Ensure' {
                     $Result.Ensure | Should Be 'Present'
@@ -242,6 +246,11 @@ try
                     $Result.AuthenticationInfo.CimInstanceProperties['Basic'].Value     | Should Be 'false'
                     $Result.AuthenticationInfo.CimInstanceProperties['Digest'].Value    | Should Be 'false'
                     $Result.AuthenticationInfo.CimInstanceProperties['Windows'].Value   | Should Be 'true'
+                }
+
+                It 'should return AnonymousCredentials' {
+                    $Result.AnonymousCredentials.CimInstanceProperties['UserName'].Value | Should Be 'TestUser'
+                    $Result.AnonymousCredentials.CimInstanceProperties['Password'].Value | Should Be 'secret'
                 }
 
                 It 'should return Preload' {
@@ -551,6 +560,32 @@ try
                             -Verbose:$VerbosePreference
 
                 It 'should return False' {
+                    $Result | Should Be $false
+                }
+            }
+
+            Context 'Check AnonymousCredentials is different' {
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+                Mock -CommandName Get-WebConfiguration `
+                    -ParameterFilter {$filter -eq 'system.webServer/security/authentication/anonymousAuthentication'} `
+                    -MockWith { return @{
+                        enabled = $true
+                        userName = "fake"
+                        password = "none"
+                    }}
+
+                $MockAnonymousCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{ UserName="TestUser"; Password="secret" }
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                    -Name $MockParameters.Name `
+                    -PhysicalPath $MockParameters.PhysicalPath `
+                    -AnonymousCredentials  $MockAnonymousCredentials `
+                    -Verbose:$VerbosePreference
+
+                It 'Current AnonymousCredentials should be different than expected' {
                     $Result | Should Be $false
                 }
             }
@@ -916,6 +951,11 @@ try
                 -ClientOnly `
                 -Property @{ Anonymous=$true; Basic=$false; Digest=$false; Windows=$true }
 
+            $MockAnonymousCredentials = New-CimInstance `
+                -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                -ClientOnly `
+                -Property @{ UserName="TestUser"; Password="secret" }
+
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
@@ -956,6 +996,7 @@ try
                 ServiceAutoStartEnabled  = $True
                 ApplicationType          = 'MockApplicationType'
                 AuthenticationInfo       = $MockAuthenticationInfo
+                AnonymousCredentials     = $MockAnonymousCredentials
                 LogPath                  = 'C:\MockLogLocation'
                 LogFlags                 = 'Date','Time','ClientIP','UserName','ServerIP'
                 LogPeriod                = 'Hourly'
@@ -1074,19 +1115,12 @@ try
 
                 It 'Should call all the mocks' {
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
-                    Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
-                    Assert-MockCalled -CommandName Confirm-UniqueServiceAutoStartProviders -Exactly 1
-                    Assert-MockCalled -CommandName Test-AuthenticationEnabled -Exactly 4
-                    Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
-                    Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                    Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Get-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
-                    Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 4
                 }
             }
 
@@ -2628,22 +2662,13 @@ try
         }
 
         Describe "$script:DSCResourceName\Get-AuthenticationInfo" {
-            $MockWebsite = @{
-                Name                 = 'MockName'
-                PhysicalPath         = 'C:\NonExistent'
-                State                = 'Started'
-                ApplicationPool      = 'MockPool'
-                Bindings             = @{Collection = @($MockWebBinding)}
-                EnabledProtocols     = 'http'
-                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                Count                = 1
-            }
+           $MockWebsiteName ='MockName'
 
            Context 'Expected behavior' {
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return 'False'}
 
                 It 'should not throw an error' {
-                    { Get-AuthenticationInfo -site $MockWebsite.Name } | Should Not Throw
+                    { Get-AuthenticationInfo -site $MockWebsiteName } | Should Not Throw
                 }
 
                 It 'should call Get-WebConfigurationProperty four times' {
@@ -2661,7 +2686,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration }
 
                 It 'should all be false' {
-                    $result = Get-AuthenticationInfo -site $MockWebsite.Name
+                    $result = Get-AuthenticationInfo -site $MockWebsiteName
                     $result.Anonymous | Should be $false
                     $result.Digest | Should be $false
                     $result.Basic | Should be $false
@@ -2683,7 +2708,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration }
 
                 It 'should all be true' {
-                    $result = Get-AuthenticationInfo -site $MockWebsite.Name
+                    $result = Get-AuthenticationInfo -site $MockWebsiteName
                     $result.Anonymous | Should be True
                     $result.Digest | Should be True
                     $result.Basic | Should be True
@@ -2715,24 +2740,66 @@ try
             }
         }
 
+        Describe "$script:DSCResourceName\Get-AnonymousCredentials" {
+            $MockWebsiteName ='MockName'
+
+            Context 'When anonymous authentication is disabled' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{
+                    enabled = $false
+                }}
+
+                It 'should return expected values' {
+                    Get-AnonymousCredentials -site $MockWebsiteName | Should -Be $null
+                }
+
+                It 'should call Get-WebConfigurationProperty one time' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+            }
+
+            Context 'When anonymous authentication is enabled without credentials' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{
+                    enabled = $true
+                }}
+
+                It 'should return expected values' {
+                    $result = Get-AnonymousCredentials -site $MockWebsiteName
+                    $result.UserName | Should -Be ""
+                    $result.Password | Should -Be ""
+                }
+
+                It 'should call Get-WebConfigurationProperty one time' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+            }
+
+            Context 'When anonymous authentication is enabled along with credentials' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{
+                    enabled = $true
+                    userName = "TestUser"
+                    password = "Secret"
+                }}
+
+                It 'should return expected values' {
+                    $result = Get-AnonymousCredentials -site $MockWebsiteName
+                    $result.UserName | Should -Be "TestUser"
+                    $result.Password | Should -Be "Secret"
+                }
+
+                It 'should call Get-WebConfigurationProperty one time' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+            }
+        }
         Describe "$script:DSCResourceName\Set-Authentication" {
             Context 'Expected behavior' {
-                $MockWebsite = @{
-                    Name                 = 'MockName'
-                    PhysicalPath         = 'C:\NonExistent'
-                    State                = 'Started'
-                    ApplicationPool      = 'MockPool'
-                    Bindings             = @{Collection = @($MockWebBinding)}
-                    EnabledProtocols     = 'http'
-                    ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                    Count                = 1
-                }
+                $MockWebsiteName = 'MockName'
 
                 Mock -CommandName Set-WebConfigurationProperty
 
                 It 'should not throw an error' {
                     { Set-Authentication `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -Type Basic `
                         -Enabled $true } | Should Not Throw
                 }
@@ -2745,16 +2812,7 @@ try
 
         Describe "$script:DSCResourceName\Set-AuthenticationInfo" {
             Context 'Expected behavior' {
-                $MockWebsite = @{
-                    Name                 = 'MockName'
-                    PhysicalPath         = 'C:\NonExistent'
-                    State                = 'Started'
-                    ApplicationPool      = 'MockPool'
-                    Bindings             = @{Collection = @($MockWebBinding)}
-                    EnabledProtocols     = 'http'
-                    ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                    Count                = 1
-                }
+                $MockWebsiteName  = 'MockName'
 
                 Mock -CommandName Set-WebConfigurationProperty
 
@@ -2765,7 +2823,7 @@ try
 
                 It 'should not throw an error' {
                     { Set-AuthenticationInfo `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -AuthenticationInfo $AuthenticationInfo } | Should Not Throw
                 }
 
@@ -2775,17 +2833,31 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
-            $MockWebsite = @{
-                Name                 = 'MockName'
-                PhysicalPath         = 'C:\NonExistent'
-                State                = 'Started'
-                ApplicationPool      = 'MockPool'
-                Bindings             = @{Collection = @($MockWebBinding)}
-                EnabledProtocols     = 'http'
-                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                Count                = 1
+        Describe "$script:DSCResourceName\Set-AnonymousAuthenticationCredentials" {
+            Context 'Expected behavior' {
+                $MockWebsiteName  = 'MockName'
+
+                Mock -CommandName Set-WebConfigurationProperty
+
+                $AnonymousCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                It 'should not throw an error' {
+                    { Set-AnonymousAuthenticationCredentials `
+                        -Site $MockWebsiteName `
+                        -Credentials $AnonymousCredentials } | Should Not Throw
+                }
+
+                It 'should call should call expected mocks' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                }
             }
+        }
+
+        Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
+            $MockWebsiteName  = 'MockName'
 
             Context 'Expected behavior' {
                 $MockWebConfiguration = @(
@@ -2798,7 +2870,7 @@ try
 
                 It 'should not throw an error' {
                     { Test-AuthenticationEnabled `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -Type 'Basic'} | Should Not Throw
                 }
 
@@ -2817,7 +2889,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration }
 
                 It 'should return false' {
-                    Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic' | Should be False
+                    Test-AuthenticationEnabled -Site $MockWebsiteName -Type 'Basic' | Should be False
                 }
 
                 It 'should call expected mocks' {
@@ -2835,7 +2907,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
 
                 It 'should all be true' {
-                    Test-AuthenticationEnabled -Site $MockWebsite.Name -Type 'Basic' | Should be True
+                    Test-AuthenticationEnabled -Site $MockWebsiteName -Type 'Basic' | Should be True
                 }
 
                 It 'should call expected mocks' {
@@ -2847,16 +2919,7 @@ try
         Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
             Mock -CommandName Get-WebConfigurationProperty -MockWith {$MockWebConfiguration}
 
-            $MockWebsite = @{
-                Name                 = 'MockName'
-                PhysicalPath         = 'C:\NonExistent'
-                State                = 'Started'
-                ApplicationPool      = 'MockPool'
-                Bindings             = @{Collection = @($MockWebBinding)}
-                EnabledProtocols     = 'http'
-                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                Count                = 1
-            }
+            $MockWebsiteName  = 'MockName'
 
             $MockWebConfiguration = @(
                 @{
@@ -2872,7 +2935,7 @@ try
             Context 'Expected behavior' {
                 It 'should not throw an error' {
                     { Test-AuthenticationInfo `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -AuthenticationInfo $AuthenticationInfo } | Should Not Throw
                 }
 
@@ -2885,7 +2948,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
 
                 It 'should return false' {
-                    Test-AuthenticationInfo -Site $MockWebsite.Name -AuthenticationInfo $AuthenticationInfo | Should be False
+                    Test-AuthenticationInfo -Site $MockWebsiteName -AuthenticationInfo $AuthenticationInfo | Should be False
                 }
 
                 It 'should call expected mocks' {
@@ -2909,7 +2972,7 @@ try
 
                 It 'should return true' {
                     Test-AuthenticationInfo `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -AuthenticationInfo $AuthenticationInfo | Should be True
                 }
 
@@ -2917,6 +2980,82 @@ try
                     Assert-MockCalled -CommandName Get-WebConfigurationProperty -Exactly 4
                 }
             }
+        }
+        Describe "$script:DSCResourceName\Test-AnonymousCredentials" {
+           $MockWebsiteName  = 'MockName'
+
+           Context "When expecting given username and password but anonymous authentication is disabled" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{enabled = $false}}
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When expecting given username and password but anonymous credentials are different" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "OtherUser"; password = "NonSecret"; } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When expecting given username and password but login is different" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "OtherUser"; password = "Secret" } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When expecting given username and password but password is different" {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "SampleUser"; password = "NoSecret" } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $false
+                }
+           }
+
+           Context "When current anonymous credentials are the same as expected"  {
+                $expectedCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{ enabled = $true; userName = "SampleUser"; password = "Secret" } }
+
+                It "Should return true" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName -Credentials $expectedCredentials | Should -Be $true
+                }
+           }
+
+           Context "When expecting no credentials but there are any" {
+                Mock -CommandName  Get-WebConfiguration -MockWith { @{  enabled = $true;  userName = "SampleUser";  password = "Secret"; } }
+
+                It "Should return false" {
+                    Test-AnonymousCredentials -Site $MockWebsiteName | Should -Be $false
+                }
+           }
         }
 
         Describe "$script:DSCResourceName\Test-BindingInfo" {
