@@ -2662,22 +2662,13 @@ try
         }
 
         Describe "$script:DSCResourceName\Get-AuthenticationInfo" {
-            $MockWebsite = @{
-                Name                 = 'MockName'
-                PhysicalPath         = 'C:\NonExistent'
-                State                = 'Started'
-                ApplicationPool      = 'MockPool'
-                Bindings             = @{Collection = @($MockWebBinding)}
-                EnabledProtocols     = 'http'
-                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                Count                = 1
-            }
+           $MockWebsiteName ='MockName'
 
            Context 'Expected behavior' {
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return 'False'}
 
                 It 'should not throw an error' {
-                    { Get-AuthenticationInfo -site $MockWebsite.Name } | Should Not Throw
+                    { Get-AuthenticationInfo -site $MockWebsiteName } | Should Not Throw
                 }
 
                 It 'should call Get-WebConfigurationProperty four times' {
@@ -2695,7 +2686,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration }
 
                 It 'should all be false' {
-                    $result = Get-AuthenticationInfo -site $MockWebsite.Name
+                    $result = Get-AuthenticationInfo -site $MockWebsiteName
                     $result.Anonymous | Should be $false
                     $result.Digest | Should be $false
                     $result.Basic | Should be $false
@@ -2717,7 +2708,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration }
 
                 It 'should all be true' {
-                    $result = Get-AuthenticationInfo -site $MockWebsite.Name
+                    $result = Get-AuthenticationInfo -site $MockWebsiteName
                     $result.Anonymous | Should be True
                     $result.Digest | Should be True
                     $result.Basic | Should be True
