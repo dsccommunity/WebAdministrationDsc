@@ -2833,6 +2833,29 @@ try
             }
         }
 
+        Describe "$script:DSCResourceName\Set-AnonymousAuthenticationCredentials" {
+            Context 'Expected behavior' {
+                $MockWebsiteName  = 'MockName'
+
+                Mock -CommandName Set-WebConfigurationProperty
+
+                $AnonymousCredentials = New-CimInstance `
+                    -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
+                    -ClientOnly `
+                    -Property @{UserName='SampleUser'; Password='Secret'}
+
+                It 'should not throw an error' {
+                    { Set-AnonymousAuthenticationCredentials `
+                        -Site $MockWebsiteName `
+                        -Credentials $AnonymousCredentials } | Should Not Throw
+                }
+
+                It 'should call should call expected mocks' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                }
+            }
+        }
+
         Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
             $MockWebsiteName  = 'MockName'
 
