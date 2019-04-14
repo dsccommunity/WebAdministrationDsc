@@ -2740,6 +2740,57 @@ try
             }
         }
 
+        Describe "$script:DSCResourceName\Get-AnonymousCredentials" {
+            $MockWebsiteName ='MockName'
+
+            Context 'When anonymous authentication is disabled' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{
+                    enabled = $false
+                }}
+
+                It 'should return expected values' {
+                    Get-AnonymousCredentials -site $MockWebsiteName | Should -Be $null
+                }
+
+                It 'should call Get-WebConfigurationProperty one time' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+            }
+
+            Context 'When anonymous authentication is enabled without credentials' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{
+                    enabled = $true
+                }}
+
+                It 'should return expected values' {
+                    $result = Get-AnonymousCredentials -site $MockWebsiteName
+                    $result.UserName | Should -Be ""
+                    $result.Password | Should -Be ""
+                }
+
+                It 'should call Get-WebConfigurationProperty one time' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+            }
+
+            Context 'When anonymous authentication is enabled along with credentials' {
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{
+                    enabled = $true
+                    userName = "TestUser"
+                    password = "Secret"
+                }}
+
+                It 'should return expected values' {
+                    $result = Get-AnonymousCredentials -site $MockWebsiteName
+                    $result.UserName | Should -Be "TestUser"
+                    $result.Password | Should -Be "Secret"
+                }
+
+                It 'should call Get-WebConfigurationProperty one time' {
+                    Assert-MockCalled -CommandName Get-WebConfiguration -Exactly 1
+                }
+            }
+        }
         Describe "$script:DSCResourceName\Set-Authentication" {
             Context 'Expected behavior' {
                 $MockWebsite = @{

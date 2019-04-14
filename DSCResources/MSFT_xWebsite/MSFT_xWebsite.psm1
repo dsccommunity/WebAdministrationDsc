@@ -2301,7 +2301,10 @@ function Get-AnonymousCredentials
     {
          New-CimInstance -ClassName MSFT_xWebAnonymousAuthenticationCredentials `
         -ClientOnly `
-        -Property @{ UserName = $anonymousAuthentication.userName; Password = $anonymousAuthentication.password }
+        -Property @{
+            UserName = ConvertTo-NotNullString -Value $anonymousAuthentication.userName
+            Password = ConvertTo-NotNullString -Value $anonymousAuthentication.password
+        }
     }
 }
  <#
@@ -2326,6 +2329,19 @@ function Set-AnonymousAuthenticationCredentials
     $anonymousAuthenticationConfigurationPath = 'system.webServer/security/authentication/anonymousAuthentication'
     Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'userName' -Value $Credentials.UserName
     Set-WebConfigurationProperty -Location $Site -Filter $anonymousAuthenticationConfigurationPath -Name 'password' -Value $Credentials.Password
+}
+
+function ConvertTo-NotNullString
+ {
+    param (
+        [string] $Value
+    )
+    if([string]::IsNullOrEmpty($Value))
+    {
+        return [string]::Empty
+    }else{
+        return $Value
+    }
 }
 
 #endregion
