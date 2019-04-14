@@ -2919,16 +2919,7 @@ try
         Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
             Mock -CommandName Get-WebConfigurationProperty -MockWith {$MockWebConfiguration}
 
-            $MockWebsite = @{
-                Name                 = 'MockName'
-                PhysicalPath         = 'C:\NonExistent'
-                State                = 'Started'
-                ApplicationPool      = 'MockPool'
-                Bindings             = @{Collection = @($MockWebBinding)}
-                EnabledProtocols     = 'http'
-                ApplicationDefaults  = @{Collection = @($MockPreloadAndAutostartProviders)}
-                Count                = 1
-            }
+            $MockWebsiteName  = 'MockName'
 
             $MockWebConfiguration = @(
                 @{
@@ -2944,7 +2935,7 @@ try
             Context 'Expected behavior' {
                 It 'should not throw an error' {
                     { Test-AuthenticationInfo `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -AuthenticationInfo $AuthenticationInfo } | Should Not Throw
                 }
 
@@ -2957,7 +2948,7 @@ try
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { $MockWebConfiguration}
 
                 It 'should return false' {
-                    Test-AuthenticationInfo -Site $MockWebsite.Name -AuthenticationInfo $AuthenticationInfo | Should be False
+                    Test-AuthenticationInfo -Site $MockWebsiteName -AuthenticationInfo $AuthenticationInfo | Should be False
                 }
 
                 It 'should call expected mocks' {
@@ -2981,7 +2972,7 @@ try
 
                 It 'should return true' {
                     Test-AuthenticationInfo `
-                        -Site $MockWebsite.Name `
+                        -Site $MockWebsiteName `
                         -AuthenticationInfo $AuthenticationInfo | Should be True
                 }
 
