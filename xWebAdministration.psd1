@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '2.5.0.0'
+moduleVersion = '2.6.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -12,7 +12,7 @@ Author = 'Microsoft Corporation'
 CompanyName = 'Microsoft Corporation'
 
 # Copyright statement for this module
-Copyright = '(c) 2013 Microsoft Corporation. All rights reserved.'
+Copyright = '(c) 2019 Microsoft Corporation. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Module with DSC Resources for Web Administration'
@@ -41,10 +41,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Added SiteId to xWebSite to address [396]
-* xWebSite: Full path is used to get list of default documents
-* xIISLogging: Added support for LogTargetW3C
-* xWebsite: Added support for LogTargetW3C
+        ReleaseNotes = '* Changed order of classes in schema.mof files to workaround [423](https://github.com/PowerShell/xWebAdministration/issues/423)
+* Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
+  helper function `Install-NewSelfSignedCertificateExScript`.
+* Updated unit test for helper function `Find-Certificate` to check for multiple
+  subject names in different orders.
 
 '
 
@@ -58,6 +59,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 

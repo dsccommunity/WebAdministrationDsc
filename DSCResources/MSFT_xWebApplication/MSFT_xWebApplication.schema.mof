@@ -1,12 +1,3 @@
-[ClassVersion("1.0.0")]
-class MSFT_xWebApplicationAuthenticationInformation
-{
-    [Write] Boolean Anonymous;
-    [Write] Boolean Basic;
-    [Write] Boolean Digest;
-    [Write] Boolean Windows;
-};
-
 [ClassVersion("1.0.0.0"), FriendlyName("xWebApplication")]
 class MSFT_xWebApplication : OMI_BaseResource
 {
@@ -22,4 +13,13 @@ class MSFT_xWebApplication : OMI_BaseResource
     [Write, Description ("Adds a AutostartProvider")] String ServiceAutoStartProvider;
     [Write, Description ("Adds a AutostartProvider ApplicationType")] String ApplicationType;
     [Write, Description ("Adds EnabledProtocols on an Application"), ValueMap{"http","https","net.tcp","net.msmq","net.pipe"},Values{"http","https","net.tcp","net.msmq","net.pipe"}] String EnabledProtocols[];
+};
+
+[ClassVersion("1.0.0")]
+class MSFT_xWebApplicationAuthenticationInformation
+{
+    [Write] Boolean Anonymous;
+    [Write] Boolean Basic;
+    [Write] Boolean Digest;
+    [Write] Boolean Windows;
 };
