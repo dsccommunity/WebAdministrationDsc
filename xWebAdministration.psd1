@@ -12,7 +12,7 @@ Author = 'Microsoft Corporation'
 CompanyName = 'Microsoft Corporation'
 
 # Copyright statement for this module
-Copyright = '(c) 2013 Microsoft Corporation. All rights reserved.'
+Copyright = '(c) 2019 Microsoft Corporation. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Module with DSC Resources for Web Administration'
@@ -41,7 +41,8 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
+        ReleaseNotes = '* Changed order of classes in schema.mof files to workaround [423](https://github.com/PowerShell/xWebAdministration/issues/423)
+* Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
   helper function `Install-NewSelfSignedCertificateExScript`.
 * Updated unit test for helper function `Find-Certificate` to check for multiple
   subject names in different orders.
