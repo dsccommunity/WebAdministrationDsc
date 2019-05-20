@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xFTP**, **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -36,6 +36,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Ensure**: Ensures that the FTP Site is **Present** or **Absent**.
 * **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
+* **PhysicalPathCredential**: Specific account used for connection to physical path. *Note* In case of using SMB as a physical path and target server doesn't share identity database with device/server hosting the share, local user account must be created with the same username/password used for the access, section 'More Information' [support.microsoft.com](https://support.microsoft.com/en-us/help/247099/access-denied-when-connecting-to-a-ftp-directory-that-uses-a-unc-path)
 * **State**: The state of the website: { Started | Stopped }
 * **ApplicationPool**: The FTP Site’s application pool.
 * **AuthenticationInformation**: FTP Site's authentication information in the form of an embedded instance of the **MSFT_xFTPAuthenticationInformation** CIM class. **MSFT_xFTPAuthenticationInformation** take the following properties:
@@ -43,24 +44,34 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
 * **AuthorizationInformation**: FTP Site's authorization information in the form of an array of embedded instances of the **MSFT_xFTPAuthorizationInformation** CIM class. **MSFT_xFTPAuthorizationInformation** take the following properties:
     * **AccessType**: The acceptable values for this property are: `Allow`, `Deny`
-    * **Users**: Users which can have desired access. *Note* If using groups pass in '' for the users.
+    * **Users**: Users which can have desired access. *Note* If using groups pass in '' for the users. To add authorization information for 'All Users' specify `'*'` as a value and for 'All Anonymous Users' - `'?'`.
     * **Roles**: Groups which can have desired access. *Note* If using users pass in '' for the group.
     * **Permissions**: The acceptable values for this property are: `Read`, `Write`, `Read,Write`
 * **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xFTPBindingInformation** CIM class that implements the following properties:
-    * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `ftp`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp` but `ftp` is needed for an FTP site.
+    * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `ftp`.
     * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
     * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
     * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
     * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
-* **SslInfo**: FTP Site's Ssl information in the form of an embedded instance of the **MSFT_xFTPSslInformation** CIM class. **MSFT_xFTPSslInformation** take the following properties:
+* **SslInfo**: FTP Site's ssl information in the form of an embedded instance of the **MSFT_xFTPSslInformation** CIM class. **MSFT_xFTPSslInformation** takes the following properties:
     * **ControlChannelPolicy**: The acceptable values for this property are: `SslAllow`, `SslRequire`, `SslRequireCredentialsOnly`},Values{`SslAllow`, `SslRequire`, `SslRequireCredentialsOnly`
     * **DataChannelPolicy**: The acceptable values for this property are: `SslAllow`, `SslRequire`, `SslDeny`
     * **RequireSsl128**: `$true`, `$false`
-    * **CertificateHash**:The thumbprint of the certificate.
+    * **CertificateThumbprint**:The thumbprint of the certificate.
     * **CertificateStoreName**: The name of the certificate store where the certificate is located. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
+* **FirewallIPAddress**: The external firewall IP address behind which FTP server is located, used for passive connections.
+* **StartingDataChannelPort**: The starting data channel port number for passive connections. *Note* The valid value is either 0 or from 1025 to 65535. Special port range of `0` for StartingDataChannelPort and for `0` EndingDataChannelPort means range of 1025-5000. Ports from 1 through 1024 are reserved for use by system services.
+* **EndingDataChannelPort**: The ending data channel port number for passive connections. *Note* The valid value is either 0 or from 1025 to 65535. Special port range of `0` for StartingDataChannelPort and for `0` EndingDataChannelPort means range of 1025-5000. Ports from 1 through 1024 are reserved for use by system services.
+* **GreetingMessage**: Specifies the message the FTP server displays when FTP clients have logged in to the FTP server.
+* **ExitMessage**: Specifies the message the FTP server displays when FTP clients log off the FTP server.
+* **BannerMessage**: Specifies the message the FTP server displays when FTP clients first connect to the FTP server.
+* **MaxClientsMessage**: Specifies the message the FTP server displays when clients try to connect and cannot because the FTP service has reached the maximum number of client connections allowed.
+* **SuppressDefaultBanner**: Specifies whether to display the default identification banner for the FTP server. If enabled, displays the default banner; otherwise, the default banner is not displayed. Valid values are: `$true`, `$false`
+* **AllowLocalDetailedErrors**: Specifies whether to display detailed error messages when the FTP client is connecting to the FTP server on the server itself. If enabled, displays detailed error messages only to the local host; otherwise, detailed error messages are not displayed. Valid values are: `$true`, `$false`
+* **ExpandVariablesInMessages**: Specifies whether to display a specific set of user variables in FTP messages. If enabled, displays user variables in FTP messages; otherwise, all message text will be displayed as entered. Valid values are: `$true`, `$false`. The supported user variables can be found using next link [go.microsoft.com](https://go.microsoft.com/fwlink/?LinkId=210500).
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`TimeTaken`,`ServerPort`,`UserAgent`,`Referer`,`HttpSubStatus`
-* **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
+* **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`. *Note* If LogTruncateSize property is set the LogPeriod property will be ignored.
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **DirectoryBrowseFlags**: What method of Directory Browsing should be enabled. The values that are allowed for this property are: `StyleUnix`,`LongDate`,`DisplayAvailableBytes`,`DisplayVirtualDirectories`
@@ -354,6 +365,9 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
+
+* Added **xFTP** resource for managing FTP sites [#81](https://github.com/PowerShell/xWebAdministration/issues/81)
+* BEHAVIOR CHANGED: For **xWebsite** and **xWebApplcation** if AuthenticationInformation was not specified Default($false) is assumed.
 
 ### 2.6.0.0
 * Changed order of classes in schema.mof files to workaround [#423](https://github.com/PowerShell/xWebAdministration/issues/423)

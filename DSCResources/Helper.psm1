@@ -3,39 +3,43 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        ModuleNotFound                                  = Please ensure that the PowerShell module for role {0} is installed.
-        ErrorWebsiteNotFound                            = The requested website "{0}" cannot be found on the target machine.
-        ErrorWebsiteBindingUpdateFailure                = Failure to successfully update the bindings for website "{0}". Error: "{1}".
-        ErrorWebsiteBindingInputInvalidation            = Desired website bindings are not valid for website "{0}".
-        ErrorWebsiteCompareFailure                      = Failure to successfully compare properties for website "{0}". Error: "{1}".
-        ErrorWebBindingCertificate                      = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
-        ErrorWebsiteStateFailure                        = Failure to successfully set the state of the website "{0}". Error: "{1}".
-        ErrorWebsiteBindingConflictOnStart              = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing websites bindings before trying to start it.
-        ErrorWebBindingInvalidIPAddress                 = Failure to validate the IPAddress property value "{0}". Error: "{1}".
-        ErrorWebBindingInvalidPort                      = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
-        ErrorWebBindingMissingBindingInformation        = The BindingInformation property is required for bindings of type "{0}".
-        ErrorWebBindingMissingCertificateThumbprint     = The CertificateThumbprint property is required for bindings of type "{0}".
-        ErrorWebBindingMissingSniHostName               = The HostName property is required for use with Server Name Indication.
-        ErrorWebsitePreloadFailure                      = Failure to set Preload on Website "{0}". Error: "{1}".
-        ErrorWebsiteAutoStartFailure                    = Failure to set AutoStart on Website "{0}". Error: "{1}".
-        ErrorWebsiteAutoStartProviderFailure            = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
-        ErrorWebsiteTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
-        ErrorWebApplicationTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
-        VerboseUpdateDefaultPageUpdated                 = Default page for website "{0}" has been updated to "{1}".
-        VerboseTestBindingInfoInvalidCatch              = Unable to validate BindingInfo: "{0}".
+        ModuleNotFound                                        = Please ensure that the PowerShell module for role {0} is installed.
+        ErrorWebsiteNotFound                                  = The requested website "{0}" cannot be found on the target machine.
+        ErrorWebsiteBindingUpdateFailure                      = Failure to successfully update the bindings for website "{0}". Error: "{1}".
+        ErrorWebsiteBindingInputInvalidation                  = Desired website bindings are not valid for website "{0}".
+        ErrorWebsiteCompareFailure                            = Failure to successfully compare properties for website "{0}". Error: "{1}".
+        ErrorWebBindingCertificate                            = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
+        ErrorWebBindingInvalidCertificateSubject              = The Subject "{0}" provided is not found on this host in store "{1}"
+        ErrorWebBindingInvalidIPAddress                       = Failure to validate the IPAddress property value "{0}". Error: "{1}".
+        ErrorWebBindingInvalidPort                            = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
+        ErrorWebBindingMissingBindingInformation              = The BindingInformation property is required for bindings of type "{0}".
+        ErrorWebBindingMissingCertificateThumbprint           = The CertificateThumbprint property is required for bindings of type "{0}".
+        ErrorWebBindingMissingSniHostName                     = The HostName property is required for use with Server Name Indication.
+        ErrorWebsiteTestAutoStartProviderFailure              = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
+        VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
+        VerboseConvertToWebBindingDefaultPort                 = Port is not specified. The default "{0}" port "{1}" will be used.
+        VerboseConvertToWebBindingIgnoreBindingInformation    = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
+        VerboseTestBindingInfoInvalidCatch                    = Unable to validate BindingInfo: "{0}".
+        VerboseTestBindingInfoSameIPAddressPortHostName       = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
+        VerboseTestBindingInfoSamePortDifferentProtocol       = BindingInfo contains items that share the same Port but have different Protocols.
+        VerboseTestBindingInfoSameProtocolBindingInformation  = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
+        VerboseUpdateDefaultPageUpdated                       = Default page for website "{0}" has been updated to "{1}".
 '@
 }
 
 <#
-.SYNOPSIS
-    Internal function to throw terminating error with specified
-    errroCategory, errorId and errorMessage
-.PARAMETER ErrorId
-    Specifies the Id error message.
-.PARAMETER ErrorMessage
-    Specifies full Error Message to be returned.
-.PARAMETER ErrorCategory
-    Specifies Error Category.
+    .SYNOPSIS
+        Internal function to throw terminating error with specified
+        errroCategory, errorId and errorMessage.
+
+    .PARAMETER ErrorId
+        Specifies the Id error message.
+
+    .PARAMETER ErrorMessage
+        Specifies full Error Message to be returned.
+
+    .PARAMETER ErrorCategory
+        Specifies Error Category.
 #>
 function New-TerminatingError
 {
@@ -59,10 +63,11 @@ function New-TerminatingError
 }
 
 <#
-.SYNOPSIS
-    Internal function to assert if the module exists
-.PARAMETER ModuleName
-    Module to test
+    .SYNOPSIS
+        Internal function to assert if the module exists.
+
+    .PARAMETER ModuleName
+        Module to test.
 #>
 function Assert-Module
 {
@@ -82,39 +87,39 @@ function Assert-Module
 }
 
 <#
-.SYNOPSIS
-    Locates one or more certificates using the passed certificate selector parameters.
+    .SYNOPSIS
+        Locates one or more certificates using the passed certificate selector parameters.
 
-    If more than one certificate is found matching the selector criteria, they will be
-    returned in order of descending expiration date.
+        If more than one certificate is found matching the selector criteria, they will be
+        returned in order of descending expiration date.
 
-.PARAMETER Thumbprint
-    The thumbprint of the certificate to find.
+    .PARAMETER Thumbprint
+        The thumbprint of the certificate to find.
 
-.PARAMETER FriendlyName
-    The friendly name of the certificate to find.
+    .PARAMETER FriendlyName
+        The friendly name of the certificate to find.
 
-.PARAMETER Subject
-    The subject of the certificate to find.
+    .PARAMETER Subject
+        The subject of the certificate to find.
 
-.PARAMETER DNSName
-    The subject alternative name of the certificate to export must contain these values.
+    .PARAMETER DNSName
+        The subject alternative name of the certificate to export must contain these values.
 
-.PARAMETER Issuer
-    The issuer of the certiicate to find.
+    .PARAMETER Issuer
+        The issuer of the certiicate to find.
 
-.PARAMETER KeyUsage
-    The key usage of the certificate to find must contain these values.
+    .PARAMETER KeyUsage
+        The key usage of the certificate to find must contain these values.
 
-.PARAMETER EnhancedKeyUsage
-    The enhanced key usage of the certificate to find must contain these values.
+    .PARAMETER EnhancedKeyUsage
+        The enhanced key usage of the certificate to find must contain these values.
 
-.PARAMETER Store
-    The Windows Certificate Store Name to search for the certificate in.
-    Defaults to 'My'.
+    .PARAMETER Store
+        The Windows Certificate Store Name to search for the certificate in.
+        Defaults to 'My'.
 
-.PARAMETER AllowExpired
-    Allows expired certificates to be returned.
+    .PARAMETER AllowExpired
+        Allows expired certificates to be returned.
 #>
 function Find-Certificate
 {
@@ -242,20 +247,20 @@ function Find-Certificate
 } # end function Find-Certificate
 
 <#
-.SYNOPSIS
-    Retrieves the localized string data based on the machine's culture.
-    Falls back to en-US strings if the machine's culture is not supported.
+    .SYNOPSIS
+        Retrieves the localized string data based on the machine's culture.
+        Falls back to en-US strings if the machine's culture is not supported.
 
-.PARAMETER ResourceName
-    The name of the resource as it appears before '.strings.psd1' of the localized string file.
+    .PARAMETER ResourceName
+        The name of the resource as it appears before '.strings.psd1' of the localized string file.
 
-    For example:
-        For WindowsOptionalFeature: MSFT_xWindowsOptionalFeature
-        For Service: MSFT_xServiceResource
-        For Registry: MSFT_xRegistryResource
+        For example:
+            For WindowsOptionalFeature: MSFT_xWindowsOptionalFeature
+            For Service: MSFT_xServiceResource
+            For Registry: MSFT_xRegistryResource
 
-.PARAMETER ResourcePath
-    The path the resource file is located in.
+    .PARAMETER ResourcePath
+        The path the resource file is located in.
 #>
 function Get-LocalizedData
 {
@@ -289,15 +294,125 @@ function Get-LocalizedData
     return $localizedData
 }
 
+#region Credential functions
+
+<#
+    .SYNOPSIS
+        Helper function used to update credential for physical path access.
+
+    .PARAMETER Site
+        Specifies the name of the website.
+
+    .PARAMETER Credential
+        Specifies the Credential which should be used.
+#>
+function Update-AccessCredential
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Site,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [System.Management.Automation.PSCredential]
+        $Credential
+    )
+
+    $siteObj = Get-Website -Name $Site
+
+    $userValue = switch($Credential.UserName)
+    {
+        $null   {''}
+        default {$Credential.UserName}
+    }
+
+    $passwordValue = switch($Credential.Password)
+    {
+        $null   {''}
+        default {$Credential.GetNetworkCredential().Password}
+    }
+
+    if ($userValue -ne $siteObj.userName)
+    {
+        Set-ItemProperty -Path "IIS:\Sites\$Site" `
+                         -Name userName `
+                         -Value $userValue `
+                         -ErrorAction Stop
+    }
+
+    if ($passwordValue -ne $siteObj.password)
+    {
+        Set-ItemProperty -Path "IIS:\Sites\$Site" `
+                         -Name password `
+                         -Value $passwordValue `
+                         -ErrorAction Stop
+    }
+}
+
+<#
+    .SYNOPSIS
+        Helper function used to validate credential for physical path access.
+
+    .PARAMETER Site
+        Specifies the name of the website.
+
+    .PARAMETER Credential
+        Specifies the Credential to check against.
+#>
+function Test-AccessCredential
+{
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Site,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [System.Management.Automation.PSCredential]
+        $Credential
+    )
+
+    $siteObj = Get-Website -Name $Site
+
+    if (($null -ne $Credential.UserName -and $siteObj.userName -ne $Credential.UserName) -or `
+        ($null -eq $Credential.UserName -and $siteObj.userName -ne ''))
+    {
+        return $false
+    }
+
+    if (($null -ne $Credential.Password -and $siteObj.password -ne $Credential.GetNetworkCredential().Password) -or `
+        ($null -eq $Credential.Password -and $siteObj.password -ne ''))
+    {
+        return $false
+    }
+
+    return $true
+}
+
+#endregion
+
 #region Authentication Functions
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the authenticationProperties for an Application.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
+    .SYNOPSIS
+        Helper function used to get the authentication properties
+        for a Website,FTP Site or Application.
+
+    .PARAMETER Site
+        Specifies the name of the Website.
+
+    .PARAMETER Application
+        Specifies the name of the Application if IiisType is set to Application.
+
+    .PARAMETER IisType
+        Specifies type of the object to get authentication properties for.
+        It could be a Website, FTP Site or Application.
 #>
 function Get-AuthenticationInfo
 {
@@ -305,184 +420,169 @@ function Get-AuthenticationInfo
     [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
     param
     (
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Site,
 
         [String] $Application,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
         [String] $IisType
     )
 
-    switch($IisType)
+    $authAvailable = Get-DefaultAuthenticationInfo -IisType $IisType
+
+    $authenticationProperties = @{}
+    foreach ($type in ($authAvailable.CimInstanceProperties.Name | Sort-Object))
     {
-        Website
-        {
-            $authenticationProperties = @{}
-            foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-            {
-                $authenticationProperties[$type] = `
-                    [String](Test-AuthenticationEnabled -Site $Site `
-                                                        -IisType $IisType `
-                                                        -Type $type)
-            }
-
-            return New-CimInstance `
-                    -ClassName MSFT_xWebAuthenticationInformation `
-                    -ClientOnly -Property $authenticationProperties
-        }
-
-        Application
-        {
-            $authenticationProperties = @{}
-            foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-            {
-                $authenticationProperties[$type] = `
-                    [String](Test-AuthenticationEnabled -Site $Site `
-                                                        -Application $Application `
-                                                        -IisType $IisType `
-                                                        -Type $type)
-            }
-
-            return New-CimInstance `
-                    -ClassName MSFT_xWebApplicationAuthenticationInformation `
-                    -ClientOnly -Property $authenticationProperties
-        }
-
-        Ftp
-        {
-            $authenticationProperties = @{}
-            foreach ($type in @('Anonymous', 'Basic'))
-            {
-                $authenticationProperties[$type] = `
-                    [String](Test-AuthenticationEnabled -Site $Site `
-                                                        -IisType $IisType `
-                                                        -Type $type)
-            }
-
-            return New-CimInstance `
-                    -ClassName MSFT_xFtpAuthenticationInformation `
-                    -ClientOnly -Property $authenticationProperties
-        }
+        $authenticationProperties[$type] = `
+            [Boolean](Test-AuthenticationEnabled @PSBoundParameters -Type $type)
     }
+
+    return New-CimInstance -ClassName $authAvailable.CimClass.CimClassName `
+                           -ClientOnly -Property $authenticationProperties `
+                           -Namespace 'root/microsoft/Windows/DesiredStateConfiguration'
 }
 
 <#
-.SYNOPSIS
-    Helper function used to build a default CimInstance for AuthenticationInformation
+    .SYNOPSIS
+        Helper function used to build a default CimInstance of AuthenticationInformation
+        for a Website,FTP Site or Application.
+
+    .PARAMETER IisType
+        Specifies type of the object to get default authentication properties for.
+        It could be a Website, FTP Site or Application.
 #>
 function Get-DefaultAuthenticationInfo
 {
     [CmdletBinding()]
     param
     (
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
         [String] $IisType
     )
 
+    $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
     switch($IisType)
     {
         Website
         {
             New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
-                -ClientOnly `
+                -ClientOnly -Namespace $cimNamespace `
                 -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
         }
 
         Application
         {
             New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
-                -ClientOnly `
+                -ClientOnly -Namespace $cimNamespace `
                 -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false}
         }
 
         Ftp
         {
             New-CimInstance -ClassName MSFT_xFTPAuthenticationInformation `
-                -ClientOnly `
+                -ClientOnly -Namespace $cimNamespace `
                 -Property @{Anonymous=$false;Basic=$false}
         }
     }
 }
 
 <#
-.SYNOPSIS
-    Helper function used to set authenticationProperties for an Application.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER Type
-    Specifies the type of Authentication,
-    Limited to the set: ('Anonymous','Basic','Digest','Windows').
-.PARAMETER Enabled
-    Whether the Authentication is enabled or not.
+    .SYNOPSIS
+        Helper function used to set single authentication property
+        for a Website,FTP Site or Application.
+
+    .PARAMETER Site
+        Specifies the name of the Website.
+
+    .PARAMETER Application
+        Specifies the name of the Application.
+
+    .PARAMETER IisType
+        Specifies type of the object to set authentication property on.
+        It could be a Website, FTP Site or Application.
+
+    .PARAMETER Type
+        Specifies the type of Authentication,
+        Limited to the set: ('Anonymous','Basic','Digest','Windows').
+
+    .PARAMETER Enabled
+        Whether the Authentication is enabled or not.
 #>
 function Set-Authentication
 {
     [CmdletBinding()]
     param
     (
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Site,
 
         [String] $Application,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
         [String] $IisType,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String] $Type,
 
         [System.Boolean] $Enabled
     )
 
-    switch($IisType)
-    {
-        {($_ -eq 'Website') -or ($_ -eq 'Ftp')}
-        {
-            Set-WebConfigurationProperty `
-                -Filter /system.WebServer/security/authentication/${Type}Authentication `
-                -Name enabled `
-                -Value $Enabled `
-                -Location "${Site}"
-        }
+    $Location = "${Site}"
 
-        Application
-        {
-            Set-WebConfigurationProperty `
-                -Filter /system.WebServer/security/authentication/${Type}Authentication `
-                -Name enabled `
-                -Value $Enabled `
-                -Location "${Site}/${Application}"
-        }
+    if ($IisType -eq 'Application')
+    {
+        $Location = "${Site}/${Application}"
+    }
+
+    switch ($IisType)
+    {
+        'Ftp'   { Set-ItemProperty "IIS:\Sites\$Location" `
+                    -Name ftpServer.security.authentication.${Type}Authentication.enabled `
+                    -Value $Enabled
+                }
+        default { Set-WebConfigurationProperty `
+                    -Filter /system.WebServer/security/authentication/${Type}Authentication `
+                    -Name enabled `
+                    -Value $Enabled `
+                    -Location $Location
+                }
     }
 }
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the authenticationProperties for an Application.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER AuthenticationInfo
-    A CimInstance of what state the AuthenticationInfo should be.
+    .SYNOPSIS
+        Helper function used to set the authentication properties
+        for a Website,FTP Site or Application.
+
+    .PARAMETER Site
+        Specifies the name of the Website.
+
+    .PARAMETER Application
+        Specifies the name of the Application.
+
+    .PARAMETER IisType
+        Specifies type of the object to set authentication properties for.
+        It could be a Website, FTP Site or Application.
+
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
 #>
 function Set-AuthenticationInfo
 {
     [CmdletBinding()]
     param
     (
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Site,
 
         [String] $Application,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
         [String ]$IisType,
 
@@ -491,58 +591,34 @@ function Set-AuthenticationInfo
         [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
     )
 
-    switch($IisType)
+    $Properties = ($AuthenticationInfo.CimInstanceProperties | Where-Object {$null -ne $_.Value}).Name | Sort-Object
+    $PSBoundParameters.Remove('AuthenticationInfo') | Out-Null
+
+    foreach ($type in $Properties)
     {
-        Website
-        {
-            foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-            {
-                $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-                Set-Authentication -Site $Site `
-                                   -IisType $IisType `
-                                   -Type $type `
-                                   -Enabled $enabled
-            }
-        }
-
-        Application
-        {
-            foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-            {
-                $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-                Set-Authentication -Site $Site `
-                                   -Application $Application `
-                                   -IisType $IisType `
-                                   -Type $type `
-                                   -Enabled $enabled
-            }
-        }
-
-        Ftp
-        {
-            foreach ($type in @('Anonymous', 'Basic'))
-            {
-                $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-                Set-Authentication -Site $Site `
-                                   -IisType $IisType `
-                                   -Type $type `
-                                   -Enabled $enabled
-            }
-        }
+        $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
+        Set-Authentication @PSBoundParameters -Type $type -Enabled $enabled
     }
 }
 
 <#
-.SYNOPSIS
-    Helper function used to test the authenticationProperties state for an Application.
-    Will return that value which will either [String]True or [String]False
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER Type
-    Specifies the type of Authentication,
-    limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .SYNOPSIS
+        Helper function used to test authentication property state.
+        Will return that value which will either [String]True or [String]False
+
+    .PARAMETER Site
+        Specifies the name of the Website.
+
+    .PARAMETER Application
+        Specifies the name of the Application.
+
+    .PARAMETER IisType
+        Specifies type of the object to tests authentication property for.
+        It could be a Website, FTP Site or Application.
+
+    .PARAMETER Type
+        Specifies the type of Authentication,
+        limited to the set: ('Anonymous','Basic','Digest','Windows').
 #>
 function Test-AuthenticationEnabled
 {
@@ -550,57 +626,62 @@ function Test-AuthenticationEnabled
     [OutputType([System.Boolean])]
     param
     (
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Site,
 
         [String] $Application,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
         [String] $IisType,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String] $Type
     )
 
-    switch($IisType)
+    $Location = "${Site}"
+
+    if ($IisType -eq 'Application')
     {
-        {($_ -eq 'Website') -or ($_ -eq 'Ftp')}
-        {
-            $prop = Get-WebConfigurationProperty `
-                    -Filter /system.WebServer/security/authentication/${Type}Authentication `
-                    -Name enabled `
-                    -Location "${Site}"
-
-            return $prop.Value
-        }
-
-        Application
-        {
-            $prop = Get-WebConfigurationProperty `
-                    -Filter /system.WebServer/security/authentication/${Type}Authentication `
-                    -Name enabled `
-                    -Location "${Site}/${Name}"
-
-            return $prop.Value
-        }
+        $Location = "${Site}/${Application}"
     }
+
+    $prop = switch ($IisType)
+    {
+        'Ftp'   { Get-ItemProperty "IIS:\Sites\$Location" `
+                    -Name ftpServer.security.authentication.${Type}Authentication.enabled
+                }
+        default { Get-WebConfigurationProperty `
+                    -Filter /system.WebServer/security/authentication/${Type}Authentication `
+                    -Name enabled `
+                    -Location $Location
+                }
+    }
+
+    return $prop.Value
 }
 
 <#
-.SYNOPSIS
-    Helper function used to test the authenticationProperties state for an Application.
-    Will return that result which will either [boolean]$True or [boolean]$False for use in
-    Test-TargetResource.
-    Uses Test-AuthenticationEnabled to determine this. First incorrect result will break
-    this function out.
-.PARAMETER Site
-    Specifies the name of the Website.
-.PARAMETER Name
-    Specifies the name of the Application.
-.PARAMETER AuthenticationInfo
-    A CimInstance of what state the AuthenticationInfo should be.
+    .SYNOPSIS
+        Helper function used to test the authentication properties state.
+        Will return that result which will either [boolean]$True or [boolean]$False for use in
+        Test-TargetResource.
+        Uses Test-AuthenticationEnabled to determine this. First incorrect result will break
+        this function out.
+
+    .PARAMETER Application
+        Specifies the name of the Website.
+
+    .PARAMETER Name
+        Specifies the name of the Application.
+
+    .PARAMETER IisType
+        Specifies type of the object to tests authentication properties for.
+        It could be a Website, FTP Site or Application.
+
+    .PARAMETER AuthenticationInfo
+        A CimInstance of what state the AuthenticationInfo should be.
 #>
 function Test-AuthenticationInfo
 {
@@ -608,74 +689,35 @@ function Test-AuthenticationInfo
     [OutputType([System.Boolean])]
     param
     (
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Site,
 
         [String] $Application,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
         [String] $IisType,
 
-        # [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
     )
 
-    switch($IisType)
+    $Properties = ($AuthenticationInfo.CimInstanceProperties | Where-Object {$null -ne $_.Value}).Name | Sort-Object
+    $PSBoundParameters.Remove('AuthenticationInfo') | Out-Null
+
+    foreach ($type in $Properties)
     {
-        Website
+        $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
+        $actual = Test-AuthenticationEnabled @PSBoundParameters -Type $type
+
+        if ($expected -ne $actual)
         {
-            foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-            {
-
-            $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-            $actual = Test-AuthenticationEnabled -Site $Site `
-                                                 -IisType $IisType `
-                                                 -Type $type
-                if ($expected -ne $actual)
-                {
-                    return $false
-                }
-            }
-            return $true
-        }
-
-        Application
-        {
-            foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-            {
-
-            $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-            $actual = Test-AuthenticationEnabled -Site $Site `
-                                                 -Application $Application `
-                                                 -IisType $IisType `
-                                                 -Type $type
-                if ($expected -ne $actual)
-                {
-                    return $false
-                }
-            }
-            return $true
-        }
-
-        Ftp
-        {
-            foreach ($type in @('Anonymous', 'Basic'))
-            {
-
-            $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-            $actual = Test-AuthenticationEnabled -Site $Site `
-                                                 -IisType $IisType `
-                                                 -Type $type
-                if ($expected -ne $actual)
-                {
-                    return $false
-                }
-            }
-            return $true
+            return $false
         }
     }
+
+    return $true
 }
 
 #endregion
@@ -683,13 +725,18 @@ function Test-AuthenticationInfo
 #region Log functions
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the logflags status.
-    Returns False if the loglfags do not match and true if they do
-.PARAMETER LogFlags
-    Specifies flags to check
-.PARAMETER Name
-    Specifies website to check the flags on
+    .SYNOPSIS
+        Helper function used to validate the logflags status.
+        Returns False if the loglfags do not match and true if they do.
+
+    .PARAMETER LogFlags
+        Specifies flags to check.
+
+    .PARAMETER Name
+        Specifies website to check the flags on.
+
+    .PARAMETER FtpSite
+        Specifies whether current site is FTP site.
 #>
 function Compare-LogFlags
 {
@@ -705,11 +752,18 @@ function Compare-LogFlags
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $Name
+        $Name,
 
+        [Parameter()]
+        [Switch]
+        $FtpSite
     )
 
-    $CurrentLogFlags = (Get-Website -Name $Name).logfile.logExtFileFlags -split ',' | Sort-Object
+    $CurrentLogFlags = switch($FtpSite.IsPresent)
+    {
+        $true   { (Get-Website -Name $Name).ftpServer.logFile.logExtFileFlags -split ',' | Sort-Object }
+        default { (Get-Website -Name $Name).logfile.logExtFileFlags -split ',' | Sort-Object }
+    }
     $ProposedLogFlags = $LogFlags -split ',' | Sort-Object
 
     if (Compare-Object -ReferenceObject $CurrentLogFlags -DifferenceObject $ProposedLogFlags)
@@ -718,105 +772,11 @@ function Compare-LogFlags
     }
 
     return $true
-
 }
 
 <#
-.SYNOPSIS
-    Helper function used to test the LogCustomField state for a website.
-
-.PARAMETER Site
-    Specifies the name of the Website.
-
-.PARAMETER LogCustomField
-    A CimInstance collection of what state the LogCustomField should be.
-#>
-function Test-LogCustomField
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Site,
-
-        [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $LogCustomField
-    )
-
-    $inDesiredSate = $true
-
-    foreach ($customField in $LogCustomField)
-    {
-        $filterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields/add[@logFieldName='{1}']" -f $Site, $customField.LogFieldName
-        $presentCustomField = Get-WebConfigurationProperty -Filter $filterString -Name "."
-
-        if ($presentCustomField)
-        {
-            $sourceNameMatch = $customField.SourceName -eq $presentCustomField.SourceName
-            $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
-            if (-not ($sourceNameMatch -and $sourceTypeMatch))
-            {
-                $inDesiredSate = $false
-            }
-        }
-        else
-        {
-            $inDesiredSate = $false
-        }
-    }
-
-    return $inDesiredSate
-}
-
-<#
-.SYNOPSIS
-    Helper function used to set the LogCustomField for a website.
-
-.PARAMETER Site
-    Specifies the name of the Website.
-
-.PARAMETER LogCustomField
-    A CimInstance collection of what the LogCustomField should be.
-#>
-function Set-LogCustomField
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Site,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $LogCustomField
-    )
-
-    $setCustomFields = @()
-    foreach ($customField in $LogCustomField)
-    {
-        $setCustomFields += @{
-            logFieldName = $customField.LogFieldName
-            sourceName = $customField.SourceName
-            sourceType = $customField.SourceType
-        }
-    }
-
-    # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
-    for ($i = 1; $i -le 2; $i++)
-    {
-        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
-    }
-}
-
-<#
-.SYNOPSIS
-    Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+    .SYNOPSIS
+        Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
 #>
 function ConvertTo-CimLogCustomFields
 {
@@ -857,18 +817,21 @@ function ConvertTo-CimLogCustomFields
 #region Autostart functions
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the AutoStartProviders is unique to other websites.
-    returns False if the AutoStartProviders exist.
-.PARAMETER ServiceAutoStartProvider
-    Specifies the name of the AutoStartProviders.
-.PARAMETER ApplicationType
-    Specifies the name of the Application Type for the AutoStartProvider.
-.NOTES
-    This tests for the existance of a AutoStartProviders which is globally assigned.
-    As AutoStartProviders need to be uniquely named it will check for this and error out if
-    attempting to add a duplicatly named AutoStartProvider.
-    Name is passed in to bubble to any error messages during the test.
+    .SYNOPSIS
+        Helper function used to validate that the AutoStartProviders is unique to other websites.
+        returns False if the AutoStartProviders exist.
+
+    .PARAMETER ServiceAutoStartProvider
+        Specifies the name of the AutoStartProviders.
+
+    .PARAMETER ApplicationType
+        Specifies the name of the Application Type for the AutoStartProvider.
+
+    .NOTES
+        This tests for the existance of a AutoStartProviders which is globally assigned.
+        As AutoStartProviders need to be uniquely named it will check for this and error out if
+        attempting to add a duplicatly named AutoStartProvider.
+        Name is passed in to bubble to any error messages during the test.
 #>
 function Confirm-UniqueServiceAutoStartProviders
 {
@@ -918,66 +881,28 @@ function Confirm-UniqueServiceAutoStartProviders
     }
 
     return $true
-
 }
 
-#endregion
-
-#region DefaultPage functions
-
-<#
-.SYNOPSIS
-    Helper function used to update default pages of website.
-#>
-function Update-DefaultPage
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [String[]]
-        $DefaultPage
-    )
-
-    $allDefaultPages = @(
-        Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
-                             -PSPath "IIS:\Sites\$Name" |
-        ForEach-Object -Process { Write-Output -InputObject $_.value }
-    )
-
-    foreach ($page in $DefaultPage)
-    {
-        if ($allDefaultPages -inotcontains $page)
-        {
-            Add-WebConfiguration -Filter '/system.webServer/defaultDocument/files' `
-                                 -PSPath "IIS:\Sites\$Name" `
-                                 -Value @{ value = $page }
-            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
-                                    -f $Name, $page)
-        }
-    }
-}
 #endregion
 
 #region Bindings functions
 
 <#
-.SYNOPSIS
-    Helper function used to validate that the website's binding information is unique to other
-    websites. Returns False if at least one of the bindings is already assigned to another
-    website.
-.PARAMETER Name
-    Specifies the name of the website.
-.PARAMETER ExcludeStopped
-    Omits stopped websites.
-.NOTES
-    This function tests standard ('http' and 'https') bindings only.
-    It is technically possible to assign identical non-standard bindings (such as 'net.tcp')
-    to different websites.
+    .SYNOPSIS
+        Helper function used to validate that the website's binding information is unique to other
+        websites. Returns False if at least one of the bindings is already assigned to another
+        website.
+
+    .PARAMETER Name
+        Specifies the name of the website.
+
+    .PARAMETER ExcludeStopped
+        Omits stopped websites.
+
+    .NOTES
+        This function tests standard ('http' and 'https') bindings only.
+        It is technically possible to assign identical non-standard bindings (such as 'net.tcp')
+        to different websites.
 #>
 function Confirm-UniqueBinding
 {
@@ -1049,8 +974,8 @@ function Confirm-UniqueBinding
 }
 
 <#
-.SYNOPSIS
-    Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
+    .SYNOPSIS
+        Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
 #>
 function ConvertTo-CimBinding
 {
@@ -1066,7 +991,6 @@ function ConvertTo-CimBinding
     )
     begin
     {
-        $cimClassName = 'MSFT_xWebBindingInformation'
         $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
     }
     process
@@ -1076,6 +1000,12 @@ function ConvertTo-CimBinding
             [Hashtable]$CimProperties = @{
                 Protocol           = [String]$binding.protocol
                 BindingInformation = [String]$binding.bindingInformation
+            }
+
+            $cimClassName = switch($CimProperties.Protocol)
+            {
+                'ftp'   { 'MSFT_xFTPBindingInformation' }
+                default { 'MSFT_xWebBindingInformation' }
             }
 
             if ($Binding.Protocol -in @('http', 'https', 'ftp'))
@@ -1108,13 +1038,16 @@ function ConvertTo-CimBinding
                 $cimProperties.Add('HostName',  [String]::Empty)
             }
 
-            if ([Environment]::OSVersion.Version -ge '6.2')
+            if ($Binding.Protocol -ne 'ftp')
             {
-                $cimProperties.Add('SslFlags', [String]$binding.sslFlags)
-            }
+                if ([Environment]::OSVersion.Version -ge '6.2')
+                {
+                    $cimProperties.Add('SslFlags', [String]$binding.sslFlags)
+                }
 
-            $cimProperties.Add('CertificateThumbprint', [String]$binding.certificateHash)
-            $cimProperties.Add('CertificateStoreName',  [String]$binding.certificateStoreName)
+                $cimProperties.Add('CertificateThumbprint', [String]$binding.certificateHash)
+                $cimProperties.Add('CertificateStoreName',  [String]$binding.certificateStoreName)
+            }
 
             New-CimInstance -ClassName $cimClassName `
                             -Namespace $cimNamespace `
@@ -1125,11 +1058,12 @@ function ConvertTo-CimBinding
 }
 
 <#
-.SYNOPSIS
-    Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding>
-    element representation.
-.LINK
-    https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
+    .SYNOPSIS
+        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding>
+        element representation.
+
+    .LINK
+        https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
 #>
 function ConvertTo-WebBinding
 {
@@ -1320,7 +1254,7 @@ function ConvertTo-WebBinding
                         $outputObject.Add('sslFlags', $SslFlags)
                     }
                 }
-                else
+                elseif ($binding.Protocol -ne 'ftp')
                 {
                     # Ignore SSL-related properties for non-SSL bindings
                     $outputObject.Add('certificateHash',      [String]::Empty)
@@ -1350,12 +1284,16 @@ function ConvertTo-WebBinding
                 #>
 
                 $outputObject.Add('bindingInformation',   [String]$binding.bindingInformation)
-                $outputObject.Add('certificateHash',      [String]$binding.certificateHash)
-                $outputObject.Add('certificateStoreName', [String]$binding.certificateStoreName)
 
-                if ([Environment]::OSVersion.Version -ge '6.2')
+                if ($binding.Protocol -ne 'ftp')
                 {
-                    $outputObject.Add('sslFlags', [Int64]$binding.sslFlags)
+                    $outputObject.Add('certificateHash',      [String]$binding.certificateHash)
+                    $outputObject.Add('certificateStoreName', [String]$binding.certificateStoreName)
+
+                    if ([Environment]::OSVersion.Version -ge '6.2')
+                    {
+                        $outputObject.Add('sslFlags', [Int64]$binding.sslFlags)
+                    }
                 }
             }
 
@@ -1365,12 +1303,11 @@ function ConvertTo-WebBinding
 }
 
 <#
-.SYNOPSIS
-    Formats the input IP address string for use in the bindingInformation attribute.
+    .SYNOPSIS
+        Formats the input IP address string for use in the bindingInformation attribute.
 #>
 function Format-IPAddressString
 {
-
     [CmdletBinding()]
     [OutputType([String])]
     param
@@ -1388,29 +1325,18 @@ function Format-IPAddressString
     }
     else
     {
-        try
-        {
-            $ipAddress = [IPAddress]::Parse($InputString)
+        $ipAddress = Test-IPAddress $InputString
 
-            switch ($ipAddress.AddressFamily)
-            {
-                'InterNetwork'
-                {
-                    $outputString = $ipAddress.IPAddressToString
-                }
-                'InterNetworkV6'
-                {
-                    $outputString = '[{0}]' -f $ipAddress.IPAddressToString
-                }
-            }
-        }
-        catch
+        switch ($ipAddress.AddressFamily)
         {
-            $errorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress `
-                            -f $InputString, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' `
-                                 -ErrorMessage $errorMessage `
-                                 -ErrorCategory 'InvalidArgument'
+            'InterNetwork'
+            {
+                $outputString = $ipAddress.IPAddressToString
+            }
+            'InterNetworkV6'
+            {
+                $outputString = '[{0}]' -f $ipAddress.IPAddressToString
+            }
         }
     }
 
@@ -1418,9 +1344,12 @@ function Format-IPAddressString
 }
 
 <#
-.SYNOPSIS
-    Validates the desired binding information (i.e. no duplicate IP address, port, and
-    host name combinations).
+    .SYNOPSIS
+        Validates the desired binding information (i.e. no duplicate IP address, port, and
+        host name combinations).
+
+    .PARAMETER BindingInfo
+        CIM Instances of the binding information.
 #>
 function Test-BindingInfo
 {
@@ -1440,9 +1369,9 @@ function Test-BindingInfo
         # Normalize the input (helper functions will perform additional validations)
         $bindings = @(ConvertTo-WebBinding -InputObject $bindingInfo | ConvertTo-CimBinding)
         $standardBindings = @($bindings | `
-                                Where-Object -FilterScript {$_.Protocol -in @('http', 'https')})
+                                Where-Object -FilterScript {$_.Protocol -in @('http', 'https', 'ftp')})
         $nonStandardBindings = @($bindings | `
-                                 Where-Object -FilterScript {$_.Protocol -notin @('http', 'https')})
+                                 Where-Object -FilterScript {$_.Protocol -notin @('http', 'https', 'ftp')})
 
         if ($standardBindings.Count -ne 0)
         {
@@ -1491,9 +1420,9 @@ function Test-BindingInfo
 }
 
 <#
-.SYNOPSIS
-    Validates that an input string represents a valid port number.
-    The port number must be a positive integer between 1 and 65535.
+    .SYNOPSIS
+        Validates that an input string represents a valid port number.
+        The port number must be a positive integer between 1 and 65535.
 #>
 function Test-PortNumber
 {
@@ -1521,9 +1450,45 @@ function Test-PortNumber
 }
 
 <#
-.SYNOPSIS
-    Helper function used to validate and compare website bindings of current to desired.
-    Returns True if bindings do not need to be updated.
+    .SYNOPSIS
+        Validates that an input string represents a valid IP address.
+#>
+function Test-IPAddress
+{
+    [CmdletBinding()]
+    [OutputType([System.Net.IPAddress])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $InputString
+    )
+
+    try
+    {
+        $ipAddress = [IPAddress]::Parse($InputString)
+    }
+    catch
+    {
+        $errorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress `
+                        -f $InputString, $_.Exception.Message
+        New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' `
+                                -ErrorMessage $errorMessage `
+                                -ErrorCategory 'InvalidArgument'
+    }
+
+    return $ipAddress
+}
+
+<#
+    .SYNOPSIS
+        Helper function used to validate and compare website bindings of current to desired.
+        Returns True if bindings do not need to be updated.
+
+    .PARAMETER Name
+        Specifies name of the website.
+
+    .PARAMETER BindingInfo
+        CIM Instances of the binding information.
 #>
 function Test-WebsiteBinding
 {
@@ -1543,8 +1508,10 @@ function Test-WebsiteBinding
 
     $inDesiredState = $true
 
-    # Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and
-    # host name combinations).
+    <#
+        Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and
+        host name combinations).
+    #>
     if (-not (Test-BindingInfo -BindingInfo $BindingInfo))
     {
         $errorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation `
@@ -1569,8 +1536,10 @@ function Test-WebsiteBinding
                                'certificateHash', `
                                'certificateStoreName'
 
-        # The sslFlags attribute was added in IIS 8.0.
-        # This check is needed for backwards compatibility with Windows Server 2008 R2.
+        <#
+            The sslFlags attribute was added in IIS 8.0.
+            This check is needed for backwards compatibility with Windows Server 2008 R2.
+        #>
         if ([Environment]::OSVersion.Version -ge '6.2')
         {
             $propertiesToCompare += 'sslFlags'
@@ -1596,8 +1565,14 @@ function Test-WebsiteBinding
 }
 
 <#
-.SYNOPSIS
-    Updates website bindings.
+    .SYNOPSIS
+        Updates website bindings.
+
+    .PARAMETER Name
+        Specifies name of the website.
+
+    .PARAMETER BindingInfo
+        CIM Instances of the binding information.
 #>
 function Update-WebsiteBinding
 {
@@ -1614,8 +1589,10 @@ function Update-WebsiteBinding
         $BindingInfo
     )
 
-    # Use Get-WebConfiguration instead of Get-Website to retrieve XPath of the target website.
-    # XPath -Filter is case-sensitive. Use Where-Object to get the target website by name.
+    <#
+        Use Get-WebConfiguration instead of Get-Website to retrieve XPath of the target website.
+        XPath -Filter is case-sensitive. Use Where-Object to get the target website by name.
+    #>
     $website = Get-WebConfiguration -Filter '/system.applicationHost/sites/site' |
         Where-Object -FilterScript {$_.Name -eq $Name}
 

@@ -6,7 +6,6 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        ErrorWebApplicationTestAutoStartProviderFailure        = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key.
         VerboseGetTargetResource                               = Get-TargetResource has been run.
         VerboseSetTargetAbsent                                 = Removing existing Web Application "{0}".
         VerboseSetTargetPresent                                = Creating new Web application "{0}".
@@ -27,7 +26,6 @@ data LocalizedData
         VerboseTestTargetFalseAuthenticationInfo               = AuthenticationInfo for web application "{0}" is not in the desired state.
         VerboseTestTargetFalsePreload                          = Preload for web application "{0}" is not in the desired state.
         VerboseTestTargetFalseAutostart                        = Autostart for web application "{0}" is not in the desired state.
-        VerboseTestTargetFalseAutoStartProviders               = AutoStartProviders for web application "{0}" are not in the desired state.
         VerboseTestTargetFalseIISAutoStartProviders            = AutoStartProviders for IIS are not in the desired state.
         VerboseTestTargetFalseWebApplicationAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
         VerboseTestTargetFalseEnabledProtocols                 = EnabledProtocols for web application "{0}" are not in the desired state.
@@ -61,7 +59,7 @@ function Get-TargetResource
 
     $name = Get-WebApplicationNameFixed -Name $Name
     $webApplication = Get-WebApplication -Site $Website -Name $name
-    $CimAuthentication = Get-AuthenticationInfo -Site $Website -Application $name
+    $CimAuthentication = Get-AuthenticationInfo -Site $Website -Application $name -IisType 'Application'
     $CurrentSslFlags = (Get-SslFlags -Location "${Website}/${name}")
 
     $Ensure = 'Absent'
@@ -144,9 +142,9 @@ function Set-TargetResource
     {
             $webApplication = Get-WebApplication -Site $Website -Name $Name
 
-            if ($AuthenticationInfo -eq $null)
+            if ($null -eq $AuthenticationInfo)
             {
-                $AuthenticationInfo = Get-DefaultAuthenticationInfo
+                $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
             }
 
             if ($webApplication.count -eq 0)
@@ -199,12 +197,11 @@ function Set-TargetResource
                 Set-WebConfigurationProperty @params
             }
 
-            # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-            if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-                (-not (Test-AuthenticationInfo -Site $Website `
+            # Set Authentication; if not defined then pass in Default AuthenticationInfo
+            if (-not (Test-AuthenticationInfo -Site $Website `
                                                -Application $Name `
                                                -IisType 'Application' `
-                                               -AuthenticationInfo $AuthenticationInfo)))
+                                               -AuthenticationInfo $AuthenticationInfo))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo -f $Name)
                 Set-AuthenticationInfo -Site $Website `
@@ -212,23 +209,6 @@ function Set-TargetResource
                                        -IisType 'Application' `
                                        -AuthenticationInfo $AuthenticationInfo `
                                        -ErrorAction Stop `
-            }
-            $DefaultAuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
-            if($null -eq $PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-                (-not (Test-AuthenticationInfo `
-                        -Site $Website `
-                        -Application $Name `
-                        -IisType 'Application' `
-                        -AuthenticationInfo $DefaultAuthenticationInfo)))
-            {
-                $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfo `
-                                        -f $Name)
-                Set-AuthenticationInfo -Site $Website `
-                                        -Application $Name `
-                                        -IisType 'Application' `
-                                        -AuthenticationInfo $DefaultAuthenticationInfo `
-                                        -ErrorAction Stop `
             }
 
             # Update Preload if required
@@ -296,7 +276,6 @@ function Set-TargetResource
         Write-Verbose -Message ($LocalizedData.VerboseSetTargetAbsent -f $Name)
         Remove-WebApplication -Site $Website -Name $Name
     }
-
 }
 
 <#
@@ -352,7 +331,7 @@ function Test-TargetResource
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
-    if ($AuthenticationInfo -eq $null)
+    if ($null -eq $AuthenticationInfo)
     {
         $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Application'
     }
@@ -394,11 +373,10 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-            (-not (Test-AuthenticationInfo -Site $Website `
+        if (-not (Test-AuthenticationInfo -Site $Website `
                                            -Application $Name `
                                            -IisType 'Application' `
-                                           -AuthenticationInfo $AuthenticationInfo)))
+                                           -AuthenticationInfo $AuthenticationInfo))
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo -f $Name)
             return $false
@@ -436,7 +414,7 @@ function Test-TargetResource
             return $false
         }
 
-        # Update EnabledProtocols if required
+        #Update EnabledProtocols if required
         if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and `
             (-not(Confirm-UniqueEnabledProtocols `
                             -ExistingProtocols $webApplication.EnabledProtocols `

@@ -8,83 +8,57 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        ErrorWebsiteNotFound = The requested website "{0}" cannot be found on the target machine.
-        ErrorWebsiteDiscoveryFailure = Failure to get the requested website "{0}" information from the target machine.
-        ErrorWebsiteCreationFailure = Failure to successfully create the website "{0}". Error: "{1}".
-        ErrorWebsiteRemovalFailure = Failure to successfully remove the website "{0}". Error: "{1}".
-        ErrorWebsiteBindingUpdateFailure = Failure to successfully update the bindings for website "{0}". Error: "{1}".
-        ErrorWebsiteBindingInputInvalidation = Desired website bindings are not valid for website "{0}".
-        ErrorWebsiteCompareFailure = Failure to successfully compare properties for website "{0}". Error: "{1}".
-        ErrorWebBindingCertificate = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
-        ErrorWebsiteStateFailure = Failure to successfully set the state of the website "{0}". Error: "{1}".
-        ErrorWebsiteBindingConflictOnStart = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
-        ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property value "{0}". Error: "{1}".
-        ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
-        ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
-        ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
-        ErrorWebBindingMissingSniHostName = The HostName property is required for use with Server Name Indication.
-        ErrorWebBindingInvalidCertificateSubject = The Subject "{0}" provided is not found on this host in store "{1}"
-        ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
-        ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
-        ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
-        ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
-        VerboseSetTargetUpdatedSiteId = Site Id for website "{0}" has been updated to "{1}".
-        VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
-        VerboseGetTargetAbsent = No Website exists with this name.
-        VerboseGetTargetPresent = A single Website exists with this name
-        VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
-        VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
-        VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" have been updated to "{1}".
-        VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
-        VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
-        VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
-        VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
-        VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
-        VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
-        VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
+        ErrorWebsiteDiscoveryFailure                    = Failure to get the requested website "{0}" information from the target machine.
+        ErrorWebsiteCreationFailure                     = Failure to successfully create the website "{0}". Error: "{1}".
+        ErrorWebsiteRemovalFailure                      = Failure to successfully remove the website "{0}". Error: "{1}".
+        ErrorWebsiteStateFailure                        = Failure to successfully set the state of the website "{0}". Error: "{1}".
+        ErrorWebsiteBindingConflictOnStart              = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+        VerboseSetTargetUpdatedSiteId                   = Site Id for website "{0}" has been updated to "{1}".
+        VerboseSetTargetUpdatedPhysicalPath             = Physical Path for website "{0}" has been updated to "{1}".
+        VerboseGetTargetAbsent                          = No Website exists with this name.
+        VerboseGetTargetPresent                         = A single Website exists with this name
+        VerboseSetTargetUpdatedApplicationPool          = Application Pool for website "{0}" has been updated to "{1}".
+        VerboseSetTargetUpdatedBindingInfo              = Bindings for website "{0}" have been updated.
+        VerboseSetTargetUpdatedEnabledProtocols         = Enabled Protocols for website "{0}" have been updated to "{1}".
+        VerboseSetTargetUpdatedState                    = State for website "{0}" has been updated to "{1}".
+        VerboseSetTargetWebsiteCreated                  = Successfully created website "{0}".
+        VerboseSetTargetWebsiteStarted                  = Successfully started website "{0}".
+        VerboseSetTargetWebsiteRemoved                  = Successfully removed website "{0}".
+        VerboseSetTargetAuthenticationInfoUpdated       = Successfully updated AuthenticationInfo on website "{0}".
+        VerboseSetTargetWebsitePreloadUpdated           = Successfully updated Preload on website "{0}".
+        VerboseSetTargetWebsiteAutoStartUpdated         = Successfully updated AutoStart on website "{0}".
         VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
-        VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
-        VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogPeriod = LogPeriod does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
-        VerboseSetTargetUpdateLogTargetW3C = LogTargetW3C is not in the desired state and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogCustomFields = LogCustomFields is not in the desired state and will be updated on Website "{0}"
-        VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
-        VerboseTestTargetFalseSiteId = Site Id of website "{0}" does not match the desired state.
-        VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
-        VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
-        VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
-        VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
-        VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
-        VerboseTestTargetFalseResult = The target resource is not in the desired state.
-        VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
-        VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
-        VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
-        VerboseTestTargetFalseLogPath = LogPath does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogTargetW3C = LogTargetW3C does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogCustomFields = LogCustomFields does not match desired state on Website "{0}".
-        VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
-        VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
-        VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
-        VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
-        VerboseTestBindingInfoSamePortDifferentProtocol = BindingInfo contains items that share the same Port but have different Protocols.
-        VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
-        VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
-        VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
-        WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
-        WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
+        VerboseSetTargetIISAutoStartProviderUpdated     = Successfully updated AutoStartProvider in IIS.
+        VerboseSetTargetUpdateLogPath                   = LogPath does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogFlags                  = LogFlags do not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogPeriod                 = LogPeriod does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogTruncateSize           = TruncateSize does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLoglocalTimeRollover      = LoglocalTimeRollover does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogFormat                 = LogFormat is not in the desired state and will be updated on Website "{0}"
+        VerboseSetTargetUpdateLogTargetW3C              = LogTargetW3C is not in the desired state and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogCustomFields           = LogCustomFields is not in the desired state and will be updated on Website "{0}"
+        VerboseTestTargetFalseEnsure                    = The Ensure state for website "{0}" does not match the desired state.
+        VerboseTestTargetFalseSiteId                    = Site Id of website "{0}" does not match the desired state.
+        VerboseTestTargetFalsePhysicalPath              = Physical Path of website "{0}" does not match the desired state.
+        VerboseTestTargetFalseState                     = The state of website "{0}" does not match the desired state.
+        VerboseTestTargetFalseApplicationPool           = Application Pool for website "{0}" does not match the desired state.
+        VerboseTestTargetFalseBindingInfo               = Bindings for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseEnabledProtocols          = Enabled Protocols for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseDefaultPage               = Default Page for website "{0}" does not match the desired state.
+        VerboseTestTargetTrueResult                     = The target resource is already in the desired state. No action is required.
+        VerboseTestTargetFalseResult                    = The target resource is not in the desired state.
+        VerboseTestTargetFalsePreload                   = Preload for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseAutoStart                 = AutoStart for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseAuthenticationInfo        = AuthenticationInfo for website "{0}" is not in the desired state.
+        VerboseTestTargetFalseLogPath                   = LogPath does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogFlags                  = LogFlags does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogPeriod                 = LogPeriod does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogTruncateSize           = LogTruncateSize does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLoglocalTimeRollover      = LoglocalTimeRollover does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogFormat                 = LogFormat does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogTargetW3C              = LogTargetW3C does not match desired state on Website "{0}".
+        WarningLogPeriod                                = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
+        WarningIncorrectLogFormat                       = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
 '@
 }
 
@@ -99,7 +73,6 @@ data LocalizedData
 #>
 function Get-TargetResource
 {
-
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -277,6 +250,11 @@ function Set-TargetResource
 
     $website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
+    if ($null -eq $AuthenticationInfo)
+    {
+        $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Website'
+    }
+
     if ($Ensure -eq 'Present')
     {
         if ($null -ne $website)
@@ -418,7 +396,8 @@ function Set-TargetResource
                 }
 
                 # New-WebSite has Id parameter instead of SiteId, so it's getting mapped to Id
-                if ($PSBoundParameters.ContainsKey('SiteId')) {
+                if ($PSBoundParameters.ContainsKey('SiteId'))
+                {
                     $newWebsiteSplat.Add('Id', $SiteId)
                 } elseif (-not (Get-WebSite)) {
                     # If there are no other websites and SiteId is missing, specify the Id Parameter for the new website.
@@ -426,7 +405,8 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
-                if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                if ([String]::IsNullOrEmpty($PhysicalPath))
+                {
                     # If no physical path is provided run New-Website with -Force flag
                     $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
                 } else {
@@ -515,11 +495,9 @@ function Set-TargetResource
         }
 
         # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-        $DefaultAuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Website'
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-        (-not (Test-AuthenticationInfo -Site $Name `
+        if (-not (Test-AuthenticationInfo -Site $Name `
                                         -IisType 'Website' `
-                                        -AuthenticationInfo $AuthenticationInfo)))
+                                        -AuthenticationInfo $AuthenticationInfo))
         {
             Set-AuthenticationInfo -Site $Name `
                                     -IisType 'Website' `
@@ -527,18 +505,6 @@ function Set-TargetResource
                                     -ErrorAction Stop
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
                                     -f $Name)
-        }
-        elseif($null -eq $PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-        (-not (Test-AuthenticationInfo -Site $Name `
-                                        -IisType 'Website' `
-                                        -AuthenticationInfo $DefaultAuthenticationInfo)))
-        {
-            Set-AuthenticationInfo -Site $Name `
-                                    -IisType 'Website' `
-                                    -AuthenticationInfo $DefaultAuthenticationInfo `
-                                    -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
-                                -f $Name)
         }
 
         # Update Preload if required
@@ -812,6 +778,11 @@ function Test-TargetResource
 
     $website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
+    if ($null -eq $AuthenticationInfo)
+    {
+        $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Website'
+    }
+
     # Check Ensure
     if (($Ensure -eq 'Present' -and $null -eq $website) -or `
         ($Ensure -eq 'Absent' -and $null -ne $website))
@@ -901,10 +872,9 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-            (-not (Test-AuthenticationInfo -Site $Name `
+        if (-not (Test-AuthenticationInfo -Site $Name `
                                            -IisType 'Website' `
-                                           -AuthenticationInfo $AuthenticationInfo)))
+                                           -AuthenticationInfo $AuthenticationInfo))
         {
             $inDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
@@ -1050,5 +1020,141 @@ function Test-TargetResource
 
     return $inDesiredState
 }
+
+#region DefaultPage functions
+
+<#
+.SYNOPSIS
+    Helper function used to update default pages of website.
+#>
+function Update-DefaultPage
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Name,
+
+        [Parameter(Mandatory = $true)]
+        [String[]]
+        $DefaultPage
+    )
+
+    $allDefaultPages = @(
+        Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
+                             -PSPath "IIS:\Sites\$Name" |
+        ForEach-Object -Process { Write-Output -InputObject $_.value }
+    )
+
+    foreach ($page in $DefaultPage)
+    {
+        if ($allDefaultPages -inotcontains $page)
+        {
+            Add-WebConfiguration -Filter '/system.webServer/defaultDocument/files' `
+                                 -PSPath "IIS:\Sites\$Name" `
+                                 -Value @{ value = $page }
+            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
+                                    -f $Name, $page)
+        }
+    }
+}
+#endregion
+
+#region Log functions
+
+<#
+.SYNOPSIS
+    Helper function used to set the LogCustomField for a website.
+
+.PARAMETER Site
+    Specifies the name of the Website.
+
+.PARAMETER LogCustomField
+    A CimInstance collection of what the LogCustomField should be.
+#>
+function Set-LogCustomField
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Site,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomField
+    )
+
+    $setCustomFields = @()
+    foreach ($customField in $LogCustomField)
+    {
+        $setCustomFields += @{
+            logFieldName = $customField.LogFieldName
+            sourceName = $customField.SourceName
+            sourceType = $customField.SourceType
+        }
+    }
+
+    # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
+    for ($i = 1; $i -le 2; $i++)
+    {
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
+    }
+}
+
+<#
+.SYNOPSIS
+    Helper function used to test the LogCustomField state for a website.
+
+.PARAMETER Site
+    Specifies the name of the Website.
+
+.PARAMETER LogCustomField
+    A CimInstance collection of what state the LogCustomField should be.
+#>
+function Test-LogCustomField
+{
+    [CmdletBinding()]
+    [OutputType([Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Site,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomField
+    )
+
+    $inDesiredSate = $true
+
+    foreach ($customField in $LogCustomField)
+    {
+        $filterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields/add[@logFieldName='{1}']" -f $Site, $customField.LogFieldName
+        $presentCustomField = Get-WebConfigurationProperty -Filter $filterString -Name "."
+
+        if ($presentCustomField)
+        {
+            $sourceNameMatch = $customField.SourceName -eq $presentCustomField.SourceName
+            $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
+            if (-not ($sourceNameMatch -and $sourceTypeMatch))
+            {
+                $inDesiredSate = $false
+            }
+        }
+        else
+        {
+            $inDesiredSate = $false
+        }
+    }
+
+    return $inDesiredSate
+}
+#endregion
 
 Export-ModuleMember -Function *-TargetResource
