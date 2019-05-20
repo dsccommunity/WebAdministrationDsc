@@ -193,12 +193,12 @@ try
                     $Result.PhysicalPath | Should Be $MockWebsite.PhysicalPath
                 }
 
-                It 'Should return PhysicalPathAccessUserName' {
-                    $Result.PhysicalPathAccessUserName | Should -Be $MockWebsite.userName
+                It 'Should return PhysicalPathAccessAccount' {
+                    $Result.PhysicalPathAccessAccount | Should -Be $MockWebsite.userName
                 }
 
-                It 'Should return PhysicalPathAccessPassword' {
-                    $Result.PhysicalPathAccessPassword | Should -Be $MockWebsite.password
+                It 'Should return PhysicalPathAccessPass' {
+                    $Result.PhysicalPathAccessPass | Should -Be $MockWebsite.password
                 }
 
                 It 'Should return State' {
@@ -444,33 +444,33 @@ try
             }
 
             $MockParameters = @{
-                Ensure                     = 'Present'
-                Name                       = 'MockFtp'
-                PhysicalPath               = 'C:\NonExistent'
-                PhysicalPathAccessUsername = 'MockUser'
-                PhysicalPathAccessPassword = 'MockPassword'
-                State                      = 'Stopped'
-                ApplicationPool            = 'MockFtpPool'
-                AuthorizationInfo          = $MockAuthorizationInfo
-                BindingInfo                = $MockBindingInfo
-                SslInfo                    = $MockSslInfo
-                FirewallIPAddress          = '192.168.0.20'
-                StartingDataChannelPort    = 10550
-                EndingDataChannelPort      = 10600
-                GreetingMessage            = 'Mock hello'
-                ExitMessage                = 'Mock exit'
-                BannerMessage              = 'Mock banner'
-                MaxClientsMessage          = 'Mock message max client'
-                SuppressDefaultBanner      = $false
-                AllowLocalDetailedErrors   = $true
-                ExpandVariablesInMessages  = $false
-                LogPath                    = '%SystemDrive%\DifferentLogFiles'
-                LogFlags                   = @('Date','Time','ClientIP','UserName','ServerIP')
-                LogPeriod                  = 'Hourly'
-                LogTruncateSize            = '2048570'
-                LoglocalTimeRollover       = $true
-                DirectoryBrowseFlags       = 'StyleUnix'
-                UserIsolation              = 'StartInUsersDirectory'
+                Ensure                    = 'Present'
+                Name                      = 'MockFtp'
+                PhysicalPath              = 'C:\NonExistent'
+                PhysicalPathAccessAccount = 'MockUser'
+                PhysicalPathAccessPass    = 'MockPassword'
+                State                     = 'Stopped'
+                ApplicationPool           = 'MockFtpPool'
+                AuthorizationInfo         = $MockAuthorizationInfo
+                BindingInfo               = $MockBindingInfo
+                SslInfo                   = $MockSslInfo
+                FirewallIPAddress         = '192.168.0.20'
+                StartingDataChannelPort   = 10550
+                EndingDataChannelPort     = 10600
+                GreetingMessage           = 'Mock hello'
+                ExitMessage               = 'Mock exit'
+                BannerMessage             = 'Mock banner'
+                MaxClientsMessage         = 'Mock message max client'
+                SuppressDefaultBanner     = $false
+                AllowLocalDetailedErrors  = $true
+                ExpandVariablesInMessages = $false
+                LogPath                   = '%SystemDrive%\DifferentLogFiles'
+                LogFlags                  = @('Date','Time','ClientIP','UserName','ServerIP')
+                LogPeriod                 = 'Hourly'
+                LogTruncateSize           = '2048570'
+                LoglocalTimeRollover      = $true
+                DirectoryBrowseFlags      = 'StyleUnix'
+                UserIsolation             = 'StartInUsersDirectory'
             }
 
             $MockWebsite = @{
@@ -515,7 +515,7 @@ try
                 }
             }
 
-            Context 'Check PhysicalPathAccessUsername is different' {
+            Context 'Check PhysicalPathAccessAccount is different' {
 
                 Mock -CommandName Get-WebConfiguration
                 Mock -CommandName Test-AuthenticationInfo -MockWith {return $true}
@@ -525,14 +525,14 @@ try
 
                 $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                               -Name $MockParameters.Name `
-                                              -PhysicalPathAccessUsername $MockParameters.PhysicalPathAccessUsername
+                                              -PhysicalPathAccessAccount $MockParameters.PhysicalPathAccessAccount
 
                 It 'Should return False' {
                     $Result | Should Be $false
                 }
             }
 
-            Context 'Check PhysicalPathAccessPassword is different' {
+            Context 'Check PhysicalPathAccessPass is different' {
 
                 Mock -CommandName Get-WebConfiguration
                 Mock -CommandName Test-AuthenticationInfo -MockWith {return $true}
@@ -542,7 +542,7 @@ try
 
                 $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                               -Name $MockParameters.Name `
-                                              -PhysicalPathAccessPassword $MockParameters.PhysicalPathAccessPassword
+                                              -PhysicalPathAccessPass $MockParameters.PhysicalPathAccessPass
 
                 It 'Should return False' {
                     $Result | Should Be $false
@@ -1004,33 +1004,33 @@ try
                                 }
 
             $MockParameters = @{
-                Ensure                     = 'Present'
-                Name                       = 'MockFtp'
-                PhysicalPath               = 'C:\NonExistent'
-                PhysicalPathAccessUsername = 'MockUser'
-                PhysicalPathAccessPassword = 'MockPassword'
-                State                      = 'Started'
-                ApplicationPool            = 'MockFtpPool'
-                AuthenticationInfo         = $MockAuthenticationInfo
-                AuthorizationInfo          = $MockAuthorizationInfo
-                BindingInfo                = $MockBindingInfo
-                SslInfo                    = $MockSslInfo
-                FirewallIPAddress          = ''
-                StartingDataChannelPort    = 0
-                EndingDataChannelPort      = 0
-                GreetingMessage            = 'Mock hello'
-                ExitMessage                = 'Mock exit'
-                BannerMessage              = 'Mock banner'
-                MaxClientsMessage          = 'Mock message max client'
-                SuppressDefaultBanner      = $false
-                AllowLocalDetailedErrors   = $true
-                ExpandVariablesInMessages  = $false
-                LogPath                    = '%SystemDrive%\LogFiles'
-                LogFlags                   = @('Date','Time','ClientIP','UserName','ServerIP','Method')
-                LogPeriod                  = 'Daily'
-                LoglocalTimeRollover       = $true
-                DirectoryBrowseFlags       = 'StyleUnix'
-                UserIsolation              = 'StartInUsersDirectory'
+                Ensure                    = 'Present'
+                Name                      = 'MockFtp'
+                PhysicalPath              = 'C:\NonExistent'
+                PhysicalPathAccessAccount = 'MockUser'
+                PhysicalPathAccessPass    = 'MockPassword'
+                State                     = 'Started'
+                ApplicationPool           = 'MockFtpPool'
+                AuthenticationInfo        = $MockAuthenticationInfo
+                AuthorizationInfo         = $MockAuthorizationInfo
+                BindingInfo               = $MockBindingInfo
+                SslInfo                   = $MockSslInfo
+                FirewallIPAddress         = ''
+                StartingDataChannelPort   = 0
+                EndingDataChannelPort     = 0
+                GreetingMessage           = 'Mock hello'
+                ExitMessage               = 'Mock exit'
+                BannerMessage             = 'Mock banner'
+                MaxClientsMessage         = 'Mock message max client'
+                SuppressDefaultBanner     = $false
+                AllowLocalDetailedErrors  = $true
+                ExpandVariablesInMessages = $false
+                LogPath                   = '%SystemDrive%\LogFiles'
+                LogFlags                  = @('Date','Time','ClientIP','UserName','ServerIP','Method')
+                LogPeriod                 = 'Daily'
+                LoglocalTimeRollover      = $true
+                DirectoryBrowseFlags      = 'StyleUnix'
+                UserIsolation             = 'StartInUsersDirectory'
             }
 
             $DifferentMockLogOutput = @{

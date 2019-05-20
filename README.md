@@ -36,7 +36,8 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **Ensure**: Ensures that the FTP Site is **Present** or **Absent**.
 * **Name**: The desired name of the website.
 * **PhysicalPath**: The path to the files that compose the website.
-* **PhysicalPathCredential**: Specific account used for connection to physical path. *Note* In case of using SMB as a physical path and target server doesn't share identity database with device/server hosting the share, local user account must be created with the same username/password used for the access, section 'More Information' [support.microsoft.com](https://support.microsoft.com/en-us/help/247099/access-denied-when-connecting-to-a-ftp-directory-that-uses-a-unc-path)
+* **PhysicalPathAccessAccount**: Specific username used for access to physical path. *Note* In case of using SMB as a physical path and target server doesn't share identity database with device/server hosting the share, local user account must be created with the same username/password used for the access, section 'More Information' [support.microsoft.com](https://support.microsoft.com/en-us/help/247099/access-denied-when-connecting-to-a-ftp-directory-that-uses-a-unc-path)
+* **PhysicalPathAccessPass**: Specifies password used for access to physical path.
 * **State**: The state of the website: { Started | Stopped }
 * **ApplicationPool**: The FTP Site’s application pool.
 * **AuthenticationInformation**: FTP Site's authentication information in the form of an embedded instance of the **MSFT_FTPAuthenticationInformation** CIM class. **MSFT_FTPAuthenticationInformation** take the following properties:

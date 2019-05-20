@@ -15,14 +15,14 @@ configuration MSFT_FTP_Present
     {
         FTP FTPSite
         {
-            Ensure                     = 'Present'
-            Name                       = $Node.Name
-            ApplicationPool            = $Node.ApplicationPool
-            PhysicalPath               = $Node.PhysicalPath
-            PhysicalPathAccessUserName = $Node.PhysicalPathAccessUserName
-            PhysicalPathAccessPassword = $Node.PhysicalPathAccessPassword
-            State                      = $Node.State
-            AuthenticationInfo         = `
+            Ensure                    = 'Present'
+            Name                      = $Node.Name
+            ApplicationPool           = $Node.ApplicationPool
+            PhysicalPath              = $Node.PhysicalPath
+            PhysicalPathAccessAccount = $Node.PhysicalPathAccessAccount
+            PhysicalPathAccessPass    = $Node.PhysicalPathAccessPass
+            State                     = $Node.State
+            AuthenticationInfo        = `
                 MSFT_FTPAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous

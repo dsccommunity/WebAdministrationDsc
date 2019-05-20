@@ -8,8 +8,8 @@
             State                         = 'Started'
             ApplicationPool               = 'DefaultAppPool'
             PhysicalPath                  = 'C:\inetpub\ftproot'
-            PhysicalPathAccessUserName    = 'mockFtpUser'
-            PhysicalPathAccessPassword    = 'P@$$w0rdP@55wOrd'
+            PhysicalPathAccessAccount     = 'mockFtpUser'
+            PhysicalPathAccessPass        = 'P@$$w0rdP@55wOrd'
             AuthenticationInfoAnonymous   = $false
             AuthenticationInfoBasic       = $true
             AuthorizationInfoAccessType1  = 'Allow'

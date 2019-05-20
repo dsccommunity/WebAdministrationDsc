@@ -4,8 +4,8 @@ class MSFT_FTP : OMI_BaseResource
     [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
     [Key, Description("Specifies the name of the FTP site.")] String Name;
     [Write, Description("Specifies physical location of the FTP site.")] String PhysicalPath;
-    [Write, Description("Specifies the username for physical path access of the FTP site.")] String PhysicalPathAccessUsername;
-    [Write, Description("Specifies the password for physical path access of the FTP site.")] String PhysicalPathAccessPassword;
+    [Write, Description("Specifies the username for physical path access of the FTP site.")] String PhysicalPathAccessAccount;
+    [Write, Description("Specifies the password for physical path access of the FTP site.")] String PhysicalPathAccessPass;
     [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
     [Write, Description("Specifies the name of the application pool to be used.")] String ApplicationPool;
     [Write, EmbeddedInstance("MSFT_FTPAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic)")] String AuthenticationInfo;
