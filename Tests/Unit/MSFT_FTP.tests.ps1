@@ -1,5 +1,5 @@
 ﻿$script:DSCModuleName       = 'xWebAdministration'
-$script:DSCResourceName     = 'MSFT_xFTP'
+$script:DSCResourceName     = 'MSFT_FTP'
 $script:DSCHelperModuleName = 'Helper'
 
 #region HEADER
@@ -21,7 +21,7 @@ try
 {
     #region Pester Tests
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        $script:DSCResourceName     = 'MSFT_xFTP'
+        $script:DSCResourceName     = 'MSFT_FTP'
         $script:DSCHelperModuleName = 'Helper'
 
         Describe "how $DSCResourceName\Get-TargetResource responds" {
@@ -35,7 +35,7 @@ try
             }
 
             $MockAuthenticationInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPAuthenticationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthenticationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -45,7 +45,7 @@ try
             )
 
             $MockAuthorizationInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -64,7 +64,7 @@ try
             )
 
             $MockSslInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPSslInformation `
+                New-CimInstance -ClassName MSFT_FTPSslInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -337,7 +337,7 @@ try
         Describe "how $DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
 
             $MockAuthenticationInfo = New-CimInstance `
-                                        -ClassName MSFT_xFTPAuthenticationInformation `
+                                        -ClassName MSFT_FTPAuthenticationInformation `
                                         -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                         -ClientOnly `
                                         -Property @{
@@ -346,7 +346,7 @@ try
                                         }
 
             $MockAuthorizationInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -358,7 +358,7 @@ try
             )
 
             $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPBindingInformation `
+                New-CimInstance -ClassName MSFT_FTPBindingInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -369,7 +369,7 @@ try
             )
 
             $MockSslInfo = New-CimInstance `
-                                -ClassName MSFT_xFTPSslInformation `
+                                -ClassName MSFT_FTPSslInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -942,7 +942,7 @@ try
         Describe "how $DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
 
             $MockAuthenticationInfo = New-CimInstance `
-                                            -ClassName MSFT_xFTPAuthenticationInformation `
+                                            -ClassName MSFT_FTPAuthenticationInformation `
                                             -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                             -ClientOnly `
                                             -Property @{
@@ -951,7 +951,7 @@ try
                                             }
 
             $MockAuthorizationInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -963,7 +963,7 @@ try
             )
 
             $MockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPBindingInformation `
+                New-CimInstance -ClassName MSFT_FTPBindingInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -974,7 +974,7 @@ try
             )
 
             $MockSslInfo = New-CimInstance `
-                                -ClassName MSFT_xFTPSslInformation `
+                                -ClassName MSFT_FTPSslInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1026,7 +1026,7 @@ try
             }
 
             $DifferentMockAuthenticationInfo = New-CimInstance `
-                                                    -ClassName MSFT_xFTPAuthenticationInformation `
+                                                    -ClassName MSFT_FTPAuthenticationInformation `
                                                     -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                                     -ClientOnly `
                                                     -Property @{
@@ -1035,7 +1035,7 @@ try
                                                     }
 
             $DifferentMockAuthorizationInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1047,7 +1047,7 @@ try
             )
 
             $DifferentMockBindingInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPBindingInformation `
+                New-CimInstance -ClassName MSFT_FTPBindingInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1058,7 +1058,7 @@ try
             )
 
             $DifferentMockSslInfo = New-CimInstance `
-                                        -ClassName MSFT_xFTPSslInformation `
+                                        -ClassName MSFT_FTPSslInformation `
                                         -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                         -ClientOnly `
                                         -Property @{
@@ -1392,7 +1392,7 @@ try
             )
 
             $MockUserAuthorizationInfo = New-CimInstance `
-                                            -ClassName MSFT_xFTPAuthorizationInformation `
+                                            -ClassName MSFT_FTPAuthorizationInformation `
                                             -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                             -ClientOnly `
                                             -Property @{
@@ -1403,7 +1403,7 @@ try
                                             }
 
             $MockGroupAuthorizationInfo = New-CimInstance `
-                                            -ClassName MSFT_xFTPAuthorizationInformation `
+                                            -ClassName MSFT_FTPAuthorizationInformation `
                                             -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                             -ClientOnly `
                                             -Property @{
@@ -1467,7 +1467,7 @@ try
         Describe "how $DSCResourceName\Confirm-UniqueSslInfo responds" {
 
             $MockSslInfo = New-CimInstance `
-                                    -ClassName MSFT_xFTPSslInformation `
+                                    -ClassName MSFT_FTPSslInformation `
                                     -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                     -ClientOnly `
                                     -Property @{
@@ -1479,7 +1479,7 @@ try
                                     }
 
             $MockSslInfoSingle = New-CimInstance `
-                                    -ClassName MSFT_xFTPSslInformation `
+                                    -ClassName MSFT_FTPSslInformation `
                                     -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                     -ClientOnly `
                                     -Property @{
@@ -1790,7 +1790,7 @@ try
         Describe "how $DSCResourceName\Set-SslInfo responds" {
 
             $MockSslInfo = New-CimInstance `
-                                -ClassName MSFT_xFTPSslInformation `
+                                -ClassName MSFT_FTPSslInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1802,7 +1802,7 @@ try
                                 }
 
             $MockSslInfoSingle = New-CimInstance `
-                                    -ClassName MSFT_xFTPSslInformation `
+                                    -ClassName MSFT_FTPSslInformation `
                                     -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                     -ClientOnly `
                                     -Property @{
@@ -1840,7 +1840,7 @@ try
             $MockFtpSiteName = 'FTP'
 
             $MockAuthorizationInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1849,7 +1849,7 @@ try
                                     roles       = 'Group1'
                                     permissions = 'Read'
                                 }
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1882,7 +1882,7 @@ try
             $MockFtpSiteName = 'FTP'
 
             $MockAuthorizationInfo = @(
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1891,7 +1891,7 @@ try
                                     roles       = ''
                                     permissions = 'Read'
                                 }
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1900,7 +1900,7 @@ try
                                     roles       = ''
                                     permissions = 'Write'
                                 }
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{
@@ -1909,7 +1909,7 @@ try
                                     roles       = 'Group2'
                                     permissions = 'Read'
                                 }
-                New-CimInstance -ClassName MSFT_xFTPAuthorizationInformation `
+                New-CimInstance -ClassName MSFT_FTPAuthorizationInformation `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                 -ClientOnly `
                                 -Property @{

@@ -1369,7 +1369,7 @@ try
                     Site               = 'MockName'
                     IisType            = 'Ftp'
                     AuthenticationInfo = (
-                        New-CimInstance -ClassName MSFT_xFTPAuthenticationInformation -ClientOnly `
+                        New-CimInstance -ClassName MSFT_FTPAuthenticationInformation -ClientOnly `
                                         -Property @{Anonymous=$false;Basic=$true} `
                                         -Namespace 'root/microsoft/Windows/DesiredStateConfiguration'
                     )
@@ -1400,7 +1400,7 @@ try
                     Site               = 'MockName'
                     IisType            = 'Ftp'
                     AuthenticationInfo = (
-                        New-CimInstance -ClassName MSFT_xFTPAuthenticationInformation -ClientOnly `
+                        New-CimInstance -ClassName MSFT_FTPAuthenticationInformation -ClientOnly `
                                         -Property @{Anonymous=$true;Basic=$true} `
                                         -Namespace 'root/microsoft/Windows/DesiredStateConfiguration'
                     )
@@ -1501,7 +1501,7 @@ try
                                     -Namespace 'root/microsoft/Windows/DesiredStateConfiguration'
 
             $ftpAuthenticationInfo = New-CimInstance `
-                                    -ClassName MSFT_xFTPAuthenticationInformation `
+                                    -ClassName MSFT_FTPAuthenticationInformation `
                                     -ClientOnly -Property @{Anonymous=$true;Basic=$false} `
                                     -Namespace 'root/microsoft/Windows/DesiredStateConfiguration'
 
@@ -1726,7 +1726,7 @@ try
                 }
                 @{
                     protocol       = 'ftp'
-                    className      = 'MSFT_xFTPBindingInformation'
+                    className      = 'MSFT_FTPBindingInformation'
                 }
             )
 
@@ -1809,7 +1809,7 @@ try
             Context 'Expected behaviour for FTP' {
 
                 $MockBindingInfo = @(
-                    New-CimInstance -ClassName MSFT_xFTPBindingInformation `
+                    New-CimInstance -ClassName MSFT_FTPBindingInformation `
                                     -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                     -ClientOnly `
                                     -Property @{
@@ -2206,7 +2206,7 @@ try
                 }
                 @{
                     MockBindingInfo = @(
-                        New-CimInstance -ClassName MSFT_xFTPBindingInformation `
+                        New-CimInstance -ClassName MSFT_FTPBindingInformation `
                                         -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                         -ClientOnly `
                                         -Property @{
@@ -2382,7 +2382,7 @@ try
                         }
                     }
                     BindingInfo = @(
-                        New-CimInstance -ClassName MSFT_xFTPBindingInformation `
+                        New-CimInstance -ClassName MSFT_FTPBindingInformation `
                                         -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                         -ClientOnly `
                                         -Property @{
@@ -2660,7 +2660,7 @@ try
         Describe "$DSCResourceName\Test-BindingInfo" {
 
             $ftpMockBindingInfo = New-CimInstance `
-                                        -ClassName MSFT_xFTPBindingInformation `
+                                        -ClassName MSFT_FTPBindingInformation `
                                         -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' `
                                         -ClientOnly `
                                         -Property @{

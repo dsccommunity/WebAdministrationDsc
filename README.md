@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xFTP**, **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **FTP**, **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -31,7 +31,7 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 
 ## Resources
 
-### xFTP
+### FTP
 
 * **Ensure**: Ensures that the FTP Site is **Present** or **Absent**.
 * **Name**: The desired name of the website.
@@ -39,21 +39,21 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **PhysicalPathCredential**: Specific account used for connection to physical path. *Note* In case of using SMB as a physical path and target server doesn't share identity database with device/server hosting the share, local user account must be created with the same username/password used for the access, section 'More Information' [support.microsoft.com](https://support.microsoft.com/en-us/help/247099/access-denied-when-connecting-to-a-ftp-directory-that-uses-a-unc-path)
 * **State**: The state of the website: { Started | Stopped }
 * **ApplicationPool**: The FTP Site’s application pool.
-* **AuthenticationInformation**: FTP Site's authentication information in the form of an embedded instance of the **MSFT_xFTPAuthenticationInformation** CIM class. **MSFT_xFTPAuthenticationInformation** take the following properties:
+* **AuthenticationInformation**: FTP Site's authentication information in the form of an embedded instance of the **MSFT_FTPAuthenticationInformation** CIM class. **MSFT_FTPAuthenticationInformation** take the following properties:
     * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
     * **Basic**: The acceptable values for this property are: `$true`, `$false`
-* **AuthorizationInformation**: FTP Site's authorization information in the form of an array of embedded instances of the **MSFT_xFTPAuthorizationInformation** CIM class. **MSFT_xFTPAuthorizationInformation** take the following properties:
+* **AuthorizationInformation**: FTP Site's authorization information in the form of an array of embedded instances of the **MSFT_FTPAuthorizationInformation** CIM class. **MSFT_FTPAuthorizationInformation** take the following properties:
     * **AccessType**: The acceptable values for this property are: `Allow`, `Deny`
     * **Users**: Users which can have desired access. *Note* If using groups pass in '' for the users. To add authorization information for 'All Users' specify `'*'` as a value and for 'All Anonymous Users' - `'?'`.
     * **Roles**: Groups which can have desired access. *Note* If using users pass in '' for the group.
     * **Permissions**: The acceptable values for this property are: `Read`, `Write`, `Read,Write`
-* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xFTPBindingInformation** CIM class that implements the following properties:
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_FTPBindingInformation** CIM class that implements the following properties:
     * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `ftp`.
     * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
     * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
     * **Port**: The port of the binding. The value must be a positive integer between `1` and `65535`. This property is only applicable for `http` (the default value is `80`) and `https` (the default value is `443`) bindings.
     * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
-* **SslInfo**: FTP Site's ssl information in the form of an embedded instance of the **MSFT_xFTPSslInformation** CIM class. **MSFT_xFTPSslInformation** takes the following properties:
+* **SslInfo**: FTP Site's ssl information in the form of an embedded instance of the **MSFT_FTPSslInformation** CIM class. **MSFT_FTPSslInformation** takes the following properties:
     * **ControlChannelPolicy**: The acceptable values for this property are: `SslAllow`, `SslRequire`, `SslRequireCredentialsOnly`},Values{`SslAllow`, `SslRequire`, `SslRequireCredentialsOnly`
     * **DataChannelPolicy**: The acceptable values for this property are: `SslAllow`, `SslRequire`, `SslDeny`
     * **RequireSsl128**: `$true`, `$false`
@@ -366,7 +366,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-* Added **xFTP** resource for managing FTP sites [#81](https://github.com/PowerShell/xWebAdministration/issues/81)
+* Added **FTP** resource for managing FTP sites [#81](https://github.com/PowerShell/xWebAdministration/issues/81)
 * BEHAVIOR CHANGED: For **xWebsite** and **xWebApplcation** if AuthenticationInformation was not specified Default($false) is assumed.
 
 ### 2.6.0.0

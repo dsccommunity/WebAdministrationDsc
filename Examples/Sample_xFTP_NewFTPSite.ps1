@@ -1,4 +1,4 @@
-﻿configuration Sample_xFTP_NewFTPsite
+﻿configuration Sample_FTP_NewFTPsite
 {
     param(
 
@@ -27,7 +27,7 @@
 
     Node $NodeName
     {
-        xFTP NewFTPSite
+        FTP NewFTPSite
         {
             Ensure            = 'Present'
             Name              = $Name
@@ -35,7 +35,7 @@
             PhysicalPath      = $FTPSitePath
             State             = 'Started'
             AuthorizationInfo = @(
-                MSFT_xFTPAuthorizationInformation
+                MSFT_FTPAuthorizationInformation
                 {
                     AccessType  = 'Allow'
                     Users       = 'User1'
@@ -43,14 +43,14 @@
                     Permissions = 'Read'
                 })
             BindingInfo = `
-                MSFT_xFTPBindingInformation
+                MSFT_FTPBindingInformation
                 {
                     Protocol = 'ftp'
                     Port     = '21'
                     HostName = 'ftp.somesite.com'
                 }
             SslInfo = `
-                MSFT_xFTPSslInformation
+                MSFT_FTPSslInformation
                 {
                     ControlChannelPolicy  = 'SslAllow'
                     DataChannelPolicy     = 'SslAllow'

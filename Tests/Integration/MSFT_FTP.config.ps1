@@ -1,6 +1,6 @@
 ﻿#requires -Version 4
 
-configuration MSFT_xFTP_Present
+configuration MSFT_FTP_Present
 {
     param(
 
@@ -13,51 +13,51 @@ configuration MSFT_xFTP_Present
 
     Node $AllNodes.NodeName
     {
-        xFTP FTP
+        FTP FTPSite
         {
             Ensure                 = 'Present'
             Name                   = $Node.Name
             ApplicationPool        = $Node.ApplicationPool
             PhysicalPath           = $Node.PhysicalPath
-             PhysicalPathCredential = New-Object System.Management.Automation.PSCredential ($Node.PhysicalPathUserName, `
+            PhysicalPathCredential = New-Object System.Management.Automation.PSCredential ($Node.PhysicalPathUserName, `
                                          (ConvertTo-SecureString -String $Node.PhysicalPathPassword -AsPlainText -Force))
             State                  = $Node.State
             AuthenticationInfo     = `
-                MSFT_xFTPAuthenticationInformation
+                MSFT_FTPAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
                 }
             AuthorizationInfo  = @(
-                MSFT_xFTPAuthorizationInformation
+                MSFT_FTPAuthorizationInformation
                 {
                     AccessType  = $Node.AuthorizationInfoAccessType1
                     Users       = $Node.AuthorizationInfoUsers1
                     Roles       = ''
                     Permissions = $Node.AuthorizationInfoPermissions1
                 };
-                MSFT_xFTPAuthorizationInformation
+                MSFT_FTPAuthorizationInformation
                 {
                     AccessType  = $Node.AuthorizationInfoAccessType1
                     Users       = $Node.AuthorizationInfoUsers2
                     Roles       = ''
                     Permissions = $Node.AuthorizationInfoPermissions3
                 };
-                MSFT_xFTPAuthorizationInformation
+                MSFT_FTPAuthorizationInformation
                 {
                     AccessType  = $Node.AuthorizationInfoAccessType2
                     Users       = $Node.AuthorizationInfoUsers3
                     Roles       = ''
                     Permissions = $Node.AuthorizationInfoPermissions1
                 };
-                MSFT_xFTPAuthorizationInformation
+                MSFT_FTPAuthorizationInformation
                 {
                     AccessType  = $Node.AuthorizationInfoAccessType1
                     Users       = ''
                     Roles       = $Node.AuthorizationInfoRoles
                     Permissions = $Node.AuthorizationInfoPermissions1
                 };
-                MSFT_xFTPAuthorizationInformation
+                MSFT_FTPAuthorizationInformation
                 {
                     AccessType  = $Node.AuthorizationInfoAccessType2
                     Users       = ''
@@ -65,14 +65,14 @@ configuration MSFT_xFTP_Present
                     Permissions = $Node.AuthorizationInfoPermissions2
                 })
             BindingInfo = `
-                MSFT_xFTPBindingInformation
+                MSFT_FTPBindingInformation
                 {
                     Protocol = $Node.BindingInfoProtocol
                     Port     = $Node.BindingInfoPort
                     HostName = $Node.BindingInfoHostName
                 }
             SslInfo = `
-                MSFT_xFTPSslInformation
+                MSFT_FTPSslInformation
                 {
                     ControlChannelPolicy  = $Node.SslInfoControlChannelPolicy
                     DataChannelPolicy     = $Node.SslInfoDataChannelPolicy
@@ -100,17 +100,17 @@ configuration MSFT_xFTP_Present
     }
 }
 
-configuration MSFT_xFTP_Absent
+configuration MSFT_FTP_Absent
 {
 
     Import-DscResource -ModuleName xWebAdministration
 
     Node $AllNodes.NodeName
     {
-        xFTP FTP
+        FTP FTPSite
         {
             Ensure = 'Absent'
-            Name = $Node.Name
+            Name   = $Node.Name
 
         }
     }

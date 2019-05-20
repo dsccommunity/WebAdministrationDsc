@@ -1,16 +1,16 @@
-[ClassVersion("2.0.0"), FriendlyName("xFTP")]
-class MSFT_xFTP : OMI_BaseResource
+[ClassVersion("2.0.0"), FriendlyName("FTP")]
+class MSFT_FTP : OMI_BaseResource
 {
     [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
-    [Key] String Name;
+    [Key, Description("Specifies the name of the FTP site.")] String Name;
     [Write] String PhysicalPath;
     [Write,EmbeddedInstance("MSFT_Credential")] String PhysicalPathCredential;
     [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
     [Write] String ApplicationPool;
-    [Write, EmbeddedInstance("MSFT_xFTPAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic)")] String AuthenticationInfo;
-    [Write, EmbeddedInstance("MSFT_xFTPAuthorizationInformation"), Description("Hashtable containing authentication information (AccessType, Roles, Permissions, Users)")] String AuthorizationInfo[];
-    [Write, EmbeddedInstance("MSFT_xFTPBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xFTPBindingInformation CIM class.")] String BindingInfo[];
-    [Write, EmbeddedInstance("MSFT_xFTPSslInformation"), Description("Hashtable containing Ssl information (ControlChannelPolicy, DataChannelPolicy, RequireSsl128, CertificateThumbprint, CertificateStoreName)")] String SslInfo;
+    [Write, EmbeddedInstance("MSFT_FTPAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic)")] String AuthenticationInfo;
+    [Write, EmbeddedInstance("MSFT_FTPAuthorizationInformation"), Description("Hashtable containing authentication information (AccessType, Roles, Permissions, Users)")] String AuthorizationInfo[];
+    [Write, EmbeddedInstance("MSFT_FTPBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_FTPBindingInformation CIM class.")] String BindingInfo[];
+    [Write, EmbeddedInstance("MSFT_FTPSslInformation"), Description("Hashtable containing Ssl information (ControlChannelPolicy, DataChannelPolicy, RequireSsl128, CertificateThumbprint, CertificateStoreName)")] String SslInfo;
     [Write, Description ("The external firewall IP address used for passive connections")] String FirewallIPAddress;
     [Write, Description ("The starting port number in port range used for data connections in passive mode")] UInt16 StartingDataChannelPort;
     [Write, Description ("The ending port number in port range used for data connections in passive mode")] UInt16 EndingDataChannelPort;
@@ -31,7 +31,7 @@ class MSFT_xFTP : OMI_BaseResource
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xFTPSslInformation
+class MSFT_FTPSslInformation
 {
     [Write,ValueMap{"SslAllow", "SslRequire", "SslRequireCredentialsOnly"},Values{"SslAllow", "SslRequire", "SslRequireCredentialsOnly"}] String ControlChannelPolicy;
     [Write,ValueMap{"SslAllow", "SslRequire", "SslDeny"},Values{"SslAllow", "SslRequire", "SslDeny"}] String DataChannelPolicy;
@@ -41,7 +41,7 @@ class MSFT_xFTPSslInformation
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xFTPBindingInformation
+class MSFT_FTPBindingInformation
 {
     [Required,ValueMap{"ftp"},Values{"ftp"}] String Protocol;
     [Write] String BindingInformation;
@@ -51,7 +51,7 @@ class MSFT_xFTPBindingInformation
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xFTPAuthorizationInformation
+class MSFT_FTPAuthorizationInformation
 {
     [Write,ValueMap{"Allow", "Deny"},Values{"Allow", "Deny"}] String AccessType;
     [Write] String Roles;
@@ -60,7 +60,7 @@ class MSFT_xFTPAuthorizationInformation
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xFTPAuthenticationInformation
+class MSFT_FTPAuthenticationInformation
 {
     [Write] Boolean Anonymous;
     [Write] Boolean Basic;

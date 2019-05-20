@@ -1,78 +1,10 @@
 ﻿# Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        ErrorftpSiteDiscoveryFailure                    = Failure to get the requested ftpSite "{0}" information from the target machine.
-        ErrorftpSiteCreationFailure                     = Failure to successfully create the ftpSite "{0}". Error: "{1}".
-        ErrorftpSiteRemovalFailure                      = Failure to successfully remove the ftpSite "{0}". Error: "{1}".
-        ErrorftpSiteStateFailure                        = Failure to successfully set the state of the website "{0}". Error: "{1}".
-        ErrorServerCertHashFailure                      = No such cert with the hash of "{0}" exists under store "{1}".
-        VerboseGetTargetAbsent                          = No ftpSite exists with this name.
-        VerboseGetTargetPresent                         = A single ftpSite exists with this name.
-        VerboseSetTargetftpSiteCreated                  = Successfully created ftpSite "{0}".
-        VerboseSetTargetftpSiteRemoved                  = Successfully removed ftpSite "{0}".
-        VerboseSetTargetAuthenticationInfoUpdated       = Successfully updated AuthenticationInfo on ftpSite "{0}".
-        VerboseSetTargetAuthorizationInfoUpdated        = Successfully updated AuthorizationInfo on ftpSite "{0}".
-        VerboseSetTargetUpdateAllowLocalDetailedErrors  = Successfully updated AllowLocalDetailedErrors on ftpSite "{0}".
-        VerboseSetTargetUpdateBannerMessage             = Successfully updated Banner message on ftpSite "{0}".
-        VerboseSetTargetUpdatedApplicationPool          = Successfully updated ApplicationPool on ftpSite "{0}".
-        VerboseSetTargetUpdatedBindingInfo              = Successfully updated BindingInfo on ftpSite "{0}".
-        VerboseSetTargetUpdateDirectoryBrowseFlags      = Successfully updated DirectoryBrowseFlags on ftpSite "{0}".
-        VerboseSetTargetUpdateEndingDataChannelPort     = Successfully updated ending data channel port on ftpSite "{0}".
-        VerboseSetTargetUpdateExitMessage               = Successfully updated Exit message on ftpSite "{0}".
-        VerboseSetTargetUpdateExpandVariablesInMessages = Successfully updated ExpandVariablesInMessages on ftpSite "{0}".
-        VerboseSetTargetUpdateExternalIPaddress         = Successfully updated external firewall IP address on ftpSite "{0}".
-        VerboseSetTargetUpdateGreetingMessage           = Successfully updated Greeting message on ftpSite "{0}".
-        VerboseSetTargetUpdateLogFlags                  = Successfully updated LogFlags on ftpSite "{0}".
-        VerboseSetTargetUpdateLoglocalTimeRollover      = Successfully updated LoglocalTimeRollover on ftpSite "{0}".
-        VerboseSetTargetUpdateLogPath                   = Successfully updated LogPath on ftpSite "{0}".
-        VerboseSetTargetUpdateLogPeriod                 = Successfully updated LogPeriod on ftpSite "{0}".
-        VerboseSetTargetUpdateLogTruncateSize           = Successfully updated TruncateSize on ftpSite "{0}".
-        VerboseSetTargetUpdateMaxClientsMessage         = Successfully updated MaxClients message on ftpSite "{0}".
-        VerboseSetTargetUpdatedPhysicalPath             = Successfully updated PhysicalPath on ftpSite "{0}".
-        VerboseSetTargetUpdatePhysicalPathCredential    = Successfully updated PhysicalPathCredential on ftpSite "{0}".
-        VerboseSetTargetUpdatedState                    = Successfully updated State on ftpSite "{0}".
-        VerboseSetTargetUpdateSslInfo                   = Successfully updated SslInfo on ftpSite "{0}".
-        VerboseSetTargetUpdateStartingDataChannelPort   = Successfully updated starting data channel port on ftpSite "{0}".
-        VerboseSetTargetUpdateSuppressDefaultBanner     = Successfully updated SuppressDefaultBanner on ftpSite "{0}".
-        VerboseSetTargetUpdateUserIsolation             = Successfully updated UserIsolation on ftpSite "{0}".
-        VerboseTestTargetFalseAllowLocalDetailedErrors  = AllowLocalDetailedErrors for ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseApplicationPool           = Application Pool for ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseAuthenticationInfo        = AuthenticationInfo for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseAuthorizationInfo         = AuthorizationInfo for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseBannerMessage             = BannerMessage for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseBindingInfo               = BindingInfo for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseDirectoryBrowseFlags      = DirectoryBrowseFlags for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseEndingDataChannelPort     = Ending data channel port for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseEnsure                    = The Ensure state for ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseExitMessage               = ExitMessage for ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseExpandVariablesInMessages = ExpandVariablesInMessages for ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseExternalIPaddress         = The external firewall IP address for ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseGreetingMessage           = GreetingMessage for ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseLogFlags                  = LogFlags for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseLoglocalTimeRollover      = LoglocalTimeRollover for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseLogPath                   = LogPath for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseLogPeriod                 = LogPeriod for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseLogTruncateSize           = LogTruncateSize for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseMaxClientsMessage         = MaxClientsMessage for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseSslInfo                   = SslInfo for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseStartingDataChannelPort   = Starting data channel port for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalseState                     = The state of ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseSuppressDefaultBanner     = SuppressDefaultBanner for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetFalsePhysicalPath              = Physical Path of ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalsePhysicalPathCredential    = PhysicalPathCredential of ftpSite "{0}" does not match the desired state.
-        VerboseTestTargetFalseUserIsolation             = UserIsolation for ftpSite "{0}" is not in the desired state.
-        VerboseTestTargetTrueResult                     = The target resource is already in the desired state. No action is required.
-        VerboseTestTargetFalseResult                    = The target resource is not in the desired state.
-        VerboseStartWebsite                             = Successfully started ftpSite "{0}".
-        VerboseStopWebsite                              = Successfully stopped ftpSite "{0}".
-        WarningLogPeriod                                = LogTruncateSize is specified as an input so LogPeriod input will be ignored and set to "MaxSize" on Website "{0}".
-'@
-}
+# Import Localization Strings
+$localizedData = Get-LocalizedData `
+    -ResourceName 'MSFT_FTP' `
+    -ResourcePath (Split-Path -Parent $Script:MyInvocation.MyCommand.Path)
 
 <#
     .SYNOPSIS
@@ -91,7 +23,8 @@ function Get-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] $Name
+        [String]
+        $Name
     )
 
     Assert-Module
@@ -167,81 +100,224 @@ function Get-TargetResource
     .SYNOPSIS
         The Set-TargetResource cmdlet is used to create, delete or configure a ftpSite on the
         target machine.
+
+    .PARAMETER Name
+        Specifies the name of the FTP Site.
+
+    .PARAMETER Ensure
+        Specifies whether the FTP site should be present.
+
+    .PARAMETER PhysicalPath
+        Specifies physical folder location for FTP site.
+
+    .PARAMETER PhysicalPathCredential
+        Specifies credential object for physical path access.
+
+    .PARAMETER State
+        Specifies state of the FTP site whether it should be Started or Stopped.
+
+    .PARAMETER ApplicationPool
+        Specifies name of the application pool to use.
+
+    .PARAMETER AuthenticationInfo
+        Specifies the authentication settings for FTP site in the form of embedded instance of
+        the MSFT_FTPAuthenticationInformation CIM class. Possible properties are: Anonymous, Basic.
+
+    .PARAMETER AuthorizationInfo
+        Specifies the authorization settings for FTP site in the form of array of embedded instances of
+        the MSFT_FTPAuthorizationInformation CIM class. Possible properties are: AccessType, Roles,
+        Permissions, Users.
+
+    .PARAMETER SslInfo
+        Specifies the FTP over Secure Sockets Layer (SSL) settings for the FTP service in the
+        form of embedded instance of the MSFT_FTPSslInformation CIM class. Possible properties
+        are: ControlChannelPolicy, DataChannelPolicy, RequireSsl128, CertificateThumbprint,
+        CertificateStoreName.
+
+    .PARAMETER BindingInfo
+        Specifies binding information for the FTP site in the form of embedded instance of the
+        MSFT_FTPBindingInformation CIM class. Possible properties are: Protocol, BindingInformation,
+        IPAddress, Port, HostName.
+
+    .PARAMETER FirewallIPAddress
+        Specifies the external firewall IP address used for passive connections.
+
+    .PARAMETER StartingDataChannelPort
+        Specifies starting port number in port range used for data connections in passive mode.
+
+    .PARAMETER EndingDataChannelPort
+        Specifies ending port number in port range used for data connections in passive mode.
+
+    .PARAMETER GreetingMessage
+        Specifies message the FTP server displays when FTP clients have logged in to the FTP server.
+
+    .PARAMETER ExitMessage
+        Specifies message the FTP server displays when FTP clients log off the FTP server.
+
+    .PARAMETER BannerMessage
+        Specifies message the FTP server displays when FTP clients first connect to the FTP server.
+
+    .PARAMETER MaxClientsMessage
+        Specifies message when clients cannot connect because the FTP service has reached the maximum number of client connections allowed.
+
+    .PARAMETER SuppressDefaultBanner
+        Specifies whether to display the default identification banner for the FTP server or not.
+
+    .PARAMETER AllowLocalDetailedErrors
+        Specifies whether to display detailed error messages on the local host.
+
+    .PARAMETER ExpandVariablesInMessages
+        Specifies whether to display a specific set of user variables in FTP messages.
+
+    .PARAMETER LogFlags
+        Specifies the categories of information that are written to the log file.
+
+    .PARAMETER LogPath
+        Specifies the directory to be used for storing logfiles.
+
+    .PARAMETER LogPeriod
+        Specifies how often the FTP service creates a new log file.
+
+    .PARAMETER LogTruncateSize
+        Specifies the maximum size of the log file (in bytes) after which to create a new log file.
+        This value is only applicable when MaxSize is chosen for the LogPeriod attribute.
+
+    .PARAMETER LoglocalTimeRollover
+        Specifies whether new log file is created based on local time or UTC.
+
+    .PARAMETER DirectoryBrowseFlags
+        Specifies content settings for directory browsing on FTP site.
+
+    .PARAMETER UserIsolation
+        Specifies to which folder users access should be restricted on a single FTP server.
 #>
 function Set-TargetResource
 {
     [CmdletBinding()]
     param
     (
-        [ValidateSet('Present', 'Absent')]
-        [String] $Ensure = 'Present',
-
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] $Name,
+        [String]
+        $Name,
 
+        [Parameter()]
+        [ValidateSet('Present', 'Absent')]
+        [String]
+        $Ensure = 'Present',
+
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [String] $PhysicalPath,
+        [String]
+        $PhysicalPath,
 
+        [Parameter()]
         [System.Management.Automation.CredentialAttribute()]
         [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential] $PhysicalPathCredential,
+        [System.Management.Automation.PSCredential]
+        $PhysicalPathCredential,
 
+        [Parameter()]
         [ValidateSet('Started', 'Stopped')]
-        [String] $State = 'Started',
+        [String]
+        $State = 'Started',
 
         # The application pool name must contain between 1 and 64 characters
+        [Parameter()]
         [ValidateLength(1, 64)]
-        [String] $ApplicationPool,
+        [String]
+        $ApplicationPool,
 
-        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo,
 
-        [Microsoft.Management.Infrastructure.CimInstance[]] $AuthorizationInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AuthorizationInfo,
 
-        [Microsoft.Management.Infrastructure.CimInstance] $SslInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $SslInfo,
 
-        [Microsoft.Management.Infrastructure.CimInstance[]] $BindingInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $BindingInfo,
 
-        [String] $FirewallIPAddress,
+        [Parameter()]
+        [String]
+        $FirewallIPAddress,
 
+        [Parameter()]
         [ValidateScript({$_ -eq 0 -or $_ -in 1025 .. 65535})]
-        [uint16] $StartingDataChannelPort,
+        [uint16]
+        $StartingDataChannelPort,
 
+        [Parameter()]
         [ValidateScript({$_ -eq 0 -or $_ -in 1025 .. 65535})]
-        [uint16] $EndingDataChannelPort,
+        [uint16]
+        $EndingDataChannelPort,
 
-        [String] $GreetingMessage,
+        [Parameter()]
+        [String]
+        $GreetingMessage,
 
-        [String] $ExitMessage,
+        [Parameter()]
+        [String]
+        $ExitMessage,
 
-        [String] $BannerMessage,
+        [Parameter()]
+        [String]
+        $BannerMessage,
 
-        [String] $MaxClientsMessage,
+        [Parameter()]
+        [String]
+        $MaxClientsMessage,
 
-        [Boolean] $SuppressDefaultBanner,
+        [Parameter()]
+        [Boolean]
+        $SuppressDefaultBanner,
 
-        [Boolean] $AllowLocalDetailedErrors,
+        [Parameter()]
+        [Boolean]
+        $AllowLocalDetailedErrors,
 
-        [Boolean] $ExpandVariablesInMessages,
+        [Parameter()]
+        [Boolean]
+        $ExpandVariablesInMessages,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')]
-        [String[]] $LogFlags,
+        [String[]]
+        $LogFlags,
 
-        [String] $LogPath,
+        [Parameter()]
+        [String]
+        $LogPath,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        [String] $LogPeriod,
+        [String]
+        $LogPeriod,
 
+        [Parameter()]
         [ValidateRange('1048576','4294967295')]
-        [String] $LogTruncateSize,
+        [String]
+        $LogTruncateSize,
 
-        [Boolean] $LoglocalTimeRollover,
+        [Parameter()]
+        [Boolean]
+        $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('StyleUnix','LongDate','DisplayAvailableBytes','DisplayVirtualDirectories')]
-        [String[]] $DirectoryBrowseFlags,
+        [String[]]
+        $DirectoryBrowseFlags,
 
+        [Parameter()]
         [ValidateSet('None','StartInUsersDirectory','IsolateAllDirectories','IsolateRootDirectoryOnly')]
-        [String] $UserIsolation
+        [String]
+        $UserIsolation
     )
 
     Assert-Module
@@ -684,6 +760,96 @@ function Set-TargetResource
     .SYNOPSIS
         The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
         expected in the instance document.
+
+    .PARAMETER Name
+        Specifies the name of the FTP Site.
+
+    .PARAMETER Ensure
+        Specifies whether the FTP site should be present.
+
+    .PARAMETER PhysicalPath
+        Specifies physical folder location for FTP site.
+
+    .PARAMETER PhysicalPathCredential
+        Specifies credential object for physical path access.
+
+    .PARAMETER State
+        Specifies state of the FTP site whether it should be Started or Stopped.
+
+    .PARAMETER ApplicationPool
+        Specifies name of the application pool to use.
+
+    .PARAMETER AuthenticationInfo
+        Specifies the authentication settings for FTP site in the form of embedded instance of
+        the MSFT_FTPAuthenticationInformation CIM class. Possible properties are: Anonymous, Basic.
+
+    .PARAMETER AuthorizationInfo
+        Specifies the authorization settings for FTP site in the form of array of embedded instances of
+        the MSFT_FTPAuthorizationInformation CIM class. Possible properties are: AccessType, Roles,
+        Permissions, Users.
+
+    .PARAMETER SslInfo
+        Specifies the FTP over Secure Sockets Layer (SSL) settings for the FTP service in the
+        form of embedded instance of the MSFT_FTPSslInformation CIM class. Possible properties
+        are: ControlChannelPolicy, DataChannelPolicy, RequireSsl128, CertificateThumbprint,
+        CertificateStoreName.
+
+    .PARAMETER BindingInfo
+        Specifies binding information for the FTP site in the form of embedded instance of the
+        MSFT_FTPBindingInformation CIM class. Possible properties are: Protocol, BindingInformation,
+        IPAddress, Port, HostName.
+
+    .PARAMETER FirewallIPAddress
+        Specifies the external firewall IP address used for passive connections.
+
+    .PARAMETER StartingDataChannelPort
+        Specifies starting port number in port range used for data connections in passive mode.
+
+    .PARAMETER EndingDataChannelPort
+        Specifies ending port number in port range used for data connections in passive mode.
+
+    .PARAMETER GreetingMessage
+        Specifies message the FTP server displays when FTP clients have logged in to the FTP server.
+
+    .PARAMETER ExitMessage
+        Specifies message the FTP server displays when FTP clients log off the FTP server.
+
+    .PARAMETER BannerMessage
+        Specifies message the FTP server displays when FTP clients first connect to the FTP server.
+
+    .PARAMETER MaxClientsMessage
+        Specifies message when clients cannot connect because the FTP service has reached the maximum number of client connections allowed.
+
+    .PARAMETER SuppressDefaultBanner
+        Specifies whether to display the default identification banner for the FTP server or not.
+
+    .PARAMETER AllowLocalDetailedErrors
+        Specifies whether to display detailed error messages on the local host.
+
+    .PARAMETER ExpandVariablesInMessages
+        Specifies whether to display a specific set of user variables in FTP messages.
+
+    .PARAMETER LogFlags
+        Specifies the categories of information that are written to the log file.
+
+    .PARAMETER LogPath
+        Specifies the directory to be used for storing logfiles.
+
+    .PARAMETER LogPeriod
+        Specifies how often the FTP service creates a new log file.
+
+    .PARAMETER LogTruncateSize
+        Specifies the maximum size of the log file (in bytes) after which to create a new log file.
+        This value is only applicable when MaxSize is chosen for the LogPeriod attribute.
+
+    .PARAMETER LoglocalTimeRollover
+        Specifies whether new log file is created based on local time or UTC.
+
+    .PARAMETER DirectoryBrowseFlags
+        Specifies content settings for directory browsing on FTP site.
+
+    .PARAMETER UserIsolation
+        Specifies to which folder users access should be restricted on a single FTP server.
 #>
 function Test-TargetResource
 {
@@ -691,75 +857,128 @@ function Test-TargetResource
     [OutputType([Boolean])]
     param
     (
-        [ValidateSet('Present', 'Absent')]
-        [String] $Ensure = 'Present',
-
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] $Name,
+        [String]
+        $Name,
 
+        [Parameter()]
+        [ValidateSet('Present', 'Absent')]
+        [String]
+        $Ensure = 'Present',
+
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [String] $PhysicalPath,
+        [String]
+        $PhysicalPath,
 
+        [Parameter()]
         [System.Management.Automation.CredentialAttribute()]
         [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential] $PhysicalPathCredential,
+        [System.Management.Automation.PSCredential]
+        $PhysicalPathCredential,
 
+        [Parameter()]
         [ValidateSet('Started', 'Stopped')]
-        [String] $State = 'Started',
+        [String]
+        $State = 'Started',
 
         # The application pool name must contain between 1 and 64 characters
+        [Parameter()]
         [ValidateLength(1, 64)]
-        [String] $ApplicationPool,
+        [String]
+        $ApplicationPool,
 
-        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo,
 
-        [Microsoft.Management.Infrastructure.CimInstance[]] $AuthorizationInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AuthorizationInfo,
 
-        [Microsoft.Management.Infrastructure.CimInstance] $SslInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $SslInfo,
 
-        [Microsoft.Management.Infrastructure.CimInstance[]] $BindingInfo,
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $BindingInfo,
 
-        [String] $FirewallIPAddress,
+        [Parameter()]
+        [String]
+        $FirewallIPAddress,
 
+        [Parameter()]
         [ValidateScript({$_ -eq 0 -or $_ -in 1025 .. 65535})]
-        [uint16] $StartingDataChannelPort,
+        [uint16]
+        $StartingDataChannelPort,
 
+        [Parameter()]
         [ValidateScript({$_ -eq 0 -or $_ -in 1025 .. 65535})]
-        [uint16] $EndingDataChannelPort,
+        [uint16]
+        $EndingDataChannelPort,
 
-        [String] $GreetingMessage,
+        [Parameter()]
+        [String]
+        $GreetingMessage,
 
-        [String] $ExitMessage,
+        [Parameter()]
+        [String]
+        $ExitMessage,
 
-        [String] $BannerMessage,
+        [Parameter()]
+        [String]
+        $BannerMessage,
 
-        [String] $MaxClientsMessage,
+        [Parameter()]
+        [String]
+        $MaxClientsMessage,
 
-        [Boolean] $SuppressDefaultBanner,
+        [Parameter()]
+        [Boolean]
+        $SuppressDefaultBanner,
 
-        [Boolean] $AllowLocalDetailedErrors,
+        [Parameter()]
+        [Boolean]
+        $AllowLocalDetailedErrors,
 
-        [Boolean] $ExpandVariablesInMessages,
+        [Parameter()]
+        [Boolean]
+        $ExpandVariablesInMessages,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')]
-        [String[]] $LogFlags,
+        [String[]]
+        $LogFlags,
 
-        [String] $LogPath,
+        [Parameter()]
+        [String]
+        $LogPath,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
-        [String] $LogPeriod,
+        [String]
+        $LogPeriod,
 
+        [Parameter()]
         [ValidateRange('1048576','4294967295')]
-        [String] $LogTruncateSize,
+        [String]
+        $LogTruncateSize,
 
-        [Boolean] $LoglocalTimeRollover,
+        [Parameter()]
+        [Boolean]
+        $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('StyleUnix','LongDate','DisplayAvailableBytes','DisplayVirtualDirectories')]
-        [String[]] $DirectoryBrowseFlags,
+        [String[]]
+        $DirectoryBrowseFlags,
 
+        [Parameter()]
         [ValidateSet('None','StartInUsersDirectory','IsolateAllDirectories','IsolateRootDirectoryOnly')]
-        [String] $UserIsolation
+        [String]
+        $UserIsolation
     )
 
     Assert-Module
@@ -1040,11 +1259,13 @@ function Compare-DirectoryBrowseFlags
     (
         [Parameter(Mandatory = $true)]
         [ValidateSet('StyleUnix','LongDate','DisplayAvailableBytes','DisplayVirtualDirectories')]
-        [String[]] $DirectoryBrowseflags,
+        [String[]]
+        $DirectoryBrowseflags,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] $Site
+        [String]
+        $Site
 
     )
 
@@ -1065,7 +1286,7 @@ function Compare-DirectoryBrowseFlags
 <#
     .SYNOPSIS
         Helper function used to validate that the Authorization is unique to current
-        per CimInstance of MSFT_xFTPAuthorizationInformation.
+        per CimInstance of MSFT_FTPAuthorizationInformation.
 
     .PARAMETER CurrentAuthorizationCollection
         Specifies PSCustomObject of the current Authorization collection defined on the
@@ -1089,15 +1310,18 @@ function Confirm-UniqueFTPAuthorization
     (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [PSCustomObject[]] $CurrentAuthorizationCollection,
+        [PSCustomObject[]]
+        $CurrentAuthorizationCollection,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance] $Authorization,
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $Authorization,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('users','roles')]
-        [String] $Property
+        [String]
+        $Property
     )
 
     $desiredObject = New-Object -TypeName PSObject -Property @{
@@ -1155,11 +1379,13 @@ function Confirm-UniqueSslInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance] $SslInfo
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $SslInfo
     )
 
     $Store = $SslInfo.CertificateStoreName
@@ -1219,7 +1445,8 @@ function Get-AuthorizationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site
+        [String]
+        $Site
     )
 
     $authCollections = (Get-WebConfiguration `
@@ -1236,7 +1463,7 @@ function Get-AuthorizationInfo
         }
 
         $authorizationInfo += New-CimInstance `
-                                -ClassName MSFT_xFTPAuthorizationInformation `
+                                -ClassName MSFT_FTPAuthorizationInformation `
                                 -ClientOnly -Property $authorizationProperties `
                                 -Namespace 'root/microsoft/Windows/DesiredStateConfiguration'
     }
@@ -1258,7 +1485,8 @@ function Get-SslInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site
+        [String]
+        $Site
     )
 
     $sslProperties = @{}
@@ -1283,7 +1511,7 @@ function Get-SslInfo
         }
     }
 
-    return New-CimInstance -ClassName MSFT_xFTPSslInformation `
+    return New-CimInstance -ClassName MSFT_FTPSslInformation `
                            -ClientOnly -Property $sslProperties `
                            -Namespace 'root/microsoft/Windows/DesiredStateConfiguration'
 }
@@ -1304,11 +1532,13 @@ function Set-FTPAuthorization
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance[]] $AuthorizationInfo
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AuthorizationInfo
     )
 
     Clear-WebConfiguration `
@@ -1349,11 +1579,13 @@ function Set-SslInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance] $SslInfo
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $SslInfo
     )
 
     foreach ($value in ($SslInfo.CimInstanceProperties | Where-Object {$null -ne $_.Value}).Name)
@@ -1391,11 +1623,13 @@ function Test-AuthorizationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance[]] $AuthorizationInfo
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AuthorizationInfo
     )
 
     $currentFtpAuthorizationInfo = (Get-WebConfiguration `

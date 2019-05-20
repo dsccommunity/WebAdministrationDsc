@@ -46,14 +46,17 @@ function New-TerminatingError
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory)]
-        [String] $ErrorId,
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ErrorId,
 
-        [Parameter(Mandatory)]
-        [String] $ErrorMessage,
+        [Parameter(Mandatory = $true)]
+        [String]
+        $ErrorMessage,
 
-        [Parameter(Mandatory)]
-        [System.Management.Automation.ErrorCategory] $ErrorCategory
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.ErrorCategory]
+        $ErrorCategory
     )
 
     $exception = New-Object System.InvalidOperationException $ErrorMessage
@@ -74,7 +77,9 @@ function Assert-Module
     [CmdletBinding()]
     param
     (
-        [String]$ModuleName = 'WebAdministration'
+        [Parameter()]
+        [String]
+        $ModuleName = 'WebAdministration'
     )
 
     if(-not(Get-Module -Name $ModuleName -ListAvailable))
@@ -421,13 +426,17 @@ function Get-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
-        [String] $Application,
+        [Parameter()]
+        [String]
+        $Application,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
-        [String] $IisType
+        [String]
+        $IisType
     )
 
     $authAvailable = Get-DefaultAuthenticationInfo -IisType $IisType
@@ -460,7 +469,8 @@ function Get-DefaultAuthenticationInfo
     (
         [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
-        [String] $IisType
+        [String]
+        $IisType
     )
 
     $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
@@ -482,7 +492,7 @@ function Get-DefaultAuthenticationInfo
 
         Ftp
         {
-            New-CimInstance -ClassName MSFT_xFTPAuthenticationInformation `
+            New-CimInstance -ClassName MSFT_FTPAuthenticationInformation `
                 -ClientOnly -Namespace $cimNamespace `
                 -Property @{Anonymous=$false;Basic=$false}
         }
@@ -517,19 +527,26 @@ function Set-Authentication
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
-        [String] $Application,
+        [Parameter()]
+        [String]
+        $Application,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
-        [String] $IisType,
+        [String]
+        $IisType,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String] $Type,
+        [String]
+        $Type,
 
-        [System.Boolean] $Enabled
+        [Parameter()]
+        [System.Boolean]
+        $Enabled
     )
 
     $Location = "${Site}"
@@ -578,17 +595,22 @@ function Set-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
-        [String] $Application,
+        [Parameter()]
+        [String]
+        $Application,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
-        [String ]$IisType,
+        [String]
+        $IisType,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo
     )
 
     $Properties = ($AuthenticationInfo.CimInstanceProperties | Where-Object {$null -ne $_.Value}).Name | Sort-Object
@@ -627,17 +649,22 @@ function Test-AuthenticationEnabled
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
-        [String] $Application,
+        [Parameter()]
+        [String]
+        $Application,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
-        [String] $IisType,
+        [String]
+        $IisType,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String] $Type
+        [String]
+        $Type
     )
 
     $Location = "${Site}"
@@ -690,17 +717,22 @@ function Test-AuthenticationInfo
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Site,
+        [String]
+        $Site,
 
-        [String] $Application,
+        [Parameter()]
+        [String]
+        $Application,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Website','Application','Ftp')]
-        [String] $IisType,
+        [String]
+        $IisType,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance] $AuthenticationInfo
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $AuthenticationInfo
     )
 
     $Properties = ($AuthenticationInfo.CimInstanceProperties | Where-Object {$null -ne $_.Value}).Name | Sort-Object
@@ -915,7 +947,7 @@ function Confirm-UniqueBinding
         [String]
         $Name,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [Switch]
         $ExcludeStopped
     )
@@ -1004,7 +1036,7 @@ function ConvertTo-CimBinding
 
             $cimClassName = switch($CimProperties.Protocol)
             {
-                'ftp'   { 'MSFT_xFTPBindingInformation' }
+                'ftp'   { 'MSFT_FTPBindingInformation' }
                 default { 'MSFT_xWebBindingInformation' }
             }
 
@@ -1584,7 +1616,7 @@ function Update-WebsiteBinding
         [String]
         $Name,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo
     )

@@ -1,5 +1,5 @@
 ﻿$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xFTP'
+$script:DSCResourceName = 'MSFT_FTP'
 
 #region HEADER
 [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
