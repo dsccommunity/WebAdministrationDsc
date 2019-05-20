@@ -8,98 +8,71 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData -StringData @'
-        ErrorWebsiteNotFound = The requested website "{0}" cannot be found on the target machine.
-        ErrorWebsiteDiscoveryFailure = Failure to get the requested website "{0}" information from the target machine.
-        ErrorWebsiteCreationFailure = Failure to successfully create the website "{0}". Error: "{1}".
-        ErrorWebsiteRemovalFailure = Failure to successfully remove the website "{0}". Error: "{1}".
-        ErrorWebsiteBindingUpdateFailure = Failure to successfully update the bindings for website "{0}". Error: "{1}".
-        ErrorWebsiteBindingInputInvalidation = Desired website bindings are not valid for website "{0}".
-        ErrorWebsiteCompareFailure = Failure to successfully compare properties for website "{0}". Error: "{1}".
-        ErrorWebBindingCertificate = Failure to add certificate to web binding. Please make sure that the certificate thumbprint "{0}" is valid. Error: "{1}".
-        ErrorWebsiteStateFailure = Failure to successfully set the state of the website "{0}". Error: "{1}".
-        ErrorWebsiteBindingConflictOnStart = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
-        ErrorWebBindingInvalidIPAddress = Failure to validate the IPAddress property value "{0}". Error: "{1}".
-        ErrorWebBindingInvalidPort = Failure to validate the Port property value "{0}". The port number must be a positive integer between 1 and 65535.
-        ErrorWebBindingMissingBindingInformation = The BindingInformation property is required for bindings of type "{0}".
-        ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
-        ErrorWebBindingMissingSniHostName = The HostName property is required for use with Server Name Indication.
-        ErrorWebBindingInvalidCertificateSubject = The Subject "{0}" provided is not found on this host in store "{1}"
-        ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
-        ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
-        ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
-        ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
-        VerboseSetTargetUpdatedSiteId = Site Id for website "{0}" has been updated to "{1}".
-        VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
-        VerboseGetTargetAbsent = No Website exists with this name.
-        VerboseGetTargetPresent = A single Website exists with this name
-        VerboseSetTargetUpdatedApplicationPool = Application Pool for website "{0}" has been updated to "{1}".
-        VerboseSetTargetUpdatedBindingInfo = Bindings for website "{0}" have been updated.
-        VerboseSetTargetUpdatedEnabledProtocols = Enabled Protocols for website "{0}" have been updated to "{1}".
-        VerboseSetTargetUpdatedState = State for website "{0}" has been updated to "{1}".
-        VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
-        VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
-        VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
-        VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
-        VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
-        VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
+        ErrorWebsiteDiscoveryFailure                    = Failure to get the requested website "{0}" information from the target machine.
+        ErrorWebsiteCreationFailure                     = Failure to successfully create the website "{0}". Error: "{1}".
+        ErrorWebsiteRemovalFailure                      = Failure to successfully remove the website "{0}". Error: "{1}".
+        ErrorWebsiteStateFailure                        = Failure to successfully set the state of the website "{0}". Error: "{1}".
+        ErrorWebsiteBindingConflictOnStart              = Website "{0}" could not be started due to binding conflict. Ensure that the binding information for this website does not conflict with any existing website's bindings before trying to start it.
+        VerboseSetTargetUpdatedSiteId                   = Site Id for website "{0}" has been updated to "{1}".
+        VerboseSetTargetUpdatedPhysicalPath             = Physical Path for website "{0}" has been updated to "{1}".
+        VerboseGetTargetAbsent                          = No Website exists with this name.
+        VerboseGetTargetPresent                         = A single Website exists with this name
+        VerboseSetTargetUpdatedApplicationPool          = Application Pool for website "{0}" has been updated to "{1}".
+        VerboseSetTargetUpdatedBindingInfo              = Bindings for website "{0}" have been updated.
+        VerboseSetTargetUpdatedEnabledProtocols         = Enabled Protocols for website "{0}" have been updated to "{1}".
+        VerboseSetTargetUpdatedState                    = State for website "{0}" has been updated to "{1}".
+        VerboseSetTargetWebsiteCreated                  = Successfully created website "{0}".
+        VerboseSetTargetWebsiteStarted                  = Successfully started website "{0}".
+        VerboseSetTargetWebsiteRemoved                  = Successfully removed website "{0}".
+        VerboseSetTargetAuthenticationInfoUpdated       = Successfully updated AuthenticationInfo on website "{0}".
+        VerboseSetTargetWebsitePreloadUpdated           = Successfully updated Preload on website "{0}".
+        VerboseSetTargetWebsiteAutoStartUpdated         = Successfully updated AutoStart on website "{0}".
         VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
-        VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
-        VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogPeriod = LogPeriod does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogTruncateSize = TruncateSize does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLoglocalTimeRollover = LoglocalTimeRollover does not match and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogFormat = LogFormat is not in the desired state and will be updated on Website "{0}"
-        VerboseSetTargetUpdateLogTargetW3C = LogTargetW3C is not in the desired state and will be updated on Website "{0}".
-        VerboseSetTargetUpdateLogCustomFields = LogCustomFields is not in the desired state and will be updated on Website "{0}"
-        VerboseTestTargetFalseEnsure = The Ensure state for website "{0}" does not match the desired state.
-        VerboseTestTargetFalseSiteId = Site Id of website "{0}" does not match the desired state.
-        VerboseTestTargetFalsePhysicalPath = Physical Path of website "{0}" does not match the desired state.
-        VerboseTestTargetFalseState = The state of website "{0}" does not match the desired state.
-        VerboseTestTargetFalseApplicationPool = Application Pool for website "{0}" does not match the desired state.
-        VerboseTestTargetFalseBindingInfo = Bindings for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseEnabledProtocols = Enabled Protocols for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
-        VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
-        VerboseTestTargetFalseResult = The target resource is not in the desired state.
-        VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
-        VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
-        VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
-        VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
-        VerboseTestTargetFalseLogPath = LogPath does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogTruncateSize = LogTruncateSize does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogTargetW3C = LogTargetW3C does not match desired state on Website "{0}".
-        VerboseTestTargetFalseLogCustomFields = LogCustomFields does not match desired state on Website "{0}".
-        VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
-        VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
-        VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
-        VerboseTestBindingInfoSameIPAddressPortHostName = BindingInfo contains multiple items with the same IPAddress, Port, and HostName combination.
-        VerboseTestBindingInfoSamePortDifferentProtocol = BindingInfo contains items that share the same Port but have different Protocols.
-        VerboseTestBindingInfoSameProtocolBindingInformation = BindingInfo contains multiple items with the same Protocol and BindingInformation combination.
-        VerboseTestBindingInfoInvalidCatch = Unable to validate BindingInfo: "{0}".
-        VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
-        WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
-        WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
+        VerboseSetTargetIISAutoStartProviderUpdated     = Successfully updated AutoStartProvider in IIS.
+        VerboseSetTargetUpdateLogPath                   = LogPath does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogFlags                  = LogFlags do not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogPeriod                 = LogPeriod does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogTruncateSize           = TruncateSize does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLoglocalTimeRollover      = LoglocalTimeRollover does not match and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogFormat                 = LogFormat is not in the desired state and will be updated on Website "{0}"
+        VerboseSetTargetUpdateLogTargetW3C              = LogTargetW3C is not in the desired state and will be updated on Website "{0}".
+        VerboseSetTargetUpdateLogCustomFields           = LogCustomFields is not in the desired state and will be updated on Website "{0}"
+        VerboseTestTargetFalseEnsure                    = The Ensure state for website "{0}" does not match the desired state.
+        VerboseTestTargetFalseSiteId                    = Site Id of website "{0}" does not match the desired state.
+        VerboseTestTargetFalsePhysicalPath              = Physical Path of website "{0}" does not match the desired state.
+        VerboseTestTargetFalseState                     = The state of website "{0}" does not match the desired state.
+        VerboseTestTargetFalseApplicationPool           = Application Pool for website "{0}" does not match the desired state.
+        VerboseTestTargetFalseBindingInfo               = Bindings for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseEnabledProtocols          = Enabled Protocols for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseDefaultPage               = Default Page for website "{0}" does not match the desired state.
+        VerboseTestTargetTrueResult                     = The target resource is already in the desired state. No action is required.
+        VerboseTestTargetFalseResult                    = The target resource is not in the desired state.
+        VerboseTestTargetFalsePreload                   = Preload for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseAutoStart                 = AutoStart for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseAuthenticationInfo        = AuthenticationInfo for website "{0}" is not in the desired state.
+        VerboseTestTargetFalseLogPath                   = LogPath does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogFlags                  = LogFlags does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogPeriod                 = LogPeriod does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogTruncateSize           = LogTruncateSize does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLoglocalTimeRollover      = LoglocalTimeRollover does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogFormat                 = LogFormat does not match desired state on Website "{0}".
+        VerboseTestTargetFalseLogTargetW3C              = LogTargetW3C does not match desired state on Website "{0}".
+        WarningLogPeriod                                = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
+        WarningIncorrectLogFormat                       = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
 '@
 }
 
 <#
-        .SYNOPSYS
-            The Get-TargetResource cmdlet is used to fetch the status of role or Website on
-            the target machine. It gives the Website info of the requested role/feature on the
-            target machine.
+.SYNOPSIS
+    The Get-TargetResource cmdlet is used to fetch the status of role or Website on
+    the target machine. It gives the Website info of the requested role/feature on the
+    target machine.
 
-        .PARAMETER Name
-            Name of the website
+.PARAMETER Name
+    Name of the website
 #>
 function Get-TargetResource
 {
-
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -130,7 +103,7 @@ function Get-TargetResource
             Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' -PSPath "IIS:\Sites\$Name" |
             ForEach-Object -Process {Write-Output -InputObject $_.value}
         )
-        $cimAuthentication = Get-AuthenticationInfo -Site $Name
+        $cimAuthentication = Get-AuthenticationInfo -Site $Name -IisType 'Website'
         $websiteAutoStartProviders = (Get-WebConfiguration `
             -filter /system.applicationHost/serviceAutoStartProviders).Collection
         $webConfiguration = $websiteAutoStartProviders | `
@@ -176,15 +149,15 @@ function Get-TargetResource
 }
 
 <#
-        .SYNOPSYS
-        The Set-TargetResource cmdlet is used to create, delete or configure a website on the
-        target machine.
+.SYNOPSIS
+    The Set-TargetResource cmdlet is used to create, delete or configure a website on the
+    target machine.
 
-        .PARAMETER SiteId
-            Optional. Specifies the IIS site Id for the web site.
+.PARAMETER SiteId
+    Optional. Specifies the IIS site Id for the web site.
 
-        .PARAMETER PhysicalPath
-        Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
+.PARAMETER PhysicalPath
+    Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
 #>
 function Set-TargetResource
 {
@@ -276,6 +249,11 @@ function Set-TargetResource
     Assert-Module
 
     $website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
+
+    if ($null -eq $AuthenticationInfo)
+    {
+        $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Website'
+    }
 
     if ($Ensure -eq 'Present')
     {
@@ -418,7 +396,8 @@ function Set-TargetResource
                 }
 
                 # New-WebSite has Id parameter instead of SiteId, so it's getting mapped to Id
-                if ($PSBoundParameters.ContainsKey('SiteId')) {
+                if ($PSBoundParameters.ContainsKey('SiteId'))
+                {
                     $newWebsiteSplat.Add('Id', $SiteId)
                 } elseif (-not (Get-WebSite)) {
                     # If there are no other websites and SiteId is missing, specify the Id Parameter for the new website.
@@ -426,7 +405,8 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
-                if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                if ([String]::IsNullOrEmpty($PhysicalPath))
+                {
                     # If no physical path is provided run New-Website with -Force flag
                     $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
                 } else {
@@ -515,11 +495,12 @@ function Set-TargetResource
         }
 
         # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-        (-not (Test-AuthenticationInfo -Site $Name `
-                                        -AuthenticationInfo $AuthenticationInfo)))
+        if (-not (Test-AuthenticationInfo -Site $Name `
+                                        -IisType 'Website' `
+                                        -AuthenticationInfo $AuthenticationInfo))
         {
             Set-AuthenticationInfo -Site $Name `
+                                    -IisType 'Website' `
                                     -AuthenticationInfo $AuthenticationInfo `
                                     -ErrorAction Stop
             Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
@@ -696,12 +677,12 @@ function Set-TargetResource
 }
 
 <#
-        .SYNOPSIS
-        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
-        expected in the instance document.
+.SYNOPSIS
+    The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
+    expected in the instance document.
 
-        .PARAMETER SiteId
-            Optional. Specifies the IIS site Id for the web site.
+.PARAMETER SiteId
+    Optional. Specifies the IIS site Id for the web site.
 
 #>
 function Test-TargetResource
@@ -797,6 +778,11 @@ function Test-TargetResource
 
     $website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
+    if ($null -eq $AuthenticationInfo)
+    {
+        $AuthenticationInfo = Get-DefaultAuthenticationInfo -IisType 'Website'
+    }
+
     # Check Ensure
     if (($Ensure -eq 'Present' -and $null -eq $website) -or `
         ($Ensure -eq 'Absent' -and $null -ne $website))
@@ -886,9 +872,9 @@ function Test-TargetResource
         }
 
         #Check AuthenticationInfo
-        if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
-            (-not (Test-AuthenticationInfo -Site $Name `
-                                           -AuthenticationInfo $AuthenticationInfo)))
+        if (-not (Test-AuthenticationInfo -Site $Name `
+                                           -IisType 'Website' `
+                                           -AuthenticationInfo $AuthenticationInfo))
         {
             $inDesiredState = $false
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
@@ -1035,728 +1021,57 @@ function Test-TargetResource
     return $inDesiredState
 }
 
-#region Helper Functions
+#region DefaultPage functions
 
 <#
-        .SYNOPSIS
-        Helper function used to validate that the logflags status.
-        Returns False if the loglfags do not match and true if they do
-
-        .PARAMETER LogFlags
-        Specifies flags to check
-
-        .PARAMETER Name
-        Specifies website to check the flags on
+.SYNOPSIS
+    Helper function used to update default pages of website.
 #>
-function Compare-LogFlags
+function Update-DefaultPage
 {
     [CmdletBinding()]
-    [OutputType([Boolean])]
     param
     (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $Name,
+
         [Parameter(Mandatory = $true)]
         [String[]]
-        [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
-        $LogFlags,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name
-
+        $DefaultPage
     )
 
-    $currentLogFlags = (Get-Website -Name $Name).logfile.logExtFileFlags -split ',' | Sort-Object
-    $proposedLogFlags = $LogFlags -split ',' | Sort-Object
-
-    if (Compare-Object -ReferenceObject $currentLogFlags -DifferenceObject $proposedLogFlags)
-    {
-        return $false
-    }
-
-    return $true
-
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to validate that the website's binding information is unique to other
-        websites. Returns False if at least one of the bindings is already assigned to another
-        website.
-
-        .PARAMETER Name
-        Specifies the name of the website.
-
-        .PARAMETER ExcludeStopped
-        Omits stopped websites.
-
-        .NOTES
-        This function tests standard ('http' and 'https') bindings only.
-        It is technically possible to assign identical non-standard bindings (such as 'net.tcp')
-        to different websites.
-#>
-function Confirm-UniqueBinding
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $false)]
-        [Switch]
-        $ExcludeStopped
+    $allDefaultPages = @(
+        Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
+                             -PSPath "IIS:\Sites\$Name" |
+        ForEach-Object -Process { Write-Output -InputObject $_.value }
     )
 
-    $website = Get-Website | Where-Object -FilterScript { $_.Name -eq $Name }
-
-    if (-not $website)
+    foreach ($page in $DefaultPage)
     {
-        $errorMessage = $LocalizedData.ErrorWebsiteNotFound `
-                        -f $Name
-        New-TerminatingError -ErrorId 'WebsiteNotFound' `
-                             -ErrorMessage $errorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    $referenceObject = @(
-        $website.bindings.Collection |
-        Where-Object -FilterScript { $_.protocol -in @('http', 'https') } |
-        ConvertTo-WebBinding -Verbose:$false
-    )
-
-    if ($ExcludeStopped)
-    {
-        $otherWebsiteFilter = { $_.Name -ne $website.Name -and $_.State -ne 'Stopped' }
-    }
-    else
-    {
-        $otherWebsiteFilter = { $_.Name -ne $website.Name }
-    }
-
-    $differenceObject = @(
-        Get-Website |
-        Where-Object -FilterScript $otherWebsiteFilter |
-        ForEach-Object -Process { $_.bindings.Collection } |
-        Where-Object -FilterScript { $_.protocol -in @('http', 'https') } |
-        ConvertTo-WebBinding -Verbose:$false
-    )
-
-    # Assume that bindings are unique
-    $result = $true
-
-    $compareSplat = @{
-        ReferenceObject  = $referenceObject
-        DifferenceObject = $differenceObject
-        Property         = @('protocol', 'bindingInformation')
-        ExcludeDifferent = $true
-        IncludeEqual     = $true
-    }
-
-    if (Compare-Object @compareSplat)
-    {
-        $result = $false
-    }
-
-    return $result
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to validate that the AutoStartProviders is unique to other websites.
-        returns False if the AutoStartProviders exist.
-
-        .PARAMETER ServiceAutoStartProvider
-        Specifies the name of the AutoStartProviders.
-
-        .PARAMETER ApplicationType
-        Specifies the name of the Application Type for the AutoStartProvider.
-
-        .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned.
-        As AutoStartProviders need to be uniquely named it will check for this and error out if
-        attempting to add a duplicatly named AutoStartProvider.
-        Name is passed in to bubble to any error messages during the test.
-#>
-function Confirm-UniqueServiceAutoStartProviders
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $ServiceAutoStartProvider,
-
-        [Parameter(Mandatory = $true)]
-        [String]
-        $ApplicationType
-    )
-
-    $websiteASP = (Get-WebConfiguration `
-                   -filter /system.applicationHost/serviceAutoStartProviders).Collection
-
-    $existingObject = $websiteASP | `
-        Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | `
-        Select-Object Name,Type
-
-    $proposedObject = @(New-Object -TypeName PSObject -Property @{
-            name   = $ServiceAutoStartProvider
-            type   = $ApplicationType
-    })
-
-    if(-not $existingObject)
-    {
-        return $false
-    }
-
-    if(-not (Compare-Object -ReferenceObject $existingObject `
-                            -DifferenceObject $proposedObject `
-                            -Property name))
-    {
-        if(Compare-Object -ReferenceObject $existingObject `
-                          -DifferenceObject $proposedObject `
-                          -Property type)
+        if ($allDefaultPages -inotcontains $page)
         {
-            $errorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
-            New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' `
-                                 -ErrorMessage $errorMessage `
-                                 -ErrorCategory 'InvalidResult'`
-        }
-    }
-
-    return $true
-
-}
-
-<#
-        .SYNOPSIS
-        Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
-#>
-function ConvertTo-CimBinding
-{
-    [CmdletBinding()]
-    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-    param
-    (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [AllowEmptyCollection()]
-        [AllowNull()]
-        [Object[]]
-        $InputObject
-    )
-
-    begin
-    {
-        $cimClassName = 'MSFT_xWebBindingInformation'
-        $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
-    }
-
-    process
-    {
-        foreach ($binding in $InputObject)
-        {
-            [Hashtable]$cimProperties = @{
-                Protocol           = [String]$binding.protocol
-                BindingInformation = [String]$binding.bindingInformation
-            }
-
-            if ($binding.Protocol -in @('http', 'https'))
-            {
-                # Extract IPv6 address
-                if ($binding.bindingInformation -match '^\[(.*?)\]\:(.*?)\:(.*?)$')
-                {
-                    $IPAddress = $Matches[1]
-                    $Port      = $Matches[2]
-                    $HostName  = $Matches[3]
-                }
-                else
-                {
-                    $IPAddress, $Port, $HostName = $binding.bindingInformation -split '\:'
-                }
-
-                if ([String]::IsNullOrEmpty($IPAddress))
-                {
-                    $IPAddress = '*'
-                }
-
-                $cimProperties.Add('IPAddress', [String]$IPAddress)
-                $cimProperties.Add('Port',      [UInt16]$Port)
-                $cimProperties.Add('HostName',  [String]$HostName)
-            }
-            else
-            {
-                $cimProperties.Add('IPAddress', [String]::Empty)
-                $cimProperties.Add('Port',      [UInt16]::MinValue)
-                $cimProperties.Add('HostName',  [String]::Empty)
-            }
-
-            if ([Environment]::OSVersion.Version -ge '6.2')
-            {
-                $cimProperties.Add('SslFlags', [String]$binding.sslFlags)
-            }
-
-            $cimProperties.Add('CertificateThumbprint', [String]$binding.certificateHash)
-            $cimProperties.Add('CertificateStoreName',  [String]$binding.certificateStoreName)
-
-            New-CimInstance -ClassName $cimClassName `
-                            -Namespace $cimNamespace `
-                            -Property $cimProperties `
-                            -ClientOnly
+            Add-WebConfiguration -Filter '/system.webServer/defaultDocument/files' `
+                                 -PSPath "IIS:\Sites\$Name" `
+                                 -Value @{ value = $page }
+            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
+                                    -f $Name, $page)
         }
     }
 }
+#endregion
+
+#region Log functions
 
 <#
-        .SYNOPSIS
-        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding>
-        element representation.
+.SYNOPSIS
+    Helper function used to set the LogCustomField for a website.
 
-        .LINK
-        https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
-#>
-function ConvertTo-WebBinding
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [AllowEmptyCollection()]
-        [AllowNull()]
-        [Object[]]
-        $InputObject
-    )
-    process
-    {
-        foreach ($binding in $InputObject)
-        {
-            $outputObject = @{
-                protocol = $binding.Protocol
-            }
+.PARAMETER Site
+    Specifies the name of the Website.
 
-            if ($binding -is [Microsoft.Management.Infrastructure.CimInstance])
-            {
-                if ($binding.Protocol -in @('http', 'https'))
-                {
-                    if (-not [String]::IsNullOrEmpty($binding.BindingInformation))
-                    {
-                        if (-not [String]::IsNullOrEmpty($binding.IPAddress) -or
-                            -not [String]::IsNullOrEmpty($binding.Port) -or
-                            -not [String]::IsNullOrEmpty($binding.HostName)
-                        )
-                        {
-                            $isJoinRequired = $true
-                            Write-Verbose -Message `
-                                ($LocalizedData.VerboseConvertToWebBindingIgnoreBindingInformation `
-                                -f $binding.Protocol)
-                        }
-                        else
-                        {
-                            $isJoinRequired = $false
-                        }
-                    }
-                    else
-                    {
-                        $isJoinRequired = $true
-                    }
-
-                    # Construct the bindingInformation attribute
-                    if ($isJoinRequired -eq $true)
-                    {
-                        $ipAddressString = Format-IPAddressString -InputString $binding.IPAddress `
-                                                                   -ErrorAction Stop
-
-                        if ([String]::IsNullOrEmpty($binding.Port))
-                        {
-                            switch ($binding.Protocol)
-                            {
-                                'http'  { $portNumberString = '80' }
-                                'https' { $portNumberString = '443' }
-                            }
-
-                            Write-Verbose -Message `
-                                ($LocalizedData.VerboseConvertToWebBindingDefaultPort `
-                                -f $binding.Protocol, $portNumberString)
-                        }
-                        else
-                        {
-                            if (Test-PortNumber -InputString $binding.Port)
-                            {
-                                $portNumberString = $binding.Port
-                            }
-                            else
-                            {
-                                $errorMessage = $LocalizedData.ErrorWebBindingInvalidPort `
-                                                -f $binding.Port
-                                New-TerminatingError -ErrorId 'WebBindingInvalidPort' `
-                                                     -ErrorMessage $errorMessage `
-                                                     -ErrorCategory 'InvalidArgument'
-                            }
-                        }
-
-                        $bindingInformation = $ipAddressString, `
-                                              $portNumberString, `
-                                              $binding.HostName -join ':'
-                        $outputObject.Add('bindingInformation', [String]$bindingInformation)
-                    }
-                    else
-                    {
-                        $outputObject.Add('bindingInformation', [String]$binding.BindingInformation)
-                    }
-                }
-                else
-                {
-                    if ([String]::IsNullOrEmpty($binding.BindingInformation))
-                    {
-                        $errorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation `
-                                        -f $binding.Protocol
-                        New-TerminatingError -ErrorId 'WebBindingMissingBindingInformation' `
-                                             -ErrorMessage $errorMessage `
-                                             -ErrorCategory 'InvalidArgument'
-                    }
-                    else
-                    {
-                        $outputObject.Add('bindingInformation', [String]$binding.BindingInformation)
-                    }
-                }
-
-                # SSL-related properties
-                if ($binding.Protocol -eq 'https')
-                {
-                    if ([String]::IsNullOrEmpty($binding.CertificateThumbprint))
-                    {
-                        If ($Binding.CertificateSubject)
-                        {
-                            if ($binding.CertificateSubject.substring(0,3) -ne 'CN=')
-                            {
-                                $binding.CertificateSubject = "CN=$($Binding.CertificateSubject)"
-                            }
-                            $FindCertificateSplat = @{
-                                Subject = $Binding.CertificateSubject
-                            }
-                        }
-                        else
-                        {
-                            $errorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint `
-                                            -f $binding.Protocol
-                            New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' `
-                                                -ErrorMessage $errorMessage `
-                                                -ErrorCategory 'InvalidArgument'
-                        }
-                    }
-
-                    if ([String]::IsNullOrEmpty($binding.CertificateStoreName))
-                    {
-                        $certificateStoreName = 'MY'
-                        Write-Verbose -Message `
-                            ($LocalizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
-                            -f $certificateStoreName)
-                    }
-                    else
-                    {
-                        $certificateStoreName = $binding.CertificateStoreName
-                    }
-
-                    if ($FindCertificateSplat)
-                    {
-                        $FindCertificateSplat.Add('Store',$CertificateStoreName)
-                        $Certificate = Find-Certificate @FindCertificateSplat
-                        if ($Certificate)
-                        {
-                            $certificateHash = $Certificate.Thumbprint
-                        }
-                        else
-                        {
-                            $errorMessage = $LocalizedData.ErrorWebBindingInvalidCertificateSubject `
-                                            -f $binding.CertificateSubject, $binding.CertificateStoreName
-                            New-TerminatingError -ErrorId 'WebBindingInvalidCertificateSubject' `
-                                                -ErrorMessage $errorMessage `
-                                                -ErrorCategory 'InvalidArgument'
-                        }
-                    }
-
-                    # Remove the Left-to-Right Mark character
-                    if ($certificateHash)
-                    {
-                        $certificateHash = $certificateHash -replace '^\u200E'
-                    }
-                    else
-                    {
-                        $certificateHash = $binding.CertificateThumbprint -replace '^\u200E'
-                    }
-
-                    $outputObject.Add('certificateHash',      [String]$certificateHash)
-                    $outputObject.Add('certificateStoreName', [String]$certificateStoreName)
-
-                    if ([Environment]::OSVersion.Version -ge '6.2')
-                    {
-                        $sslFlags = [Int64]$binding.SslFlags
-
-                        if ($sslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($binding.HostName))
-                        {
-                            $errorMessage = $LocalizedData.ErrorWebBindingMissingSniHostName
-                            New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' `
-                                                 -ErrorMessage $errorMessage `
-                                                 -ErrorCategory 'InvalidArgument'
-                        }
-
-                        $outputObject.Add('sslFlags', $sslFlags)
-                    }
-                }
-                else
-                {
-                    # Ignore SSL-related properties for non-SSL bindings
-                    $outputObject.Add('certificateHash',      [String]::Empty)
-                    $outputObject.Add('certificateStoreName', [String]::Empty)
-
-                    if ([Environment]::OSVersion.Version -ge '6.2')
-                    {
-                        $outputObject.Add('sslFlags', [Int64]0)
-                    }
-                }
-            }
-            else
-            {
-                <#
-                        WebAdministration can throw the following exception if there are non-standard
-                        bindings (such as 'net.tcp'): 'The data is invalid.
-                        (Exception from HRESULT: 0x8007000D)'
-
-                        Steps to reproduce:
-                        1) Add 'net.tcp' binding
-                        2) Execute {Get-Website | `
-                                ForEach-Object {$_.bindings.Collection} | `
-                                Select-Object *}
-
-                        Workaround is to create a new custom object and use dot notation to
-                        access binding properties.
-                #>
-
-                $outputObject.Add('bindingInformation',   [String]$binding.bindingInformation)
-                $outputObject.Add('certificateHash',      [String]$binding.certificateHash)
-                $outputObject.Add('certificateStoreName', [String]$binding.certificateStoreName)
-
-                if ([Environment]::OSVersion.Version -ge '6.2')
-                {
-                    $outputObject.Add('sslFlags', [Int64]$binding.sslFlags)
-                }
-            }
-
-            Write-Output -InputObject ([PSCustomObject]$outputObject)
-        }
-    }
-}
-
-<#
-        .SYNOPSIS
-        Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
-#>
-function ConvertTo-CimLogCustomFields
-{
-    [CmdletBinding()]
-    [OutputType([Microsoft.Management.Infrastructure.CimInstance[]])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [AllowEmptyCollection()]
-        [AllowNull()]
-        [Object[]]
-        $InputObject
-    )
-
-    $cimClassName = 'MSFT_xLogCustomFieldInformation'
-    $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
-    $cimCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection`1[Microsoft.Management.Infrastructure.CimInstance]'
-
-    foreach ($customField in $InputObject)
-    {
-        $cimProperties = @{
-            LogFieldName = $customField.LogFieldName
-            SourceName   = $customField.SourceName
-            SourceType   = $customField.SourceType
-        }
-
-        $cimCollection += (New-CimInstance -ClassName $cimClassName `
-                        -Namespace $cimNamespace `
-                        -Property $cimProperties `
-                        -ClientOnly)
-    }
-
-    return $cimCollection
-}
-
-<#
-        .SYNOPSYS
-        Formats the input IP address string for use in the bindingInformation attribute.
-#>
-function Format-IPAddressString
-{
-    [CmdletBinding()]
-    [OutputType([String])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [AllowEmptyString()]
-        [AllowNull()]
-        [String]
-        $InputString
-    )
-
-    if ([String]::IsNullOrEmpty($InputString) -or $InputString -eq '*')
-    {
-        $outputString = '*'
-    }
-    else
-    {
-        try
-        {
-            $ipAddress = [IPAddress]::Parse($InputString)
-
-            switch ($ipAddress.AddressFamily)
-            {
-                'InterNetwork'
-                {
-                    $outputString = $ipAddress.IPAddressToString
-                }
-                'InterNetworkV6'
-                {
-                    $outputString = '[{0}]' -f $ipAddress.IPAddressToString
-                }
-            }
-        }
-        catch
-        {
-            $errorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress `
-                            -f $InputString, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' `
-                                 -ErrorMessage $errorMessage `
-                                 -ErrorCategory 'InvalidArgument'
-        }
-    }
-
-    return $outputString
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to validate that the authenticationProperties for an Application.
-
-        .PARAMETER Site
-        Specifies the name of the Website.
-#>
-function Get-AuthenticationInfo
-{
-    [CmdletBinding()]
-    [OutputType([Microsoft.Management.Infrastructure.CimInstance])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site
-    )
-
-    $authenticationProperties = @{}
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $authenticationProperties[$type] = [Boolean](Test-AuthenticationEnabled -Site $Site `
-                                                                               -Type $type)
-    }
-
-    return New-CimInstance `
-            -ClassName MSFT_xWebAuthenticationInformation `
-            -ClientOnly -Property $authenticationProperties `
-            -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to build a default CimInstance for AuthenticationInformation
-#>
-function Get-DefaultAuthenticationInfo
-{
-    New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
-        -ClientOnly `
-        -Property @{ Anonymous = $false; Basic = $false; Digest = $false; Windows = $false } `
-        -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to set authenticationProperties for an Application
-
-        .PARAMETER Site
-        Specifies the name of the Website.
-
-        .PARAMETER Type
-        Specifies the type of Authentication.
-        Limited to the set: ('Anonymous','Basic','Digest','Windows')
-
-        .PARAMETER Enabled
-        Whether the Authentication is enabled or not.
-#>
-function Set-Authentication
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type,
-
-        [Boolean]$Enabled
-    )
-
-    Set-WebConfigurationProperty `
-        -Filter /system.WebServer/security/authentication/${Type}Authentication `
-        -Name enabled `
-        -Value $Enabled `
-        -Location $Site
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to validate that the authenticationProperties for an Application.
-
-        .PARAMETER Site
-        Specifies the name of the Website.
-
-        .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Set-AuthenticationInfo
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
-    )
-
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $enabled = ($AuthenticationInfo.CimInstanceProperties[$type].Value -eq $true)
-        Set-Authentication -Site $Site -Type $type -Enabled $enabled
-    }
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to set the LogCustomField for a website.
-
-        .PARAMETER Site
-        Specifies the name of the Website.
-
-        .PARAMETER LogCustomField
-        A CimInstance collection of what the LogCustomField should be.
+.PARAMETER LogCustomField
+    A CimInstance collection of what the LogCustomField should be.
 #>
 function Set-LogCustomField
 {
@@ -1791,269 +1106,14 @@ function Set-LogCustomField
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application.
-        Will return that value which will either [String]True or [String]False
+.SYNOPSIS
+    Helper function used to test the LogCustomField state for a website.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+.PARAMETER Site
+    Specifies the name of the Website.
 
-        .PARAMETER Type
-        Specifies the type of Authentication.
-        Limited to the set: ('Anonymous','Basic','Digest','Windows').
-#>
-function Test-AuthenticationEnabled
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Anonymous','Basic','Digest','Windows')]
-        [String]$Type
-    )
-
-
-    $prop = Get-WebConfigurationProperty `
-        -Filter /system.WebServer/security/authentication/${Type}Authentication `
-        -Name enabled `
-        -Location $Site
-
-    return $prop.Value
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application.
-        Will return that result for use in Test-TargetResource. Uses Test-AuthenticationEnabled
-        to determine this. First incorrect result will break this function out.
-
-        .PARAMETER Site
-        Specifies the name of the Website.
-
-        .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
-#>
-function Test-AuthenticationInfo
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]$Site,
-
-        [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.Management.Infrastructure.CimInstance]$AuthenticationInfo
-    )
-
-    $result = $true
-
-    foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
-    {
-        $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
-        $actual = Test-AuthenticationEnabled -Site $Site -Type $type
-        if ($expected -ne $actual)
-        {
-            $result = $false
-            break
-        }
-    }
-
-    return $result
-}
-
-<#
-        .SYNOPSIS
-        Validates the desired binding information (i.e. no duplicate IP address, port, and
-        host name combinations).
-#>
-function Test-BindingInfo
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo
-    )
-
-    $isValid = $true
-
-    try
-    {
-        # Normalize the input (helper functions will perform additional validations)
-        $bindings = @(ConvertTo-WebBinding -InputObject $bindingInfo | ConvertTo-CimBinding)
-        $standardBindings = @($bindings | `
-                                Where-Object -FilterScript {$_.Protocol -in @('http', 'https')})
-        $nonStandardBindings = @($bindings | `
-                                 Where-Object -FilterScript {$_.Protocol -notin @('http', 'https')})
-
-        if ($standardBindings.Count -ne 0)
-        {
-            # IP address, port, and host name combination must be unique
-            if (($standardBindings | Group-Object -Property IPAddress, Port, HostName) | `
-                                     Where-Object -FilterScript {$_.Count -ne 1})
-            {
-                $isValid = $false
-                Write-Verbose -Message `
-                    ($LocalizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
-            }
-
-            # A single port cannot be simultaneously specified for bindings with different protocols
-            foreach ($groupByPort in ($standardBindings | Group-Object -Property Port))
-            {
-                if (($groupByPort.Group | Group-Object -Property Protocol).Length -ne 1)
-                {
-                    $isValid = $false
-                    Write-Verbose -Message `
-                        ($LocalizedData.VerboseTestBindingInfoSamePortDifferentProtocol)
-                    break
-                }
-            }
-        }
-
-        if ($nonStandardBindings.Count -ne 0)
-        {
-            if (($nonStandardBindings | `
-                Group-Object -Property Protocol, BindingInformation) | `
-                Where-Object -FilterScript {$_.Count -ne 1})
-            {
-                $isValid = $false
-                Write-Verbose -Message `
-                    ($LocalizedData.VerboseTestBindingInfoSameProtocolBindingInformation)
-            }
-        }
-    }
-    catch
-    {
-        $isValid = $false
-        Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoInvalidCatch `
-                                -f $_.Exception.Message)
-    }
-
-    return $isValid
-}
-
-<#
-        .SYNOPSIS
-        Validates that an input string represents a valid port number.
-        The port number must be a positive integer between 1 and 65535.
-#>
-function Test-PortNumber
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [AllowEmptyString()]
-        [AllowNull()]
-        [String]
-        $InputString
-    )
-
-    try
-    {
-        $isValid = [UInt16]$InputString -ne 0
-    }
-    catch
-    {
-        $isValid = $false
-    }
-
-    return $isValid
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to validate and compare website bindings of current to desired.
-        Returns True if bindings do not need to be updated.
-#>
-function Test-WebsiteBinding
-{
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo
-    )
-
-    $inDesiredState = $true
-
-    # Ensure that desired binding information is valid (i.e. no duplicate IP address, port, and
-    # host name combinations).
-    if (-not (Test-BindingInfo -BindingInfo $BindingInfo))
-    {
-        $errorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation `
-                        -f $Name
-        New-TerminatingError -ErrorId 'WebsiteBindingInputInvalidation' `
-                             -ErrorMessage $errorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    try
-    {
-        $website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
-
-        # Normalize binding objects to ensure they have the same representation
-        $currentBindings = @(ConvertTo-WebBinding -InputObject $website.bindings.Collection `
-                                                   -Verbose:$false)
-        $desiredBindings = @(ConvertTo-WebBinding -InputObject $BindingInfo `
-                                                  -Verbose:$false)
-
-        $propertiesToCompare = 'protocol', `
-                               'bindingInformation', `
-                               'certificateHash', `
-                               'certificateStoreName'
-
-        # The sslFlags attribute was added in IIS 8.0.
-        # This check is needed for backwards compatibility with Windows Server 2008 R2.
-        if ([Environment]::OSVersion.Version -ge '6.2')
-        {
-            $propertiesToCompare += 'sslFlags'
-        }
-
-        if (Compare-Object -ReferenceObject $currentBindings `
-                           -DifferenceObject $desiredBindings `
-                           -Property $propertiesToCompare)
-        {
-            $inDesiredState = $false
-        }
-    }
-    catch
-    {
-        $errorMessage = $LocalizedData.ErrorWebsiteCompareFailure `
-                         -f $Name, $_.Exception.Message
-        New-TerminatingError -ErrorId 'WebsiteCompareFailure' `
-                             -ErrorMessage $errorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    return $inDesiredState
-}
-
-<#
-        .SYNOPSIS
-        Helper function used to test the LogCustomField state for a website.
-
-        .PARAMETER Site
-        Specifies the name of the Website.
-
-        .PARAMETER LogCustomField
-        A CimInstance collection of what state the LogCustomField should be.
+.PARAMETER LogCustomField
+    A CimInstance collection of what state the LogCustomField should be.
 #>
 function Test-LogCustomField
 {
@@ -2095,145 +1155,6 @@ function Test-LogCustomField
 
     return $inDesiredSate
 }
-
-<#
-        .SYNOPSIS
-        Helper function used to update default pages of website.
-#>
-function Update-DefaultPage
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $true)]
-        [String[]]
-        $DefaultPage
-    )
-
-    $allDefaultPages = @(
-        Get-WebConfiguration -Filter '/system.webServer/defaultDocument/files/*' `
-                             -PSPath "IIS:\Sites\$Name" |
-        ForEach-Object -Process { Write-Output -InputObject $_.value }
-    )
-
-    foreach ($page in $DefaultPage)
-    {
-        if ($allDefaultPages -inotcontains $page)
-        {
-            Add-WebConfiguration -Filter '/system.webServer/defaultDocument/files' `
-                                 -PSPath "IIS:\Sites\$Name" `
-                                 -Value @{ value = $page }
-            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
-                                    -f $Name, $page)
-        }
-    }
-}
-
-<#
-    .SYNOPSIS
-        Updates website bindings.
-#>
-function Update-WebsiteBinding
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Name,
-
-        [Parameter(Mandatory = $false)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $BindingInfo
-    )
-
-    # Use Get-WebConfiguration instead of Get-Website to retrieve XPath of the target website.
-    # XPath -Filter is case-sensitive. Use Where-Object to get the target website by name.
-    $website = Get-WebConfiguration -Filter '/system.applicationHost/sites/site' |
-        Where-Object -FilterScript {$_.Name -eq $Name}
-
-    if (-not $website)
-    {
-        $errorMessage = $LocalizedData.ErrorWebsiteNotFound `
-                        -f $Name
-        New-TerminatingError -ErrorId 'WebsiteNotFound' `
-                             -ErrorMessage $errorMessage `
-                             -ErrorCategory 'InvalidResult'
-    }
-
-    ConvertTo-WebBinding -InputObject $BindingInfo -ErrorAction Stop |
-    ForEach-Object -Begin {
-        Clear-WebConfiguration -Filter "$($website.ItemXPath)/bindings" -Force -ErrorAction Stop
-    } -Process {
-
-        $properties = $_
-
-        try
-        {
-            Add-WebConfiguration -Filter "$($website.ItemXPath)/bindings" -Value @{
-                protocol = $properties.protocol
-                bindingInformation = $properties.bindingInformation
-            } -Force -ErrorAction Stop
-        }
-        catch
-        {
-            $errorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
-                            -f $Name, $_.Exception.Message
-            New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' `
-                                 -ErrorMessage $errorMessage `
-                                 -ErrorCategory 'InvalidResult'
-        }
-
-        if ($properties.protocol -eq 'https')
-        {
-            if ([Environment]::OSVersion.Version -ge '6.2')
-            {
-                try
-                {
-                    Set-WebConfigurationProperty `
-                        -Filter "$($website.ItemXPath)/bindings/binding[last()]" `
-                        -Name sslFlags `
-                        -Value $properties.sslFlags `
-                        -Force `
-                        -ErrorAction Stop
-                }
-                catch
-                {
-                    $errorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
-                                    -f $Name, $_.Exception.Message
-                    New-TerminatingError `
-                        -ErrorId 'WebsiteBindingUpdateFailure' `
-                        -ErrorMessage $errorMessage `
-                        -ErrorCategory 'InvalidResult'
-                }
-            }
-
-            try
-            {
-                $binding = Get-WebConfiguration `
-                            -Filter "$($website.ItemXPath)/bindings/binding[last()]" `
-                            -ErrorAction Stop
-                $binding.AddSslCertificate($properties.certificateHash, `
-                                           $properties.certificateStoreName)
-            }
-            catch
-            {
-                $errorMessage = $LocalizedData.ErrorWebBindingCertificate `
-                                -f $properties.certificateHash, $_.Exception.Message
-                New-TerminatingError `
-                    -ErrorId 'WebBindingCertificate' `
-                    -ErrorMessage $errorMessage `
-                    -ErrorCategory 'InvalidOperation'
-            }
-        }
-    }
-}
-
 #endregion
 
 Export-ModuleMember -Function *-TargetResource
