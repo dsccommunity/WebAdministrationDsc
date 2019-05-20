@@ -3,10 +3,11 @@ class MSFT_FTP : OMI_BaseResource
 {
     [Write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
     [Key, Description("Specifies the name of the FTP site.")] String Name;
-    [Write] String PhysicalPath;
-    [Write,EmbeddedInstance("MSFT_Credential")] String PhysicalPathCredential;
+    [Write, Description("Specifies physical location of the FTP site.")] String PhysicalPath;
+    [Write, Description("Specifies the username for physical path access of the FTP site.")] String PhysicalPathAccessUsername;
+    [Write, Description("Specifies the password for physical path access of the FTP site.")] String PhysicalPathAccessPassword;
     [Write,ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
-    [Write] String ApplicationPool;
+    [Write, Description("Specifies the name of the application pool to be used.")] String ApplicationPool;
     [Write, EmbeddedInstance("MSFT_FTPAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic)")] String AuthenticationInfo;
     [Write, EmbeddedInstance("MSFT_FTPAuthorizationInformation"), Description("Hashtable containing authentication information (AccessType, Roles, Permissions, Users)")] String AuthorizationInfo[];
     [Write, EmbeddedInstance("MSFT_FTPBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_FTPBindingInformation CIM class.")] String BindingInfo[];

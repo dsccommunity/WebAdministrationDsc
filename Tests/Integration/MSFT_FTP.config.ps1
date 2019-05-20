@@ -15,14 +15,14 @@ configuration MSFT_FTP_Present
     {
         FTP FTPSite
         {
-            Ensure                 = 'Present'
-            Name                   = $Node.Name
-            ApplicationPool        = $Node.ApplicationPool
-            PhysicalPath           = $Node.PhysicalPath
-            PhysicalPathCredential = New-Object System.Management.Automation.PSCredential ($Node.PhysicalPathUserName, `
-                                         (ConvertTo-SecureString -String $Node.PhysicalPathPassword -AsPlainText -Force))
-            State                  = $Node.State
-            AuthenticationInfo     = `
+            Ensure                     = 'Present'
+            Name                       = $Node.Name
+            ApplicationPool            = $Node.ApplicationPool
+            PhysicalPath               = $Node.PhysicalPath
+            PhysicalPathAccessUserName = $Node.PhysicalPathAccessUserName
+            PhysicalPathAccessPassword = $Node.PhysicalPathAccessPassword
+            State                      = $Node.State
+            AuthenticationInfo         = `
                 MSFT_FTPAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous

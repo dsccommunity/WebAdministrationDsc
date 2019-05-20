@@ -118,8 +118,8 @@ try
             $MockWebsite = @{
                 Name                   = 'MockFtp'
                 PhysicalPath           = 'C:\NonExistent'
-                userName               = ''
-                password               = ''
+                userName               = 'mockUser'
+                password               = 'mockPassword'
                 State                  = 'Started'
                 ApplicationPool        = 'MockFtpPool'
                 AuthenticationInfo     = $MockAuthenticationInfo
@@ -193,9 +193,12 @@ try
                     $Result.PhysicalPath | Should Be $MockWebsite.PhysicalPath
                 }
 
-                It 'Should return PhysicalPathCredential' {
-                    $Result.PhysicalPathCredential.UserName | Should BeNullOrEmpty
-                    $Result.PhysicalPathCredential.Password | Should BeNullOrEmpty
+                It 'Should return PhysicalPathAccessUserName' {
+                    $Result.PhysicalPathAccessUserName | Should -Be $MockWebsite.userName
+                }
+
+                It 'Should return PhysicalPathAccessPassword' {
+                    $Result.PhysicalPathAccessPassword | Should -Be $MockWebsite.password
                 }
 
                 It 'Should return State' {
@@ -440,36 +443,34 @@ try
                 highDataChannelPort = 0
             }
 
-            $MockCredential = New-Object System.Management.Automation.PSCredential ('MockUser', `
-                                    (ConvertTo-SecureString -String 'MockPassword' -AsPlainText -Force))
-
             $MockParameters = @{
-                Ensure                    = 'Present'
-                Name                      = 'MockFtp'
-                PhysicalPath              = 'C:\NonExistent'
-                PhysicalPathCredential    = $MockCredential
-                State                     = 'Stopped'
-                ApplicationPool           = 'MockFtpPool'
-                AuthorizationInfo         = $MockAuthorizationInfo
-                BindingInfo               = $MockBindingInfo
-                SslInfo                   = $MockSslInfo
-                FirewallIPAddress         = '192.168.0.20'
-                StartingDataChannelPort   = 10550
-                EndingDataChannelPort     = 10600
-                GreetingMessage           = 'Mock hello'
-                ExitMessage               = 'Mock exit'
-                BannerMessage             = 'Mock banner'
-                MaxClientsMessage         = 'Mock message max client'
-                SuppressDefaultBanner     = $false
-                AllowLocalDetailedErrors  = $true
-                ExpandVariablesInMessages = $false
-                LogPath                   = '%SystemDrive%\DifferentLogFiles'
-                LogFlags                  = @('Date','Time','ClientIP','UserName','ServerIP')
-                LogPeriod                 = 'Hourly'
-                LogTruncateSize           = '2048570'
-                LoglocalTimeRollover      = $true
-                DirectoryBrowseFlags      = 'StyleUnix'
-                UserIsolation             = 'StartInUsersDirectory'
+                Ensure                     = 'Present'
+                Name                       = 'MockFtp'
+                PhysicalPath               = 'C:\NonExistent'
+                PhysicalPathAccessUsername = 'MockUser'
+                PhysicalPathAccessPassword = 'MockPassword'
+                State                      = 'Stopped'
+                ApplicationPool            = 'MockFtpPool'
+                AuthorizationInfo          = $MockAuthorizationInfo
+                BindingInfo                = $MockBindingInfo
+                SslInfo                    = $MockSslInfo
+                FirewallIPAddress          = '192.168.0.20'
+                StartingDataChannelPort    = 10550
+                EndingDataChannelPort      = 10600
+                GreetingMessage            = 'Mock hello'
+                ExitMessage                = 'Mock exit'
+                BannerMessage              = 'Mock banner'
+                MaxClientsMessage          = 'Mock message max client'
+                SuppressDefaultBanner      = $false
+                AllowLocalDetailedErrors   = $true
+                ExpandVariablesInMessages  = $false
+                LogPath                    = '%SystemDrive%\DifferentLogFiles'
+                LogFlags                   = @('Date','Time','ClientIP','UserName','ServerIP')
+                LogPeriod                  = 'Hourly'
+                LogTruncateSize            = '2048570'
+                LoglocalTimeRollover       = $true
+                DirectoryBrowseFlags       = 'StyleUnix'
+                UserIsolation              = 'StartInUsersDirectory'
             }
 
             $MockWebsite = @{
@@ -514,7 +515,7 @@ try
                 }
             }
 
-            Context 'Check PhysicalPathCredential is different' {
+            Context 'Check PhysicalPathAccessUsername is different' {
 
                 Mock -CommandName Get-WebConfiguration
                 Mock -CommandName Test-AuthenticationInfo -MockWith {return $true}
@@ -524,7 +525,24 @@ try
 
                 $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
                                               -Name $MockParameters.Name `
-                                              -PhysicalPathCredential $MockParameters.PhysicalPathCredential
+                                              -PhysicalPathAccessUsername $MockParameters.PhysicalPathAccessUsername
+
+                It 'Should return False' {
+                    $Result | Should Be $false
+                }
+            }
+
+            Context 'Check PhysicalPathAccessPassword is different' {
+
+                Mock -CommandName Get-WebConfiguration
+                Mock -CommandName Test-AuthenticationInfo -MockWith {return $true}
+                Mock -ModuleName $DSCHelperModuleName `
+                    -CommandName Get-Website `
+                    -MockWith {return $MockWebsite}
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                                              -Name $MockParameters.Name `
+                                              -PhysicalPathAccessPassword $MockParameters.PhysicalPathAccessPassword
 
                 It 'Should return False' {
                     $Result | Should Be $false
@@ -985,36 +1003,34 @@ try
                                     serverCertStoreName  = 'My'
                                 }
 
-            $MockCredential = New-Object System.Management.Automation.PSCredential ('MockUser', `
-                                (ConvertTo-SecureString -String 'MockPassword' -AsPlainText -Force))
-
             $MockParameters = @{
-                Ensure                    = 'Present'
-                Name                      = 'MockFtp'
-                PhysicalPath              = 'C:\NonExistent'
-                PhysicalPathCredential    = $MockCredential
-                State                     = 'Started'
-                ApplicationPool           = 'MockFtpPool'
-                AuthenticationInfo        = $MockAuthenticationInfo
-                AuthorizationInfo         = $MockAuthorizationInfo
-                BindingInfo               = $MockBindingInfo
-                SslInfo                   = $MockSslInfo
-                FirewallIPAddress         = ''
-                StartingDataChannelPort   = 0
-                EndingDataChannelPort     = 0
-                GreetingMessage           = 'Mock hello'
-                ExitMessage               = 'Mock exit'
-                BannerMessage             = 'Mock banner'
-                MaxClientsMessage         = 'Mock message max client'
-                SuppressDefaultBanner     = $false
-                AllowLocalDetailedErrors  = $true
-                ExpandVariablesInMessages = $false
-                LogPath                   = '%SystemDrive%\LogFiles'
-                LogFlags                  = @('Date','Time','ClientIP','UserName','ServerIP','Method')
-                LogPeriod                 = 'Daily'
-                LoglocalTimeRollover      = $true
-                DirectoryBrowseFlags      = 'StyleUnix'
-                UserIsolation             = 'StartInUsersDirectory'
+                Ensure                     = 'Present'
+                Name                       = 'MockFtp'
+                PhysicalPath               = 'C:\NonExistent'
+                PhysicalPathAccessUsername = 'MockUser'
+                PhysicalPathAccessPassword = 'MockPassword'
+                State                      = 'Started'
+                ApplicationPool            = 'MockFtpPool'
+                AuthenticationInfo         = $MockAuthenticationInfo
+                AuthorizationInfo          = $MockAuthorizationInfo
+                BindingInfo                = $MockBindingInfo
+                SslInfo                    = $MockSslInfo
+                FirewallIPAddress          = ''
+                StartingDataChannelPort    = 0
+                EndingDataChannelPort      = 0
+                GreetingMessage            = 'Mock hello'
+                ExitMessage                = 'Mock exit'
+                BannerMessage              = 'Mock banner'
+                MaxClientsMessage          = 'Mock message max client'
+                SuppressDefaultBanner      = $false
+                AllowLocalDetailedErrors   = $true
+                ExpandVariablesInMessages  = $false
+                LogPath                    = '%SystemDrive%\LogFiles'
+                LogFlags                   = @('Date','Time','ClientIP','UserName','ServerIP','Method')
+                LogPeriod                  = 'Daily'
+                LoglocalTimeRollover       = $true
+                DirectoryBrowseFlags       = 'StyleUnix'
+                UserIsolation              = 'StartInUsersDirectory'
             }
 
             $DifferentMockLogOutput = @{
@@ -1165,7 +1181,6 @@ try
 
                 Mock -ModuleName $DSCHelperModuleName -CommandName Set-Authentication
                 Mock -ModuleName $DSCHelperModuleName -CommandName Get-Website -MockWith {return $MockWebsite}
-                Mock -CommandName Update-AccessCredential
                 Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Set-ItemProperty
                 Mock -CommandName Get-Website -MockWith {return $MockWebsite}
@@ -1179,14 +1194,13 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 16
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 18
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-SslInfo -Exactly 1
                     Assert-MockCalled -CommandName Set-FTPAuthorization -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
-                    Assert-MockCalled -CommandName Update-AccessCredential -Exactly 1
                     Assert-MockCalled -ModuleName $DSCHelperModuleName `
-                                      -CommandName Get-Website -Exactly 3
+                                      -CommandName Get-Website -Exactly 2
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -ModuleName $DSCHelperModuleName `
                                       -CommandName Set-Authentication -Exactly 2
@@ -1229,16 +1243,14 @@ try
                 Mock -CommandName New-Webftpsite -MockWith {return $MockWebsite}
                 Mock -CommandName Set-FTPAuthorization
                 Mock -CommandName Update-WebsiteBinding
-                Mock -CommandName Update-AccessCredential
                 Mock -CommandName Set-SslInfo
                 Mock -CommandName Confirm-UniqueSslInfo { return $false }
 
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 16
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 18
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
-                    Assert-MockCalled -CommandName Update-AccessCredential -Exactly 1
                     Assert-MockCalled -CommandName Stop-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-SslInfo -Exactly 1
                     Assert-MockCalled -CommandName Set-FTPAuthorization -Exactly 1
@@ -1270,7 +1282,6 @@ try
 
                 Mock -CommandName Get-Website { return $null }
                 Mock -ModuleName $DSCHelperModuleName -CommandName Get-Website -MockWith {return $null}
-                Mock -CommandName Update-AccessCredential
                 Mock -CommandName Set-FTPAuthorization
                 Mock -ModuleName $DSCHelperModuleName -CommandName Set-Authentication
                 Mock -CommandName Set-ItemProperty
@@ -1285,13 +1296,12 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 16
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 18
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName New-Webftpsite -Exactly 1
                     Assert-MockCalled -CommandName Set-SslInfo -Exactly 1
                     Assert-MockCalled -CommandName Set-FTPAuthorization -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                    Assert-MockCalled -CommandName Update-AccessCredential -Exactly 1
                 }
             }
 

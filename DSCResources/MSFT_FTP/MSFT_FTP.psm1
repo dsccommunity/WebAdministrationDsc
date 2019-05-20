@@ -47,12 +47,6 @@ function Get-TargetResource
         $logFlags = [array]$ftpSite.ftpServer.logFile.LogExtFileFlags.Split(',')
         $showFlags = [array]$ftpSite.ftpServer.directoryBrowse.showFlags.Split(',')
 
-        if ($ftpSite.password -ne '')
-        {
-            $physicalPathCredential = New-Object System.Management.Automation.PSCredential ($ftpSite.userName, `
-                                        (ConvertTo-SecureString -String $ftpSite.password -AsPlainText -Force))
-        }
-
         Write-Verbose -Message ($LocalizedData.VerboseGetTargetPresent)
         $ensureResult = 'Present'
     }
@@ -66,33 +60,34 @@ function Get-TargetResource
 
     # Add all ftpSite properties to the hash table
     return @{
-        Ensure                    = $ensureResult
-        Name                      = $Name
-        PhysicalPath              = $ftpSite.PhysicalPath
-        PhysicalPathCredential    = $physicalPathCredential
-        State                     = $ftpSite.State
-        ApplicationPool           = $ftpSite.ApplicationPool
-        AuthenticationInfo        = $authenticationInfo
-        AuthorizationInfo         = $authorizationInfo
-        SslInfo                   = $sslInfo
-        BindingInfo               = $bindings
-        FirewallIPAddress         = $ftpServer.firewallSupport.externalIp4Address
-        StartingDataChannelPort   = $defaultFirewallSupport.lowDataChannelPort
-        EndingDataChannelPort     = $defaultFirewallSupport.highDataChannelPort
-        GreetingMessage           = $ftpSite.ftpServer.messages.greetingMessage
-        ExitMessage               = $ftpSite.ftpServer.messages.exitMessage
-        BannerMessage             = $ftpSite.ftpServer.messages.bannerMessage
-        MaxClientsMessage         = $ftpSite.ftpServer.messages.maxClientsMessage
-        SuppressDefaultBanner     = $ftpSite.ftpServer.messages.suppressDefaultBanner
-        AllowLocalDetailedErrors  = $ftpSite.ftpServer.messages.allowLocalDetailedErrors
-        ExpandVariablesInMessages = $ftpSite.ftpServer.messages.expandVariables
-        LogPath                   = $ftpSite.ftpServer.logFile.directory
-        LogFlags                  = $logFlags
-        LogPeriod                 = $ftpSite.ftpServer.logFile.period
-        LogtruncateSize           = $ftpSite.ftpServer.logFile.truncateSize
-        LoglocalTimeRollover      = $ftpSite.ftpServer.logFile.localTimeRollover
-        DirectoryBrowseFlags      = $showFlags
-        UserIsolation             = $ftpSite.ftpServer.userIsolation.mode
+        Ensure                     = $ensureResult
+        Name                       = $Name
+        PhysicalPath               = $ftpSite.PhysicalPath
+        PhysicalPathAccessUsername = $ftpSite.userName
+        PhysicalPathAccessPassword = $ftpSite.password
+        State                      = $ftpSite.State
+        ApplicationPool            = $ftpSite.ApplicationPool
+        AuthenticationInfo         = $authenticationInfo
+        AuthorizationInfo          = $authorizationInfo
+        SslInfo                    = $sslInfo
+        BindingInfo                = $bindings
+        FirewallIPAddress          = $ftpServer.firewallSupport.externalIp4Address
+        StartingDataChannelPort    = $defaultFirewallSupport.lowDataChannelPort
+        EndingDataChannelPort      = $defaultFirewallSupport.highDataChannelPort
+        GreetingMessage            = $ftpSite.ftpServer.messages.greetingMessage
+        ExitMessage                = $ftpSite.ftpServer.messages.exitMessage
+        BannerMessage              = $ftpSite.ftpServer.messages.bannerMessage
+        MaxClientsMessage          = $ftpSite.ftpServer.messages.maxClientsMessage
+        SuppressDefaultBanner      = $ftpSite.ftpServer.messages.suppressDefaultBanner
+        AllowLocalDetailedErrors   = $ftpSite.ftpServer.messages.allowLocalDetailedErrors
+        ExpandVariablesInMessages  = $ftpSite.ftpServer.messages.expandVariables
+        LogPath                    = $ftpSite.ftpServer.logFile.directory
+        LogFlags                   = $logFlags
+        LogPeriod                  = $ftpSite.ftpServer.logFile.period
+        LogtruncateSize            = $ftpSite.ftpServer.logFile.truncateSize
+        LoglocalTimeRollover       = $ftpSite.ftpServer.logFile.localTimeRollover
+        DirectoryBrowseFlags       = $showFlags
+        UserIsolation              = $ftpSite.ftpServer.userIsolation.mode
     }
 }
 
@@ -110,8 +105,11 @@ function Get-TargetResource
     .PARAMETER PhysicalPath
         Specifies physical folder location for FTP site.
 
-    .PARAMETER PhysicalPathCredential
-        Specifies credential object for physical path access.
+    .PARAMETER PhysicalPathAccessUsername
+        Specifies username for access to physical path if required.
+
+    .PARAMETER PhysicalPathAccessPassword
+        Specifies password for access to physical path if required.
 
     .PARAMETER State
         Specifies state of the FTP site whether it should be Started or Stopped.
@@ -212,10 +210,10 @@ function Set-TargetResource
         $PhysicalPath,
 
         [Parameter()]
-        [System.Management.Automation.CredentialAttribute()]
-        [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential]
-        $PhysicalPathCredential,
+        $PhysicalPathAccessUsername,
+
+        [Parameter()]
+        $PhysicalPathAccessPassword,
 
         [Parameter()]
         [ValidateSet('Started', 'Stopped')]
@@ -407,12 +405,27 @@ function Set-TargetResource
                                     -f $Name)
         }
 
-        # Update physical path access credential if required
-        if ($PSBoundParameters.ContainsKey('PhysicalPathCredential') -and `
-            (-not (Test-AccessCredential -Site $Name -Credential $PhysicalPathCredential)))
+        # Update physical path access username if required
+        if ($PSBoundParameters.ContainsKey('PhysicalPathAccessUsername') -and `
+            $ftpSite.userName -ne $PhysicalPathAccessUsername)
         {
-            Update-AccessCredential -Site $Name -Credential $PhysicalPathCredential
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatePhysicalPathCredential `
+            Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                             -Name userName `
+                             -Value $PhysicalPathAccessUsername `
+                             -ErrorAction Stop
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatePhysicalPathAccessUsername `
+                             -f $Name)
+        }
+
+        # Update physical path access password if required
+        if ($PSBoundParameters.ContainsKey('PhysicalPathAccessPassword') -and `
+            $ftpSite.password -ne $PhysicalPathAccessPassword)
+        {
+            Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                             -Name password `
+                             -Value $PhysicalPathAccessPassword `
+                             -ErrorAction Stop
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatePhysicalPathAccessPassword `
                              -f $Name)
         }
 
@@ -770,8 +783,11 @@ function Set-TargetResource
     .PARAMETER PhysicalPath
         Specifies physical folder location for FTP site.
 
-    .PARAMETER PhysicalPathCredential
-        Specifies credential object for physical path access.
+    .PARAMETER PhysicalPathAccessUsername
+        Specifies username for access to physical path if required.
+
+    .PARAMETER PhysicalPathAccessPassword
+        Specifies password for access to physical path if required.
 
     .PARAMETER State
         Specifies state of the FTP site whether it should be Started or Stopped.
@@ -873,10 +889,10 @@ function Test-TargetResource
         $PhysicalPath,
 
         [Parameter()]
-        [System.Management.Automation.CredentialAttribute()]
-        [ValidateNotNullOrEmpty()]
-        [System.Management.Automation.PSCredential]
-        $PhysicalPathCredential,
+        $PhysicalPathAccessUsername,
+
+        [Parameter()]
+        $PhysicalPathAccessPassword,
 
         [Parameter()]
         [ValidateSet('Started', 'Stopped')]
@@ -1016,12 +1032,20 @@ function Test-TargetResource
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath -f $Name)
         }
 
-        # Update physical path access credential if required
-        if ($PSBoundParameters.ContainsKey('PhysicalPathCredential') -and `
-            (-not (Test-AccessCredential -Site $Name -Credential $PhysicalPathCredential)))
+        # Check physical path access username if required
+        if ($PSBoundParameters.ContainsKey('PhysicalPathAccessUsername') -and `
+            $ftpSite.userName -ne $PhysicalPathAccessUsername)
         {
             $InDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPathCredential -f $Name)
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPathAccessUsername -f $Name)
+        }
+
+        # Check physical path access password if required
+        if ($PSBoundParameters.ContainsKey('PhysicalPathAccessPassword') -and `
+            $ftpSite.password -ne $PhysicalPathAccessPassword)
+        {
+            $InDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPathAccessPassword -f $Name)
         }
 
         # Check State

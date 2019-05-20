@@ -38,12 +38,12 @@ try
     }
 
     # Create a test user if it's absent
-    $mockUser = Get-LocalUser -Name $DSCConfig.AllNodes.PhysicalPathUserName -ErrorAction SilentlyContinue
+    $mockUser = Get-LocalUser -Name $DSCConfig.AllNodes.PhysicalPathAccessUserName -ErrorAction SilentlyContinue
     if (-not $mockUser)
     {
         $mockUser = New-LocalUser `
-                        -Name $DSCConfig.AllNodes.PhysicalPathUserName `
-                        -Password (ConvertTo-SecureString -String $DSCConfig.AllNodes.PhysicalPathPassword -AsPlainText -Force) `
+                        -Name $DSCConfig.AllNodes.PhysicalPathAccessUserName `
+                        -Password (ConvertTo-SecureString -String $DSCConfig.AllNodes.PhysicalPathAccessPassword -AsPlainText -Force) `
                         -AccountNeverExpires:$true `
                         -UserMayNotChangePassword:$true
     }
@@ -109,8 +109,8 @@ try
             # Test basic settings are correct
             $result.Name             | Should -Be $DSCConfig.AllNodes.Name
             $result.PhysicalPath     | Should -Be $DSCConfig.AllNodes.PhysicalPath
-            $result.userName         | Should -be $DSCConfig.AllNodes.PhysicalPathUserName
-            $result.password         | Should -be $DSCConfig.AllNodes.PhysicalPathPassword
+            $result.userName         | Should -be $DSCConfig.AllNodes.PhysicalPathAccessUserName
+            $result.password         | Should -be $DSCConfig.AllNodes.PhysicalPathAccessPassword
             $result.State            | Should -Be 'Started'
             $result.ApplicationPool  | Should -Be $DSCConfig.AllNodes.ApplicationPool
 
