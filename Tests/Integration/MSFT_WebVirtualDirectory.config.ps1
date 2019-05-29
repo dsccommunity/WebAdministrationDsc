@@ -42,6 +42,12 @@ configuration MSFT_WebVirtualDirectory_Initialize
             Force           = $true
         }
 
+        Service WWW
+        {
+            Name  = 'w3svc'
+            State = 'Running'
+        }
+
         xWebSite Website
         {
             Ensure          = $Ensure
@@ -55,6 +61,7 @@ configuration MSFT_WebVirtualDirectory_Initialize
                 HostName  = $Node.Hostname
                 IPAddress = '*'
             }
+            DependsOn       = '[Service]WWW'
         }
 
         File WebApplicationDirectory
