@@ -322,13 +322,13 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 * BREAKING CHANGE: Resource **xWebVirtualDirectory** renamed to **WebVirtualDirectory**.
-    * Parameter **Website** renamed to **Site** to comply with other resources and PowerShell command.
-    * Parameter **WebApplication** renamed to **Application** to comply with other resources and PowerShell command.
-    * New parameters added: **PhysicalPathAccessAccount** and **PhysicalPathAccessPass** which define access credential to physical path.
-    * Parameter **PhysicalPath** no longer required for Ensure = 'Absent' case.
-    * UNC path can be used as a PhysicalPath value [#94](https://github.com/PowerShell/xWebAdministration/issues/94)
-    * Removal command changed to `Remove-Item` to hide the confirmation errors [#366](https://github.com/PowerShell/xWebAdministration/issues/366)
-    * Examples added to include different scenarios.
+  * Parameter **Website** renamed to **Site** to comply with other resources and PowerShell command.
+  * Parameter **WebApplication** renamed to **Application** to comply with other resources and PowerShell command.
+  * New parameters added: **PhysicalPathAccessAccount** and **PhysicalPathAccessPass** which define access credential to physical path.
+  * Parameter **PhysicalPath** no longer required for Ensure = 'Absent' case.
+  * UNC path can be used as a PhysicalPath value [#94](https://github.com/PowerShell/xWebAdministration/issues/94)
+  * Removal command changed to `Remove-Item` to hide the confirmation errors [#366](https://github.com/PowerShell/xWebAdministration/issues/366)
+  * Examples added to include different scenarios.
 
 ### 2.6.0.0
 * Changed order of classes in schema.mof files to workaround [#423](https://github.com/PowerShell/xWebAdministration/issues/423)
