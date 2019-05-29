@@ -1,0 +1,11 @@
+[ClassVersion("1.0.0.0"), FriendlyName("WebVirtualDirectory")]
+class MSFT_WebVirtualDirectory : OMI_BaseResource
+{
+    [Key, Description("Name of website with which Web Application is associated")] String Site;
+    [Key, Description("Web application name for the virtual directory")] String Application;
+    [Key, Description("Name of virtual directory")] String Name;
+    [Write, Description("Physical path for the virtual directory")] String PhysicalPath;
+    [Write, Description("Specifies the username for physical path access in the virtual directory.")] String PhysicalPathAccessAccount;
+    [Write, Description("Specifies the password for physical path access in the virtual directory.")] String PhysicalPathAccessPass;
+    [Write, Description("Whether virtual directory should be present or absent"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+};

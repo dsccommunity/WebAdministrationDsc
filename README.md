@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection**, **WebApplicationHandler** and **WebVirtualDirectory** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -237,13 +237,15 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.
 * **[UInt64] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs.
 
-### xWebVirtualDirectory
+### WebVirtualDirectory
 
-* **Website**: Name of website with which virtual directory is associated
-* **WebApplication**:  The name of the containing web application or an empty string for the containing website
-* **PhysicalPath**: The path to the files that compose the virtual directory
-* **Name**: The name of the virtual directory
+* **Site**: Name of website with which virtual directory is associated.
+* **Application**:  The name of the containing web application or an empty string for the containing website.
+* **PhysicalPath**: The path to the files that compose the virtual directory.
+* **Name**: The name of the virtual directory.
 * **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
+* **PhysicalPathAccessAccount**: Specific username used for access to physical path. *Note* In case of using SMB as a physical path and if target server doesn't share identity database with device/server hosting the share, local user account must be created with the same username/password used for the access, section 'More Information' [support.microsoft.com](https://support.microsoft.com/en-us/help/247099/access-denied-when-connecting-to-a-ftp-directory-that-uses-a-unc-path)
+* **PhysicalPathAccessPass**: Specifies password used for access to physical path.
 
 ### xWebConfigKeyValue (DEPRECATED)
 
@@ -319,6 +321,14 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
+* BREAKING CHANGE: Resource **xWebVirtualDirectory** renamed to **WebVirtualDirectory**.
+    * Parameter **Website** renamed to **Site** to comply with other resources and PowerShell command.
+    * Parameter **WebApplication** renamed to **Application** to comply with other resources and PowerShell command.
+    * New parameters added: **PhysicalPathAccessAccount** and **PhysicalPathAccessPass** which define access credential to physical path.
+    * Parameter **PhysicalPath** no longer required for Ensure = 'Absent' case.
+    * UNC path can be used as a PhysicalPath value [#94](https://github.com/PowerShell/xWebAdministration/issues/94)
+    * Removal command changed to `Remove-Item` to hide the confirmation errors [#366](https://github.com/PowerShell/xWebAdministration/issues/366)
+    * Examples added to include different scenarios.
 
 ### 2.6.0.0
 * Changed order of classes in schema.mof files to workaround [#423](https://github.com/PowerShell/xWebAdministration/issues/423)
