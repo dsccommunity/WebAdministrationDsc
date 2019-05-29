@@ -29,6 +29,11 @@ try
 
     $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:DSCResourceName).config.psd1"
 
+    Write-Host ("IIS Feature state: {0}" -f (get-windowsfeature Web-Server).installstate)
+    Write-Host ("W3SVC Service status: {0}" -f (get-service w3svc).Status)
+    Write-Host ("WAS Service status: {0}" -f (get-service was).Status)
+    Write-Host ("Following websites are found: `n {0}" -f ((get-website) | %{@{$_.Name=$_.State}}| Out-String))
+
     Describe "$($script:DSCResourceName)_Initialize" {
         Invoke-Expression -Command "$($script:DSCResourceName)_Initialize -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
         Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
