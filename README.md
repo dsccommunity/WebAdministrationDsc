@@ -1131,11 +1131,11 @@ configuration Sample_EndToEndxWebAdministration
         }
 
         #Create a new virtual Directory
-        xWebVirtualDirectory NewVirtualDir
+        WebVirtualDirectory NewVirtualDir
         {
             Name = $Node.WebVirtualDirectoryName
-            Website = $Node.WebSiteName
-            WebApplication =  $Node.WebApplicationName
+            Site = $Node.WebSiteName
+            Application =  $Node.WebApplicationName
             PhysicalPath = $Node.PhysicalPathVirtualDir
             Ensure = "Present"
             DependsOn = @("[xWebApplication]NewWebApplication","[File]NewVirtualDirectoryPath")
@@ -1149,7 +1149,7 @@ configuration Sample_EndToEndxWebAdministration
                             <configuration>
                             </configuration>"
                     Ensure = "Present"
-             DependsOn = @("[xWebVirtualDirectory]NewVirtualDir")
+             DependsOn = @("[WebVirtualDirectory]NewVirtualDir")
         }
 
         #Add an appSetting key1
