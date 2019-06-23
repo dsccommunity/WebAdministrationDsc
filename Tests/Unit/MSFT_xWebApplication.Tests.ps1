@@ -1,4 +1,4 @@
-﻿$script:DSCModuleName = 'xWebAdministration'
+$script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebApplication'
 
 #region HEADER

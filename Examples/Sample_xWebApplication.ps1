@@ -1,4 +1,4 @@
-﻿<#
+<#
     This shows an example for all possible settings for the xWebApplication resource
 #>
 configuration MSFT_xWebApplication_Present
