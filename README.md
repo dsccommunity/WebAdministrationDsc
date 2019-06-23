@@ -182,11 +182,12 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **MSFT_xWebAuthenticationInformation** CIM class. **MSFT_xWebAuthenticationInformation** takes the following properties:
-    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
-    * **Basic**: The acceptable values for this property are: `$true`, `$false`
-    * **Digest**: The acceptable values for this property are: `$true`, `$false`
-    * **Windows**: The acceptable values for this property are: `$true`, `$false`
+* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **MSFT_xWebAuthenticationInformation** CIM class.
+**MSFT_xWebAuthenticationInformation** takes the following properties:
+  * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+  * **Basic**: The acceptable values for this property are: `$true`, `$false`
+  * **Digest**: The acceptable values for this property are: `$true`, `$false`
+  * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`
 * **LogPeriod**: How often the log file should rollover. The values that are allowed for this property are: `Hourly`,`Daily`,`Weekly`,`Monthly`,`MaxSize`
@@ -211,10 +212,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
-    * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
-    * **Basic**: The acceptable values for this property are: `$true`, `$false`
-    * **Digest**: The acceptable values for this property are: `$true`, `$false`
-    * **Windows**: The acceptable values for this property are: `$true`, `$false`
+  * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+  * **Basic**: The acceptable values for this property are: `$true`, `$false`
+  * **Digest**: The acceptable values for this property are: `$true`, `$false`
+  * **Windows**: The acceptable values for this property are: `$true`, `$false`
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
 * **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
@@ -321,6 +322,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ### Unreleased
 
 ### 2.6.0.0
+
 * Changed order of classes in schema.mof files to workaround [#423](https://github.com/PowerShell/xWebAdministration/issues/423)
 * Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
   helper function `Install-NewSelfSignedCertificateExScript`.
@@ -365,6 +367,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * Deprecated xIISHandler resource. This resource will be removed in future release
 
 ### 2.0.0.0
+
 * Changes to xWebAdministration
   * Moved file Codecov.yml that was added to the wrong path in previous release.
 * Updated **xWebSite** to include ability to manage custom logging fields.
@@ -375,7 +378,6 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
   configuration section.
   [Reggie Gibson (@regedit32)](https://github.com/regedit32)
-
 
 ### 1.20.0.0
 
@@ -444,37 +446,37 @@ This resource manages the IIS configuration section locking (overrideMode) to co
   * Replaced 3 calls to Invoke-Expression with a call to a new helper function - Get-Property
 
 * **xWebsite** updates:
-    * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
-    * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).
+  * Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
+  * Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).
 * Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
 * Added **xSSLSettings** integration tests
 * Added fixes to **xSSLSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
 
 * Added **xIISLogging** resource which supports for the following options:
-    * LogPath
-    * LogFlags
-    * LogPeriod
-    * LogTruncateSize
-    * LoglocalTimeRollover
-    * LogFormat
+  * LogPath
+  * LogFlags
+  * LogPeriod
+  * LogTruncateSize
+  * LoglocalTimeRollover
+  * LogFormat
 * Added IIS Logging to **xWebsite** which support for the following options:
-    * LogPath
-    * LogFlags
-    * LogPeriod
-    * LogTruncateSize
-    * LoglocalTimeRollover
-    * LogFormat
+  * LogPath
+  * LogFlags
+  * LogPeriod
+  * LogTruncateSize
+  * LoglocalTimeRollover
+  * LogFormat
 
 * **xWebApplication** updates:
-    * xWebApplication integration tests updated
-    * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
-    * Added EnabledProtocols
-    * Fixed:
-      * Formatted resources to DSC StyleGuideLines
-        * Logging statements
-        * Incorrect Get-TargetResource param block
-        * Test-SslFlags validation
-        * Unit test mocking of Test-SslFlags
+  * xWebApplication integration tests updated
+  * Added fixes to **xWebApplication**. Formatted resources to DSC StyleGuideLines, fixed logging statements, fixed incorrect Get-TargetResource param block, fixed Test-SslFlags validation, fixed unit test mocking of Test-SslFlags, added Ssl128 option to SslFlags
+  * Added EnabledProtocols
+  * Fixed:
+    * Formatted resources to DSC StyleGuideLines
+      * Logging statements
+      * Incorrect Get-TargetResource param block
+      * Test-SslFlags validation
+      * Unit test mocking of Test-SslFlags
 
 ### 1.11.0.0
 
@@ -510,11 +512,11 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * Added Unit tests to IISFeatureDelegation, general script clean up
 * Refactored xIisHandle to load script variables once, added unit tests.
 * xWebsite updated:
-    * Added support for the following binding protocols: `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
-    * Added support for setting the `EnabledProtocols` property.
-    * Fixed an issue in bindings comparison which was causing bindings to be reassigned on every consistency check.
-    * Fixed an issue where binding conflict was not properly detected and handled. Stopped websites will not be checked for conflicting bindings anymore.
-    * The qualifier for the Protocol property of the MSFT_xWebBindingInformation CIM class was changed from Write to Required.
+  * Added support for the following binding protocols: `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
+  * Added support for setting the `EnabledProtocols` property.
+  * Fixed an issue in bindings comparison which was causing bindings to be reassigned on every consistency check.
+  * Fixed an issue where binding conflict was not properly detected and handled. Stopped websites will not be checked for conflicting bindings anymore.
+  * The qualifier for the Protocol property of the MSFT_xWebBindingInformation CIM class was changed from Write to Required.
 
 ### 1.8.0.0
 
