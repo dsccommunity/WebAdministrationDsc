@@ -321,6 +321,14 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+* Changes to xWebAdministration
+  * Opt-in to the following DSC Resource Common Meta Tests:
+    * Common Tests - Relative Path Length
+    * Common Tests - Validate Script Files
+    * Common Tests - Validate Module Files
+    * Common Tests - Validate Markdown Files
+    * Common Tests - Validate Markdown Links
+
 ### 2.6.0.0
 
 * Changed order of classes in schema.mof files to workaround [#423](https://github.com/PowerShell/xWebAdministration/issues/423)
