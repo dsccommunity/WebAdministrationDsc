@@ -1,3 +1,8 @@
 [
-    "null"
+    "Common Tests - Relative Path Length",
+    "Common Tests - Validate Script Files",
+    "Common Tests - Validate Module Files",
+    "Common Tests - Validate Markdown Files",
+    "Common Tests - Validate Markdown Links"
 ]
+
