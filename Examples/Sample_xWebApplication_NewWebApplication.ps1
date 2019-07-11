@@ -38,7 +38,7 @@ Configuration Sample_xWebApplication_NewWebApplication
         }
 
         # Start the Default Web Site
-        xWebsite DefaultSite 
+        xWebsite DefaultSite
         {
             Ensure                  = 'Present'
             Name                    = 'Default Web Site'
@@ -66,7 +66,7 @@ Configuration Sample_xWebApplication_NewWebApplication
         }
 
         # Create a new web application with Windows Authentication
-        xWebApplication SampleApplication 
+        xWebApplication SampleApplication
         {
             Ensure                  = 'Present'
             Name                    = 'SampleApplication'

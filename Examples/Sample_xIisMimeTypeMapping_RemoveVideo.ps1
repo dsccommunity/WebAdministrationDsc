@@ -1,4 +1,4 @@
-configuration Sample_RemoveVideoMimeTypeMappings
+configuration Sample_xIisMimeTypeMapping_RemoveVideo
 {
     param
     (
@@ -19,12 +19,12 @@ configuration Sample_RemoveVideoMimeTypeMappings
         # Install the IIS role
         WindowsFeature IIS
         {
-            Ensure          = 'Present'
-            Name            = 'Web-Server'
+            Ensure = 'Present'
+            Name   = 'Web-Server'
         }
 
         # Remove a bunch of Video Mime Type mappings
-        xIisMimeTypeMapping Mp2 
+        xIisMimeTypeMapping Mp2
         {
             Ensure            = 'Absent'
             Extension         = '.mp2'
@@ -33,7 +33,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
             DependsOn         = '[WindowsFeature]IIS'
         }
 
-        xIisMimeTypeMapping Mp4 
+        xIisMimeTypeMapping Mp4
         {
             Ensure            = 'Absent'
             Extension         = '.mp4'
@@ -42,7 +42,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
             DependsOn         = '[WindowsFeature]IIS'
         }
 
-        xIisMimeTypeMapping Mpeg 
+        xIisMimeTypeMapping Mpeg
         {
             Ensure            = 'Absent'
             Extension         = '.mpeg'
@@ -52,7 +52,7 @@ configuration Sample_RemoveVideoMimeTypeMappings
         }
 
         # we only allow the mpg Video extension on our server
-        xIisMimeTypeMapping Mpg 
+        xIisMimeTypeMapping Mpg
         {
             Ensure            = 'Present'
             Extension         = '.mpg'
