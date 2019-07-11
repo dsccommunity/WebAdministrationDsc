@@ -77,7 +77,7 @@ configuration Sample_xWebsite_WithSSLFlags
                 Port                  = '443'
                 CertificateStoreName  = 'MY'
                 CertificateThumbprint = 'BB84DE3EC423DDDE90C08AB3C5A828692089493C'
-                HostName              = $Website
+                HostName              = $WebSiteName
                 IPAddress             = '*'
                 SSLFlags              = '1'
             }
