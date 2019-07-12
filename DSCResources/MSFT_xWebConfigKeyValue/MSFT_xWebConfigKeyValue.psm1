@@ -28,14 +28,14 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String] $WebsitePath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
         [System.String] $ConfigSection,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Key
     )
 
@@ -91,21 +91,24 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String] $WebsitePath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
         [System.String] $ConfigSection,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Key,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [System.String] $Ensure = 'Present',
 
+        [Parameter()]
         [String] $Value,
 
+        [Parameter()]
         [System.Boolean] $IsAttribute
     )
 
@@ -177,21 +180,24 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String] $WebsitePath,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('AppSettings')]
         [System.String] $ConfigSection,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [String] $Key,
 
+        [Parameter()]
         [String] $Value,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [System.String] $Ensure = 'Present',
 
+        [Parameter()]
         [System.Boolean] $IsAttribute
     )
 
@@ -242,14 +248,19 @@ function Add-Item
 {
     param
     (
+        [Parameter()]
         [string] $Key,
 
+        [Parameter()]
         [string] $Value,
 
+        [Parameter()]
         [Boolean] $isAttribute,
 
+        [Parameter()]
         [string] $WebsitePath,
 
+        [Parameter()]
         [string] $ConfigSection
     )
 
@@ -281,16 +292,22 @@ function Edit-Item
 {
     param
     (
-        [string] $PropertyName,        
+        [Parameter()]
+        [string] $PropertyName,
 
+        [Parameter()]
         [string] $OldValue,
 
+        [Parameter()]
         [string] $NewValue,
 
+        [Parameter()]
         [Boolean] $IsAttribute,
 
+        [Parameter()]
         [string] $WebsitePath,
 
+        [Parameter()]
         [string] $ConfigSection
     )
 
@@ -319,12 +336,16 @@ function Remove-Item
 {
     param
     (
+        [Parameter()]
         [string] $Key,
 
+        [Parameter()]
         [Boolean] $IsAttribute,
 
+        [Parameter()]
         [string] $WebsitePath,
 
+        [Parameter()]
         [string] $ConfigSection
     )
 
@@ -370,13 +391,17 @@ function Get-ItemValue
 {
     param
     (
+        [Parameter()]
         [string] $Key,
 
+        [Parameter()]
         [Boolean] $isAttribute,
 
+        [Parameter()]
         [string] $WebsitePath,
 
         # If this is null $value.Value will be null
+        [Parameter()]
         [string] $ConfigSection
     )
 

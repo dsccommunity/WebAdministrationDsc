@@ -99,7 +99,6 @@ data LocalizedData
 #>
 function Get-TargetResource
 {
-
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
@@ -191,6 +190,7 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
         $Ensure = 'Present',
@@ -205,70 +205,89 @@ function Set-TargetResource
         [UInt32]
         $SiteId,
 
+        [Parameter()]
         [String]
         $PhysicalPath,
 
+        [Parameter()]
         [ValidateSet('Started', 'Stopped')]
         [String]
         $State = 'Started',
 
         # The application pool name must contain between 1 and 64 characters
+        [Parameter()]
         [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo,
 
+        [Parameter()]
         [String[]]
         $DefaultPage,
 
+        [Parameter()]
         [String]
         $EnabledProtocols,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
+        [Parameter()]
         [Boolean]
         $PreloadEnabled,
 
+        [Parameter()]
         [Boolean]
         $ServiceAutoStartEnabled,
 
+        [Parameter()]
         [String]
         $ServiceAutoStartProvider,
 
+        [Parameter()]
         [String]
         $ApplicationType,
 
+        [Parameter()]
         [String]
         $LogPath,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]]
         $LogFlags,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String]
         $LogPeriod,
 
+        [Parameter()]
         [ValidateScript({
             ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
         })]
         [String]
         $LogTruncateSize,
 
+        [Parameter()]
         [Boolean]
         $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
         $LogFormat,
 
+        [Parameter()]
         [ValidateSet('File','ETW','File,ETW')]
         [String]
         $LogTargetW3C,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
     )
@@ -418,7 +437,8 @@ function Set-TargetResource
                 }
 
                 # New-WebSite has Id parameter instead of SiteId, so it's getting mapped to Id
-                if ($PSBoundParameters.ContainsKey('SiteId')) {
+                if ($PSBoundParameters.ContainsKey('SiteId'))
+                {
                     $newWebsiteSplat.Add('Id', $SiteId)
                 } elseif (-not (Get-WebSite)) {
                     # If there are no other websites and SiteId is missing, specify the Id Parameter for the new website.
@@ -426,7 +446,8 @@ function Set-TargetResource
                     $newWebsiteSplat.Add('Id', 1)
                 }
 
-                if ([String]::IsNullOrEmpty($PhysicalPath)) {
+                if ([String]::IsNullOrEmpty($PhysicalPath))
+                {
                     # If no physical path is provided run New-Website with -Force flag
                     $website = New-Website @newWebsiteSplat -ErrorAction Stop -Force
                 } else {
@@ -710,6 +731,7 @@ function Test-TargetResource
     [OutputType([Boolean])]
     param
     (
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
         $Ensure = 'Present',
@@ -723,70 +745,89 @@ function Test-TargetResource
         [UInt32]
         $SiteId,
 
+        [Parameter()]
         [String]
         $PhysicalPath,
 
+        [Parameter()]
         [ValidateSet('Started', 'Stopped')]
         [String]
         $State = 'Started',
 
         # The application pool name must contain between 1 and 64 characters
+        [Parameter()]
         [ValidateLength(1, 64)]
         [String]
         $ApplicationPool,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo,
 
+        [Parameter()]
         [String[]]
         $DefaultPage,
 
+        [Parameter()]
         [String]
         $EnabledProtocols,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
+        [Parameter()]
         [Boolean]
         $PreloadEnabled,
 
+        [Parameter()]
         [Boolean]
         $ServiceAutoStartEnabled,
 
+        [Parameter()]
         [String]
         $ServiceAutoStartProvider,
 
+        [Parameter()]
         [String]
         $ApplicationType,
 
+        [Parameter()]
         [String]
         $LogPath,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]]
         $LogFlags,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String]
         $LogPeriod,
 
+        [Parameter()]
         [ValidateScript({
             ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
         })]
         [String]
         $LogTruncateSize,
 
+        [Parameter()]
         [Boolean]
         $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('IIS','W3C','NCSA')]
         [String]
         $LogFormat,
 
+        [Parameter()]
         [ValidateSet('File','ETW','File,ETW')]
         [String]
         $LogTargetW3C,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
     )
@@ -1106,7 +1147,7 @@ function Confirm-UniqueBinding
         [String]
         $Name,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [Switch]
         $ExcludeStopped
     )
@@ -1708,6 +1749,7 @@ function Set-Authentication
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String]$Type,
 
+        [Parameter()]
         [Boolean]$Enabled
     )
 
@@ -2147,7 +2189,7 @@ function Update-WebsiteBinding
         [String]
         $Name,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $BindingInfo
     )
