@@ -35,18 +35,18 @@ configuration Sample_xWebVirtualDirectory_NewVirtualDirectory
         # Install the IIS role
         WindowsFeature IIS
         {
-            Ensure          = 'Present'
-            Name            = 'Web-Server'
+            Ensure = 'Present'
+            Name   = 'Web-Server'
         }
 
         # Start the default website
-        xWebsite DefaultSite 
+        xWebsite DefaultSite
         {
-            Ensure          = 'Present'
-            Name            = 'Default Web Site'
-            State           = 'Started'
-            PhysicalPath    = 'C:\inetpub\wwwroot'
-            DependsOn       = '[WindowsFeature]IIS'
+            Ensure       = 'Present'
+            Name         = 'Default Web Site'
+            State        = 'Started'
+            PhysicalPath = 'C:\inetpub\wwwroot'
+            DependsOn    = '[WindowsFeature]IIS'
         }
 
         # Copy the virtual directory content
@@ -56,17 +56,17 @@ configuration Sample_xWebVirtualDirectory_NewVirtualDirectory
             DestinationPath = $PhysicalPath
             Type            = 'Directory'
             DependsOn       = '[WindowsFeature]IIS'
-        }       
+        }
 
         # Create the new virtual directory
         xWebVirtualDirectory NewVirtualDirectory
         {
-            Ensure          = 'Present'
-            Website         = "Default Web Site"
-            WebApplication  = ''
-            Name            = $VirtualDirectoryName
-            PhysicalPath    = $PhysicalPath
-            DependsOn       = '[File]VirtualDirectoryContent'
+            Ensure         = 'Present'
+            Website        = "Default Web Site"
+            WebApplication = ''
+            Name           = $VirtualDirectoryName
+            PhysicalPath   = $PhysicalPath
+            DependsOn      = '[File]VirtualDirectoryContent'
         }
     }
 }

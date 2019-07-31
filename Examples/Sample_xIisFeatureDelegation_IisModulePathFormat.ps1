@@ -14,7 +14,7 @@ configuration Example
     )
 
     Import-DscResource -Module xWebAdministration
-    Import-DscResource -Module PSDscResources
+    Import-DscResource -Module PSDesiredStateConfiguration
 
     Node $NodeName
     {

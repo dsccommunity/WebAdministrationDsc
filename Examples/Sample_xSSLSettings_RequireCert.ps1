@@ -1,4 +1,4 @@
-configuration Sample_xSSLSetting_RequireCert
+configuration Sample_xSSLSettings_RequireCert
 {
     param
     (
@@ -11,11 +11,11 @@ configuration Sample_xSSLSetting_RequireCert
 
     Node $NodeName
     {
-         xSSLSettings SiteDefaults
-         {
+        xSSLSettings SiteDefaults
+        {
             Ensure   = 'Present'
             Name     = 'contoso.com'
             Bindings = @('Ssl', 'SslNegotiateCert', 'SslRequireCert')
-         }
+        }
     }
 }
