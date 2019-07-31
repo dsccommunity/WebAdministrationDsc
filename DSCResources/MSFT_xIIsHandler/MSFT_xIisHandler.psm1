@@ -786,17 +786,17 @@ function Get-TargetResource
 {
     <#
     .SYNOPSIS
-        This will return a hashtable of results 
+        This will return a hashtable of results
     #>
 
     [OutputType([Hashtable])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String] $Name,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Present', 'Absent')]
         [String] $Ensure
     )
@@ -836,15 +836,15 @@ function Set-TargetResource
         top of the list, meaning, they are tried first. There is no way of ordering the
         handler list except for removing all and then adding them in the correct order.
     #>
-    
+
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String] $Name,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Present', 'Absent')]
         [String] $Ensure
     )
@@ -879,15 +879,15 @@ function Test-TargetResource
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
-    
+
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String] $Name,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Present', 'Absent')]
         [String] $Ensure
     )
@@ -921,6 +921,7 @@ function Get-Handler
 {
     param
     (
+        [Parameter()]
         [String] $Name
     )
 
@@ -934,6 +935,7 @@ function Add-Handler
 {
     param
     (
+        [Parameter()]
         [String] $Name
     )
 

@@ -17,7 +17,7 @@ function Get-TargetResource
 {
     <#
     .SYNOPSIS
-        This will return a hashtable of results 
+        This will return a hashtable of results
     #>
 
     [CmdletBinding()]
@@ -80,7 +80,7 @@ function Test-TargetResource
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
-    
+
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
@@ -107,7 +107,7 @@ function Test-TargetResource
     if (-not((Confirm-Value -Path '' `
                             -Name 'managedRuntimeVersion' `
                             -NewValue $ManagedRuntimeVersion)))
-    { 
+    {
         return $false
     }
 
@@ -115,9 +115,9 @@ function Test-TargetResource
                             -Name 'identityType' `
                             -NewValue $IdentityType)))
     {
-        return $false 
+        return $false
     }
-    
+
     return $true
 }
 
@@ -142,7 +142,7 @@ function Confirm-Value
         [System.String]
         $NewValue
     )
-    
+
     if (-not($NewValue))
     {
         # if no new value was specified, we assume this value is okay.
@@ -200,7 +200,7 @@ function Set-Value
             -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
             -Name $Name `
             -Value "$NewValue"
-        
+
         $relPath = $Path + '/' + $Name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
     }

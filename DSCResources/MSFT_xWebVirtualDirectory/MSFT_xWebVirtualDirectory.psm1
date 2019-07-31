@@ -20,7 +20,7 @@ function Get-TargetResource
 {
     <#
     .SYNOPSIS
-        This will return a hashtable of results 
+        This will return a hashtable of results
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
@@ -81,6 +81,7 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -157,6 +158,7 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure = 'Present',

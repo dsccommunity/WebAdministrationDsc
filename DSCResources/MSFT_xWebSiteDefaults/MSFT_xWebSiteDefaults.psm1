@@ -16,23 +16,23 @@ function Get-TargetResource
 {
     <#
     .SYNOPSIS
-        This will return a hashtable of results 
+        This will return a hashtable of results
     #>
-    
+
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Machine')]
         [String]
         $ApplyTo
     )
-    
+
     Assert-Module
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
-    
+
     return @{
         LogFormat              = (Get-Value 'siteDefaults/logFile' 'logFormat')
         TraceLogDirectory      = ( Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory')
@@ -40,7 +40,7 @@ function Get-TargetResource
         AllowSubDirConfig      = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig')
         ApplyTo                = 'Machine'
         LogDirectory           = (Get-Value 'siteDefaults/logFile' 'directory')
-    }    
+    }
 
 }
 
@@ -49,7 +49,7 @@ function Set-TargetResource
     <#
     .SYNOPSIS
         This will set the desired state
-    
+
     .NOTES
         Only a limited number of settings are supported at this time
         We try to cover the most common use cases
@@ -59,31 +59,36 @@ function Set-TargetResource
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [CmdletBinding()]
     param
-    (    
-        [ValidateSet('Machine')]
+    (
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Machine')]
         [String] $ApplyTo,
-        
+
+        [Parameter()]
         [ValidateSet('W3C','IIS','NCSA','Custom')]
         [String] $LogFormat,
-        
+
+        [Parameter()]
         [String] $LogDirectory,
-        
+
+        [Parameter()]
         [String] $TraceLogDirectory,
-        
+
+        [Parameter()]
         [String] $DefaultApplicationPool,
-        
+
+        [Parameter()]
         [ValidateSet('true','false')]
         [String] $AllowSubDirConfig
     )
 
     Assert-Module
 
-    Set-Value 'siteDefaults/logFile' 'logFormat' $LogFormat
-    Set-Value 'siteDefaults/logFile' 'directory' $LogDirectory
-    Set-Value 'siteDefaults/traceFailedRequestsLogging' 'directory' $TraceLogDirectory
-    Set-Value 'applicationDefaults' 'applicationPool' $DefaultApplicationPool
-    Set-Value 'virtualDirectoryDefaults' 'allowSubDirConfig' $AllowSubDirConfig
+    Set-Value -Path 'siteDefaults/logFile' -Name 'logFormat' -NewValue $LogFormat
+    Set-Value -Path 'siteDefaults/logFile' -Name 'directory' -NewValue $LogDirectory
+    Set-Value -Path 'siteDefaults/traceFailedRequestsLogging' -Name 'directory' -NewValue $TraceLogDirectory
+    Set-Value -Path 'applicationDefaults' -Name 'applicationPool' -NewValue $DefaultApplicationPool
+    Set-Value -Path 'virtualDirectoryDefaults' -Name 'allowSubDirConfig' -NewValue $AllowSubDirConfig
 
 }
 
@@ -94,24 +99,29 @@ function Test-TargetResource
         This tests the desired state. If the state is not correct it will return $false.
         If the state is correct it will return $true
     #>
-    
+
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "")]
     [OutputType([System.Boolean])]
     param
-    (    
-        [ValidateSet('Machine')]
+    (
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Machine')]
         [String] $ApplyTo,
-        
+
+        [Parameter()]
         [ValidateSet('W3C','IIS','NCSA','Custom')]
         [String] $LogFormat,
-        
+
+        [Parameter()]
         [String] $LogDirectory,
-        
+
+        [Parameter()]
         [String] $TraceLogDirectory,
-        
+
+        [Parameter()]
         [String] $DefaultApplicationPool,
-        
+
+        [Parameter()]
         [ValidateSet('true','false')]
         [String] $AllowSubDirConfig
     )
@@ -122,37 +132,37 @@ function Test-TargetResource
 
     if (-not(Confirm-Value -Path 'virtualDirectoryDefaults' `
                            -Name 'allowSubDirConfig' `
-                           -NewValue $AllowSubDirConfig)) 
-    { 
-        return $false 
+                           -NewValue $AllowSubDirConfig))
+    {
+        return $false
     }
 
     if (-not(Confirm-Value -Path 'siteDefaults/logFile' `
                            -Name 'logFormat' `
-                           -NewValue $LogFormat)) 
-    { 
-        return $false 
+                           -NewValue $LogFormat))
+    {
+        return $false
     }
 
     if (-not(Confirm-Value -Path 'siteDefaults/logFile' `
                            -Name 'directory' `
-                           -NewValue $LogDirectory)) 
-    { 
-        return $false 
+                           -NewValue $LogDirectory))
+    {
+        return $false
     }
 
     if (-not(Confirm-Value -Path 'siteDefaults/traceFailedRequestsLogging' `
                            -Name 'directory' `
-                           -NewValue $TraceLogDirectory)) 
-    { 
-        return $false 
+                           -NewValue $TraceLogDirectory))
+    {
+        return $false
     }
 
     if (-not(Confirm-Value -Path 'applicationDefaults' `
                            -Name 'applicationPool' `
-                           -NewValue $DefaultApplicationPool)) 
-    { 
-        return $false 
+                           -NewValue $DefaultApplicationPool))
+    {
+        return $false
     }
 
     return $true
@@ -167,13 +177,16 @@ function Confirm-Value
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [String] $Path,
 
+        [Parameter()]
         [String] $Name,
-        
+
+        [Parameter()]
         [String] $NewValue
     )
-    
+
     if (-not($NewValue))
     {
         return $true
@@ -189,7 +202,7 @@ function Confirm-Value
         $relPath = $Path + '/' + $Name
         Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
         return $true
-    }   
+    }
 
 }
 
@@ -198,10 +211,13 @@ function Set-Value
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [String] $Path,
 
+        [Parameter()]
         [String] $Name,
-        
+
+        [Parameter()]
         [String] $NewValue
     )
 
@@ -221,7 +237,7 @@ function Set-Value
                                      -Value "$NewValue"
         $relPath = $Path + '/' + $Name
         Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
-    }    
+    }
 
 }
 
@@ -230,8 +246,10 @@ function Get-Value
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [String] $Path,
 
+        [Parameter()]
         [String] $Name
     )
 
