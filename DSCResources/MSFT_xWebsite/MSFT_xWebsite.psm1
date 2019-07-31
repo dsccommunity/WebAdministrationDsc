@@ -1469,7 +1469,7 @@ function ConvertTo-WebBinding
                 {
                     if ([String]::IsNullOrEmpty($binding.CertificateThumbprint))
                     {
-                        If ($Binding.CertificateSubject)
+                        if ($Binding.CertificateSubject)
                         {
                             if ($binding.CertificateSubject.substring(0,3) -ne 'CN=')
                             {
