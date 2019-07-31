@@ -105,25 +105,32 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [String] $LogPath,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]] $LogFlags,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
 
+        [Parameter()]
         [ValidateScript({
             ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
         })]
         [String] $LogTruncateSize,
 
+        [Parameter()]
         [Boolean] $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('IIS','W3C','NCSA')]
         [String] $LogFormat,
 
+        [Parameter()]
         [ValidateSet('File','ETW','File,ETW')]
         [String] $LogTargetW3C,
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $LogCustomFields
     )
@@ -266,27 +273,34 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [String] $LogPath,
 
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]] $LogFlags,
 
+        [Parameter()]
         [ValidateSet('Hourly','Daily','Weekly','Monthly','MaxSize')]
         [String] $LogPeriod,
 
+        [Parameter()]
         [ValidateScript({
             ([ValidateRange(1048576, 4294967295)] $valueAsUInt64 = [UInt64]::Parse($_))
         })]
         [String] $LogTruncateSize,
 
+        [Parameter()]
         [Boolean] $LoglocalTimeRollover,
 
+        [Parameter()]
         [ValidateSet('IIS','W3C','NCSA')]
         [String] $LogFormat,
 
+        [Parameter()]
         [ValidateSet('File','ETW','File,ETW')]
         [String] $LogTargetW3C,
 
-    [Microsoft.Management.Infrastructure.CimInstance[]]
-    $LogCustomFields
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $LogCustomFields
     )
 
         Assert-Module
@@ -400,6 +414,7 @@ function Compare-LogFlags
     [OutputType([Boolean])]
     param
     (
+        [Parameter()]
         [ValidateSet('Date','Time','ClientIP','UserName','SiteName','ComputerName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','BytesSent','BytesRecv','TimeTaken','ServerPort','UserAgent','Cookie','Referer','ProtocolVersion','Host','HttpSubStatus')]
         [String[]] $LogFlags
     )

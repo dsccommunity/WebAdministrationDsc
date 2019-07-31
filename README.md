@@ -328,6 +328,9 @@ This resource manages the IIS configuration section locking (overrideMode) to co
     * Common Tests - Validate Module Files
     * Common Tests - Validate Markdown Files
     * Common Tests - Validate Markdown Links
+    * Common Tests - Custom Script Analyzer Rules
+    * Common Tests - Flagged Script Analyzer Rules
+    * Common Tests - Required Script Analyzer Rules
     * Common Tests - Validate Example Files
   * Add ConfigurationPath to xIisMimeTypeMapping examples since it is now a required field.
 
