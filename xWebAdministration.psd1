@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '2.6.0.0'
+moduleVersion = '2.7.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,11 +41,18 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Changed order of classes in schema.mof files to workaround [423](https://github.com/PowerShell/xWebAdministration/issues/423)
-* Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
-  helper function `Install-NewSelfSignedCertificateExScript`.
-* Updated unit test for helper function `Find-Certificate` to check for multiple
-  subject names in different orders.
+        ReleaseNotes = '* Changes to xWebAdministration
+  * Opt-in to the following DSC Resource Common Meta Tests:
+    * Common Tests - Relative Path Length
+    * Common Tests - Validate Script Files
+    * Common Tests - Validate Module Files
+    * Common Tests - Validate Markdown Files
+    * Common Tests - Validate Markdown Links
+    * Common Tests - Custom Script Analyzer Rules
+    * Common Tests - Flagged Script Analyzer Rules
+    * Common Tests - Required Script Analyzer Rules
+    * Common Tests - Validate Example Files
+  * Add ConfigurationPath to xIisMimeTypeMapping examples since it is now a required field.
 
 '
 
@@ -59,6 +66,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 

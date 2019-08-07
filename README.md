@@ -321,6 +321,8 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+### 2.7.0.0
+
 * Changes to xWebAdministration
   * Opt-in to the following DSC Resource Common Meta Tests:
     * Common Tests - Relative Path Length
