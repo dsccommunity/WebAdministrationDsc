@@ -1,4 +1,4 @@
-configuration Sample_RemoveSome32BitHandlers
+configuration Sample_xIisHandler_Remove32Bit
 {
     param
     (

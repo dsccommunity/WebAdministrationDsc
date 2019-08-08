@@ -13,11 +13,11 @@ configuration Sample_xIisLogging_Truncate
     {
         xIisLogging Logging
         {
-            LogPath = 'C:\IISLogFiles'
-            Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
+            LogPath              = 'C:\IISLogFiles'
+            Logflags             = @('Date', 'Time', 'ClientIP', 'UserName', 'ServerIP')
             LoglocalTimeRollover = $true
-            LogTruncateSize = '2097152'
-            LogFormat = 'W3C'
+            LogTruncateSize      = '2097152'
+            LogFormat            = 'W3C'
         }
     }
 }

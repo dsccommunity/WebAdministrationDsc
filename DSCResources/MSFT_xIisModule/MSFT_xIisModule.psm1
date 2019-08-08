@@ -26,7 +26,7 @@ function Get-TargetResource
 {
     <#
     .SYNOPSIS
-        This will return a hashtable of results 
+        This will return a hashtable of results
     #>
 
     [CmdletBinding()]
@@ -45,14 +45,16 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
+        [Parameter()]
         [ValidateSet('FastCgiModule')]
         [String] $ModuleType = 'FastCgiModule',
 
+        [Parameter()]
         [String] $SiteName
     )
 
         Assert-Module
-        
+
         $currentVerbs = @()
         $Ensure = 'Absent'
 
@@ -86,7 +88,7 @@ function Get-TargetResource
         }
 
         Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
-        
+
         $returnValue = @{
             Path          = $handler.ScriptProcessor
             Name          = $handler.Name
@@ -99,7 +101,7 @@ function Get-TargetResource
         }
 
         $returnValue
-    
+
 }
 
 function Set-TargetResource
@@ -112,9 +114,10 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [String] $Ensure,
-        
+
         [Parameter(Mandatory = $true)]
         [String] $Path,
 
@@ -127,9 +130,11 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
+        [Parameter()]
         [ValidateSet('FastCgiModule')]
         [String] $ModuleType = 'FastCgiModule',
 
+        [Parameter()]
         [String] $SiteName
     )
 
@@ -145,13 +150,13 @@ function Set-TargetResource
     {
         if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler 
+            Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
             Remove-IisHandler
         }
 
         if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler 
+            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler
             Add-webconfiguration /system.webServer/handlers iis:\ -Value @{
                 Name = $Name
                 Path = $RequestPath
@@ -169,7 +174,7 @@ function Set-TargetResource
             }
         }
     }
-    else 
+    else
     {
         Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
         Remove-IisHandler
@@ -188,9 +193,10 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [String] $Ensure,
-        
+
         [Parameter(Mandatory = $true)]
         [String] $Path,
 
@@ -203,9 +209,11 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
+        [Parameter()]
         [ValidateSet('FastCgiModule')]
         [String] $ModuleType = 'FastCgiModule',
 
+        [Parameter()]
         [String] $SiteName
     )
 
@@ -213,7 +221,7 @@ function Test-TargetResource
     $resourceStatus = Get-TargetResource @GetParameters
 
     Write-Verbose -Message $LocalizedData.VerboseTestTargetResource
-    
+
     return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
 }
 
@@ -247,6 +255,7 @@ function Get-IisSitePath
     [CmdletBinding()]
     param
     (
+        [Parameter()]
         [String] $SiteName
     )
 
@@ -269,11 +278,13 @@ function Get-IisHandler
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
 
+        [Parameter()]
         [String] $Name,
 
+        [Parameter()]
         [String] $SiteName
     )
 
@@ -292,14 +303,16 @@ function Remove-IisHandler
     #>
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
 
+        [Parameter()]
         [String] $Name,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
 
+        [Parameter()]
         [String] $SiteName
     )
 
@@ -331,11 +344,14 @@ function Test-TargetResourceImpl
         [Parameter(Mandatory = $true)]
         [String[]] $Verb,
 
+        [Parameter()]
         [ValidateSet('FastCgiModule')]
         [String] $ModuleType = 'FastCgiModule',
 
+        [Parameter()]
         [String] $SiteName,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [String] $Ensure,
 

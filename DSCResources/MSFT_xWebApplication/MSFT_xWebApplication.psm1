@@ -17,8 +17,8 @@ data LocalizedData
         VerboseSetTargetPreload                                = Updating Preload for Web application "{0}".
         VerboseSetTargetAutostart                              = Updating AutoStart for Web application "{0}".
         VerboseSetTargetIISAutoStartProviders                  = Updating AutoStartProviders for IIS.
-        VerboseSetTargetWebApplicationAutoStartProviders       = Updating AutoStartProviders for Web application "{0}". 
-        VerboseSetTargetEnabledProtocols                       = Updating EnabledProtocols for Web application "{0}". 
+        VerboseSetTargetWebApplicationAutoStartProviders       = Updating AutoStartProviders for Web application "{0}".
+        VerboseSetTargetEnabledProtocols                       = Updating EnabledProtocols for Web application "{0}".
         VerboseTestTargetFalseAbsent                           = Web application "{0}" is absent and should not absent.
         VerboseTestTargetFalsePresent                          = Web application $Name should be absent and is not absent.
         VerboseTestTargetFalsePhysicalPath                     = Physical path for web application "{0}" does not match desired state.
@@ -36,11 +36,10 @@ data LocalizedData
 
 <#
 .SYNOPSIS
-    This will return a hashtable of results 
+    This will return a hashtable of results
 #>
 function Get-TargetResource
 {
-
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
@@ -72,7 +71,7 @@ function Get-TargetResource
     }
 
     Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
-    
+
     $returnValue = @{
         Website                  = $Website
         Name                     = $Name
@@ -97,7 +96,6 @@ function Get-TargetResource
     #>
 function Set-TargetResource
 {
-
     [CmdletBinding()]
     param
     (
@@ -113,28 +111,36 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [String] $PhysicalPath,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present',
 
+        [Parameter()]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]]$SslFlags = '',
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
+        [Parameter()]
         [Boolean]
         $PreloadEnabled,
-        
+
+        [Parameter()]
         [Boolean]
         $ServiceAutoStartEnabled,
 
+        [Parameter()]
         [String]
         $ServiceAutoStartProvider,
-        
+
+        [Parameter()]
         [String]
         $ApplicationType,
-        
+
+        [Parameter()]
         [ValidateSet('http','https','net.tcp','net.msmq','net.pipe')]
         [String[]] $EnabledProtocols
     )
@@ -149,7 +155,7 @@ function Set-TargetResource
             {
                 $AuthenticationInfo = Get-DefaultAuthenticationInfo
             }
- 
+
             if ($webApplication.count -eq 0)
             {
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetPresent -f $Name)
@@ -257,7 +263,7 @@ function Set-TargetResource
                                  -Value $ServiceAutoStartProvider `
                                  -ErrorAction Stop
             }
-            
+
             # Update EnabledProtocols if required
             if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and `
             (-not(Confirm-UniqueEnabledProtocols `
@@ -305,28 +311,36 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [String] $PhysicalPath,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present',
 
+        [Parameter()]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]]$SslFlags = '',
 
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
+        [Parameter()]
         [Boolean]
         $preloadEnabled,
-        
+
+        [Parameter()]
         [Boolean]
         $serviceAutoStartEnabled,
 
+        [Parameter()]
         [String]
         $serviceAutoStartProvider,
-        
+
+        [Parameter()]
         [String]
         $ApplicationType,
-        
+
+        [Parameter()]
         [ValidateSet('http','https','net.tcp','net.msmq','net.pipe')]
         [String[]] $EnabledProtocols
     )
@@ -335,24 +349,24 @@ function Test-TargetResource
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 
-    if ($AuthenticationInfo -eq $null) 
+    if ($AuthenticationInfo -eq $null)
     {
-        $AuthenticationInfo = Get-DefaultAuthenticationInfo 
+        $AuthenticationInfo = Get-DefaultAuthenticationInfo
     }
 
-    if ($webApplication.count -eq 0 -and $Ensure -eq 'Present') 
+    if ($webApplication.count -eq 0 -and $Ensure -eq 'Present')
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAbsent -f $Name)
         return $false
     }
 
-    if ($webApplication.count -eq 1 -and $Ensure -eq 'Absent') 
+    if ($webApplication.count -eq 1 -and $Ensure -eq 'Absent')
     {
         Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePresent -f $Name)
         return $false
     }
 
-    if ($webApplication.count -eq 1 -and $Ensure -eq 'Present') 
+    if ($webApplication.count -eq 1 -and $Ensure -eq 'Present')
     {
         #Check Physical Path
         if ($webApplication.physicalPath -ne $PhysicalPath)
@@ -393,7 +407,7 @@ function Test-TargetResource
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload -f $Name)
             return $false
-        } 
+        }
 
         #Check AutoStartEnabled
         if($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
@@ -403,7 +417,7 @@ function Test-TargetResource
             return $false
         }
 
-        #Check AutoStartProviders 
+        #Check AutoStartProviders
         if ($PSBoundParameters.ContainsKey('ServiceAutoStartProvider') -and `
             $webApplication.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
@@ -412,13 +426,13 @@ function Test-TargetResource
                         -ApplicationType $ApplicationType))
             {
                 Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseIISAutoStartProviders)
-                return $false     
+                return $false
             }
             Write-Verbose -Message `
                 ($LocalizedData.VerboseTestTargetFalseWebApplicationAutoStartProviders -f $Name)
-            return $false      
+            return $false
         }
-        
+
         # Update EnabledProtocols if required
         if ($PSBoundParameters.ContainsKey('EnabledProtocols') -and `
             (-not(Confirm-UniqueEnabledProtocols `
@@ -431,9 +445,9 @@ function Test-TargetResource
         }
 
     }
-    
+
     return $true
-    
+
 }
 
 <#
@@ -445,7 +459,7 @@ function Test-TargetResource
 .PARAMETER ProposedProtocols
     Specifies desired SMTP bindings.
 .NOTES
-    ExistingProtocols is a String whereas ProposedProtocols is an array of Strings 
+    ExistingProtocols is a String whereas ProposedProtocols is an array of Strings
     so we need to do some extra work in comparing them
 #>
 function Confirm-UniqueEnabledProtocols
@@ -453,18 +467,18 @@ function Confirm-UniqueEnabledProtocols
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
-    ( 
+    (
         [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [String] $ExistingProtocols,
-        
+
         [Parameter(Mandatory = $true)]
         [String[]] $ProposedProtocols
     )
 
     $inputToCheck = @()
     foreach ($proposedProtocol in $ProposedProtocols)
-    { 
+    {
         $inputToCheck += $proposedProtocol
     }
 
@@ -494,15 +508,15 @@ function Confirm-UniqueEnabledProtocols
 
 <#
 .SYNOPSIS
-    Helper function used to validate that the AutoStartProviders is unique to other 
+    Helper function used to validate that the AutoStartProviders is unique to other
     websites. Returns False if the AutoStartProviders exist.
 .PARAMETER serviceAutoStartProvider
     Specifies the name of the AutoStartProviders.
 .PARAMETER ExcludeStopped
     Specifies the name of the Application Type for the AutoStartProvider.
 .NOTES
-    This tests for the existance of a AutoStartProviders which is globally assigned. 
-    As AutoStartProviders need to be uniquely named it will check for this and error out if 
+    This tests for the existance of a AutoStartProviders which is globally assigned.
+    As AutoStartProviders need to be uniquely named it will check for this and error out if
     attempting to add a duplicatly named AutoStartProvider.
     Name is passed in to bubble to any error messages during the test.
 #>
@@ -589,7 +603,7 @@ function Get-AuthenticationInfo
             -ClassName MSFT_xWebApplicationAuthenticationInformation `
             -ClientOnly -Property $authenticationProperties `
             -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
-            
+
 }
 
 <#
@@ -626,7 +640,7 @@ function Get-SslFlags
                 -Filter 'system.webserver/security/access' | `
                  ForEach-Object { $_.sslFlags }
 
-    if ($null -eq $SslFlags) 
+    if ($null -eq $SslFlags)
     {
         return [String]::Empty
     }
@@ -642,7 +656,7 @@ function Get-SslFlags
 .PARAMETER Name
     Specifies the name of the Application.
 .PARAMETER Type
-    Specifies the type of Authentication, 
+    Specifies the type of Authentication,
 Limited to the set: ('Anonymous','Basic','Digest','Windows').
 .PARAMETER Enabled
     Whether the Authentication is enabled or not.
@@ -662,6 +676,7 @@ function Set-Authentication
         [ValidateSet('Anonymous','Basic','Digest','Windows')]
         [String] $Type,
 
+        [Parameter()]
         [Boolean] $Enabled
     )
 
@@ -669,7 +684,7 @@ function Set-Authentication
         -Filter /system.WebServer/security/authentication/${Type}Authentication `
         -Name enabled `
         -Value $Enabled `
-        -Location "${Site}/${Name}" 
+        -Location "${Site}/${Name}"
 }
 
 <#
@@ -710,14 +725,14 @@ function Set-AuthenticationInfo
 
 <#
 .SYNOPSIS
-    Helper function used to test the authenticationProperties state for an Application. 
+    Helper function used to test the authenticationProperties state for an Application.
     Will return that value which will either [String]True or [String]False
 .PARAMETER Site
     Specifies the name of the Website.
 .PARAMETER Name
     Specifies the name of the Application.
 .PARAMETER Type
-    Specifies the type of Authentication, 
+    Specifies the type of Authentication,
     limited to the set: ('Anonymous','Basic','Digest','Windows').
 #>
 
@@ -745,15 +760,15 @@ function Test-AuthenticationEnabled
             -Location "${Site}/${Name}"
 
     return $prop.Value
-    
+
 }
 
 <#
 .SYNOPSIS
-    Helper function used to test the authenticationProperties state for an Application. 
-    Will return that result which will either [boolean]$True or [boolean]$False for use in 
+    Helper function used to test the authenticationProperties state for an Application.
+    Will return that result which will either [boolean]$True or [boolean]$False for use in
     Test-TargetResource.
-    Uses Test-AuthenticationEnabled to determine this. First incorrect result will break 
+    Uses Test-AuthenticationEnabled to determine this. First incorrect result will break
     this function out.
 .PARAMETER Site
     Specifies the name of the Website.
@@ -782,7 +797,6 @@ function Test-AuthenticationInfo
 
     foreach ($type in @('Anonymous', 'Basic', 'Digest', 'Windows'))
     {
-
         $expected = $AuthenticationInfo.CimInstanceProperties[$type].Value
         $actual = Test-AuthenticationEnabled -Site $Site `
                                              -Name $Name `
@@ -794,12 +808,12 @@ function Test-AuthenticationInfo
     }
 
     return $true
-    
+
 }
 
 <#
 .SYNOPSIS
-    Helper function used to test the SSLFlags on an Application. 
+    Helper function used to test the SSLFlags on an Application.
     Will return $true if they match and $false if they do not.
 .PARAMETER SslFlags
     Specifies the SslFlags to Test
@@ -812,6 +826,7 @@ function Test-SslFlags
     [OutputType([Boolean])]
     param
     (
+        [Parameter()]
         [AllowEmptyString()]
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]] $SslFlags = '',

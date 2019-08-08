@@ -120,6 +120,8 @@ function Set-TargetResource
 #>
 function Test-TargetResource
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSDSCUseVerboseMessageInDSCResource", "",
+        Justification = 'Verbose messaging in helper function')]
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param

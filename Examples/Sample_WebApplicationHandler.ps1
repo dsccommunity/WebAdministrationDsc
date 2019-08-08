@@ -17,7 +17,6 @@ Configuration Example
             ResourceType         = 'Unspecified'
             AllowPathInfo        = $false
             ResponseBufferLimit  = 0
-            PhysicalPath         = "C:\temp"
             Type                 = $null
             PreCondition         = $null
             Location             = 'Default Web Site/TestDir'

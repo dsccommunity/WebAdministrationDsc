@@ -16,7 +16,7 @@ data LocalizedData
 
 <#
         .SYNOPSIS
-        This will return a hashtable of results including Name, Bindings, and Ensure 
+        This will return a hashtable of results including Name, Bindings, and Ensure
 #>
 function Get-TargetResource
 {
@@ -90,6 +90,7 @@ function Set-TargetResource
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]] $Bindings,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present'
     )
@@ -109,7 +110,7 @@ function Set-TargetResource
         Write-Verbose -Message ($LocalizedData.SettingsslConfig -f $Name, 'None')
         Set-WebConfigurationProperty @params
     }
-    
+
     else
     {
         $sslBindings = $Bindings -join ','
@@ -145,6 +146,7 @@ function Test-TargetResource
         [ValidateSet('','Ssl','SslNegotiateCert','SslRequireCert','Ssl128')]
         [String[]] $Bindings,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [String] $Ensure = 'Present'
     )
