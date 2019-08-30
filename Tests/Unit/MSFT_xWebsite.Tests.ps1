@@ -1107,7 +1107,7 @@ try
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Get-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
@@ -1351,7 +1351,7 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
