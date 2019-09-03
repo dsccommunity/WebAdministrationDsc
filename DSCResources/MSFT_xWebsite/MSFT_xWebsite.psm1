@@ -961,7 +961,7 @@ function Test-TargetResource
         }
 
         #Check ServerAutoStart
-        if($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
+        if ($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
             $website.serverAutoStart -ne $ServerAutoStart)
         {
             $inDesiredState = $false

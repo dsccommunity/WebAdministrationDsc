@@ -28,7 +28,8 @@ configuration MSFT_xWebsite_Present_Started
                     Digest    = $Node.AuthenticationInfoDigest
                     Windows   = $Node.AuthenticationInfoWindows
                 }
-            BindingInfo = @(MSFT_xWebBindingInformation
+            BindingInfo = @(
+                MSFT_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
@@ -61,7 +62,8 @@ configuration MSFT_xWebsite_Present_Started
                     CertificateSubject    = $Node.HTTPSHostname
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
-                })
+                }
+            )
             DefaultPage = $Node.DefaultPage
             EnabledProtocols = $Node.EnabledProtocols
             PhysicalPath = $Node.PhysicalPath
@@ -70,21 +72,21 @@ configuration MSFT_xWebsite_Present_Started
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
             State = 'Started'
             ServerAutoStart = $true
-                LogTargetW3C = 'ETW'
-                LogCustomFields    = @(
-                    MSFT_xLogCustomFieldInformation
-                    {
-                        LogFieldName = $Node.LogFieldName1
-                        SourceName   = $Node.SourceName1
-                        SourceType   = $Node.SourceType1
-        }
-                    MSFT_xLogCustomFieldInformation
-                    {
-                        LogFieldName = $Node.LogFieldName2
-                        SourceName   = $Node.SourceName2
-                        SourceType   = $Node.SourceType2
-    }
-                )
+            LogTargetW3C = 'ETW'
+            LogCustomFields = @(
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName1
+                    SourceName   = $Node.SourceName1
+                    SourceType   = $Node.SourceType1
+                }
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName2
+                    SourceName   = $Node.SourceName2
+                    SourceType   = $Node.SourceType2
+                }
+            )
         }
     }
 }
@@ -142,7 +144,7 @@ configuration MSFT_xWebsite_Present_Stopped
                     SslFlags              = $Node.SslFlags
                 }
                 MSFT_xWebBindingInformation
-                    {
+                {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort2
                     IPAddress             = '*'
@@ -150,7 +152,8 @@ configuration MSFT_xWebsite_Present_Stopped
                     CertificateSubject    = $Node.HTTPSHostname
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
-                })
+                }
+            )
             DefaultPage = $Node.DefaultPage
             EnabledProtocols = $Node.EnabledProtocols
             PhysicalPath = $Node.PhysicalPath
@@ -159,19 +162,19 @@ configuration MSFT_xWebsite_Present_Stopped
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
             State = 'Stopped'
             ServerAutoStart = $false
-            LogCustomFields    = @(
+            LogCustomFields = @(
                 MSFT_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName1
                     SourceName   = $Node.SourceName1
                     SourceType   = $Node.SourceType1
-        }
+                }
                 MSFT_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName2
                     SourceName   = $Node.SourceName2
                     SourceType   = $Node.SourceType2
-    }
+                }
             )
         }
     }
@@ -242,7 +245,8 @@ configuration MSFT_xWebsite_Webconfig_Get_Test_Set
                     Digest    = $Node.AuthenticationInfoDigest
                     Windows   = $Node.AuthenticationInfoWindows
                 }
-                BindingInfo = @(MSFT_xWebBindingInformation
+            BindingInfo = @(
+                MSFT_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
@@ -275,28 +279,29 @@ configuration MSFT_xWebsite_Webconfig_Get_Test_Set
                     CertificateSubject    = $Node.HTTPSHostname
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
-                })
-                DefaultPage = $Node.DefaultPage
-                EnabledProtocols = $Node.EnabledProtocols
-                PhysicalPath = $Node.PhysicalPath
-                PreloadEnabled = $Node.PreloadEnabled
-                ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
-                ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
-                State = 'Started'
-                LogCustomFields    = @(
-                    MSFT_xLogCustomFieldInformation
-                    {
-                        LogFieldName = $Node.LogFieldName1
-                        SourceName   = $Node.SourceName1
-                        SourceType   = $Node.SourceType1
-                    }
-                    MSFT_xLogCustomFieldInformation
-                    {
-                        LogFieldName = $Node.LogFieldName2
-                        SourceName   = $Node.SourceName2
-                        SourceType   = $Node.SourceType2
-                    }
-                )
+                }
+            )
+            DefaultPage = $Node.DefaultPage
+            EnabledProtocols = $Node.EnabledProtocols
+            PhysicalPath = $Node.PhysicalPath
+            PreloadEnabled = $Node.PreloadEnabled
+            ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
+            ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
+            State = 'Started'
+            LogCustomFields = @(
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName1
+                    SourceName   = $Node.SourceName1
+                    SourceType   = $Node.SourceType1
+                }
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName2
+                    SourceName   = $Node.SourceName2
+                    SourceType   = $Node.SourceType2
+                }
+            )
         }
     }
 }
