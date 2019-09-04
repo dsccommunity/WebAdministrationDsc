@@ -3554,6 +3554,69 @@ try
                         -BindingInfo $MockBindingInfo | Should Be $false
                 }
             }
+
+            Context 'Two bindings with different certificate thumbprints' {
+                $MockBindingInfo = @(
+                    New-CimInstance `
+                        -ClassName MSFT_xWebBindingInformation `
+                        -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                        -ClientOnly `
+                        -Property @{
+                            Protocol              = 'https'
+                            IPAddress             = '*'
+                            Port                  = 443
+                            HostName              = 'mock.website1.com'
+                            CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
+                            CertificateStoreName  = 'WebHosting'
+                            SslFlags              = 0
+                        }
+
+                    New-CimInstance `
+                        -ClassName MSFT_xWebBindingInformation `
+                        -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                        -ClientOnly `
+                        -Property @{
+                            Protocol              = 'https'
+                            IPAddress             = '*'
+                            Port                  = 443
+                            HostName              = 'mock.website2.com'
+                            CertificateThumbprint = 'B30F3184A831320382C61EFB0551766321FA88A5'
+                            CertificateStoreName  = 'WebHosting'
+                            SslFlags              = 0
+                        }
+                )
+
+                $MockWebBinding = @(
+                    @{
+                        bindingInformation   = '*:443:mock.website1.com'
+                        protocol             = 'https'
+                        certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
+                        certificateStoreName = 'WebHosting'
+                        sslFlags             = '0'
+                    }
+
+                    @{
+                        bindingInformation   = '*:443:mock.website2.com'
+                        protocol             = 'https'
+                        certificateHash      = 'B30F3184A831320382C61EFB0551766321FA88A5'
+                        certificateStoreName = 'WebHosting'
+                        sslFlags             = '0'
+                    }
+                )
+
+                $MockWebsite = @{
+                    Name     = 'MockSite'
+                    Bindings = @{Collection = @($MockWebBinding)}
+                }
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                It 'should return True' {
+                    Test-WebsiteBinding `
+                        -Name $MockWebsite.Name `
+                        -BindingInfo $MockBindingInfo | Should Be $true
+                }
+            }
         }
 
         Describe "$script:DSCResourceName\Update-DefaultPage" {

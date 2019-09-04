@@ -1501,6 +1501,7 @@ function ConvertTo-WebBinding
                         $certificateStoreName = $binding.CertificateStoreName
                     }
 
+                    $certificateHash = $null
                     if ($FindCertificateSplat)
                     {
                         $FindCertificateSplat.Add('Store',$CertificateStoreName)
