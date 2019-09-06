@@ -324,6 +324,8 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 * Changes to xWebsite
   * Added ServerAutoStart (controls website autostart) and changed documentation for ServiceAutoStartEnabled (controls application auto-initialization). Fixes #325.
+  * Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
+    * Added unit regression test
 
 ### 2.7.0.0
 
