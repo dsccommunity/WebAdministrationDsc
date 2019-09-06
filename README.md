@@ -874,7 +874,7 @@ Configuration Sample_xWebsite_NewWebsite
                     Port                  = 8443
                     CertificateThumbprint = "71AD93562316F21F74606F1096B85D66289ED60F"
                     CertificateStoreName  = "WebHosting"
-                },
+                }
                 MSFT_xWebBindingInformation
                 {
                     Protocol              = "HTTPS"
