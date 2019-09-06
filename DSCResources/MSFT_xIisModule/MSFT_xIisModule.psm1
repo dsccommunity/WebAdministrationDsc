@@ -280,8 +280,6 @@ function Get-IisHandler
     (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-
-        [Parameter()]
         [String] $Name,
 
         [Parameter()]
