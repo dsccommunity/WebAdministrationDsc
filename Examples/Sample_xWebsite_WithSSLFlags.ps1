@@ -29,25 +29,26 @@ configuration Sample_xWebsite_WithSSLFlags
         # Install the IIS role
         WindowsFeature IIS
         {
-            Ensure = "Present"
-            Name   = "Web-Server"
+            Ensure          = "Present"
+            Name            = "Web-Server"
         }
 
         # Install the ASP .NET 4.5 role
         WindowsFeature AspNet45
         {
-            Ensure = "Present"
-            Name   = "Web-Asp-Net45"
+            Ensure          = "Present"
+            Name            = "Web-Asp-Net45"
         }
 
         # Stop the default website
         xWebsite DefaultSite
         {
-            Ensure       = "Present"
-            Name         = "Default Web Site"
-            State        = "Stopped"
-            PhysicalPath = "C:\inetpub\wwwroot"
-            DependsOn    = "[WindowsFeature]IIS"
+            Ensure          = "Present"
+            Name            = "Default Web Site"
+            State           = "Stopped"
+            ServerAutoStart = $false
+            PhysicalPath    = "C:\inetpub\wwwroot"
+            DependsOn       = "[WindowsFeature]IIS"
         }
 
         # Copy the website content
@@ -66,12 +67,12 @@ configuration Sample_xWebsite_WithSSLFlags
         # and set that the Server Name Indication is required
         xWebsite NewWebsite
         {
-            Ensure       = "Present"
-            Name         = $WebSiteName
-            State        = "Started"
-            PhysicalPath = $DestinationPath
-            DependsOn    = "[File]WebContent"
-            BindingInfo  = MSFT_xWebBindingInformation
+            Ensure          = "Present"
+            Name            = $WebSiteName
+            State           = "Started"
+            PhysicalPath    = $DestinationPath
+            DependsOn       = "[File]WebContent"
+            BindingInfo     = MSFT_xWebBindingInformation
             {
                 Protocol              = 'https'
                 Port                  = '443'

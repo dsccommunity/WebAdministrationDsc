@@ -177,9 +177,10 @@ Please check out common DSC Resources [contributing guidelines](https://github.c
     * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
 * **ApplicationPool**: The website’s application pool.
 * **EnabledProtocols**: The protocols that are enabled for the website.
+* **ServerAutoStart**: When set to `$true` this will enable Autostart on a Website
 * **Ensure**: Ensures that the website is **Present** or **Absent**.
 * **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
-* **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
+* **ServiceAutoStartEnabled**: When set to `$true` this will enable application Autostart (application initalization without an initial request) on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
 * **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **MSFT_xWebAuthenticationInformation** CIM class.
@@ -321,8 +322,10 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
-* Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
-  * Added unit regression test
+* Changes to xWebsite
+  * Added ServerAutoStart (controls website autostart) and changed documentation for ServiceAutoStartEnabled (controls application auto-initialization). Fixes #325.
+  * Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
+    * Added unit regression test
 
 ### 2.7.0.0
 
@@ -1189,7 +1192,7 @@ configuration Sample_EndToEndxWebAdministration
             Type                 = $null
             PreCondition         = $null
             Location             = 'Default Web Site/TestDir
-        }
+    }
     }
 }
 
