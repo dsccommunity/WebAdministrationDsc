@@ -10,7 +10,7 @@ Configuration Sample_xWebConfigKeyValue_AddAppSetting
     param
     (
         # Target nodes to apply the configuration.
-        [String[]] $NodeName    = 'localhost',
+        [String[]] $NodeName = 'localhost',
 
         # Target website to which the key should be added.
         [String]   $WebsiteName = 'Default Web Site'
@@ -22,13 +22,13 @@ Configuration Sample_xWebConfigKeyValue_AddAppSetting
     Node $NodeName
     {
         # Adds an extra app setting to the AppSettings section.
-        xWebConfigKeyValue DefaultSite 
+        xWebConfigKeyValue DefaultSite
         {
-            Ensure          = 'Present'
-            ConfigSection   = 'AppSettings'
-            Key             = 'WebsiteTitle'
-            Value           = 'xWebAdministration DSC Examples'
-            WebsitePath     = 'IIS:\Sites\' + $WebsiteName
+            Ensure        = 'Present'
+            ConfigSection = 'AppSettings'
+            Key           = 'WebsiteTitle'
+            Value         = 'xWebAdministration DSC Examples'
+            WebsitePath   = 'IIS:\Sites\' + $WebsiteName
         }
     }
 }

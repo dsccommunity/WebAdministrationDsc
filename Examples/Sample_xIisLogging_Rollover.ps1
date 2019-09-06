@@ -13,11 +13,11 @@ configuration Sample_xIisLogging_Rollover
     {
         xIisLogging Logging
         {
-            LogPath = 'C:\IISLogFiles'
-            Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
+            LogPath              = 'C:\IISLogFiles'
+            Logflags             = @('Date', 'Time', 'ClientIP', 'UserName', 'ServerIP')
             LoglocalTimeRollover = $true
-            LogPeriod = 'Hourly'
-            LogFormat = 'W3C'
+            LogPeriod            = 'Hourly'
+            LogFormat            = 'W3C'
         }
     }
 }

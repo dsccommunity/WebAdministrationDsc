@@ -23,11 +23,11 @@ Configuration Sample_xWebConfigProperty_Add
     {
         xWebConfigProperty "$($NodeName) - Ensure 'directory browsing' is set to disabled - Add"
         {
-            WebsitePath = 'IIS:\Sites\Default Web Site'
-            Filter = 'system.webServer/directoryBrowse'
+            WebsitePath  = 'IIS:\Sites\Default Web Site'
+            Filter       = 'system.webServer/directoryBrowse'
             PropertyName = 'enabled'
-            Value = 'false'
-            Ensure = 'Present'
+            Value        = 'false'
+            Ensure       = 'Present'
         }
     }
 }

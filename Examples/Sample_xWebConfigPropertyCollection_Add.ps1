@@ -23,15 +23,15 @@ Configuration Sample_xWebConfigPropertyCollection_Add
     {
         xWebConfigPropertyCollection "$($NodeName) - Disable HTTP TRACE method"
         {
-            WebsitePath = 'MACHINE/WEBROOT/APPHOST'
-            Filter = 'system.webServer/security/requestFiltering'
-            CollectionName = 'verbs'
-            ItemName = 'add'
-            ItemKeyName = 'verb'
-            ItemKeyValue = 'TRACE'
-            ItemPropertyName = 'allowed'
+            WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
+            Filter            = 'system.webServer/security/requestFiltering'
+            CollectionName    = 'verbs'
+            ItemName          = 'add'
+            ItemKeyName       = 'verb'
+            ItemKeyValue      = 'TRACE'
+            ItemPropertyName  = 'allowed'
             ItemPropertyValue = 'false'
-            Ensure = 'Present'
+            Ensure            = 'Present'
         }
     }
 }

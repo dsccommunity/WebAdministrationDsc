@@ -19,12 +19,12 @@ Configuration Sample_xWebSiteDefaults
     {
         xWebSiteDefaults SiteDefaults
         {
-            ApplyTo                 = 'Machine'
-            LogFormat               = 'IIS'
-            LogDirectory            = 'C:\inetpub\logs\LogFiles'
-            TraceLogDirectory       = 'C:\inetpub\logs\FailedReqLogFiles'
-            DefaultApplicationPool  = 'DefaultAppPool'
-            AllowSubDirConfig       = 'true'
+            ApplyTo                = 'Machine'
+            LogFormat              = 'IIS'
+            LogDirectory           = 'C:\inetpub\logs\LogFiles'
+            TraceLogDirectory      = 'C:\inetpub\logs\FailedReqLogFiles'
+            DefaultApplicationPool = 'DefaultAppPool'
+            AllowSubDirConfig      = 'true'
         }
     }
 }
