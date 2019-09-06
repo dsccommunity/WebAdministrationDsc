@@ -842,7 +842,25 @@ function Test-TargetResource
                 $propertyPath = $_.Path
                 $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
+                # First check if the property is a comma-separated array as a String, split and compare membership if so
                 if (
+                    ($property.GetType().FullName -eq 'System.String') -and ($property.Contains(','))
+                )
+                {
+                    $currentPropertyCollection = $property.Split(',')
+                    $expectedPropertyCollection = $PSBoundParameters[$propertyName].Split(',')
+
+                    $compareResult = @(Compare-Object -ReferenceObject $currentPropertyCollection -DifferenceObject $expectedPropertyCollection)
+                    if ($compareResult.Length -ne 0)
+                    {
+                        Write-Verbose -Message (
+                            $LocalizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
+                        )
+
+                        $inDesiredState = $false
+                    }
+                }
+                elseif (
                     $PSBoundParameters[$propertyName] -ne $property
                 )
                 {

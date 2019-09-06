@@ -1563,6 +1563,11 @@ try
                     Should Be $true
                 }
 
+                It 'Should return True when the property matches the desired state but items are in a different order' {
+                    Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logEventOnRecycle 'IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory,Time,Requests,Schedule,Memory' |
+                    Should Be $true
+                }
+
                 It 'Should return False when the property does not match the desired state' {
                     Test-TargetResource -Ensure 'Present' -Name $mockAppPool.name -logEventOnRecycle 'Time,Memory,PrivateMemory' |
                     Should Be $false
