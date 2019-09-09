@@ -145,7 +145,7 @@ function Get-TargetResource
         }
         else
         {
-            $logFlagsArray = [System.String[]]@()
+            $logFlagsArray = $website.logfile.LogExtFileFlags
         }
     }
     # Multiple websites with the same name exist. This is not supported and is an error

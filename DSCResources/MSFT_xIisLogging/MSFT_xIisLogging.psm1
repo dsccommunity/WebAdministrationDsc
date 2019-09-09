@@ -57,7 +57,7 @@ function Get-TargetResource
     }
     else
     {
-        $logFlagsArray = [System.String[]]@()
+        $logFlagsArray = $currentLogSettings.LogExtFileFlags
     }
 
     return @{
