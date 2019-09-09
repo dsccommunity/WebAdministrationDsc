@@ -39,10 +39,10 @@ data LocalizedData
         VerboseSetTargetWebsiteCreated = Successfully created website "{0}".
         VerboseSetTargetWebsiteStarted = Successfully started website "{0}".
         VerboseSetTargetWebsiteRemoved = Successfully removed website "{0}".
-        VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
-        VerboseSetTargetWebsitePreloadUpdated = Successfully updated Preload on website "{0}".
         VerboseSetTargetWebsiteAutoStartUpdated = Successfully updated AutoStart on website "{0}".
-        VerboseSetTargetWebsiteAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
+        VerboseSetTargetAuthenticationInfoUpdated = Successfully updated AuthenticationInfo on website "{0}".
+        VerboseSetTargetWebsitePreloadUpdated = Successfully updated application Preload on website "{0}".
+        VerboseSetTargetServiceAutoStartProviderUpdated = Successfully updated AutoStartProvider on website "{0}".
         VerboseSetTargetIISAutoStartProviderUpdated = Successfully updated AutoStartProvider in IIS.
         VerboseSetTargetUpdateLogPath = LogPath does not match and will be updated on Website "{0}".
         VerboseSetTargetUpdateLogFlags = LogFlags do not match and will be updated on Website "{0}".
@@ -62,8 +62,9 @@ data LocalizedData
         VerboseTestTargetFalseDefaultPage = Default Page for website "{0}" does not match the desired state.
         VerboseTestTargetTrueResult = The target resource is already in the desired state. No action is required.
         VerboseTestTargetFalseResult = The target resource is not in the desired state.
-        VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
         VerboseTestTargetFalseAutoStart = AutoStart for website "{0}" do not match the desired state.
+        VerboseTestTargetFalsePreload = Preload for website "{0}" do not match the desired state.
+        VerboseTestTargetFalseServiceAutoStart = Application AutoStart for website "{0}" do not match the desired state.
         VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
         VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
         VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
@@ -158,6 +159,7 @@ function Get-TargetResource
         BindingInfo              = $cimBindings
         DefaultPage              = $allDefaultPages
         EnabledProtocols         = $website.EnabledProtocols
+        ServerAutoStart          = $website.serverAutoStart
         AuthenticationInfo       = $cimAuthentication
         PreloadEnabled           = $website.applicationDefaults.preloadEnabled
         ServiceAutoStartProvider = $website.applicationDefaults.serviceAutoStartProvider
@@ -231,6 +233,10 @@ function Set-TargetResource
         [Parameter()]
         [String]
         $EnabledProtocols,
+
+        [Parameter()]
+        [Boolean]
+        $ServerAutoStart,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
@@ -421,6 +427,18 @@ function Set-TargetResource
                 Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState `
                                         -f $Name, $State)
             }
+
+            # Update ServerAutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
+                ($website.serverAutoStart -ne $ServerAutoStart))
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name serverAutoStart `
+                                 -Value $ServerAutoStart `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                                        -f $Name)
+            }
         }
         # Create website if it does not exist
         else
@@ -533,6 +551,18 @@ function Set-TargetResource
                                          -ErrorCategory 'InvalidOperation'
                 }
             }
+
+            # Update ServerAutoStart if required
+            if ($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
+                ($website.serverAutoStart -ne $ServerAutoStart))
+            {
+                Set-ItemProperty -Path "IIS:\Sites\$Name" `
+                                 -Name serverAutoStart `
+                                 -Value $ServerAutoStart `
+                                 -ErrorAction Stop
+                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                                        -f $Name)
+            }
         }
 
         # Set Authentication; if not defined then pass in DefaultAuthenticationInfo
@@ -567,7 +597,7 @@ function Set-TargetResource
                                 -Name applicationDefaults.serviceAutoStartEnabled `
                                 -Value $ServiceAutoStartEnabled `
                                 -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+            Write-Verbose -Message ($LocalizedData.VerboseSetTargetServiceAutoStartUpdated `
                                     -f $Name)
         }
 
@@ -593,7 +623,7 @@ function Set-TargetResource
                                 -Name applicationDefaults.serviceAutoStartProvider `
                                 -Value $ServiceAutoStartProvider -ErrorAction Stop
             Write-Verbose -Message `
-                            ($LocalizedData.VerboseSetTargetWebsiteAutoStartProviderUpdated `
+                            ($LocalizedData.VerboseSetTargetServiceAutoStartProviderUpdated `
                             -f $Name)
         }
 
@@ -773,6 +803,10 @@ function Test-TargetResource
         $EnabledProtocols,
 
         [Parameter()]
+        [Boolean]
+        $ServerAutoStart,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $AuthenticationInfo,
 
@@ -926,6 +960,15 @@ function Test-TargetResource
             }
         }
 
+        #Check ServerAutoStart
+        if ($PSBoundParameters.ContainsKey('ServerAutoStart') -and `
+            $website.serverAutoStart -ne $ServerAutoStart)
+        {
+            $inDesiredState = $false
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart `
+                                    -f $Name)
+        }
+
         #Check AuthenticationInfo
         if ($PSBoundParameters.ContainsKey('AuthenticationInfo') -and `
             (-not (Test-AuthenticationInfo -Site $Name `
@@ -949,7 +992,7 @@ function Test-TargetResource
             $website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart `
+            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseServiceAutoStart `
                                     -f $Name)
         }
 
