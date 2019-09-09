@@ -14,18 +14,19 @@ configuration Sample_xWebsite_RemoveDefault
         # Install the IIS role
         WindowsFeature IIS
         {
-            Ensure = 'Present'
-            Name   = 'Web-Server'
+            Ensure          = 'Present'
+            Name            = 'Web-Server'
         }
 
         # Stop the default website
         xWebsite DefaultSite
         {
-            Ensure       = 'Present'
-            Name         = 'Default Web Site'
-            State        = 'Stopped'
-            PhysicalPath = 'C:\inetpub\wwwroot'
-            DependsOn    = '[WindowsFeature]IIS'
+            Ensure          = 'Present'
+            Name            = 'Default Web Site'
+            State           = 'Stopped'
+            ServerAutoStart = $false
+            PhysicalPath    = 'C:\inetpub\wwwroot'
+            DependsOn       = '[WindowsFeature]IIS'
         }
     }
 }
