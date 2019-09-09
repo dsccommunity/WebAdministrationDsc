@@ -95,7 +95,7 @@ data PropertyData
 }
 
 # Properties that are specified as a single comma-separated string containing multiple flags
-$CommaSeparatedStringProperties = @(
+$script:commaSeparatedStringProperties = @(
     'logEventOnRecycle'
 )
 
@@ -848,9 +848,7 @@ function Test-TargetResource
                 $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
                 # First check if the property is a single comma-separated string containing multiple flags, split and compare membership if so
-                if (
-                    $propertyName -in $CommaSeparatedStringProperties
-                )
+                if ($propertyName -in $script:commaSeparatedStringProperties)
                 {
                     $currentPropertyCollection = $property.Split(',')
                     $expectedPropertyCollection = $PSBoundParameters[$propertyName].Split(',')
