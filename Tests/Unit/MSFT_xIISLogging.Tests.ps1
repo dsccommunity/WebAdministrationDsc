@@ -110,6 +110,26 @@ try
                     $result.LogFlags | Should Be $MockLogOutput.logExtFileFlags
                 }
 
+                It 'Should return LogFlags as expected array of Strings' {
+                    $result.LogFlags -is [System.String[]] | Should -BeTrue
+                    $result.LogFlags | Should -HaveCount 15
+                    $result.LogFlags | Should -Contain 'Date'
+                    $result.LogFlags | Should -Contain 'Time'
+                    $result.LogFlags | Should -Contain 'ClientIP'
+                    $result.LogFlags | Should -Contain 'UserName'
+                    $result.LogFlags | Should -Contain 'ServerIP'
+                    $result.LogFlags | Should -Contain 'Method'
+                    $result.LogFlags | Should -Contain 'UriStem'
+                    $result.LogFlags | Should -Contain 'UriQuery'
+                    $result.LogFlags | Should -Contain 'HttpStatus'
+                    $result.LogFlags | Should -Contain 'Win32Status'
+                    $result.LogFlags | Should -Contain 'TimeTaken'
+                    $result.LogFlags | Should -Contain 'ServerPort'
+                    $result.LogFlags | Should -Contain 'UserAgent'
+                    $result.LogFlags | Should -Contain 'Referer'
+                    $result.LogFlags | Should -Contain 'HttpSubStatus'
+                }
+
                 It 'Should return LogPeriod' {
                     $result.LogPeriod | Should Be $MockLogOutput.period
                 }
