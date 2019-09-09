@@ -280,8 +280,6 @@ function Get-IisHandler
     (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-
-        [Parameter()]
         [String] $Name,
 
         [Parameter()]
@@ -305,8 +303,6 @@ function Remove-IisHandler
     (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-
-        [Parameter()]
         [String] $Name,
 
         [Parameter(Mandatory = $true)]
