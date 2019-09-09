@@ -321,6 +321,8 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+* Changes to xIisModule
+  * Fixed the parameters specification for the internal Get-IISHandler function
 * Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
   * Added unit regression test
 
