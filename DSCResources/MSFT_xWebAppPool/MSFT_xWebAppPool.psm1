@@ -94,6 +94,11 @@ data PropertyData
     )
 }
 
+# Properties that are specified as a single comma-separated string containing multiple flags
+$CommaSeparatedStringProperties = @(
+    'logEventOnRecycle'
+)
+
 function Get-TargetResource
 {
     <#
@@ -842,9 +847,9 @@ function Test-TargetResource
                 $propertyPath = $_.Path
                 $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
-                # First check if the property is a comma-separated array as a String, split and compare membership if so
+                # First check if the property is a single comma-separated string containing multiple flags, split and compare membership if so
                 if (
-                    ($property.GetType().FullName -eq 'System.String') -and ($property.Contains(','))
+                    $propertyName -in $CommaSeparatedStringProperties
                 )
                 {
                     $currentPropertyCollection = $property.Split(',')
