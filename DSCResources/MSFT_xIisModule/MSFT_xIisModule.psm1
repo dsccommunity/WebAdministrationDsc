@@ -303,8 +303,6 @@ function Remove-IisHandler
     (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-
-        [Parameter()]
         [String] $Name,
 
         [Parameter(Mandatory = $true)]
