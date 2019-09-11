@@ -139,13 +139,10 @@ function Get-TargetResource
 
         [Array] $cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
 
+        $logFlagsArray = $null
         if ($website.logfile.LogExtFileFlags -is [System.String])
         {
             $logFlagsArray = [System.String[]]$website.logfile.LogExtFileFlags.Split(',')
-        }
-        else
-        {
-            $logFlagsArray = $website.logfile.LogExtFileFlags
         }
     }
     # Multiple websites with the same name exist. This is not supported and is an error

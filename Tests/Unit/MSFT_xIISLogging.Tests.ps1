@@ -58,7 +58,7 @@ try
         $MockLogOutput =
             @{
                 directory         = '%SystemDrive%\inetpub\logs\LogFiles'
-                logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                logExtFileFlags   = 'Date,Time,ClientIP,UserName,ServerIP,Method,UriStem,UriQuery,HttpStatus,Win32Status,TimeTaken,ServerPort,UserAgent,Referer,HttpSubStatus'
                 logFormat         = 'W3C'
                 LogTargetW3C      = 'File,ETW'
                 period            = 'Daily'

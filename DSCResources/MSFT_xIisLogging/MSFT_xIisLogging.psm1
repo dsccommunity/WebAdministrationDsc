@@ -51,13 +51,10 @@ function Get-TargetResource
 
     $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $currentLogSettings.logFile.customFields.Collection)
 
+    $logFlagsArray = $null
     if ($currentLogSettings.LogExtFileFlags -is [System.String])
     {
         $logFlagsArray = [System.String[]]$currentLogSettings.LogExtFileFlags.Split(',')
-    }
-    else
-    {
-        $logFlagsArray = $currentLogSettings.LogExtFileFlags
     }
 
     return @{
