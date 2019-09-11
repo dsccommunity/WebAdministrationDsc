@@ -124,6 +124,8 @@ try
                 Count                = 1
             }
 
+            $MockLogFlagsAfterSplit = [System.String[]]@('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
+
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Website does not exist' {
@@ -270,7 +272,7 @@ try
                 }
 
                 It 'should return LogFlags' {
-                    $Result.LogFlags | Should Be $MockWebsite.Logfile.logExtFileFlags
+                    $Result.LogFlags | Should Be $MockLogFlagsAfterSplit
                 }
 
                 It 'should return LogFlags as expected array of Strings' {

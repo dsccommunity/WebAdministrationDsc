@@ -67,6 +67,8 @@ try
                 customFields      = @{Collection = @($MockLogCustomFields)}
             }
 
+        $MockLogFlagsAfterSplit = [System.String[]]@('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
+
         Describe "$script:DSCResourceName\Assert-Module" {
 
             Context 'WebAdminstration module is not installed' {
@@ -107,7 +109,7 @@ try
                 }
 
                 It 'Should return LogFlags' {
-                    $result.LogFlags | Should Be $MockLogOutput.logExtFileFlags
+                    $result.LogFlags | Should Be $MockLogFlagsAfterSplit
                 }
 
                 It 'Should return LogFlags as expected array of Strings' {
