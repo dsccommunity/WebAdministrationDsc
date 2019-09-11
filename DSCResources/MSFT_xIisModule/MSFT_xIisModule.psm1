@@ -90,7 +90,7 @@ function Get-TargetResource
             Verb          = $currentVerbs
             SiteName      = $SiteName
             Ensure        = "Present"
-            ModuleType    = $handler.Modules
+            ModuleType    = $handler.Modules.SPlit(',')
         }
     }
 
