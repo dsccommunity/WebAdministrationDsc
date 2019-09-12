@@ -24,10 +24,10 @@ function Get-TargetResource
         [System.String]
         $Code,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
-        $Ensure
+        $Ensure= "Present"
     )
 
     Assert-Module
@@ -80,9 +80,10 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [String] $Code,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
-        [String] $Ensure
+        [System.String]
+        $Ensure= "Present"
     )
 
     $resourceStatus = Get-TargetResource @PSBoundParameters
@@ -138,10 +139,10 @@ function Test-TargetResource
         [System.String]
         $Code,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
-        $Ensure
+        $Ensure = "Present"
     )
     $resourceStatus = Get-TargetResource @PSBoundParameters
 
