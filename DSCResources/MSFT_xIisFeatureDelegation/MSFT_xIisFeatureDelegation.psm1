@@ -153,6 +153,51 @@ function Test-TargetResource
     return $false
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xIISFeatureDelegation..."
+
+    $DSCContent = Get-IISFeatureDelegation -Path "system.webServer/*"
+
+    return $DSCContent
+}
+
+function Get-IISFeatureDelegation($Path)
+{
+    $ConfigSections = Get-WebConfiguration -Filter $Path -Metadata -Recurse
+    $DSCConfigContent = ""
+    foreach ($section in $ConfigSections)
+    {
+        $params = @{
+            Filter = $section.SectionPath.Remove(0,1)
+            Path = "MACHINE/WEBROOT/APPHOST"
+            OverrideMode = $false
+        }
+
+        try
+        {
+            $results = Get-TargetResource @params
+            $DSCConfigContent += "        xIISFeatureDelegation " + (New-Guid).ToString() + "`r`n        {`r`n"
+            $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $module -UseGetTargetResource
+            $DSCConfigContent += "        }`r`n"
+
+
+            $ChildPath = $section.SectionPath.Remove(0,1) + "/*"
+            $ConfigSections = Get-WebConfiguration -Filter $ChildPath -Metadata -Recurse
+            if ($null -ne $ConfigSections)
+            {
+                $DSCConfigContent += Get-IISFeatureDelegation -Path $ChildPath
+            }
+        }
+        catch{}
+    }
+    return $DSCConfigContent
+}
+
 #region Helper functions
 <#
     .SYNOPSIS

@@ -2,13 +2,10 @@
 [ClassVersion("1.0.0"), FriendlyName("xIisModule")]
 class MSFT_xIisModule : OMI_BaseResource
 {
-    [Key, Description("The path to the module, usually a dll, to be added to IIS.")] String Path;
-    [Required, Description("The logical name of the module to add to IIS.")] String Name;
-    [Required, Description("The allowed request Path example: *.php")] String RequestPath;
-    [Required, Description("The supported verbs for the module.")] String Verb[];
-    [Write, Description("The IIS Site to register the module.")] String SiteName;
+    [Key, Description("The logical name of the module to add to IIS.")] String Name;
+    [Key, Description("The IIS Site to register the module. Use '*' to specify the server's root.")] String SiteName;
+    [Write, Description("The code associated with the module to register")] String Code;
     [Write, Description("Should the module be present or absent."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
-    [Write, Description("The type of the module."), ValueMap{"DefaultDocumentModule","DirectoryListingModule","FastCgiModule","ProtocolSupportModule","StaticFileModule"}, Values{"DefaultDocumentModule","DirectoryListingModule","FastCgiModule","ProtocolSupportModule","StaticFileModule"}] String ModuleType;
 };
 
 

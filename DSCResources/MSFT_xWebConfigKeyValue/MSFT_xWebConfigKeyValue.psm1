@@ -242,6 +242,16 @@ function Test-TargetResource
     return $true
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xWebConfigKeyValue..."
+    return ""
+}
+
 # region Helper Functions
 
 function Add-Item

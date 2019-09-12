@@ -210,4 +210,53 @@ function Test-TargetResource
     return $false
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xWebVirtualDirectory..."
+    $webSites = Get-WebSite
+
+    $i = 1
+    foreach($website in $webSites)
+    {
+        Write-Information "    [$i/$($webSites.Count)] Getting Virtual Directories from WebSite {$($website.Name)}"
+        Write-Verbose "WebSite: $($website.name)"
+        $webVirtualDirectories = Get-WebVirtualDirectory -Site $website.name
+
+        if($webVirtualDirectories)
+        {
+            $j =1
+            foreach($webvirtualdirectory in $webVirtualDirectories)
+            {
+                Write-Information "        [$j/$($webVirtualDirectories.Count)] $($webvirtualdirectory.path)"
+                Write-Verbose "WebSite/VirtualDirectory: $($website.name)$($webvirtualdirectory.path)"
+                $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
+
+                <# Setting Primary Keys #>
+                $params.Name = $webvirtualdirectory.Path
+                $params.WebApplication = ""
+                $params.Website = $website.Name
+                <# Setting Required Keys #>
+                #$params.PhysicalPath  = $webapplication.PhysicalPath
+                Write-Verbose "Key parameters as follows"
+                $params | ConvertTo-Json | Write-Verbose
+
+                $results = Get-TargetResource @params
+
+                Write-Verbose "All Parameters with values"
+                $results | ConvertTo-Json | Write-Verbose
+
+                $Script:dscConfigContent += "            xWebVirtualDirectory " + (New-Guid).ToString() + "`r`n            {`r`n"
+                $Script:dscConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+                $Script:dscConfigContent += "            }`r`n"
+                $j++
+            }
+        }
+    }
+    $i++
+}
+
 Export-ModuleMember -Function *-TargetResource

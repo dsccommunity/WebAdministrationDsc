@@ -977,6 +977,52 @@ function Test-TargetResource
     return $inDesiredState
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xWebAppPool..."
+
+    $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
+
+    $appPools = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add'
+    $DSCConfigContent = ""
+    $i = 1
+    foreach($appPool in $appPools)
+    {
+        Write-Information "    [$i/$($appPools.Length)] $($appPool.Name)"
+        <# Setting Primary Keys #>
+        $params.Name = $appPool.Name
+        Write-Verbose "Key parameters as follows"
+        $params | ConvertTo-Json | Write-Verbose
+
+        $results = Get-TargetResource @params
+
+
+        if($appPool.ProcessModel -eq "SpecificUser")
+        {
+            $securePassword = ConvertTo-SecureString $appPool.ProcessModel.password -AsPlainText
+            $creds = New-Object System.Automation.PSCredential($appPool.ProcessModel.username, $securePassword)
+            $results.Credential = "`$Creds" + $appPool.ProcessModel.username
+        }
+        else
+        {
+            $results.Remove("Credential")
+        }
+
+        Write-Verbose "All Parameters with values"
+        $results | ConvertTo-Json | Write-Verbose
+
+        $DSCConfigContent += "`r`n"
+        $DSCConfigContent += "        xWebAppPool " + (New-Guid).ToString() + "`r`n        {`r`n"
+        $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        $DSCConfigContent += "        }`r`n"
+    }
+    return $DSCConfigContent
+}
+
 #region Helper Functions
 
 function Get-Property

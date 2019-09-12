@@ -915,6 +915,17 @@ function Test-TargetResource
     }
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xIISHandler..."
+
+    return ""
+}
+
 #region Helper Functions
 
 function Get-Handler

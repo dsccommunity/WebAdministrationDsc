@@ -20,6 +20,9 @@ Description = 'Module with DSC Resources for Web Administration'
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '4.0'
 
+# Adds dependency to ReverseDSC
+RequiredModules = @(@{ModuleName = "ReverseDSC"; RequiredVersion = "1.9.4.5"; })
+
 # Minimum version of the common language runtime (CLR) required by this module
 CLRVersion = '4.0'
 
@@ -60,11 +63,14 @@ PrivateData = @{
 
 } # End of PrivateData hashtable
 
+# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
+NestedModules     = @('Modules\ReverseDSCCollector.psm1')
+
 # Functions to export from this module
 FunctionsToExport = '*'
 
 # Cmdlets to export from this module
-CmdletsToExport = '*'
+CmdletsToExport = 'Export-WebAdministrationConfiguraton'
 }
 
 

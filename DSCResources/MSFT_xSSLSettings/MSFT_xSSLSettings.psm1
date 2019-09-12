@@ -174,4 +174,15 @@ function Test-TargetResource
     return $false;
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xSSLSettings..."
+
+    return ""
+}
+
 Export-ModuleMember -Function *-TargetResource

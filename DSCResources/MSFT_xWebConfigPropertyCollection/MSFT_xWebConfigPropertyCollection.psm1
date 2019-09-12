@@ -426,6 +426,16 @@ function Test-TargetResource
     }
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xWebConfigPropertyCollection..."
+    return ""
+}
+
 # region Helper Functions
 
 <#

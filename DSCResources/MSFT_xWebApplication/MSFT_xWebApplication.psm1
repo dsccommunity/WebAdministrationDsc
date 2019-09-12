@@ -504,6 +504,80 @@ function Confirm-UniqueEnabledProtocols
     return $true
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xWebApplication..."
+
+    $webSites = Get-WebSite
+
+    $i = 1
+    foreach($website in $webSites)
+    {
+        Write-Information "    [$i/$($webSites.Count)] Site {$($webSite.Name)}"
+        $webApplications = Get-WebApplication -Site $website.name
+
+        if($webApplications)
+        {
+            $j = 1
+            foreach($webapplication in $webApplications)
+            {
+                Write-Information "[$j/$($webApplications.Count)] $($webApplication.Path)"
+
+                <# Setting Primary Keys #>
+                $params =@{
+                    Name         = $webapplication.Path
+                    Website      = $website.Name
+                    WebAppPool   = $webapplication.ApplicationPool
+                    PhysicalPath = "*"
+                }
+                <# Setting Required Keys #>
+                #$params.WebAppPool = $webapplication.applicationpool
+                #$params.PhysicalPath  = $webapplication.PhysicalPath
+                Write-Verbose "Key parameters as follows"
+                $params | ConvertTo-Json | Write-Verbose
+
+                $results = Get-TargetResource @params
+                Write-Verbose "All Parameters as follows"
+                $results | ConvertTo-Json | Write-Verbose
+
+                $AuthenticationInfo = "MSFT_xWebApplicationAuthenticationInformation`r`n            {`r`n"
+
+                $AuthenticationTypes = @("BasicAuthentication","AnonymousAuthentication","DigestAuthentication","WindowsAuthentication")
+
+                foreach ($authenticationtype in $AuthenticationTypes)
+                {
+                    Remove-Variable -Name location -ErrorAction SilentlyContinue
+                    Remove-Variable -Name prop -ErrorAction SilentlyContinue
+                    $location = "$($website.Name)" + "$($webapplication.Path)"
+                    $prop = Get-WebConfigurationProperty `
+                    -Filter /system.WebServer/security/authentication/$authenticationtype `
+                    -Name enabled `
+                    -PSPath "IIS:\Sites\$location"
+                    Write-Verbose "$authenticationtype : $($prop.Value)"
+                    $AuthenticationInfo += "                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value + ";`r`n"
+                }
+
+                $results.AuthenticationInfo = $AuthenticationInfo
+                $results.SslFlags = $results.SslFlags.Split(",")
+                $results.EnabledProtocols = $results.EnabledProtocols.Split(",")
+
+                Write-Verbose "All Parameters with values"
+                $results | ConvertTo-Json | Write-Verbose
+
+                $Script:dscConfigContent += "        xWebApplication " + (New-GUID).ToString() + "`r`n        {`r`n"
+                $Script:dscConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+                $Script:dscConfigContent += "        }`r`n"
+                $j++
+            }
+        }
+        $i++
+    }
+}
+
 #region Helper Functions
 
 <#

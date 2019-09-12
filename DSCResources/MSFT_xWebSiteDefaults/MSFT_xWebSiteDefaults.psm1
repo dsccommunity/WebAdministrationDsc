@@ -169,6 +169,17 @@ function Test-TargetResource
 
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xWebSiteDefaults..."
+
+    return ""
+}
+
 #region Helper Functions
 
 function Confirm-Value

@@ -228,6 +228,34 @@ function Test-TargetResource
     return $desiredConfigurationMatch
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+
+    $InformationPreference = "Continue"
+    Write-Information "Extracting xIISMimeTypeMapping..."
+
+    $MimeMap =  Get-WebConfiguration -Filter "system.webServer/staticContent/mimeMap"
+
+    $i = 1
+    foreach ($mimeType in $MimeMap)
+    {
+        Write-Information "    [$i/$($MimeMap.Count)] $($mimeType.mimeType)"
+        $params =@{
+            ConfigurationPath = $mimeType.PSPath
+            Extension         = $mimeType.fileExtension
+            MimeType          = $mimeType.mimeType
+            Ensure            = "Present"
+        }
+        $results = Get-TargetResource @params
+        $Script:DSCConfigContent += "        xIISMimeTypeMapping " + (New-Guid).ToString() + "`r`n        {`r`n"
+        $Script:dscConfigContent += Get-DSCBlock -Params $results -ModulePath $module
+        $Script:DSCConfigContent += "        }`r`n"
+        $i++
+    }
+}
+
 #region Helper Functions
 
 <#
