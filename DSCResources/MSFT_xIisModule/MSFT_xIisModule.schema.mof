@@ -4,7 +4,7 @@ class MSFT_xIisModule : OMI_BaseResource
 {
     [Key, Description("The logical name of the module to add to IIS.")] String Name;
     [Key, Description("The IIS Site to register the module. Use '*' to specify the server's root.")] String SiteName;
-    [Write, Description("The code associated with the module to register")] String Code;
+    [Required, Description("The code associated with the module to register")] String Code;
     [Write, Description("Should the module be present or absent."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
 };
 

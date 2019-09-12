@@ -1003,8 +1003,6 @@ function Export-TargetResource
 
         if($appPool.ProcessModel -eq "SpecificUser")
         {
-            $securePassword = ConvertTo-SecureString $appPool.ProcessModel.password -AsPlainText
-            $creds = New-Object System.Automation.PSCredential($appPool.ProcessModel.username, $securePassword)
             $results.Credential = "`$Creds" + $appPool.ProcessModel.username
         }
         else

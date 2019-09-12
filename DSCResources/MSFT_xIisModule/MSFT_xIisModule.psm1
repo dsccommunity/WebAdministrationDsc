@@ -18,7 +18,7 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $SiteName = "*",
+        $SiteName,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -31,6 +31,7 @@ function Get-TargetResource
     )
 
     Assert-Module
+    Write-Verbose "Calling Get-TargetResource for $Name"
     # We are looking at the root, therefore remove the asterik
     if ('*' -eq $SiteName)
     {
@@ -144,6 +145,7 @@ function Test-TargetResource
     )
     $resourceStatus = Get-TargetResource @PSBoundParameters
 
+    Write-Verbose "Testing $Name"
     return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
 }
 

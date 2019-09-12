@@ -166,8 +166,15 @@ function Export-TargetResource
     return $DSCContent
 }
 
-function Get-IISFeatureDelegation($Path)
+function Get-IISFeatureDelegation
 {
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $Path
+    )
     $ConfigSections = Get-WebConfiguration -Filter $Path -Metadata -Recurse
     $DSCConfigContent = ""
     foreach ($section in $ConfigSections)
@@ -193,7 +200,10 @@ function Get-IISFeatureDelegation($Path)
                 $DSCConfigContent += Get-IISFeatureDelegation -Path $ChildPath
             }
         }
-        catch{}
+        catch
+        {
+            Write-Error $_
+        }
     }
     return $DSCConfigContent
 }
