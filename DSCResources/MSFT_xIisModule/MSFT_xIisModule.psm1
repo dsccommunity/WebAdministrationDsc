@@ -88,29 +88,22 @@ function Set-TargetResource
 
     $resourceStatus = Get-TargetResource @PSBoundParameters
 
-    if($Ensure -eq 'Present')
+    if ($Ensure -eq 'Present' -and $resourceStatus.Ensure -eq 'Absent')
     {
         Write-Verbose "Setting Configuration"
-        if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
-        {
-            Remove-IisHandler -Name $Name -SiteName $SiteName
-        }
 
         if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
         {
-            Add-webconfiguration /system.webServer/handlers iis:\ -Value @{
-                Name = $Name
-                Path = $RequestPath
-                Verb = $Verb -join ','
-                Module = $ModuleType
-                ScriptProcessor = $Path
-            }
+            New-WebManagedModule -Name $Name -Location $SiteName -Type $Code
         }
+    }
+    elseif ($Ensure -eq 'Present' -and $resourceStatus.Ensure -eq 'Present')
+    {
+        Set-WebManagedModule -Name $Name -Location $SiteName -Type $Code
     }
     else
     {
-        Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
-        Remove-IisHandler -Name $Name -SiteName $SiteName
+        Remove-WebManagedModule -Location $SiteName -Name $NAme
     }
 }
 
