@@ -90,15 +90,14 @@ function Set-TargetResource
 
     if($Ensure -eq 'Present')
     {
+        Write-Verbose "Setting Configuration"
         if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
             Remove-IisHandler -Name $Name -SiteName $SiteName
         }
 
         if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler
             Add-webconfiguration /system.webServer/handlers iis:\ -Value @{
                 Name = $Name
                 Path = $RequestPath
@@ -146,8 +145,13 @@ function Test-TargetResource
     )
     $resourceStatus = Get-TargetResource @PSBoundParameters
 
+    $result = $true
+    if ($resourceStatus.Ensure -ne $Ensure -or $resourceStatus.SiteName -ne $SiteName -or $resourceStatus.Code -ne $Code)
+    {
+        return $false
+    }
     Write-Verbose "Testing $Name"
-    return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
+    return $result
 }
 
 function Export-TargetResource
@@ -205,106 +209,6 @@ function Export-TargetResource
 }
 
 #region Helper Functions
-
-
-
-function Test-TargetResourceImpl
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $Path,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Name,
-
-        [Parameter(Mandatory = $true)]
-        [String] $RequestPath,
-
-        [Parameter(Mandatory = $true)]
-        [String[]] $Verb,
-
-        [Parameter()]
-        [ValidateSet('FastCgiModule')]
-        [String] $ModuleType = 'FastCgiModule',
-
-        [Parameter()]
-        [String] $SiteName,
-
-        [Parameter()]
-        [ValidateSet('Present','Absent')]
-        [String] $Ensure,
-
-        [Parameter(Mandatory = $true)]
-        [HashTable] $resourceStatus
-    )
-
-    $matchedVerbs = @()
-    $mismatchVerbs =@()
-    foreach($thisVerb  in $resourceStatus.Verb)
-    {
-        if($Verb -icontains $thisVerb)
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplVerb `
-                            -f $Verb)
-            $matchedVerbs += $thisVerb
-        }
-        else
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplExtraVerb `
-                            -f $Verb)
-            $mismatchVerbs += $thisVerb
-        }
-    }
-
-    $modulePresent = $false
-    if($resourceStatus.Name.Length -gt 0)
-    {
-        $modulePresent = $true
-    }
-
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplRequestPath `
-                            -f $RequestPath)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplPath `
-                            -f $Path)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusRequestPath `
-                            -f $($resourceStatus.RequestPath))
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusPath `
-                            -f $($resourceStatus.Path))
-
-    $moduleConfigured = $false
-    if($modulePresent -and `
-        $mismatchVerbs.Count -eq 0 -and `
-        $matchedVerbs.Count-eq $Verb.Count -and `
-        $resourceStatus.Path -eq $Path -and `
-        $resourceStatus.RequestPath -eq $RequestPath)
-    {
-        $moduleConfigured = $true
-    }
-
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModulePresent `
-                            -f $ModulePresent)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
-                            -f $ModuleConfigured)
-    if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
-    {
-        return @{
-                    Result = $true
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
-    }
-    else
-    {
-        return @{
-                    Result = $false
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
-    }
-}
 
 
 #endregion
