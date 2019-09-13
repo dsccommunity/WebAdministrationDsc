@@ -157,55 +157,43 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
-    $InformationPreference = "Continue"
+    $InformationPreference = 'Continue'
     Write-Information "Extracting xIISFeatureDelegation..."
 
-    $DSCContent = Get-IISFeatureDelegation -Path "system.webServer/*"
-
-    return $DSCContent
-}
-
-function Get-IISFeatureDelegation
-{
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Path
-    )
-    $ConfigSections = Get-WebConfiguration -Filter $Path -Metadata -Recurse
-    $DSCConfigContent = ""
-    foreach ($section in $ConfigSections)
+    $configSections = Get-WebConfiguration -Filter "system.webServer/*" -Metadata -Recurse
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach ($section in $configSections)
     {
-        $params = @{
-            Filter = $section.SectionPath.Remove(0,1)
-            Path = "MACHINE/WEBROOT/APPHOST"
-            OverrideMode = $false
-        }
-
-        try
+        if ($null -ne $section.SectionPath)
         {
-            $results = Get-TargetResource @params
-            $DSCConfigContent += "        xIISFeatureDelegation " + (New-Guid).ToString() + "`r`n        {`r`n"
-            $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $module -UseGetTargetResource
-            $DSCConfigContent += "        }`r`n"
+            Write-Information "    [$i/$($configSections.Count)] $($section.SectionPath.Remove(0,1))"
+            $params = @{
+                Filter = $section.SectionPath.Remove(0,1)
+                Path = "MACHINE/WEBROOT/APPHOST"
+                OverrideMode = "Deny"
+            }
 
-
-            $ChildPath = $section.SectionPath.Remove(0,1) + "/*"
-            $ConfigSections = Get-WebConfiguration -Filter $ChildPath -Metadata -Recurse
-            if ($null -ne $ConfigSections)
+            try
             {
-                $DSCConfigContent += Get-IISFeatureDelegation -Path $ChildPath
+                $results = Get-TargetResource @params
+                [void]$sb.AppendLine("        xIISFeatureDelegation " + (New-Guid).ToString())
+                [void]$sb.AppendLine("        {")
+                $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+                [void]$sb.Append($dscBlock)
+                [void]$sb.AppendLine("        }")
+            }
+            catch
+            {
+                Write-Error $_
             }
         }
-        catch
-        {
-            Write-Error $_
-        }
+        $i++
     }
-    return $DSCConfigContent
+
+    return $sb.ToString()
 }
 
 #region Helper functions

@@ -148,6 +148,7 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting xIISModule..."
@@ -155,6 +156,7 @@ function Export-TargetResource
     $Modules =  Get-WebManagedModule
 
     Write-Information "    Modules Defined at Root Level:"
+    $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach ($Module in $Modules)
     {
@@ -166,9 +168,11 @@ function Export-TargetResource
             Ensure   = "Present"
         }
         $results = Get-TargetResource @params
-        $DSCConfigContent += "        xIISModule " + (New-Guid).ToString() + "`r`n        {`r`n"
-        $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $dscmodule
-        $DSCConfigContent += "        }`r`n"
+        [void]$sb.AppendLine("        xIISModule " + (New-Guid).ToString())
+        [void]$sb.AppendLine("        {")
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $dscmodule
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine("        }")
         $i++
     }
 
@@ -177,25 +181,35 @@ function Export-TargetResource
     foreach ($site in $sites)
     {
         Write-Information "    Modules Defined at Site Level {$($site.Name)}"
-        $Modules =  Get-WebManagedModule -Location $site.Name
-        $i = 1
-        foreach ($Module in $Modules)
+
+        try
         {
-            Write-Information "        [$i/$($Modules.Count)] $($Module.Name)"
-            $params =@{
-                Name     = $Module.Name
-                SiteName = $site.Name
-                Code     = $Module.Type
-                Ensure   = "Present"
+            $Modules =  Get-WebManagedModule -Location $site.Name
+            $i = 1
+            foreach ($Module in $Modules)
+            {
+                Write-Information "        [$i/$($Modules.Count)] $($Module.Name)"
+                $params =@{
+                    Name     = $Module.Name
+                    SiteName = $site.Name
+                    Code     = $Module.Type
+                    Ensure   = "Present"
+                }
+                $results = Get-TargetResource @params
+                [void]$sb.AppendLine("        xIISModule " + (New-Guid).ToString())
+                [void]$sb.AppendLine("        {")
+                $dscBlock = Get-DSCBlock -Params $results -ModulePath $dscmodule
+                [void]$sb.Append($dscBlock)
+                [void]$sb.AppendLine("        }")
+                $i++
             }
-            $results = Get-TargetResource @params
-            $DSCConfigContent += "        xIISModule " + (New-Guid).ToString() + "`r`n        {`r`n"
-            $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $dscmodule
-            $DSCConfigContent += "        }`r`n"
-            $i++
+        }
+        catch
+        {
+            Write-Verbose "Modules in site $site.Name are being override at a parent level."
         }
     }
-    return $DSCConfigContent
+    return $sb.ToString()
 }
 
 #region Helper Functions

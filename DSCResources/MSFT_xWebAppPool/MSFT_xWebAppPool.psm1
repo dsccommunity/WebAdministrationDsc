@@ -981,6 +981,7 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting xWebAppPool..."
@@ -988,7 +989,7 @@ function Export-TargetResource
     $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
     $appPools = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add'
-    $DSCConfigContent = ""
+    $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach($appPool in $appPools)
     {
@@ -999,7 +1000,6 @@ function Export-TargetResource
         $params | ConvertTo-Json | Write-Verbose
 
         $results = Get-TargetResource @params
-
 
         if($appPool.ProcessModel -eq "SpecificUser")
         {
@@ -1013,12 +1013,13 @@ function Export-TargetResource
         Write-Verbose "All Parameters with values"
         $results | ConvertTo-Json | Write-Verbose
 
-        $DSCConfigContent += "`r`n"
-        $DSCConfigContent += "        xWebAppPool " + (New-Guid).ToString() + "`r`n        {`r`n"
-        $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
-        $DSCConfigContent += "        }`r`n"
+        [void]$sb.AppendLine("        xWebAppPool " + (New-Guid).ToString())
+        [void]$sb.AppendLine("        {")
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine("        }")
     }
-    return $DSCConfigContent
+    return $sb.ToString()
 }
 
 #region Helper Functions

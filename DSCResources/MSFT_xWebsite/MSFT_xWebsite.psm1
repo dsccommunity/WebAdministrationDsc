@@ -1123,6 +1123,7 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting xWebSite..."
@@ -1130,7 +1131,7 @@ function Export-TargetResource
     $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
     $webSites = Get-WebSite
-
+    $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach($website in $webSites)
     {
@@ -1148,9 +1149,11 @@ function Export-TargetResource
 
         foreach($binding in $website.Bindings.Collection)
         {
-            $currentBinding = "MSFT_xWebBindingInformation`r`n            {`r`n"
-            $currentBinding += "                Protocol = `"$($binding.Protocol)`"" + "`r`n"
-            $currentBinding += "                SslFlags = $($binding.sslFlags)" + "`r`n"
+            $bindingContent = [System.Text.StringBuilder]::new()
+            [void]$bindingContent.AppendLine("MSFT_xWebBindingInformation")
+            [void]$bindingContent.AppendLine("            {")
+            [void]$bindingContent.AppendLine("                Protocol = `"$($binding.Protocol)`"")
+            [void]$bindingContent.AppendLine("                SslFlags = $($binding.sslFlags)")
 
             if ($binding.protocol -match "^http")
             {
@@ -1158,43 +1161,46 @@ function Export-TargetResource
                 $ipAddress = $bindingInfo[0]
                 $port = $bindingInfo[1]
                 $hostName = $bindingInfo[2]
-                $currentBinding += "                IPAddress = `"$ipAddress`"" + ";`r`n"
-                $currentBinding += "                Port = $port" + ";`r`n"
-                $currentBinding += "                Hostname = `"$hostName`"" + ";`r`n"
+                [void]$bindingContent.AppendLine("                IPAddress = `"$ipAddress`"")
+                [void]$bindingContent.AppendLine("                Port = $port")
+                [void]$bindingContent.AppendLine("                Hostname = `"$hostName`"")
                 if ($binding.CertificateStoreName -eq "My" -or $binding.CertificateStoreName -eq "WebHosting")
                 {
                     if ($null -ne $binding.CertificateHash -and "" -ne $binding.CertificateHash)
                     {
-                        $currentBinding += "                CertificateThumbprint = `"$($binding.CertificateHash)`"`r`n"
+                        [void]$bindingContent.AppendLine("                CertificateThumbprint = `"$($binding.CertificateHash)`"")
                     }
-                    $currentBinding += "                CertificateStoreName = `"$($binding.CertificateStoreName)`"`r`n"
+                    [void]$bindingContent.AppendLine("                CertificateStoreName = `"$($binding.CertificateStoreName)`"")
                 }
             }
             else
             {
-                $currentBinding += "                BindingInformation = `"$($binding.bindingInformation)`"" + ";`r`n"
+                [void]$bindingContent.AppendLine("                BindingInformation = `"$($binding.bindingInformation)`"")
             }
 
-            $currentBinding += "            }"
+            [void]$bindingContent.AppendLine("            }")
 
-            $results.BindingInfo += $currentBinding
+            $results.BindingInfo += $bindingContent.ToString()
         }
 
         $results.LogCustomFields = @();
 
         [string]$LogCustomFields = $null
+        $logSB = [System.Text.StringBuilder]::new()
         foreach ($customfield in $webSite.logfile.customFields.Collection)
         {
-            $LogCustomFields += "MSFT_LogCustomFieldInformation`r`n{`r`n"
-            $LogCustomFields += "    logFieldName = `"$($customfield.logFieldName)`"`r`n"
-            $LogCustomFields += "    sourceName = `"$($customfield.sourceName)`"`r`n"
-            $LogCustomFields += "`    sourceType = `"$($customfield.sourceType)`"`r`n"
-            $LogCustomFields += "}"
+            [void]$logSB.AppendLine("MSFT_LogCustomFieldInformation")
+            [void]$logSB.AppendLine("{")
+            [void]$logSB.AppendLine("    logFieldName = `"$($customfield.logFieldName)`"")
+            [void]$logSB.AppendLine("    sourceName = `"$($customfield.sourceName)`"")
+            [void]$logSB.AppendLine("    sourceType = `"$($customfield.sourceType)`"")
+            [void]$logSB.AppendLine("}")
         }
 
-        $results.LogCustomFields = $LogCustomFields
-
-        $AuthenticationInfo = "MSFT_xWebAuthenticationInformation`r`n            {`r`n"
+        $results.LogCustomFields = $logSB.ToString()
+        $authSB = [System.Text.StringBuilder]::new()
+        [void]$authSB.AppendLine("            MSFT_xWebAuthenticationInformation")
+        [void]$authSB.AppendLine("            {")
 
         $AuthenticationTypes = @("BasicAuthentication","AnonymousAuthentication","DigestAuthentication","WindowsAuthentication")
 
@@ -1208,21 +1214,24 @@ function Export-TargetResource
                 -Name enabled `
                 -Location $location
             Write-Verbose "$authenticationtype : $($prop.Value)"
-            $AuthenticationInfo += "                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value + "`r`n"
+            [void]$authSB.AppendLine("                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value)
         }
+        [void]$authSB.Append("            }")
 
-        $results.AuthenticationInfo = $AuthenticationInfo
+        $results.AuthenticationInfo = $authSB.ToString()
         $results.LogFlags = $results.LogFlags.Split(",")
 
         Write-Verbose "All Parameters with values"
         $results | ConvertTo-Json | Write-Verbose
 
-        $DSCConfigContent += "        xWebSite " + (New-Guid).ToString() + "`r`n        {`r`n"
-        $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
-        $DSCConfigContent += "        }`r`n"
+        [void]$sb.AppendLine("        xWebSite " + (New-Guid).ToString())
+        [void]$sb.AppendLine("        {")
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine("        }")
     }
 
-    return $DSCConfigContent
+    return $sb.ToString()
 }
 
 #region Helper Functions

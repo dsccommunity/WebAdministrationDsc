@@ -384,12 +384,13 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting WebApplicationHandler..."
     $handlers = Get-WebConfigurationProperty -Filter "system.webServer/handlers/Add" -Name '.'
 
-    $DSCConfigContent = ""
+    $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach ($handler in $handlers)
     {
@@ -401,12 +402,14 @@ function Export-TargetResource
         }
 
         $results = Get-TargetResource @params
-        $Script:DSCConfigContent += "        WebApplicationHandler " + (New-Guid).ToString() + "`r`n        {`r`n"
-        $Script:DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
-        $Script:DSCConfigContent += "        }`r`n"
+        [void]$sb.AppendLine("        WebApplicationHandler " + (New-Guid).ToString())
+        [void]$sb.AppendLine("        {")
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine("        }")
         $i++
     }
-    return $DSCConfigContent
+    return $sb.ToString()
 }
 
 Export-ModuleMember -Function *-TargetResource

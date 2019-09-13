@@ -232,6 +232,7 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting xIISMimeTypeMapping..."
@@ -239,6 +240,7 @@ function Export-TargetResource
     $MimeMap =  Get-WebConfiguration -Filter "system.webServer/staticContent/mimeMap"
 
     $i = 1
+    $sb = [System.Text.StringBuilder]::new()
     foreach ($mimeType in $MimeMap)
     {
         Write-Information "    [$i/$($MimeMap.Count)] $($mimeType.mimeType)"
@@ -249,11 +251,14 @@ function Export-TargetResource
             Ensure            = "Present"
         }
         $results = Get-TargetResource @params
-        $Script:DSCConfigContent += "        xIISMimeTypeMapping " + (New-Guid).ToString() + "`r`n        {`r`n"
-        $Script:dscConfigContent += Get-DSCBlock -Params $results -ModulePath $module
-        $Script:DSCConfigContent += "        }`r`n"
+        [void]$sb.AppendLine("        xIISMimeTypeMapping " + (New-Guid).ToString())
+        [void]$sb.AppendLine("        {")
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $module
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine("        }")
         $i++
     }
+    return $sb.ToString()
 }
 
 #region Helper Functions

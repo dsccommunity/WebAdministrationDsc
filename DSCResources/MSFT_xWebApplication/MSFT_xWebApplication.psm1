@@ -508,12 +508,13 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting xWebApplication..."
 
     $webSites = Get-WebSite
-
+    $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach($website in $webSites)
     {
@@ -525,6 +526,7 @@ function Export-TargetResource
             $j = 1
             foreach($webapplication in $webApplications)
             {
+                $authSb = [System.Text.StringBuilder]::new()
                 Write-Information "[$j/$($webApplications.Count)] $($webApplication.Path)"
 
                 <# Setting Primary Keys #>
@@ -544,7 +546,8 @@ function Export-TargetResource
                 Write-Verbose "All Parameters as follows"
                 $results | ConvertTo-Json | Write-Verbose
 
-                $AuthenticationInfo = "MSFT_xWebApplicationAuthenticationInformation`r`n            {`r`n"
+                [void]$authSb.AppendLine(            "MSFT_xWebApplicationAuthenticationInformation")
+                [void]$authSb.AppendLine("            {")
 
                 $AuthenticationTypes = @("BasicAuthentication","AnonymousAuthentication","DigestAuthentication","WindowsAuthentication")
 
@@ -558,24 +561,29 @@ function Export-TargetResource
                     -Name enabled `
                     -PSPath "IIS:\Sites\$location"
                     Write-Verbose "$authenticationtype : $($prop.Value)"
-                    $AuthenticationInfo += "                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value + ";`r`n"
+                    [void]$authSb.AppendLine("                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value)
                 }
+                [void]$authSb.AppendLine("            }")
 
-                $results.AuthenticationInfo = $AuthenticationInfo
+                $results.AuthenticationInfo = $authSb.ToString()
                 $results.SslFlags = $results.SslFlags.Split(",")
                 $results.EnabledProtocols = $results.EnabledProtocols.Split(",")
 
                 Write-Verbose "All Parameters with values"
                 $results | ConvertTo-Json | Write-Verbose
 
-                $Script:dscConfigContent += "        xWebApplication " + (New-GUID).ToString() + "`r`n        {`r`n"
-                $Script:dscConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
-                $Script:dscConfigContent += "        }`r`n"
+                [void]$sb.AppendLine("        xWebApplication " + (New-GUID).ToString())
+                [void]$sb.AppendLine("        {")
+                $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+                $dscBlock = Convert-DSCStringParamToVariable -DSCBlock $dscBlock -ParameterName "AuthenticationInfo"
+                [void]$sb.Append($dscBlock)
+                [void]$sb.AppendLine("        }")
                 $j++
             }
         }
         $i++
     }
+    return $sb.ToString()
 }
 
 #region Helper Functions

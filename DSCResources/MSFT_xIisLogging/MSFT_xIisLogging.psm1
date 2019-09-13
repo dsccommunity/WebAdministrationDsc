@@ -402,6 +402,7 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting xIISLogging..."
@@ -411,13 +412,16 @@ function Export-TargetResource
     $params = @{
         LogPath = $LogSettings.directory
     }
+    $sb = [System.Text.StringBuilder]::new()
     $results = Get-TargetResource @params
     $results.LogFlags = $results.LogFlags.Split(',')
-    $DSCConfigContent += "        xIISLogging " + (New-Guid).ToString() + "`r`n        {`r`n"
-    $DSCConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
-    $DSCConfigContent += "        }`r`n"
+    [void]$sb.AppendLine("        xIISLogging " + (New-Guid).ToString())
+    [void]$sb.AppendLine("        {")
+    $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+    [void]$sb.Append($dscBlock)
+    [void]$sb.AppendLine("        }")
 
-    return $DSCConfigContent
+    return $sb.ToString()
 
 }
 

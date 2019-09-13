@@ -256,9 +256,10 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
-    Write-Information "Extracting xWebConfigProperty..."
+    Write-Information "Extracting xWebConfigProperty is not supported by ReverseDSC."
 
     return ""
 }

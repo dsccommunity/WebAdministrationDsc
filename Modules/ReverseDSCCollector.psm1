@@ -3,12 +3,12 @@ function Export-WebAdministrationConfiguration
     [CmdletBinding()]
     [OutputType([System.String])]
 
-    $InformationPreference = "Continue"
-
-    $DSCContent = "Configuration WebAdministrationConfiguration`r`n{`r`n"
-    $DSCContent += "    Import-DSCResource -ModuleName xWebAdministration`r`n`r`n"
-    $DSCContent += "    Node localhost`r`n"
-    $DSCContent += "    {`r`n"
+    $sb = [System.Text.StringBuilder]::new()
+    [void]$sb.AppendLine("Configuration WebAdministrationConfiguration")
+    [void]$sb.AppendLine("{")
+    [void]$sb.AppendLine("    Import-DSCResource -ModuleName xWebAdministration")
+    [void]$sb.AppendLine("    Node localhost")
+    [void]$sb.AppendLine("    {")
 
     $ResourcesPath = Join-Path -Path $PSScriptRoot `
                                -ChildPath "..\DSCResources\" `
@@ -18,10 +18,12 @@ function Export-WebAdministrationConfiguration
     foreach ($ResourceModule in $AllResources)
     {
         Import-Module $ResourceModule.FullName | Out-Null
-        $DSCContent += Export-TargetResource
+        $exportString = Export-TargetResource
+        [void]$sb.Append($exportString)
     }
 
-    $DSCContent += "    }`r`n}`r`n"
+    [void]$sb.AppendLine("    }")
+    [void]$sb.AppendLine("}")
 
     #region Prompt the user for a location to save the extract and generate the files
     if ($null -eq $Path -or "" -eq $Path)
@@ -53,8 +55,8 @@ function Export-WebAdministrationConfiguration
     {
         $OutputDSCPath += "\"
     }
-    $outputDSCFile = $OutputDSCPath + "HyperVConfiguration.ps1"
-    $DSCContent | Out-File $outputDSCFile
+    $outputDSCFile = $OutputDSCPath + "WebAdministrationConfiguration.ps1"
+    $sb.ToString() | Out-File $outputDSCFile
 
     Invoke-Item -Path $OutputDSCPath
     #endregion

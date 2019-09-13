@@ -214,11 +214,13 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param()
 
     $InformationPreference = "Continue"
     Write-Information "Extracting xWebVirtualDirectory..."
     $webSites = Get-WebSite
 
+    $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach($website in $webSites)
     {
@@ -249,14 +251,17 @@ function Export-TargetResource
                 Write-Verbose "All Parameters with values"
                 $results | ConvertTo-Json | Write-Verbose
 
-                $Script:dscConfigContent += "            xWebVirtualDirectory " + (New-Guid).ToString() + "`r`n            {`r`n"
-                $Script:dscConfigContent += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
-                $Script:dscConfigContent += "            }`r`n"
+                [void]$sb.AppendLine("            xWebVirtualDirectory " + (New-Guid).ToString())
+                [void]$sb.AppendLine("            {")
+                $dscBlock += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+                [void]$sb.Append($dscBlock)
+                [void]$sb.AppendLine("            }")
                 $j++
             }
         }
+        $i++
     }
-    $i++
+    return $sb.ToString()
 }
 
 Export-ModuleMember -Function *-TargetResource
