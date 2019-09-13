@@ -57,6 +57,10 @@ try
                     return $null
                 }
 
+                Mock -CommandName New-WebManagedModule -MockWith {
+                    return $null
+                }
+
                 Mock -CommandName Assert-Module -MockWith {}
 
                 It 'Should Absent from the Get Method' {

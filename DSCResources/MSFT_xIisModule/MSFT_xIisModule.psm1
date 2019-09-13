@@ -92,10 +92,7 @@ function Set-TargetResource
     {
         Write-Verbose "Setting Configuration"
 
-        if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
-        {
-            New-WebManagedModule -Name $Name -Location $SiteName -Type $Code
-        }
+        New-WebManagedModule -Name $Name -Location $SiteName -Type $Code
     }
     elseif ($Ensure -eq 'Present' -and $resourceStatus.Ensure -eq 'Present')
     {
