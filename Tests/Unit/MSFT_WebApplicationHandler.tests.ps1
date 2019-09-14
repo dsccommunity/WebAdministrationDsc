@@ -377,7 +377,7 @@ try
                 Mock Get-WebConfigurationProperty
 
                 It 'Should Export all instances' {
-                    Export-TargetResource @GetTargetRequiredParameters
+                    Export-TargetResource
                 }
             }
         }
