@@ -168,6 +168,19 @@ try
                 }
             }
         }
+        Describe 'MSFT_IISFeatureDelegation/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
+
+                $overrideMode = Get-OverrideMode @getOverrideModeParameters
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
         #endregion
     }
     #endregion

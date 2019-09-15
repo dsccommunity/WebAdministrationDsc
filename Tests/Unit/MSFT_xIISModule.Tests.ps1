@@ -76,6 +76,24 @@ try
                 }
             }
         }
+
+        Describe 'MSFT_xIISModule/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+                Mock -CommandName Get-WebManagedModule -MockWith {
+                    return @{
+                        Name = "CustomModule"
+                        Type = "Contoso.CustomModule"
+                    }
+                }
+
+                Mock -CommandName Assert-Module -MockWith {}
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
     #endregion
 }

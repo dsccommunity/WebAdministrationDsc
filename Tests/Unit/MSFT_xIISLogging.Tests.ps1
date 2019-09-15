@@ -924,6 +924,22 @@ try
                 }
             }
         }
+        Describe 'MSFT_xIISLogging/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+                Mock -CommandName Get-WebConfiguration `
+                    -MockWith { return $MockLogOutput }
+
+                Mock -CommandName Assert-Module -MockWith {}
+
+                Mock -CommandName ConvertTo-CimLogCustomFields `
+                    -MockWith { return $MockLogCustomFields }
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
 
     #endregion
