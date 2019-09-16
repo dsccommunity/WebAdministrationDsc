@@ -23,7 +23,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     InModuleScope $script:DSCResourceName {
-        
+
         Describe "$script:DSCResourceName\Assert-Module" {
             Context 'WebAdminstration module is not installed' {
                 Mock -ModuleName Helper -CommandName Get-Module -MockWith {
@@ -35,7 +35,7 @@ try
                 }
             }
         }
-        
+
         Describe "$script:DSCResourceName\Test-TargetResource" {
             $MockSite = @{
                 Website        = 'contoso.com'
@@ -100,7 +100,7 @@ try
                         -Name $MockSite.Name `
                         -PhysicalPath $MockSite.PhysicalPath `
                         -Ensure $MockSite.Ensure
-                        
+
                     $result | Should Be $false
                 }
             }
@@ -165,7 +165,7 @@ try
         }
 
         Describe "$script:DSCResourceName\Set-TargetResource" {
-            
+
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Ensure = Present and virtual directory does not exist' {
@@ -231,6 +231,26 @@ try
                         -Ensure 'Absent'
 
                     Assert-MockCalled -CommandName Remove-WebVirtualDirectory -Exactly 1
+                }
+            }
+        }
+        Describe 'MSFT_xWebVirtualDirectory/Export-TargetResource' {
+            $MockSite = @{
+                Website        = 'contoso.com'
+                WebApplication = 'contosoapp'
+                Name           = 'shared_directory'
+                PhysicalPath   = 'C:\inetpub\wwwroot\shared'
+                Ensure         = 'Present'
+            }
+            $virtualDir = @{
+                Name = 'shared_directory'
+                PhysicalPath = 'C:\inetpub\wwwroot\shared'
+                Count = 1
+            }
+            Context 'Export Configuration' {
+                Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
+                It 'Should Not export any resource instances' {
+                    Export-TargetResource
                 }
             }
         }

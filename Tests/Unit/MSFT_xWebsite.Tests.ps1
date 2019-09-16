@@ -3947,6 +3947,120 @@ try
                 }
             }
         }
+
+        Describe 'MSFT_xWebsite/Export-TargetResource' {
+            $MockWebBinding = @(
+                @{
+                    bindingInformation   = '*:443:web01.contoso.com'
+                    protocol             = 'https'
+                    certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
+                    certificateStoreName = 'WebHosting'
+                    sslFlags             = '1'
+                }
+            )
+
+            $MockPreloadAndAutostartProviders = @(
+                @{
+                    preloadEnabled           = 'True'
+                    ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
+                    ServiceAutoStartEnabled  = 'True'
+                }
+            )
+
+            $MockWebConfiguration = @(
+                @{
+                    SectionPath = 'MockSectionPath'
+                    PSPath      = 'MockPSPath'
+                    Collection  = @(
+                        [PSCustomObject] @{
+                            Name = 'MockServiceAutoStartProvider';
+                            Type = 'MockApplicationType'
+                        }
+                    )
+                }
+            )
+
+            $MockAuthenticationInfo = @(
+                New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        Anonymous = 'true'
+                        Basic     = 'false'
+                        Digest    = 'false'
+                        Windows   = 'false'
+                    } `
+                    -ClientOnly
+            )
+
+            $mockLogCustomFields = @(
+                @{
+                    LogFieldName = 'LogField1'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                }
+                @{
+                    LogFieldName = 'LogField2'
+                    SourceName   = 'Warning'
+                    SourceType   = 'ResponseHeader'
+                }
+            )
+
+            $MockLogOutput = @{
+                directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                logFormat         = $MockParameters.LogFormat
+                period            = 'Daily'
+                logTargetW3C      = 'File,ETW'
+                truncateSize      = '1048576'
+                localTimeRollover = 'False'
+                customFields      = @{Collection = $mockLogCustomFields}
+            }
+
+            $MockWebsite = @{
+                Name                 = 'MockName'
+                Id                   = 1234
+                PhysicalPath         = 'C:\NonExistent'
+                State                = 'Started'
+                ServerAutoStart      = $true
+                ApplicationPool      = 'MockPool'
+                Bindings             = @{Collection = @($MockWebBinding)}
+                EnabledProtocols     = 'http'
+                ApplicationDefaults  = $MockPreloadAndAutostartProviders
+                LogFile              = $MockLogOutput
+                Count                = 1
+            }
+
+            Mock -CommandName Assert-Module -MockWith {}
+            Context 'Export Configuration' {
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                Mock -CommandName Get-WebConfiguration  `
+                        -ParameterFilter {$filter -eq '/system.webServer/defaultDocument/files/*'} `
+                        -MockWith { return @{value = 'index.html'} }
+
+                Mock -CommandName Get-WebConfiguration `
+                        -ParameterFilter {$filter -eq '/system.applicationHost/serviceAutoStartProviders'} `
+                        -MockWith { return $MockWebConfiguration}
+
+                Mock -CommandName Get-WebConfigurationProperty `
+                    -MockWith {return $MockAuthenticationInfo}
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Basic') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $false } `
+                    -ParameterFilter { ($Type -eq 'Digest') }
+
+                Mock -CommandName Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+                It 'Should Not export any resource instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
     #endregion
 }

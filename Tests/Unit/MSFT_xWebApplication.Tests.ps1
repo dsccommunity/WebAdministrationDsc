@@ -1543,6 +1543,49 @@ try
             }
 
         }
+        Describe 'MSFT_xWebApplicaton/Export-TargetResource' {
+            $MockParameters = @{
+                Website                  = 'MockSite'
+                Name                     = 'MockApp'
+                WebAppPool               = 'MockPool'
+                PhysicalPath             = 'C:\MockSite\MockApp'
+            }
+
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                    return $GetWebConfigurationOutput
+            }
+
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+            Mock -CommandName Assert-Module -MockWith {}
+            Context 'Export Configuration' {
+                Mock -CommandName Get-WebApplication -MockWith {
+                    return $MockWebApplicationOutput
+                }
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                       return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                    return $GetAuthenticationInfo
+                }
+
+                Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
 
     }
 

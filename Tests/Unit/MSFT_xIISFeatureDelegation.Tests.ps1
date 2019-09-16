@@ -174,8 +174,6 @@ try
 
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
 
-                $overrideMode = Get-OverrideMode @getOverrideModeParameters
-
                 It 'Should Export all instances' {
                     Export-TargetResource
                 }
