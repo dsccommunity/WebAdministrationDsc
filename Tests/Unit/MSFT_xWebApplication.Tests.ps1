@@ -1551,7 +1551,15 @@ try
                 PhysicalPath             = 'C:\MockSite\MockApp'
             }
 
-            Mock -CommandName Get-WebConfiguration -MockWith {
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+            Mock -CommandName Assert-Module -MockWith {}
+            Context 'Export Configuration' {
+                Mock -CommandName Get-WebApplication -MockWith {
                     return @{
                         Website                  = 'MockSite'
                         Name                     = 'MockApp'
@@ -1566,18 +1574,6 @@ try
                         EnabledProtocols         = 'http'
                         Count                    = '1'
                     }
-            }
-
-            Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Anonymous') }
-
-            Mock Test-AuthenticationEnabled { return $true } `
-                    -ParameterFilter { ($Type -eq 'Windows') }
-
-            Mock -CommandName Assert-Module -MockWith {}
-            Context 'Export Configuration' {
-                Mock -CommandName Get-WebApplication -MockWith {
-                    return $MockWebApplicationOutput
                 }
 
                 Mock -CommandName Get-WebConfiguration -MockWith {
