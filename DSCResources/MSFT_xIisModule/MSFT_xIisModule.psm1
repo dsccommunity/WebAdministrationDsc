@@ -150,12 +150,12 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xIISModule..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xIISModule...'
 
     $Modules =  Get-WebManagedModule
 
-    Write-Information "    Modules Defined at Root Level:"
+    Write-Information '    Modules Defined at Root Level:'
     $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach ($Module in $Modules)
@@ -163,16 +163,16 @@ function Export-TargetResource
         Write-Information "        [$i/$($Modules.Count)] $($Module.Name)"
         $params = @{
             Name     = $Module.Name
-            SiteName = "*"
+            SiteName = '*'
             Code     = $Module.Type
-            Ensure   = "Present"
+            Ensure   = 'Present'
         }
         $results = Get-TargetResource @params
-        [void]$sb.AppendLine("        xIISModule " + (New-Guid).ToString())
-        [void]$sb.AppendLine("        {")
+        [void]$sb.AppendLine('        xIISModule ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
         $dscBlock = Get-DSCBlock -Params $results -ModulePath $dscmodule
         [void]$sb.Append($dscBlock)
-        [void]$sb.AppendLine("        }")
+        [void]$sb.AppendLine('        }')
         $i++
     }
 
@@ -193,14 +193,14 @@ function Export-TargetResource
                     Name     = $Module.Name
                     SiteName = $site.Name
                     Code     = $Module.Type
-                    Ensure   = "Present"
+                    Ensure   = 'Present'
                 }
                 $results = Get-TargetResource @params
-                [void]$sb.AppendLine("        xIISModule " + (New-Guid).ToString())
-                [void]$sb.AppendLine("        {")
+                [void]$sb.AppendLine('        xIISModule ' + (New-Guid).ToString())
+                [void]$sb.AppendLine('        {')
                 $dscBlock = Get-DSCBlock -Params $results -ModulePath $dscmodule
                 [void]$sb.Append($dscBlock)
-                [void]$sb.AppendLine("        }")
+                [void]$sb.AppendLine('        }')
                 $i++
             }
         }

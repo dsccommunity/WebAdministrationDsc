@@ -492,15 +492,10 @@ try
         #endregion Non-Exported Function Unit Tests
 
         Describe 'MSFT_xWebConfigKeyValue/Export-TargetResource' {
-            Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
-                return $null
-            }
+            Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return 'Value' }
 
-            $parameters = @{
-                WebsitePath   = 'C:\SomePath\web.config'
-                ConfigSection = 'AppSettings'
-                Key           = 'Key'
-            }
             Context 'Export Configuration' {
 
                 It 'Should Export all instances' {

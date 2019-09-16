@@ -432,9 +432,9 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xWebConfigPropertyCollection is not supported by ReverseDSC"
-    return ""
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebConfigPropertyCollection is not supported by ReverseDSC'
+    return ''
 }
 
 # region Helper Functions

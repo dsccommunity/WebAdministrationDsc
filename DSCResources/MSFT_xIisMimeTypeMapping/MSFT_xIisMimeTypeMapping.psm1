@@ -234,10 +234,10 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xIISMimeTypeMapping..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xIISMimeTypeMapping...'
 
-    $MimeMap =  Get-WebConfiguration -Filter "system.webServer/staticContent/mimeMap"
+    $MimeMap =  Get-WebConfiguration -Filter 'system.webServer/staticContent/mimeMap'
 
     $i = 1
     $sb = [System.Text.StringBuilder]::new()
@@ -248,14 +248,14 @@ function Export-TargetResource
             ConfigurationPath = $mimeType.PSPath
             Extension         = $mimeType.fileExtension
             MimeType          = $mimeType.mimeType
-            Ensure            = "Present"
+            Ensure            = 'Present'
         }
         $results = Get-TargetResource @params
-        [void]$sb.AppendLine("        xIISMimeTypeMapping " + (New-Guid).ToString())
-        [void]$sb.AppendLine("        {")
+        [void]$sb.AppendLine('        xIISMimeTypeMapping ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
         $dscBlock = Get-DSCBlock -Params $results -ModulePath $module
         [void]$sb.Append($dscBlock)
-        [void]$sb.AppendLine("        }")
+        [void]$sb.AppendLine('        }')
         $i++
     }
     return $sb.ToString()

@@ -175,20 +175,20 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xWebSiteDefaults..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebSiteDefaults...'
     $sb = [System.Text.StringBuilder]::new()
 
     $params = @{
-        ApplyTo = "Machine"
+        ApplyTo = 'Machine'
     }
     $results = Get-TargetResource @params
 
-    [void]$sb.AppendLine("        xWebSiteDefaults " + (New-GUID).ToString())
-    [void]$sb.AppendLine("        {")
+    [void]$sb.AppendLine('        xWebSiteDefaults ' + (New-GUID).ToString())
+    [void]$sb.AppendLine('        {')
     $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
     [void]$sb.Append($dscBlock)
-    [void]$sb.AppendLine("        }")
+    [void]$sb.AppendLine('        }')
     return $sb.ToString()
 }
 

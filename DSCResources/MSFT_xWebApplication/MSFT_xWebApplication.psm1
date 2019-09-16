@@ -510,13 +510,13 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xWebApplication..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebApplication...'
 
     $webSites = Get-WebSite
     $sb = [System.Text.StringBuilder]::new()
     $i = 1
-    foreach($website in $webSites)
+    foreach ($website in $webSites)
     {
         Write-Information "    [$i/$($webSites.Count)] Site {$($webSite.Name)}"
         $webApplications = Get-WebApplication -Site $website.name
@@ -524,7 +524,7 @@ function Export-TargetResource
         if($webApplications)
         {
             $j = 1
-            foreach($webapplication in $webApplications)
+            foreach ($webapplication in $webApplications)
             {
                 $authSb = [System.Text.StringBuilder]::new()
                 Write-Information "[$j/$($webApplications.Count)] $($webApplication.Path)"
@@ -534,50 +534,50 @@ function Export-TargetResource
                     Name         = $webapplication.Path
                     Website      = $website.Name
                     WebAppPool   = $webapplication.ApplicationPool
-                    PhysicalPath = "*"
+                    PhysicalPath = '*'
                 }
                 <# Setting Required Keys #>
                 #$params.WebAppPool = $webapplication.applicationpool
                 #$params.PhysicalPath  = $webapplication.PhysicalPath
-                Write-Verbose "Key parameters as follows"
+                Write-Verbose 'Key parameters as follows'
                 $params | ConvertTo-Json | Write-Verbose
 
                 $results = Get-TargetResource @params
-                Write-Verbose "All Parameters as follows"
+                Write-Verbose 'All Parameters as follows'
                 $results | ConvertTo-Json | Write-Verbose
 
-                [void]$authSb.AppendLine(            "MSFT_xWebApplicationAuthenticationInformation")
-                [void]$authSb.AppendLine("            {")
+                [void]$authSb.AppendLine(            'MSFT_xWebApplicationAuthenticationInformation')
+                [void]$authSb.AppendLine('            {')
 
-                $AuthenticationTypes = @("BasicAuthentication","AnonymousAuthentication","DigestAuthentication","WindowsAuthentication")
+                $AuthenticationTypes = @('BasicAuthentication','AnonymousAuthentication','DigestAuthentication','WindowsAuthentication')
 
                 foreach ($authenticationtype in $AuthenticationTypes)
                 {
                     Remove-Variable -Name location -ErrorAction SilentlyContinue
                     Remove-Variable -Name prop -ErrorAction SilentlyContinue
-                    $location = "$($website.Name)" + "$($webapplication.Path)"
+                    $location = "$($website.Name)' + '$($webapplication.Path)"
                     $prop = Get-WebConfigurationProperty `
                     -Filter /system.WebServer/security/authentication/$authenticationtype `
                     -Name enabled `
-                    -PSPath "IIS:\Sites\$location"
-                    Write-Verbose "$authenticationtype : $($prop.Value)"
+                    -PSPath 'IIS:\Sites\$location'
+                    Write-Verbose '$authenticationtype : $($prop.Value)'
                     [void]$authSb.AppendLine("                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value)
                 }
-                [void]$authSb.AppendLine("            }")
+                [void]$authSb.AppendLine('            }')
 
                 $results.AuthenticationInfo = $authSb.ToString()
-                $results.SslFlags = $results.SslFlags.Split(",")
-                $results.EnabledProtocols = $results.EnabledProtocols.Split(",")
+                $results.SslFlags = $results.SslFlags.Split(',')
+                $results.EnabledProtocols = $results.EnabledProtocols.Split(',')
 
-                Write-Verbose "All Parameters with values"
+                Write-Verbose 'All Parameters with values'
                 $results | ConvertTo-Json | Write-Verbose
 
-                [void]$sb.AppendLine("        xWebApplication " + (New-GUID).ToString())
-                [void]$sb.AppendLine("        {")
+                [void]$sb.AppendLine('        xWebApplication ' + (New-GUID).ToString())
+                [void]$sb.AppendLine('        {')
                 $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
-                $dscBlock = Convert-DSCStringParamToVariable -DSCBlock $dscBlock -ParameterName "AuthenticationInfo"
+                $dscBlock = Convert-DSCStringParamToVariable -DSCBlock $dscBlock -ParameterName 'AuthenticationInfo'
                 [void]$sb.Append($dscBlock)
-                [void]$sb.AppendLine("        }")
+                [void]$sb.AppendLine('        }')
                 $j++
             }
         }

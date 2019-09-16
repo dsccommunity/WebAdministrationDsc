@@ -160,9 +160,9 @@ function Export-TargetResource
     param()
 
     $InformationPreference = 'Continue'
-    Write-Information "Extracting xIISFeatureDelegation..."
+    Write-Information 'Extracting xIISFeatureDelegation...'
 
-    $configSections = Get-WebConfiguration -Filter "system.webServer/*" -Metadata -Recurse
+    $configSections = Get-WebConfiguration -Filter 'system.webServer/*' -Metadata -Recurse
     $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach ($section in $configSections)
@@ -172,18 +172,18 @@ function Export-TargetResource
             Write-Information "    [$i/$($configSections.Count)] $($section.SectionPath.Remove(0,1))"
             $params = @{
                 Filter = $section.SectionPath.Remove(0,1)
-                Path = "MACHINE/WEBROOT/APPHOST"
-                OverrideMode = "Deny"
+                Path = 'MACHINE/WEBROOT/APPHOST'
+                OverrideMode = 'Deny'
             }
 
             try
             {
                 $results = Get-TargetResource @params
-                [void]$sb.AppendLine("        xIISFeatureDelegation " + (New-Guid).ToString())
-                [void]$sb.AppendLine("        {")
+                [void]$sb.AppendLine('        xIISFeatureDelegation ' + (New-Guid).ToString())
+                [void]$sb.AppendLine('        {')
                 $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
                 [void]$sb.Append($dscBlock)
-                [void]$sb.AppendLine("        }")
+                [void]$sb.AppendLine('        }')
             }
             catch
             {

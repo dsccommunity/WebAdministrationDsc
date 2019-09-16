@@ -1125,8 +1125,8 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xWebSite..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebSite...'
 
     $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
@@ -1138,11 +1138,11 @@ function Export-TargetResource
         Write-Information "    [$i/$($webSites.Count)] $($website.Name)"
         <# Setting Primary Keys #>
         $params.Name = $website.Name
-        Write-Verbose "Key parameters as follows"
+        Write-Verbose 'Key parameters as follows'
         $params | ConvertTo-Json | Write-Verbose
 
         $results = Get-TargetResource @params
-        Write-Verbose "All Parameters as follows"
+        Write-Verbose 'All Parameters as follows'
         $results | ConvertTo-Json | Write-Verbose
 
         $results.BindingInfo = @();
@@ -1150,23 +1150,23 @@ function Export-TargetResource
         foreach($binding in $website.Bindings.Collection)
         {
             $bindingContent = [System.Text.StringBuilder]::new()
-            [void]$bindingContent.AppendLine("MSFT_xWebBindingInformation")
-            [void]$bindingContent.AppendLine("            {")
+            [void]$bindingContent.AppendLine('MSFT_xWebBindingInformation')
+            [void]$bindingContent.AppendLine('            {')
             [void]$bindingContent.AppendLine("                Protocol = `"$($binding.Protocol)`"")
             [void]$bindingContent.AppendLine("                SslFlags = $($binding.sslFlags)")
 
-            if ($binding.protocol -match "^http")
+            if ($binding.protocol -match '^http')
             {
-                $bindingInfo = $binding.bindingInformation.split(":")
+                $bindingInfo = $binding.bindingInformation.split(':')
                 $ipAddress = $bindingInfo[0]
                 $port = $bindingInfo[1]
                 $hostName = $bindingInfo[2]
                 [void]$bindingContent.AppendLine("                IPAddress = `"$ipAddress`"")
                 [void]$bindingContent.AppendLine("                Port = $port")
                 [void]$bindingContent.AppendLine("                Hostname = `"$hostName`"")
-                if ($binding.CertificateStoreName -eq "My" -or $binding.CertificateStoreName -eq "WebHosting")
+                if ($binding.CertificateStoreName -eq 'My' -or $binding.CertificateStoreName -eq 'WebHosting')
                 {
-                    if ($null -ne $binding.CertificateHash -and "" -ne $binding.CertificateHash)
+                    if ($null -ne $binding.CertificateHash -and '' -ne $binding.CertificateHash)
                     {
                         [void]$bindingContent.AppendLine("                CertificateThumbprint = `"$($binding.CertificateHash)`"")
                     }
@@ -1178,7 +1178,7 @@ function Export-TargetResource
                 [void]$bindingContent.AppendLine("                BindingInformation = `"$($binding.bindingInformation)`"")
             }
 
-            [void]$bindingContent.AppendLine("            }")
+            [void]$bindingContent.AppendLine('            }')
 
             $results.BindingInfo += $bindingContent.ToString()
         }
@@ -1189,20 +1189,20 @@ function Export-TargetResource
         $logSB = [System.Text.StringBuilder]::new()
         foreach ($customfield in $webSite.logfile.customFields.Collection)
         {
-            [void]$logSB.AppendLine("MSFT_LogCustomFieldInformation")
-            [void]$logSB.AppendLine("{")
+            [void]$logSB.AppendLine('MSFT_LogCustomFieldInformation')
+            [void]$logSB.AppendLine('{')
             [void]$logSB.AppendLine("    logFieldName = `"$($customfield.logFieldName)`"")
             [void]$logSB.AppendLine("    sourceName = `"$($customfield.sourceName)`"")
             [void]$logSB.AppendLine("    sourceType = `"$($customfield.sourceType)`"")
-            [void]$logSB.AppendLine("}")
+            [void]$logSB.AppendLine('}')
         }
 
         $results.LogCustomFields = $logSB.ToString()
         $authSB = [System.Text.StringBuilder]::new()
-        [void]$authSB.AppendLine("            MSFT_xWebAuthenticationInformation")
-        [void]$authSB.AppendLine("            {")
+        [void]$authSB.AppendLine('            MSFT_xWebAuthenticationInformation')
+        [void]$authSB.AppendLine('            {')
 
-        $AuthenticationTypes = @("BasicAuthentication","AnonymousAuthentication","DigestAuthentication","WindowsAuthentication")
+        $AuthenticationTypes = @('BasicAuthentication','AnonymousAuthentication','DigestAuthentication','WindowsAuthentication')
 
         foreach ($authenticationtype in $AuthenticationTypes)
         {
@@ -1213,22 +1213,22 @@ function Export-TargetResource
                 -Filter /system.WebServer/security/authentication/$authenticationtype `
                 -Name enabled `
                 -Location $location
-            Write-Verbose "$authenticationtype : $($prop.Value)"
+            Write-Verbose '$authenticationtype : $($prop.Value)'
             [void]$authSB.AppendLine("                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value)
         }
-        [void]$authSB.Append("            }")
+        [void]$authSB.Append('            }')
 
         $results.AuthenticationInfo = $authSB.ToString()
-        $results.LogFlags = $results.LogFlags.Split(",")
+        $results.LogFlags = $results.LogFlags.Split(',')
 
-        Write-Verbose "All Parameters with values"
+        Write-Verbose 'All Parameters with values'
         $results | ConvertTo-Json | Write-Verbose
 
-        [void]$sb.AppendLine("        xWebSite " + (New-Guid).ToString())
-        [void]$sb.AppendLine("        {")
+        [void]$sb.AppendLine('        xWebSite ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
         $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
         [void]$sb.Append($dscBlock)
-        [void]$sb.AppendLine("        }")
+        [void]$sb.AppendLine('        }')
     }
 
     return $sb.ToString()
@@ -1631,7 +1631,7 @@ function ConvertTo-WebBinding
                         {
                             if ($binding.CertificateSubject.substring(0,3) -ne 'CN=')
                             {
-                                $binding.CertificateSubject = "CN=$($Binding.CertificateSubject)"
+                                $binding.CertificateSubject = 'CN=$($Binding.CertificateSubject)'
                             }
                             $FindCertificateSplat = @{
                                 Subject = $Binding.CertificateSubject

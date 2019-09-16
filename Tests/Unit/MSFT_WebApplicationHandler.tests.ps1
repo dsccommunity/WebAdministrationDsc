@@ -374,7 +374,7 @@ try
 
             Context 'Export Configuration' {
 
-                Mock Get-WebConfigurationProperty
+                Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
 
                 It 'Should Export all instances' {
                     Export-TargetResource

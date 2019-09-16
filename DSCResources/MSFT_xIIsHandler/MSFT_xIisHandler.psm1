@@ -921,8 +921,8 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xIISHandler..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xIISHandler...'
 
     $handlers = Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' `
                                              -Filter 'system.webServer/handlers/*' `
@@ -934,16 +934,16 @@ function Export-TargetResource
     {
         $params = @{
             Name   = $handler.name
-            Ensure = "Present"
+            Ensure = 'Present'
         }
 
         $results = Get-TargetResource @params
         Write-Information "    [$i/$($handlers.Count)] $($handler.name)"
-        [void]$sb.AppendLine("        xIISHandler " + (New-Guid).ToString())
-        [void]$sb.AppendLine("        {")
+        [void]$sb.AppendLine('        xIISHandler ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
         $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
         [void]$sb.Append($dscBlock)
-        [void]$sb.AppendLine("        }")
+        [void]$sb.AppendLine('        }')
         $i++
     }
     return $sb.ToString()

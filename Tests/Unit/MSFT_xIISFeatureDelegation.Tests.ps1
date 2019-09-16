@@ -30,6 +30,7 @@ try
             Metadata = @{
                 effectiveOverrideMode = 'Allow'
             }
+            SectionPath = "/System.webServer/"
         }
 
         $mockDenyOverrideMode = @{
@@ -172,7 +173,7 @@ try
 
             Context 'Export Configuration' {
 
-                Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
 
                 It 'Should Export all instances' {
                     Export-TargetResource

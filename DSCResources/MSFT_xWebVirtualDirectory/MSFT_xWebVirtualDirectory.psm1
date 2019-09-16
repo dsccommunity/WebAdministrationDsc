@@ -216,16 +216,16 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xWebVirtualDirectory..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebVirtualDirectory...'
     $webSites = Get-WebSite
 
     $sb = [System.Text.StringBuilder]::new()
     $i = 1
     foreach($website in $webSites)
     {
-        Write-Information "    [$i/$($webSites.Count)] Getting Virtual Directories from WebSite {$($website.Name)}"
-        Write-Verbose "WebSite: $($website.name)"
+        Write-Information '    [$i/$($webSites.Count)] Getting Virtual Directories from WebSite {$($website.Name)}'
+        Write-Verbose 'WebSite: $($website.name)'
         $webVirtualDirectories = Get-WebVirtualDirectory -Site $website.name
 
         if($webVirtualDirectories)
@@ -233,30 +233,30 @@ function Export-TargetResource
             $j =1
             foreach($webvirtualdirectory in $webVirtualDirectories)
             {
-                Write-Information "        [$j/$($webVirtualDirectories.Count)] $($webvirtualdirectory.PhysicalPath)"
-                Write-Verbose "WebSite/VirtualDirectory: $($website.name)$($webvirtualdirectory.PhysicalPath)"
+                Write-Information '        [$j/$($webVirtualDirectories.Count)] $($webvirtualdirectory.PhysicalPath)'
+                Write-Verbose 'WebSite/VirtualDirectory: $($website.name)$($webvirtualdirectory.PhysicalPath)'
                 $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
                 <# Setting Primary Keys #>
                 $params.Name = $webvirtualdirectory.Name
                 $params.PhysicalPath = $webvirtualdirectory.PhysicalPath
-                $params.WebApplication = ""
+                $params.WebApplication = ''
                 $params.Website = $website.Name
                 <# Setting Required Keys #>
                 #$params.PhysicalPath  = $webapplication.PhysicalPath
-                Write-Verbose "Key parameters as follows"
+                Write-Verbose 'Key parameters as follows'
                 $params | ConvertTo-Json | Write-Verbose
 
                 $results = Get-TargetResource @params
 
-                Write-Verbose "All Parameters with values"
+                Write-Verbose 'All Parameters with values'
                 $results | ConvertTo-Json | Write-Verbose
 
-                [void]$sb.AppendLine("            xWebVirtualDirectory " + (New-Guid).ToString())
-                [void]$sb.AppendLine("            {")
+                [void]$sb.AppendLine('            xWebVirtualDirectory ' + (New-Guid).ToString())
+                [void]$sb.AppendLine('            {')
                 $dscBlock += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
                 [void]$sb.Append($dscBlock)
-                [void]$sb.AppendLine("            }")
+                [void]$sb.AppendLine('            }')
                 $j++
             }
         }

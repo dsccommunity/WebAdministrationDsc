@@ -983,8 +983,8 @@ function Export-TargetResource
     [OutputType([System.String])]
     param()
 
-    $InformationPreference = "Continue"
-    Write-Information "Extracting xWebAppPool..."
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebAppPool...'
 
     $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
@@ -996,28 +996,28 @@ function Export-TargetResource
         Write-Information "    [$i/$($appPools.Length)] $($appPool.Name)"
         <# Setting Primary Keys #>
         $params.Name = $appPool.Name
-        Write-Verbose "Key parameters as follows"
+        Write-Verbose 'Key parameters as follows'
         $params | ConvertTo-Json | Write-Verbose
 
         $results = Get-TargetResource @params
 
-        if($appPool.ProcessModel -eq "SpecificUser")
+        if($appPool.ProcessModel -eq 'SpecificUser')
         {
             $results.Credential = "`$Creds" + $appPool.ProcessModel.username
         }
         else
         {
-            $results.Remove("Credential")
+            $results.Remove('Credential')
         }
 
-        Write-Verbose "All Parameters with values"
+        Write-Verbose 'All Parameters with values'
         $results | ConvertTo-Json | Write-Verbose
 
-        [void]$sb.AppendLine("        xWebAppPool " + (New-Guid).ToString())
-        [void]$sb.AppendLine("        {")
+        [void]$sb.AppendLine('        xWebAppPool ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
         $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
         [void]$sb.Append($dscBlock)
-        [void]$sb.AppendLine("        }")
+        [void]$sb.AppendLine('        }')
     }
     return $sb.ToString()
 }
