@@ -1,5 +1,5 @@
 
-$script:DSCModuleName = 'xWebSiteDefaults'
+$script:DSCModuleName = 'xWebAdministration'
 $script:DSCResourceName = 'MSFT_xWebSiteDefaults'
 
 #region HEADER
