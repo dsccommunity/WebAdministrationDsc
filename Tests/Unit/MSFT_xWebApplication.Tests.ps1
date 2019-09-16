@@ -1552,7 +1552,20 @@ try
             }
 
             Mock -CommandName Get-WebConfiguration -MockWith {
-                    return $GetWebConfigurationOutput
+                    return @{
+                        Website                  = 'MockSite'
+                        Name                     = 'MockApp'
+                        applicationPool          = 'MockPool'
+                        Path                     = 'C:\MockSite\MockApp'
+                        SslFlags                 = 'Ssl'
+                        PreloadEnabled           = $true
+                        ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
+                        ServiceAutoStartEnabled  = $true
+                        ApplicationType          = 'MockApplicationType'
+                        AuthenticationInfo       = $MockAuthenticationInfo
+                        EnabledProtocols         = 'http'
+                        Count                    = '1'
+                    }
             }
 
             Mock Test-AuthenticationEnabled { return $true } `

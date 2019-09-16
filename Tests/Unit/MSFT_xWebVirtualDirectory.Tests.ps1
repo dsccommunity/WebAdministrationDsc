@@ -235,21 +235,14 @@ try
             }
         }
         Describe 'MSFT_xWebVirtualDirectory/Export-TargetResource' {
-            $MockSite = @{
-                Website        = 'contoso.com'
-                WebApplication = 'contosoapp'
-                Name           = 'shared_directory'
-                PhysicalPath   = 'C:\inetpub\wwwroot\shared'
-                Ensure         = 'Present'
-            }
             $virtualDir = @{
-                Name = 'shared_directory'
-                PhysicalPath = 'C:\inetpub\wwwroot\shared'
+                Name  = 'shared_directory'
+                Path  = 'C:\inetpub\wwwroot\shared'
                 Count = 1
             }
             Context 'Export Configuration' {
                 Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
-                It 'Should Not export any resource instances' {
+                It 'Should Export all resource instances' {
                     Export-TargetResource
                 }
             }
