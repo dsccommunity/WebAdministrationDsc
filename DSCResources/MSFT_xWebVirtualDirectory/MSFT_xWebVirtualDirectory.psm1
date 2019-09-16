@@ -238,7 +238,8 @@ function Export-TargetResource
                 $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
                 <# Setting Primary Keys #>
-                $params.Name = $webvirtualdirectory.PhysicalPath
+                $params.Name = $webvirtualdirectory.Name
+                $params.PhysicalPath = $webvirtualdirectory.PhysicalPath
                 $params.WebApplication = ""
                 $params.Website = $website.Name
                 <# Setting Required Keys #>
