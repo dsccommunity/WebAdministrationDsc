@@ -1631,7 +1631,7 @@ function ConvertTo-WebBinding
                         {
                             if ($binding.CertificateSubject.substring(0,3) -ne 'CN=')
                             {
-                                $binding.CertificateSubject = 'CN=$($Binding.CertificateSubject)'
+                                $binding.CertificateSubject = "CN=$($Binding.CertificateSubject)"
                             }
                             $FindCertificateSplat = @{
                                 Subject = $Binding.CertificateSubject
