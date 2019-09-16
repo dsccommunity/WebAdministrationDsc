@@ -79,7 +79,7 @@ try
                     Export-TargetResource
                 }
             }
-
+        }
     }
 }
 finally
