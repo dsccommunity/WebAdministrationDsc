@@ -496,6 +496,13 @@ try
                     -ParameterFilter { $isAttribute -eq $false } `
                     -MockWith { return 'Value' }
 
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                return @{
+                    Name  = "Key1"
+                    Value = "Value1"
+                }
+            }
+
             Context 'Export Configuration' {
 
                 It 'Should Export all instances' {
