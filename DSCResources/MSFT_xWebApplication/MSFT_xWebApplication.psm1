@@ -559,7 +559,7 @@ function Export-TargetResource
                     $prop = Get-WebConfigurationProperty `
                     -Filter /system.WebServer/security/authentication/$authenticationtype `
                     -Name enabled `
-                    -PSPath 'IIS:\Sites\$location'
+                    -PSPath "IIS:\Sites\$location"
                     Write-Verbose '$authenticationtype : $($prop.Value)'
                     [void]$authSb.AppendLine("                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value)
                 }
@@ -717,7 +717,7 @@ function Get-SslFlags
     )
 
     $SslFlags = Get-WebConfiguration `
-                -PSPath IIS:\Sites `
+                -PSPath 'IIS:\Sites' `
                 -Location $Location `
                 -Filter 'system.webserver/security/access' | `
                  ForEach-Object { $_.sslFlags }
