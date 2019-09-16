@@ -498,7 +498,7 @@ try
 
             Mock -CommandName Get-WebConfiguration -MockWith {
                 return @{
-                    Name  = "Key1"
+                    Key   = "Key1"
                     Value = "Value1"
                 }
             }
