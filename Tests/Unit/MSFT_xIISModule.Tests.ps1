@@ -75,6 +75,39 @@ try
                     Test-TargetResource @TestParams | Should be $false
                 }
             }
+
+            Context 'Resource exists. We need to add it' {
+
+                $TestParams = @{
+                    Name       = "Test Module"
+                    SiteName   = "Test Site"
+                    Code       = "Litware.Contoso.Tests"
+                }
+                Mock -CommandName Get-WebManagedModule -MockWith {
+                    return @{
+                        Name = "Test Module"
+                        Type = "Litware.Contoso.Tests"
+                    }
+                }
+
+                Mock -CommandName New-WebManagedModule -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName Assert-Module -MockWith {}
+
+                It 'Should be Present from the Get Method' {
+                    (Get-TargetResource @TestParams).Ensure | Should Be 'Present'
+                }
+
+                It 'Should update the instance from the Set Method' {
+                    Set-TargetResource @TestParams
+                }
+
+                It 'Should return true from the Test method' {
+                    Test-TargetResource @TestParams | Should be $true
+                }
+            }
         }
 
         Describe 'MSFT_xIISModule/Export-TargetResource' {
