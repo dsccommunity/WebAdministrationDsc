@@ -67,7 +67,7 @@ try
                 customFields      = @{Collection = @($MockLogCustomFields)}
             }
 
-        $MockLogFlagsAfterSplit = [System.String[]]@('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
+        $MockLogFlagsAfterSplit = [System.String[]] @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
 
         Describe "$script:DSCResourceName\Assert-Module" {
 

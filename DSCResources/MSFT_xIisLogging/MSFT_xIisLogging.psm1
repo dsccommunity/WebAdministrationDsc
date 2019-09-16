@@ -54,7 +54,7 @@ function Get-TargetResource
     $logFlagsArray = $null
     if ($currentLogSettings.LogExtFileFlags -is [System.String])
     {
-        $logFlagsArray = [System.String[]]$currentLogSettings.LogExtFileFlags.Split(',')
+        $logFlagsArray = [System.String[]] $currentLogSettings.LogExtFileFlags.Split(',')
     }
 
     return @{

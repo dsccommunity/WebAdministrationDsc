@@ -124,7 +124,7 @@ try
                 Count                = 1
             }
 
-            $MockLogFlagsAfterSplit = [System.String[]]@('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
+            $MockLogFlagsAfterSplit = [System.String[]] @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
 
             Mock -CommandName Assert-Module -MockWith {}
 

@@ -142,7 +142,7 @@ function Get-TargetResource
         $logFlagsArray = $null
         if ($website.logfile.LogExtFileFlags -is [System.String])
         {
-            $logFlagsArray = [System.String[]]$website.logfile.LogExtFileFlags.Split(',')
+            $logFlagsArray = [System.String[]] $website.logfile.LogExtFileFlags.Split(',')
         }
     }
     # Multiple websites with the same name exist. This is not supported and is an error
