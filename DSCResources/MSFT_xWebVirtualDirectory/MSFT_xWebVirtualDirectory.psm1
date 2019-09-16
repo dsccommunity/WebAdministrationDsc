@@ -233,12 +233,12 @@ function Export-TargetResource
             $j =1
             foreach($webvirtualdirectory in $webVirtualDirectories)
             {
-                Write-Information "        [$j/$($webVirtualDirectories.Count)] $($webvirtualdirectory.path)"
-                Write-Verbose "WebSite/VirtualDirectory: $($website.name)$($webvirtualdirectory.path)"
+                Write-Information "        [$j/$($webVirtualDirectories.Count)] $($webvirtualdirectory.PhysicalPath)"
+                Write-Verbose "WebSite/VirtualDirectory: $($website.name)$($webvirtualdirectory.PhysicalPath)"
                 $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
                 <# Setting Primary Keys #>
-                $params.Name = $webvirtualdirectory.Path
+                $params.Name = $webvirtualdirectory.PhysicalPath
                 $params.WebApplication = ""
                 $params.Website = $website.Name
                 <# Setting Required Keys #>

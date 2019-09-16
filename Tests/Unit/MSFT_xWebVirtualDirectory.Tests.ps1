@@ -236,9 +236,9 @@ try
         }
         Describe 'MSFT_xWebVirtualDirectory/Export-TargetResource' {
             $virtualDir = @{
-                Name  = 'shared_directory'
-                Path  = 'C:\inetpub\wwwroot\shared'
-                Count = 1
+                Name          = 'shared_directory'
+                PhysicalPath  = 'C:\inetpub\wwwroot\shared'
+                Count         = 1
             }
             Context 'Export Configuration' {
                 Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
