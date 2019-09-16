@@ -45,21 +45,13 @@ try
             }
 
             Mock Get-WebConfigurationProperty -MockWith {
-                $path = $Filter.Replace('system.applicationHost/sites/siteDefaults/', '')
-
-                if ([System.String]::IsNullOrEmpty($path)) {
-                    return $MockWebSiteDefaults[$Name]
-                } else {
-                    $path = $path.Replace('/', '')
-                    return $MockWebSiteDefaults[$path][$Name]
-                }
+                return $MockWebSiteDefaults[$Name]
             }
 
             Context 'Returns Defaults' {
                 $params = @{
                     ApplyTo   = "Machine"
                     LogFormat = "W3C"
-                    Ensure    = "Present"
                 }
                 It 'Should return true from the Test function' {
                     $result = Test-TargetResource @params
