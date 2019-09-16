@@ -76,7 +76,7 @@ try
                 }
             }
 
-            Context 'Resource exists. We need to add it' {
+            Context 'Resource exists.' {
 
                 $TestParams = @{
                     Name       = "Test Module"
@@ -98,10 +98,6 @@ try
 
                 It 'Should be Present from the Get Method' {
                     (Get-TargetResource @TestParams).Ensure | Should Be 'Present'
-                }
-
-                It 'Should update the instance from the Set Method' {
-                    Set-TargetResource @TestParams
                 }
 
                 It 'Should return true from the Test method' {
