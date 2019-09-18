@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-moduleVersion = '2.7.0.0'
+moduleVersion = '2.8.0.0'
 
 # ID used to uniquely identify this module
 GUID = 'b3239f27-d7d3-4ae6-a5d2-d9a1c97d6ae4'
@@ -41,18 +41,16 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Changes to xWebAdministration
-  * Opt-in to the following DSC Resource Common Meta Tests:
-    * Common Tests - Relative Path Length
-    * Common Tests - Validate Script Files
-    * Common Tests - Validate Module Files
-    * Common Tests - Validate Markdown Files
-    * Common Tests - Validate Markdown Links
-    * Common Tests - Custom Script Analyzer Rules
-    * Common Tests - Flagged Script Analyzer Rules
-    * Common Tests - Required Script Analyzer Rules
-    * Common Tests - Validate Example Files
-  * Add ConfigurationPath to xIisMimeTypeMapping examples since it is now a required field.
+        ReleaseNotes = '* Fix multiple HTTPS bindings on one xWebsite receiving the first binding"s certificate [332](https://github.com/PowerShell/xWebAdministration/issues/332)
+  * Added unit regression test
+* Changes to xWebsite
+  * Added ServerAutoStart (controls website autostart) and changed documentation for ServiceAutoStartEnabled (controls application auto-initialization). Fixes 325.
+  * Fix multiple HTTPS bindings on one xWebsite receiving the first binding"s certificate [332](https://github.com/PowerShell/xWebAdministration/issues/332)
+    * Added unit regression test
+* Changes to xWebAppPool
+  * Fix false `Test-TargetResource` failure for `logEventOnRecycle` if items in the Configuration property are specified in a different order than IIS natively stores them [434](https://github.com/PowerShell/xWebAdministration/issues/434)
+* Changes to xIisModule
+  * Fixed the parameters specification for the internal Get-IISHandler and Remove-IISHandler function
 
 '
 
@@ -66,6 +64,7 @@ FunctionsToExport = '*'
 # Cmdlets to export from this module
 CmdletsToExport = '*'
 }
+
 
 
 
