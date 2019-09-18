@@ -174,6 +174,17 @@ try
                 }
             }
         }
+        Describe 'MSFT_xSSLSettings/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+                Mock Assert-Module -Verifiable {}
+                Mock Get-WebConfigurationProperty -Verifiable { return 'Ssl' }
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
 }
 finally

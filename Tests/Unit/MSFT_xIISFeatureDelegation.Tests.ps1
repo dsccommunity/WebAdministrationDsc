@@ -30,6 +30,7 @@ try
             Metadata = @{
                 effectiveOverrideMode = 'Allow'
             }
+            SectionPath = "/System.webServer/"
         }
 
         $mockDenyOverrideMode = @{
@@ -165,6 +166,17 @@ try
                 $overrideMode = Get-OverrideMode @getOverrideModeParameters
                 It 'Should be Deny' {
                     $overrideMode | Should Be 'Deny'
+                }
+            }
+        }
+        Describe 'MSFT_IISFeatureDelegation/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+
+                Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
                 }
             }
         }

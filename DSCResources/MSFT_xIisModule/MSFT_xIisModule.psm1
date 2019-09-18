@@ -1,27 +1,6 @@
 # Load the Helper Module
 Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResource                               = Get-TargetResource has been run.
-        VerboseSetTargetRemoveHandler                          = Removing handler
-        VerboseSetTargetAddHandler                             = Adding handler.
-        VerboseSetTargetAddfastCgi                             = Adding fastCgi.
-        VerboseTestTargetResource                              = Get-TargetResource has been run.
-        VerboseGetIisHandler                                   = Getting Handler for {0} in Site {1}
-        VerboseTestTargetResourceImplVerb                      = Matched Verb {0}
-        VerboseTestTargetResourceImplExtraVerb                 = Extra Verb {0}
-        VerboseTestTargetResourceImplRequestPath               = RequestPath is {0}
-        VerboseTestTargetResourceImplPath                      = Path is {0}
-        VerboseTestTargetResourceImplresourceStatusRequestPath = StatusRequestPath is {0}
-        VerboseTestTargetResourceImplresourceStatusPath        = StatusPath is {0}
-        VerboseTestTargetResourceImplModulePresent             = Module present is {0}
-        VerboseTestTargetResourceImplModuleConfigured          = ModuleConfigured is {0}
-'@
-}
 function Get-TargetResource
 {
     <#
@@ -34,74 +13,52 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [String] $Path,
+        [System.String]
+        $Name,
 
         [Parameter(Mandatory = $true)]
-        [String] $Name,
+        [System.String]
+        $SiteName,
 
         [Parameter(Mandatory = $true)]
-        [String] $RequestPath,
-
-        [Parameter(Mandatory = $true)]
-        [String[]] $Verb,
+        [System.String]
+        $Code,
 
         [Parameter()]
-        [ValidateSet('FastCgiModule')]
-        [String] $ModuleType = 'FastCgiModule',
-
-        [Parameter()]
-        [String] $SiteName
+        [ValidateSet('Present', 'Absent')]
+        [System.String]
+        $Ensure= "Present"
     )
 
-        Assert-Module
+    Assert-Module
+    Write-Verbose "Calling Get-TargetResource for $Name"
+    # We are looking at the root, therefore remove the asterik
+    if ('*' -eq $SiteName)
+    {
+        $SiteName = ""
+    }
+    $module = Get-WebManagedModule -Name $Name -Location $SiteName
 
-        $currentVerbs = @()
-        $Ensure = 'Absent'
-
-        $modulePresent = $false;
-
-        $handler = Get-IisHandler -Name $Name -SiteName $SiteName
-
-        if($handler )
-        {
-            $Ensure = 'Present'
-            $modulePresent = $true;
-        }
-
-        foreach($thisVerb  in $handler.Verb)
-        {
-            $currentVerbs += $thisVerb
-        }
-
-        $fastCgiSetup = $false
-
-        if($handler.Modules -eq 'FastCgiModule')
-        {
-            $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* `
-                        -PSPath (Get-IisSitePath `
-                        -SiteName $SiteName) | `
-                        Where-Object{$_.FullPath -ieq $handler.ScriptProcessor}
-            if($fastCgi)
-            {
-                $fastCgiSetup = $true
-            }
-        }
-
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
-
+    if($null -eq $module)
+    {
         $returnValue = @{
-            Path          = $handler.ScriptProcessor
-            Name          = $handler.Name
-            RequestPath   = $handler.Path
-            Verb          = $currentVerbs
-            SiteName      = $SiteName
-            Ensure        = $Ensure
-            ModuleType    = $handler.Modules
-            EndPointSetup = $fastCgiSetup
+            Name     = $Name
+            SiteName = $SiteName
+            Code     = $Code
+            Ensure   = "Absent"
         }
+    }
+    else
+    {
+        $returnValue = @{
+            Name     = $module.Name
+            SiteName = $SiteName
+            Code     = $module.Type
+            Ensure   = "Present"
+        }
+    }
 
-        $returnValue
-
+    $returnValue
 }
 
 function Set-TargetResource
@@ -114,70 +71,36 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter()]
-        [ValidateSet('Present','Absent')]
-        [String] $Ensure,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Path,
-
         [Parameter(Mandatory = $true)]
         [String] $Name,
 
         [Parameter(Mandatory = $true)]
-        [String] $RequestPath,
+        [String] $SiteName,
 
         [Parameter(Mandatory = $true)]
-        [String[]] $Verb,
+        [String] $Code,
 
         [Parameter()]
-        [ValidateSet('FastCgiModule')]
-        [String] $ModuleType = 'FastCgiModule',
-
-        [Parameter()]
-        [String] $SiteName
+        [ValidateSet('Present', 'Absent')]
+        [System.String]
+        $Ensure= "Present"
     )
 
-    $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
-    $resourceStatus = Get-TargetResource @GetParameters
-    $resourceTests = Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus
-    if($resourceTests.Result)
+    $resourceStatus = Get-TargetResource @PSBoundParameters
+
+    if ($Ensure -eq 'Present' -and $resourceStatus.Ensure -eq 'Absent')
     {
-        return
+        Write-Verbose "Setting Configuration"
+
+        New-WebManagedModule -Name $Name -Location $SiteName -Type $Code
     }
-
-    if($Ensure -eq 'Present')
+    elseif ($Ensure -eq 'Present' -and $resourceStatus.Ensure -eq 'Present')
     {
-        if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
-        {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
-            Remove-IisHandler
-        }
-
-        if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
-        {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler
-            Add-webconfiguration /system.webServer/handlers iis:\ -Value @{
-                Name = $Name
-                Path = $RequestPath
-                Verb = $Verb -join ','
-                Module = $ModuleType
-                ScriptProcessor = $Path
-            }
-        }
-
-        if(-not $resourceTests.EndPointSetup)
-        {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddfastCgi
-            Add-WebConfiguration /system.webServer/fastCgi iis:\ -Value @{
-                FullPath = $Path
-            }
-        }
+        Set-WebManagedModule -Name $Name -Location $SiteName -Type $Code
     }
     else
     {
-        Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
-        Remove-IisHandler
+        Remove-WebManagedModule -Location $SiteName -Name $NAme
     }
 }
 
@@ -193,232 +116,103 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter()]
-        [ValidateSet('Present','Absent')]
-        [String] $Ensure,
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Name,
 
         [Parameter(Mandatory = $true)]
-        [String] $Path,
+        [System.String]
+        $SiteName,
 
         [Parameter(Mandatory = $true)]
-        [String] $Name,
-
-        [Parameter(Mandatory = $true)]
-        [String] $RequestPath,
-
-        [Parameter(Mandatory = $true)]
-        [String[]] $Verb,
+        [System.String]
+        $Code,
 
         [Parameter()]
-        [ValidateSet('FastCgiModule')]
-        [String] $ModuleType = 'FastCgiModule',
-
-        [Parameter()]
-        [String] $SiteName
+        [ValidateSet('Present', 'Absent')]
+        [System.String]
+        $Ensure = "Present"
     )
+    $resourceStatus = Get-TargetResource @PSBoundParameters
 
-    $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
-    $resourceStatus = Get-TargetResource @GetParameters
+    $result = $true
+    if ($resourceStatus.Ensure -ne $Ensure -or $resourceStatus.SiteName -ne $SiteName -or $resourceStatus.Code -ne $Code)
+    {
+        return $false
+    }
+    Write-Verbose "Testing $Name"
+    return $result
+}
 
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResource
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
 
-    return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xIISModule...'
+
+    $Modules =  Get-WebManagedModule
+
+    Write-Information '    Modules Defined at Root Level:'
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach ($Module in $Modules)
+    {
+        Write-Information "        [$i/$($Modules.Count)] $($Module.Name)"
+        $params = @{
+            Name     = $Module.Name
+            SiteName = '*'
+            Code     = $Module.Type
+            Ensure   = 'Present'
+        }
+        $results = Get-TargetResource @params
+        [void]$sb.AppendLine('        xIISModule ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $dscmodule
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine('        }')
+        $i++
+    }
+
+    $sites = Get-Website
+
+    foreach ($site in $sites)
+    {
+        Write-Information "    Modules Defined at Site Level {$($site.Name)}"
+
+        try
+        {
+            $Modules =  Get-WebManagedModule -Location $site.Name
+            $i = 1
+            foreach ($Module in $Modules)
+            {
+                Write-Information "        [$i/$($Modules.Count)] $($Module.Name)"
+                $params =@{
+                    Name     = $Module.Name
+                    SiteName = $site.Name
+                    Code     = $Module.Type
+                    Ensure   = 'Present'
+                }
+                $results = Get-TargetResource @params
+                [void]$sb.AppendLine('        xIISModule ' + (New-Guid).ToString())
+                [void]$sb.AppendLine('        {')
+                $dscBlock = Get-DSCBlock -Params $results -ModulePath $dscmodule
+                [void]$sb.Append($dscBlock)
+                [void]$sb.AppendLine('        }')
+                $i++
+            }
+        }
+        catch
+        {
+            Write-Verbose "Modules in site $site.Name are being override at a parent level."
+        }
+    }
+    return $sb.ToString()
 }
 
 #region Helper Functions
-
-function Get-PSBoundParameters
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [Hashtable] $FunctionParameters
-    )
-
-    [Hashtable] $getParameters = @{}
-    foreach($key in $FunctionParameters.Keys)
-    {
-        if($key -ine 'Ensure')
-        {
-            $getParameters.Add($key, $FunctionParameters.$key) | Out-Null
-        }
-    }
-
-    return $getParameters
-}
-
-function Get-IisSitePath
-{
-    [OutputType([System.String])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter()]
-        [String] $SiteName
-    )
-
-    if (-not $SiteName)
-    {
-        return 'IIS:\'
-    }
-    else
-    {
-        return Join-Path 'IIS:\sites\' $SiteName
-    }
-}
-
-function Get-IisHandler
-{
-    <#
-    .NOTES
-        Get a list on IIS handlers
-    #>
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String] $Name,
-
-        [Parameter()]
-        [String] $SiteName
-    )
-
-    Write-Verbose -Message ($LocalizedData.VerboseGetIisHandler -f $Name,$SiteName)
-    return Get-Webconfiguration -Filter 'System.WebServer/handlers/*' `
-                                -PSPath (Get-IisSitePath `
-                                -SiteName $SiteName) | `
-                                Where-Object{$_.Name -ieq $Name}
-}
-
-function Remove-IisHandler
-{
-    <#
-    .NOTES
-        Remove an IIS Handler
-    #>
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String] $Name,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-
-        [Parameter()]
-        [String] $SiteName
-    )
-
-    $handler = Get-IisHandler @PSBoundParameters
-
-    if($handler)
-    {
-        Clear-WebConfiguration -PSPath $handler.PSPath `
-                               -Filter $handler.ItemXPath `
-                               -Location $handler.Location
-    }
-}
-
-function Test-TargetResourceImpl
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String] $Path,
-
-        [Parameter(Mandatory = $true)]
-        [String] $Name,
-
-        [Parameter(Mandatory = $true)]
-        [String] $RequestPath,
-
-        [Parameter(Mandatory = $true)]
-        [String[]] $Verb,
-
-        [Parameter()]
-        [ValidateSet('FastCgiModule')]
-        [String] $ModuleType = 'FastCgiModule',
-
-        [Parameter()]
-        [String] $SiteName,
-
-        [Parameter()]
-        [ValidateSet('Present','Absent')]
-        [String] $Ensure,
-
-        [Parameter(Mandatory = $true)]
-        [HashTable] $resourceStatus
-    )
-
-    $matchedVerbs = @()
-    $mismatchVerbs =@()
-    foreach($thisVerb  in $resourceStatus.Verb)
-    {
-        if($Verb -icontains $thisVerb)
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplVerb `
-                            -f $Verb)
-            $matchedVerbs += $thisVerb
-        }
-        else
-        {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplExtraVerb `
-                            -f $Verb)
-            $mismatchVerbs += $thisVerb
-        }
-    }
-
-    $modulePresent = $false
-    if($resourceStatus.Name.Length -gt 0)
-    {
-        $modulePresent = $true
-    }
-
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplRequestPath `
-                            -f $RequestPath)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplPath `
-                            -f $Path)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusRequestPath `
-                            -f $($resourceStatus.RequestPath))
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusPath `
-                            -f $($resourceStatus.Path))
-
-    $moduleConfigured = $false
-    if($modulePresent -and `
-        $mismatchVerbs.Count -eq 0 -and `
-        $matchedVerbs.Count-eq $Verb.Count -and `
-        $resourceStatus.Path -eq $Path -and `
-        $resourceStatus.RequestPath -eq $RequestPath)
-    {
-        $moduleConfigured = $true
-    }
-
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModulePresent `
-                            -f $ModulePresent)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
-                            -f $ModuleConfigured)
-    if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
-    {
-        return @{
-                    Result = $true
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
-    }
-    else
-    {
-        return @{
-                    Result = $false
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
-    }
-}
 
 
 #endregion

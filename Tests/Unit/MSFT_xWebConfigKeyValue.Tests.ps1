@@ -490,6 +490,26 @@ try
             }
         }
         #endregion Non-Exported Function Unit Tests
+
+        Describe 'MSFT_xWebConfigKeyValue/Export-TargetResource' {
+            Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                    -ParameterFilter { $isAttribute -eq $false } `
+                    -MockWith { return 'Value' }
+
+            Mock -CommandName Get-WebConfiguration -MockWith {
+                return @{
+                    Key   = "Key1"
+                    Value = "Value1"
+                }
+            }
+
+            Context 'Export Configuration' {
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
 }
 finally

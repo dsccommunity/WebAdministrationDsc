@@ -1119,6 +1119,121 @@ function Test-TargetResource
     return $inDesiredState
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebSite...'
+
+    $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
+
+    $webSites = Get-WebSite
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach($website in $webSites)
+    {
+        Write-Information "    [$i/$($webSites.Count)] $($website.Name)"
+        <# Setting Primary Keys #>
+        $params.Name = $website.Name
+        Write-Verbose 'Key parameters as follows'
+        $params | ConvertTo-Json | Write-Verbose
+
+        $results = Get-TargetResource @params
+        Write-Verbose 'All Parameters as follows'
+        $results | ConvertTo-Json | Write-Verbose
+
+        $results.BindingInfo = @();
+
+        foreach($binding in $website.Bindings.Collection)
+        {
+            $bindingContent = [System.Text.StringBuilder]::new()
+            [void]$bindingContent.AppendLine('MSFT_xWebBindingInformation')
+            [void]$bindingContent.AppendLine('            {')
+            [void]$bindingContent.AppendLine("                Protocol = `"$($binding.Protocol)`"")
+            [void]$bindingContent.AppendLine("                SslFlags = $($binding.sslFlags)")
+
+            if ($binding.protocol -match '^http')
+            {
+                $bindingInfo = $binding.bindingInformation.split(':')
+                $ipAddress = $bindingInfo[0]
+                $port = $bindingInfo[1]
+                $hostName = $bindingInfo[2]
+                [void]$bindingContent.AppendLine("                IPAddress = `"$ipAddress`"")
+                [void]$bindingContent.AppendLine("                Port = $port")
+                [void]$bindingContent.AppendLine("                Hostname = `"$hostName`"")
+                if ($binding.CertificateStoreName -eq 'My' -or $binding.CertificateStoreName -eq 'WebHosting')
+                {
+                    if ($null -ne $binding.CertificateHash -and '' -ne $binding.CertificateHash)
+                    {
+                        [void]$bindingContent.AppendLine("                CertificateThumbprint = `"$($binding.CertificateHash)`"")
+                    }
+                    [void]$bindingContent.AppendLine("                CertificateStoreName = `"$($binding.CertificateStoreName)`"")
+                }
+            }
+            else
+            {
+                [void]$bindingContent.AppendLine("                BindingInformation = `"$($binding.bindingInformation)`"")
+            }
+
+            [void]$bindingContent.AppendLine('            }')
+
+            $results.BindingInfo += $bindingContent.ToString()
+        }
+
+        $results.LogCustomFields = @();
+
+        [string]$LogCustomFields = $null
+        $logSB = [System.Text.StringBuilder]::new()
+        foreach ($customfield in $webSite.logfile.customFields.Collection)
+        {
+            [void]$logSB.AppendLine('MSFT_LogCustomFieldInformation')
+            [void]$logSB.AppendLine('{')
+            [void]$logSB.AppendLine("    logFieldName = `"$($customfield.logFieldName)`"")
+            [void]$logSB.AppendLine("    sourceName = `"$($customfield.sourceName)`"")
+            [void]$logSB.AppendLine("    sourceType = `"$($customfield.sourceType)`"")
+            [void]$logSB.AppendLine('}')
+        }
+
+        $results.LogCustomFields = $logSB.ToString()
+        $authSB = [System.Text.StringBuilder]::new()
+        [void]$authSB.AppendLine('            MSFT_xWebAuthenticationInformation')
+        [void]$authSB.AppendLine('            {')
+
+        $AuthenticationTypes = @('BasicAuthentication','AnonymousAuthentication','DigestAuthentication','WindowsAuthentication')
+
+        foreach ($authenticationtype in $AuthenticationTypes)
+        {
+            Remove-Variable -Name location -ErrorAction SilentlyContinue
+            Remove-Variable -Name prop -ErrorAction SilentlyContinue
+            $location = $website.Name
+            $prop = Get-WebConfigurationProperty `
+                -Filter /system.WebServer/security/authentication/$authenticationtype `
+                -Name enabled `
+                -Location $location
+            Write-Verbose '$authenticationtype : $($prop.Value)'
+            [void]$authSB.AppendLine("                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value)
+        }
+        [void]$authSB.Append('            }')
+
+        $results.AuthenticationInfo = $authSB.ToString()
+        $results.LogFlags = $results.LogFlags.Split(',')
+
+        Write-Verbose 'All Parameters with values'
+        $results | ConvertTo-Json | Write-Verbose
+
+        [void]$sb.AppendLine('        xWebSite ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine('        }')
+    }
+
+    return $sb.ToString()
+}
+
 #region Helper Functions
 
 <#

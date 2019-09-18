@@ -3306,6 +3306,87 @@ try
             }
 
         }
+        Describe 'MSFT_xWebAppPool/Export-TargetResource' {
+            Mock Assert-Module
+            Context 'Export Configuration' {
+                $mockAppPool = @{
+                    name = 'MockAppPool'
+                    state = 'Started'
+                    autoStart = $true
+                    CLRConfigFile = ''
+                    enable32BitAppOnWin64 = $false
+                    enableConfigurationOverride = $true
+                    managedPipelineMode = 'Integrated'
+                    managedRuntimeLoader = 'webengine4.dll'
+                    managedRuntimeVersion = 'v4.0'
+                    passAnonymousToken = $true
+                    startMode = 'OnDemand'
+                    queueLength = 1000
+                    cpu = @{
+                        action = 'NoAction'
+                        limit = 0
+                        resetInterval = '00:05:00'
+                        smpAffinitized = $false
+                        smpProcessorAffinityMask = 4294967295
+                        smpProcessorAffinityMask2 = 4294967295
+                    }
+                    processModel = @{
+                        identityType = 'SpecificUser'
+                        idleTimeout = '00:20:00'
+                        idleTimeoutAction = 'Terminate'
+                        loadUserProfile = $true
+                        logEventOnProcessModel = 'IdleTimeout'
+                        logonType = 'LogonBatch'
+                        manualGroupMembership = $false
+                        maxProcesses = 1
+                        password = 'P@$$w0rd'
+                        pingingEnabled = $true
+                        pingInterval = '00:00:30'
+                        pingResponseTime = '00:01:30'
+                        setProfileEnvironment = $false
+                        shutdownTimeLimit = '00:01:30'
+                        startupTimeLimit = '00:01:30'
+                        userName = 'CONTOSO\JDoe'
+                    }
+                    failure = @{
+                        orphanActionExe = ''
+                        orphanActionParams = ''
+                        orphanWorkerProcess = $false
+                        loadBalancerCapabilities = 'HttpLevel'
+                        rapidFailProtection = $true
+                        rapidFailProtectionInterval = '00:05:00'
+                        rapidFailProtectionMaxCrashes = 5
+                        autoShutdownExe = ''
+                        autoShutdownParams = ''
+                    }
+                    recycling = @{
+                        disallowOverlappingRotation = $false
+                        disallowRotationOnConfigChange = $false
+                        logEventOnRecycle = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
+                        periodicRestart = @{
+                            memory = 0
+                            privateMemory = 0
+                            requests = 0
+                            time = '1.05:00:00'
+                            schedule = @{
+                                Collection = @(
+                                    @{value = '04:00:00'}
+                                    @{value = '08:00:00'}
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Mock Get-WebConfiguration -MockWith {$mockAppPool}
+                Mock Assert-Module -Verifiable {}
+                Mock Get-WebConfigurationProperty -Verifiable { return 'Ssl' }
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
 
     }
 

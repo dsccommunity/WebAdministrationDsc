@@ -252,6 +252,18 @@ function Test-TargetResource
     return $true
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebConfigProperty is not supported by ReverseDSC.'
+
+    return ''
+}
+
 # region Helper Functions
 
 <#

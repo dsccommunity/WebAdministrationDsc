@@ -121,6 +121,28 @@ function Test-TargetResource
     return $true
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebAppPoolDefaults...'
+    $sb = [System.Text.StringBuilder]::new()
+    $params = @{
+        ApplyTo = 'Machine'
+    }
+    $results = Get-TargetResource @params
+
+    [void]$sb.AppendLine('        xWebAppPoolDefaults ' + (New-Guid).ToString())
+    [void]$sb.AppendLine('        {')
+    $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+    [void]$sb.Append($dscBlock)
+    [void]$sb.AppendLine('        }')
+    return $sb.ToString()
+}
+
 #region Helper Functions
 
 function Confirm-Value

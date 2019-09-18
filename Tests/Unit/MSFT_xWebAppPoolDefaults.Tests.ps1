@@ -186,6 +186,31 @@ try
                 }
             }
         }
+        Describe 'MSFT_xWebAppPoolDefaults/Export-TargetResource' {
+            $mockAppPoolDefaults = @{
+                managedRuntimeVersion = 'v4.0'
+                processModel = @{
+                    identityType = 'SpecificUser'
+                }
+            }
+
+            Mock Get-WebConfigurationProperty -MockWith {
+                $path = $Filter.Replace('system.applicationHost/applicationPools/applicationPoolDefaults', '')
+
+                if ([System.String]::IsNullOrEmpty($path)) {
+                    return $mockAppPoolDefaults[$Name]
+                } else {
+                    $path = $path.Replace('/', '')
+                    return $mockAppPoolDefaults[$path][$Name]
+                }
+            }
+            Context 'Export Configuration' {
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
 }
 finally

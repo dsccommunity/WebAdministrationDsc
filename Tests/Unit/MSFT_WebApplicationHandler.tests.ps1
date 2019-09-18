@@ -369,6 +369,18 @@ try
                 }
             }
         }
+
+        Describe 'MSFT_WebApplicationHandler/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+
+                Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
 }
 

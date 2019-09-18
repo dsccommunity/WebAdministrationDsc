@@ -153,6 +153,49 @@ function Test-TargetResource
     return $false
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xIISFeatureDelegation...'
+
+    $configSections = Get-WebConfiguration -Filter 'system.webServer/*' -Metadata -Recurse
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach ($section in $configSections)
+    {
+        if ($null -ne $section.SectionPath)
+        {
+            Write-Information "    [$i/$($configSections.Count)] $($section.SectionPath.Remove(0,1))"
+            $params = @{
+                Filter = $section.SectionPath.Remove(0,1)
+                Path = 'MACHINE/WEBROOT/APPHOST'
+                OverrideMode = 'Deny'
+            }
+
+            try
+            {
+                $results = Get-TargetResource @params
+                [void]$sb.AppendLine('        xIISFeatureDelegation ' + (New-Guid).ToString())
+                [void]$sb.AppendLine('        {')
+                $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+                [void]$sb.Append($dscBlock)
+                [void]$sb.AppendLine('        }')
+            }
+            catch
+            {
+                Write-Error $_
+            }
+        }
+        $i++
+    }
+
+    return $sb.ToString()
+}
+
 #region Helper functions
 <#
     .SYNOPSIS

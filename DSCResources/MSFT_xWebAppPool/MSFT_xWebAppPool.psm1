@@ -977,6 +977,51 @@ function Test-TargetResource
     return $inDesiredState
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebAppPool...'
+
+    $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
+
+    $appPools = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add'
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach($appPool in $appPools)
+    {
+        Write-Information "    [$i/$($appPools.Length)] $($appPool.Name)"
+        <# Setting Primary Keys #>
+        $params.Name = $appPool.Name
+        Write-Verbose 'Key parameters as follows'
+        $params | ConvertTo-Json | Write-Verbose
+
+        $results = Get-TargetResource @params
+
+        if($appPool.ProcessModel -eq 'SpecificUser')
+        {
+            $results.Credential = "`$Creds" + $appPool.ProcessModel.username
+        }
+        else
+        {
+            $results.Remove('Credential')
+        }
+
+        Write-Verbose 'All Parameters with values'
+        $results | ConvertTo-Json | Write-Verbose
+
+        [void]$sb.AppendLine('        xWebAppPool ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine('        }')
+    }
+    return $sb.ToString()
+}
+
 #region Helper Functions
 
 function Get-Property

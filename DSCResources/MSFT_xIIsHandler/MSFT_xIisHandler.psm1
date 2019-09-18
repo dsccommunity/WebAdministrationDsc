@@ -915,6 +915,40 @@ function Test-TargetResource
     }
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xIISHandler...'
+
+    $handlers = Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' `
+                                             -Filter 'system.webServer/handlers/*' `
+                                             -Name '.'
+
+    $i = 1
+    $sb = [System.Text.StringBuilder]::new()
+    foreach ($handler in $handlers)
+    {
+        $params = @{
+            Name   = $handler.name
+            Ensure = 'Present'
+        }
+
+        $results = Get-TargetResource @params
+        Write-Information "    [$i/$($handlers.Count)] $($handler.name)"
+        [void]$sb.AppendLine('        xIISHandler ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine('        }')
+        $i++
+    }
+    return $sb.ToString()
+}
+
 #region Helper Functions
 
 function Get-Handler

@@ -260,6 +260,15 @@ try
 
         }
         #endregion Non-Exported Function Unit Tests
+
+        Describe 'MSFT_xWebConfigProperty/Export-TargetResource' {
+            Context 'Export Configuration' {
+
+                It 'Should Not export any resource instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
 }
 finally

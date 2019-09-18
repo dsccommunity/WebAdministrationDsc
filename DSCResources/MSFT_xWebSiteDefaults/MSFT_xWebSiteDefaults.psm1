@@ -35,11 +35,11 @@ function Get-TargetResource
 
     return @{
         LogFormat              = (Get-Value 'siteDefaults/logFile' 'logFormat')
-        TraceLogDirectory      = ( Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory')
-        DefaultApplicationPool = (Get-Value 'applicationDefaults' 'applicationPool')
-        AllowSubDirConfig      = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig')
+        TraceLogDirectory      = (Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory').value
+        DefaultApplicationPool = (Get-Value 'applicationDefaults' 'applicationPool').value
+        AllowSubDirConfig      = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig').value
         ApplyTo                = 'Machine'
-        LogDirectory           = (Get-Value 'siteDefaults/logFile' 'directory')
+        LogDirectory           = (Get-Value 'siteDefaults/logFile' 'directory').value
     }
 
 }
@@ -167,6 +167,29 @@ function Test-TargetResource
 
     return $true
 
+}
+
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebSiteDefaults...'
+    $sb = [System.Text.StringBuilder]::new()
+
+    $params = @{
+        ApplyTo = 'Machine'
+    }
+    $results = Get-TargetResource @params
+
+    [void]$sb.AppendLine('        xWebSiteDefaults ' + (New-GUID).ToString())
+    [void]$sb.AppendLine('        {')
+    $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+    [void]$sb.Append($dscBlock)
+    [void]$sb.AppendLine('        }')
+    return $sb.ToString()
 }
 
 #region Helper Functions

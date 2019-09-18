@@ -186,6 +186,18 @@ try
                 Assert-MockCalled Get-WebConfigurationProperty
             }
         }
+
+        Describe 'MSFT_xIISHandler/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+                Mock Assert-Module
+                Mock Get-Handler {'Present'}
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
     #endregion
 }

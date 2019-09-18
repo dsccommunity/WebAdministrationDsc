@@ -174,4 +174,36 @@ function Test-TargetResource
     return $false;
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xSSLSettings...'
+
+    $sb = [System.Text.StringBuilder]::new()
+
+    $websites = Get-Website
+    $i = 1
+    foreach($site in $websites)
+    {
+        $params = @{
+            Name     = $site.Name
+            Bindings = ''
+        }
+        $results = Get-TargetResource @params
+        Write-Information "    [$i/$($websites.Count)] Reading SSL Setting for site {$($site.Name)}"
+        [void]$sb.AppendLine('        xSSLSettings ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine('        }')
+        $i++
+    }
+
+    return $sb.ToString()
+}
+
 Export-ModuleMember -Function *-TargetResource

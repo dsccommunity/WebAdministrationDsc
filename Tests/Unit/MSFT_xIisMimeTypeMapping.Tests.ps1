@@ -159,6 +159,17 @@ try
             }
         }
         #endregion
+
+        Describe 'MSFT_xIISMimeTypeMapping/Export-TargetResource' {
+
+            Context 'Export Configuration' {
+                Mock -CommandName Get-Mapping -MockWith { return $mockMapping }
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
     }
 }
 finally

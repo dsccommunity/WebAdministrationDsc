@@ -380,4 +380,36 @@ function Test-TargetResource
     return $inDesiredState
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting WebApplicationHandler...'
+    $handlers = Get-WebConfigurationProperty -Filter 'system.webServer/handlers/Add' -Name '.'
+
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach ($handler in $handlers)
+    {
+        Write-Information "    [$i/$($handlers.Count)] $($handler.name)"
+        $params = @{
+            Name = $handler.name
+            Path = 'IIS://'
+            Location = $handler.location
+        }
+
+        $results = Get-TargetResource @params
+        [void]$sb.AppendLine('        WebApplicationHandler ' + (New-Guid).ToString())
+        [void]$sb.AppendLine('        {')
+        $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        [void]$sb.Append($dscBlock)
+        [void]$sb.AppendLine('        }')
+        $i++
+    }
+    return $sb.ToString()
+}
+
 Export-ModuleMember -Function *-TargetResource

@@ -242,6 +242,47 @@ function Test-TargetResource
     return $true
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xWebConfigKeyValue...'
+
+    $webSites = Get-Website
+
+    $i = 1
+    $sb = [System.Text.StringBuilder]::new()
+    foreach ($site in $webSites)
+    {
+        Write-Information "    [$i/$($webSites.Count)] Scanning Keys for WebSite {$($site.Name)}"
+        $keys = Get-WebConfiguration -Filter '/appSettings/*' -PSPath "IIS:/Sites/$($site.Name)"
+
+        $j = 1
+        foreach ($key in $keys)
+        {
+            Write-Information "        [$j/$($keys.Count)] $($key.Key)"
+            $params = @{
+                WebsitePath   = "IIS:/Sites/$($site.Name)"
+                ConfigSection = 'AppSettings'
+                Key            = $key.Key
+            }
+            $results = Get-TargetResource @params
+
+            [void]$sb.AppendLine('        xWebConfigKeyValue ' + (New-Guid).ToString())
+            [void]$sb.AppendLine('        {')
+            $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+            [void]$sb.Append($dscBlock)
+            [void]$sb.AppendLine('        }')
+            $j++
+        }
+        $i++
+    }
+    return $sb.ToString()
+}
+
 # region Helper Functions
 
 function Add-Item

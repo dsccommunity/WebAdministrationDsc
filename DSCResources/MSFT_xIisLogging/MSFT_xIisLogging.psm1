@@ -398,6 +398,33 @@ function Test-TargetResource
 
 }
 
+function Export-TargetResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param()
+
+    $InformationPreference = 'Continue'
+    Write-Information 'Extracting xIISLogging...'
+
+    $LogSettings = Get-WebConfiguration -Filter '/system.applicationHost/sites/siteDefaults/Logfile'
+
+    $params = @{
+        LogPath = $LogSettings.directory
+    }
+    $sb = [System.Text.StringBuilder]::new()
+    $results = Get-TargetResource @params
+    $results.LogFlags = $results.LogFlags.Split(',')
+    [void]$sb.AppendLine('        xIISLogging ' + (New-Guid).ToString())
+    [void]$sb.AppendLine('        {')
+    $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+    [void]$sb.Append($dscBlock)
+    [void]$sb.AppendLine('        }')
+
+    return $sb.ToString()
+
+}
+
 #region Helper functions
 
 <#

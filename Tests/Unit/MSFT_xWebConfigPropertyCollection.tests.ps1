@@ -413,6 +413,15 @@ try
 
         }
 
+        Describe 'MSFT_xWebConfigPropertyCollection/Export-TargetResource' {
+            Context 'Export Configuration' {
+
+                It 'Should Not export any resource instances' {
+                    Export-TargetResource
+                }
+            }
+        }
+
         #endregion Non-Exported Function Unit Tests
     }
 }

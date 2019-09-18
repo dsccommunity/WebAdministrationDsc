@@ -1543,6 +1543,58 @@ try
             }
 
         }
+        Describe 'MSFT_xWebApplicaton/Export-TargetResource' {
+            $MockParameters = @{
+                Website                  = 'MockSite'
+                Name                     = 'MockApp'
+                WebAppPool               = 'MockPool'
+                PhysicalPath             = 'C:\MockSite\MockApp'
+            }
+
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+            Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+            Mock -CommandName Assert-Module -MockWith {}
+            Context 'Export Configuration' {
+                Mock -CommandName Get-WebApplication -MockWith {
+                    return @{
+                        Website                  = 'MockSite'
+                        Name                     = 'MockApp'
+                        applicationPool          = 'MockPool'
+                        Path                     = 'C:\MockSite\MockApp'
+                        SslFlags                 = 'Ssl'
+                        PreloadEnabled           = $true
+                        ServiceAutoStartProvider = 'MockServiceAutoStartProvider'
+                        ServiceAutoStartEnabled  = $true
+                        ApplicationType          = 'MockApplicationType'
+                        AuthenticationInfo       = $MockAuthenticationInfo
+                        EnabledProtocols         = 'http'
+                        Count                    = '1'
+                    }
+                }
+
+                Mock -CommandName Get-WebConfiguration -MockWith {
+                       return $GetWebConfigurationOutput
+                }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith {
+                    return $GetAuthenticationInfo
+                }
+
+                Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Anonymous') }
+
+                Mock Test-AuthenticationEnabled { return $true } `
+                    -ParameterFilter { ($Type -eq 'Windows') }
+
+                It 'Should Export all instances' {
+                    Export-TargetResource
+                }
+            }
+        }
 
     }
 
