@@ -115,6 +115,7 @@ try
                 Id                   = 1234
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
+                ServerAutoStart      = $true
                 ApplicationPool      = 'MockPool'
                 Bindings             = @{Collection = @($MockWebBinding)}
                 EnabledProtocols     = 'http'
@@ -212,6 +213,10 @@ try
 
                 It 'should return State' {
                     $Result.State | Should Be $MockWebsite.State
+                }
+
+                It 'should return ServerAutoStart' {
+                    $Result.ServerAutoStart | Should Be $MockWebsite.ServerAutoStart
                 }
 
                 It 'should return ApplicationPool' {
@@ -340,6 +345,7 @@ try
                 Name                     = 'MockName'
                 PhysicalPath             = 'C:\NonExistent'
                 State                    = 'Started'
+                ServerAutoStart          = $true
                 ApplicationPool          = 'MockPool'
                 BindingInfo              = $MockBindingInfo
                 DefaultPage              = @('index.html')
@@ -404,6 +410,7 @@ try
                 SiteId               = 1234
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
+                ServerAutoStart      = $true
                 ApplicationPool      = 'MockPool'
                 Bindings             = @{ Collection = @($MockWebBinding) }
                 EnabledProtocols     = 'http'
@@ -459,6 +466,20 @@ try
                             -Name $MockParameters.Name `
                             -PhysicalPath $MockParameters.PhysicalPath `
                             -State 'Stopped' `
+                            -Verbose:$VerbosePreference
+
+                It 'should return False' {
+                    $Result | Should Be $false
+                }
+            }
+
+            Context 'Check ServerAutoStart is different' {
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                $Result = Test-TargetResource -Ensure $MockParameters.Ensure `
+                            -Name $MockParameters.Name `
+                            -PhysicalPath $MockParameters.PhysicalPath `
+                            -ServerAutoStart  $false `
                             -Verbose:$VerbosePreference
 
                 It 'should return False' {
@@ -773,6 +794,7 @@ try
                     Name                 = 'MockName'
                     PhysicalPath         = 'C:\NonExistent'
                     State                = 'Started'
+                    ServerAutoStart      = $true
                     ApplicationPool      = 'MockPool'
                     Bindings             = @{Collection = @($MockWebBinding)}
                     EnabledProtocols     = 'http'
@@ -947,6 +969,7 @@ try
                 SiteId                   = 1234
                 PhysicalPath             = 'C:\NonExistent'
                 State                    = 'Started'
+                ServerAutoStart          = $true
                 ApplicationPool          = 'MockPool'
                 BindingInfo              = $MockBindingInfo
                 DefaultPage              = @('index.html')
@@ -1014,6 +1037,7 @@ try
                 Id                   = 1234
                 PhysicalPath         = 'C:\Different'
                 State                = 'Stopped'
+                ServerAutoStart      = $false
                 ApplicationPool      = 'MockPoolDifferent'
                 Bindings             = @{ Collection = @($MockWebBinding) }
                 EnabledProtocols     = 'http'
@@ -1083,7 +1107,7 @@ try
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
                     Assert-MockCalled -CommandName Get-Item -Exactly 3
                     Assert-MockCalled -CommandName Set-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
@@ -1327,7 +1351,7 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -1342,6 +1366,7 @@ try
                     Name                     = 'MockName'
                     PhysicalPath             = 'C:\NonExistent'
                     State                    = 'Started'
+                    ServerAutoStart          = $true
                     ApplicationPool          = 'MockPool'
                     Bindings                 = @{Collection = @($MockWebBinding)}
                     EnabledProtocols         = 'http'
@@ -1425,6 +1450,7 @@ try
                     Name                 = 'MockName'
                     PhysicalPath         = 'C:\NonExistent'
                     State                = 'Started'
+                    ServerAutoStart      = $true
                     ApplicationPool      = 'MockPool'
                     Bindings             = @{Collection = @($MockWebBinding)}
                     EnabledProtocols     = 'http'
@@ -1506,6 +1532,7 @@ try
                     Name                 = 'MockName'
                     PhysicalPath         = 'C:\NonExistent'
                     State                = 'Started'
+                    ServerAutoStart      = $true
                     ApplicationPool      = 'MockPool'
                     Bindings             = @{Collection = @($MockWebBinding)}
                     EnabledProtocols     = 'http'
@@ -1587,6 +1614,7 @@ try
                     Name                     = 'MockName'
                     PhysicalPath             = 'C:\NonExistent'
                     State                    = 'Started'
+                    ServerAutoStart          = $true
                     ApplicationPool          = 'MockPool'
                     Bindings                 = @{Collection = @($MockWebBinding)}
                     EnabledProtocols         = 'http'
@@ -2632,6 +2660,7 @@ try
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
+                ServerAutoStart      = $true
                 ApplicationPool      = 'MockPool'
                 Bindings             = @{Collection = @($MockWebBinding)}
                 EnabledProtocols     = 'http'
@@ -2721,6 +2750,7 @@ try
                     Name                 = 'MockName'
                     PhysicalPath         = 'C:\NonExistent'
                     State                = 'Started'
+                    ServerAutoStart      = $true
                     ApplicationPool      = 'MockPool'
                     Bindings             = @{Collection = @($MockWebBinding)}
                     EnabledProtocols     = 'http'
@@ -2749,6 +2779,7 @@ try
                     Name                 = 'MockName'
                     PhysicalPath         = 'C:\NonExistent'
                     State                = 'Started'
+                    ServerAutoStart      = $true
                     ApplicationPool      = 'MockPool'
                     Bindings             = @{Collection = @($MockWebBinding)}
                     EnabledProtocols     = 'http'
@@ -2780,6 +2811,7 @@ try
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
+                ServerAutoStart      = $true
                 ApplicationPool      = 'MockPool'
                 Bindings             = @{Collection = @($MockWebBinding)}
                 EnabledProtocols     = 'http'
@@ -2851,6 +2883,7 @@ try
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
                 State                = 'Started'
+                ServerAutoStart      = $true
                 ApplicationPool      = 'MockPool'
                 Bindings             = @{Collection = @($MockWebBinding)}
                 EnabledProtocols     = 'http'
@@ -3554,6 +3587,69 @@ try
                         -BindingInfo $MockBindingInfo | Should Be $false
                 }
             }
+
+            Context 'Two bindings with different certificate thumbprints' {
+                $MockBindingInfo = @(
+                    New-CimInstance `
+                        -ClassName MSFT_xWebBindingInformation `
+                        -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                        -ClientOnly `
+                        -Property @{
+                            Protocol              = 'https'
+                            IPAddress             = '*'
+                            Port                  = 443
+                            HostName              = 'mock.website1.com'
+                            CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
+                            CertificateStoreName  = 'WebHosting'
+                            SslFlags              = 0
+                        }
+
+                    New-CimInstance `
+                        -ClassName MSFT_xWebBindingInformation `
+                        -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                        -ClientOnly `
+                        -Property @{
+                            Protocol              = 'https'
+                            IPAddress             = '*'
+                            Port                  = 443
+                            HostName              = 'mock.website2.com'
+                            CertificateThumbprint = 'B30F3184A831320382C61EFB0551766321FA88A5'
+                            CertificateStoreName  = 'WebHosting'
+                            SslFlags              = 0
+                        }
+                )
+
+                $MockWebBinding = @(
+                    @{
+                        bindingInformation   = '*:443:mock.website1.com'
+                        protocol             = 'https'
+                        certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
+                        certificateStoreName = 'WebHosting'
+                        sslFlags             = '0'
+                    }
+
+                    @{
+                        bindingInformation   = '*:443:mock.website2.com'
+                        protocol             = 'https'
+                        certificateHash      = 'B30F3184A831320382C61EFB0551766321FA88A5'
+                        certificateStoreName = 'WebHosting'
+                        sslFlags             = '0'
+                    }
+                )
+
+                $MockWebsite = @{
+                    Name     = 'MockSite'
+                    Bindings = @{Collection = @($MockWebBinding)}
+                }
+
+                Mock -CommandName Get-Website -MockWith {return $MockWebsite}
+
+                It 'should return True' {
+                    Test-WebsiteBinding `
+                        -Name $MockWebsite.Name `
+                        -BindingInfo $MockBindingInfo | Should Be $true
+                }
+            }
         }
 
         Describe "$script:DSCResourceName\Update-DefaultPage" {
@@ -3562,6 +3658,7 @@ try
                 Name               = 'MockName'
                 PhysicalPath       = 'C:\NonExistent'
                 State              = 'Started'
+                ServerAutoStart    = $true
                 ApplicationPool    = 'MockPool'
                 DefaultPage        = 'index.htm'
             }

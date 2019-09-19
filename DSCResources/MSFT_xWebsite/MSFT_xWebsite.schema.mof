@@ -10,9 +10,10 @@ class MSFT_xWebsite : OMI_BaseResource
     [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.")] String BindingInfo[];
     [Write] String DefaultPage[];
     [Write] String EnabledProtocols;
+    [Write, Description ("When set to $true this will enable Autostart on a Website")] Boolean ServerAutoStart;
     [write, EmbeddedInstance("MSFT_xWebAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic, Digest, Windows)")] String AuthenticationInfo;
-    [Write, Description ("Allows the Website to automatically start without a request")] Boolean PreloadEnabled;
-    [Write, Description ("Enables Autostart on a Website.")] Boolean ServiceAutoStartEnabled;
+    [Write, Description ("When set to $true this will allow WebSite to automatically start without a request")] Boolean PreloadEnabled;
+    [Write, Description ("When set to `$true` this will enable application Autostart (application initalization without an initial request) on a Website")] Boolean ServiceAutoStartEnabled;
     [Write, Description ("Adds a AutostartProvider")] String ServiceAutoStartProvider;
     [Write, Description ("Adds a AutostartProvider ApplicationType")] String ApplicationType;
     [Write, Description ("The directory to be used for logfiles")] String LogPath;

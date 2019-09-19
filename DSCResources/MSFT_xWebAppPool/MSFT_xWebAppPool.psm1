@@ -94,6 +94,11 @@ data PropertyData
     )
 }
 
+# Properties that are specified as a single comma-separated string containing multiple flags
+$script:commaSeparatedStringProperties = @(
+    'logEventOnRecycle'
+)
+
 function Get-TargetResource
 {
     <#
@@ -842,7 +847,23 @@ function Test-TargetResource
                 $propertyPath = $_.Path
                 $property = Get-Property -Object $appPool -PropertyName $propertyPath
 
-                if (
+                # First check if the property is a single comma-separated string containing multiple flags, split and compare membership if so
+                if ($propertyName -in $script:commaSeparatedStringProperties)
+                {
+                    $currentPropertyCollection = $property.Split(',')
+                    $expectedPropertyCollection = $PSBoundParameters[$propertyName].Split(',')
+
+                    $compareResult = @(Compare-Object -ReferenceObject $currentPropertyCollection -DifferenceObject $expectedPropertyCollection)
+                    if ($compareResult.Length -ne 0)
+                    {
+                        Write-Verbose -Message (
+                            $LocalizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
+                        )
+
+                        $inDesiredState = $false
+                    }
+                }
+                elseif (
                     $PSBoundParameters[$propertyName] -ne $property
                 )
                 {
