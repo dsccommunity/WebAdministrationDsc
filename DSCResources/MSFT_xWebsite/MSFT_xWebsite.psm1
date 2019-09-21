@@ -979,7 +979,7 @@ function Test-TargetResource
         }
 
         #Check Preload
-        if($PSBoundParameters.ContainsKey('preloadEnabled') -and `
+        if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
             $website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
         {
             $inDesiredState = $false
@@ -988,7 +988,7 @@ function Test-TargetResource
         }
 
         #Check AutoStartEnabled
-        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and `
+        if ($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and `
             $website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $inDesiredState = $false
@@ -997,7 +997,7 @@ function Test-TargetResource
         }
 
         #Check AutoStartProviders
-        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and `
+        if ($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and `
             $website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
             if (-not (Confirm-UniqueServiceAutoStartProviders `
@@ -1021,7 +1021,7 @@ function Test-TargetResource
             }
 
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
-            if($PSBoundParameters.ContainsKey('LogFlags') -and `
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $website.logfile.LogFormat -ne 'W3C')
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat `
@@ -1292,16 +1292,16 @@ function Confirm-UniqueServiceAutoStartProviders
             type   = $ApplicationType
     })
 
-    if(-not $existingObject)
+    if (-not $existingObject)
     {
         return $false
     }
 
-    if(-not (Compare-Object -ReferenceObject $existingObject `
+    if (-not (Compare-Object -ReferenceObject $existingObject `
                             -DifferenceObject $proposedObject `
                             -Property name))
     {
-        if(Compare-Object -ReferenceObject $existingObject `
+        if (Compare-Object -ReferenceObject $existingObject `
                           -DifferenceObject $proposedObject `
                           -Property type)
         {

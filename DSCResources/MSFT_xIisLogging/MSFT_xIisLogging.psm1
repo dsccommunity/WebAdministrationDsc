@@ -318,7 +318,7 @@ function Test-TargetResource
             }
 
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
-            if($PSBoundParameters.ContainsKey('LogFlags') -and `
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $currentLogState.LogFormat -ne 'W3C')
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
@@ -544,7 +544,7 @@ function Test-LogCustomField
         {
             $sourceNameMatch = $customField.SourceName -eq $presentCustomField.sourceName
             $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
-            if(-not ($sourceNameMatch -and $sourceTypeMatch))
+            if (-not ($sourceNameMatch -and $sourceTypeMatch))
             {
                 $inDesiredSate = $false
             }
