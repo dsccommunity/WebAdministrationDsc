@@ -54,7 +54,7 @@ function Assert-Module
         [String]$ModuleName = 'WebAdministration'
     )
 
-    if(-not(Get-Module -Name $ModuleName -ListAvailable))
+    if (-not(Get-Module -Name $ModuleName -ListAvailable))
     {
         $errorMsg = $($LocalizedData.ModuleNotFound) -f $ModuleName
         New-TerminatingError -ErrorId 'ModuleNotFound' `

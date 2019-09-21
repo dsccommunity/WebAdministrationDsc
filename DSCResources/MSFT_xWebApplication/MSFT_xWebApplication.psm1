@@ -410,7 +410,7 @@ function Test-TargetResource
         }
 
         #Check AutoStartEnabled
-        if($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
+        if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
             $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutostart -f $Name)
@@ -545,16 +545,16 @@ function Confirm-UniqueServiceAutoStartProviders
             type   = $ApplicationType
     })
 
-    if(-not $ExistingObject)
+    if (-not $ExistingObject)
         {
             return $false
         }
 
-    if(-not (Compare-Object -ReferenceObject $ExistingObject `
+    if (-not (Compare-Object -ReferenceObject $ExistingObject `
                             -DifferenceObject $ProposedObject `
                             -Property name))
         {
-            if(Compare-Object -ReferenceObject $ExistingObject `
+            if (Compare-Object -ReferenceObject $ExistingObject `
                               -DifferenceObject $ProposedObject `
                               -Property type)
                 {
@@ -837,7 +837,7 @@ function Test-SslFlags
 
     $CurrentSslFlags =  Get-SslFlags -Location $Location
 
-    if(Compare-Object -ReferenceObject $CurrentSslFlags `
+    if (Compare-Object -ReferenceObject $CurrentSslFlags `
                         -DifferenceObject $SslFlags)
     {
         return $false
