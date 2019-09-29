@@ -361,6 +361,14 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 * Changes to xWebAdministration
   * Resolved custom Script Analyzer rules that was added to the test framework.
+  * Remove the file HighQualityResourceKitPlan.md which served no purpose.
+  * Added Installation, Requirements, and Examples sections to the README.md.
+  * Added new module to hold helper functions `Modules\xWebAdministration.Common`,
+    this module replaced the `DscResources\Helper.psm1` module.
+    * Updated Find-Certificate to correctly throw an error if the path
+      was not found.
+  * Update each resource to correct import the new common helper function
+    module.
 * Changes to xWebsite
   * Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
