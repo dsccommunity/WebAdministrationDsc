@@ -29,6 +29,43 @@ and be released to [PowerShell Gallery](https://www.powershellgallery.com/).
 
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
+## Installation
+
+### From GitHub source code
+
+To manually install the module, download the source code from GitHub and unzip
+the contents to the '$env:ProgramFiles\WindowsPowerShell\Modules' folder.
+
+### From PowerShell Gallery
+
+To install from the PowerShell gallery using PowerShellGet (in PowerShell 5.0)
+run the following command:
+
+```powershell
+Find-Module -Name xWebAdministration | Install-Module
+```
+
+To confirm installation, run the below command and ensure you see the
+DSC resources available:
+
+```powershell
+Get-DscResource -Module xWebAdministration
+```
+
+## Requirements
+
+The minimum Windows Management Framework (PowerShell) version required is
+4.0 or higher.
+
+>Note: In the CI pipeline the resource are only tested on PowerShell 5.1,
+>so PowerShell 4.0 support is best effort as this time.
+
+## Examples
+
+You can review the [Examples](/Examples) directory in the xWebAdministration
+module for some general use scenarios for all of the resources that are in
+the module.
+
 ## Resources
 
 ### xIisHandler (DEPRECATED)
