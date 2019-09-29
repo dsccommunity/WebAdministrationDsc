@@ -839,4 +839,6 @@ Export-ModuleMember -Function @(
     'Test-DscPropertyState'
     'New-CimCredentialInstance'
     'Get-CurrentUser'
+    'Find-Certificate'
+    'New-TerminatingError'
 )
