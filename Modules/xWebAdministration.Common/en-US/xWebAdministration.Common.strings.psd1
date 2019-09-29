@@ -1,4 +1,4 @@
-# Localized resources for helper module ActiveDirectoryDsc.Common.
+# Localized resources for helper module xWebAdministration.Common.
 
 ConvertFrom-StringData @'
     EvaluatePropertyState               = Evaluating the state of the property '{0}'. (WACOMMON0001)
