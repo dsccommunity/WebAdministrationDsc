@@ -322,6 +322,11 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### Unreleased
 
+* Changes to xWebAdministration
+  * Resolved custom Script Analyzer rules that was added to the test framework.
+
+### 2.8.0.0
+
 * Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
   * Added unit regression test
 * Changes to xWebsite

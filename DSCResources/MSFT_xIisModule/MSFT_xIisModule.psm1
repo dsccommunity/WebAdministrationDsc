@@ -62,26 +62,26 @@ function Get-TargetResource
 
         $handler = Get-IisHandler -Name $Name -SiteName $SiteName
 
-        if($handler )
+        if ($handler )
         {
             $Ensure = 'Present'
             $modulePresent = $true;
         }
 
-        foreach($thisVerb  in $handler.Verb)
+        foreach ($thisVerb  in $handler.Verb)
         {
             $currentVerbs += $thisVerb
         }
 
         $fastCgiSetup = $false
 
-        if($handler.Modules -eq 'FastCgiModule')
+        if ($handler.Modules -eq 'FastCgiModule')
         {
             $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* `
                         -PSPath (Get-IisSitePath `
                         -SiteName $SiteName) | `
                         Where-Object{$_.FullPath -ieq $handler.ScriptProcessor}
-            if($fastCgi)
+            if ($fastCgi)
             {
                 $fastCgiSetup = $true
             }
@@ -141,20 +141,20 @@ function Set-TargetResource
     $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
     $resourceTests = Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus
-    if($resourceTests.Result)
+    if ($resourceTests.Result)
     {
         return
     }
 
-    if($Ensure -eq 'Present')
+    if ($Ensure -eq 'Present')
     {
-        if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
+        if ($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
         {
             Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
             Remove-IisHandler
         }
 
-        if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
+        if (-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
         {
             Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler
             Add-webconfiguration /system.webServer/handlers iis:\ -Value @{
@@ -166,7 +166,7 @@ function Set-TargetResource
             }
         }
 
-        if(-not $resourceTests.EndPointSetup)
+        if (-not $resourceTests.EndPointSetup)
         {
             Write-Verbose -Message $LocalizedData.VerboseSetTargetAddfastCgi
             Add-WebConfiguration /system.webServer/fastCgi iis:\ -Value @{
@@ -238,9 +238,9 @@ function Get-PSBoundParameters
     )
 
     [Hashtable] $getParameters = @{}
-    foreach($key in $FunctionParameters.Keys)
+    foreach ($key in $FunctionParameters.Keys)
     {
-        if($key -ine 'Ensure')
+        if ($key -ine 'Ensure')
         {
             $getParameters.Add($key, $FunctionParameters.$key) | Out-Null
         }
@@ -314,7 +314,7 @@ function Remove-IisHandler
 
     $handler = Get-IisHandler @PSBoundParameters
 
-    if($handler)
+    if ($handler)
     {
         Clear-WebConfiguration -PSPath $handler.PSPath `
                                -Filter $handler.ItemXPath `
@@ -357,9 +357,9 @@ function Test-TargetResourceImpl
 
     $matchedVerbs = @()
     $mismatchVerbs =@()
-    foreach($thisVerb  in $resourceStatus.Verb)
+    foreach ($thisVerb  in $resourceStatus.Verb)
     {
-        if($Verb -icontains $thisVerb)
+        if ($Verb -icontains $thisVerb)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplVerb `
                             -f $Verb)
@@ -374,7 +374,7 @@ function Test-TargetResourceImpl
     }
 
     $modulePresent = $false
-    if($resourceStatus.Name.Length -gt 0)
+    if ($resourceStatus.Name.Length -gt 0)
     {
         $modulePresent = $true
     }
@@ -389,7 +389,7 @@ function Test-TargetResourceImpl
                             -f $($resourceStatus.Path))
 
     $moduleConfigured = $false
-    if($modulePresent -and `
+    if ($modulePresent -and `
         $mismatchVerbs.Count -eq 0 -and `
         $matchedVerbs.Count-eq $Verb.Count -and `
         $resourceStatus.Path -eq $Path -and `
@@ -402,7 +402,7 @@ function Test-TargetResourceImpl
                             -f $ModulePresent)
     Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
                             -f $ModuleConfigured)
-    if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
+    if ($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
     {
         return @{
                     Result = $true
