@@ -324,6 +324,14 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 * Changes to xWebAdministration
   * Resolved custom Script Analyzer rules that was added to the test framework.
+* Changes to xWebsite
+  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected
+    array of strings (one for each flag) rather than an array containing
+    a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
+* Changes to xIISLogging
+  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected
+  array of strings (one for each flag) rather than an array containing a
+  single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
 
 ### 2.8.0.0
 

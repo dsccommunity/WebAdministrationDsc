@@ -138,6 +138,12 @@ function Get-TargetResource
                                 Select-Object Name,Type
 
         [Array] $cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
+
+        $logFlagsArray = $null
+        if ($website.logfile.LogExtFileFlags -is [System.String])
+        {
+            $logFlagsArray = [System.String[]] $website.logfile.LogExtFileFlags.Split(',')
+        }
     }
     # Multiple websites with the same name exist. This is not supported and is an error
     else
@@ -166,7 +172,7 @@ function Get-TargetResource
         ServiceAutoStartEnabled  = $website.applicationDefaults.serviceAutoStartEnabled
         ApplicationType          = $webConfiguration.Type
         LogPath                  = $website.logfile.directory
-        LogFlags                 = [Array]$website.logfile.LogExtFileFlags
+        LogFlags                 = $logFlagsArray
         LogPeriod                = $website.logfile.period
         LogtruncateSize          = $website.logfile.truncateSize
         LoglocalTimeRollover     = $website.logfile.localTimeRollover

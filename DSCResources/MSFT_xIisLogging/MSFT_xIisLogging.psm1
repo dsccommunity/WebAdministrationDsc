@@ -51,9 +51,15 @@ function Get-TargetResource
 
     $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $currentLogSettings.logFile.customFields.Collection)
 
+    $logFlagsArray = $null
+    if ($currentLogSettings.LogExtFileFlags -is [System.String])
+    {
+        $logFlagsArray = [System.String[]] $currentLogSettings.LogExtFileFlags.Split(',')
+    }
+
     return @{
         LogPath              = $currentLogSettings.directory
-        LogFlags             = [Array]$currentLogSettings.LogExtFileFlags
+        LogFlags             = $logFlagsArray
         LogPeriod            = $currentLogSettings.period
         LogTruncateSize      = $currentLogSettings.truncateSize
         LoglocalTimeRollover = $currentLogSettings.localTimeRollover

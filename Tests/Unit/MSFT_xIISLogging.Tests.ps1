@@ -58,7 +58,7 @@ try
         $MockLogOutput =
             @{
                 directory         = '%SystemDrive%\inetpub\logs\LogFiles'
-                logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
+                logExtFileFlags   = 'Date,Time,ClientIP,UserName,ServerIP,Method,UriStem,UriQuery,HttpStatus,Win32Status,TimeTaken,ServerPort,UserAgent,Referer,HttpSubStatus'
                 logFormat         = 'W3C'
                 LogTargetW3C      = 'File,ETW'
                 period            = 'Daily'
@@ -66,6 +66,8 @@ try
                 localTimeRollover = 'False'
                 customFields      = @{Collection = @($MockLogCustomFields)}
             }
+
+        $MockLogFlagsAfterSplit = [System.String[]] @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
 
         Describe "$script:DSCResourceName\Assert-Module" {
 
@@ -107,7 +109,27 @@ try
                 }
 
                 It 'Should return LogFlags' {
-                    $result.LogFlags | Should Be $MockLogOutput.logExtFileFlags
+                    $result.LogFlags | Should Be $MockLogFlagsAfterSplit
+                }
+
+                It 'Should return LogFlags as expected array of Strings' {
+                    $result.LogFlags -is [System.String[]] | Should -BeTrue
+                    $result.LogFlags | Should -HaveCount 15
+                    $result.LogFlags | Should -Contain 'Date'
+                    $result.LogFlags | Should -Contain 'Time'
+                    $result.LogFlags | Should -Contain 'ClientIP'
+                    $result.LogFlags | Should -Contain 'UserName'
+                    $result.LogFlags | Should -Contain 'ServerIP'
+                    $result.LogFlags | Should -Contain 'Method'
+                    $result.LogFlags | Should -Contain 'UriStem'
+                    $result.LogFlags | Should -Contain 'UriQuery'
+                    $result.LogFlags | Should -Contain 'HttpStatus'
+                    $result.LogFlags | Should -Contain 'Win32Status'
+                    $result.LogFlags | Should -Contain 'TimeTaken'
+                    $result.LogFlags | Should -Contain 'ServerPort'
+                    $result.LogFlags | Should -Contain 'UserAgent'
+                    $result.LogFlags | Should -Contain 'Referer'
+                    $result.LogFlags | Should -Contain 'HttpSubStatus'
                 }
 
                 It 'Should return LogPeriod' {
