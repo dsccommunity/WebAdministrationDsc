@@ -1,10 +1,11 @@
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
+
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
 # Import Localization Strings
-$localizedData = Get-LocalizedData `
-    -ResourceName 'MSFT_WebApplicationHandler' `
-    -ResourcePath (Split-Path -Parent $Script:MyInvocation.MyCommand.Path)
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_WebApplicationHandler'
 
 <#
     .SYNOPSIS
@@ -61,12 +62,12 @@ function Get-TargetResource
 
     if (-not [string]::IsNullOrEmpty($webHandler.Name))
     {
-        Write-Verbose -Message ($localizedData.VerboseGetTargetPresent -f $Name)
+        Write-Verbose -Message ($script:localizedData.VerboseGetTargetPresent -f $Name)
         $returnValue.Add('Ensure', 'Present')
     }
     else
     {
-        Write-Verbose -Message ($localizedData.VerboseGetTargetAbsent -f $Name)
+        Write-Verbose -Message ($script:localizedData.VerboseGetTargetAbsent -f $Name)
         $returnValue.Add('Ensure', 'Absent')
     }
 
@@ -205,12 +206,12 @@ function Set-TargetResource
     {
         if ($currentHandler.Ensure -eq 'Present')
         {
-            Write-Verbose -Message ($localizedData.UpdatingHandler -f $Name)
+            Write-Verbose -Message ($script:localizedData.UpdatingHandler -f $Name)
             Set-WebConfigurationProperty -Filter $filter -PSPath $Path -Name '.' -Value $attributes -Location $Location
         }
         else
         {
-            Write-Verbose -Message ($localizedData.AddingHandler -f $Name)
+            Write-Verbose -Message ($script:localizedData.AddingHandler -f $Name)
             Add-WebConfigurationProperty -Filter 'system.webServer/handlers' -PSPath $Path -Name '.' -Value $attributes -Location $Location
         }
     }
@@ -218,7 +219,7 @@ function Set-TargetResource
     {
         if ($currentHandler.Ensure -eq 'Present')
         {
-            Write-Verbose -Message ($localizedData.RemovingHandler -f $Name)
+            Write-Verbose -Message ($script:localizedData.RemovingHandler -f $Name)
             Remove-WebHandler -Name $Name -PSPath $Path -Location $Location
         }
         else
@@ -371,7 +372,7 @@ function Test-TargetResource
                 if ($PSBoundParameters.$keyName -ne $currentHandler.$keyName)
                 {
                     $inDesiredState = $false
-                    Write-Verbose -Message ($localizedData.PropertyNotInDesiredState -f $keyName)
+                    Write-Verbose -Message ($script:localizedData.PropertyNotInDesiredState -f $keyName)
                 }
             }
         }

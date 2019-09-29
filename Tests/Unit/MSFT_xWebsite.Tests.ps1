@@ -32,16 +32,6 @@ try
         $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
         Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1') -Force
 
-        Describe "$script:DSCResourceName\Assert-Module" {
-            Context 'WebAdminstration module is not installed' {
-                Mock -ModuleName Helper -CommandName Get-Module -MockWith { return $null }
-
-                It 'should throw an error' {
-                    { Assert-Module } | Should Throw
-                }
-            }
-        }
-
         Describe "how $script:DSCResourceName\Get-TargetResource responds" {
             $MockWebBinding = @(
                 @{

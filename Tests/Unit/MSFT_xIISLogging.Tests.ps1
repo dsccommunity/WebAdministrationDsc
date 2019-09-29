@@ -69,23 +69,6 @@ try
 
         $MockLogFlagsAfterSplit = [System.String[]] @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
 
-        Describe "$script:DSCResourceName\Assert-Module" {
-
-            Context 'WebAdminstration module is not installed' {
-                Mock -ModuleName Helper -CommandName Get-Module -MockWith {
-                    return $null
-                }
-
-                It 'Should throw an error' {
-                    { Assert-Module } |
-                    Should Throw
-
-                }
-
-            }
-
-        }
-
         Describe "$script:DSCResourceName\Get-TargetResource" {
 
             Context 'Correct hashtable is returned' {
