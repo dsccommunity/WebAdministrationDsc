@@ -324,6 +324,14 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 * Changes to xWebAdministration
   * Resolved custom Script Analyzer rules that was added to the test framework.
+* Changes to xWebsite
+  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected
+    array of strings (one for each flag) rather than an array containing
+    a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
+* Changes to xIISLogging
+  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected
+  array of strings (one for each flag) rather than an array containing a
+  single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
 
 ### 2.8.0.0
 
@@ -333,13 +341,10 @@ This resource manages the IIS configuration section locking (overrideMode) to co
   * Added ServerAutoStart (controls website autostart) and changed documentation for ServiceAutoStartEnabled (controls application auto-initialization). Fixes #325.
   * Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
     * Added unit regression test
-  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected array of strings (one for each flag) rather than an array containing a single comma-separated string of flags
 * Changes to xWebAppPool
   * Fix false `Test-TargetResource` failure for `logEventOnRecycle` if items in the Configuration property are specified in a different order than IIS natively stores them [#434](https://github.com/PowerShell/xWebAdministration/issues/434)
 * Changes to xIisModule
   * Fixed the parameters specification for the internal Get-IISHandler and Remove-IISHandler function
-* Changes to xIISLogging
-  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected array of strings (one for each flag) rather than an array containing a single comma-separated string of flags
 
 ### 2.7.0.0
 
