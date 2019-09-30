@@ -1,5 +1,8 @@
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
+
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
 # Localized messages
 data LocalizedData
@@ -51,9 +54,15 @@ function Get-TargetResource
 
     $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $currentLogSettings.logFile.customFields.Collection)
 
+    $logFlagsArray = $null
+    if ($currentLogSettings.LogExtFileFlags -is [System.String])
+    {
+        $logFlagsArray = [System.String[]] $currentLogSettings.LogExtFileFlags.Split(',')
+    }
+
     return @{
         LogPath              = $currentLogSettings.directory
-        LogFlags             = [Array]$currentLogSettings.LogExtFileFlags
+        LogFlags             = $logFlagsArray
         LogPeriod            = $currentLogSettings.period
         LogTruncateSize      = $currentLogSettings.truncateSize
         LoglocalTimeRollover = $currentLogSettings.localTimeRollover
@@ -318,7 +327,7 @@ function Test-TargetResource
             }
 
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
-            if($PSBoundParameters.ContainsKey('LogFlags') -and `
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $currentLogState.LogFormat -ne 'W3C')
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
@@ -544,7 +553,7 @@ function Test-LogCustomField
         {
             $sourceNameMatch = $customField.SourceName -eq $presentCustomField.sourceName
             $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
-            if(-not ($sourceNameMatch -and $sourceTypeMatch))
+            if (-not ($sourceNameMatch -and $sourceTypeMatch))
             {
                 $inDesiredSate = $false
             }

@@ -1,7 +1,10 @@
 #requires -Version 4.0 -Modules CimCmdlets
 
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1" -Verbose:$false
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
+
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
 # Localized messages
 data LocalizedData
@@ -138,6 +141,12 @@ function Get-TargetResource
                                 Select-Object Name,Type
 
         [Array] $cimLogCustomFields = ConvertTo-CimLogCustomFields -InputObject $website.logFile.customFields.Collection
+
+        $logFlagsArray = $null
+        if ($website.logfile.LogExtFileFlags -is [System.String])
+        {
+            $logFlagsArray = [System.String[]] $website.logfile.LogExtFileFlags.Split(',')
+        }
     }
     # Multiple websites with the same name exist. This is not supported and is an error
     else
@@ -166,7 +175,7 @@ function Get-TargetResource
         ServiceAutoStartEnabled  = $website.applicationDefaults.serviceAutoStartEnabled
         ApplicationType          = $webConfiguration.Type
         LogPath                  = $website.logfile.directory
-        LogFlags                 = [Array]$website.logfile.LogExtFileFlags
+        LogFlags                 = $logFlagsArray
         LogPeriod                = $website.logfile.period
         LogtruncateSize          = $website.logfile.truncateSize
         LoglocalTimeRollover     = $website.logfile.localTimeRollover
@@ -979,7 +988,7 @@ function Test-TargetResource
         }
 
         #Check Preload
-        if($PSBoundParameters.ContainsKey('preloadEnabled') -and `
+        if ($PSBoundParameters.ContainsKey('preloadEnabled') -and `
             $website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
         {
             $inDesiredState = $false
@@ -988,7 +997,7 @@ function Test-TargetResource
         }
 
         #Check AutoStartEnabled
-        if($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and `
+        if ($PSBoundParameters.ContainsKey('serviceAutoStartEnabled') -and `
             $website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $inDesiredState = $false
@@ -997,7 +1006,7 @@ function Test-TargetResource
         }
 
         #Check AutoStartProviders
-        if($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and `
+        if ($PSBoundParameters.ContainsKey('serviceAutoStartProvider') -and `
             $website.applicationDefaults.serviceAutoStartProvider -ne $ServiceAutoStartProvider)
         {
             if (-not (Confirm-UniqueServiceAutoStartProviders `
@@ -1021,7 +1030,7 @@ function Test-TargetResource
             }
 
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
-            if($PSBoundParameters.ContainsKey('LogFlags') -and `
+            if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $website.logfile.LogFormat -ne 'W3C')
             {
                 Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat `
@@ -1292,16 +1301,16 @@ function Confirm-UniqueServiceAutoStartProviders
             type   = $ApplicationType
     })
 
-    if(-not $existingObject)
+    if (-not $existingObject)
     {
         return $false
     }
 
-    if(-not (Compare-Object -ReferenceObject $existingObject `
+    if (-not (Compare-Object -ReferenceObject $existingObject `
                             -DifferenceObject $proposedObject `
                             -Property name))
     {
-        if(Compare-Object -ReferenceObject $existingObject `
+        if (Compare-Object -ReferenceObject $existingObject `
                           -DifferenceObject $proposedObject `
                           -Property type)
         {
