@@ -4,6 +4,9 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
+# Import Localization Strings 
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebSiteDefaults' 
+ 
 # Localized messages
 data LocalizedData
 {
