@@ -1,5 +1,8 @@
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
+
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
 # Localized messages
 data LocalizedData
@@ -410,7 +413,7 @@ function Test-TargetResource
         }
 
         #Check AutoStartEnabled
-        if($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
+        if ($PSBoundParameters.ContainsKey('ServiceAutoStartEnabled') -and `
             $webApplication.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutostart -f $Name)
@@ -545,16 +548,16 @@ function Confirm-UniqueServiceAutoStartProviders
             type   = $ApplicationType
     })
 
-    if(-not $ExistingObject)
+    if (-not $ExistingObject)
         {
             return $false
         }
 
-    if(-not (Compare-Object -ReferenceObject $ExistingObject `
+    if (-not (Compare-Object -ReferenceObject $ExistingObject `
                             -DifferenceObject $ProposedObject `
                             -Property name))
         {
-            if(Compare-Object -ReferenceObject $ExistingObject `
+            if (Compare-Object -ReferenceObject $ExistingObject `
                               -DifferenceObject $ProposedObject `
                               -Property type)
                 {
@@ -837,7 +840,7 @@ function Test-SslFlags
 
     $CurrentSslFlags =  Get-SslFlags -Location $Location
 
-    if(Compare-Object -ReferenceObject $CurrentSslFlags `
+    if (Compare-Object -ReferenceObject $CurrentSslFlags `
                         -DifferenceObject $SslFlags)
     {
         return $false

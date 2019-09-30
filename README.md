@@ -29,6 +29,43 @@ and be released to [PowerShell Gallery](https://www.powershellgallery.com/).
 
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
+## Installation
+
+### From GitHub source code
+
+To manually install the module, download the source code from GitHub and unzip
+the contents to the '$env:ProgramFiles\WindowsPowerShell\Modules' folder.
+
+### From PowerShell Gallery
+
+To install from the PowerShell gallery using PowerShellGet (in PowerShell 5.0)
+run the following command:
+
+```powershell
+Find-Module -Name xWebAdministration | Install-Module
+```
+
+To confirm installation, run the below command and ensure you see the
+DSC resources available:
+
+```powershell
+Get-DscResource -Module xWebAdministration
+```
+
+## Requirements
+
+The minimum Windows Management Framework (PowerShell) version required is
+4.0 or higher.
+
+>Note: In the CI pipeline the resource are only tested on PowerShell 5.1,
+>so PowerShell 4.0 support is best effort as this time.
+
+## Examples
+
+You can review the [Examples](/Examples) directory in the xWebAdministration
+module for some general use scenarios for all of the resources that are in
+the module.
+
 ## Resources
 
 ### xIisHandler (DEPRECATED)
@@ -321,6 +358,25 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 ## Versions
 
 ### Unreleased
+
+* Changes to xWebAdministration
+  * Resolved custom Script Analyzer rules that was added to the test framework.
+  * Remove the file HighQualityResourceKitPlan.md which served no purpose.
+  * Added Installation, Requirements, and Examples sections to the README.md.
+  * Added new module to hold helper functions `Modules\xWebAdministration.Common`,
+    this module replaced the `DscResources\Helper.psm1` module.
+    * Updated Find-Certificate to correctly throw an error if the path
+      was not found.
+  * Update each resource to correct import the new common helper function
+    module.
+* Changes to xWebsite
+  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected
+    array of strings (one for each flag) rather than an array containing
+    a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
+* Changes to xIISLogging
+  * Fix `Get-TargetResource` so that `LogFlags` are returned as expected
+  array of strings (one for each flag) rather than an array containing a
+  single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
 
 ### 2.8.0.0
 
@@ -1254,79 +1310,6 @@ configuration Sample_IISServerDefaults
             ManagedRuntimeVersion = 'v4.0'
             IdentityType = 'ApplicationPoolIdentity'
          }
-    }
-}
-```
-
-### Create and configure an application pool
-
-This example shows how to use the **xWebAppPool** DSC resource to create and configure an application pool.
-
-```powershell
-Configuration Sample_xWebAppPool
-{
-    param
-    (
-        [String[]]$NodeName = 'localhost'
-    )
-
-    Import-DscResource -ModuleName xWebAdministration
-
-    Node $NodeName
-    {
-        xWebAppPool SampleAppPool
-        {
-            Name                           = 'SampleAppPool'
-            Ensure                         = 'Present'
-            State                          = 'Started'
-            autoStart                      = $true
-            CLRConfigFile                  = ''
-            enable32BitAppOnWin64          = $false
-            enableConfigurationOverride    = $true
-            managedPipelineMode            = 'Integrated'
-            managedRuntimeLoader           = 'webengine4.dll'
-            managedRuntimeVersion          = 'v4.0'
-            passAnonymousToken             = $true
-            startMode                      = 'OnDemand'
-            queueLength                    = 1000
-            cpuAction                      = 'NoAction'
-            cpuLimit                       = 90000
-            cpuResetInterval               = (New-TimeSpan -Minutes 5).ToString()
-            cpuSmpAffinitized              = $false
-            cpuSmpProcessorAffinityMask    = 4294967295
-            cpuSmpProcessorAffinityMask2   = 4294967295
-            identityType                   = 'ApplicationPoolIdentity'
-            idleTimeout                    = (New-TimeSpan -Minutes 20).ToString()
-            idleTimeoutAction              = 'Terminate'
-            loadUserProfile                = $true
-            logEventOnProcessModel         = 'IdleTimeout'
-            logonType                      = 'LogonBatch'
-            manualGroupMembership          = $false
-            maxProcesses                   = 1
-            pingingEnabled                 = $true
-            pingInterval                   = (New-TimeSpan -Seconds 30).ToString()
-            pingResponseTime               = (New-TimeSpan -Seconds 90).ToString()
-            setProfileEnvironment          = $false
-            shutdownTimeLimit              = (New-TimeSpan -Seconds 90).ToString()
-            startupTimeLimit               = (New-TimeSpan -Seconds 90).ToString()
-            orphanActionExe                = ''
-            orphanActionParams             = ''
-            orphanWorkerProcess            = $false
-            loadBalancerCapabilities       = 'HttpLevel'
-            rapidFailProtection            = $true
-            rapidFailProtectionInterval    = (New-TimeSpan -Minutes 5).ToString()
-            rapidFailProtectionMaxCrashes  = 5
-            autoShutdownExe                = ''
-            autoShutdownParams             = ''
-            disallowOverlappingRotation    = $false
-            disallowRotationOnConfigChange = $false
-            logEventOnRecycle              = 'Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory'
-            restartMemoryLimit             = 0
-            restartPrivateMemoryLimit      = 0
-            restartRequestsLimit           = 0
-            restartTimeLimit               = (New-TimeSpan -Minutes 1440).ToString()
-            restartSchedule                = @('00:00:00', '08:00:00', '16:00:00')
-        }
     }
 }
 ```

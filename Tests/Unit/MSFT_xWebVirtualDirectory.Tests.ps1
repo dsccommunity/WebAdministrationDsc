@@ -23,19 +23,6 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     InModuleScope $script:DSCResourceName {
-        
-        Describe "$script:DSCResourceName\Assert-Module" {
-            Context 'WebAdminstration module is not installed' {
-                Mock -ModuleName Helper -CommandName Get-Module -MockWith {
-                    return $null
-                }
-
-                It 'Should throw an error' {
-                    { Assert-Module } | Should Throw
-                }
-            }
-        }
-        
         Describe "$script:DSCResourceName\Test-TargetResource" {
             $MockSite = @{
                 Website        = 'contoso.com'
@@ -100,7 +87,7 @@ try
                         -Name $MockSite.Name `
                         -PhysicalPath $MockSite.PhysicalPath `
                         -Ensure $MockSite.Ensure
-                        
+
                     $result | Should Be $false
                 }
             }
@@ -165,7 +152,7 @@ try
         }
 
         Describe "$script:DSCResourceName\Set-TargetResource" {
-            
+
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'Ensure = Present and virtual directory does not exist' {
