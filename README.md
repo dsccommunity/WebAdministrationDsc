@@ -1,7 +1,5 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
-
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
@@ -30,6 +28,23 @@ and be released to [PowerShell Gallery](https://www.powershellgallery.com/).
 Please check out common DSC Resources [contributing guidelines](https://github.com/PowerShell/DscResource.Kit/blob/master/CONTRIBUTING.md).
 
 ## Resources
+
+- [WebApplicationHandler](#webapplicationhandler)
+- [xIisFeatureDelegation](#xiisfeaturedelegation)
+- [xIISLogging](#xiislogging)
+- [xIisHandler (DEPRECATED)](#xiishandler-\(deprecated\))
+- [xIisMimeTypeMapping](#xiismimetypemapping)
+- [xIISModule](#xiismodule)
+- [xSSLSettings](#xsslsettings)
+- [xWebApplication](#xwebapplication)
+- [xWebAppPool](#xwebapppool)
+- [xWebAppPoolDefaults](#xwebapppooldefaults)
+- [xWebConfigKeyValue (DEPRECATED)](#xwebconfigkeyvalue-\(deprecated\))
+- [xWebConfigProperty](#xwebconfigproperty)
+- [xWebConfigPropertyCollection](#xwebconfigpropertycollection)
+- [xWebsite](#xwebsite)
+- [xWebSiteDefaults](#xwebsitedefaults)
+- [xWebVirtualDirectory](#xwebvirtualdirectory)
 
 ### xIisHandler (DEPRECATED)
 
