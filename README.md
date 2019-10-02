@@ -73,7 +73,7 @@ the module.
 > Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release
 
 * **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
-* **Ensure**: Ensures that the handler is **Present** or **Absent**.
+* **Ensure**: Ensures that the handler is **Present** or **Absent**. Defaults to **Present**.
 
 ### xIISModule
 
