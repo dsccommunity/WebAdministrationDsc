@@ -212,10 +212,11 @@ the module.
     * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
     * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
     * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
-* **ApplicationPool**: The website’s application pool.
+* **ApplicationPool**: The name of the website’s application pool.
+* **DefaultPage**: One or more names of files that will be set as Default Documents for this website.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **ServerAutoStart**: When set to `$true` this will enable Autostart on a Website
-* **Ensure**: Ensures that the website is **Present** or **Absent**.
+* **Ensure**: Ensures that the website is **Present** or **Absent**. Defaults to **Present**.
 * **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable application Autostart (application initalization without an initial request) on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
@@ -235,8 +236,8 @@ the module.
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
 * **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomFieldInformation** CIM class that implements the following properties:
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
-  * **SourceName**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
-  * **SourceType**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
+  * **SourceType**: The acceptable values for this property are: `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
+  * **SourceName**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
 
 ### xWebApplication
 
