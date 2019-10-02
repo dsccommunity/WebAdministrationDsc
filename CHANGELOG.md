@@ -21,6 +21,8 @@
 - Changes to Examples
   - Created new folder structure for examples so that examples will be
   placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
+- Moved examples out of Readme
+  - Moved examples from Readme.md to respective `/Examples/Resources/` folders. ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486))
 
 ## 2.8.0.0
 
