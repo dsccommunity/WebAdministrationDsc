@@ -7,6 +7,9 @@
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
   - Remove example 'Creating the default website using configuration data' from README.md ([issue #488](https://github.com/PowerShell/xWebAdministration/issues/488)).
   - Removed examples README.md as it was obsolete ([issue #482](https://github.com/PowerShell/xWebAdministration/issues/482)).
+  - Updated `Ensure` property description for `xIisHandler` resource to match schema.mof
+- Changes to xIisHandler
+  - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
 - Changes to xWebsite
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
@@ -20,6 +23,8 @@
 - Changes to Examples
   - Created new folder structure for examples so that examples will be
   placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
+- Moved examples out of Readme
+  - Moved examples from Readme.md to respective `/Examples/Resources/` folders. ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486))
 
 ## 2.8.0.0
 
