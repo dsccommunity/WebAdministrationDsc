@@ -24,7 +24,10 @@
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
-
+    ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
+- Changes to xWebConfigKeyValue
+  - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
+  
 ## 2.8.0.0
 
 - Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
