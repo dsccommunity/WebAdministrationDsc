@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSslSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -321,7 +321,7 @@ Ensures the value of an identified property collection item's property in the we
 * **ItemPropertyValue**: Value of the property of the property collection item to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
-### xSSLSettings
+### xSslSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
@@ -497,43 +497,6 @@ xPhp -PackageFolder "C:\packages" `
     -DestinationPath "C:\php" `
     -ConfigurationPath "C:\MyPhp.ini" `
     -installMySqlExt $false
-```
-
-## Stopping the default website
-
-When configuring a new IIS server, several references recommend removing or stopping the default website for security purposes.
-This example sets up your IIS web server by installing IIS Windows Feature.
-After that, it will stop the default website by setting `State = Stopped`.
-
-```powershell
-Configuration Sample_xWebsite_StopDefault
-{
-    param
-    (
-        # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost'
-    )
-    # Import the module that defines custom resources
-    Import-DscResource -Module xWebAdministration
-    Node $NodeName
-    {
-        # Install the IIS role
-        WindowsFeature IIS
-        {
-            Ensure          = "Present"
-            Name            = "Web-Server"
-        }
-        # Stop the default website
-        xWebsite DefaultSite
-        {
-            Ensure          = "Present"
-            Name            = "Default Web Site"
-            State           = "Stopped"
-            PhysicalPath    = "C:\inetpub\wwwroot"
-            DependsOn       = "[WindowsFeature]IIS"
-        }
-    }
-}
 ```
 
 ### Create a new website
