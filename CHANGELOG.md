@@ -7,6 +7,8 @@
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
   - Remove example 'Creating the default website using configuration data' from README.md ([issue #488](https://github.com/PowerShell/xWebAdministration/issues/488)).
   - Removed examples README.md as it was obsolete ([issue #482](https://github.com/PowerShell/xWebAdministration/issues/482)).
+- Changes to xWebConfigKeyValue
+  - Updated schema.mof to include a description for the Ensure property
 - Changes to xWebsite
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
