@@ -18,6 +18,8 @@
 - Changes to Examples
   - Created new folder structure for examples so that examples will be
   placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
+- Changes to xSslSettings
+  - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
 
 ## 2.8.0.0
 
@@ -175,8 +177,8 @@
   - Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
   - Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).
 - Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
-- Added **xSSLSettings** integration tests
-- Added fixes to **xSSLSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
+- Added **xSslSettings** integration tests
+- Added fixes to **xSslSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
 
 - Added **xIISLogging** resource which supports for the following options:
   - LogPath
@@ -229,7 +231,7 @@
 ## 1.9.0.0
 
 - Added the following resources:
-  - xSSLSettings
+  - xSslSettings
 - Fixed an issue in xWebApplication where Set-TargetResource attempted to modify a folder instead of an application.
   - Added Tests to xWebApplication which will allow more changes if desired.
 - Modified README.MD to clean up Code Formatting
