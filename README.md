@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSslSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -73,7 +73,7 @@ the module.
 > Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release
 
 * **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
-* **Ensure**: Ensures that the handler is **Present** or **Absent**.
+* **Ensure**: Ensures that the handler is **Present** or **Absent**. Defaults to **Present**.
 
 ### xIISModule
 
@@ -320,7 +320,7 @@ Ensures the value of an identified property collection item's property in the we
 * **ItemPropertyValue**: Value of the property of the property collection item to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
-### xSSLSettings
+### xSslSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
@@ -498,6 +498,7 @@ xPhp -PackageFolder "C:\packages" `
     -installMySqlExt $false
 ```
 
+<<<<<<< dev
 ## Stopping the default website
 
 When configuring a new IIS server, several references recommend removing or stopping the default website for security purposes.
@@ -506,12 +507,40 @@ After that, it will stop the default website by setting `State = Stopped`.
 
 ```powershell
 Configuration Sample_xWebsite_StopDefault
+=======
+### Create a new website
+
+While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet.
+After all, people typically use IIS to set up websites of their own with custom protocol and bindings.
+Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website.
+
+```powershell
+Configuration Sample_xWebsite_NewWebsite
+>>>>>>> dev
 {
     param
     (
         # Target nodes to apply the configuration
+<<<<<<< dev
         [string[]]$NodeName = 'localhost'
     )
+=======
+        [string[]]$NodeName = 'localhost',
+        # Name of the website to create
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$WebSiteName,
+        # Source Path for Website content
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$SourcePath,
+        # Destination path for Website content
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$DestinationPath
+    )
+
+>>>>>>> dev
     # Import the module that defines custom resources
     Import-DscResource -Module xWebAdministration
     Node $NodeName
@@ -522,6 +551,17 @@ Configuration Sample_xWebsite_StopDefault
             Ensure          = "Present"
             Name            = "Web-Server"
         }
+<<<<<<< dev
+=======
+
+        # Install the ASP .NET 4.5 role
+        WindowsFeature AspNet45
+        {
+            Ensure          = "Present"
+            Name            = "Web-Asp-Net45"
+        }
+
+>>>>>>> dev
         # Stop the default website
         xWebsite DefaultSite
         {
@@ -531,6 +571,7 @@ Configuration Sample_xWebsite_StopDefault
             PhysicalPath    = "C:\inetpub\wwwroot"
             DependsOn       = "[WindowsFeature]IIS"
         }
+<<<<<<< dev
     }
 }
 ```
@@ -552,6 +593,76 @@ Configuration Sample_xWebsite_FromConfigurationData
 
     # Dynamically find the applicable nodes from configuration data
     Node $AllNodes.where{$_.Role -eq "Web"}.NodeName
+=======
+
+        # Copy the website content
+        File WebContent
+        {
+            Ensure          = "Present"
+            SourcePath      = $SourcePath
+            DestinationPath = $DestinationPath
+            Recurse         = $true
+            Type            = "Directory"
+            DependsOn       = "[WindowsFeature]AspNet45"
+        }
+
+        # Create the new Website with HTTPS
+        xWebsite NewWebsite
+        {
+            Ensure          = "Present"
+            Name            = $WebSiteName
+            State           = "Started"
+            PhysicalPath    = $DestinationPath
+            BindingInfo     = @(
+                MSFT_xWebBindingInformation
+                {
+                    Protocol              = "HTTPS"
+                    Port                  = 8443
+                    CertificateThumbprint = "71AD93562316F21F74606F1096B85D66289ED60F"
+                    CertificateStoreName  = "WebHosting"
+                }
+                MSFT_xWebBindingInformation
+                {
+                    Protocol              = "HTTPS"
+                    Port                  = 8444
+                    CertificateThumbprint = "DEDDD963B28095837F558FE14DA1FDEFB7FA9DA7"
+                    CertificateStoreName  = "MY"
+                }
+            )
+            DependsOn       = "[File]WebContent"
+        }
+    }
+}
+```
+
+When specifying a HTTPS web binding you can also specify a certifcate subject, for cases where the certificate
+is being generated by the same configuration using something like xCertReq.
+
+```powershell
+Configuration Sample_xWebsite_NewWebsite
+{
+    param
+    (
+        # Target nodes to apply the configuration
+        [string[]]$NodeName = 'localhost',
+        # Name of the website to create
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$WebSiteName,
+        # Source Path for Website content
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$SourcePath,
+        # Destination path for Website content
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String]$DestinationPath
+    )
+
+    # Import the module that defines custom resources
+    Import-DscResource -Module xWebAdministration
+    Node $NodeName
+>>>>>>> dev
     {
         # Install the IIS role
         WindowsFeature IIS
@@ -567,13 +678,21 @@ Configuration Sample_xWebsite_FromConfigurationData
             Name            = "Web-Asp-Net45"
         }
 
+<<<<<<< dev
         # Stop an existing website (set up in Sample_xWebsite_Default)
+=======
+        # Stop the default website
+>>>>>>> dev
         xWebsite DefaultSite
         {
             Ensure          = "Present"
             Name            = "Default Web Site"
             State           = "Stopped"
+<<<<<<< dev
             PhysicalPath    = $Node.DefaultWebSitePath
+=======
+            PhysicalPath    = "C:\inetpub\wwwroot"
+>>>>>>> dev
             DependsOn       = "[WindowsFeature]IIS"
         }
 
@@ -581,13 +700,19 @@ Configuration Sample_xWebsite_FromConfigurationData
         File WebContent
         {
             Ensure          = "Present"
+<<<<<<< dev
             SourcePath      = $Node.SourcePath
             DestinationPath = $Node.DestinationPath
+=======
+            SourcePath      = $SourcePath
+            DestinationPath = $DestinationPath
+>>>>>>> dev
             Recurse         = $true
             Type            = "Directory"
             DependsOn       = "[WindowsFeature]AspNet45"
         }
 
+<<<<<<< dev
         # Create a new website
         xWebsite BakeryWebSite
         {
@@ -595,10 +720,29 @@ Configuration Sample_xWebsite_FromConfigurationData
             Name            = $Node.WebsiteName
             State           = "Started"
             PhysicalPath    = $Node.DestinationPath
+=======
+        # Create the new Website with HTTPS
+        xWebsite NewWebsite
+        {
+            Ensure          = "Present"
+            Name            = $WebSiteName
+            State           = "Started"
+            PhysicalPath    = $DestinationPath
+            BindingInfo     = @(
+                MSFT_xWebBindingInformation
+                {
+                    Protocol              = "HTTPS"
+                    Port                  = 8444
+                    CertificateSubject    = "CN=CertificateSubject"
+                    CertificateStoreName  = "MY"
+                }
+            )
+>>>>>>> dev
             DependsOn       = "[File]WebContent"
         }
     }
 }
+<<<<<<< dev
 
 # Content of configuration data file (e.g. ConfigurationData.psd1) could be:
 # Hashtable to define the environmental data
@@ -625,6 +769,8 @@ Configuration Sample_xWebsite_FromConfigurationData
 }
 # Pass the configuration data to configuration as follows:
 Sample_xWebsite_FromConfigurationData -ConfigurationData ConfigurationData.psd1
+=======
+>>>>>>> dev
 ```
 
 ### All resources (end-to-end scenario)

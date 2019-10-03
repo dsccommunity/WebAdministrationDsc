@@ -1,5 +1,5 @@
 $script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xSSLSettings'
+$script:DSCResourceName = 'MSFT_xSslSettings'
 
 #region HEADER
 
@@ -15,7 +15,7 @@ Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
-    -TestType Integration 
+    -TestType Integration
 #endregion
 
 [String] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
@@ -23,7 +23,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 try
 {
     $null = Backup-WebConfiguration -Name $tempName
-    
+
     # Now that xWebAdministration should be discoverable load the configuration data
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $configFile
@@ -42,7 +42,7 @@ try
             [String] $Website
 
         )
-        
+
         Get-WebConfiguration `
                 -PSPath IIS:\Sites `
                 -Location "$Website" `
@@ -81,12 +81,12 @@ try
         #endregion
 
         It 'Should add SSLBindings to a Website' -test {
-            
+
             Invoke-Expression -Command "$($script:DSCResourceName)_Present -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
-           
+
             # Test SslFlags
             Get-SslFlags -Website $DSCConfig.AllNodes.Website | Should Be $DSCConfig.AllNodes.Bindings
-            
+
             }
 
     }
@@ -104,14 +104,14 @@ try
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
         #endregion
-        
+
         It 'Should remove SSLBindings from a Website' -test {
-            
+
             Invoke-Expression -Command "$($script:DSCResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
 
             # Test SslFlags
             Get-SslFlags -Website $DSCConfig.AllNodes.Website | Should BeNullOrEmpty
-            
+
             }
 
     }
