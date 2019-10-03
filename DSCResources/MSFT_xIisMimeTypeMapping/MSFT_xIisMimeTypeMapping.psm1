@@ -4,20 +4,8 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
-        AddingType                = Adding MIMEType '{0}' for extension '{1}'
-        RemovingType              = Removing MIMEType '{0}' for extension '{1}'
-        TypeExists                = MIMEType '{0}' for extension '{1}' already exist
-        TypeNotPresent            = MIMEType '{0}' for extension '{1}' is not present as requested
-        VerboseGetTargetPresent   = MIMEType is present
-        VerboseGetTargetAbsent    = MIMEType is absent
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xIisMimeTypeMapping'
 
 Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST' -Scope Script
 Set-Variable ConstSectionNode              -Option Constant -Value 'system.webServer/staticContent' -Scope Script
