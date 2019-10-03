@@ -9,10 +9,13 @@
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
     a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
+  - Moved localization strings to strings.psd1 file ([issue #475](https://github.com/PowerShell/xWebAdministration/issues/475))
 - Changes to xIISLogging
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
+- Changes to xWebSiteDefaults
+  - Added xWebSiteDefaults: Move localization strings to strings.psd1 file ([#494](https://github.com/PowerShell/xWebAdministration/pull/494)]
 
 ## 2.8.0.0
 
