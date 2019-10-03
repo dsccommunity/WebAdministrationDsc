@@ -4,21 +4,8 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
-        AddingHandler             = Adding handler '{0}'
-        RemovingHandler           = Removing handler '{0}'
-        HandlerExists             = Handler with name '{0}' already exist
-        HandlerNotPresent         = Handler with name '{0}' is not present as requested
-        HandlerNotSupported       = The handler with name '{0}' is not supported.
-        VerboseGetTargetPresent   = Handler is present
-        VerboseGetTargetAbsent    = Handler is absent
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xIisHandler'
 
 #region script variables
 $script:handlers = @{
