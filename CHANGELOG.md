@@ -25,7 +25,7 @@
   array of strings (one for each flag) rather than an array containing a
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
 - Changes to xWebSiteDefaults
-  - Added xWebSiteDefaults: Move localization strings to strings.psd1 file ([#494](https://github.com/PowerShell/xWebAdministration/pull/494)]
+  - Added xWebSiteDefaults: Moved localization strings to strings.psd1 file ([#494](https://github.com/PowerShell/xWebAdministration/pull/494))
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
     ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
