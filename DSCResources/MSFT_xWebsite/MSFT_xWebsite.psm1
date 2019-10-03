@@ -3,10 +3,12 @@
 $script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
 $script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
 $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
-
-$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebsite'
-
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
+
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName  'MSFT_xWebsite'
+
+
 
 
 
