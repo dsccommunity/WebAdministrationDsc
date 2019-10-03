@@ -12,7 +12,7 @@
     folders ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486)).
   - Created new folder structure for examples so that examples will be
     placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
-  - Created a new website ([issue #490](https://github.com/PowerShell/xWebAdministration/pull/490))
+  - Examples appropriately added/updated. ([issue #490](https://github.com/PowerShell/xWebAdministration/pull/490))
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
 - Changes to xWebsite
