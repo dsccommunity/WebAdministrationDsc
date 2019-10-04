@@ -1,6 +1,6 @@
 
 $script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xSSLSettings'
+$script:DSCResourceName = 'MSFT_xSslSettings'
 
 #region HEADER
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -27,7 +27,7 @@ try
     #region Pester Tests
 
     InModuleScope $DSCResourceName {
-        $script:DSCResourceName = 'MSFT_xSSLSettings'
+        $script:DSCResourceName = 'MSFT_xSslSettings'
 
         Describe "$script:DSCResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {

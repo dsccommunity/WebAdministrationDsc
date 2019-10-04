@@ -1,6 +1,6 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSSLSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
+The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSslSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -312,10 +312,11 @@ Ensures the value of an identified property collection item's property in the we
     * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.
     * **2**: The secure connection be made using the Centralized Certificate Store without requiring a Server Name Indication.
     * **3**: The secure connection be made using the Centralized Certificate Store while requiring Server Name Indication.
-* **ApplicationPool**: The website’s application pool.
+* **ApplicationPool**: The name of the website’s application pool.
+* **DefaultPage**: One or more names of files that will be set as Default Documents for this website.
 * **EnabledProtocols**: The protocols that are enabled for the website.
 * **ServerAutoStart**: When set to `$true` this will enable Autostart on a Website
-* **Ensure**: Ensures that the website is **Present** or **Absent**.
+* **Ensure**: Ensures that the website is **Present** or **Absent**. Defaults to **Present**.
 * **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable application Autostart (application initalization without an initial request) on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
@@ -335,8 +336,8 @@ Ensures the value of an identified property collection item's property in the we
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
 * **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomFieldInformation** CIM class that implements the following properties:
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
-  * **SourceName**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
-  * **SourceType**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
+  * **SourceType**: The acceptable values for this property are: `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
+  * **SourceName**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
 
 ### xWebSiteDefaults
 
@@ -354,6 +355,77 @@ Ensures the value of an identified property collection item's property in the we
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
+
+### xWebConfigKeyValue (DEPRECATED)
+
+>NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
+>It may be removed in a future release.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **ConfigSection**: Section to update (only AppSettings supported as of now).
+* **Key**: Key for AppSettings.
+* **Value**: Value for AppSettings.
+* **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
+* **IsAttribute**: If the given key value pair is for attribute, default is element.
+
+### xWebConfigProperty
+
+Ensures the value of an identified property in the web.config file.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property to update.
+* **PropertyName**: Name of the property to update.
+* **Value**: Value of the property to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
+
+### xWebConfigPropertyCollection
+
+Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property collection to update.
+* **CollectionName**: Name of the property collection to update.
+* **ItemName**: Name of the property collection item to update.
+* **ItemKeyName**: Name of the key of the property collection item to update.
+* **ItemKeyValue**: Value of the key of the property collection item to update.
+* **ItemPropertyName**: Name of the property of the property collection item to update.
+* **ItemPropertyValue**: Value of the property of the property collection item to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
+
+### xSslSettings
+
+* **Name**: The Name of website in which to modify the SSL Settings
+* **Bindings**: The SSL bindings to implement.
+* **Ensure**: Ensures if the bindings are **Present** or **Absent**.
+
+### xIisFeatureDelegation
+
+This resource manages the IIS configuration section locking (overrideMode) to control what configuration can be set in web.config.
+
+* **Filter**: Specifies the IIS configuration section to lock or unlock in this format: **/system.webserver/security/authentication/anonymousAuthentication**
+* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
+* **Path**: Specifies the configuration path. This can be either an IIS configuration path in the format computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site. *WARNING: both path types can be used to manage the same feature delegation, however, there is no way to control if two resources in the configuration set the same feature delegation*.
+
+### xIisMimeTypeMapping
+
+* **Extension**: The file extension to map such as **.html** or **.xml**
+* **MimeType**: The MIME type to map that extension to such as **text/html**
+* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
+
+### xWebAppPoolDefaults
+
+* **ApplyTo**: Required Key value, always **Machine**
+* **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
+* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
+
+### xWebSiteDefaults
+
+* **Key**: Required Key value, always **Machine**
+* **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
+* **LogDirectory**: Directory for IIS logs.
+* **TraceLogDirectory**: Directory for FREB (Failed Request Tracing) logs.
+* **DefaultApplicationPool**: Name of the default application pool used by websites.
+* **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
 ## Examples
 

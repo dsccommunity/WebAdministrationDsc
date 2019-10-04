@@ -8,23 +8,33 @@
   - Remove example 'Creating the default website using configuration data' from README.md ([issue #488](https://github.com/PowerShell/xWebAdministration/issues/488)).
   - Removed examples README.md as it was obsolete ([issue #482](https://github.com/PowerShell/xWebAdministration/issues/482)).
   - Updated `Ensure` property description for `xIisHandler` resource to match schema.mof
+  - Moved examples from Readme.md to respective `/Examples/Resources/`
+    folders ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486)).
+  - Created new folder structure for examples so that examples will be
+    placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
+  - Alphabetized the resource list in the README.md [issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
 - Changes to xWebsite
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
     a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
+  - Updated schema.mof so that each property has an appropriate description ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
+  - Updated schema.mof and README so that `SourceType` and `SourceName` properties for `MSFT_xLogCustomFieldInformation` are associated with the appropriate descriptions and valuemaps/values ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
 - Changes to xIISLogging
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
-- Changes to README
-  - Alphabetized the resource list ([issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
 - Changes to Examples
   - Created new folder structure for examples so that examples will be
   placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
 - Moved examples out of Readme
   - Moved examples from Readme.md to respective `/Examples/Resources/` folders. ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486))
+- Changes to xSslSettings
+  - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
+    ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
+- Changes to xWebConfigKeyValue
+  - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
 
 ## 2.8.0.0
 
@@ -182,8 +192,8 @@
   - Bugfix for #131 The site name should be passed in as argument for Test-AuthenticationInfo
   - Improved **BindingInfo** validation: the **HostName** property is required for use with Server Name Indication (i.e., when the **SslFlags** property is set to `1` or `3`).
 - Adding conditional logic to install the test helper module from the gallery if the user downloaded the module from the gallery.
-- Added **xSSLSettings** integration tests
-- Added fixes to **xSSLSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
+- Added **xSslSettings** integration tests
+- Added fixes to **xSslSettings**. Corrected spelling and formatting in base resource and tests. Added misc comments. Added ValidateSet to bindings param.
 
 - Added **xIISLogging** resource which supports for the following options:
   - LogPath
@@ -236,7 +246,7 @@
 ## 1.9.0.0
 
 - Added the following resources:
-  - xSSLSettings
+  - xSslSettings
 - Fixed an issue in xWebApplication where Set-TargetResource attempted to modify a folder instead of an application.
   - Added Tests to xWebApplication which will allow more changes if desired.
 - Modified README.MD to clean up Code Formatting
