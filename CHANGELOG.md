@@ -20,6 +20,8 @@
     array of strings (one for each flag) rather than an array containing
     a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
   - Moved localization strings to strings.psd1 file ([issue #475](https://github.com/PowerShell/xWebAdministration/issues/475))
+  - Updated schema.mof so that each property has an appropriate description ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
+  - Updated schema.mof and README so that `SourceType` and `SourceName` properties for `MSFT_xLogCustomFieldInformation` are associated with the appropriate descriptions and valuemaps/values ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
 - Changes to xIISLogging
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a
@@ -31,7 +33,7 @@
     ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
 - Changes to xWebConfigKeyValue
   - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
-  
+
 ## 2.8.0.0
 
 - Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
