@@ -8,19 +8,23 @@ Configuration Sample_xWebsite_NewWebsite
     param
     (
         # Target nodes to apply the configuration
-        [string[]]$NodeName = 'localhost',
+        [string[]]
+        $NodeName = 'localhost'
         # Name of the website to create
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String]$WebSiteName,
+        [String]
+        $WebSiteName
         # Source Path for Website content
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String]$SourcePath,
+        [String]
+        $SourcePath
         # Destination path for Website content
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String]$DestinationPath
+        [String]
+        $DestinationPath
     )
 
     # Import the module that defines custom resources
@@ -30,55 +34,55 @@ Configuration Sample_xWebsite_NewWebsite
         # Install the IIS role
         WindowsFeature IIS
         {
-            Ensure          = "Present"
-            Name            = "Web-Server"
+            Ensure          = 'Present'
+            Name            = 'Web-Server'
         }
 
         # Install the ASP .NET 4.5 role
         WindowsFeature AspNet45
         {
-            Ensure          = "Present"
-            Name            = "Web-Asp-Net45"
+            Ensure          = 'Present'
+            Name            = 'Web-Asp-Net45'
         }
 
         # Stop the default website
         xWebsite DefaultSite
         {
-            Ensure          = "Present"
-            Name            = "Default Web Site"
-            State           = "Stopped"
-            PhysicalPath    = "C:\inetpub\wwwroot"
-            DependsOn       = "[WindowsFeature]IIS"
+            Ensure          = 'Present'
+            Name            = 'Default Web Site'
+            State           = 'Stopped'
+            PhysicalPath    = 'C:\inetpub\wwwroot'
+            DependsOn       = '[WindowsFeature]IIS'
         }
 
         # Copy the website content
         File WebContent
         {
-            Ensure          = "Present"
+            Ensure          = 'Present'
             SourcePath      = $SourcePath
             DestinationPath = $DestinationPath
             Recurse         = $true
-            Type            = "Directory"
-            DependsOn       = "[WindowsFeature]AspNet45"
+            Type            = 'Directory'
+            DependsOn       = '[WindowsFeature]AspNet45'
         }
 
         # Create the new Website with HTTPS
         xWebsite NewWebsite
         {
-            Ensure          = "Present"
+            Ensure          = 'Present'
             Name            = $WebSiteName
-            State           = "Started"
+            State           = 'Started'
             PhysicalPath    = $DestinationPath
             BindingInfo     = @(
                 MSFT_xWebBindingInformation
                 {
-                    Protocol              = "HTTPS"
+                    Protocol              = 'HTTPS'
                     Port                  = 8444
-                    CertificateSubject    = "CN=CertificateSubject"
-                    CertificateStoreName  = "MY"
+                    CertificateSubject    = 'CN=CertificateSubject'
+                    CertificateStoreName  = 'MY'
                 }
             )
-            DependsOn       = "[File]WebContent"
+            DependsOn       = '[File]WebContent'
         }
     }
 }
