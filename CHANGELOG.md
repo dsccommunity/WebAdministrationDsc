@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xWebAppPoolDefaults
+  - Move localization strings to strings.psd1 file ([Issue #470](https://github.com/PowerShell/xWebAdministration/issues/470))
 - Changes to xWebAdministration
   - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
