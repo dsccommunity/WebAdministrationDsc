@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Changes to xWebAdministration
+  - Changes to PULL\_REQUEST\_TEMPLATE.md
+    - Improving descriptive text around the CHANGELOG.md entry.
+    - Adding note that entry in CHANGELOG.md is mandatory for all PRs.
   - Resolved custom Script Analyzer rules that was added to the test framework.
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
   - Remove example 'Creating the default website using configuration data' from README.md ([issue #488](https://github.com/PowerShell/xWebAdministration/issues/488)).
