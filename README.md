@@ -134,7 +134,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **ModuleType**: The type of the module. Currently, only FastCgiModule is supported.
 * **Ensure**: Ensures that the module is **Present** or **Absent**.
 
-### xSSLSettings
+### xSslSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
