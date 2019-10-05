@@ -26,7 +26,7 @@ function Get-TargetResource
 
     Assert-Module
 
-    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
     return @{
         ManagedRuntimeVersion = (Get-Value -Path '' -Name 'managedRuntimeVersion')
@@ -151,7 +151,7 @@ function Confirm-Value
     else
     {
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
+        Write-Verbose($script:localizedData.ValueOk -f $relPath,$NewValue);
         return $true
     }
 }
@@ -196,7 +196,7 @@ function Set-Value
             -Value "$NewValue"
 
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
+        Write-Verbose($script:localizedData.SettingValue -f $relPath,$NewValue);
     }
 }
 
