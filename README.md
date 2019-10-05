@@ -499,7 +499,6 @@ xPhp -PackageFolder "C:\packages" `
     -installMySqlExt $false
 ```
 
-<<<<<<< dev
 ## Stopping the default website
 
 When configuring a new IIS server, several references recommend removing or stopping the default website for security purposes.
@@ -508,24 +507,21 @@ After that, it will stop the default website by setting `State = Stopped`.
 
 ```powershell
 Configuration Sample_xWebsite_StopDefault
-=======
+
 ### Create a new website
 
 While setting up IIS and stopping the default website is interesting, it isn’t quite useful yet.
 After all, people typically use IIS to set up websites of their own with custom protocol and bindings.
 Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to copy the website content and configure the website.
-
 ```powershell
 Configuration Sample_xWebsite_NewWebsite
->>>>>>> dev
+
 {
     param
     (
         # Target nodes to apply the configuration
-<<<<<<< dev
         [string[]]$NodeName = 'localhost'
     )
-=======
         [string[]]$NodeName = 'localhost',
         # Name of the website to create
         [Parameter(Mandatory)]
@@ -541,7 +537,6 @@ Configuration Sample_xWebsite_NewWebsite
         [String]$DestinationPath
     )
 
->>>>>>> dev
     # Import the module that defines custom resources
     Import-DscResource -Module xWebAdministration
     Node $NodeName
@@ -552,8 +547,6 @@ Configuration Sample_xWebsite_NewWebsite
             Ensure          = "Present"
             Name            = "Web-Server"
         }
-<<<<<<< dev
-=======
 
         # Install the ASP .NET 4.5 role
         WindowsFeature AspNet45
@@ -562,7 +555,6 @@ Configuration Sample_xWebsite_NewWebsite
             Name            = "Web-Asp-Net45"
         }
 
->>>>>>> dev
         # Stop the default website
         xWebsite DefaultSite
         {
@@ -572,7 +564,6 @@ Configuration Sample_xWebsite_NewWebsite
             PhysicalPath    = "C:\inetpub\wwwroot"
             DependsOn       = "[WindowsFeature]IIS"
         }
-<<<<<<< dev
     }
 }
 ```
@@ -594,7 +585,6 @@ Configuration Sample_xWebsite_FromConfigurationData
 
     # Dynamically find the applicable nodes from configuration data
     Node $AllNodes.where{$_.Role -eq "Web"}.NodeName
-=======
 
         # Copy the website content
         File WebContent
@@ -663,7 +653,6 @@ Configuration Sample_xWebsite_NewWebsite
     # Import the module that defines custom resources
     Import-DscResource -Module xWebAdministration
     Node $NodeName
->>>>>>> dev
     {
         # Install the IIS role
         WindowsFeature IIS
@@ -679,21 +668,15 @@ Configuration Sample_xWebsite_NewWebsite
             Name            = "Web-Asp-Net45"
         }
 
-<<<<<<< dev
         # Stop an existing website (set up in Sample_xWebsite_Default)
-=======
         # Stop the default website
->>>>>>> dev
         xWebsite DefaultSite
         {
             Ensure          = "Present"
             Name            = "Default Web Site"
             State           = "Stopped"
-<<<<<<< dev
             PhysicalPath    = $Node.DefaultWebSitePath
-=======
             PhysicalPath    = "C:\inetpub\wwwroot"
->>>>>>> dev
             DependsOn       = "[WindowsFeature]IIS"
         }
 
@@ -701,19 +684,16 @@ Configuration Sample_xWebsite_NewWebsite
         File WebContent
         {
             Ensure          = "Present"
-<<<<<<< dev
             SourcePath      = $Node.SourcePath
             DestinationPath = $Node.DestinationPath
-=======
+
             SourcePath      = $SourcePath
             DestinationPath = $DestinationPath
->>>>>>> dev
             Recurse         = $true
             Type            = "Directory"
             DependsOn       = "[WindowsFeature]AspNet45"
         }
 
-<<<<<<< dev
         # Create a new website
         xWebsite BakeryWebSite
         {
@@ -721,7 +701,6 @@ Configuration Sample_xWebsite_NewWebsite
             Name            = $Node.WebsiteName
             State           = "Started"
             PhysicalPath    = $Node.DestinationPath
-=======
         # Create the new Website with HTTPS
         xWebsite NewWebsite
         {
@@ -738,12 +717,10 @@ Configuration Sample_xWebsite_NewWebsite
                     CertificateStoreName  = "MY"
                 }
             )
->>>>>>> dev
             DependsOn       = "[File]WebContent"
         }
     }
 }
-<<<<<<< dev
 
 # Content of configuration data file (e.g. ConfigurationData.psd1) could be:
 # Hashtable to define the environmental data
@@ -770,8 +747,6 @@ Configuration Sample_xWebsite_NewWebsite
 }
 # Pass the configuration data to configuration as follows:
 Sample_xWebsite_FromConfigurationData -ConfigurationData ConfigurationData.psd1
-=======
->>>>>>> dev
 ```
 
 ### All resources (end-to-end scenario)
