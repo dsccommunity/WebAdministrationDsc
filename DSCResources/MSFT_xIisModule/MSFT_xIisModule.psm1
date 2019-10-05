@@ -4,27 +4,9 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResource                               = Get-TargetResource has been run.
-        VerboseSetTargetRemoveHandler                          = Removing handler
-        VerboseSetTargetAddHandler                             = Adding handler.
-        VerboseSetTargetAddfastCgi                             = Adding fastCgi.
-        VerboseTestTargetResource                              = Get-TargetResource has been run.
-        VerboseGetIisHandler                                   = Getting Handler for {0} in Site {1}
-        VerboseTestTargetResourceImplVerb                      = Matched Verb {0}
-        VerboseTestTargetResourceImplExtraVerb                 = Extra Verb {0}
-        VerboseTestTargetResourceImplRequestPath               = RequestPath is {0}
-        VerboseTestTargetResourceImplPath                      = Path is {0}
-        VerboseTestTargetResourceImplresourceStatusRequestPath = StatusRequestPath is {0}
-        VerboseTestTargetResourceImplresourceStatusPath        = StatusPath is {0}
-        VerboseTestTargetResourceImplModulePresent             = Module present is {0}
-        VerboseTestTargetResourceImplModuleConfigured          = ModuleConfigured is {0}
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xIisModule'
+
 function Get-TargetResource
 {
     <#
