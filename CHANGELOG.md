@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Changes to xWebAdministration
-  - Changes to PULL_REQUEST_TEMPLATE.md
+  - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
     - Adding note that entry in CHANGELOG.md is mandatory for all PRs.
   - Resolved custom Script Analyzer rules that was added to the test framework.
