@@ -68,22 +68,39 @@ the module.
 
 ## Resources
 
+### WebApplicationHandler
+
+* **[String] Ensure** _(Write)_: Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
+{ *Present* | Absent }
+* **[String] Name** _(Key)_: Specifies the name of the new request handler.
+* **[String] Location** _(Write)_: Specifies The location of the configuration setting. Location tags are frequently used for configuration settings that must be set more precisely than per application or per virtual directory.
+* **[String] PhysicalHandlerPath** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.
+* **[String] Verb** _(Write)_: Specifies the HTTP verbs that are handled by the new handler.
+* **[String] Modules** _(Write)_: Specifies the modules used for the handler.
+* **[String[]] Path** _(Required)_: Specifies an IIS configuration path.
+* **[String] PreCondition** _(Write)_: Specifies preconditions for the new handler.
+* **[String] RequiredAccess** _(Write)_: Specifies the user rights that are required for the new handler. { None | Read | Write | Script | Execute }
+* **[String] ScriptProcessor** _(Write)_: Specifies the script processor that runs for the module.
+* **[String] Type** _(Write)_: Specifies the managed type of the new module. This parameter applies to managed modules only.
+* **[String] ResourceType** _(Write)_: Specifies the resource type this handler runs. See [ResourceType](https://docs.microsoft.com/en-us/iis/configuration/system.webserver/handlers/add).
+* **[Boolean] AllowPathInfo** _(Write)_: Specifies whether the handler processes full path information in a URI, such as contoso/marketing/imageGallery.aspx. If the value is true, the
+handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.
+* **[UInt64] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs.
+
+### xIisFeatureDelegation
+
+This resource manages the IIS configuration section locking (overrideMode) to control what configuration can be set in web.config.
+
+* **Filter**: Specifies the IIS configuration section to lock or unlock in this format: **/system.webserver/security/authentication/anonymousAuthentication**
+* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
+* **Path**: Specifies the configuration path. This can be either an IIS configuration path in the format computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site. *WARNING: both path types can be used to manage the same feature delegation, however, there is no way to control if two resources in the configuration set the same feature delegation*.
+
 ### xIisHandler (DEPRECATED)
 
 > Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release
 
 * **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
 * **Ensure**: Ensures that the handler is **Present** or **Absent**. Defaults to **Present**.
-
-### xIISModule
-
-* **Path**: The path to the module to be registered.
-* **Name**: The logical name to register the module as in IIS.
-* **RequestPath**: The allowed request paths, such as *.php
-* **Verb**: An array of allowed verbs, such as get and post.
-* **SiteName**: The name of the Site to register the module for. If empty, the resource will register the module with all of IIS.
-* **ModuleType**: The type of the module. Currently, only FastCgiModule is supported.
-* **Ensure**: Ensures that the module is **Present** or **Absent**.
 
 ### xIISLogging
 
@@ -100,6 +117,47 @@ the module.
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
   * **SourceName**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
   * **SourceType**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
+
+### xIisMimeTypeMapping
+
+* **Extension**: The file extension to map such as **.html** or **.xml**
+* **MimeType**: The MIME type to map that extension to such as **text/html**
+* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
+
+### xIISModule
+
+* **Path**: The path to the module to be registered.
+* **Name**: The logical name to register the module as in IIS.
+* **RequestPath**: The allowed request paths, such as *.php
+* **Verb**: An array of allowed verbs, such as get and post.
+* **SiteName**: The name of the Site to register the module for. If empty, the resource will register the module with all of IIS.
+* **ModuleType**: The type of the module. Currently, only FastCgiModule is supported.
+* **Ensure**: Ensures that the module is **Present** or **Absent**.
+
+### xSslSettings
+
+* **Name**: The Name of website in which to modify the SSL Settings
+* **Bindings**: The SSL bindings to implement.
+* **Ensure**: Ensures if the bindings are **Present** or **Absent**.
+
+### xWebApplication
+
+* **Website**: Name of website with which the web application is associated.
+* **Name**: The desired name of the web application.
+* **WebAppPool**:  Web application’s application pool.
+* **PhysicalPath**: The path to the files that compose the web application.
+* **Ensure**: Ensures that the web application is **Present** or **Absent**.
+* **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
+* **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
+* **ServiceAutoStartProvider**: Adds a AutostartProvider
+* **ApplicationType**: Adds a AutostartProvider ApplicationType
+* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+  * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
+  * **Basic**: The acceptable values for this property are: `$true`, `$false`
+  * **Digest**: The acceptable values for this property are: `$true`, `$false`
+  * **Windows**: The acceptable values for this property are: `$true`, `$false`
+* **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
+* **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
 ### xWebAppPool
 
@@ -192,6 +250,48 @@ the module.
     TimeSpan values must be between `00:00:00` and `23:59:59` seconds inclusive, with a granularity of 60 seconds.
     Setting the value of this property to `""` disables the schedule.
 
+### xWebAppPoolDefaults
+
+* **ApplyTo**: Required Key value, always **Machine**
+* **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
+* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
+
+### xWebConfigKeyValue (DEPRECATED)
+
+>NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
+>It may be removed in a future release.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **ConfigSection**: Section to update (only AppSettings supported as of now).
+* **Key**: Key for AppSettings.
+* **Value**: Value for AppSettings.
+* **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
+* **IsAttribute**: If the given key value pair is for attribute, default is element.
+
+### xWebConfigProperty
+
+Ensures the value of an identified property in the web.config file.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property to update.
+* **PropertyName**: Name of the property to update.
+* **Value**: Value of the property to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
+
+### xWebConfigPropertyCollection
+
+Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
+
+* **WebsitePath**: Path to website location (IIS or WebAdministration format).
+* **Filter**: Filter used to locate property collection to update.
+* **CollectionName**: Name of the property collection to update.
+* **ItemName**: Name of the property collection item to update.
+* **ItemKeyName**: Name of the key of the property collection item to update.
+* **ItemKeyValue**: Value of the key of the property collection item to update.
+* **ItemPropertyName**: Name of the property of the property collection item to update.
+* **ItemPropertyValue**: Value of the property of the property collection item to update.
+* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
+
 ### xWebsite
 
 * **Name** : The desired name of the website.
@@ -239,43 +339,14 @@ the module.
   * **SourceType**: The acceptable values for this property are: `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
   * **SourceName**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
 
-### xWebApplication
+### xWebSiteDefaults
 
-* **Website**: Name of website with which the web application is associated.
-* **Name**: The desired name of the web application.
-* **WebAppPool**:  Web application’s application pool.
-* **PhysicalPath**: The path to the files that compose the web application.
-* **Ensure**: Ensures that the web application is **Present** or **Absent**.
-* **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
-* **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
-* **ServiceAutoStartProvider**: Adds a AutostartProvider
-* **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
-  * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
-  * **Basic**: The acceptable values for this property are: `$true`, `$false`
-  * **Digest**: The acceptable values for this property are: `$true`, `$false`
-  * **Windows**: The acceptable values for this property are: `$true`, `$false`
-* **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
-* **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
-
-### WebApplicationHandler
-
-* **[String] Ensure** _(Write)_: Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
-{ *Present* | Absent }
-* **[String] Name** _(Key)_: Specifies the name of the new request handler.
-* **[String] Location** _(Write)_: Specifies The location of the configuration setting. Location tags are frequently used for configuration settings that must be set more precisely than per application or per virtual directory.
-* **[String] PhysicalHandlerPath** _(Write)_: Specifies the physical path to the handler. This parameter applies to native modules only.
-* **[String] Verb** _(Write)_: Specifies the HTTP verbs that are handled by the new handler.
-* **[String] Modules** _(Write)_: Specifies the modules used for the handler.
-* **[String[]] Path** _(Required)_: Specifies an IIS configuration path.
-* **[String] PreCondition** _(Write)_: Specifies preconditions for the new handler.
-* **[String] RequiredAccess** _(Write)_: Specifies the user rights that are required for the new handler. { None | Read | Write | Script | Execute }
-* **[String] ScriptProcessor** _(Write)_: Specifies the script processor that runs for the module.
-* **[String] Type** _(Write)_: Specifies the managed type of the new module. This parameter applies to managed modules only.
-* **[String] ResourceType** _(Write)_: Specifies the resource type this handler runs. See [ResourceType](https://docs.microsoft.com/en-us/iis/configuration/system.webserver/handlers/add).
-* **[Boolean] AllowPathInfo** _(Write)_: Specifies whether the handler processes full path information in a URI, such as contoso/marketing/imageGallery.aspx. If the value is true, the
-handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.
-* **[UInt64] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs.
+* **Key**: Required Key value, always **Machine**
+* **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
+* **LogDirectory**: Directory for IIS logs.
+* **TraceLogDirectory**: Directory for FREB (Failed Request Tracing) logs.
+* **DefaultApplicationPool**: Name of the default application pool used by websites.
+* **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
 ### xWebVirtualDirectory
 
