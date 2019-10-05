@@ -25,11 +25,6 @@
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
-- Changes to Examples
-  - Created new folder structure for examples so that examples will be
-  placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
-- Moved examples out of Readme
-  - Moved examples from Readme.md to respective `/Examples/Resources/` folders. ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486))
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
     ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
