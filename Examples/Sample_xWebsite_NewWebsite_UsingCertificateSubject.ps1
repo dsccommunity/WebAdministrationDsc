@@ -9,17 +9,17 @@ Configuration Sample_xWebsite_NewWebsite
     (
         # Target nodes to apply the configuration
         [string[]]
-        $NodeName = 'localhost'
+        $NodeName = 'localhost',
         # Name of the website to create
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $WebSiteName
+        $WebSiteName,
         # Source Path for Website content
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $SourcePath
+        $SourcePath,
         # Destination path for Website content
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
