@@ -15,7 +15,8 @@
     folders ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486)).
   - Created new folder structure for examples so that examples will be
     placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
-  - Alphabetized the resource list in the README.md [issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
+  - Added a table of contents for the resource list ([issue #450](https://github.com/PowerShell/xWebAdministration/issues/450)).
+  - Alphabetized the resource list in the README.md ([issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
 - Changes to xWebsite

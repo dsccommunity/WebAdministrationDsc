@@ -68,6 +68,23 @@ the module.
 
 ## Resources
 
+* [WebApplicationHandler](#webapplicationhandler)
+* [xIisFeatureDelegation](#xiisfeaturedelegation)
+* [xIISLogging](#xiislogging)
+* [xIisHandler (DEPRECATED)](#xiishandler-deprecated)
+* [xIisMimeTypeMapping](#xiismimetypemapping)
+* [xIISModule](#xiismodule)
+* [xSSLSettings](#xsslsettings)
+* [xWebApplication](#xwebapplication)
+* [xWebAppPool](#xwebapppool)
+* [xWebAppPoolDefaults](#xwebapppooldefaults)
+* [xWebConfigKeyValue (DEPRECATED)](#xwebconfigkeyvalue-deprecated)
+* [xWebConfigProperty](#xwebconfigproperty)
+* [xWebConfigPropertyCollection](#xwebconfigpropertycollection)
+* [xWebsite](#xwebsite)
+* [xWebSiteDefaults](#xwebsitedefaults)
+* [xWebVirtualDirectory](#xwebvirtualdirectory)
+
 ### WebApplicationHandler
 
 * **[String] Ensure** _(Write)_: Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'.
