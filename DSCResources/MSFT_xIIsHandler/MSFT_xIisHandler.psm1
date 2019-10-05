@@ -798,7 +798,7 @@ function Get-TargetResource
 
     if ($null -eq $handler)
     {
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
+        Write-Verbose -Message $script:localizedData.VerboseGetTargetAbsent
         return @{
             Ensure = 'Absent'
             Name   = $Name
@@ -806,7 +806,7 @@ function Get-TargetResource
     }
     else
     {
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
+        Write-Verbose -Message $script:localizedData.VerboseGetTargetPresent
         return @{
             Ensure = 'Present'
             Name   = $Name
@@ -850,7 +850,7 @@ function Set-TargetResource
     {
         # add the handler
         Add-Handler -Name $Name
-        Write-Verbose -Message ($LocalizedData.AddingHandler -f $Name)
+        Write-Verbose -Message ($script:localizedData.AddingHandler -f $Name)
     }
     elseif ($null -ne $handler -and $Ensure -eq 'Absent')
     {
@@ -859,7 +859,7 @@ function Set-TargetResource
                                         -Filter $sectionNode `
                                         -Name '.' `
                                         -AtElement @{name="$Name"}
-        Write-Verbose -Message ($LocalizedData.RemovingHandler -f $Name)
+        Write-Verbose -Message ($script:localizedData.RemovingHandler -f $Name)
     }
 }
 function Test-TargetResource
@@ -894,13 +894,13 @@ function Test-TargetResource
     elseif ($null -ne $handler -and $Ensure -eq 'Present')
     {
         # Handler is present
-        Write-Verbose -Message ($LocalizedData.HandlerExists -f $Name)
+        Write-Verbose -Message ($script:localizedData.HandlerExists -f $Name)
         return $true
     }
     else
     {
         # Handler not present and should not be there.
-        Write-Verbose -Message ($LocalizedData.HandlerNotPresent -f $Name)
+        Write-Verbose -Message ($script:localizedData.HandlerNotPresent -f $Name)
         return $true
     }
 }
@@ -941,7 +941,7 @@ function Add-Handler
     else
     {
         New-TerminatingError -ErrorId 'HandlerNotSupported' `
-                             -ErrorMessage $($LocalizedData.HandlerNotSupported -f $Name) `
+                             -ErrorMessage $($script:localizedData.HandlerNotSupported -f $Name) `
                              -ErrorCategory InvalidArgument
     }
 }
