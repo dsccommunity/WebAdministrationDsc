@@ -26,7 +26,7 @@ function Get-TargetResource
     $currentLogSettings = Get-WebConfiguration `
         -filter '/system.applicationHost/sites/siteDefaults/Logfile'
 
-    Write-Verbose -Message ($LocalizedData.VerboseGetTargetResult)
+    Write-Verbose -Message ($script:localizedData.VerboseGetTargetResult)
 
     $cimLogCustomFields = @(ConvertTo-CimLogCustomFields -InputObject $currentLogSettings.logFile.customFields.Collection)
 
@@ -128,7 +128,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFormat') -and `
             ($LogFormat -ne $currentLogState.LogFormat))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogFormat)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
                 -Name logFormat `
                 -Value $LogFormat
@@ -137,7 +137,7 @@ function Set-TargetResource
         # Update LogPath if needed
         if ($PSBoundParameters.ContainsKey('LogPath') -and ($LogPath -ne $currentLogState.LogPath))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogPath)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
                 -Name directory `
                 -Value $LogPath
@@ -147,7 +147,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
             (-not (Compare-LogFlags -LogFlags $LogFlags)))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogFlags)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
                 -Name logFormat `
                 -Value 'W3C'
@@ -162,9 +162,9 @@ function Set-TargetResource
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                 {
-                    Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
+                    Write-Verbose -Message ($script:localizedData.WarningLogPeriod)
                 }
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogPeriod)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
                 -Name period `
                 -Value $LogPeriod
@@ -174,7 +174,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $currentLogState.LogTruncateSize))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogTruncateSize)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
                 -Name truncateSize `
                 -Value $LogTruncateSize
@@ -188,7 +188,7 @@ function Set-TargetResource
             ($LoglocalTimeRollover -ne `
              ([System.Convert]::ToBoolean($currentLogState.LoglocalTimeRollover))))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLoglocalTimeRollover)
             Set-WebConfigurationProperty '/system.Applicationhost/Sites/SiteDefaults/logfile' `
                 -Name localTimeRollover `
                 -Value $LoglocalTimeRollover
@@ -198,7 +198,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
             ($LogTargetW3C -ne $currentLogState.LogTargetW3C))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogTargetW3C)
             Set-WebConfigurationProperty '/system.applicationHost/sites/siteDefaults/logfile' `
                 -Name logTargetW3C `
                 -Value $LogTargetW3C
@@ -208,7 +208,7 @@ function Set-TargetResource
     if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
          (-not (Test-LogCustomField -LogCustomField $LogCustomFields)))
     {
-         Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields)
+         Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogCustomFields)
 
          Set-LogCustomField -LogCustomField $LogCustomFields
     }
@@ -299,20 +299,20 @@ function Test-TargetResource
             if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $LogFormat -ne 'W3C')
             {
-                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
+                Write-Verbose -Message ($script:localizedData.WarningIncorrectLogFormat)
             }
 
             # Warn if LogFlags are passed in and Desired LogFormat is not W3C
             if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $currentLogState.LogFormat -ne 'W3C')
             {
-                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat)
+                Write-Verbose -Message ($script:localizedData.WarningIncorrectLogFormat)
             }
 
             # Check LogFormat
             if ($LogFormat -ne $currentLogState.LogFormat)
             {
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFormat)
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogFormat)
                 return $false
             }
         }
@@ -321,7 +321,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
             (-not (Compare-LogFlags -LogFlags $LogFlags)))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogFlags)
             return $false
         }
 
@@ -329,7 +329,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $currentLogState.LogPath))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogPath)
             return $false
         }
 
@@ -339,10 +339,10 @@ function Test-TargetResource
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
             {
-                Write-Verbose -Message ($LocalizedData.WarningLogPeriod)
+                Write-Verbose -Message ($script:localizedData.WarningLogPeriod)
             }
 
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPeriod)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogPeriod)
             return $false
         }
 
@@ -350,7 +350,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $currentLogState.LogTruncateSize))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogTruncateSize)
             return $false
         }
 
@@ -359,7 +359,7 @@ function Test-TargetResource
             ($LoglocalTimeRollover -ne `
              ([System.Convert]::ToBoolean($currentLogState.LoglocalTimeRollover))))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLoglocalTimeRollover)
             return $false
         }
 
@@ -367,7 +367,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
             ($LogTargetW3C -ne $currentLogState.LogTargetW3C))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTargetW3C)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogTargetW3C)
             return $false
         }
 
@@ -375,7 +375,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
             (-not (Test-LogCustomField -LogCustomFields $LogCustomFields)))
         {
-         Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields)
+         Write-Verbose -Message ($script:localizedData.VerboseTestTargetUpdateLogCustomFields)
          return $false
         }
 
