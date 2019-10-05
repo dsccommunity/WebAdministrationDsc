@@ -15,8 +15,8 @@
 <!--
     Replace this comment block with a description of your PR.
     Also, make sure you have update the CHANGELOG.md, see the
-    task list below. Update CHANGELOG.md is mandatory for all
-    PRs.
+    task list below. An entry in the CHANGELOG.md is mandatory
+    for all PRs.
 -->
 
 #### This Pull Request (PR) fixes the following issues
