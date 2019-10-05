@@ -12,6 +12,7 @@
     folders ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486)).
   - Created new folder structure for examples so that examples will be
     placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
+  - Added a table of contents for the resource list ([issue #450](https://github.com/PowerShell/xWebAdministration/issues/450)).
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
 - Changes to xWebsite
@@ -24,8 +25,6 @@
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
-- Changes to README
-  - Added a table of contents for the resource list ([issue #450](https://github.com/PowerShell/xWebAdministration/issues/450)).
 - Changes to Examples
   - Created new folder structure for examples so that examples will be
   placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
