@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-- Changes to xIisLogging
-  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #464](https://github.com/PowerShell/xWebAdministration/issues/464)).
-- Changes to xWebAppPoolDefaults
-  - Move localization strings to strings.psd1 file ([Issue #470](https://github.com/PowerShell/xWebAdministration/issues/470))
 - Changes to xWebAdministration
   - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
@@ -18,11 +14,12 @@
   - Moved examples from Readme.md to respective `/Examples/Resources/`
     folders ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486)).
   - Created new folder structure for examples so that examples will be
-    placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
+    placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483)).
   - Added a table of contents for the resource list ([issue #450](https://github.com/PowerShell/xWebAdministration/issues/450)).
   - Alphabetized the resource list in the README.md ([issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
+  - Moved MSFT_xIisHandler localization strings to strings.psd1 ([issue #463](https://github.com/PowerShell/xWebAdministration/issues/463)).
 - Changes to xWebsite
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
@@ -33,11 +30,14 @@
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
+  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #464](https://github.com/PowerShell/xWebAdministration/issues/464)).
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
     ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
 - Changes to xWebConfigKeyValue
   - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
+- Changes to xWebAppPoolDefaults
+  - Move localization strings to strings.psd1 file ([issue #470](https://github.com/PowerShell/xWebAdministration/issues/470)).
 
 ## 2.8.0.0
 
