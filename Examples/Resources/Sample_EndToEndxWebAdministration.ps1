@@ -7,20 +7,37 @@ configuration Sample_EndToEndxWebAdministration
     param
     (
         # Target nodes to apply the configuration
+        [Parameter()]
         [String[]] $NodeName = 'localhost',
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $WebAppPoolName,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $WebSiteName,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $PhysicalPathWebSite,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $WebApplicationName,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $PhysicalPathWebApplication,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $WebVirtualDirectoryName,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $PhysicalPathVirtualDir,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String] $Port
     )
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xWebAdministration
 
-    Node $NodeName
+    node $NodeName
     {
         # Create a Web Application Pool
         xWebAppPool NewWebAppPool
@@ -31,7 +48,7 @@ configuration Sample_EndToEndxWebAdministration
         }
 
         #Create physical path website
-        File NewWebsitePath
+        file NewWebsitePath
         {
             DestinationPath = $PhysicalPathWebSite
             Type            = "Directory"
@@ -39,7 +56,7 @@ configuration Sample_EndToEndxWebAdministration
         }
 
         #Create physical path web application
-        File NewWebApplicationPath
+        file NewWebApplicationPath
         {
             DestinationPath = $PhysicalPathWebApplication
             Type            = "Directory"
@@ -47,7 +64,7 @@ configuration Sample_EndToEndxWebAdministration
         }
 
         #Create physical path virtual directory
-        File NewVirtualDirectoryPath
+        file NewVirtualDirectoryPath
         {
             DestinationPath = $PhysicalPathVirtualDir
             Type            = "Directory"
