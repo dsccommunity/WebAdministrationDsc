@@ -2,8 +2,9 @@
 
 ## Unreleased
 
+- Changes to xIisHandler
+  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #463](https://github.com/PowerShell/xWebAdministration/issues/463)).
 - Changes to xWebAdministration
-  - Moved MSFT_xIisLogging localization strings to strings.psd1.
   - Resolved custom Script Analyzer rules that was added to the test framework.
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
   - Remove example 'Creating the default website using configuration data' from README.md ([issue #488](https://github.com/PowerShell/xWebAdministration/issues/488)).
