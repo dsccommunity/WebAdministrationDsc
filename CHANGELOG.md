@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xWebVirtualDirectory
+  - Moved MSFT_xWebVirtualDirectory localization strings to strings.psd1 ([issue #477](https://github.com/PowerShell/xWebAdministration/issues/477)).
 - Changes to xWebAdministration
   - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
