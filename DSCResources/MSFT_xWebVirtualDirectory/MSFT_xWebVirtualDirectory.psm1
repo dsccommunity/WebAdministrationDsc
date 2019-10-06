@@ -187,7 +187,7 @@ function Test-TargetResource
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
             return $false
         }
     }
