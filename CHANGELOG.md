@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xIisLogging
+  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #464](https://github.com/PowerShell/xWebAdministration/issues/464)).
 - Changes to xWebAppPoolDefaults
   - Move localization strings to strings.psd1 file ([Issue #470](https://github.com/PowerShell/xWebAdministration/issues/470))
 - Changes to xWebAdministration
