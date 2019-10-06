@@ -1,37 +1,31 @@
 <#
     .DESCRIPTION
         This example shows how to use the xWebAdministration in an end to end scenario.
-    .EXAMPLE
-    $Config = @{
-        AllNodes = @(
-            @{
-                NodeName                   = "localhost";
-                WebAppPoolName             = "TestAppPool";
-                WebSiteName                = "TestWebSite";
-                PhysicalPathWebSite        = "C:\web\webSite";
-                WebApplicationName         = "TestWebApplication";
-                PhysicalPathWebApplication = "C:\web\webApplication";
-                WebVirtualDirectoryName    = "TestVirtualDir";
-                PhysicalPathVirtualDir     = "C:\web\virtualDir";
-                Port                       = 100
-            }
-        )
-    }
-
-    Sample_EndToEndxWebAdministration -ConfigurationData $config
-    Start-DscConfiguration ./Sample_EndToEndxWebAdministration -wait -Verbose
 #>
 configuration Sample_EndToEndxWebAdministration
 {
+    param
+    (
+        # Target nodes to apply the configuration
+        [String[]] $NodeName = 'localhost',
+        [String] $WebAppPoolName,
+        [String] $WebSiteName,
+        [String] $PhysicalPathWebSite,
+        [String] $WebApplicationName,
+        [String] $PhysicalPathWebApplication,
+        [String] $WebVirtualDirectoryName,
+        [String] $PhysicalPathVirtualDir,
+        [String] $Port
+    )
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xWebAdministration
 
-    Node $AllNodes.NodeName
+    Node $NodeName
     {
         # Create a Web Application Pool
         xWebAppPool NewWebAppPool
         {
-            Name   = $Node.WebAppPoolName
+            Name   = $WebAppPoolName
             Ensure = "Present"
             State  = "Started"
         }
@@ -39,7 +33,7 @@ configuration Sample_EndToEndxWebAdministration
         #Create physical path website
         File NewWebsitePath
         {
-            DestinationPath = $Node.PhysicalPathWebSite
+            DestinationPath = $PhysicalPathWebSite
             Type            = "Directory"
             Ensure          = "Present"
         }
@@ -47,7 +41,7 @@ configuration Sample_EndToEndxWebAdministration
         #Create physical path web application
         File NewWebApplicationPath
         {
-            DestinationPath = $Node.PhysicalPathWebApplication
+            DestinationPath = $PhysicalPathWebApplication
             Type            = "Directory"
             Ensure          = "Present"
         }
@@ -55,7 +49,7 @@ configuration Sample_EndToEndxWebAdministration
         #Create physical path virtual directory
         File NewVirtualDirectoryPath
         {
-            DestinationPath = $Node.PhysicalPathVirtualDir
+            DestinationPath = $PhysicalPathVirtualDir
             Type            = "Directory"
             Ensure          = "Present"
         }
@@ -63,15 +57,15 @@ configuration Sample_EndToEndxWebAdministration
         #Create a New Website with Port
         xWebSite NewWebSite
         {
-            Name         = $Node.WebSiteName
+            Name         = $WebSiteName
             Ensure       = "Present"
             BindingInfo  = MSFT_xWebBindingInformation
             {
                 Protocol = "http"
-                Port     = $Node.Port
+                Port     = $Port
             }
 
-            PhysicalPath = $Node.PhysicalPathWebSite
+            PhysicalPath = $PhysicalPathWebSite
             State        = "Started"
             DependsOn    = @("[xWebAppPool]NewWebAppPool", "[File]NewWebsitePath")
         }
@@ -79,10 +73,10 @@ configuration Sample_EndToEndxWebAdministration
         #Create a new Web Application
         xWebApplication NewWebApplication
         {
-            Name         = $Node.WebApplicationName
-            Website      = $Node.WebSiteName
-            WebAppPool   = $Node.WebAppPoolName
-            PhysicalPath = $Node.PhysicalPathWebApplication
+            Name         = $WebApplicationName
+            Website      = $WebSiteName
+            WebAppPool   = $WebAppPoolName
+            PhysicalPath = $PhysicalPathWebApplication
             Ensure       = "Present"
             DependsOn    = @("[xWebSite]NewWebSite", "[File]NewWebApplicationPath")
         }
@@ -90,10 +84,10 @@ configuration Sample_EndToEndxWebAdministration
         #Create a new virtual Directory
         xWebVirtualDirectory NewVirtualDir
         {
-            Name           = $Node.WebVirtualDirectoryName
-            Website        = $Node.WebSiteName
-            WebApplication = $Node.WebApplicationName
-            PhysicalPath   = $Node.PhysicalPathVirtualDir
+            Name           = $WebVirtualDirectoryName
+            Website        = $WebSiteName
+            WebApplication = $WebApplicationName
+            PhysicalPath   = $PhysicalPathVirtualDir
             Ensure         = "Present"
             DependsOn      = @("[xWebApplication]NewWebApplication", "[File]NewVirtualDirectoryPath")
         }
@@ -101,7 +95,7 @@ configuration Sample_EndToEndxWebAdministration
         #Create an empty web.config file
         File CreateWebConfig
         {
-            DestinationPath = $Node.PhysicalPathWebSite + "\web.config"
+            DestinationPath = $PhysicalPathWebSite + "\web.config"
             Contents        = "<?xml version=`"1.0`" encoding=`"UTF-8`"?>
                             <configuration>
                             </configuration>"
@@ -117,7 +111,7 @@ configuration Sample_EndToEndxWebAdministration
             Key           = "key1"
             Value         = "value1"
             IsAttribute   = $false
-            WebsitePath   = "IIS:\sites\" + $Node.WebsiteName
+            WebsitePath   = "IIS:\sites\" + $WebsiteName
             DependsOn     = @("[File]CreateWebConfig")
         }
 
@@ -133,7 +127,7 @@ configuration Sample_EndToEndxWebAdministration
             ResourceType        = 'Unspecified'
             AllowPathInfo       = $false
             ResponseBufferLimit = 0
-            PhysicalHandlerPath = $Node.PhysicalPathWebApplication
+            PhysicalHandlerPath = $PhysicalPathWebApplication
             type                = $null
             PreCondition        = $null
             Location            = 'Default Web Site/TestDir'
