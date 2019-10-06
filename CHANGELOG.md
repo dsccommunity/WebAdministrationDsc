@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xWebVirtualDirectory
+  - Move localization strings to strings.psd1 file ([Issue #477](https://github.com/PowerShell/xWebAdministration/issues/477))
 - Changes to xWebAdministration
   - Resolved custom Script Analyzer rules that was added to the test framework.
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
