@@ -41,6 +41,8 @@
   - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
 - Changes to xWebAppPoolDefaults
   - Move localization strings to strings.psd1 file ([issue #470](https://github.com/PowerShell/xWebAdministration/issues/470)).
+  - BREAKING CHANGE: Changed `ApplyTo` key parameter to `IsSingleInstance` to
+  bring the resource into compliance with published best practices. ([issue #462](https://github.com/PowerShell/xWebAdministration/issues/462))
 - Changes to xWebApplication
   - Move localization strings to strings.psd1 file ([Issue #468](https://github.com/PowerShell/xWebAdministration/issues/468))
 - Changes to xIisModule entry
