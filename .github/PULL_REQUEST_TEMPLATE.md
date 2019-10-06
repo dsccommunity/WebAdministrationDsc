@@ -14,6 +14,9 @@
 #### Pull Request (PR) description
 <!--
     Replace this comment block with a description of your PR.
+    Also, make sure you have update the CHANGELOG.md, see the
+    task list below. An entry in the CHANGELOG.md is mandatory
+    for all PRs.
 -->
 
 #### This Pull Request (PR) fixes the following issues
@@ -34,8 +37,9 @@
     Change to [x] for each task in the task list that applies to your PR.
     For those task that don't apply to you PR, leave those as is.
 -->
-- [ ] Added an entry under the Unreleased section of the change log in the CHANGELOG.md.
-      Entry should say what was changed, and how that affects users (if applicable).
+- [ ] Added an entry to the change log under the Unreleased section of the CHANGELOG.md.
+      Entry should say what was changed and how that affects users (if applicable), and
+      reference the issue being resolved (if applicable).
 - [ ] Resource documentation added/updated in README.md.
 - [ ] Resource parameter descriptions added/updated in README.md, schema.mof
       and comment-based help.
