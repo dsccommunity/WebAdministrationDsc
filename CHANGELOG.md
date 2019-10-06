@@ -2,8 +2,9 @@
 
 ## Unreleased
 
+- Changes to xIisModule entry
+  - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/PowerShell/xWebAdministration/issues/466)).
 - Changes to xWebAdministration
-  - Moved xIisModule localization strings to strings.psd1.
   - Resolved custom Script Analyzer rules that was added to the test framework.
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
   - Remove example 'Creating the default website using configuration data' from README.md ([issue #488](https://github.com/PowerShell/xWebAdministration/issues/488)).
