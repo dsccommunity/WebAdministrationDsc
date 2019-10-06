@@ -26,7 +26,7 @@ function Get-TargetResource
 
     Assert-Module
 
-    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    Write-Verbose -Message $script:LocalizedData.VerboseGetTargetResource
 
     return @{
         LogFormat              = (Get-Value 'siteDefaults/logFile' 'logFormat')
@@ -195,7 +195,7 @@ function Confirm-Value
     else
     {
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
+        Write-Verbose($script:LocalizedData.ValueOk -f $relPath,$NewValue);
         return $true
     }
 
@@ -231,7 +231,7 @@ function Set-Value
                                      -Name $Name `
                                      -Value "$NewValue"
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
+        Write-Verbose($script:LocalizedData.SettingValue -f $relPath,$NewValue);
     }
 
 }
