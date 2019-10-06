@@ -10,7 +10,7 @@ configuration MSFT_xWebAppPoolDefaults_Config
 
     xWebAppPoolDefaults PoolDefaults
     {
-        ApplyTo = 'Machine'
+        IsSingleInstance = 'Yes'
         ManagedRuntimeVersion = $originalValue
     }
 }
@@ -21,7 +21,7 @@ configuration MSFT_xWebAppPoolDefaults_ManagedRuntimeVersion
 
     xWebAppPoolDefaults PoolDefaults
     {
-        ApplyTo = 'Machine'
+        IsSingleInstance = 'Yes'
         ManagedRuntimeVersion = $env:PesterManagedRuntimeVersion
     }
 }
@@ -32,7 +32,7 @@ configuration MSFT_xWebAppPoolDefaults_AppPoolIdentityType
 
     xWebAppPoolDefaults PoolDefaults
     {
-        ApplyTo = 'Machine'
+        IsSingleInstance = 'Yes'
         IdentityType = $env:PesterApplicationPoolIdentity
     }
 }
