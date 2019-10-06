@@ -4,20 +4,8 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResource               = Get-TargetResource has been run.
-        VerboseSetTargetPhysicalPath           = Updating physical path for web virtual directory "{0}".
-        VerboseSetTargetCreateVirtualDirectory = Creating new Web Virtual Directory "{0}".
-        VerboseSetTargetRemoveVirtualDirectory = Removing existing Virtual Directory "{0}".
-        VerboseTestTargetFalse                 = Physical path "{0}" for web virtual directory "{1}" does not match desired state.
-        VerboseTestTargetTrue                  = Web virtual directory is in required state.
-        VerboseTestTargetAbsentTrue            = Web virtual directory "{0}" should be absent and is absent.
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebVirtualDirectory'
 
 function Get-TargetResource
 {
@@ -62,7 +50,7 @@ function Get-TargetResource
         $Ensure = 'Present'
     }
 
-    Write-Verbose -Message ($LocalizedData.VerboseGetTargetResource)
+    Write-Verbose -Message ($script:localizedData.VerboseGetTargetResource)
 
     $returnValue = @{
         Name           = $Name
@@ -116,7 +104,7 @@ function Set-TargetResource
                                                     -Application $WebApplication
         if ($virtualDirectory.count -eq 0)
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetCreateVirtualDirectory -f $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetCreateVirtualDirectory -f $Name)
             New-WebVirtualDirectory -Site $Website `
                                     -Application $WebApplication `
                                     -Name $Name `
@@ -124,7 +112,7 @@ function Set-TargetResource
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetPhysicalPath -f $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetPhysicalPath -f $Name)
 
             if ($WebApplication.Length -gt 0)
             {
@@ -143,7 +131,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Absent')
     {
-        Write-Verbose -Message ($LocalizedData.VerboseSetTargetRemoveVirtualDirectory -f $Name)
+        Write-Verbose -Message ($script:localizedData.VerboseSetTargetRemoveVirtualDirectory -f $Name)
         Remove-WebVirtualDirectory -Site $Website `
                                    -Application $WebApplication `
                                    -Name $Name
@@ -194,19 +182,19 @@ function Test-TargetResource
     {
         if ($virtualDirectory.PhysicalPath -eq $PhysicalPath)
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetTrue)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrue)
             return $true
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
             return $false
         }
     }
 
     if ($virtualDirectory.count -eq 0 -and $Ensure -eq 'Absent')
     {
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetAbsentTrue -f $Name)
+        Write-Verbose -Message ($script:localizedData.VerboseTestTargetAbsentTrue -f $Name)
         return $true
     }
 
