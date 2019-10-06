@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xIisModule entry
+  - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/PowerShell/xWebAdministration/issues/466)).
 - Changes to xIisMimeTypeMapping
   - Moved MSFT_xIisMimeTypeMapping localization strings to strings.psd1 ([issue #465](https://github.com/PowerShell/xWebAdministration/issues/465)).
 - Changes to xWebVirtualDirectory
