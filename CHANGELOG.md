@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xWebApplication
+  - Add description on class MSFT_xWebApplicationAuthenticationInformation ([issue #454](https://github.com/PowerShell/xWebAdministration/issues/454)).
 - Changes to xWebAdministration
   - Resolved custom Script Analyzer rules that was added to the test framework.
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
