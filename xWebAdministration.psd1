@@ -59,11 +59,19 @@ PrivateData = @{
 } # End of PrivateData hashtable
 
 # Functions to export from this module
-FunctionsToExport = '*'
+FunctionsToExport = @()
 
 # Cmdlets to export from this module
-CmdletsToExport = '*'
+CmdletsToExport = @()
+
+# Variables to export from this module
+VariablesToExport = @()
+
+# Aliases to export from this module
+AliasesToExport = @()
+
 }
+
 
 
 
