@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Changes to xIisHandler
-  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #463](https://github.com/PowerShell/xWebAdministration/issues/463)).
+- Changes to xIisLogging
+  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #464](https://github.com/PowerShell/xWebAdministration/issues/464)).
 - Changes to xWebAdministration
   - Resolved custom Script Analyzer rules that was added to the test framework.
   - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
