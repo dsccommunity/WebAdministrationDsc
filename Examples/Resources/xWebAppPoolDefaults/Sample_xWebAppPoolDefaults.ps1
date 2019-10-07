@@ -21,7 +21,7 @@ Configuration Sample_xWebAppPoolDefaults
         # Configures the application pool defaults.
         xWebAppPoolDefaults PoolDefaults
         {
-            ApplyTo               = 'Machine'
+            IsSingleInstance      = 'Yes'
             ManagedRuntimeVersion = 'v4.0'
             IdentityType          = 'ApplicationPoolIdentity'
         }

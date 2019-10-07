@@ -2,12 +2,8 @@
 
 ## Unreleased
 
-- Changes to xIisModule entry
-  - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/PowerShell/xWebAdministration/issues/466)).
-- Changes to xIisMimeTypeMapping
-  - Moved MSFT_xIisMimeTypeMapping localization strings to strings.psd1 ([issue #465](https://github.com/PowerShell/xWebAdministration/issues/465)).
-- Changes to xWebVirtualDirectory
-  - Moved MSFT_xWebVirtualDirectory localization strings to strings.psd1 ([issue #477](https://github.com/PowerShell/xWebAdministration/issues/477)).
+- Changes to xWebConfigProperty
+  - Move localization strings to strings.psd1 file ([Issue #473](https://github.com/PowerShell/xWebAdministration/issues/473))
 - Changes to xWebAdministration
   - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
@@ -50,6 +46,16 @@
   - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
 - Changes to xWebAppPoolDefaults
   - Move localization strings to strings.psd1 file ([issue #470](https://github.com/PowerShell/xWebAdministration/issues/470)).
+  - BREAKING CHANGE: Changed `ApplyTo` key parameter to `IsSingleInstance` to
+  bring the resource into compliance with published best practices. ([issue #462](https://github.com/PowerShell/xWebAdministration/issues/462))
+- Changes to xWebApplication
+  - Move localization strings to strings.psd1 file ([Issue #468](https://github.com/PowerShell/xWebAdministration/issues/468))
+- Changes to xIisModule entry
+  - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/PowerShell/xWebAdministration/issues/466)).
+- Changes to xIisMimeTypeMapping
+  - Moved MSFT_xIisMimeTypeMapping localization strings to strings.psd1 ([issue #465](https://github.com/PowerShell/xWebAdministration/issues/465)).
+- Changes to xWebVirtualDirectory
+  - Moved MSFT_xWebVirtualDirectory localization strings to strings.psd1 ([issue #477](https://github.com/PowerShell/xWebAdministration/issues/477)).
 
 ## 2.8.0.0
 

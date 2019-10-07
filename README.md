@@ -431,7 +431,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### xWebAppPoolDefaults
 
-* **ApplyTo**: Required Key value, always **Machine**
+* **IsSingleInstance**: Specifies the resource is a single instance, the value must be **Yes**
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
 * **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
 
@@ -759,7 +759,7 @@ configuration Sample_IISServerDefaults
 
          xWebAppPoolDefaults PoolDefaults
          {
-            ApplyTo = 'Machine'
+            IsSingleInstance = 'Yes'
             ManagedRuntimeVersion = 'v4.0'
             IdentityType = 'ApplicationPoolIdentity'
          }
