@@ -1,7 +1,5 @@
 # xWebAdministration
 
-The **xWebAdministration** module contains the **xIISModule**, **xIISLogging**, **xWebAppPool**, **xWebsite**, **xWebApplication**, **xWebVirtualDirectory**, **xSslSettings**, **xWebConfigKeyValue**, **xWebConfigProperty**, **xWebConfigPropertyCollection** and **WebApplicationHandler** DSC resources for creating and configuring various IIS artifacts.
-
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
@@ -431,7 +429,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### xWebAppPoolDefaults
 
-* **ApplyTo**: Required Key value, always **Machine**
+* **IsSingleInstance**: Specifies the resource is a single instance, the value must be **Yes**
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
 * **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
 
@@ -939,7 +937,7 @@ configuration Sample_IISServerDefaults
 
          xWebAppPoolDefaults PoolDefaults
          {
-            ApplyTo = 'Machine'
+            IsSingleInstance = 'Yes'
             ManagedRuntimeVersion = 'v4.0'
             IdentityType = 'ApplicationPoolIdentity'
          }

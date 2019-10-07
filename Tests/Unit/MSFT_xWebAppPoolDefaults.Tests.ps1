@@ -58,7 +58,7 @@ try
                     }
                 }
 
-                $result = Get-TargetResource -ApplyTo 'Machine'
+                $result = Get-TargetResource -IsSingleInstance 'Yes'
 
                 It 'Should return managedRuntimeVersion' {
                     $result.managedRuntimeVersion | `
@@ -93,7 +93,7 @@ try
             }
 
             Context 'Application pool defaults correct' {
-                $result = Test-TargetResource -ApplyTo 'Machine' `
+                $result = Test-TargetResource -IsSingleInstance 'Yes' `
                             -ManagedRuntimeVersion 'v4.0' `
                             -IdentityType 'NetworkService'
 
@@ -103,7 +103,7 @@ try
             }
 
             Context 'Application pool different managedRuntimeVersion' {
-                $result = Test-TargetResource -ApplyTo 'Machine' `
+                $result = Test-TargetResource -IsSingleInstance 'Yes' `
                             -ManagedRuntimeVersion 'v2.0' `
                             -IdentityType 'NetworkService'
 
@@ -113,7 +113,7 @@ try
             }
 
             Context 'Application pool different processModel/@identityType' {
-                $result = Test-TargetResource -ApplyTo 'Machine' `
+                $result = Test-TargetResource -IsSingleInstance 'Yes' `
                             -ManagedRuntimeVersion 'v4.0' `
                             -IdentityType 'LocalSystem'
 
@@ -123,7 +123,7 @@ try
             }
 
             Context 'Application pool no value for managedRuntimeVersion' {
-                $result = Test-TargetResource -ApplyTo 'Machine' `
+                $result = Test-TargetResource -IsSingleInstance 'Yes' `
                             -IdentityType 'NetworkService'
 
                 It 'Should return True' {
@@ -155,7 +155,7 @@ try
             Mock Set-WebConfigurationProperty -MockWith { }
 
             Context 'Application pool defaults correct' {
-                Set-TargetResource -ApplyTo 'Machine' `
+                Set-TargetResource -IsSingleInstance 'Yes' `
                     -ManagedRuntimeVersion 'v4.0' `
                     -IdentityType 'NetworkService'
 
@@ -165,7 +165,7 @@ try
             }
 
             Context 'Application pool different managedRuntimeVersion' {
-                Set-TargetResource -ApplyTo 'Machine' `
+                Set-TargetResource -IsSingleInstance 'Yes' `
                     -ManagedRuntimeVersion 'v2.0' `
                     -IdentityType 'NetworkService'
 
@@ -176,7 +176,7 @@ try
             }
 
             Context 'Application pool different processModel/@identityType' {
-                Set-TargetResource -ApplyTo 'Machine' `
+                Set-TargetResource -IsSingleInstance 'Yes' `
                     -ManagedRuntimeVersion 'v4.0' `
                     -IdentityType 'LocalSystem'
 
