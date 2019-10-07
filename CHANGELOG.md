@@ -52,11 +52,13 @@
   - Moved MSFT_xWebVirtualDirectory localization strings to strings.psd1 ([issue #477](https://github.com/PowerShell/xWebAdministration/issues/477)).
 - Changes to xWebSiteDefaults
   - Move localization strings to strings.psd1 file ([issue #475](https://github.com/PowerShell/xWebAdministration/issues/475)).
+  - BREAKING CHANGE: Changed `ApplyTo` key parameter to `IsSingleInstance` to
+  bring the resource into compliance with published best practices. ([issue #457](https://github.com/PowerShell/xWebAdministration/issues/457))
 - Changes to xWebConfigProperty
   - Move localization strings to strings.psd1 file ([issue #473](https://github.com/PowerShell/xWebAdministration/issues/473)).
 - Changes to xWebConfigPropertyCollection
   - Move localization strings to strings.psd1 file ([issue #474](https://github.com/PowerShell/xWebAdministration/issues/474)).
-  
+
 ## 2.8.0.0
 
 - Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)

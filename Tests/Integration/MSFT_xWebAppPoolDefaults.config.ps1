@@ -43,7 +43,7 @@ configuration MSFT_xWebAppPoolDefaults_LogFormat
 
     xWebSiteDefaults LogFormat
     {
-        ApplyTo = 'Machine'
+        IsSingleInstance = 'Yes'
         LogFormat = $env:PesterLogFormat
     }
 }
@@ -54,7 +54,7 @@ configuration MSFT_xWebAppPoolDefaults_DefaultPool
 
     xWebSiteDefaults DefaultPool
     {
-        ApplyTo = 'Machine'
+        IsSingleInstance = 'Yes'
         DefaultApplicationPool = $env:PesterDefaultPool
     }
 }
