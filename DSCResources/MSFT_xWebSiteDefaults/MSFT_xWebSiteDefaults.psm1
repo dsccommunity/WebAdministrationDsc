@@ -19,9 +19,9 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Machine')]
+        [ValidateSet('Yes')]
         [String]
-        $ApplyTo
+        $IsSingleInstance
     )
 
     Assert-Module
@@ -33,7 +33,7 @@ function Get-TargetResource
         TraceLogDirectory      = ( Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory')
         DefaultApplicationPool = (Get-Value 'applicationDefaults' 'applicationPool')
         AllowSubDirConfig      = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig')
-        ApplyTo                = 'Machine'
+        IsSingleInstance       = 'Yes'
         LogDirectory           = (Get-Value 'siteDefaults/logFile' 'directory')
     }
 
@@ -56,8 +56,8 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Machine')]
-        [String] $ApplyTo,
+        [ValidateSet('Yes')]
+        [String] $IsSingleInstance,
 
         [Parameter()]
         [ValidateSet('W3C','IIS','NCSA','Custom')]
@@ -100,8 +100,8 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Machine')]
-        [String] $ApplyTo,
+        [ValidateSet('Yes')]
+        [String] $IsSingleInstance,
 
         [Parameter()]
         [ValidateSet('W3C','IIS','NCSA','Custom')]
