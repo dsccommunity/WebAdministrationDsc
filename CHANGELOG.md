@@ -44,6 +44,7 @@
   bring the resource into compliance with published best practices. ([issue #462](https://github.com/PowerShell/xWebAdministration/issues/462))
 - Changes to xWebApplication
   - Move localization strings to strings.psd1 file ([Issue #468](https://github.com/PowerShell/xWebAdministration/issues/468))
+  - Add description on class MSFT_xWebApplicationAuthenticationInformation ([issue #454](https://github.com/PowerShell/xWebAdministration/issues/454)).
 - Changes to xIisModule entry
   - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/PowerShell/xWebAdministration/issues/466)).
 - Changes to xIisMimeTypeMapping
