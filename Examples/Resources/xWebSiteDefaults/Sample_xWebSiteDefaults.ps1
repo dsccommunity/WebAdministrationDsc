@@ -19,7 +19,7 @@ Configuration Sample_xWebSiteDefaults
     {
         xWebSiteDefaults SiteDefaults
         {
-            ApplyTo                = 'Machine'
+            IsSingleInstance       = 'Yes'
             LogFormat              = 'IIS'
             LogDirectory           = 'C:\inetpub\logs\LogFiles'
             TraceLogDirectory      = 'C:\inetpub\logs\FailedReqLogFiles'

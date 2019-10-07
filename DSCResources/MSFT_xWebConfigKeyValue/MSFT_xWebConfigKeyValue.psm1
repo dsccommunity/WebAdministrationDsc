@@ -4,24 +4,8 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-    VerboseGetTargetCheckingTarget  = Checking for the existance of key "{0}" in ConfigSection "{1}" located at "{2}"
-    VerboseGetTargetAttributeCheck  = Checking if key "{0}" is an Attribute
-    VerboseGetTargetKeyNotFound     = Key "{0}" has not been found.
-    VerboseGetTargetKeyFound        = Key "{0}" has been found
-    VerboseSetTargetCheckingKey     = Checking for existance of key "{0}"
-    VerboseSetTargetAddItem         = Key "{0}" does not exist, adding key
-    VerboseSetTargetEditItem        = Key "{0}" exists, editing key
-    VerboseSetTargetRemoveItem      = Key "{0}" exists, removing key
-    VerboseTestTargetCheckingTarget = Checking for the existance of key "{0}" in ConfigSection "{1}" located at "{2}"
-    VerboseTestTargetKeyNotFound    = Key "{0}" has not been found.
-    VerboseTestTargetKeyWasFound    = Key "{0}" has been found.
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebConfigKeyValue'
 
 <#
     .SYNOPSIS
@@ -45,7 +29,7 @@ function Get-TargetResource
     )
 
     Write-Verbose `
-        -Message ($LocalizedData.VerboseGetTargetCheckingTarget -f $Key, $ConfigSection, $WebsitePath )
+        -Message ($script:localizedData.VerboseGetTargetCheckingTarget -f $Key, $ConfigSection, $WebsitePath )
 
     $existingValue = Get-ItemValue `
                         -Key $Key `
@@ -56,7 +40,7 @@ function Get-TargetResource
     if ( $null -eq $existingValue )
     {
         Write-Verbose `
-            -Message ($LocalizedData.VerboseGetTargetAttributeCheck -f $Key )
+            -Message ($script:localizedData.VerboseGetTargetAttributeCheck -f $Key )
 
         $existingValue = Get-ItemValue `
                             -Key $Key `
@@ -68,7 +52,7 @@ function Get-TargetResource
     if ( $existingValue.Length -eq 0 )
     {
         Write-Verbose `
-            -Message ($LocalizedData.VerboseGetTargetKeyNotFound -f $Key )
+            -Message ($script:localizedData.VerboseGetTargetKeyNotFound -f $Key )
 
          return @{
              Ensure = 'Absent'
@@ -78,7 +62,7 @@ function Get-TargetResource
     }
 
     Write-Verbose `
-        -Message ($LocalizedData.VerboseGetTargetKeyFound -f $Key )
+        -Message ($script:localizedData.VerboseGetTargetKeyFound -f $Key )
 
     return @{
         Ensure = 'Present'
@@ -120,7 +104,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present')
     {
         Write-Verbose `
-            -Message ($LocalizedData.VerboseSetTargetCheckingKey -f $Key )
+            -Message ($script:localizedData.VerboseSetTargetCheckingKey -f $Key )
 
         $existingValue = Get-ItemValue `
                             -Key $Key `
@@ -132,7 +116,7 @@ function Set-TargetResource
                 -or ( $IsAttribute -and ($existingValue.Length -eq 0) ) )
         {
             Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetAddItem -f $Key )
+                -Message ($script:localizedData.VerboseSetTargetAddItem -f $Key )
 
             Add-Item `
                 -Key $Key `
@@ -151,7 +135,7 @@ function Set-TargetResource
             }
 
             Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetEditItem -f $Key )
+                -Message ($script:localizedData.VerboseSetTargetEditItem -f $Key )
 
             Edit-Item `
                 -PropertyName $propertyName `
@@ -165,7 +149,7 @@ function Set-TargetResource
     else
     {
         Write-Verbose `
-            -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $Key )
+            -Message ($script:localizedData.VerboseSetTargetRemoveItem -f $Key )
 
         Remove-Item `
             -Key $Key `
@@ -212,7 +196,7 @@ function Test-TargetResource
     }
 
    Write-Verbose `
-        -Message ($LocalizedData.VerboseTestTargetCheckingTarget -f $Key, $ConfigSection, $WebsitePath )
+        -Message ($script:localizedData.VerboseTestTargetCheckingTarget -f $Key, $ConfigSection, $WebsitePath )
 
     $existingValue = Get-ItemValue `
                         -Key $Key `
@@ -226,7 +210,7 @@ function Test-TargetResource
                 -or ($existingValue.Length -eq 0) )
         {
             Write-Verbose `
-                -Message ($LocalizedData.VerboseTestTargetKeyNotFound -f $Key )
+                -Message ($script:localizedData.VerboseTestTargetKeyNotFound -f $Key )
             return $false
         }
     }
@@ -235,14 +219,14 @@ function Test-TargetResource
         if ( ( $null -ne $existingValue ) -or ( $existingValue.Length -ne 0 ) )
         {
              Write-Verbose `
-                -Message ($LocalizedData.VerboseTestTargetKeyNotFound -f $Key )
+                -Message ($script:localizedData.VerboseTestTargetKeyNotFound -f $Key )
 
             return $false
         }
     }
 
     Write-Verbose `
-            -Message ($LocalizedData.VerboseTestTargetKeyWasFound -f $Key)
+            -Message ($script:localizedData.VerboseTestTargetKeyWasFound -f $Key)
 
     return $true
 }

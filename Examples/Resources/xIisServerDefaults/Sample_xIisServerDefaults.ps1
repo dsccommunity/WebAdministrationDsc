@@ -13,7 +13,7 @@ configuration Sample_xIISServerDefaults
     {
         xWebSiteDefaults SiteDefaults
         {
-            ApplyTo           = 'Machine'
+            IsSingleInstance  = 'Yes'
             LogFormat         = 'IIS'
             AllowSubDirConfig = 'true'
         }
