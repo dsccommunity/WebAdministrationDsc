@@ -4,17 +4,9 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
-        SettingValue              = Changing default Value '{0}' to '{1}'
-        ValueOk                   = Default Value '{0}' is already '{1}'
-        VerboseGetTargetResource  = Get-TargetResource has been run.
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebSiteDefaults'
+
 function Get-TargetResource
 {
     <#
@@ -34,7 +26,7 @@ function Get-TargetResource
 
     Assert-Module
 
-    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
     return @{
         LogFormat              = (Get-Value 'siteDefaults/logFile' 'logFormat')
@@ -203,7 +195,7 @@ function Confirm-Value
     else
     {
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
+        Write-Verbose($script:localizedData.ValueOk -f $relPath,$NewValue);
         return $true
     }
 
@@ -239,7 +231,7 @@ function Set-Value
                                      -Name $Name `
                                      -Value "$NewValue"
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
+        Write-Verbose($script:localizedData.SettingValue -f $relPath,$NewValue);
     }
 
 }
