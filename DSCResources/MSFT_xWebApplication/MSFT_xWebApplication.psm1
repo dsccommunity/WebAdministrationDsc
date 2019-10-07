@@ -253,7 +253,10 @@ function Set-TargetResource
                     Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviders)
                     Add-WebConfiguration `
                         -filter /system.applicationHost/serviceAutoStartProviders `
-                        -Value @{name=$ServiceAutoStartProvider; type=$ApplicationType} `
+                        -Value @{
+                            name = $ServiceAutoStartProvider
+                            type=$ApplicationType
+                        } `
                         -ErrorAction Stop
                 }
                 Write-Verbose -Message `
@@ -541,8 +544,8 @@ function Confirm-UniqueServiceAutoStartProviders
         Select-Object Name,Type
 
     $ProposedObject = @(New-Object -TypeName PSObject -Property @{
-            name   = $ServiceAutoStartProvider
-            type   = $ApplicationType
+        name   = $ServiceAutoStartProvider
+        type   = $ApplicationType
     })
 
     if(-not $ExistingObject)
@@ -614,7 +617,12 @@ function Get-DefaultAuthenticationInfo
 {
     New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
         -ClientOnly `
-        -Property @{Anonymous=$false;Basic=$false;Digest=$false;Windows=$false} `
+        -Property @{
+            Anonymous = $false
+            Basic = $false
+            Digest = $false
+            Windows = $false
+        } `
         -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
 }
 
