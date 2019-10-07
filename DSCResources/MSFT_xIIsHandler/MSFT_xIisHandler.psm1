@@ -10,38 +10,38 @@ $script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xIisHandler'
 #region script variables
 $script:handlers = @{
     'aspq-Integrated-4.0' = New-Object PSObject -Property @{
-        Name         = 'aspq-Integrated-4.0';
-        Path         = '*.aspq';
-        Verb         = 'GET,HEAD,POST,DEBUG';
-        Type         = 'System.Web.HttpForbiddenHandler';
+        Name = 'aspq-Integrated-4.0';
+        Path = '*.aspq';
+        Verb = 'GET,HEAD,POST,DEBUG';
+        Type = 'System.Web.HttpForbiddenHandler';
         PreCondition = 'integratedMode,runtimeVersionv4.0'
     }
 
     'aspq-ISAPI-4.0_32bit' = New-Object PSObject -Property @{
-        Name                = 'aspq-ISAPI-4.0_32bit';
-        Path                = '*.aspq';
-        Verb                = '*';
-        Modules             = 'IsapiModule';
-        ScriptProcessor     = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
-        PreCondition        = 'classicMode,runtimeVersionv4.0,bitness32';
+        Name = 'aspq-ISAPI-4.0_32bit';
+        Path = '*.aspq';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness32';
         ResponseBufferLimit = '0'
     }
 
     'aspq-ISAPI-4.0_64bit' = New-Object PSObject -Property @{
-        Name                = 'aspq-ISAPI-4.0_64bit';
-        Path                = '*.aspq';
-        Verb                = '*';
-        Modules             = 'IsapiModule';
-        ScriptProcessor     = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
-        PreCondition        = 'classicMode,runtimeVersionv4.0,bitness64';
+        Name = 'aspq-ISAPI-4.0_64bit';
+        Path = '*.aspq';
+        Verb = '*';
+        Modules = 'IsapiModule';
+        ScriptProcessor = '%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll';
+        PreCondition = 'classicMode,runtimeVersionv4.0,bitness64';
         ResponseBufferLimit = '0'
     }
 
     'AssemblyResourceLoader-Integrated-4.0' = New-Object PSObject -Property @{
-        Name         = 'AssemblyResourceLoader-Integrated-4.0';
-        Path         = 'WebResource.axd';
-        Verb         = 'GET,DEBUG';
-        Type         = 'System.Web.Handlers.AssemblyResourceLoader';
+        Name = 'AssemblyResourceLoader-Integrated-4.0';
+        Path = 'WebResource.axd';
+        Verb = 'GET,DEBUG';
+        Type = 'System.Web.Handlers.AssemblyResourceLoader';
         PreCondition = 'integratedMode,runtimeVersionv4.0'
     }
 
