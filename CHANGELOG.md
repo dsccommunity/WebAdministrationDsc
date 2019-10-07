@@ -2,8 +2,6 @@
 
 ## Unreleased
 
-- Changes to xWebConfigProperty
-  - Move localization strings to strings.psd1 file ([Issue #473](https://github.com/PowerShell/xWebAdministration/issues/473))
 - Changes to xWebAdministration
   - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
@@ -44,18 +42,28 @@
     ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
 - Changes to xWebConfigKeyValue
   - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
+  - Move localization strings to strings.psd1 file ([issue #472](https://github.com/PowerShell/xWebAdministration/issues/472)).
 - Changes to xWebAppPoolDefaults
   - Move localization strings to strings.psd1 file ([issue #470](https://github.com/PowerShell/xWebAdministration/issues/470)).
   - BREAKING CHANGE: Changed `ApplyTo` key parameter to `IsSingleInstance` to
   bring the resource into compliance with published best practices. ([issue #462](https://github.com/PowerShell/xWebAdministration/issues/462))
 - Changes to xWebApplication
   - Move localization strings to strings.psd1 file ([Issue #468](https://github.com/PowerShell/xWebAdministration/issues/468))
+  - Add description on class MSFT_xWebApplicationAuthenticationInformation ([issue #454](https://github.com/PowerShell/xWebAdministration/issues/454)).
 - Changes to xIisModule entry
   - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/PowerShell/xWebAdministration/issues/466)).
 - Changes to xIisMimeTypeMapping
   - Moved MSFT_xIisMimeTypeMapping localization strings to strings.psd1 ([issue #465](https://github.com/PowerShell/xWebAdministration/issues/465)).
 - Changes to xWebVirtualDirectory
   - Moved MSFT_xWebVirtualDirectory localization strings to strings.psd1 ([issue #477](https://github.com/PowerShell/xWebAdministration/issues/477)).
+- Changes to xWebSiteDefaults
+  - Move localization strings to strings.psd1 file ([issue #475](https://github.com/PowerShell/xWebAdministration/issues/475)).
+  - BREAKING CHANGE: Changed `ApplyTo` key parameter to `IsSingleInstance` to
+  bring the resource into compliance with published best practices. ([issue #457](https://github.com/PowerShell/xWebAdministration/issues/457))
+- Changes to xWebConfigProperty
+  - Move localization strings to strings.psd1 file ([issue #473](https://github.com/PowerShell/xWebAdministration/issues/473)).
+- Changes to xWebConfigPropertyCollection
+  - Move localization strings to strings.psd1 file ([issue #474](https://github.com/PowerShell/xWebAdministration/issues/474)).
 
 ## 2.8.0.0
 

@@ -4,21 +4,9 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-    VerboseTargetCheckingTarget            = Checking for the existence of property "{0}" in collection item "{1}/{2}" with key "{3}={4}" using filter "{5}" located at "{6}".
-    VerboseTargetItemNotFound              = Collection item "{0}/{1}" with key "{2}={3}" has not been found.
-    VerboseTargetPropertyNotFound          = Property "{0}" has not been found.
-    VerboseTargetPropertyFound             = Property "{0}" has been found.
-    VerboseSetTargetAddItem                = Collection item "{0}/{1}" with key "{2}={3}" does not exist, adding with property "{4}".
-    VerboseSetTargetEditItem               = Collection item "{0}/{1}" with key "{2}={3}" exists, editing property "{4}".
-    VerboseSetTargetRemoveItem             = Property "{0}" exists, removing property.
-    VerboseTestTargetPropertyValueNotFound = Property "{0}" has not been found with expected value.
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebConfigPropertyCollection'
+
 
 <#
 .SYNOPSIS
@@ -88,7 +76,7 @@ function Get-TargetResource
     )
     # Retrieve the values of the existing property collection item if present.
     Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
+        -Message ($script:localizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
 
     $existingItem = Get-ItemValues `
                         -WebsitePath $WebsitePath `
@@ -114,7 +102,7 @@ function Get-TargetResource
     {
         # Property collection item with specified key was not found.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
+            -Message ($script:localizedData.VerboseTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
 
         $result.Ensure = 'Absent'
         $result.ItemPropertyValue = $null
@@ -123,7 +111,7 @@ function Get-TargetResource
     {
         # Property collection item with specified key was found, but property was not present.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
+            -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
 
         $result.Ensure = 'Absent'
         $result.ItemPropertyValue = $null
@@ -132,7 +120,7 @@ function Get-TargetResource
     {
         # Property collection item with specified key was found.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
+            -Message ($script:localizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
 
         $result.Ensure = 'Present'
         $result.ItemPropertyValue = $existingItem[$ItemPropertyName].ToString()
@@ -224,7 +212,7 @@ function Set-TargetResource
     {
         # Retrieve the values of the existing property collection item if present.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
+            -Message ($script:localizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
 
         $existingItem = Get-ItemValues `
                             -WebsitePath $WebsitePath `
@@ -249,7 +237,7 @@ function Set-TargetResource
         {
             # Property collection item with specified key was not found.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetAddItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
+                -Message ($script:localizedData.VerboseSetTargetAddItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
 
             $filter = "$($Filter)/$($CollectionName)"
             # Use Add- in this case to add the element (including the key/value) and also the specified property name/value.
@@ -263,7 +251,7 @@ function Set-TargetResource
         {
             # Property collection item with specified key was found.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseSetTargetEditItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
+                -Message ($script:localizedData.VerboseSetTargetEditItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
 
             $filter = "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
             # Use Set- in this case to update the specified property of the element with the specified key/value.
@@ -278,7 +266,7 @@ function Set-TargetResource
     {
         # Remove the specified property from the element with the specified key/value.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $ItemPropertyName )
+            -Message ($script:localizedData.VerboseSetTargetRemoveItem -f $ItemPropertyName )
 
         $filter = "$($Filter)/$($CollectionName)"
         Remove-WebConfigurationProperty `
@@ -372,7 +360,7 @@ function Test-TargetResource
     )
     # Retrieve the values of the existing property collection item if present.
     Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
+        -Message ($script:localizedData.VerboseTargetCheckingTarget -f $ItemPropertyName, $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $Filter, $WebsitePath )
 
     $existingItem = Get-ItemValues `
                         -WebsitePath $WebsitePath `
@@ -388,7 +376,7 @@ function Test-TargetResource
         {
             # Property collection item with specified key was not found.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
+                -Message ($script:localizedData.VerboseTargetItemNotFound -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue )
 
             return $false
         }
@@ -396,7 +384,7 @@ function Test-TargetResource
         {
             # Property collection item with specified key was found, but property was not present.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
+                -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
 
             return $false
         }
@@ -404,13 +392,13 @@ function Test-TargetResource
         {
             # Property collection item with specified key was found, but property did not have expected value.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseTestTargetPropertyValueNotFound -f $ItemPropertyName )
+                -Message ($script:localizedData.VerboseTestTargetPropertyValueNotFound -f $ItemPropertyName )
 
             return $false
         }
         # Property collection item with specified key was found & had expected value.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
+            -Message ($script:localizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
 
         return $true
     }
@@ -420,13 +408,13 @@ function Test-TargetResource
         {
             # Property collection item with specified key was found & property was present.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
+                -Message ($script:localizedData.VerboseTargetPropertyFound -f $ItemPropertyName )
 
             return $false
         }
         # Property collection item with specified key was either not found or property was not present.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
+            -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $ItemPropertyName )
 
         return $true
     }

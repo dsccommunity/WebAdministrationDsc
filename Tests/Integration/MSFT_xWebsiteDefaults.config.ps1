@@ -18,7 +18,7 @@ configuration MSFT_xWebsiteDefaults_Config
 
     xWebSiteDefaults virtualDirectoryDefaults
     {
-        ApplyTo = 'Machine'
+        IsSingleInstance = 'Yes'
         AllowSubDirConfig = "$env:PesterVirtualDirectoryDefaults"
     }
 }
