@@ -13,7 +13,7 @@ configuration Sample_xIISServerDefaults
     {
         xWebSiteDefaults SiteDefaults
         {
-            ApplyTo           = 'Machine'
+            IsSingleInstance  = 'Yes'
             LogFormat         = 'IIS'
             AllowSubDirConfig = 'true'
         }
@@ -21,7 +21,7 @@ configuration Sample_xIISServerDefaults
 
         xWebAppPoolDefaults PoolDefaults
         {
-            ApplyTo               = 'Machine'
+            IsSingleInstance      = 'Yes'
             ManagedRuntimeVersion = 'v4.0'
             IdentityType          = 'ApplicationPoolIdentity'
         }

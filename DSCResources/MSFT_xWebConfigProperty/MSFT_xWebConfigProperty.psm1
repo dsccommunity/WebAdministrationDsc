@@ -1,15 +1,11 @@
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-    VerboseTargetCheckingTarget       = Checking for the existence of property "{0}" using filter "{1}" located at "{2}".
-    VerboseTargetPropertyNotFound     = Property "{0}" has not been found.
-    VerboseTargetPropertyFound        = Property "{0}" has been found.
-    VerboseSetTargetEditItem          = Ensuring property "{0}" is set.
-    VerboseSetTargetRemoveItem        = Property "{0}" exists, removing property.
-'@
-}
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
+
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
+
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebConfigProperty'
 
 <#
 .SYNOPSIS
@@ -47,7 +43,7 @@ function Get-TargetResource
     )
     # Retrieve the value of the existing property if present.
     Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
+        -Message ($script:localizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
 
     $existingValue = Get-ItemValue `
                         -WebsitePath $WebsitePath `
@@ -66,7 +62,7 @@ function Get-TargetResource
     {
         # Property was not found.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName )
+            -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $PropertyName )
 
         $result.Ensure = 'Absent'
     }
@@ -74,7 +70,7 @@ function Get-TargetResource
     {
         # Property was found.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyFound -f $PropertyName )
+            -Message ($script:localizedData.VerboseTargetPropertyFound -f $PropertyName )
     }
 
     return $result
@@ -132,7 +128,7 @@ function Set-TargetResource
     {
         # Property needs to be updated.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseSetTargetEditItem -f $PropertyName )
+            -Message ($script:localizedData.VerboseSetTargetEditItem -f $PropertyName )
 
         $propertyType = Get-ItemPropertyType -WebsitePath $WebsitePath -Filter $Filter -PropertyName $PropertyName
 
@@ -156,7 +152,7 @@ function Set-TargetResource
     {
         # Property needs to be removed.
         Write-Verbose `
-            -Message ($LocalizedData.VerboseSetTargetRemoveItem -f $PropertyName )
+            -Message ($script:localizedData.VerboseSetTargetRemoveItem -f $PropertyName )
 
         Clear-WebConfiguration `
                 -Filter "$($Filter)/@$($PropertyName)" `
@@ -216,7 +212,7 @@ function Test-TargetResource
     )
     # Retrieve the value of the existing property if present.
     Write-Verbose `
-        -Message ($LocalizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
+        -Message ($script:localizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
 
     $targetResource = Get-TargetResource `
                         -WebsitePath $WebsitePath `
@@ -229,7 +225,7 @@ function Test-TargetResource
         {
             # Property was not found or didn't have expected value.
             Write-Verbose `
-                -Message ($LocalizedData.VerboseTargetPropertyNotFound -f $PropertyName )
+                -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $PropertyName )
 
             return $false
         }
@@ -240,14 +236,14 @@ function Test-TargetResource
         {
             # Property was found.
                 Write-Verbose `
-                -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName )
+                -Message ($script:localizedData.VerboseTargetPropertyWasFound -f $PropertyName )
 
             return $false
         }
     }
 
     Write-Verbose `
-            -Message ($LocalizedData.VerboseTargetPropertyWasFound -f $PropertyName)
+            -Message ($script:localizedData.VerboseTargetPropertyWasFound -f $PropertyName)
 
     return $true
 }

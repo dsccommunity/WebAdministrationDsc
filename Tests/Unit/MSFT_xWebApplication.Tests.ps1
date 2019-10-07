@@ -68,23 +68,6 @@ try
                 }
             )
 
-        Describe "$script:DSCResourceName\Assert-Module" {
-
-            Context 'WebAdminstration module is not installed' {
-
-                Mock -ModuleName Helper -CommandName Get-Module -MockWith {
-                    return $null
-                }
-
-                It 'should throw an error' {
-                    { Assert-Module } |
-                    Should Throw
-
-                }
-
-            }
-
-        }
 
         Describe "$script:DSCResourceName\Get-TargetResource" {
 
