@@ -251,7 +251,10 @@ function Set-TargetResource
                 -PSPath $WebsitePath `
                 -Filter $filter `
                 -Name '.' `
-                -Value $(@{$ItemKeyName=$ItemKeyValue;$ItemPropertyName=$setItemPropertyValue})
+                -Value @{
+                    $ItemKeyName = $ItemKeyValue
+                    $ItemPropertyName = $setItemPropertyValue
+                }
         }
         else
         {
@@ -279,7 +282,9 @@ function Set-TargetResource
             -PSPath $WebsitePath `
             -Filter $filter `
             -Name '.' `
-            -AtElement @{$ItemKeyName=$ItemKeyValue}
+            -AtElement @{
+                $ItemKeyName = $ItemKeyValue
+            }
     }
 }
 
