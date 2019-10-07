@@ -21,7 +21,7 @@ configuration Sample_xIISServerDefaults
 
         xWebAppPoolDefaults PoolDefaults
         {
-            ApplyTo               = 'Machine'
+            IsSingleInstance      = 'Yes'
             ManagedRuntimeVersion = 'v4.0'
             IdentityType          = 'ApplicationPoolIdentity'
         }
