@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xWebSiteDefaults
+  - Move localization strings to strings.psd1 file ([Issue #475](https://github.com/PowerShell/xWebAdministration/issues/475))
 - Changes to xWebConfigProperty
   - Move localization strings to strings.psd1 file ([Issue #473](https://github.com/PowerShell/xWebAdministration/issues/473))
 - Changes to xWebAdministration
