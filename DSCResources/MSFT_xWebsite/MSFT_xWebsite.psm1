@@ -621,8 +621,8 @@ function Set-TargetResource
             {
                 Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
                                         -Value @{
-                                            name=$ServiceAutoStartProvider
-                                            type=$ApplicationType
+                                            name = $ServiceAutoStartProvider
+                                            type = $ApplicationType
                                         } `
                                         -ErrorAction Stop
                 Write-Verbose -Message `
@@ -1297,8 +1297,8 @@ function Confirm-UniqueServiceAutoStartProviders
         Select-Object Name,Type
 
     $proposedObject = New-Object -TypeName PSObject -Property @{
-        name   = $ServiceAutoStartProvider
-        type   = $ApplicationType
+        name = $ServiceAutoStartProvider
+        type = $ApplicationType
     }
 
     if (-not $existingObject)

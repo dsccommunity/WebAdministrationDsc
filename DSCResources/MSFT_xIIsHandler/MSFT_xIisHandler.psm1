@@ -861,7 +861,7 @@ function Set-TargetResource
                                         -AtElement @{
                                             name = "$Name"
                                         }
-        Write-Verbose -Message ($LocalizedData.RemovingHandler -f $Name)
+        Write-Verbose -Message ($script:localizedData.RemovingHandler -f $Name)
     }
 }
 function Test-TargetResource
