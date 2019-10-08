@@ -18,6 +18,7 @@
   - Added a table of contents for the resource list ([issue #450](https://github.com/PowerShell/xWebAdministration/issues/450)).
   - Alphabetized the resource list in the README.md ([issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
   - Optimized exporting in the module manifest for best performance ([issue #448](https://github.com/PowerShell/xWebAdministration/issues/448)).
+  - Updated hashtables in the repo to adhere to the style guidelines described at https://github.com/PowerShell/DscResources/blob/master/StyleGuidelines.md#correct-format-for-hashtables-or-objects ([issue #524](https://github.com/PowerShell/xWebAdministration/issues/524))
   - Moved example Sample_EndToEndxWebAdministration from readme.md to a separate .ps1 in `/examples/` ([issue #491](https://github.com/PowerShell/xWebAdministration/issues/491))
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).

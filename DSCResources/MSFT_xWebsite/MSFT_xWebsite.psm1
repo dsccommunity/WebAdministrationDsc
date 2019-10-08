@@ -621,8 +621,8 @@ function Set-TargetResource
             {
                 Add-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders `
                                         -Value @{
-                                        name=$ServiceAutoStartProvider;
-                                        type=$ApplicationType
+                                            name = $ServiceAutoStartProvider
+                                            type = $ApplicationType
                                         } `
                                         -ErrorAction Stop
                 Write-Verbose -Message `
@@ -1296,10 +1296,10 @@ function Confirm-UniqueServiceAutoStartProviders
         Where-Object -Property Name -eq -Value $ServiceAutoStartProvider | `
         Select-Object Name,Type
 
-    $proposedObject = @(New-Object -TypeName PSObject -Property @{
-            name   = $ServiceAutoStartProvider
-            type   = $ApplicationType
-    })
+    $proposedObject = New-Object -TypeName PSObject -Property @{
+        name = $ServiceAutoStartProvider
+        type = $ApplicationType
+    }
 
     if (-not $existingObject)
     {
@@ -1772,7 +1772,12 @@ function Get-DefaultAuthenticationInfo
 {
     New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
         -ClientOnly `
-        -Property @{ Anonymous = $false; Basic = $false; Digest = $false; Windows = $false } `
+        -Property @{
+            Anonymous = $false
+            Basic = $false
+            Digest = $false
+            Windows = $false
+        } `
         -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
 }
 
@@ -2221,7 +2226,9 @@ function Update-DefaultPage
         {
             Add-WebConfiguration -Filter '/system.webServer/defaultDocument/files' `
                                  -PSPath "IIS:\Sites\$Name" `
-                                 -Value @{ value = $page }
+                                 -Value @{
+                                     value = $page
+                                 }
             Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
                                     -f $Name, $page)
         }
