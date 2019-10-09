@@ -6,30 +6,8 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
-        VerboseAppPoolFound               = Application pool "{0}" was found.
-        VerboseAppPoolNotFound            = Application pool "{0}" was not found.
-        VerboseEnsureNotInDesiredState    = The "Ensure" state of application pool "{0}" does not match the desired state.
-        VerbosePropertyNotInDesiredState  = The "{0}" property of application pool "{1}" does not match the desired state.
-        VerboseCredentialToBeCleared      = Custom account credentials of application pool "{0}" need to be cleared because the "identityType" property is not set to "SpecificUser".
-        VerboseCredentialToBeIgnored      = The "Credential" property is only valid when the "identityType" property is set to "SpecificUser".
-        VerboseResourceInDesiredState     = The target resource is already in the desired state. No action is required.
-        VerboseResourceNotInDesiredState  = The target resource is not in the desired state.
-        VerboseNewAppPool                 = Creating application pool "{0}".
-        VerboseRemoveAppPool              = Removing application pool "{0}".
-        VerboseStartAppPool               = Starting application pool "{0}".
-        VerboseStopAppPool                = Stopping application pool "{0}".
-        VerboseSetProperty                = Setting the "{0}" property of application pool "{1}".
-        VerboseClearCredential            = Clearing custom account credentials of application pool "{0}" because the "identityType" property is not set to "SpecificUser".
-        VerboseRestartScheduleValueAdd    = Adding value "{0}" to the "restartSchedule" collection of application pool "{1}".
-        VerboseRestartScheduleValueRemove = Removing value "{0}" from the "restartSchedule" collection of application pool "{1}".
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebAppPool'
 
 # Writable properties except Ensure and Credential.
 data PropertyData
@@ -128,13 +106,13 @@ function Get-TargetResource
 
     if ($null -eq $appPool)
     {
-        Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
 
         $ensureResult = 'Absent'
     }
     else
     {
-        Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
         $ensureResult = 'Present'
 
@@ -405,8 +383,8 @@ function Set-TargetResource
         # Create Application Pool
         if ($null -eq $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
-            Write-Verbose -Message ($LocalizedData['VerboseNewAppPool'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseNewAppPool'] -f $Name)
 
             $appPool = New-WebAppPool -Name $Name -ErrorAction Stop
         }
@@ -414,7 +392,7 @@ function Set-TargetResource
         # Set Application Pool Properties
         if ($null -ne $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
             $PropertyData.Where(
                 {
@@ -432,7 +410,7 @@ function Set-TargetResource
                     )
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerboseSetProperty'] -f $propertyName, $Name
+                            $script:localizedData['VerboseSetProperty'] -f $propertyName, $Name
                         )
 
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
@@ -449,7 +427,7 @@ function Set-TargetResource
                     if ($appPool.processModel.userName -ne $Credential.UserName)
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerboseSetProperty'] -f 'Credential (userName)', $Name
+                            $script:localizedData['VerboseSetProperty'] -f 'Credential (userName)', $Name
                         )
 
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
@@ -462,7 +440,7 @@ function Set-TargetResource
                     if ($appPool.processModel.password -cne $clearTextPassword)
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerboseSetProperty'] -f 'Credential (password)', $Name
+                            $script:localizedData['VerboseSetProperty'] -f 'Credential (password)', $Name
                         )
 
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
@@ -472,7 +450,7 @@ function Set-TargetResource
                 }
                 else
                 {
-                    Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeIgnored'])
+                    Write-Verbose -Message ($script:localizedData['VerboseCredentialToBeIgnored'])
                 }
             }
 
@@ -494,7 +472,7 @@ function Set-TargetResource
                 )
             )
             {
-                Write-Verbose -Message ($LocalizedData['VerboseClearCredential'] -f $Name)
+                Write-Verbose -Message ($script:localizedData['VerboseClearCredential'] -f $Name)
 
                 Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, '/processModel.userName:'
                 Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, '/processModel.password:'
@@ -528,7 +506,7 @@ function Set-TargetResource
                             if ($_.SideIndicator -eq '<=')
                             {
                                 Write-Verbose -Message (
-                                    $LocalizedData['VerboseRestartScheduleValueAdd'] -f
+                                    $script:localizedData['VerboseRestartScheduleValueAdd'] -f
                                         $_.InputObject, $Name
                                 )
 
@@ -540,7 +518,7 @@ function Set-TargetResource
                             else
                             {
                                 Write-Verbose -Message (
-                                    $LocalizedData['VerboseRestartScheduleValueRemove'] -f
+                                    $script:localizedData['VerboseRestartScheduleValueRemove'] -f
                                         $_.InputObject, $Name
                                 )
 
@@ -556,13 +534,13 @@ function Set-TargetResource
             {
                 if ($State -eq 'Started')
                 {
-                    Write-Verbose -Message ($LocalizedData['VerboseStartAppPool'] -f $Name)
+                    Write-Verbose -Message ($script:localizedData['VerboseStartAppPool'] -f $Name)
 
                     Start-WebAppPool -Name $Name -ErrorAction Stop
                 }
                 else
                 {
-                    Write-Verbose -Message ($LocalizedData['VerboseStopAppPool'] -f $Name)
+                    Write-Verbose -Message ($script:localizedData['VerboseStopAppPool'] -f $Name)
 
                     Stop-WebAppPool -Name $Name -ErrorAction Stop
                 }
@@ -574,22 +552,22 @@ function Set-TargetResource
         # Remove Application Pool
         if ($null -ne $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
             if ($appPool.state -eq 'Started')
             {
-                Write-Verbose -Message ($LocalizedData['VerboseStopAppPool'] -f $Name)
+                Write-Verbose -Message ($script:localizedData['VerboseStopAppPool'] -f $Name)
 
                 Stop-WebAppPool -Name $Name -ErrorAction Stop
             }
 
-            Write-Verbose -Message ($LocalizedData['VerboseRemoveAppPool'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseRemoveAppPool'] -f $Name)
 
             Remove-WebAppPool -Name $Name -ErrorAction Stop
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
         }
     }
 }
@@ -825,19 +803,19 @@ function Test-TargetResource
 
         if ($null -ne $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
         }
 
-        Write-Verbose -Message ($LocalizedData['VerboseEnsureNotInDesiredState'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseEnsureNotInDesiredState'] -f $Name)
     }
 
     if ($Ensure -eq 'Present' -and $null -ne $appPool)
     {
-        Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
         $PropertyData.Where(
             {
@@ -860,7 +838,7 @@ function Test-TargetResource
                     if ($compareResult.Length -ne 0)
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
+                            $script:localizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
                         )
 
                         $inDesiredState = $false
@@ -871,7 +849,7 @@ function Test-TargetResource
                 )
                 {
                     Write-Verbose -Message (
-                        $LocalizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
+                        $script:localizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
                     )
 
                     $inDesiredState = $false
@@ -886,7 +864,7 @@ function Test-TargetResource
                 if ($appPool.processModel.userName -ne $Credential.UserName)
                 {
                     Write-Verbose -Message (
-                        $LocalizedData['VerbosePropertyNotInDesiredState'] -f
+                        $script:localizedData['VerbosePropertyNotInDesiredState'] -f
                             'Credential (userName)', $Name
                     )
 
@@ -898,7 +876,7 @@ function Test-TargetResource
                 if ($appPool.processModel.password -cne $clearTextPassword)
                 {
                     Write-Verbose -Message (
-                        $LocalizedData['VerbosePropertyNotInDesiredState'] -f
+                        $script:localizedData['VerbosePropertyNotInDesiredState'] -f
                             'Credential (password)', $Name
                     )
 
@@ -907,7 +885,7 @@ function Test-TargetResource
             }
             else
             {
-                Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeIgnored'])
+                Write-Verbose -Message ($script:localizedData['VerboseCredentialToBeIgnored'])
             }
         }
 
@@ -929,7 +907,7 @@ function Test-TargetResource
             )
         )
         {
-            Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeCleared'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseCredentialToBeCleared'] -f $Name)
 
             $inDesiredState = $false
         }
@@ -960,7 +938,7 @@ function Test-TargetResource
             )
             {
                 Write-Verbose -Message (
-                    $LocalizedData['VerbosePropertyNotInDesiredState'] -f 'restartSchedule', $Name
+                    $script:localizedData['VerbosePropertyNotInDesiredState'] -f 'restartSchedule', $Name
                 )
 
                 $inDesiredState = $false
@@ -970,11 +948,11 @@ function Test-TargetResource
 
     if ($inDesiredState -eq $true)
     {
-        Write-Verbose -Message ($LocalizedData['VerboseResourceInDesiredState'])
+        Write-Verbose -Message ($script:localizedData['VerboseResourceInDesiredState'])
     }
     else
     {
-        Write-Verbose -Message ($LocalizedData['VerboseResourceNotInDesiredState'])
+        Write-Verbose -Message ($script:localizedData['VerboseResourceNotInDesiredState'])
     }
 
     return $inDesiredState
@@ -1042,7 +1020,7 @@ function Invoke-AppCmd
 
     if ($LASTEXITCODE -ne 0)
     {
-        $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
+        $errorMessage = $script:localizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
 
         New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
             -ErrorMessage $errorMessage `
