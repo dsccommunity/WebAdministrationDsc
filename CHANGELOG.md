@@ -37,6 +37,7 @@
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
     ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
+  - Moved MSFT_xSslSettings localization strings to strings.psd1 ([issue #467](https://github.com/PowerShell/xWebAdministration/issues/467)).
 - Changes to xWebConfigKeyValue
   - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
   - Move localization strings to strings.psd1 file ([issue #472](https://github.com/PowerShell/xWebAdministration/issues/472)).
@@ -61,6 +62,8 @@
   - Move localization strings to strings.psd1 file ([issue #473](https://github.com/PowerShell/xWebAdministration/issues/473)).
 - Changes to xWebConfigPropertyCollection
   - Move localization strings to strings.psd1 file ([issue #474](https://github.com/PowerShell/xWebAdministration/issues/474)).
+- Changes to xIisFeatureDelegation
+  - Moved MSFT_xIisFeatureDelegation localization strings to strings.psd1 ([issue #459](https://github.com/PowerShell/xWebAdministration/issues/459)).
 
 ## 2.8.0.0
 
