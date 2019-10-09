@@ -136,7 +136,10 @@ function Set-TargetResource
         Add-WebConfigurationProperty -PSPath $ConfigurationPath `
                                      -Filter $ConstSectionNode `
                                      -Name '.' `
-                                     -Value @{fileExtension="$Extension";mimeType="$MimeType"}
+                                     -Value @{
+                                         fileExtension = "$Extension"
+                                         mimeType = "$MimeType"
+                                     }
         Write-Verbose -Message ($script:localizedData.AddingType -f $MimeType,$Extension)
     }
     else
@@ -145,7 +148,9 @@ function Set-TargetResource
         Remove-WebConfigurationProperty -PSPath $ConfigurationPath `
                                         -Filter $ConstSectionNode `
                                         -Name '.' `
-                                        -AtElement @{fileExtension="$Extension"}
+                                        -AtElement @{
+                                            fileExtension = "$Extension"
+                                        }
         Write-Verbose -Message ($script:localizedData.RemovingType -f $MimeType,$Extension)
     }
 }

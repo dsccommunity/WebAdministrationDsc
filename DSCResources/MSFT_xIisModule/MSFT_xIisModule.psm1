@@ -390,18 +390,18 @@ function Test-TargetResourceImpl
     if ($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
     {
         return @{
-                    Result = $true
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
+            Result = $true
+            ModulePresent = $modulePresent
+            ModuleConfigured = $moduleConfigured
+        }
     }
     else
     {
         return @{
-                    Result = $false
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
+            Result = $false
+            ModulePresent = $modulePresent
+            ModuleConfigured = $moduleConfigured
+        }
     }
 }
 

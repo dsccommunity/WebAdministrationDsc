@@ -36,64 +36,208 @@ data PropertyData
 {
     @(
         # General
-        @{Name = 'State';                          Path = 'state'}
-        @{Name = 'autoStart';                      Path = 'autoStart'}
-        @{Name = 'CLRConfigFile';                  Path = 'CLRConfigFile'}
-        @{Name = 'enable32BitAppOnWin64';          Path = 'enable32BitAppOnWin64'}
-        @{Name = 'enableConfigurationOverride';    Path = 'enableConfigurationOverride'}
-        @{Name = 'managedPipelineMode';            Path = 'managedPipelineMode'}
-        @{Name = 'managedRuntimeLoader';           Path = 'managedRuntimeLoader'}
-        @{Name = 'managedRuntimeVersion';          Path = 'managedRuntimeVersion'}
-        @{Name = 'passAnonymousToken';             Path = 'passAnonymousToken'}
-        @{Name = 'startMode';                      Path = 'startMode'}
-        @{Name = 'queueLength';                    Path = 'queueLength'}
+        @{
+            Name = 'State'
+            Path = 'state'
+        }
+        @{
+            Name = 'autoStart'
+            Path = 'autoStart'
+        }
+        @{
+            Name = 'CLRConfigFile'
+            Path = 'CLRConfigFile'
+        }
+        @{
+            Name = 'enable32BitAppOnWin64'
+            Path = 'enable32BitAppOnWin64'
+        }
+        @{
+            Name = 'enableConfigurationOverride'
+            Path = 'enableConfigurationOverride'
+        }
+        @{
+            Name = 'managedPipelineMode'
+            Path = 'managedPipelineMode'
+        }
+        @{
+            Name = 'managedRuntimeLoader'
+            Path = 'managedRuntimeLoader'
+        }
+        @{
+            Name = 'managedRuntimeVersion'
+            Path = 'managedRuntimeVersion'
+        }
+        @{
+            Name = 'passAnonymousToken'
+            Path = 'passAnonymousToken'
+        }
+        @{
+            Name = 'startMode'
+            Path = 'startMode'
+        }
+        @{
+            Name = 'queueLength'
+            Path = 'queueLength'
+        }
 
         # CPU
-        @{Name = 'cpuAction';                      Path = 'cpu.action'}
-        @{Name = 'cpuLimit';                       Path = 'cpu.limit'}
-        @{Name = 'cpuResetInterval';               Path = 'cpu.resetInterval'}
-        @{Name = 'cpuSmpAffinitized';              Path = 'cpu.smpAffinitized'}
-        @{Name = 'cpuSmpProcessorAffinityMask';    Path = 'cpu.smpProcessorAffinityMask'}
-        @{Name = 'cpuSmpProcessorAffinityMask2';   Path = 'cpu.smpProcessorAffinityMask2'}
+        @{
+            Name = 'cpuAction'
+            Path = 'cpu.action'
+        }
+        @{
+            Name = 'cpuLimit'
+            Path = 'cpu.limit'
+        }
+        @{
+            Name = 'cpuResetInterval'
+            Path = 'cpu.resetInterval'
+        }
+        @{
+            Name = 'cpuSmpAffinitized'
+            Path = 'cpu.smpAffinitized'
+        }
+        @{
+            Name = 'cpuSmpProcessorAffinityMask'
+            Path = 'cpu.smpProcessorAffinityMask'
+        }
+        @{
+            Name = 'cpuSmpProcessorAffinityMask2'
+            Path = 'cpu.smpProcessorAffinityMask2'
+        }
 
         # Process Model
-        @{Name = 'identityType';                   Path = 'processModel.identityType'}
-        @{Name = 'idleTimeout';                    Path = 'processModel.idleTimeout'}
-        @{Name = 'idleTimeoutAction';              Path = 'processModel.idleTimeoutAction'}
-        @{Name = 'loadUserProfile';                Path = 'processModel.loadUserProfile'}
-        @{Name = 'logEventOnProcessModel';         Path = 'processModel.logEventOnProcessModel'}
-        @{Name = 'logonType';                      Path = 'processModel.logonType'}
-        @{Name = 'manualGroupMembership';          Path = 'processModel.manualGroupMembership'}
-        @{Name = 'maxProcesses';                   Path = 'processModel.maxProcesses'}
-        @{Name = 'pingingEnabled';                 Path = 'processModel.pingingEnabled'}
-        @{Name = 'pingInterval';                   Path = 'processModel.pingInterval'}
-        @{Name = 'pingResponseTime';               Path = 'processModel.pingResponseTime'}
-        @{Name = 'setProfileEnvironment';          Path = 'processModel.setProfileEnvironment'}
-        @{Name = 'shutdownTimeLimit';              Path = 'processModel.shutdownTimeLimit'}
-        @{Name = 'startupTimeLimit';               Path = 'processModel.startupTimeLimit'}
+        @{
+            Name = 'identityType'
+            Path = 'processModel.identityType'
+        }
+        @{
+            Name = 'idleTimeout'
+            Path = 'processModel.idleTimeout'
+        }
+        @{
+            Name = 'idleTimeoutAction'
+            Path = 'processModel.idleTimeoutAction'
+        }
+        @{
+            Name = 'loadUserProfile'
+            Path = 'processModel.loadUserProfile'
+        }
+        @{
+            Name = 'logEventOnProcessModel'
+            Path = 'processModel.logEventOnProcessModel'
+        }
+        @{
+            Name = 'logonType'
+            Path = 'processModel.logonType'
+        }
+        @{
+            Name = 'manualGroupMembership'
+            Path = 'processModel.manualGroupMembership'
+        }
+        @{
+            Name = 'maxProcesses'
+            Path = 'processModel.maxProcesses'
+        }
+        @{
+            Name = 'pingingEnabled'
+            Path = 'processModel.pingingEnabled'
+        }
+        @{
+            Name = 'pingInterval'
+            Path = 'processModel.pingInterval'
+        }
+        @{
+            Name = 'pingResponseTime'
+            Path = 'processModel.pingResponseTime'
+        }
+        @{
+            Name = 'setProfileEnvironment'
+            Path = 'processModel.setProfileEnvironment'
+        }
+        @{
+            Name = 'shutdownTimeLimit'
+            Path = 'processModel.shutdownTimeLimit'
+        }
+        @{
+            Name = 'startupTimeLimit'
+            Path = 'processModel.startupTimeLimit'
+        }
 
         # Process Orphaning
-        @{Name = 'orphanActionExe';                Path = 'failure.orphanActionExe'}
-        @{Name = 'orphanActionParams';             Path = 'failure.orphanActionParams'}
-        @{Name = 'orphanWorkerProcess';            Path = 'failure.orphanWorkerProcess'}
+        @{
+            Name = 'orphanActionExe'
+            Path = 'failure.orphanActionExe'
+        }
+        @{
+            Name = 'orphanActionParams'
+            Path = 'failure.orphanActionParams'
+        }
+        @{
+            Name = 'orphanWorkerProcess'
+            Path = 'failure.orphanWorkerProcess'
+        }
 
         # Rapid-Fail Protection
-        @{Name = 'loadBalancerCapabilities';       Path = 'failure.loadBalancerCapabilities'}
-        @{Name = 'rapidFailProtection';            Path = 'failure.rapidFailProtection'}
-        @{Name = 'rapidFailProtectionInterval';    Path = 'failure.rapidFailProtectionInterval'}
-        @{Name = 'rapidFailProtectionMaxCrashes';  Path = 'failure.rapidFailProtectionMaxCrashes'}
-        @{Name = 'autoShutdownExe';                Path = 'failure.autoShutdownExe'}
-        @{Name = 'autoShutdownParams';             Path = 'failure.autoShutdownParams'}
+        @{
+            Name = 'loadBalancerCapabilities'
+            Path = 'failure.loadBalancerCapabilities'
+        }
+        @{
+            Name = 'rapidFailProtection'
+            Path = 'failure.rapidFailProtection'
+        }
+        @{
+            Name = 'rapidFailProtectionInterval'
+            Path = 'failure.rapidFailProtectionInterval'
+        }
+        @{
+            Name = 'rapidFailProtectionMaxCrashes'
+            Path = 'failure.rapidFailProtectionMaxCrashes'
+        }
+        @{
+            Name = 'autoShutdownExe'
+            Path = 'failure.autoShutdownExe'
+        }
+        @{
+            Name = 'autoShutdownParams'
+            Path = 'failure.autoShutdownParams'
+        }
 
         # Recycling
-        @{Name = 'disallowOverlappingRotation';    Path = 'recycling.disallowOverlappingRotation'}
-        @{Name = 'disallowRotationOnConfigChange'; Path = 'recycling.disallowRotationOnConfigChange'}
-        @{Name = 'logEventOnRecycle';              Path = 'recycling.logEventOnRecycle'}
-        @{Name = 'restartMemoryLimit';             Path = 'recycling.periodicRestart.memory'}
-        @{Name = 'restartPrivateMemoryLimit';      Path = 'recycling.periodicRestart.privateMemory'}
-        @{Name = 'restartRequestsLimit';           Path = 'recycling.periodicRestart.requests'}
-        @{Name = 'restartTimeLimit';               Path = 'recycling.periodicRestart.time'}
-        @{Name = 'restartSchedule';                Path = 'recycling.periodicRestart.schedule'}
+        @{
+            Name = 'disallowOverlappingRotation'
+            Path = 'recycling.disallowOverlappingRotation'
+        }
+        @{
+            Name = 'disallowRotationOnConfigChange'
+            Path = 'recycling.disallowRotationOnConfigChange'
+        }
+        @{
+            Name = 'logEventOnRecycle'
+            Path = 'recycling.logEventOnRecycle'
+        }
+        @{
+            Name = 'restartMemoryLimit'
+            Path = 'recycling.periodicRestart.memory'
+        }
+        @{
+            Name = 'restartPrivateMemoryLimit'
+            Path = 'recycling.periodicRestart.privateMemory'
+        }
+        @{
+            Name = 'restartRequestsLimit'
+            Path = 'recycling.periodicRestart.requests'
+        }
+        @{
+            Name = 'restartTimeLimit'
+            Path = 'recycling.periodicRestart.time'
+        }
+        @{
+            Name = 'restartSchedule'
+            Path = 'recycling.periodicRestart.schedule'
+        }
     )
 }
 
