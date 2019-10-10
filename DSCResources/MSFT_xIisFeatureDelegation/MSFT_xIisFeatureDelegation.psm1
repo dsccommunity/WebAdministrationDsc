@@ -4,18 +4,8 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        GetOverrideMode           = Getting override mode for '{0}'.
-        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
-        UnableToGetConfig         = Unable to get configuration data for '{0}'.
-        VerboseGetTargetResource  = Get-TargetResource has been run.
-        VerboseSetTargetResource  = Changed overrideMode for '{0}' to '{1}'.
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xIisFeatureDelegation'
 
 <#
     .SYNOPSIS
@@ -56,7 +46,7 @@ function Get-TargetResource
 
     [String] $currentOverrideMode = Get-OverrideMode -Filter $Filter -Path $Path
 
-    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
     return @{
         Path         = $Path
@@ -101,7 +91,7 @@ function Set-TargetResource
         $Path
     )
 
-     Write-Verbose -Message ( $LocalizedData.VerboseSetTargetResource -f $Filter, $OverrideMode )
+     Write-Verbose -Message ( $script:localizedData.VerboseSetTargetResource -f $Filter, $OverrideMode )
 
      Set-WebConfiguration -Filter $Filter -PsPath $Path -Metadata 'overrideMode' -Value $OverrideMode
 }
@@ -188,7 +178,7 @@ function Get-OverrideMode
 
     Assert-Module
 
-    Write-Verbose -Message ( $LocalizedData.GetOverrideMode -f $Filter )
+    Write-Verbose -Message ( $script:localizedData.GetOverrideMode -f $Filter )
 
     $webConfig = Get-WebConfiguration -PsPath $Path -Filter $Filter -Metadata
 
@@ -196,7 +186,7 @@ function Get-OverrideMode
 
     if ($currentOverrideMode -notmatch "^(Allow|Deny)$")
     {
-        $errorMessage = $($LocalizedData.UnableToGetConfig) -f $Filter
+        $errorMessage = $($script:localizedData.UnableToGetConfig) -f $Filter
         New-TerminatingError -ErrorId UnableToGetConfig `
                              -ErrorMessage $errorMessage `
                              -ErrorCategory:InvalidResult
