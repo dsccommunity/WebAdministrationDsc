@@ -7,9 +7,6 @@ Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath '
 # Import Localization Strings 
 $script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebSiteDefaults' 
 
-# Import Localization Strings
-$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebSiteDefaults'
-
 function Get-TargetResource
 {
     <#
