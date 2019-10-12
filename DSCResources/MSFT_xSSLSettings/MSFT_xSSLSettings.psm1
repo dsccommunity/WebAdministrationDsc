@@ -4,18 +4,8 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        UnableToFindConfig       = Unable to find configuration in AppHost Config.
-        SettingsslConfig         = Setting {0} ssl binding to {1}.
-        sslBindingsCorrect       = ssl Bindings for {0} are correct.
-        sslBindingsAbsent        = ssl Bindings for {0} are absent.
-        VerboseGetTargetResource = Get-TargetResource has been run.
-'@
-}
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xSslSettings'
 
 <#
         .SYNOPSIS
@@ -61,13 +51,13 @@ function Get-TargetResource
     }
     catch [Exception]
     {
-        $errorMessage = $LocalizedData.UnableToFindConfig
+        $errorMessage = $script:localizedData.UnableToFindConfig
         New-TerminatingError -ErrorId 'UnableToFindConfig'`
                              -ErrorMessage  $errorMessage`
                              -ErrorCategory 'InvalidResult'
     }
 
-    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
     return @{
         Name = $Name
@@ -110,7 +100,7 @@ function Set-TargetResource
             Value    = ''
         }
 
-        Write-Verbose -Message ($LocalizedData.SettingsslConfig -f $Name, 'None')
+        Write-Verbose -Message ($script:localizedData.SettingsslConfig -f $Name, 'None')
         Set-WebConfigurationProperty @params
     }
 
@@ -125,7 +115,7 @@ function Set-TargetResource
             Value    = $sslBindings
         }
 
-        Write-Verbose -Message ($LocalizedData.SettingsslConfig -f $Name, $params.Value)
+        Write-Verbose -Message ($script:localizedData.SettingsslConfig -f $Name, $params.Value)
         Set-WebConfigurationProperty @params
     }
 }
@@ -163,14 +153,14 @@ function Test-TargetResource
                                   -PassThru
         if ($null -eq $sslComp)
         {
-            Write-Verbose -Message ($LocalizedData.sslBindingsCorrect -f $Name)
+            Write-Verbose -Message ($script:localizedData.sslBindingsCorrect -f $Name)
             return $true;
         }
     }
 
     if ($Ensure -eq 'Absent' -and $sslSettings.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message ($LocalizedData.sslBindingsAbsent -f $Name)
+        Write-Verbose -Message ($script:localizedData.sslBindingsAbsent -f $Name)
         return $true;
     }
 
