@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xWebAppPool
+  - Moved MSFT_xWebAppPool localization strings to strings.psd1 ([issue #469](https://github.com/PowerShell/xWebAdministration/issues/469)).
 - Changes to xWebAdministration
   - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
