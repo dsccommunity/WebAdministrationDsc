@@ -3,30 +3,30 @@ configuration Sample_xWebsite_NewWebsite
     param
     (
         # Target nodes to apply the configuration
-        [String[]] 
+        [String[]]
         $NodeName = 'localhost',
 
         # Name of the website to create
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] 
+        [String]
         $WebSiteName,
 
         # Optional Site Id for the website
         [Parameter()]
-        [UInt32] 
+        [UInt32]
         $SiteId,
 
         # Source Path for Website content
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] 
+        [String]
         $SourcePath,
 
         # Destination path for Website content
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [String] 
+        [String]
         $DestinationPath
     )
 
