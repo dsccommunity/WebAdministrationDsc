@@ -14,8 +14,6 @@
   - Moved examples from Readme.md to respective `/Examples/Resources/`
     folders ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486)).
   - Created new folder structure for examples so that examples will be
-    placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483))
-  - Examples appropriately added/updated. ([issue #490](https://github.com/PowerShell/xWebAdministration/pull/490))
     placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483)).
   - Added a table of contents for the resource list ([issue #450](https://github.com/PowerShell/xWebAdministration/issues/450)).
   - Alphabetized the resource list in the README.md ([issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
@@ -36,8 +34,6 @@
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a
   single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
-- Changes to xWebSiteDefaults
-  - Added xWebSiteDefaults: Moved localization strings to strings.psd1 file ([#494](https://github.com/PowerShell/xWebAdministration/pull/494))
   - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #464](https://github.com/PowerShell/xWebAdministration/issues/464)).
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
