@@ -5,7 +5,7 @@
         Fortunately, using DSC, adding another website is as simple as using the File and xWebsite resources to
         copy the website content and configure the website.
 #>
-Configuration Sample_xWebsite_NewWebsite
+Configuration Sample_xWebsite_NewWebsite_UsingCertificateThumbprint
 {
     param
     (
