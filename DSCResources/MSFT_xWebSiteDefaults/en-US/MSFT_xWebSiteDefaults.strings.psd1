@@ -5,4 +5,3 @@ ConvertFrom-StringData -StringData @'
     ValueOk                   = Default Value '{0}' is already '{1}'
     VerboseGetTargetResource  = Get-TargetResource has been run.
 '@
-
