@@ -1,4 +1,4 @@
-configuration Sample_xWebsite_NewWebsite
+configuration Sample_xWebSite_NewWebsite
 {
     param
     (
@@ -50,7 +50,7 @@ configuration Sample_xWebsite_NewWebsite
         }
 
         # Stop the default website
-        xWebsite DefaultSite
+        xWebSite DefaultSite
         {
             Ensure          = 'Present'
             Name            = 'Default Web Site'
@@ -72,7 +72,7 @@ configuration Sample_xWebsite_NewWebsite
         }
 
         # Create the new Website
-        xWebsite NewWebsite
+        xWebSite NewWebsite
         {
             Ensure          = 'Present'
             Name            = $WebSiteName

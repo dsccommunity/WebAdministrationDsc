@@ -25,7 +25,7 @@
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
   - Moved MSFT_xIisHandler localization strings to strings.psd1 ([issue #463](https://github.com/PowerShell/xWebAdministration/issues/463)).
-- Changes to xWebsite
+- Changes to xWebSite
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
     a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
@@ -33,6 +33,7 @@
   - Updated schema.mof so that each property has an appropriate description ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
   - Updated schema.mof and README so that `SourceType` and `SourceName` properties for `MSFT_xLogCustomFieldInformation` are associated with the appropriate descriptions and valuemaps/values ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
   - Move examples from README.md to resource examples folder ([issue #487](https://github.com/PowerShell/xWebAdministration/issues/487)).
+  - Fix case of resource name from `xWebsite` to `xWebSite` ([issue #535](https://github.com/PowerShell/xWebAdministration/issues/535)).
 - Changes to xIISLogging
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
   array of strings (one for each flag) rather than an array containing a

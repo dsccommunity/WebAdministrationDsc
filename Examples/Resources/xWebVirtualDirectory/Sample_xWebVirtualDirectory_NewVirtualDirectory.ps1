@@ -40,7 +40,7 @@ configuration Sample_xWebVirtualDirectory_NewVirtualDirectory
         }
 
         # Start the default website
-        xWebsite DefaultSite
+        xWebSite DefaultSite
         {
             Ensure       = 'Present'
             Name         = 'Default Web Site'

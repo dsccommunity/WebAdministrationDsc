@@ -12,7 +12,7 @@ else
     $env:PesterVirtualDirectoryDefaults = "true"
 }
 
-configuration MSFT_xWebsiteDefaults_Config
+configuration MSFT_xWebSiteDefaults_Config
 {
     Import-DscResource -ModuleName xWebAdministration
 

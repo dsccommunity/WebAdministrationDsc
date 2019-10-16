@@ -1,6 +1,6 @@
 
 $script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebsite'
+$script:DSCResourceName = 'MSFT_xWebSite'
 
 #region HEADER
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -23,7 +23,7 @@ try
 {
     #region Pester Tests
     InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        $script:DSCResourceName = 'MSFT_xWebsite'
+        $script:DSCResourceName = 'MSFT_xWebSite'
 
         # Make sure we don't have the original module in memory.
         Remove-Module -Name 'WebAdministration' -ErrorAction SilentlyContinue
