@@ -41,6 +41,8 @@
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
     ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
+  - Updated casing of `xSslSettings` in all file names, folder names, schema, and documentation
+    ([issue #536](https://github.com/PowerShell/xWebAdministration/issues/536)).
   - Moved MSFT_xSslSettings localization strings to strings.psd1 ([issue #467](https://github.com/PowerShell/xWebAdministration/issues/467)).
 - Changes to xWebConfigKeyValue
   - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).

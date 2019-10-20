@@ -72,7 +72,7 @@ the module.
 * [xIisHandler (DEPRECATED)](#xiishandler-deprecated)
 * [xIisMimeTypeMapping](#xiismimetypemapping)
 * [xIISModule](#xiismodule)
-* [xSSLSettings](#xsslsettings)
+* [xSslSettings](#xsslsettings)
 * [xWebApplication](#xwebapplication)
 * [xWebAppPool](#xwebapppool)
 * [xWebAppPoolDefaults](#xwebapppooldefaults)
