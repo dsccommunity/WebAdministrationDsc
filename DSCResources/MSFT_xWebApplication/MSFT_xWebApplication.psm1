@@ -555,12 +555,12 @@ function Export-TargetResource
                 {
                     Remove-Variable -Name location -ErrorAction SilentlyContinue
                     Remove-Variable -Name prop -ErrorAction SilentlyContinue
-                    $location = "$($website.Name)' + '$($webapplication.Path)"
+                    $location = $website.Name + $webapplication.Path
                     $prop = Get-WebConfigurationProperty `
-                    -Filter /system.WebServer/security/authentication/$authenticationtype `
-                    -Name enabled `
+                    -Filter "/system.WebServer/security/authentication/$authenticationtype" `
+                    -Name 'enabled' `
                     -PSPath "IIS:\Sites\$location"
-                    Write-Verbose '$authenticationtype : $($prop.Value)'
+                    Write-Verbose "$authenticationtype : $($prop.Value)"
                     [void]$authSb.AppendLine("                $($authenticationtype.Replace('Authentication','')) = `$" + $prop.Value)
                 }
                 [void]$authSb.AppendLine('            }')
