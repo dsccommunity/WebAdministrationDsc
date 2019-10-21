@@ -224,8 +224,8 @@ function Export-TargetResource
     $i = 1
     foreach($website in $webSites)
     {
-        Write-Information '    [$i/$($webSites.Count)] Getting Virtual Directories from WebSite {$($website.Name)}'
-        Write-Verbose 'WebSite: $($website.name)'
+        Write-Information "    [$i/$($webSites.Count)] Getting Virtual Directories from WebSite {$($website.Name)}"
+        Write-Verbose "WebSite: $($website.name)"
         $webVirtualDirectories = Get-WebVirtualDirectory -Site $website.name
 
         if($webVirtualDirectories)
@@ -233,12 +233,19 @@ function Export-TargetResource
             $j =1
             foreach($webvirtualdirectory in $webVirtualDirectories)
             {
-                Write-Information '        [$j/$($webVirtualDirectories.Count)] $($webvirtualdirectory.PhysicalPath)'
-                Write-Verbose 'WebSite/VirtualDirectory: $($website.name)$($webvirtualdirectory.PhysicalPath)'
+                Write-Information "        [$j/$($webVirtualDirectories.Count)] $($webvirtualdirectory.PhysicalPath)"
+                Write-Verbose "WebSite/VirtualDirectory: $($website.name)$($webvirtualdirectory.PhysicalPath)"
                 $params = Get-DSCFakeParameters -ModulePath $PSScriptRoot
 
                 <# Setting Primary Keys #>
-                $params.Name = $webvirtualdirectory.Name
+                if ($null -ne $webvirtualdirectory.Name)
+                {
+                    $params.Name = $webvirtualdirectory.Name
+                }
+                else
+                {
+                    $params.Name = $webvirtualdirectory.Path
+                }
                 $params.PhysicalPath = $webvirtualdirectory.PhysicalPath
                 $params.WebApplication = ''
                 $params.Website = $website.Name
@@ -252,11 +259,11 @@ function Export-TargetResource
                 Write-Verbose 'All Parameters with values'
                 $results | ConvertTo-Json | Write-Verbose
 
-                [void]$sb.AppendLine('            xWebVirtualDirectory ' + (New-Guid).ToString())
-                [void]$sb.AppendLine('            {')
-                $dscBlock += Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+                [void]$sb.AppendLine('        xWebVirtualDirectory ' + (New-Guid).ToString())
+                [void]$sb.AppendLine('        {')
+                $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
                 [void]$sb.Append($dscBlock)
-                [void]$sb.AppendLine('            }')
+                [void]$sb.AppendLine('        }')
                 $j++
             }
         }

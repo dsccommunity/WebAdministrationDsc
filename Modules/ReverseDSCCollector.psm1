@@ -25,6 +25,17 @@ function Export-WebAdministrationConfiguration
     [void]$sb.AppendLine("    }")
     [void]$sb.AppendLine("}")
 
+    [void]$sb.AppendLine("`$cd = @{")
+    [void]$sb.AppendLine("    AllNodes = @(")
+    [void]$sb.AppendLine("        @{")
+    [void]$sb.AppendLine("            NodeName = 'localhost'")
+    [void]$sb.AppendLine("            PSDSCAllowPlaintextPassword = `$true")
+    [void]$sb.AppendLine("        }")
+    [void]$sb.AppendLine("    )")
+    [void]$sb.AppendLine("}")
+    
+    [void]$sb.AppendLine("WebAdministrationConfiguration -ConfigurationData `$cd")
+
     #region Prompt the user for a location to save the extract and generate the files
     if ($null -eq $Path -or "" -eq $Path)
     {

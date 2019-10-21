@@ -134,6 +134,7 @@ function Export-TargetResource
         ApplyTo = 'Machine'
     }
     $results = Get-TargetResource @params
+    $results.Add('ApplyTo', 'Machine')
 
     [void]$sb.AppendLine('        xWebAppPoolDefaults ' + (New-Guid).ToString())
     [void]$sb.AppendLine('        {')

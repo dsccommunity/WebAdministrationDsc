@@ -1152,7 +1152,7 @@ function Export-TargetResource
             $bindingContent = [System.Text.StringBuilder]::new()
             [void]$bindingContent.AppendLine('MSFT_xWebBindingInformation')
             [void]$bindingContent.AppendLine('            {')
-            [void]$bindingContent.AppendLine("                Protocol = `"$($binding.Protocol)`"")
+            [void]$bindingContent.AppendLine("                Protocol = '$($binding.Protocol)'")
             [void]$bindingContent.AppendLine("                SslFlags = $($binding.sslFlags)")
 
             if ($binding.protocol -match '^http')
@@ -1161,21 +1161,24 @@ function Export-TargetResource
                 $ipAddress = $bindingInfo[0]
                 $port = $bindingInfo[1]
                 $hostName = $bindingInfo[2]
-                [void]$bindingContent.AppendLine("                IPAddress = `"$ipAddress`"")
+                [void]$bindingContent.AppendLine("                IPAddress = '$ipAddress'")
                 [void]$bindingContent.AppendLine("                Port = $port")
-                [void]$bindingContent.AppendLine("                Hostname = `"$hostName`"")
+                if (-not [System.String]::IsNullOrEmpty($hostName))
+                {
+                    [void]$bindingContent.AppendLine("                Hostname = '$hostName'")
+                }
                 if ($binding.CertificateStoreName -eq 'My' -or $binding.CertificateStoreName -eq 'WebHosting')
                 {
                     if ($null -ne $binding.CertificateHash -and '' -ne $binding.CertificateHash)
                     {
-                        [void]$bindingContent.AppendLine("                CertificateThumbprint = `"$($binding.CertificateHash)`"")
+                        [void]$bindingContent.AppendLine("                CertificateThumbprint = '$($binding.CertificateHash)'")
                     }
-                    [void]$bindingContent.AppendLine("                CertificateStoreName = `"$($binding.CertificateStoreName)`"")
+                    [void]$bindingContent.AppendLine("                CertificateStoreName = '$($binding.CertificateStoreName)'")
                 }
             }
             else
             {
-                [void]$bindingContent.AppendLine("                BindingInformation = `"$($binding.bindingInformation)`"")
+                [void]$bindingContent.AppendLine("                BindingInformation = '$($binding.bindingInformation)'")
             }
 
             [void]$bindingContent.AppendLine('            }')
@@ -1221,12 +1224,23 @@ function Export-TargetResource
         $results.AuthenticationInfo = $authSB.ToString()
         $results.LogFlags = $results.LogFlags.Split(',')
 
+        if ($null -eq $results.ServiceAutoStartProvider)
+        {
+            $results.Remove("ServiceAutoStartProvider")
+        }
+        if ([System.String]::IsNullOrEmpty($results.LogCustomFields))
+        {
+            $results.Remove("LogCustomFields")
+        }
+
         Write-Verbose 'All Parameters with values'
         $results | ConvertTo-Json | Write-Verbose
 
         [void]$sb.AppendLine('        xWebSite ' + (New-Guid).ToString())
         [void]$sb.AppendLine('        {')
         $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
+        $dscBlock = Convert-DSCStringParamToVariable -DSCBlock $dscBlock -ParameterName "BindingInfo" -ISCIMArray $true
+        $dscBlock = Convert-DSCStringParamToVariable -DSCBlock $dscBlock -ParameterName "AuthenticationInfo" -ISCIMArray $true
         [void]$sb.Append($dscBlock)
         [void]$sb.AppendLine('        }')
     }

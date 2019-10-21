@@ -270,6 +270,8 @@ function Export-TargetResource
                 Key            = $key.Key
             }
             $results = Get-TargetResource @params
+            $results.Add('WebsitePath', "IIS:/Sites/$($site.Name)")
+            $results.Add('ConfigSection', 'AppSettings')
 
             [void]$sb.AppendLine('        xWebConfigKeyValue ' + (New-Guid).ToString())
             [void]$sb.AppendLine('        {')

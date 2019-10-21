@@ -1012,7 +1012,6 @@ function Export-TargetResource
 
         Write-Verbose 'All Parameters with values'
         $results | ConvertTo-Json | Write-Verbose
-
         [void]$sb.AppendLine('        xWebAppPool ' + (New-Guid).ToString())
         [void]$sb.AppendLine('        {')
         $dscBlock = Get-DSCBlock -Params $results -ModulePath $PSScriptRoot
