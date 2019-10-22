@@ -2,6 +2,11 @@ function Export-WebAdministrationConfiguration
 {
     [CmdletBinding()]
     [OutputType([System.String])]
+    param(
+        [Parameter()]
+        [System.String]
+        $Path
+    )
 
     $sb = [System.Text.StringBuilder]::new()
     [void]$sb.AppendLine("Configuration WebAdministrationConfiguration")
@@ -33,7 +38,7 @@ function Export-WebAdministrationConfiguration
     [void]$sb.AppendLine("        }")
     [void]$sb.AppendLine("    )")
     [void]$sb.AppendLine("}")
-    
+
     [void]$sb.AppendLine("WebAdministrationConfiguration -ConfigurationData `$cd")
 
     #region Prompt the user for a location to save the extract and generate the files
