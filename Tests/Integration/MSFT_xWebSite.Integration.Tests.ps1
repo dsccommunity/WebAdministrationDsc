@@ -1,5 +1,5 @@
 $script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebsite'
+$script:DSCResourceName = 'MSFT_xWebSite'
 
 #region HEADER
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)

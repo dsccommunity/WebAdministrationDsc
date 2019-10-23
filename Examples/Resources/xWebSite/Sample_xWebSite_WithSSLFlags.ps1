@@ -1,4 +1,4 @@
-configuration Sample_xWebsite_WithSSLFlags
+configuration Sample_xWebSite_WithSSLFlags
 {
     param
     (
@@ -41,7 +41,7 @@ configuration Sample_xWebsite_WithSSLFlags
         }
 
         # Stop the default website
-        xWebsite DefaultSite
+        xWebSite DefaultSite
         {
             Ensure          = "Present"
             Name            = "Default Web Site"
@@ -65,7 +65,7 @@ configuration Sample_xWebsite_WithSSLFlags
         # Create the new Website
         # Have it set to the CertificateThumbprint
         # and set that the Server Name Indication is required
-        xWebsite NewWebsite
+        xWebSite NewWebsite
         {
             Ensure          = "Present"
             Name            = $WebSiteName

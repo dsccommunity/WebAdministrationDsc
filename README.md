@@ -79,7 +79,7 @@ the module.
 * [xWebConfigKeyValue (DEPRECATED)](#xwebconfigkeyvalue-deprecated)
 * [xWebConfigProperty](#xwebconfigproperty)
 * [xWebConfigPropertyCollection](#xwebconfigpropertycollection)
-* [xWebsite](#xwebsite)
+* [xWebSite](#xwebsite)
 * [xWebSiteDefaults](#xwebsitedefaults)
 * [xWebVirtualDirectory](#xwebvirtualdirectory)
 
@@ -119,7 +119,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### xIISLogging
 
-**Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebsite**
+**Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebSite**
 
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`
@@ -307,7 +307,7 @@ Ensures the value of an identified property collection item's property in the we
 * **ItemPropertyValue**: Value of the property of the property collection item to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
-### xWebsite
+### xWebSite
 
 * **Name** : The desired name of the website.
 * **SiteId** : Optional. The desired IIS site Id for the website.

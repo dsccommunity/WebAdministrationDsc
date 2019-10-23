@@ -1,4 +1,4 @@
-configuration Sample_xWebsite_RemoveDefault
+configuration Sample_xWebSite_RemoveDefault
 {
     param
     (
@@ -19,7 +19,7 @@ configuration Sample_xWebsite_RemoveDefault
         }
 
         # Stop the default website
-        xWebsite DefaultSite
+        xWebSite DefaultSite
         {
             Ensure          = 'Present'
             Name            = 'Default Web Site'

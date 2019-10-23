@@ -1,5 +1,5 @@
-[ClassVersion("2.0.0"), FriendlyName("xWebsite")]
-class MSFT_xWebsite : OMI_BaseResource
+[ClassVersion("2.0.0"), FriendlyName("xWebSite")]
+class MSFT_xWebSite : OMI_BaseResource
 {
     [Write, Description("Ensures that the website is Present or Absent. Defaults to Present."), ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
     [Key, Description("The desired name of the website.")] String Name;
