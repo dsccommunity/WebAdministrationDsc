@@ -24,8 +24,9 @@
   - Updated hashtables in the repo to adhere to the style guidelines
     described at https://github.com/PowerShell/DscResources/blob/master/StyleGuidelines.md#correct-format-for-hashtables-or-objects
     ([issue #524](https://github.com/PowerShell/xWebAdministration/issues/524))
-  - Moved example Sample_EndToEndxWebAdministration from readme.md to a
+  - Moved example Sample\_EndToEndxWebAdministration from README.md to a
     separate .ps1 in `/examples/` ([issue #491](https://github.com/PowerShell/xWebAdministration/issues/491))
+  - Moved example Sample\_EndToEnd\_RegisterPhp.ps1 from README.md to its own .ps1 file under `/examples` ([issue #485](https://github.com/PowerShell/xWebAdministration/issues/485))
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
   - Moved MSFT_xIisHandler localization strings to strings.psd1 ([issue #463](https://github.com/PowerShell/xWebAdministration/issues/463)).
