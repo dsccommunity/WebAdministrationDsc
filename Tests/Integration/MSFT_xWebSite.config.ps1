@@ -1,6 +1,6 @@
 #requires -Version 4
 
-configuration MSFT_xWebsite_Present_Started
+configuration MSFT_xWebSite_Present_Started
 {
     param(
 
@@ -13,7 +13,7 @@ configuration MSFT_xWebsite_Present_Started
 
     Node $AllNodes.NodeName
     {
-        xWebsite Website
+        xWebSite Website
         {
             Name = $Node.Website
             SiteId = $Node.SiteId
@@ -91,7 +91,7 @@ configuration MSFT_xWebsite_Present_Started
     }
 }
 
-configuration MSFT_xWebsite_Present_Stopped
+configuration MSFT_xWebSite_Present_Stopped
 {
     param(
 
@@ -104,7 +104,7 @@ configuration MSFT_xWebsite_Present_Stopped
 
     Node $AllNodes.NodeName
     {
-        xWebsite Website
+        xWebSite Website
         {
             Name = $Node.Website
             Ensure = 'Present'
@@ -180,13 +180,13 @@ configuration MSFT_xWebsite_Present_Stopped
     }
 }
 
-configuration MSFT_xWebsite_Absent
+configuration MSFT_xWebSite_Absent
 {
     Import-DscResource -ModuleName xWebAdministration
 
     Node $AllNodes.NodeName
     {
-        xWebsite Website
+        xWebSite Website
         {
             Name = $Node.Website
             Ensure = 'Absent'
@@ -194,7 +194,7 @@ configuration MSFT_xWebsite_Absent
     }
 }
 
-configuration MSFT_xWebsite_Webconfig_Get_Test_Set
+configuration MSFT_xWebSite_Webconfig_Get_Test_Set
 {
     param(
 
@@ -230,7 +230,7 @@ configuration MSFT_xWebsite_Webconfig_Get_Test_Set
             </configuration>'
         }
 
-        xWebsite Website
+        xWebSite Website
         {
             DependsOn = '[File]WebConfig'
             Name = $Node.Website

@@ -1,4 +1,4 @@
-Configuration Sample_xWebsite_NewWebsiteFromConfigurationData
+Configuration Sample_xWebSite_NewWebsiteFromConfigurationData
 {
     # Import the module that defines custom resources
     Import-DscResource -Module xWebAdministration, PSDesiredStateConfiguration
@@ -20,8 +20,8 @@ Configuration Sample_xWebsite_NewWebsiteFromConfigurationData
             Name            = 'Web-Asp-Net45'
         }
 
-        # Stop an existing website (set up in Sample_xWebsite_Default)
-        xWebsite DefaultSite
+        # Stop an existing website (set up in Sample_xWebSite_Default)
+        xWebSite DefaultSite
         {
             Ensure          = 'Present'
             Name            = 'Default Web Site'
@@ -43,7 +43,7 @@ Configuration Sample_xWebsite_NewWebsiteFromConfigurationData
         }
 
         # Create a new website
-        xWebsite BakeryWebSite
+        xWebSite BakeryWebSite
         {
             Ensure          = 'Present'
             Name            = $Node.WebsiteName

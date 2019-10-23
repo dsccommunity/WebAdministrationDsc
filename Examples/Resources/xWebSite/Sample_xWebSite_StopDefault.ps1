@@ -4,7 +4,7 @@
         This example sets up your IIS web server by installing IIS Windows Feature.
         After that, it will stop the default website by setting `State = Stopped`.
 #>
-Configuration Sample_xWebsite_StopDefault
+Configuration Sample_xWebSite_StopDefault
 {
     param
     (
@@ -22,7 +22,7 @@ Configuration Sample_xWebsite_StopDefault
             Name   = "Web-Server"
         }
         # Stop the default website
-        xWebsite DefaultSite
+        xWebSite DefaultSite
         {
             Ensure       = "Present"
             Name         = "Default Web Site"

@@ -38,7 +38,7 @@ Configuration Sample_xWebApplication_NewWebApplication
         }
 
         # Start the Default Web Site
-        xWebsite DefaultSite
+        xWebSite DefaultSite
         {
             Ensure                  = 'Present'
             Name                    = 'Default Web Site'
@@ -83,7 +83,7 @@ Configuration Sample_xWebApplication_NewWebApplication
             }
             SslFlags                = ''
             PhysicalPath            = $DestinationPath
-            DependsOn               = '[xWebsite]DefaultSite','[xWebAppPool]SampleAppPool'
+            DependsOn               = '[xWebSite]DefaultSite','[xWebAppPool]SampleAppPool'
         }
     }
 }
