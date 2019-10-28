@@ -26,6 +26,8 @@
     ([issue #524](https://github.com/PowerShell/xWebAdministration/issues/524))
   - Moved example Sample_EndToEndxWebAdministration from readme.md to a
     separate .ps1 in `/examples/` ([issue #491](https://github.com/PowerShell/xWebAdministration/issues/491))
+  - Removed example 'Create and configure an application pool' from
+    README.md ([issue #489](https://github.com/PowerShell/xWebAdministration/issues/489)).
 - Changes to xIisHandler
   - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
   - Moved MSFT_xIisHandler localization strings to strings.psd1 ([issue #463](https://github.com/PowerShell/xWebAdministration/issues/463)).
