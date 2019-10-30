@@ -1,17 +1,12 @@
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
-        SettingValue              = Changing default Value '{0}' to '{1}'
-        ValueOk                   = Default Value '{0}' is already '{1}'
-        VerboseGetTargetResource  = Get-TargetResource has been run.
-'@
-}
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
+
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebSiteDefaults'
+
 function Get-TargetResource
 {
     <#
@@ -24,21 +19,21 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Machine')]
+        [ValidateSet('Yes')]
         [String]
-        $ApplyTo
+        $IsSingleInstance
     )
 
     Assert-Module
 
-    Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+    Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
     return @{
         LogFormat              = (Get-Value 'siteDefaults/logFile' 'logFormat')
         TraceLogDirectory      = ( Get-Value 'siteDefaults/traceFailedRequestsLogging' 'directory')
         DefaultApplicationPool = (Get-Value 'applicationDefaults' 'applicationPool')
         AllowSubDirConfig      = (Get-Value 'virtualDirectoryDefaults' 'allowSubDirConfig')
-        ApplyTo                = 'Machine'
+        IsSingleInstance       = 'Yes'
         LogDirectory           = (Get-Value 'siteDefaults/logFile' 'directory')
     }
 
@@ -61,8 +56,8 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Machine')]
-        [String] $ApplyTo,
+        [ValidateSet('Yes')]
+        [String] $IsSingleInstance,
 
         [Parameter()]
         [ValidateSet('W3C','IIS','NCSA','Custom')]
@@ -105,8 +100,8 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Machine')]
-        [String] $ApplyTo,
+        [ValidateSet('Yes')]
+        [String] $IsSingleInstance,
 
         [Parameter()]
         [ValidateSet('W3C','IIS','NCSA','Custom')]
@@ -200,7 +195,7 @@ function Confirm-Value
     else
     {
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.ValueOk -f $relPath,$NewValue);
+        Write-Verbose($script:localizedData.ValueOk -f $relPath,$NewValue);
         return $true
     }
 
@@ -236,7 +231,7 @@ function Set-Value
                                      -Name $Name `
                                      -Value "$NewValue"
         $relPath = $Path + '/' + $Name
-        Write-Verbose($LocalizedData.SettingValue -f $relPath,$NewValue);
+        Write-Verbose($script:localizedData.SettingValue -f $relPath,$NewValue);
     }
 
 }

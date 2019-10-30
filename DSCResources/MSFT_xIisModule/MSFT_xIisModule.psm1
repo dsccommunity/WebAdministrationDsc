@@ -1,27 +1,12 @@
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        VerboseGetTargetResource                               = Get-TargetResource has been run.
-        VerboseSetTargetRemoveHandler                          = Removing handler
-        VerboseSetTargetAddHandler                             = Adding handler.
-        VerboseSetTargetAddfastCgi                             = Adding fastCgi.
-        VerboseTestTargetResource                              = Get-TargetResource has been run.
-        VerboseGetIisHandler                                   = Getting Handler for {0} in Site {1}
-        VerboseTestTargetResourceImplVerb                      = Matched Verb {0}
-        VerboseTestTargetResourceImplExtraVerb                 = Extra Verb {0}
-        VerboseTestTargetResourceImplRequestPath               = RequestPath is {0}
-        VerboseTestTargetResourceImplPath                      = Path is {0}
-        VerboseTestTargetResourceImplresourceStatusRequestPath = StatusRequestPath is {0}
-        VerboseTestTargetResourceImplresourceStatusPath        = StatusPath is {0}
-        VerboseTestTargetResourceImplModulePresent             = Module present is {0}
-        VerboseTestTargetResourceImplModuleConfigured          = ModuleConfigured is {0}
-'@
-}
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
+
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xIisModule'
+
 function Get-TargetResource
 {
     <#
@@ -62,32 +47,32 @@ function Get-TargetResource
 
         $handler = Get-IisHandler -Name $Name -SiteName $SiteName
 
-        if($handler )
+        if ($handler )
         {
             $Ensure = 'Present'
             $modulePresent = $true;
         }
 
-        foreach($thisVerb  in $handler.Verb)
+        foreach ($thisVerb  in $handler.Verb)
         {
             $currentVerbs += $thisVerb
         }
 
         $fastCgiSetup = $false
 
-        if($handler.Modules -eq 'FastCgiModule')
+        if ($handler.Modules -eq 'FastCgiModule')
         {
             $fastCgi = Get-WebConfiguration /system.webServer/fastCgi/* `
                         -PSPath (Get-IisSitePath `
                         -SiteName $SiteName) | `
                         Where-Object{$_.FullPath -ieq $handler.ScriptProcessor}
-            if($fastCgi)
+            if ($fastCgi)
             {
                 $fastCgiSetup = $true
             }
         }
 
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetResource
+        Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
         $returnValue = @{
             Path          = $handler.ScriptProcessor
@@ -141,22 +126,22 @@ function Set-TargetResource
     $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
     $resourceTests = Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus
-    if($resourceTests.Result)
+    if ($resourceTests.Result)
     {
         return
     }
 
-    if($Ensure -eq 'Present')
+    if ($Ensure -eq 'Present')
     {
-        if($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
+        if ($resourceTests.ModulePresent -and -not $resourceTests.ModuleConfigured)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
+            Write-Verbose -Message $script:localizedData.VerboseSetTargetRemoveHandler
             Remove-IisHandler
         }
 
-        if(-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
+        if (-not $resourceTests.ModulePresent -or -not $resourceTests.ModuleConfigured)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddHandler
+            Write-Verbose -Message $script:localizedData.VerboseSetTargetAddHandler
             Add-webconfiguration /system.webServer/handlers iis:\ -Value @{
                 Name = $Name
                 Path = $RequestPath
@@ -166,9 +151,9 @@ function Set-TargetResource
             }
         }
 
-        if(-not $resourceTests.EndPointSetup)
+        if (-not $resourceTests.EndPointSetup)
         {
-            Write-Verbose -Message $LocalizedData.VerboseSetTargetAddfastCgi
+            Write-Verbose -Message $script:localizedData.VerboseSetTargetAddfastCgi
             Add-WebConfiguration /system.webServer/fastCgi iis:\ -Value @{
                 FullPath = $Path
             }
@@ -176,7 +161,7 @@ function Set-TargetResource
     }
     else
     {
-        Write-Verbose -Message $LocalizedData.VerboseSetTargetRemoveHandler
+        Write-Verbose -Message $script:localizedData.VerboseSetTargetRemoveHandler
         Remove-IisHandler
     }
 }
@@ -220,7 +205,7 @@ function Test-TargetResource
     $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
 
-    Write-Verbose -Message $LocalizedData.VerboseTestTargetResource
+    Write-Verbose -Message $script:localizedData.VerboseTestTargetResource
 
     return (Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus).Result
 }
@@ -238,9 +223,9 @@ function Get-PSBoundParameters
     )
 
     [Hashtable] $getParameters = @{}
-    foreach($key in $FunctionParameters.Keys)
+    foreach ($key in $FunctionParameters.Keys)
     {
-        if($key -ine 'Ensure')
+        if ($key -ine 'Ensure')
         {
             $getParameters.Add($key, $FunctionParameters.$key) | Out-Null
         }
@@ -286,7 +271,7 @@ function Get-IisHandler
         [String] $SiteName
     )
 
-    Write-Verbose -Message ($LocalizedData.VerboseGetIisHandler -f $Name,$SiteName)
+    Write-Verbose -Message ($script:localizedData.VerboseGetIisHandler -f $Name,$SiteName)
     return Get-Webconfiguration -Filter 'System.WebServer/handlers/*' `
                                 -PSPath (Get-IisSitePath `
                                 -SiteName $SiteName) | `
@@ -314,7 +299,7 @@ function Remove-IisHandler
 
     $handler = Get-IisHandler @PSBoundParameters
 
-    if($handler)
+    if ($handler)
     {
         Clear-WebConfiguration -PSPath $handler.PSPath `
                                -Filter $handler.ItemXPath `
@@ -357,39 +342,39 @@ function Test-TargetResourceImpl
 
     $matchedVerbs = @()
     $mismatchVerbs =@()
-    foreach($thisVerb  in $resourceStatus.Verb)
+    foreach ($thisVerb  in $resourceStatus.Verb)
     {
-        if($Verb -icontains $thisVerb)
+        if ($Verb -icontains $thisVerb)
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplVerb `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplVerb `
                             -f $Verb)
             $matchedVerbs += $thisVerb
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplExtraVerb `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplExtraVerb `
                             -f $Verb)
             $mismatchVerbs += $thisVerb
         }
     }
 
     $modulePresent = $false
-    if($resourceStatus.Name.Length -gt 0)
+    if ($resourceStatus.Name.Length -gt 0)
     {
         $modulePresent = $true
     }
 
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplRequestPath `
+    Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplRequestPath `
                             -f $RequestPath)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplPath `
+    Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplPath `
                             -f $Path)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusRequestPath `
+    Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplresourceStatusRequestPath `
                             -f $($resourceStatus.RequestPath))
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplresourceStatusPath `
+    Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplresourceStatusPath `
                             -f $($resourceStatus.Path))
 
     $moduleConfigured = $false
-    if($modulePresent -and `
+    if ($modulePresent -and `
         $mismatchVerbs.Count -eq 0 -and `
         $matchedVerbs.Count-eq $Verb.Count -and `
         $resourceStatus.Path -eq $Path -and `
@@ -398,25 +383,25 @@ function Test-TargetResourceImpl
         $moduleConfigured = $true
     }
 
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModulePresent `
+    Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplModulePresent `
                             -f $ModulePresent)
-    Write-Verbose -Message ($LocalizedData.VerboseTestTargetResourceImplModuleConfigured `
+    Write-Verbose -Message ($script:localizedData.VerboseTestTargetResourceImplModuleConfigured `
                             -f $ModuleConfigured)
-    if($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
+    if ($moduleConfigured -and ($ModuleType -ne 'FastCgiModule' -or $resourceStatus.EndPointSetup))
     {
         return @{
-                    Result = $true
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
+            Result = $true
+            ModulePresent = $modulePresent
+            ModuleConfigured = $moduleConfigured
+        }
     }
     else
     {
         return @{
-                    Result = $false
-                    ModulePresent = $modulePresent
-                    ModuleConfigured = $moduleConfigured
-                }
+            Result = $false
+            ModulePresent = $modulePresent
+            ModuleConfigured = $moduleConfigured
+        }
     }
 }
 

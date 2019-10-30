@@ -1,96 +1,221 @@
 #requires -Version 4.0 -Modules CimCmdlets
 
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        ErrorAppCmdNonZeroExitCode        = AppCmd.exe has exited with error code "{0}".
-        VerboseAppPoolFound               = Application pool "{0}" was found.
-        VerboseAppPoolNotFound            = Application pool "{0}" was not found.
-        VerboseEnsureNotInDesiredState    = The "Ensure" state of application pool "{0}" does not match the desired state.
-        VerbosePropertyNotInDesiredState  = The "{0}" property of application pool "{1}" does not match the desired state.
-        VerboseCredentialToBeCleared      = Custom account credentials of application pool "{0}" need to be cleared because the "identityType" property is not set to "SpecificUser".
-        VerboseCredentialToBeIgnored      = The "Credential" property is only valid when the "identityType" property is set to "SpecificUser".
-        VerboseResourceInDesiredState     = The target resource is already in the desired state. No action is required.
-        VerboseResourceNotInDesiredState  = The target resource is not in the desired state.
-        VerboseNewAppPool                 = Creating application pool "{0}".
-        VerboseRemoveAppPool              = Removing application pool "{0}".
-        VerboseStartAppPool               = Starting application pool "{0}".
-        VerboseStopAppPool                = Stopping application pool "{0}".
-        VerboseSetProperty                = Setting the "{0}" property of application pool "{1}".
-        VerboseClearCredential            = Clearing custom account credentials of application pool "{0}" because the "identityType" property is not set to "SpecificUser".
-        VerboseRestartScheduleValueAdd    = Adding value "{0}" to the "restartSchedule" collection of application pool "{1}".
-        VerboseRestartScheduleValueRemove = Removing value "{0}" from the "restartSchedule" collection of application pool "{1}".
-'@
-}
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
+
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebAppPool'
 
 # Writable properties except Ensure and Credential.
 data PropertyData
 {
     @(
         # General
-        @{Name = 'State';                          Path = 'state'}
-        @{Name = 'autoStart';                      Path = 'autoStart'}
-        @{Name = 'CLRConfigFile';                  Path = 'CLRConfigFile'}
-        @{Name = 'enable32BitAppOnWin64';          Path = 'enable32BitAppOnWin64'}
-        @{Name = 'enableConfigurationOverride';    Path = 'enableConfigurationOverride'}
-        @{Name = 'managedPipelineMode';            Path = 'managedPipelineMode'}
-        @{Name = 'managedRuntimeLoader';           Path = 'managedRuntimeLoader'}
-        @{Name = 'managedRuntimeVersion';          Path = 'managedRuntimeVersion'}
-        @{Name = 'passAnonymousToken';             Path = 'passAnonymousToken'}
-        @{Name = 'startMode';                      Path = 'startMode'}
-        @{Name = 'queueLength';                    Path = 'queueLength'}
+        @{
+            Name = 'State'
+            Path = 'state'
+        }
+        @{
+            Name = 'autoStart'
+            Path = 'autoStart'
+        }
+        @{
+            Name = 'CLRConfigFile'
+            Path = 'CLRConfigFile'
+        }
+        @{
+            Name = 'enable32BitAppOnWin64'
+            Path = 'enable32BitAppOnWin64'
+        }
+        @{
+            Name = 'enableConfigurationOverride'
+            Path = 'enableConfigurationOverride'
+        }
+        @{
+            Name = 'managedPipelineMode'
+            Path = 'managedPipelineMode'
+        }
+        @{
+            Name = 'managedRuntimeLoader'
+            Path = 'managedRuntimeLoader'
+        }
+        @{
+            Name = 'managedRuntimeVersion'
+            Path = 'managedRuntimeVersion'
+        }
+        @{
+            Name = 'passAnonymousToken'
+            Path = 'passAnonymousToken'
+        }
+        @{
+            Name = 'startMode'
+            Path = 'startMode'
+        }
+        @{
+            Name = 'queueLength'
+            Path = 'queueLength'
+        }
 
         # CPU
-        @{Name = 'cpuAction';                      Path = 'cpu.action'}
-        @{Name = 'cpuLimit';                       Path = 'cpu.limit'}
-        @{Name = 'cpuResetInterval';               Path = 'cpu.resetInterval'}
-        @{Name = 'cpuSmpAffinitized';              Path = 'cpu.smpAffinitized'}
-        @{Name = 'cpuSmpProcessorAffinityMask';    Path = 'cpu.smpProcessorAffinityMask'}
-        @{Name = 'cpuSmpProcessorAffinityMask2';   Path = 'cpu.smpProcessorAffinityMask2'}
+        @{
+            Name = 'cpuAction'
+            Path = 'cpu.action'
+        }
+        @{
+            Name = 'cpuLimit'
+            Path = 'cpu.limit'
+        }
+        @{
+            Name = 'cpuResetInterval'
+            Path = 'cpu.resetInterval'
+        }
+        @{
+            Name = 'cpuSmpAffinitized'
+            Path = 'cpu.smpAffinitized'
+        }
+        @{
+            Name = 'cpuSmpProcessorAffinityMask'
+            Path = 'cpu.smpProcessorAffinityMask'
+        }
+        @{
+            Name = 'cpuSmpProcessorAffinityMask2'
+            Path = 'cpu.smpProcessorAffinityMask2'
+        }
 
         # Process Model
-        @{Name = 'identityType';                   Path = 'processModel.identityType'}
-        @{Name = 'idleTimeout';                    Path = 'processModel.idleTimeout'}
-        @{Name = 'idleTimeoutAction';              Path = 'processModel.idleTimeoutAction'}
-        @{Name = 'loadUserProfile';                Path = 'processModel.loadUserProfile'}
-        @{Name = 'logEventOnProcessModel';         Path = 'processModel.logEventOnProcessModel'}
-        @{Name = 'logonType';                      Path = 'processModel.logonType'}
-        @{Name = 'manualGroupMembership';          Path = 'processModel.manualGroupMembership'}
-        @{Name = 'maxProcesses';                   Path = 'processModel.maxProcesses'}
-        @{Name = 'pingingEnabled';                 Path = 'processModel.pingingEnabled'}
-        @{Name = 'pingInterval';                   Path = 'processModel.pingInterval'}
-        @{Name = 'pingResponseTime';               Path = 'processModel.pingResponseTime'}
-        @{Name = 'setProfileEnvironment';          Path = 'processModel.setProfileEnvironment'}
-        @{Name = 'shutdownTimeLimit';              Path = 'processModel.shutdownTimeLimit'}
-        @{Name = 'startupTimeLimit';               Path = 'processModel.startupTimeLimit'}
+        @{
+            Name = 'identityType'
+            Path = 'processModel.identityType'
+        }
+        @{
+            Name = 'idleTimeout'
+            Path = 'processModel.idleTimeout'
+        }
+        @{
+            Name = 'idleTimeoutAction'
+            Path = 'processModel.idleTimeoutAction'
+        }
+        @{
+            Name = 'loadUserProfile'
+            Path = 'processModel.loadUserProfile'
+        }
+        @{
+            Name = 'logEventOnProcessModel'
+            Path = 'processModel.logEventOnProcessModel'
+        }
+        @{
+            Name = 'logonType'
+            Path = 'processModel.logonType'
+        }
+        @{
+            Name = 'manualGroupMembership'
+            Path = 'processModel.manualGroupMembership'
+        }
+        @{
+            Name = 'maxProcesses'
+            Path = 'processModel.maxProcesses'
+        }
+        @{
+            Name = 'pingingEnabled'
+            Path = 'processModel.pingingEnabled'
+        }
+        @{
+            Name = 'pingInterval'
+            Path = 'processModel.pingInterval'
+        }
+        @{
+            Name = 'pingResponseTime'
+            Path = 'processModel.pingResponseTime'
+        }
+        @{
+            Name = 'setProfileEnvironment'
+            Path = 'processModel.setProfileEnvironment'
+        }
+        @{
+            Name = 'shutdownTimeLimit'
+            Path = 'processModel.shutdownTimeLimit'
+        }
+        @{
+            Name = 'startupTimeLimit'
+            Path = 'processModel.startupTimeLimit'
+        }
 
         # Process Orphaning
-        @{Name = 'orphanActionExe';                Path = 'failure.orphanActionExe'}
-        @{Name = 'orphanActionParams';             Path = 'failure.orphanActionParams'}
-        @{Name = 'orphanWorkerProcess';            Path = 'failure.orphanWorkerProcess'}
+        @{
+            Name = 'orphanActionExe'
+            Path = 'failure.orphanActionExe'
+        }
+        @{
+            Name = 'orphanActionParams'
+            Path = 'failure.orphanActionParams'
+        }
+        @{
+            Name = 'orphanWorkerProcess'
+            Path = 'failure.orphanWorkerProcess'
+        }
 
         # Rapid-Fail Protection
-        @{Name = 'loadBalancerCapabilities';       Path = 'failure.loadBalancerCapabilities'}
-        @{Name = 'rapidFailProtection';            Path = 'failure.rapidFailProtection'}
-        @{Name = 'rapidFailProtectionInterval';    Path = 'failure.rapidFailProtectionInterval'}
-        @{Name = 'rapidFailProtectionMaxCrashes';  Path = 'failure.rapidFailProtectionMaxCrashes'}
-        @{Name = 'autoShutdownExe';                Path = 'failure.autoShutdownExe'}
-        @{Name = 'autoShutdownParams';             Path = 'failure.autoShutdownParams'}
+        @{
+            Name = 'loadBalancerCapabilities'
+            Path = 'failure.loadBalancerCapabilities'
+        }
+        @{
+            Name = 'rapidFailProtection'
+            Path = 'failure.rapidFailProtection'
+        }
+        @{
+            Name = 'rapidFailProtectionInterval'
+            Path = 'failure.rapidFailProtectionInterval'
+        }
+        @{
+            Name = 'rapidFailProtectionMaxCrashes'
+            Path = 'failure.rapidFailProtectionMaxCrashes'
+        }
+        @{
+            Name = 'autoShutdownExe'
+            Path = 'failure.autoShutdownExe'
+        }
+        @{
+            Name = 'autoShutdownParams'
+            Path = 'failure.autoShutdownParams'
+        }
 
         # Recycling
-        @{Name = 'disallowOverlappingRotation';    Path = 'recycling.disallowOverlappingRotation'}
-        @{Name = 'disallowRotationOnConfigChange'; Path = 'recycling.disallowRotationOnConfigChange'}
-        @{Name = 'logEventOnRecycle';              Path = 'recycling.logEventOnRecycle'}
-        @{Name = 'restartMemoryLimit';             Path = 'recycling.periodicRestart.memory'}
-        @{Name = 'restartPrivateMemoryLimit';      Path = 'recycling.periodicRestart.privateMemory'}
-        @{Name = 'restartRequestsLimit';           Path = 'recycling.periodicRestart.requests'}
-        @{Name = 'restartTimeLimit';               Path = 'recycling.periodicRestart.time'}
-        @{Name = 'restartSchedule';                Path = 'recycling.periodicRestart.schedule'}
+        @{
+            Name = 'disallowOverlappingRotation'
+            Path = 'recycling.disallowOverlappingRotation'
+        }
+        @{
+            Name = 'disallowRotationOnConfigChange'
+            Path = 'recycling.disallowRotationOnConfigChange'
+        }
+        @{
+            Name = 'logEventOnRecycle'
+            Path = 'recycling.logEventOnRecycle'
+        }
+        @{
+            Name = 'restartMemoryLimit'
+            Path = 'recycling.periodicRestart.memory'
+        }
+        @{
+            Name = 'restartPrivateMemoryLimit'
+            Path = 'recycling.periodicRestart.privateMemory'
+        }
+        @{
+            Name = 'restartRequestsLimit'
+            Path = 'recycling.periodicRestart.requests'
+        }
+        @{
+            Name = 'restartTimeLimit'
+            Path = 'recycling.periodicRestart.time'
+        }
+        @{
+            Name = 'restartSchedule'
+            Path = 'recycling.periodicRestart.schedule'
+        }
     )
 }
 
@@ -125,13 +250,13 @@ function Get-TargetResource
 
     if ($null -eq $appPool)
     {
-        Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
 
         $ensureResult = 'Absent'
     }
     else
     {
-        Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
         $ensureResult = 'Present'
 
@@ -402,8 +527,8 @@ function Set-TargetResource
         # Create Application Pool
         if ($null -eq $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
-            Write-Verbose -Message ($LocalizedData['VerboseNewAppPool'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseNewAppPool'] -f $Name)
 
             $appPool = New-WebAppPool -Name $Name -ErrorAction Stop
         }
@@ -411,7 +536,7 @@ function Set-TargetResource
         # Set Application Pool Properties
         if ($null -ne $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
             $PropertyData.Where(
                 {
@@ -429,7 +554,7 @@ function Set-TargetResource
                     )
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerboseSetProperty'] -f $propertyName, $Name
+                            $script:localizedData['VerboseSetProperty'] -f $propertyName, $Name
                         )
 
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
@@ -446,7 +571,7 @@ function Set-TargetResource
                     if ($appPool.processModel.userName -ne $Credential.UserName)
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerboseSetProperty'] -f 'Credential (userName)', $Name
+                            $script:localizedData['VerboseSetProperty'] -f 'Credential (userName)', $Name
                         )
 
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
@@ -459,7 +584,7 @@ function Set-TargetResource
                     if ($appPool.processModel.password -cne $clearTextPassword)
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerboseSetProperty'] -f 'Credential (password)', $Name
+                            $script:localizedData['VerboseSetProperty'] -f 'Credential (password)', $Name
                         )
 
                         Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, (
@@ -469,7 +594,7 @@ function Set-TargetResource
                 }
                 else
                 {
-                    Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeIgnored'])
+                    Write-Verbose -Message ($script:localizedData['VerboseCredentialToBeIgnored'])
                 }
             }
 
@@ -491,7 +616,7 @@ function Set-TargetResource
                 )
             )
             {
-                Write-Verbose -Message ($LocalizedData['VerboseClearCredential'] -f $Name)
+                Write-Verbose -Message ($script:localizedData['VerboseClearCredential'] -f $Name)
 
                 Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, '/processModel.userName:'
                 Invoke-AppCmd -ArgumentList 'set', 'apppool', $Name, '/processModel.password:'
@@ -525,7 +650,7 @@ function Set-TargetResource
                             if ($_.SideIndicator -eq '<=')
                             {
                                 Write-Verbose -Message (
-                                    $LocalizedData['VerboseRestartScheduleValueAdd'] -f
+                                    $script:localizedData['VerboseRestartScheduleValueAdd'] -f
                                         $_.InputObject, $Name
                                 )
 
@@ -537,7 +662,7 @@ function Set-TargetResource
                             else
                             {
                                 Write-Verbose -Message (
-                                    $LocalizedData['VerboseRestartScheduleValueRemove'] -f
+                                    $script:localizedData['VerboseRestartScheduleValueRemove'] -f
                                         $_.InputObject, $Name
                                 )
 
@@ -553,13 +678,13 @@ function Set-TargetResource
             {
                 if ($State -eq 'Started')
                 {
-                    Write-Verbose -Message ($LocalizedData['VerboseStartAppPool'] -f $Name)
+                    Write-Verbose -Message ($script:localizedData['VerboseStartAppPool'] -f $Name)
 
                     Start-WebAppPool -Name $Name -ErrorAction Stop
                 }
                 else
                 {
-                    Write-Verbose -Message ($LocalizedData['VerboseStopAppPool'] -f $Name)
+                    Write-Verbose -Message ($script:localizedData['VerboseStopAppPool'] -f $Name)
 
                     Stop-WebAppPool -Name $Name -ErrorAction Stop
                 }
@@ -571,22 +696,22 @@ function Set-TargetResource
         # Remove Application Pool
         if ($null -ne $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
             if ($appPool.state -eq 'Started')
             {
-                Write-Verbose -Message ($LocalizedData['VerboseStopAppPool'] -f $Name)
+                Write-Verbose -Message ($script:localizedData['VerboseStopAppPool'] -f $Name)
 
                 Stop-WebAppPool -Name $Name -ErrorAction Stop
             }
 
-            Write-Verbose -Message ($LocalizedData['VerboseRemoveAppPool'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseRemoveAppPool'] -f $Name)
 
             Remove-WebAppPool -Name $Name -ErrorAction Stop
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
         }
     }
 }
@@ -822,19 +947,19 @@ function Test-TargetResource
 
         if ($null -ne $appPool)
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
         }
         else
         {
-            Write-Verbose -Message ($LocalizedData['VerboseAppPoolNotFound'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseAppPoolNotFound'] -f $Name)
         }
 
-        Write-Verbose -Message ($LocalizedData['VerboseEnsureNotInDesiredState'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseEnsureNotInDesiredState'] -f $Name)
     }
 
     if ($Ensure -eq 'Present' -and $null -ne $appPool)
     {
-        Write-Verbose -Message ($LocalizedData['VerboseAppPoolFound'] -f $Name)
+        Write-Verbose -Message ($script:localizedData['VerboseAppPoolFound'] -f $Name)
 
         $PropertyData.Where(
             {
@@ -857,7 +982,7 @@ function Test-TargetResource
                     if ($compareResult.Length -ne 0)
                     {
                         Write-Verbose -Message (
-                            $LocalizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
+                            $script:localizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
                         )
 
                         $inDesiredState = $false
@@ -868,7 +993,7 @@ function Test-TargetResource
                 )
                 {
                     Write-Verbose -Message (
-                        $LocalizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
+                        $script:localizedData['VerbosePropertyNotInDesiredState'] -f $propertyName, $Name
                     )
 
                     $inDesiredState = $false
@@ -883,7 +1008,7 @@ function Test-TargetResource
                 if ($appPool.processModel.userName -ne $Credential.UserName)
                 {
                     Write-Verbose -Message (
-                        $LocalizedData['VerbosePropertyNotInDesiredState'] -f
+                        $script:localizedData['VerbosePropertyNotInDesiredState'] -f
                             'Credential (userName)', $Name
                     )
 
@@ -895,7 +1020,7 @@ function Test-TargetResource
                 if ($appPool.processModel.password -cne $clearTextPassword)
                 {
                     Write-Verbose -Message (
-                        $LocalizedData['VerbosePropertyNotInDesiredState'] -f
+                        $script:localizedData['VerbosePropertyNotInDesiredState'] -f
                             'Credential (password)', $Name
                     )
 
@@ -904,7 +1029,7 @@ function Test-TargetResource
             }
             else
             {
-                Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeIgnored'])
+                Write-Verbose -Message ($script:localizedData['VerboseCredentialToBeIgnored'])
             }
         }
 
@@ -926,7 +1051,7 @@ function Test-TargetResource
             )
         )
         {
-            Write-Verbose -Message ($LocalizedData['VerboseCredentialToBeCleared'] -f $Name)
+            Write-Verbose -Message ($script:localizedData['VerboseCredentialToBeCleared'] -f $Name)
 
             $inDesiredState = $false
         }
@@ -957,7 +1082,7 @@ function Test-TargetResource
             )
             {
                 Write-Verbose -Message (
-                    $LocalizedData['VerbosePropertyNotInDesiredState'] -f 'restartSchedule', $Name
+                    $script:localizedData['VerbosePropertyNotInDesiredState'] -f 'restartSchedule', $Name
                 )
 
                 $inDesiredState = $false
@@ -967,11 +1092,11 @@ function Test-TargetResource
 
     if ($inDesiredState -eq $true)
     {
-        Write-Verbose -Message ($LocalizedData['VerboseResourceInDesiredState'])
+        Write-Verbose -Message ($script:localizedData['VerboseResourceInDesiredState'])
     }
     else
     {
-        Write-Verbose -Message ($LocalizedData['VerboseResourceNotInDesiredState'])
+        Write-Verbose -Message ($script:localizedData['VerboseResourceNotInDesiredState'])
     }
 
     return $inDesiredState
@@ -1039,7 +1164,7 @@ function Invoke-AppCmd
 
     if ($LASTEXITCODE -ne 0)
     {
-        $errorMessage = $LocalizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
+        $errorMessage = $script:localizedData['ErrorAppCmdNonZeroExitCode'] -f $LASTEXITCODE
 
         New-TerminatingError -ErrorId 'ErrorAppCmdNonZeroExitCode' `
             -ErrorMessage $errorMessage `

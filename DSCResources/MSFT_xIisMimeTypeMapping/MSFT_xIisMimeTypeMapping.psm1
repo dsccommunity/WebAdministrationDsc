@@ -1,20 +1,11 @@
-# Load the Helper Module
-Import-Module -Name "$PSScriptRoot\..\Helper.psm1"
+$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
 
-# Localized messages
-data LocalizedData
-{
-    # culture="en-US"
-    ConvertFrom-StringData -StringData @'
-        NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
-        AddingType                = Adding MIMEType '{0}' for extension '{1}'
-        RemovingType              = Removing MIMEType '{0}' for extension '{1}'
-        TypeExists                = MIMEType '{0}' for extension '{1}' already exist
-        TypeNotPresent            = MIMEType '{0}' for extension '{1}' is not present as requested
-        VerboseGetTargetPresent   = MIMEType is present
-        VerboseGetTargetAbsent    = MIMEType is absent
-'@
-}
+Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
+
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xIisMimeTypeMapping'
 
 Set-Variable ConstDefaultConfigurationPath -Option Constant -Value 'MACHINE/WEBROOT/APPHOST' -Scope Script
 Set-Variable ConstSectionNode              -Option Constant -Value 'system.webServer/staticContent' -Scope Script
@@ -72,7 +63,7 @@ function Get-TargetResource
 
     if ($null -eq $currentMimeTypeMapping)
     {
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetAbsent
+        Write-Verbose -Message $script:localizedData.VerboseGetTargetAbsent
         return @{
             Ensure            = 'Absent'
             ConfigurationPath = $ConfigurationPath
@@ -82,7 +73,7 @@ function Get-TargetResource
     }
     else
     {
-        Write-Verbose -Message $LocalizedData.VerboseGetTargetPresent
+        Write-Verbose -Message $script:localizedData.VerboseGetTargetPresent
         return @{
             Ensure            = 'Present'
             ConfigurationPath = $ConfigurationPath
@@ -145,8 +136,11 @@ function Set-TargetResource
         Add-WebConfigurationProperty -PSPath $ConfigurationPath `
                                      -Filter $ConstSectionNode `
                                      -Name '.' `
-                                     -Value @{fileExtension="$Extension";mimeType="$MimeType"}
-        Write-Verbose -Message ($LocalizedData.AddingType -f $MimeType,$Extension)
+                                     -Value @{
+                                         fileExtension = "$Extension"
+                                         mimeType = "$MimeType"
+                                     }
+        Write-Verbose -Message ($script:localizedData.AddingType -f $MimeType,$Extension)
     }
     else
     {
@@ -154,8 +148,10 @@ function Set-TargetResource
         Remove-WebConfigurationProperty -PSPath $ConfigurationPath `
                                         -Filter $ConstSectionNode `
                                         -Name '.' `
-                                        -AtElement @{fileExtension="$Extension"}
-        Write-Verbose -Message ($LocalizedData.RemovingType -f $MimeType,$Extension)
+                                        -AtElement @{
+                                            fileExtension = "$Extension"
+                                        }
+        Write-Verbose -Message ($script:localizedData.RemovingType -f $MimeType,$Extension)
     }
 }
 
@@ -214,11 +210,11 @@ function Test-TargetResource
 
     if ($null -ne $currentMimeTypeMapping -and $Ensure -eq 'Present')
     {
-        Write-Verbose -Message ($LocalizedData.TypeExists -f $MimeType,$Extension)
+        Write-Verbose -Message ($script:localizedData.TypeExists -f $MimeType,$Extension)
     }
     elseif ($null -eq $currentMimeTypeMapping -and $Ensure -eq 'Absent')
     {
-        Write-Verbose -Message ($LocalizedData.TypeNotPresent -f $MimeType,$Extension)
+        Write-Verbose -Message ($script:localizedData.TypeNotPresent -f $MimeType,$Extension)
     }
     else
     {
