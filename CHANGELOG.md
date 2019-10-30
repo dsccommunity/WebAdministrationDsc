@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.0.0.0
+
 - Changes to xWebAdministration
   - Changes to PULL\_REQUEST\_TEMPLATE.md
     - Improving descriptive text around the CHANGELOG.md entry.
