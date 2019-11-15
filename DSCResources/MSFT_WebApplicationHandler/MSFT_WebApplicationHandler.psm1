@@ -369,10 +369,13 @@ function Test-TargetResource
             foreach ($key in $currentHandler.GetEnumerator())
             {
                 $keyName = $key.Name
-                if ($PSBoundParameters.$keyName -ne $currentHandler.$keyName)
+                if ($PSBoundParameters.ContainsKey($keyName))
                 {
-                    $inDesiredState = $false
-                    Write-Verbose -Message ($script:localizedData.PropertyNotInDesiredState -f $keyName)
+                    if ($PSBoundParameters.$keyName -ne $currentHandler.$keyName)
+                    {
+                        $inDesiredState = $false
+                        Write-Verbose -Message ($script:localizedData.PropertyNotInDesiredState -f $keyName)
+                    }
                 }
             }
         }

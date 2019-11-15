@@ -73,3 +73,63 @@ Configuration MSFT_WebApplicationHandler_RemoveHandler
         }
     }
 }
+
+$ConfigurationDataExcludedOptionalParameters = @{
+    AllNodes = @(
+        @{
+            NodeName            = 'LocalHost'
+            Path                = 'MACHINE/WEBROOT/APPHOST'
+            Location            = 'Webtest'
+            Name                = 'AnotherTest-WebHandler'
+            PhysicalHandlerPath = '*'
+            Verb                = '*'
+            Modules             = 'IsapiModule'
+            ScriptProcessor     = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll"
+            PhysicalPath        = "C:\Temp"
+            Type                = 'SampleHandler'
+            VirtualDirectoryName = 'TestDir'
+        }
+    )
+}
+
+Configuration MSFT_WebApplicationHandler_AddHandlerExcludedOptionalParameters
+{
+    Import-DSCResource -ModuleName xWebAdministration
+
+    Node 'localhost'
+    {
+        WebApplicationHandler WebHandlerTest
+        {
+            Path                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Path
+            Name                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Name
+            PhysicalHandlerPath = $ConfigurationDataExcludedOptionalParameters.AllNodes.PhysicalHandlerPath
+            Verb                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Verb
+            Modules             = $ConfigurationDataExcludedOptionalParameters.AllNodes.Modules
+            ScriptProcessor     = $ConfigurationDataExcludedOptionalParameters.AllNodes.ScriptProcessor
+            Type                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Type
+            Location            = "Default Web Site/$($ConfigurationDataExcludedOptionalParameters.AllNodes.VirtualDirectoryName)"
+            Ensure              = 'Present'
+        }
+    }
+}
+
+Configuration MSFT_WebApplicationHandler_RemoveHandlerExcludedOptionalParameters
+{
+    Import-DSCResource -ModuleName xWebAdministration
+
+    Node 'localhost'
+    {
+        WebApplicationHandler WebHandlerTest
+        {
+            Path                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Path
+            Name                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Name
+            PhysicalHandlerPath = $ConfigurationDataExcludedOptionalParameters.AllNodes.PhysicalHandlerPath
+            Verb                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Verb
+            Modules             = $ConfigurationDataExcludedOptionalParameters.AllNodes.Modules
+            ScriptProcessor     = $ConfigurationDataExcludedOptionalParameters.AllNodes.ScriptProcessor
+            Type                = $ConfigurationDataExcludedOptionalParameters.AllNodes.Type
+            Location            = "Default Web Site/$($ConfigurationDataExcludedOptionalParameters.AllNodes.VirtualDirectoryName)"
+            Ensure              = 'Absent'
+        }
+    }
+}

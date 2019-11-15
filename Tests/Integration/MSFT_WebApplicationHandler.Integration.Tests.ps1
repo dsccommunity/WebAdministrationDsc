@@ -25,7 +25,7 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $ConfigFile
 
-    Describe "$($script:DSCResourceName)_Integration" {
+    Describe "$($script:DSCResourceName)_AllParameters" {
 
         #region Test Setup
 
@@ -118,6 +118,93 @@ try
                 $resourceCurrentState.ResponseBufferLimit | Should -BeNullOrEmpty
                 $resourceCurrentState.Location            | Should -Be "Default Web Site/$($ConfigurationData.AllNodes.VirtualDirectoryName)"
                 $resourceCurrentState.Path                | Should -Be $ConfigurationData.AllNodes.Path
+            }
+        }
+    }
+
+
+    Describe "$($script:DSCResourceName)_ExcludedOptionalParameters" {
+
+        #region Test Setup
+
+        New-WebVirtualDirectory -Site 'Default Web Site' -Name $ConfigurationData.AllNodes.VirtualDirectoryName -PhysicalPath $TestDrive -Force
+
+        #endregion
+
+        Context 'When using MSFT_WebApplicationHandler_AddHandlerExcludedOptionalParameters' {
+            It 'Should compile and apply the MOF without throwing when some optional parameters are excluded' {
+                {
+                    $configurationParameters = @{
+                        OutputPath        = $TestDrive
+                        ConfigurationData = $ConfigurationDataExcludedOptionalParameters
+                    }
+
+                    & "$($script:DSCResourceName)_AddHandlerExcludedOptionalParameters" @configurationParameters
+
+                    Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                {$script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Test-DscConfiguration and return true when some optional parameters are excluded' {
+                $results = Test-DscConfiguration -Verbose -ErrorAction Stop
+                $results | Should -Be $true
+            }
+
+            It 'Should have set the resource and all the parameters should match' {
+                $resourceCurrentState = $script:currentConfiguration
+
+                $resourceCurrentState.Path                | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.Path
+                $resourceCurrentState.Modules             | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.Modules
+                $resourceCurrentState.Name                | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.Name
+                $resourceCurrentState.Type                | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.Type
+                $resourceCurrentState.PhysicalHandlerPath | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.PhysicalHandlerPath
+                $resourceCurrentState.Verb                | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.Verb
+                $resourceCurrentState.ScriptProcessor     | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.ScriptProcessor
+                $resourceCurrentState.Location            | Should -Be "Default Web Site/$($ConfigurationDataExcludedOptionalParameters.AllNodes.VirtualDirectoryName)"
+                $resourceCurrentState.Ensure              | Should -Be 'Present'
+            }
+        }
+
+        Context 'When using MSFT_WebApplicationHandler_RemoveHandlerExcludedOptionalParameters' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    $configurationParameters = @{
+                        OutputPath        = $TestDrive
+                        ConfigurationData = $ConfigurationDataExcludedOptionalParameters
+                    }
+
+                    & "$($script:DSCResourceName)_RemoveHandlerExcludedOptionalParameters" @configurationParameters
+
+                    Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                {$script:currentConfiguration = Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Test-DscConfiguration and return true' {
+                $results = Test-DscConfiguration -Verbose -ErrorAction Stop
+                $results | Should -Be $true
+            }
+
+            It 'Should remove a handler' {
+
+                $resourceCurrentState = $script:currentConfiguration
+
+                $resourceCurrentState.Ensure              | Should -Be 'Absent'
+                $resourceCurrentState.Modules             | Should -BeNullOrEmpty
+                $resourceCurrentState.Name                | Should -BeNullOrEmpty
+                $resourceCurrentState.Type                | Should -BeNullOrEmpty
+                $resourceCurrentState.PhysicalHandlerPath | Should -BeNullOrEmpty
+                $resourceCurrentState.Verb                | Should -BeNullOrEmpty
+                $resourceCurrentState.ScriptProcessor     | Should -BeNullOrEmpty
+                $resourceCurrentState.Location            | Should -Be "Default Web Site/$($ConfigurationDataExcludedOptionalParameters.AllNodes.VirtualDirectoryName)"
+                $resourceCurrentState.Path                | Should -Be $ConfigurationDataExcludedOptionalParameters.AllNodes.Path
             }
         }
     }
