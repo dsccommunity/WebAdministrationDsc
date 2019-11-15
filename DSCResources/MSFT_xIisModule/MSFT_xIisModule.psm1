@@ -146,8 +146,9 @@ function Set-TargetResource
                 Name = $Name
                 Path = $RequestPath
                 Verb = $Verb -join ','
-                Module = $ModuleType
+                Modules = $ModuleType
                 ScriptProcessor = $Path
+                ResourceType = 'File'
             }
         }
 
