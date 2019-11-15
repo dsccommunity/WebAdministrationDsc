@@ -368,6 +368,20 @@ try
                     Test-TargetResource @customWebHandlerParameters | Should Be $false
                 }
             }
+
+            Context 'When Web Handler is Present but optional parameters are excluded' {
+                It 'Should return true if optional parameters are excluded' {
+                    $mockRequiredOnlyHandler = @{
+                        Name   = $mockCompliantHandler.Name
+                        Path   = $mockCompliantHandler.Path
+                        Ensure = "Present"
+                    }
+
+                    Mock Get-WebConfigurationProperty -MockWith {$mockCompliantHandler}
+
+                    Test-TargetResource @mockRequiredOnlyHandler | Should Be $true
+                }
+            }
         }
     }
 }

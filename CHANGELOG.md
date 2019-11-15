@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Changes to xWebAdministration
+  - Changes to WebApplicationHandler
+    - Fix Test-TargetResource to compare only properties that are specified in the configuration. ([issue #544](https://github.com/PowerShell/xWebAdministration/issues/544))
+
 ## 3.0.0.0
 
 - Changes to xWebAdministration
