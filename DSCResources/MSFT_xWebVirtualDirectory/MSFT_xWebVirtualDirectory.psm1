@@ -37,9 +37,16 @@ function Get-TargetResource
 
     Assert-Module
 
+    if ($null -eq $WebApplication -OR $WebApplication.Length -eq 0)
+    {
+        $virtualDirectoryName = $Name
+    }
+    else {
+        $virtualDirectoryName = "/$($WebApplication)/$($Name)"
+    }
     $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
-                                                -Name $Name `
-                                                -Application $WebApplication
+                                                -Name $virtualDirectoryName `
+                                                -Application ""
 
     $PhysicalPath = ''
     $Ensure = 'Absent'
@@ -99,9 +106,16 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
+        if ($null -eq $WebApplication -OR $WebApplication.Length -eq 0)
+        {
+            $virtualDirectoryName = $Name
+        }
+        else {
+            $virtualDirectoryName = "/$($WebApplication)/$($Name)"
+        }
         $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
-                                                    -Name $Name `
-                                                    -Application $WebApplication
+                                                    -Name $virtualDirectoryName `
+                                                    -Application ""
         if ($virtualDirectory.count -eq 0)
         {
             Write-Verbose -Message ($script:localizedData.VerboseSetTargetCreateVirtualDirectory -f $Name)
@@ -174,9 +188,16 @@ function Test-TargetResource
 
     Assert-Module
 
+    if ($null -eq $WebApplication -OR $WebApplication.Length -eq 0)
+    {
+        $virtualDirectoryName = $Name
+    }
+    else {
+        $virtualDirectoryName = "/$($WebApplication)/$($Name)"
+    }
     $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
-                                                -Name $Name `
-                                                -Application $WebApplication
+                                                -Name $virtualDirectoryName `
+                                                -Application ""
 
     if ($virtualDirectory.Count -eq 1 -and $Ensure -eq 'Present')
     {

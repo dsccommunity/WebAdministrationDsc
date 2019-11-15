@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changes to xWebVirtualDirectory
+  - Update on how Virtual directory are tested to correct the issue ([issue #331](https://github.com/PowerShell/xWebAdministration/issues/331)).
 - Changes to xWebAdministration
   - Changes to WebApplicationHandler
     - Fix Test-TargetResource to compare only properties that are specified in the configuration. ([issue #544](https://github.com/PowerShell/xWebAdministration/issues/544))
