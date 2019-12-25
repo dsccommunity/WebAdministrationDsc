@@ -2,23 +2,25 @@ TOPIC
     about_xWebAdministration
 
 SHORT DESCRIPTION
-    d
+    DSC resources for web servers and components around those.
 
 LONG DESCRIPTION
-    {{ Add Long description here }}
+    This module contains DSC resources for deployment and configuration of web servers and components around those.
 
 EXAMPLES
-    PS C:\> {{ add examples here }}
+    PS C:\> Get-DscResource -Module about_xWebAdministration
 
 NOTE:
-    Thank you to all those who contributed to this module, by writing code, sharing opinions, and provided feedback.
+    Thank you to the DSC Community contributors who contributed to this module by
+    writing code, sharing opinions, and provided feedback.
 
 TROUBLESHOOTING NOTE:
-    Look out on the Github repository for issues and new releases.
+    Go to the Github repository for read about issues, submit a new issue, and read
+    about new releases. https://github.com/dsccommunity/xWebAdministration
 
 SEE ALSO
-  - {{ Please add Project URI such as github }}}
+  - https://github.com/dsccommunity/xWebAdministration
 
 KEYWORDS
-      {{ Add coma separated keywords here }}
+    DSC, DscResource, IIS
 

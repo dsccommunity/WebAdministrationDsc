@@ -826,19 +826,3 @@ function New-TerminatingError
 }
 
 $script:localizedData = Get-LocalizedData -ResourceName 'xWebAdministration.Common' -ScriptRoot $PSScriptRoot
-
-Export-ModuleMember -Function @(
-    'New-InvalidArgumentException'
-    'New-InvalidOperationException'
-    'New-ObjectNotFoundException'
-    'New-InvalidResultException'
-    'Get-LocalizedData'
-    'Start-ProcessWithTimeout'
-    'Assert-Module'
-    'Compare-ResourcePropertyState'
-    'Test-DscPropertyState'
-    'New-CimCredentialInstance'
-    'Get-CurrentUser'
-    'Find-Certificate'
-    'New-TerminatingError'
-)
