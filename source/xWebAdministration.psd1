@@ -59,19 +59,6 @@
         } # End of PSData hashtable
 
     } # End of PrivateData hashtable
-
-    # Functions to export from this module
-    FunctionsToExport = @()
-
-    # Cmdlets to export from this module
-    CmdletsToExport = @()
-
-    # Variables to export from this module
-    VariablesToExport = @()
-
-    # Aliases to export from this module
-    AliasesToExport = @()
-
 }
 
 
