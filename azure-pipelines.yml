@@ -83,7 +83,7 @@ stages:
             name: Test
             inputs:
               filePath: './build.ps1'
-              arguments: "-Tasks test -PesterScript @('tests/QA','tests/Unit')"
+              arguments: "-Tasks test -PesterScript 'tests/Unit'"
               pwsh: false
           - task: PublishTestResults@2
             condition: succeededOrFailed()
