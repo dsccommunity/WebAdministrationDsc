@@ -36,12 +36,12 @@ function Get-TargetResource
 
     if ($website.Count -eq 0)
     {
-        Write-Verbose -Message ($LocalizedData.VerboseGetTargetAbsent)
+        Write-Verbose -Message ($script:localizedData.VerboseGetTargetAbsent)
         $ensureResult = 'Absent'
     }
     elseif ($website.Count -eq 1)
     {
-        Write-Verbose -Message ($LocalizedData.VerboseGetTargetPresent)
+        Write-Verbose -Message ($script:localizedData.VerboseGetTargetPresent)
         $ensureResult = 'Present'
 
         $cimBindings = @(ConvertTo-CimBinding -InputObject $website.bindings.Collection)
@@ -68,7 +68,7 @@ function Get-TargetResource
     # Multiple websites with the same name exist. This is not supported and is an error
     else
     {
-        $errorMessage = $LocalizedData.ErrorWebsiteDiscoveryFailure -f $Name
+        $errorMessage = $script:localizedData.ErrorWebsiteDiscoveryFailure -f $Name
         New-TerminatingError -ErrorId 'WebsiteDiscoveryFailure' `
                              -ErrorMessage $errorMessage `
                              -ErrorCategory 'InvalidResult'
@@ -241,7 +241,7 @@ function Set-TargetResource
                     -Name id `
                     -Value $SiteId `
                     -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedSiteId `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedSiteId `
                     -f $Name, $SiteId)
             }
 
@@ -253,7 +253,7 @@ function Set-TargetResource
                                  -Name physicalPath `
                                  -Value $PhysicalPath `
                                  -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedPhysicalPath `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedPhysicalPath `
                                         -f $Name, $PhysicalPath)
             }
 
@@ -265,7 +265,7 @@ function Set-TargetResource
                                  -Name applicationPool `
                                  -Value $ApplicationPool `
                                  -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedApplicationPool `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedApplicationPool `
                                         -f $Name, $ApplicationPool)
             }
 
@@ -278,7 +278,7 @@ function Set-TargetResource
                 {
                     Update-WebsiteBinding -Name $Name `
                                           -BindingInfo $BindingInfo
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo `
+                    Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedBindingInfo `
                                             -f $Name)
                 }
             }
@@ -291,7 +291,7 @@ function Set-TargetResource
                                  -Name enabledProtocols `
                                  -Value $EnabledProtocols `
                                  -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedEnabledProtocols `
                                         -f $Name, $EnabledProtocols)
             }
 
@@ -314,7 +314,7 @@ function Set-TargetResource
                     if (-not (Confirm-UniqueBinding -Name $Name -ExcludeStopped))
                     {
                         # Return error and do not start the website
-                        $errorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart `
+                        $errorMessage = $script:localizedData.ErrorWebsiteBindingConflictOnStart `
                                         -f $Name
                         New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' `
                                              -ErrorMessage $errorMessage `
@@ -327,7 +327,7 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $errorMessage = $LocalizedData.ErrorWebsiteStateFailure `
+                        $errorMessage = $script:localizedData.ErrorWebsiteStateFailure `
                                         -f $Name, $_.Exception.Message
                         New-TerminatingError -ErrorId 'WebsiteStateFailure' `
                                              -ErrorMessage $errorMessage `
@@ -342,7 +342,7 @@ function Set-TargetResource
                     }
                     catch
                     {
-                        $errorMessage = $LocalizedData.ErrorWebsiteStateFailure `
+                        $errorMessage = $script:localizedData.ErrorWebsiteStateFailure `
                                         -f $Name, $_.Exception.Message
                         New-TerminatingError -ErrorId 'WebsiteStateFailure' `
                                              -ErrorMessage $errorMessage `
@@ -350,7 +350,7 @@ function Set-TargetResource
                     }
                 }
 
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedState `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedState `
                                         -f $Name, $State)
             }
 
@@ -362,7 +362,7 @@ function Set-TargetResource
                                  -Name serverAutoStart `
                                  -Value $ServerAutoStart `
                                  -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebsiteAutoStartUpdated `
                                         -f $Name)
             }
         }
@@ -399,12 +399,12 @@ function Set-TargetResource
                     $website = New-Website @newWebsiteSplat -ErrorAction Stop
                 }
 
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteCreated `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebsiteCreated `
                                         -f $Name)
             }
             catch
             {
-                $errorMessage = $LocalizedData.ErrorWebsiteCreationFailure `
+                $errorMessage = $script:localizedData.ErrorWebsiteCreationFailure `
                                 -f $Name, $_.Exception.Message
                 New-TerminatingError -ErrorId 'WebsiteCreationFailure' `
                                      -ErrorMessage $errorMessage `
@@ -421,7 +421,7 @@ function Set-TargetResource
                                               -BindingInfo $BindingInfo))
                 {
                     Update-WebsiteBinding -Name $Name -BindingInfo $BindingInfo
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedBindingInfo `
+                    Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedBindingInfo `
                                             -f $Name)
                 }
             }
@@ -435,7 +435,7 @@ function Set-TargetResource
                                  -Name enabledProtocols `
                                  -Value $EnabledProtocols `
                                  -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdatedEnabledProtocols `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdatedEnabledProtocols `
                                         -f $Name, $EnabledProtocols)
             }
 
@@ -455,7 +455,7 @@ function Set-TargetResource
                 if (-not (Confirm-UniqueBinding -Name $Name -ExcludeStopped))
                 {
                     # Return error and do not start the website
-                    $errorMessage = $LocalizedData.ErrorWebsiteBindingConflictOnStart `
+                    $errorMessage = $script:localizedData.ErrorWebsiteBindingConflictOnStart `
                                     -f $Name
                     New-TerminatingError -ErrorId 'WebsiteBindingConflictOnStart' `
                                          -ErrorMessage $errorMessage `
@@ -465,12 +465,12 @@ function Set-TargetResource
                 try
                 {
                     Start-Website -Name $Name -ErrorAction Stop
-                    Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteStarted `
+                    Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebsiteStarted `
                                             -f $Name)
                 }
                 catch
                 {
-                    $errorMessage = $LocalizedData.ErrorWebsiteStateFailure `
+                    $errorMessage = $script:localizedData.ErrorWebsiteStateFailure `
                                     -f $Name, $_.Exception.Message
                     New-TerminatingError -ErrorId 'WebsiteStateFailure' `
                                          -ErrorMessage $errorMessage `
@@ -486,7 +486,7 @@ function Set-TargetResource
                                  -Name serverAutoStart `
                                  -Value $ServerAutoStart `
                                  -ErrorAction Stop
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteAutoStartUpdated `
+                Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebsiteAutoStartUpdated `
                                         -f $Name)
             }
         }
@@ -499,7 +499,7 @@ function Set-TargetResource
             Set-AuthenticationInfo -Site $Name `
                                     -AuthenticationInfo $AuthenticationInfo `
                                     -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetAuthenticationInfoUpdated `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetAuthenticationInfoUpdated `
                                     -f $Name)
         }
 
@@ -511,7 +511,7 @@ function Set-TargetResource
                             -Name applicationDefaults.preloadEnabled `
                             -Value $PreloadEnabled `
                             -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsitePreloadUpdated `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebsitePreloadUpdated `
                                     -f $Name)
         }
 
@@ -523,7 +523,7 @@ function Set-TargetResource
                                 -Name applicationDefaults.serviceAutoStartEnabled `
                                 -Value $ServiceAutoStartEnabled `
                                 -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetServiceAutoStartUpdated `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebsiteAutoStartUpdated `
                                     -f $Name)
         }
 
@@ -543,13 +543,13 @@ function Set-TargetResource
                                         } `
                                         -ErrorAction Stop
                 Write-Verbose -Message `
-                                ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
+                                ($script:localizedData.VerboseSetTargetIISAutoStartProviderUpdated)
             }
             Set-ItemProperty -Path "IIS:\Sites\$Name" `
                                 -Name applicationDefaults.serviceAutoStartProvider `
                                 -Value $ServiceAutoStartProvider -ErrorAction Stop
             Write-Verbose -Message `
-                            ($LocalizedData.VerboseSetTargetServiceAutoStartProviderUpdated `
+                            ($script:localizedData.VerboseSetTargetServiceAutoStartProviderUpdated `
                             -f $Name)
         }
 
@@ -557,7 +557,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFormat') -and `
             ($LogFormat -ne $website.logfile.LogFormat))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFormat -f $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogFormat -f $Name)
 
             # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.LogFormat property
             $site = Get-Item "IIS:\Sites\$Name"
@@ -574,7 +574,7 @@ function Set-TargetResource
                                 -Name logfile.logTargetW3C `
                                 -Value $LogTargetW3C `
                                 -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTargetW3C `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogTargetW3C `
                                     -f $Name, $LogTargetW3C)
         }
 
@@ -582,7 +582,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
             (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogFlags `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogFlags `
                                     -f $Name)
 
             # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
@@ -596,7 +596,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $website.logfile.directory))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPath `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogPath `
                                     -f $Name)
             Set-ItemProperty -Path "IIS:\Sites\$Name" `
                 -Name LogFile.directory -value $LogPath
@@ -608,11 +608,11 @@ function Set-TargetResource
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
                 {
-                    Write-Verbose -Message ($LocalizedData.WarningLogPeriod `
+                    Write-Verbose -Message ($script:localizedData.WarningLogPeriod `
                                             -f $Name)
                 }
 
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogPeriod)
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogPeriod)
 
             # In Windows Server 2008 R2, Set-ItemProperty only accepts index values to the LogFile.Period property
             $site = Get-Item "IIS:\Sites\$Name"
@@ -624,7 +624,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogTruncateSize `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogTruncateSize `
                                     -f $Name)
             Set-ItemProperty -Path "IIS:\Sites\$Name" `
                 -Name LogFile.truncateSize -Value $LogTruncateSize
@@ -637,7 +637,7 @@ function Set-TargetResource
             ($LoglocalTimeRollover -ne `
                 ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLoglocalTimeRollover `
                                     -f $Name)
             Set-ItemProperty -Path "IIS:\Sites\$Name" `
                 -Name LogFile.localTimeRollover -Value $LoglocalTimeRollover
@@ -647,7 +647,7 @@ function Set-TargetResource
         if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
         (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetUpdateLogCustomFields `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogCustomFields `
                                     -f $Name)
             Set-LogCustomField -Site $Name -LogCustomField $LogCustomFields
         }
@@ -658,12 +658,12 @@ function Set-TargetResource
         try
         {
             Remove-Website -Name $Name -ErrorAction Stop
-            Write-Verbose -Message ($LocalizedData.VerboseSetTargetWebsiteRemoved `
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebsiteRemoved `
                                     -f $Name)
         }
         catch
         {
-            $errorMessage = $LocalizedData.ErrorWebsiteRemovalFailure `
+            $errorMessage = $script:localizedData.ErrorWebsiteRemovalFailure `
                             -f $Name, $_.Exception.Message
             New-TerminatingError -ErrorId 'WebsiteRemovalFailure' `
                                  -ErrorMessage $errorMessage `
@@ -803,7 +803,7 @@ function Test-TargetResource
         ($Ensure -eq 'Absent' -and $null -ne $website))
     {
         $inDesiredState = $false
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnsure `
+        Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseEnsure `
                                 -f $Name)
     }
 
@@ -815,7 +815,7 @@ function Test-TargetResource
         if ($SiteId -gt 0 -and $website.Id -ne $SiteId)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseSiteId -f $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseSiteId -f $Name)
         }
 
         # Check Physical Path property
@@ -823,7 +823,7 @@ function Test-TargetResource
             $website.PhysicalPath -ne $PhysicalPath)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePhysicalPath `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalsePhysicalPath `
                                     -f $Name)
         }
 
@@ -831,7 +831,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('State') -and $website.State -ne $State)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseState `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseState `
                                     -f $Name)
         }
 
@@ -840,7 +840,7 @@ function Test-TargetResource
             $website.ApplicationPool -ne $ApplicationPool)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseApplicationPool `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseApplicationPool `
                                     -f $Name)
         }
 
@@ -851,7 +851,7 @@ function Test-TargetResource
             if (-not (Test-WebsiteBinding -Name $Name -BindingInfo $BindingInfo))
             {
                 $inDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseBindingInfo `
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseBindingInfo `
                                         -f $Name)
             }
         }
@@ -861,7 +861,7 @@ function Test-TargetResource
             $website.EnabledProtocols -ne $EnabledProtocols)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseEnabledProtocols `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseEnabledProtocols `
                                     -f $Name)
         }
 
@@ -880,7 +880,7 @@ function Test-TargetResource
                 if ($allDefaultPages -inotcontains $page)
                 {
                     $inDesiredState = $false
-                    Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseDefaultPage `
+                    Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseDefaultPage `
                                             -f $Name)
                 }
             }
@@ -891,7 +891,7 @@ function Test-TargetResource
             $website.serverAutoStart -ne $ServerAutoStart)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAutoStart `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseAutoStart `
                                     -f $Name)
         }
 
@@ -901,7 +901,7 @@ function Test-TargetResource
                                            -AuthenticationInfo $AuthenticationInfo)))
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseAuthenticationInfo)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseAuthenticationInfo)
         }
 
         #Check Preload
@@ -909,7 +909,7 @@ function Test-TargetResource
             $website.applicationDefaults.preloadEnabled -ne $PreloadEnabled)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalsePreload `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalsePreload `
                                     -f $Name)
         }
 
@@ -918,7 +918,7 @@ function Test-TargetResource
             $website.applicationDefaults.serviceAutoStartEnabled -ne $ServiceAutoStartEnabled)
         {
             $inDesiredState = $false
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseServiceAutoStart `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseServiceAutoStart `
                                     -f $Name)
         }
 
@@ -931,7 +931,7 @@ function Test-TargetResource
                         -ApplicationType $ApplicationType))
             {
                 $inDesiredState = $false
-                Write-Verbose -Message ($LocalizedData.VerboseSetTargetIISAutoStartProviderUpdated)
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseIISAutoStartProvider)
             }
         }
 
@@ -942,7 +942,7 @@ function Test-TargetResource
             if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $LogFormat -ne 'W3C')
             {
-                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat `
+                Write-Verbose -Message ($script:localizedData.WarningIncorrectLogFormat `
                                         -f $Name)
             }
 
@@ -950,14 +950,14 @@ function Test-TargetResource
             if ($PSBoundParameters.ContainsKey('LogFlags') -and `
                 $website.logfile.LogFormat -ne 'W3C')
             {
-                Write-Verbose -Message ($LocalizedData.WarningIncorrectLogFormat `
+                Write-Verbose -Message ($script:localizedData.WarningIncorrectLogFormat `
                                         -f $Name)
             }
 
             # Check Log Format
             if ($LogFormat -ne $website.logfile.LogFormat)
             {
-                Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFormat `
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogFormat `
                                         -f $Name)
                 return $false
             }
@@ -967,7 +967,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
             (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogFlags)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogFlags)
             return $false
         }
 
@@ -975,7 +975,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $website.logfile.directory))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPath `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogPath `
                                     -f $Name)
             return $false
         }
@@ -986,11 +986,11 @@ function Test-TargetResource
         {
             if ($PSBoundParameters.ContainsKey('LogTruncateSize'))
             {
-                Write-Verbose -Message ($LocalizedData.WarningLogPeriod `
+                Write-Verbose -Message ($script:localizedData.WarningLogPeriod `
                                         -f $Name)
             }
 
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogPeriod `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogPeriod `
                                     -f $Name)
             return $false
         }
@@ -999,7 +999,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTruncateSize `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogTruncateSize `
                                     -f $Name)
             return $false
         }
@@ -1009,7 +1009,7 @@ function Test-TargetResource
             ($LoglocalTimeRollover -ne `
             ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLoglocalTimeRollover `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLoglocalTimeRollover `
                                     -f $Name)
             return $false
         }
@@ -1018,7 +1018,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
             ($LogTargetW3C -ne $website.logfile.LogTargetW3C))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseLogTargetW3C `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogTargetW3C `
                                     -f $Name)
             return $false
         }
@@ -1027,7 +1027,7 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
             (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
         {
-            Write-Verbose -Message ($LocalizedData.VerboseTestTargetUpdateLogCustomFields `
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetUpdateLogCustomFields `
                                     -f $Name)
             return $false
         }
@@ -1035,11 +1035,11 @@ function Test-TargetResource
 
     if ($inDesiredState -eq $true)
     {
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetTrueResult)
+        Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrueResult)
     }
     else
     {
-        Write-Verbose -Message ($LocalizedData.VerboseTestTargetFalseResult)
+        Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseResult)
     }
 
     return $inDesiredState
@@ -1125,7 +1125,7 @@ function Confirm-UniqueBinding
 
     if (-not $website)
     {
-        $errorMessage = $LocalizedData.ErrorWebsiteNotFound `
+        $errorMessage = $script:localizedData.ErrorWebsiteNotFound `
                         -f $Name
         New-TerminatingError -ErrorId 'WebsiteNotFound' `
                              -ErrorMessage $errorMessage `
@@ -1231,7 +1231,7 @@ function Confirm-UniqueServiceAutoStartProviders
                           -DifferenceObject $proposedObject `
                           -Property type)
         {
-            $errorMessage = $LocalizedData.ErrorWebsiteTestAutoStartProviderFailure
+            $errorMessage = $script:localizedData.ErrorWebsiteTestAutoStartProviderFailure
             New-TerminatingError -ErrorId 'ErrorWebsiteTestAutoStartProviderFailure' `
                                  -ErrorMessage $errorMessage `
                                  -ErrorCategory 'InvalidResult'`
@@ -1360,7 +1360,7 @@ function ConvertTo-WebBinding
                         {
                             $isJoinRequired = $true
                             Write-Verbose -Message `
-                                ($LocalizedData.VerboseConvertToWebBindingIgnoreBindingInformation `
+                                ($script:localizedData.VerboseConvertToWebBindingIgnoreBindingInformation `
                                 -f $binding.Protocol)
                         }
                         else
@@ -1388,7 +1388,7 @@ function ConvertTo-WebBinding
                             }
 
                             Write-Verbose -Message `
-                                ($LocalizedData.VerboseConvertToWebBindingDefaultPort `
+                                ($script:localizedData.VerboseConvertToWebBindingDefaultPort `
                                 -f $binding.Protocol, $portNumberString)
                         }
                         else
@@ -1399,7 +1399,7 @@ function ConvertTo-WebBinding
                             }
                             else
                             {
-                                $errorMessage = $LocalizedData.ErrorWebBindingInvalidPort `
+                                $errorMessage = $script:localizedData.ErrorWebBindingInvalidPort `
                                                 -f $binding.Port
                                 New-TerminatingError -ErrorId 'WebBindingInvalidPort' `
                                                      -ErrorMessage $errorMessage `
@@ -1421,7 +1421,7 @@ function ConvertTo-WebBinding
                 {
                     if ([String]::IsNullOrEmpty($binding.BindingInformation))
                     {
-                        $errorMessage = $LocalizedData.ErrorWebBindingMissingBindingInformation `
+                        $errorMessage = $script:localizedData.ErrorWebBindingMissingBindingInformation `
                                         -f $binding.Protocol
                         New-TerminatingError -ErrorId 'WebBindingMissingBindingInformation' `
                                              -ErrorMessage $errorMessage `
@@ -1450,7 +1450,7 @@ function ConvertTo-WebBinding
                         }
                         else
                         {
-                            $errorMessage = $LocalizedData.ErrorWebBindingMissingCertificateThumbprint `
+                            $errorMessage = $script:localizedData.ErrorWebBindingMissingCertificateThumbprint `
                                             -f $binding.Protocol
                             New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' `
                                                 -ErrorMessage $errorMessage `
@@ -1462,7 +1462,7 @@ function ConvertTo-WebBinding
                     {
                         $certificateStoreName = 'MY'
                         Write-Verbose -Message `
-                            ($LocalizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
+                            ($script:localizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
                             -f $certificateStoreName)
                     }
                     else
@@ -1481,7 +1481,7 @@ function ConvertTo-WebBinding
                         }
                         else
                         {
-                            $errorMessage = $LocalizedData.ErrorWebBindingInvalidCertificateSubject `
+                            $errorMessage = $script:localizedData.ErrorWebBindingInvalidCertificateSubject `
                                             -f $binding.CertificateSubject, $binding.CertificateStoreName
                             New-TerminatingError -ErrorId 'WebBindingInvalidCertificateSubject' `
                                                 -ErrorMessage $errorMessage `
@@ -1508,7 +1508,7 @@ function ConvertTo-WebBinding
 
                         if ($sslFlags -in @(1, 3) -and [String]::IsNullOrEmpty($binding.HostName))
                         {
-                            $errorMessage = $LocalizedData.ErrorWebBindingMissingSniHostName
+                            $errorMessage = $script:localizedData.ErrorWebBindingMissingSniHostName
                             New-TerminatingError -ErrorId 'WebBindingMissingSniHostName' `
                                                  -ErrorMessage $errorMessage `
                                                  -ErrorCategory 'InvalidArgument'
@@ -1640,7 +1640,7 @@ function Format-IPAddressString
         }
         catch
         {
-            $errorMessage = $LocalizedData.ErrorWebBindingInvalidIPAddress `
+            $errorMessage = $script:localizedData.ErrorWebBindingInvalidIPAddress `
                             -f $InputString, $_.Exception.Message
             New-TerminatingError -ErrorId 'WebBindingInvalidIPAddress' `
                                  -ErrorMessage $errorMessage `
@@ -1914,12 +1914,11 @@ function Test-BindingInfo
         if ($standardBindings.Count -ne 0)
         {
             # IP address, port, and host name combination must be unique
-            if (($standardBindings | Group-Object -Property IPAddress, Port, HostName) | `
-                                     Where-Object -FilterScript {$_.Count -ne 1})
+            if (($standardBindings | Group-Object -Property IPAddress, Port, HostName) | Where-Object -FilterScript {$_.Count -ne 1})
             {
                 $isValid = $false
                 Write-Verbose -Message `
-                    ($LocalizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
+                    ($script:localizedData.VerboseTestBindingInfoSameIPAddressPortHostName)
             }
 
             # A single port cannot be simultaneously specified for bindings with different protocols
@@ -1929,7 +1928,7 @@ function Test-BindingInfo
                 {
                     $isValid = $false
                     Write-Verbose -Message `
-                        ($LocalizedData.VerboseTestBindingInfoSamePortDifferentProtocol)
+                        ($script:localizedData.VerboseTestBindingInfoSamePortDifferentProtocol)
                     break
                 }
             }
@@ -1943,14 +1942,14 @@ function Test-BindingInfo
             {
                 $isValid = $false
                 Write-Verbose -Message `
-                    ($LocalizedData.VerboseTestBindingInfoSameProtocolBindingInformation)
+                    ($script:localizedData.VerboseTestBindingInfoSameProtocolBindingInformation)
             }
         }
     }
     catch
     {
         $isValid = $false
-        Write-Verbose -Message ($LocalizedData.VerboseTestBindingInfoInvalidCatch `
+        Write-Verbose -Message ($script:localizedData.VerboseTestBindingInfoInvalidCatch `
                                 -f $_.Exception.Message)
     }
 
@@ -2014,7 +2013,7 @@ function Test-WebsiteBinding
     # host name combinations).
     if (-not (Test-BindingInfo -BindingInfo $BindingInfo))
     {
-        $errorMessage = $LocalizedData.ErrorWebsiteBindingInputInvalidation `
+        $errorMessage = $script:localizedData.ErrorWebsiteBindingInputInvalidation `
                         -f $Name
         New-TerminatingError -ErrorId 'WebsiteBindingInputInvalidation' `
                              -ErrorMessage $errorMessage `
@@ -2052,7 +2051,7 @@ function Test-WebsiteBinding
     }
     catch
     {
-        $errorMessage = $LocalizedData.ErrorWebsiteCompareFailure `
+        $errorMessage = $script:localizedData.ErrorWebsiteCompareFailure `
                          -f $Name, $_.Exception.Message
         New-TerminatingError -ErrorId 'WebsiteCompareFailure' `
                              -ErrorMessage $errorMessage `
@@ -2146,7 +2145,7 @@ function Update-DefaultPage
                                  -Value @{
                                      value = $page
                                  }
-            Write-Verbose -Message ($LocalizedData.VerboseUpdateDefaultPageUpdated `
+            Write-Verbose -Message ($script:localizedData.VerboseUpdateDefaultPageUpdated `
                                     -f $Name, $page)
         }
     }
@@ -2178,7 +2177,7 @@ function Update-WebsiteBinding
 
     if (-not $website)
     {
-        $errorMessage = $LocalizedData.ErrorWebsiteNotFound `
+        $errorMessage = $script:localizedData.ErrorWebsiteNotFound `
                         -f $Name
         New-TerminatingError -ErrorId 'WebsiteNotFound' `
                              -ErrorMessage $errorMessage `
@@ -2201,7 +2200,7 @@ function Update-WebsiteBinding
         }
         catch
         {
-            $errorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
+            $errorMessage = $script:localizedData.ErrorWebsiteBindingUpdateFailure `
                             -f $Name, $_.Exception.Message
             New-TerminatingError -ErrorId 'WebsiteBindingUpdateFailure' `
                                  -ErrorMessage $errorMessage `
@@ -2223,7 +2222,7 @@ function Update-WebsiteBinding
                 }
                 catch
                 {
-                    $errorMessage = $LocalizedData.ErrorWebsiteBindingUpdateFailure `
+                    $errorMessage = $script:localizedData.ErrorWebsiteBindingUpdateFailure `
                                     -f $Name, $_.Exception.Message
                     New-TerminatingError `
                         -ErrorId 'WebsiteBindingUpdateFailure' `
@@ -2242,7 +2241,7 @@ function Update-WebsiteBinding
             }
             catch
             {
-                $errorMessage = $LocalizedData.ErrorWebBindingCertificate `
+                $errorMessage = $script:localizedData.ErrorWebBindingCertificate `
                                 -f $properties.certificateHash, $_.Exception.Message
                 New-TerminatingError `
                     -ErrorId 'WebBindingCertificate' `

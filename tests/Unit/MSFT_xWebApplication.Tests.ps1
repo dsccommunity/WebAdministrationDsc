@@ -540,7 +540,7 @@ try
                 $script:mockGetWebApplicationCalled = 0
                 $mockWebApplication = {
                     $script:mockGetWebApplicationCalled++
-                    if($script:mockGetWebApplicationCalled -eq 1)
+                    if ($script:mockGetWebApplicationCalled -eq 1)
                     {
                     return $null
                     }
@@ -1114,7 +1114,7 @@ try
 
                     $ErrorId = 'ServiceAutoStartProviderFailure'
                     $ErrorCategory = [System.Management.Automation.ErrorCategory]::InvalidOperation
-                    $ErrorMessage = $LocalizedData.ErrorWebApplicationTestAutoStartProviderFailure, 'ScriptHalted'
+                    $ErrorMessage = $script:localizedData.ErrorWebApplicationTestAutoStartProviderFailure, 'ScriptHalted'
                     $Exception = New-Object -TypeName System.InvalidOperationException -ArgumentList $ErrorMessage
                     $ErrorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $Exception, $ErrorId, $ErrorCategory, $null
 

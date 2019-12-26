@@ -1,5 +1,4 @@
 ConvertFrom-StringData @'
-    NoWebAdministrationModule = Please ensure that WebAdministration module is installed.
     AddingHandler             = Adding handler '{0}'.
     RemovingHandler           = Removing handler '{0}'.
     HandlerExists             = Handler with name '{0}' already exist.

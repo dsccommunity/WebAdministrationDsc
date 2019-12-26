@@ -165,8 +165,7 @@ function Set-TargetResource
             }
 
             # Update SslFlags if required
-            if ($PSBoundParameters.ContainsKey('SslFlags') -and `
-                (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
+            if ($PSBoundParameters.ContainsKey('SslFlags') -and (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
             {
                 Write-Verbose -Message ($script:localizedData.VerboseSetTargetSslFlags -f $Name)
                 $params = @{
@@ -359,8 +358,7 @@ function Test-TargetResource
         }
 
         #Check SslFlags
-        if ($PSBoundParameters.ContainsKey('SslFlags') -and `
-            (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
+        if ($PSBoundParameters.ContainsKey('SslFlags') -and (-not (Test-SslFlags -Location "${Website}/${Name}" -SslFlags $SslFlags)))
         {
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseSslFlags -f $Name)
             return $false
@@ -419,11 +417,9 @@ function Test-TargetResource
                                     -f $Name)
             return $false
         }
-
     }
 
     return $true
-
 }
 
 <#

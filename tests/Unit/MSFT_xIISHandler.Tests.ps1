@@ -86,7 +86,7 @@ try
                 $result = Test-TargetResource -Name $Name -Ensure 'Present' -Verbose *>&1
 
                 It 'Should return the correct verbose message' {
-                    $result[0] | Should Be ($LocalizedData.HandlerExists -f $Name)
+                    $result[0] | Should Be ($script:localizedData.HandlerExists -f $Name)
                 }
 
                 It 'Should return False' {
@@ -115,7 +115,7 @@ try
                 $result = Test-TargetResource -Name $Name -Ensure 'Absent' -Verbose *>&1
 
                 It 'Should return the correct verbose message' {
-                    $result[0] | Should Be ($LocalizedData.HandlerNotPresent -f $Name)
+                    $result[0] | Should Be ($script:localizedData.HandlerNotPresent -f $Name)
                 }
 
                 It 'Should return False' {
@@ -141,7 +141,7 @@ try
                 }
 
                 It 'Should call the right Verbose Message' {
-                    $message | Should Be ($LocalizedData.AddingHandler -f $mockName)
+                    $message | Should Be ($script:localizedData.AddingHandler -f $mockName)
                 }
             }
 
@@ -158,7 +158,7 @@ try
                 }
 
                 It 'Should call the right Verbose Message' {
-                    $message | Should Be ($LocalizedData.RemovingHandler -f $mockName)
+                    $message | Should Be ($script:localizedData.RemovingHandler -f $mockName)
                 }
             }
         }
@@ -180,7 +180,7 @@ try
             Context 'It should throw when it cannot find the handler' {
                 It 'Should throw an error' {
                     $keyName = 'Non-ExistantKey'
-                    {Add-Handler -Name $keyName} | Should throw ($LocalizedData.HandlerNotSupported -f $KeyName)
+                    {Add-Handler -Name $keyName} | Should throw ($script:localizedData.HandlerNotSupported -f $KeyName)
                 }
             }
         }

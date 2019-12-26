@@ -1,5 +1,5 @@
 
-# Suppressing these rule because these functions are from an external module 
+# Suppressing these rule because these functions are from an external module
 # and are only being used as stubs
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
@@ -8,7 +8,7 @@
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
 param ()
 
-function Add-WebConfiguration { 
+function Add-WebConfiguration {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268763')]
 param(
     [psobject]
@@ -44,11 +44,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Add-WebConfigurationLock { 
+function Add-WebConfigurationLock {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268770')]
 param(
     [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
@@ -73,11 +73,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Add-WebConfigurationProperty { 
+function Add-WebConfigurationProperty {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268814')]
 param(
     [Parameter(Mandatory=$true)]
@@ -120,11 +120,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Backup-WebConfiguration { 
+function Backup-WebConfiguration {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268815')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, HelpMessage='Backup name')]
@@ -132,21 +132,21 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Clear-WebCentralCertProvider { 
+function Clear-WebCentralCertProvider {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=269642')]
 param(
     [switch]
     ${PrivateKeyPassword})
 
- 
- } 
+
+ }
 
 
-function Clear-WebConfiguration { 
+function Clear-WebConfiguration {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268817')]
 param(
     [string]
@@ -167,11 +167,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Clear-WebRequestTracingSetting { 
+function Clear-WebRequestTracingSetting {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268818')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -179,11 +179,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Clear-WebRequestTracingSettings { 
+function Clear-WebRequestTracingSettings {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268818')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -191,11 +191,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function ConvertTo-WebApplication { 
+function ConvertTo-WebApplication {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268819')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -209,19 +209,19 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Disable-WebCentralCertProvider { 
+function Disable-WebCentralCertProvider {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=269643')]
 param()
 
- 
- } 
+
+ }
 
 
-function Disable-WebGlobalModule { 
+function Disable-WebGlobalModule {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268820')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -237,11 +237,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Disable-WebRequestTracing { 
+function Disable-WebRequestTracing {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268821')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -249,11 +249,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Enable-WebCentralCertProvider { 
+function Enable-WebCentralCertProvider {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=269644')]
 param(
     [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
@@ -272,11 +272,11 @@ param(
     [string]
     ${PrivateKeyPassword})
 
- 
- } 
+
+ }
 
 
-function Enable-WebGlobalModule { 
+function Enable-WebGlobalModule {
  [CmdletBinding(DefaultParameterSetName='InputProperties', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268822')]
 param(
     [Parameter(ParameterSetName='InputObject', Mandatory=$true, ValueFromPipeline=$true)]
@@ -307,11 +307,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Enable-WebRequestTracing { 
+function Enable-WebRequestTracing {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268823')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -343,11 +343,11 @@ param(
     [string]
     ${StatusCodes})
 
- 
- } 
+
+ }
 
 
-function Get-WebAppDomain { 
+function Get-WebAppDomain {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268825')]
 param(
     [Parameter(ParameterSetName='InputObject', ValueFromPipeline=$true)]
@@ -365,11 +365,11 @@ param(
     [uint32]
     ${ProcessId})
 
- 
- } 
+
+ }
 
 
-function Get-WebApplication { 
+function Get-WebApplication {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268826')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -382,11 +382,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Get-WebAppPoolState { 
+function Get-WebAppPoolState {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268827')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -394,11 +394,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Get-WebBinding { 
+function Get-WebBinding {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268828')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -422,11 +422,11 @@ param(
     [string]
     ${HostHeader})
 
- 
- } 
+
+ }
 
 
-function Get-WebCentralCertProvider { 
+function Get-WebCentralCertProvider {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=269640')]
 param(
     [switch]
@@ -441,22 +441,22 @@ param(
     [switch]
     ${Enabled})
 
- 
- } 
+
+ }
 
 
-function Get-WebConfigFile { 
+function Get-WebConfigFile {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268829')]
 param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebConfiguration { 
+function Get-WebConfiguration {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268830')]
 param(
     [switch]
@@ -480,11 +480,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebConfigurationBackup { 
+function Get-WebConfigurationBackup {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268831')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, HelpMessage='Backup name')]
@@ -492,11 +492,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Get-WebConfigurationLocation { 
+function Get-WebConfigurationLocation {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268832')]
 param(
     [Parameter(Position=2, ValueFromPipelineByPropertyName=$true)]
@@ -510,11 +510,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebConfigurationLock { 
+function Get-WebConfigurationLock {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268833')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -529,11 +529,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebConfigurationProperty { 
+function Get-WebConfigurationProperty {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268834')]
 param(
     [Parameter(Mandatory=$true)]
@@ -558,22 +558,22 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebFilePath { 
+function Get-WebFilePath {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268835')]
 param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebGlobalModule { 
+function Get-WebGlobalModule {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268836')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -589,11 +589,11 @@ param(
     [string]
     ${Precondition})
 
- 
- } 
+
+ }
 
 
-function Get-WebHandler { 
+function Get-WebHandler {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268837')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -608,11 +608,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebItemState { 
+function Get-WebItemState {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268838')]
 param(
     [string]
@@ -635,7 +635,7 @@ dynamicparam
             {
                 $param = $param.Value
 
-                if(-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
+                if (-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
                 {
                     $dynParam = [Management.Automation.RuntimeDefinedParameter]::new($param.Name, $param.ParameterType, $param.Attributes)
                     $paramDictionary.Add($param.Name, $dynParam)
@@ -648,11 +648,11 @@ dynamicparam
     }
 }
 
- 
- } 
+
+ }
 
 
-function Get-WebManagedModule { 
+function Get-WebManagedModule {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268839')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -667,11 +667,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Get-WebRequest { 
+function Get-WebRequest {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268840')]
 param(
     [Parameter(ParameterSetName='InputObject', ValueFromPipeline=$true)]
@@ -688,22 +688,22 @@ param(
     [uint32]
     ${Process})
 
- 
- } 
+
+ }
 
 
-function Get-Website { 
+function Get-Website {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268841')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Get-WebsiteState { 
+function Get-WebsiteState {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268842')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -711,11 +711,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Get-WebURL { 
+function Get-WebURL {
  [CmdletBinding(DefaultParameterSetName='InputPSPath', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268843')]
 param(
     [Parameter(ParameterSetName='InputURL', Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
@@ -735,11 +735,11 @@ param(
     [switch]
     ${Content})
 
- 
- } 
+
+ }
 
 
-function Get-WebVirtualDirectory { 
+function Get-WebVirtualDirectory {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268844')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -757,11 +757,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function New-WebApplication { 
+function New-WebApplication {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268845')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -785,11 +785,11 @@ param(
     [switch]
     ${Force})
 
- 
- } 
+
+ }
 
 
-function New-WebAppPool { 
+function New-WebAppPool {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268846')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, HelpMessage='Application pool name')]
@@ -800,11 +800,11 @@ param(
     [switch]
     ${Force})
 
- 
- } 
+
+ }
 
 
-function New-WebBinding { 
+function New-WebBinding {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268847')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -835,11 +835,11 @@ param(
     [switch]
     ${Force})
 
- 
- } 
+
+ }
 
 
-function New-WebFtpSite { 
+function New-WebFtpSite {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268848')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -870,11 +870,11 @@ param(
     [switch]
     ${Force})
 
- 
- } 
+
+ }
 
 
-function New-WebGlobalModule { 
+function New-WebGlobalModule {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268849')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -894,11 +894,11 @@ param(
     [switch]
     ${Force})
 
- 
- } 
+
+ }
 
 
-function New-WebHandler { 
+function New-WebHandler {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268850')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -952,11 +952,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function New-WebManagedModule { 
+function New-WebManagedModule {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268851')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -984,11 +984,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function New-Website { 
+function New-Website {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268852')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1030,11 +1030,11 @@ param(
     [switch]
     ${Force})
 
- 
- } 
+
+ }
 
 
-function New-WebVirtualDirectory { 
+function New-WebVirtualDirectory {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268853')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -1058,11 +1058,11 @@ param(
     [switch]
     ${Force})
 
- 
- } 
+
+ }
 
 
-function Remove-WebApplication { 
+function Remove-WebApplication {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268854')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -1075,11 +1075,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Remove-WebAppPool { 
+function Remove-WebAppPool {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268855')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1087,11 +1087,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Remove-WebBinding { 
+function Remove-WebBinding {
  [CmdletBinding(DefaultParameterSetName='InputBindingProperties', SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268856')]
 param(
     [Parameter(ParameterSetName='InputObject', Mandatory=$true, ValueFromPipeline=$true)]
@@ -1125,11 +1125,11 @@ param(
     [string]
     ${HostHeader})
 
- 
- } 
+
+ }
 
 
-function Remove-WebConfigurationBackup { 
+function Remove-WebConfigurationBackup {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268857')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, HelpMessage='Backup name')]
@@ -1137,11 +1137,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Remove-WebConfigurationLocation { 
+function Remove-WebConfigurationLocation {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268858')]
 param(
     [Parameter(Position=2, ValueFromPipelineByPropertyName=$true)]
@@ -1155,11 +1155,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Remove-WebConfigurationLock { 
+function Remove-WebConfigurationLock {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268859')]
 param(
     [switch]
@@ -1177,11 +1177,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Remove-WebConfigurationProperty { 
+function Remove-WebConfigurationProperty {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268860')]
 param(
     [Parameter(Mandatory=$true)]
@@ -1218,11 +1218,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Remove-WebGlobalModule { 
+function Remove-WebGlobalModule {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268861')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1230,11 +1230,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Remove-WebHandler { 
+function Remove-WebHandler {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268862')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1250,11 +1250,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Remove-WebManagedModule { 
+function Remove-WebManagedModule {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268863')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1270,11 +1270,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Remove-Website { 
+function Remove-Website {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268864')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1282,11 +1282,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Remove-WebVirtualDirectory { 
+function Remove-WebVirtualDirectory {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268865')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -1304,11 +1304,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Rename-WebConfigurationLocation { 
+function Rename-WebConfigurationLocation {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268866')]
 param(
     [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
@@ -1326,11 +1326,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Restart-WebAppPool { 
+function Restart-WebAppPool {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268867')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1338,11 +1338,11 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Restart-WebItem { 
+function Restart-WebItem {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268868')]
 param(
     [string]
@@ -1365,7 +1365,7 @@ dynamicparam
             {
                 $param = $param.Value
 
-                if(-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
+                if (-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
                 {
                     $dynParam = [Management.Automation.RuntimeDefinedParameter]::new($param.Name, $param.ParameterType, $param.Attributes)
                     $paramDictionary.Add($param.Name, $dynParam)
@@ -1378,11 +1378,11 @@ dynamicparam
     }
 }
 
- 
- } 
+
+ }
 
 
-function Restore-WebConfiguration { 
+function Restore-WebConfiguration {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268869')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, HelpMessage='Backup name')]
@@ -1390,22 +1390,22 @@ param(
     [string]
     ${Name})
 
- 
- } 
+
+ }
 
 
-function Select-WebConfiguration { 
+function Select-WebConfiguration {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268870')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${Filter})
 
- 
- } 
+
+ }
 
 
-function Set-WebBinding { 
+function Set-WebBinding {
  [CmdletBinding(DefaultParameterSetName='InputBindingProperties', SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268871')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1438,11 +1438,11 @@ param(
     [string]
     ${Value})
 
- 
- } 
+
+ }
 
 
-function Set-WebCentralCertProvider { 
+function Set-WebCentralCertProvider {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=269641')]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -1461,22 +1461,22 @@ param(
     [string]
     ${PrivateKeyPassword})
 
- 
- } 
+
+ }
 
 
-function Set-WebCentralCertProviderCredential { 
+function Set-WebCentralCertProviderCredential {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=269645')]
 param(
     [Parameter(Mandatory=$true, Position=0)]
     [string]
     ${UserName})
 
- 
- } 
+
+ }
 
 
-function Set-WebConfiguration { 
+function Set-WebConfiguration {
  [CmdletBinding(DefaultParameterSetName='InputPSObject', SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268872')]
 param(
     [Parameter(ParameterSetName='InputObject', Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
@@ -1509,11 +1509,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Set-WebConfigurationProperty { 
+function Set-WebConfigurationProperty {
  [CmdletBinding(DefaultParameterSetName='InputPSObject', SupportsShouldProcess=$true, ConfirmImpact='Medium', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268873')]
 param(
     [Parameter(Mandatory=$true)]
@@ -1559,11 +1559,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Set-WebGlobalModule { 
+function Set-WebGlobalModule {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268874')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1579,11 +1579,11 @@ param(
     [string]
     ${Image})
 
- 
- } 
+
+ }
 
 
-function Set-WebHandler { 
+function Set-WebHandler {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268875')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1634,11 +1634,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Set-WebManagedModule { 
+function Set-WebManagedModule {
  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low', HelpUri='http://go.microsoft.com/fwlink/?LinkID=268876')]
 param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1662,11 +1662,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Start-WebAppPool { 
+function Start-WebAppPool {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268877')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1677,19 +1677,19 @@ param(
     [switch]
     ${Passthru})
 
- 
- } 
+
+ }
 
 
-function Start-WebCommitDelay { 
+function Start-WebCommitDelay {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268816')]
 param()
 
- 
- } 
+
+ }
 
 
-function Start-WebItem { 
+function Start-WebItem {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268878')]
 param(
     [switch]
@@ -1715,7 +1715,7 @@ dynamicparam
             {
                 $param = $param.Value
 
-                if(-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
+                if (-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
                 {
                     $dynParam = [Management.Automation.RuntimeDefinedParameter]::new($param.Name, $param.ParameterType, $param.Attributes)
                     $paramDictionary.Add($param.Name, $dynParam)
@@ -1728,11 +1728,11 @@ dynamicparam
     }
 }
 
- 
- } 
+
+ }
 
 
-function Start-Website { 
+function Start-Website {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268879')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1743,11 +1743,11 @@ param(
     [switch]
     ${Passthru})
 
- 
- } 
+
+ }
 
 
-function Stop-WebAppPool { 
+function Stop-WebAppPool {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268880')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1758,11 +1758,11 @@ param(
     [switch]
     ${Passthru})
 
- 
- } 
+
+ }
 
 
-function Stop-WebCommitDelay { 
+function Stop-WebCommitDelay {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268824')]
 param(
     [Parameter(Position=2)]
@@ -1773,11 +1773,11 @@ param(
     [string[]]
     ${PSPath})
 
- 
- } 
+
+ }
 
 
-function Stop-WebItem { 
+function Stop-WebItem {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268881')]
 param(
     [switch]
@@ -1803,7 +1803,7 @@ dynamicparam
             {
                 $param = $param.Value
 
-                if(-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
+                if (-not $MyInvocation.MyCommand.Parameters.ContainsKey($param.Name))
                 {
                     $dynParam = [Management.Automation.RuntimeDefinedParameter]::new($param.Name, $param.ParameterType, $param.Attributes)
                     $paramDictionary.Add($param.Name, $dynParam)
@@ -1816,11 +1816,11 @@ dynamicparam
     }
 }
 
- 
- } 
+
+ }
 
 
-function Stop-Website { 
+function Stop-Website {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268882')]
 param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
@@ -1831,8 +1831,8 @@ param(
     [switch]
     ${Passthru})
 
- 
- } 
+
+ }
 
 
 

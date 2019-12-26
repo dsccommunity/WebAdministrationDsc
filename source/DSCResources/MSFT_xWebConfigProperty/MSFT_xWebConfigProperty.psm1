@@ -236,14 +236,14 @@ function Test-TargetResource
         {
             # Property was found.
                 Write-Verbose `
-                -Message ($script:localizedData.VerboseTargetPropertyWasFound -f $PropertyName )
+                -Message ($script:localizedData.VerboseTargetPropertyFound -f $PropertyName )
 
             return $false
         }
     }
 
     Write-Verbose `
-            -Message ($script:localizedData.VerboseTargetPropertyWasFound -f $PropertyName)
+            -Message ($script:localizedData.VerboseTargetPropertyFound -f $PropertyName)
 
     return $true
 }

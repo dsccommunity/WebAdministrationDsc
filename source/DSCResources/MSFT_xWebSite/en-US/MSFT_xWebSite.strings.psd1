@@ -16,9 +16,6 @@ ConvertFrom-StringData -StringData @'
     ErrorWebBindingMissingCertificateThumbprint = The CertificateThumbprint property is required for bindings of type "{0}".
     ErrorWebBindingMissingSniHostName = The HostName property is required for use with Server Name Indication.
     ErrorWebBindingInvalidCertificateSubject = The Subject "{0}" provided is not found on this host in store "{1}"
-    ErrorWebsitePreloadFailure = Failure to set Preload on Website "{0}". Error: "{1}".
-    ErrorWebsiteAutoStartFailure = Failure to set AutoStart on Website "{0}". Error: "{1}".
-    ErrorWebsiteAutoStartProviderFailure = Failure to set AutoStartProvider on Website "{0}". Error: "{1}".
     ErrorWebsiteTestAutoStartProviderFailure = Desired AutoStartProvider is not valid due to a conflicting Global Property. Ensure that the serviceAutoStartProvider is a unique key."
     VerboseSetTargetUpdatedSiteId = Site Id for website "{0}" has been updated to "{1}".
     VerboseSetTargetUpdatedPhysicalPath = Physical Path for website "{0}" has been updated to "{1}".
@@ -59,7 +56,6 @@ ConvertFrom-StringData -StringData @'
     VerboseTestTargetFalseServiceAutoStart = Application AutoStart for website "{0}" do not match the desired state.
     VerboseTestTargetFalseAuthenticationInfo = AuthenticationInfo for website "{0}" is not in the desired state.
     VerboseTestTargetFalseIISAutoStartProvider = AutoStartProvider for IIS is not in the desired state
-    VerboseTestTargetFalseWebsiteAutoStartProvider = AutoStartProvider for website "{0}" is not in the desired state
     VerboseTestTargetFalseLogPath = LogPath does not match desired state on Website "{0}".
     VerboseTestTargetFalseLogFlags = LogFlags does not match desired state on Website "{0}".
     VerboseTestTargetFalseLogPeriod = LogPeriod does not match desired state on Website "{0}".
@@ -67,7 +63,6 @@ ConvertFrom-StringData -StringData @'
     VerboseTestTargetFalseLoglocalTimeRollover = LoglocalTimeRollover does not match desired state on Website "{0}".
     VerboseTestTargetFalseLogFormat = LogFormat does not match desired state on Website "{0}".
     VerboseTestTargetFalseLogTargetW3C = LogTargetW3C does not match desired state on Website "{0}".
-    VerboseTestTargetFalseLogCustomFields = LogCustomFields does not match desired state on Website "{0}".
     VerboseConvertToWebBindingIgnoreBindingInformation = BindingInformation is ignored for bindings of type "{0}" in case at least one of the following properties is specified: IPAddress, Port, HostName.
     VerboseConvertToWebBindingDefaultPort = Port is not specified. The default "{0}" port "{1}" will be used.
     VerboseConvertToWebBindingDefaultCertificateStoreName = CertificateStoreName is not specified. The default value "{0}" will be used.
@@ -78,4 +73,5 @@ ConvertFrom-StringData -StringData @'
     VerboseUpdateDefaultPageUpdated = Default page for website "{0}" has been updated to "{1}".
     WarningLogPeriod = LogTruncateSize has is an input as will overwrite this desired state on Website "{0}".
     WarningIncorrectLogFormat = LogFormat is not W3C, as a result LogFlags will not be used on Website "{0}".
+    VerboseTestTargetUpdateLogCustomFields = LogCustomFields does not match desired state on Website "{0}".
 '@

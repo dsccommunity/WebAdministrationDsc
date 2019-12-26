@@ -289,7 +289,7 @@ finally
     Remove-Item -PSPath $selfSignedCert.PSPath
 
     $webConfigPath = Join-Path -Path $dscConfig.AllNodes.PhysicalPath -ChildPath 'web.config'
-    if(Test-Path -Path $webConfigPath -PathType Leaf)
+    if (Test-Path -Path $webConfigPath -PathType Leaf)
     {
         Remove-Item -Path $webConfigPath
     }

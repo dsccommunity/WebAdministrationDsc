@@ -30,3 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WebApplicationHandler
   - Fix Test-TargetResource to compare only properties that are specified
     in the configuration ([issue #544](https://github.com/PowerShell/xWebAdministration/issues/544)).
+- xWebConfigProperty
+  - In some cases a verbose message was not outputted with any text, now
+    all verbose messages are correctly shown.
+- xWebSite
+  - In some cases a verbose message was not outputted with any text, now
+    all verbose messages are correctly shown.

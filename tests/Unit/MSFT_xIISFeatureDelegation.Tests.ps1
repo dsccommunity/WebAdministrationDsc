@@ -155,14 +155,14 @@ try
                 It 'Should throw an error on null' {
                     Mock -CommandName Get-WebConfiguration  -MockWith { return $mockWebConfigOutput }
 
-                    {Get-OverrideMode @getOverrideModeParameters} | Should Throw ($LocalizedData.UnableToGetConfig -f $getOverrideModeParameters.Filter)
+                    {Get-OverrideMode @getOverrideModeParameters} | Should Throw ($script:localizedData.UnableToGetConfig -f $getOverrideModeParameters.Filter)
                 }
 
                 It 'Should throw an error on the wrong value' {
                     $mockWebConfigOutput.Metadata.effectiveOverrideMode = 'Wrong'
                     Mock -CommandName Get-WebConfiguration  -MockWith { return $mockWebConfigOutput }
 
-                    {Get-OverrideMode @getOverrideModeParameters} | Should Throw ($LocalizedData.UnableToGetConfig -f $getOverrideModeParameters.Filter)
+                    {Get-OverrideMode @getOverrideModeParameters} | Should Throw ($script:localizedData.UnableToGetConfig -f $getOverrideModeParameters.Filter)
                 }
             }
 

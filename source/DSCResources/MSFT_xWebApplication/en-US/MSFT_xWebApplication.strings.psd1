@@ -21,7 +21,6 @@ ConvertFrom-StringData -StringData @'
         VerboseTestTargetFalseAuthenticationInfo               = AuthenticationInfo for web application "{0}" is not in the desired state.
         VerboseTestTargetFalsePreload                          = Preload for web application "{0}" is not in the desired state.
         VerboseTestTargetFalseAutostart                        = Autostart for web application "{0}" is not in the desired state.
-        VerboseTestTargetFalseAutoStartProviders               = AutoStartProviders for web application "{0}" are not in the desired state.
         VerboseTestTargetFalseIISAutoStartProviders            = AutoStartProviders for IIS are not in the desired state.
         VerboseTestTargetFalseWebApplicationAutoStartProviders = AutoStartProviders for web application "{0}" are not in the desired state.
         VerboseTestTargetFalseEnabledProtocols                 = EnabledProtocols for web application "{0}" are not in the desired state.
