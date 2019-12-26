@@ -5,7 +5,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixes
+### Added
+
+- xWebAdministration
+  - Added continuous delivery with a new CI pipeline
+    ([issue #547](https://github.com/PowerShell/xWebAdministration/issues/547)).
+
+### Changed
+
+- xWebAdministration.Common
+  - Added new helper function `Get-WebConfigurationPropertyValue` to
+    help return a value of a `WebConfigurationProperty`. *This helper*
+    *function is unable to be unit tested because it is using a type*
+    *that cannot be mocked.*
+- xWebAppPoolDefaults
+  - Changed to use the new helper function `Get-WebConfigurationPropertyValue`
+    so that the resource can be properly unit tested.
+- xWebConfigProperty
+  - Changed to use the new helper function `Get-WebConfigurationPropertyValue`
+    so that the resource can be properly unit tested.
+
+### Fixed
 
 - WebApplicationHandler
   - Fix Test-TargetResource to compare only properties that are specified

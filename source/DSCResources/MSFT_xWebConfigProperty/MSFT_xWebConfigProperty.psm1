@@ -291,11 +291,7 @@ function Get-ItemValue
                 -Name $PropertyName
 
     # Return the value of the property if located.
-    if ($value -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute])
-    {
-        return $value.Value
-    }
-    return $value
+    return Get-WebConfigurationPropertyValue -WebConfigurationPropertyObject $value
 }
 
 <#

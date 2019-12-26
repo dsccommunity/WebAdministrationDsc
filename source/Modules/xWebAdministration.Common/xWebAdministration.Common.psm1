@@ -825,4 +825,34 @@ function New-TerminatingError
     throw $errorRecord
 }
 
+<#
+    .SYNOPSIS
+        Returns the value of a WebConfigurationProperty.
+
+    .PARAMETER WebConfigurationPropertyObject
+        Specifies the WebConfigurationProperty to return the value for.
+
+    .NOTES
+        This is a helper function because the type are not mocked.
+#>
+function Get-WebConfigurationPropertyValue
+{
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    param
+    (
+        [Parameter()]
+        [PSObject]
+        $WebConfigurationPropertyObject
+    )
+
+    if ($WebConfigurationPropertyObject -is [Microsoft.IIS.PowerShell.Framework.ConfigurationAttribute])
+    {
+        return $WebConfigurationPropertyObject.Value
+    } else
+    {
+        return $WebConfigurationPropertyObject
+    }
+}
+
 $script:localizedData = Get-LocalizedData -ResourceName 'xWebAdministration.Common' -ScriptRoot $PSScriptRoot

@@ -225,12 +225,7 @@ function Get-Value
                 -Filter "system.applicationHost/applicationPools/applicationPoolDefaults$Path" `
                 -Name $Name
 
-    if ($result -is [Microsoft.IIs.PowerShell.Framework.ConfigurationAttribute])
-    {
-        return $result.Value
-    } else {
-        return $result
-    }
+    return Get-WebConfigurationPropertyValue -WebConfigurationPropertyObject $result
 }
 
 #endregion
