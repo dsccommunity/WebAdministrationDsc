@@ -1,28 +1,37 @@
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebApplication'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebApplication'
 
-#region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
- if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
-
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion
+Invoke-TestSetup
 
 try
 {
-    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        $script:DSCResourceName = 'MSFT_xWebApplication'
+    InModuleScope $script:dscResourceName {
+        $script:dscResourceName = 'MSFT_xWebApplication'
 
         $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
                             -ClientOnly `
@@ -69,7 +78,7 @@ try
             )
 
 
-        Describe "$script:DSCResourceName\Get-TargetResource" {
+        Describe "$script:dscResourceName\Get-TargetResource" {
 
             $MockParameters = @{
                 Website                  = 'MockSite'
@@ -136,7 +145,7 @@ try
 
         }
 
-        Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Absent'" {
+        Describe "how $script:dscResourceName\Test-TargetResource responds to Ensure = 'Absent'" {
 
             Mock -CommandName Get-SslFlags -MockWith {
                 return $GetSslFlags
@@ -174,7 +183,7 @@ try
 
         }
 
-        Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
+        Describe "how $script:dscResourceName\Test-TargetResource responds to Ensure = 'Present'" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -498,7 +507,7 @@ try
 
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
+        Describe "how $script:dscResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
 
             Mock -CommandName Get-WebConfiguration -ParameterFilter {$filter -eq 'system.webserver/security/access'}  -MockWith {
                 return $GetWebConfigurationOutput
@@ -522,7 +531,7 @@ try
 
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
+        Describe "how $script:dscResourceName\Set-TargetResource responds to Ensure = 'Present'" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -1035,7 +1044,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueEnabledProtocols" {
+        Describe "$script:dscResourceName\Confirm-UniqueEnabledProtocols" {
 
             Context 'Tests Confirm-UniqueEnabledProtocols' {
 
@@ -1055,7 +1064,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
+        Describe "$script:dscResourceName\Confirm-UniqueServiceAutoStartProviders" {
 
             $MockParameters = @{
                 Name = 'MockServiceAutoStartProvider'
@@ -1156,7 +1165,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Get-AuthenticationInfo" {
+        Describe "$script:dscResourceName\Get-AuthenticationInfo" {
 
             Context 'Expected behavior' {
 
@@ -1224,7 +1233,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Get-DefaultAuthenticationInfo" {
+        Describe "$script:dscResourceName\Get-DefaultAuthenticationInfo" {
 
             Context 'Expected behavior' {
 
@@ -1249,7 +1258,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Get-SslFlags" {
+        Describe "$script:dscResourceName\Get-SslFlags" {
 
             Context 'Expected behavior' {
 
@@ -1290,7 +1299,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Set-Authentication" {
+        Describe "$script:dscResourceName\Set-Authentication" {
 
             Context 'Expected behavior' {
 
@@ -1309,7 +1318,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Set-AuthenticationInfo" {
+        Describe "$script:dscResourceName\Set-AuthenticationInfo" {
 
             Context 'Expected behavior' {
 
@@ -1332,7 +1341,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
+        Describe "$script:dscResourceName\Test-AuthenticationEnabled" {
 
             Context 'Expected behavior' {
 
@@ -1398,7 +1407,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
+        Describe "$script:dscResourceName\Test-AuthenticationInfo" {
 
             Mock -CommandName Get-WebConfigurationProperty -MockWith {$GetWebConfigurationOutput}
 
@@ -1467,7 +1476,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Test-SslFlags" {
+        Describe "$script:dscResourceName\Test-SslFlags" {
 
             Context 'Expected behavior' {
 
@@ -1532,7 +1541,5 @@ try
 }
 finally
 {
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Invoke-TestCleanup
 }

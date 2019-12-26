@@ -1,38 +1,45 @@
 
-$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebSite'
+$script:dscModuleName   = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebSite'
 
-#region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion
+Invoke-TestSetup
 
-# Begin Testing
 try
 {
-    #region Pester Tests
-    InModuleScope -ModuleName $script:DSCResourceName -ScriptBlock {
-        $script:DSCResourceName = 'MSFT_xWebSite'
+    InModuleScope $script:dscResourceName {
+        $script:dscResourceName = 'MSFT_xWebSite'
 
         # Make sure we don't have the original module in memory.
         Remove-Module -Name 'WebAdministration' -ErrorAction SilentlyContinue
 
         # Load the stubs
         $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-        Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1') -Force
+        Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1') -Force
 
-        Describe "how $script:DSCResourceName\Get-TargetResource responds" {
+        Describe "how $script:dscResourceName\Get-TargetResource responds" {
             $MockWebBinding = @(
                 @{
                     bindingInformation   = '*:443:web01.contoso.com'
@@ -316,7 +323,7 @@ try
             }
         }
 
-        Describe "how $script:DSCResourceName\Test-TargetResource responds to Ensure = 'Present'" {
+        Describe "how $script:dscResourceName\Test-TargetResource responds to Ensure = 'Present'" {
             $MockBindingInfo = @(
                 New-CimInstance -ClassName MSFT_xWebBindingInformation `
                 -Namespace root/microsoft/Windows/DesiredStateConfiguration `
@@ -944,7 +951,7 @@ try
             }
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Present'" {
+        Describe "how $script:dscResourceName\Set-TargetResource responds to Ensure = 'Present'" {
             $MockAuthenticationInfo = New-CimInstance  `
                 -ClassName MSFT_xWebApplicationAuthenticationInformation `
                 -ClientOnly `
@@ -1742,7 +1749,7 @@ try
             }
         }
 
-        Describe "how $script:DSCResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
+        Describe "how $script:dscResourceName\Set-TargetResource responds to Ensure = 'Absent'" {
             $MockParameters = @{
                 Ensure       = 'Absent'
                 Name         = 'MockName'
@@ -1779,7 +1786,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueBinding" {
+        Describe "$script:dscResourceName\Confirm-UniqueBinding" {
             Context 'Returns false when LogFlags are incorrect' {
 
                 $MockLogOutput = @{
@@ -1826,7 +1833,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueBinding" {
+        Describe "$script:dscResourceName\Confirm-UniqueBinding" {
             $MockParameters = @{
                 Name = 'MockSite'
             }
@@ -2024,7 +2031,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Confirm-UniqueServiceAutoStartProviders" {
+        Describe "$script:dscResourceName\Confirm-UniqueServiceAutoStartProviders" {
             $MockParameters = @{
                 Name = 'MockServiceAutoStartProvider'
                 Type = 'MockApplicationType'
@@ -2131,7 +2138,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\ConvertTo-CimBinding" {
+        Describe "$script:dscResourceName\ConvertTo-CimBinding" {
             Context 'IPv4 address is passed and the protocol is http' {
                 $MockWebBinding = @{
                     bindingInformation = '127.0.0.1:80:MockHostName'
@@ -2263,7 +2270,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\ConvertTo-WebBinding" -Tag 'ConvertTo' {
+        Describe "$script:dscResourceName\ConvertTo-WebBinding" -Tag 'ConvertTo' {
             Context 'Expected behaviour' {
                 $MockBindingInfo = @(
                     New-CimInstance `
@@ -2640,7 +2647,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Format-IPAddressString" {
+        Describe "$script:dscResourceName\Format-IPAddressString" {
             Context 'Input value is not valid' {
                 It 'should throw an error' {
                     { Format-IPAddressString -InputString 'Invalid' } | Should Throw
@@ -2667,7 +2674,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Get-AuthenticationInfo" {
+        Describe "$script:dscResourceName\Get-AuthenticationInfo" {
             $MockWebsite = @{
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
@@ -2737,7 +2744,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Get-DefaultAuthenticationInfo" {
+        Describe "$script:dscResourceName\Get-DefaultAuthenticationInfo" {
             Context 'Expected behavior' {
                 It 'should not throw an error' {
                     { Get-DefaultAuthenticationInfo }|
@@ -2756,7 +2763,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Set-Authentication" {
+        Describe "$script:dscResourceName\Set-Authentication" {
             Context 'Expected behavior' {
                 $MockWebsite = @{
                     Name                 = 'MockName'
@@ -2785,7 +2792,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Set-AuthenticationInfo" {
+        Describe "$script:dscResourceName\Set-AuthenticationInfo" {
             Context 'Expected behavior' {
                 $MockWebsite = @{
                     Name                 = 'MockName'
@@ -2818,7 +2825,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-AuthenticationEnabled" {
+        Describe "$script:dscResourceName\Test-AuthenticationEnabled" {
             $MockWebsite = @{
                 Name                 = 'MockName'
                 PhysicalPath         = 'C:\NonExistent'
@@ -2888,7 +2895,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-AuthenticationInfo" {
+        Describe "$script:dscResourceName\Test-AuthenticationInfo" {
             Mock -CommandName Get-WebConfigurationProperty -MockWith {$MockWebConfiguration}
 
             $MockWebsite = @{
@@ -2964,7 +2971,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-BindingInfo" {
+        Describe "$script:dscResourceName\Test-BindingInfo" {
             Context 'BindingInfo is valid' {
                 $MockBindingInfo = @(
                     New-CimInstance `
@@ -3100,7 +3107,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-PortNumber" {
+        Describe "$script:dscResourceName\Test-PortNumber" {
             Context 'Input value is not valid' {
                 It 'should not throw an error' {
                     {Test-PortNumber -InputString 'InvalidString'} | Should Not Throw
@@ -3130,7 +3137,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-WebsiteBinding" {
+        Describe "$script:dscResourceName\Test-WebsiteBinding" {
             $MockWebBinding = @(
                 @{
                     bindingInformation   = '*:80:'
@@ -3664,7 +3671,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Update-DefaultPage" {
+        Describe "$script:dscResourceName\Update-DefaultPage" {
             $MockWebsite = @{
                 Ensure             = 'Present'
                 Name               = 'MockName'
@@ -3689,7 +3696,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Update-WebsiteBinding" {
+        Describe "$script:dscResourceName\Update-WebsiteBinding" {
             $MockWebsite = @{
                 Name      = 'MockSite'
                 ItemXPath = "/system.applicationHost/sites/site[@name='MockSite']"
@@ -3835,7 +3842,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\ConvertTo-CimLogCustomFields"{
+        Describe "$script:dscResourceName\ConvertTo-CimLogCustomFields"{
             $mockLogCustomFields = @(
                 @{
                     LogFieldName = 'LogField1'
@@ -3869,7 +3876,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Test-LogCustomField"{
+        Describe "$script:dscResourceName\Test-LogCustomField"{
             $MockWebsiteName = 'ContosoSite'
 
             $MockCimLogCustomFields = @(
@@ -3921,7 +3928,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Set-LogCustomField"{
+        Describe "$script:dscResourceName\Set-LogCustomField"{
             $MockWebsiteName = 'ContosoSite'
 
             $MockCimLogCustomFields = @(
@@ -3964,7 +3971,5 @@ try
 }
 finally
 {
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Invoke-TestCleanup
 }

@@ -4,35 +4,41 @@
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param ()
 
-$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebAppPool'
+$script:dscModuleName   = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebAppPool'
 
-#region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
+Invoke-TestSetup
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion
-
-# Begin Testing
 try
 {
-    #region Pester Tests
+    InModuleScope $script:dscResourceName {
 
-    InModuleScope $script:DSCResourceName {
-
-        Describe "$($script:DSCResourceName)\Get-TargetResource" {
+        Describe "$($script:dscResourceName)\Get-TargetResource" {
 
             Mock Assert-Module
 
@@ -352,7 +358,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Test-TargetResource' responds to Ensure = 'Absent'" {
+        Describe "how '$($script:dscResourceName)\Test-TargetResource' responds to Ensure = 'Absent'" {
 
             Mock Assert-Module
 
@@ -384,7 +390,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Test-TargetResource' responds to Ensure = 'Present'" {
+        Describe "how '$($script:dscResourceName)\Test-TargetResource' responds to Ensure = 'Present'" {
 
             Mock Assert-Module
 
@@ -1707,7 +1713,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Absent'" {
+        Describe "how '$($script:dscResourceName)\Set-TargetResource' responds to Ensure = 'Absent'" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -1787,7 +1793,7 @@ try
 
         }
 
-        Describe "how '$($script:DSCResourceName)\Set-TargetResource' responds to Ensure = 'Present'" {
+        Describe "how '$($script:dscResourceName)\Set-TargetResource' responds to Ensure = 'Present'" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -3308,10 +3314,8 @@ try
         }
 
     }
-
-    #endregion
 }
 finally
 {
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
+    Invoke-TestCleanup
 }

@@ -1,37 +1,53 @@
 
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebConfigProperty'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebConfigProperty'
 
-#region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    if (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip'))
+    try
     {
-        Expand-Archive -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests.zip') -DestinationPath (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests') -Force
+        Import-Module -Name DscResource.Test -Force
     }
-    else
+    catch [System.IO.FileNotFoundException]
     {
-        & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
     }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1') -Force -Scope Global
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1') -Force -Scope Global
+function Invoke-TestCleanup
+{
+    if (Get-Module -Name 'MockWebAdministrationWindowsFeature')
+    {
+        Write-Information 'Removing MockWebAdministrationWindowsFeature module...'
+        Remove-Module -Name 'MockWebAdministrationWindowsFeature'
+    }
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion HEADER
+    $mocks = (Get-ChildItem Function:) | Where-Object { $_.Source -eq 'MockWebAdministrationWindowsFeature' }
 
-# Begin Testing
+    if ($mocks)
+    {
+        Write-Information 'Removing MockWebAdministrationWindowsFeature functions...'
+        $mocks | Remove-Item
+    }
+
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
+
+Invoke-TestSetup
+
 try
 {
-    InModuleScope $script:DSCResourceName {
-        $script:DSCModuleName = 'xWebAdministration'
-        $script:DSCResourceName = 'MSFT_xWebConfigProperty'
+    InModuleScope $script:dscResourceName {
+        $script:dscModuleName = 'xWebAdministration'
+        $script:dscResourceName = 'MSFT_xWebConfigProperty'
 
         $script:presentParameters = @{
             WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
@@ -49,7 +65,7 @@ try
         }
 
         #region Function Get-TargetResource
-        Describe "$($script:DSCResourceName)\Get-TargetResource" {
+        Describe "$($script:dscResourceName)\Get-TargetResource" {
             Context 'Value is absent' {
                 $parameters = @{
                     WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
@@ -57,7 +73,7 @@ try
                     PropertyName = 'enabled'
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
@@ -81,7 +97,7 @@ try
                     PropertyName = 'enabled'
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return 'true'
                 }
 
@@ -101,9 +117,9 @@ try
         #endregion Function Get-TargetResource
 
         #region Function Test-TargetResource
-        Describe "$($script:DSCResourceName)\Test-TargetResource" {
+        Describe "$($script:dscResourceName)\Test-TargetResource" {
             Context 'Ensure is present but value is null' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
@@ -115,7 +131,7 @@ try
             }
 
             Context 'Ensure is present but value is an empty string' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return [System.String]::Empty
                 }
 
@@ -127,7 +143,7 @@ try
             }
 
             Context 'Ensure is present but value is wrong' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return 'false'
                 }
 
@@ -139,7 +155,7 @@ try
             }
 
             Context 'Ensure is present and the value is the same' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return 'true'
                 }
 
@@ -151,7 +167,7 @@ try
             }
 
             Context 'Ensure is absent but value is not null' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return 'true'
                 }
 
@@ -163,7 +179,7 @@ try
             }
 
             Context 'Ensure is absent and value is null' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
@@ -177,7 +193,7 @@ try
         #endregion Function Test-TargetResource
 
         #region Function Set-TargetResource
-        Describe "$($script:DSCResourceName)\Set-TargetResource" {
+        Describe "$($script:dscResourceName)\Set-TargetResource" {
             Context 'Ensure is present - String Value' {
                 Mock -CommandName Get-ItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
@@ -219,7 +235,7 @@ try
         #endregion Function Set-TargetResource
 
         #region Non-Exported Function Unit Tests
-        Describe "$($script:DSCResourceName)\Get-ItemPropertyType" {
+        Describe "$($script:dscResourceName)\Get-ItemPropertyType" {
             $propertyType = 'UInt32'
             $parameters = @{
                 WebsitePath  = 'IIS:\'
@@ -245,7 +261,7 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Convert-PropertyValue" {
+        Describe "$($script:dscResourceName)\Convert-PropertyValue" {
             $cases = @(
                 @{DataType = 'Int32'},
                 @{DataType = 'Int64'},
@@ -264,18 +280,5 @@ try
 }
 finally
 {
-    if (Get-Module -Name 'MockWebAdministrationWindowsFeature')
-    {
-        Write-Information 'Removing MockWebAdministrationWindowsFeature module...'
-        Remove-Module -Name 'MockWebAdministrationWindowsFeature'
-    }
-    $mocks = (Get-ChildItem Function:) | Where-Object { $_.Source -eq 'MockWebAdministrationWindowsFeature' }
-    if ($mocks)
-    {
-        Write-Information 'Removing MockWebAdministrationWindowsFeature functions...'
-        $mocks | Remove-Item
-    }
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Invoke-TestCleanup
 }

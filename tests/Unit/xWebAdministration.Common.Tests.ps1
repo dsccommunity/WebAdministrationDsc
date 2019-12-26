@@ -8,13 +8,24 @@
 #>
 Get-Module -Name 'xWebAdministration.Common' -All | Remove-Module -Force
 
-# Import the xWebAdministration.Common module to test
-$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
-$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules\xWebAdministration.Common'
+#region HEADER
+$script:projectPath = "$PSScriptRoot\..\.." | Convert-Path
+$script:projectName = (Get-ChildItem -Path "$script:projectPath\*\*.psd1" | Where-Object -FilterScript {
+        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+        $(try { Test-ModuleManifest -Path $_.FullName -ErrorAction Stop } catch { $false })
+    }).BaseName
 
-Import-Module -Name (Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common.psm1') -Force
+$script:parentModule = Get-Module -Name $script:projectName -ListAvailable | Select-Object -First 1
+$script:subModulesFolder = Join-Path -Path $script:parentModule.ModuleBase -ChildPath 'Modules'
+Remove-Module -Name $script:parentModule -Force -ErrorAction 'SilentlyContinue'
 
-InModuleScope 'xWebAdministration.Common' {
+$script:subModuleName = (Split-Path -Path $PSCommandPath -Leaf) -replace '\.Tests.ps1'
+$script:subModuleFile = Join-Path -Path $script:subModulesFolder -ChildPath "$($script:subModuleName)"
+
+Import-Module $script:subModuleFile -Force -ErrorAction Stop
+#endregion HEADER
+
+InModuleScope $script:subModuleName {
     Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1') -Force
 
     Describe 'xWebAdministration.Common\Get-LocalizedData' {

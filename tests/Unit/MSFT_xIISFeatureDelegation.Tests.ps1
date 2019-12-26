@@ -1,30 +1,38 @@
 
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xIISFeatureDelegation'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xIISFeatureDelegation'
 
-#region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
- if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
+Invoke-TestSetup
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion
-
-# Begin Testing
 try
 {
     #region Pester Tests
-    InModuleScope $DSCResourceName {
+    InModuleScope $script:dscResourceName {
 
         $mockAllowOverrideMode = @{
             Metadata = @{
@@ -52,6 +60,10 @@ try
 
         #region Function Get-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Get-TargetResource' {
+            BeforeAll {
+                Mock -CommandName Assert-Module
+            }
+
             Context 'When OverrideMode is set to Allow' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
                 $result = Get-TargetResource @allowTargetResourceParameters
@@ -77,6 +89,10 @@ try
 
         #region Function Test-TargetResource
         Describe 'MSFT_xIISFeatureDelegation\Test-TargetResource' {
+            BeforeAll {
+                Mock -CommandName Assert-Module
+            }
+
             Context 'When OverrideMode is set to Allow' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
                 It 'Should return True when in desired state' {
@@ -174,7 +190,5 @@ try
 }
 finally
 {
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Invoke-TestCleanup
 }

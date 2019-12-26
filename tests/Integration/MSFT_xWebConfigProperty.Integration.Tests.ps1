@@ -1,28 +1,23 @@
 $script:dscModuleName = 'xWebAdministration'
-$script:dscResourceFriendlyName = 'xWebConfigProperty'
-$script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
+$script:dscResourceName = "MSFT_xWebConfigProperty"
 
-#region HEADER
-# Integration Test Template Version: 1.3.0
-[String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
-# Ensure the WebAdministration module is imported into the current session!
-Import-Module WebAdministration -Force
-$TestEnvironment = Initialize-TestEnvironment `
+$script:testEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:dscModuleName `
     -DSCResourceName $script:dscResourceName `
-    -TestType Integration
-#endregion
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
 [string] $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
-# Using try/finally to always cleanup.
 try
 {
     $configurationFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
@@ -180,13 +175,11 @@ try
 }
 finally
 {
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-
     # Addresses Issue #385: xWebConfigPropertyCollection: Timing issue in integration tests
     Start-Sleep -Seconds 4
 
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
-    #endregion
+
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

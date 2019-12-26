@@ -1,32 +1,40 @@
 
 #region HEADER
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebConfigPropertyCollection'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebConfigPropertyCollection'
 
-# Unit Test Template Version: 1.2.2
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -ResourceType 'Mof' `
-    -TestType Unit
+Invoke-TestSetup
 
-#endregion HEADER
-
-# Begin Testing
 try
 {
-    InModuleScope $script:DSCResourceName {
-        $script:DSCModuleName = 'xWebAdministration'
-        $script:DSCResourceName = 'MSFT_xWebConfigPropertyCollection'
+    InModuleScope $script:dscResourceName {
+        $script:dscModuleName = 'xWebAdministration'
+        $script:dscResourceName = 'MSFT_xWebConfigPropertyCollection'
 
         $script:presentParameters = @{
             WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
@@ -52,7 +60,7 @@ try
         }
 
         #region Function Get-TargetResource
-        Describe "$($script:DSCResourceName)\Get-TargetResource" {
+        Describe "$($script:dscResourceName)\Get-TargetResource" {
             $parameters = @{
                 WebsitePath      = 'MACHINE/WEBROOT/APPHOST'
                 Filter           = 'system.webServer/advancedLogging/server'
@@ -63,7 +71,7 @@ try
                 ItemPropertyName = 'allowed'
             }
             Context 'Collection item does not exist' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
@@ -87,7 +95,7 @@ try
             }
 
             Context 'Collection item exists but does not contain property' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return @(@{
                         Name = 'Property1'
                         Value = 'Property1Value'
@@ -114,7 +122,7 @@ try
             }
 
             Context 'Collection item exists and contains property' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
                         allowed = 'false'
@@ -144,9 +152,9 @@ try
         #endregion Function Get-TargetResource
 
         #region Function Test-TargetResource
-        Describe "$($script:DSCResourceName)\Test-TargetResource" {
+        Describe "$($script:dscResourceName)\Test-TargetResource" {
             Context 'Ensure is present but collection item does not exist' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
@@ -158,7 +166,7 @@ try
             }
 
             Context 'Ensure is present and collection item exists but does not contain property' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return @(@{
                         Name = 'Property1'
                         Value = 'Property1Value'
@@ -173,7 +181,7 @@ try
             }
 
             Context 'Ensure is present and collection item and property exists but value is wrong' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
                         allowed = 'true'
@@ -188,7 +196,7 @@ try
             }
 
             Context 'Ensure is present and collection item and property exists and value is same' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
                         allowed = 'false'
@@ -203,7 +211,7 @@ try
             }
 
             Context 'Ensure is absent but collection item and property exists' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
                         allowed = 'false'
@@ -218,7 +226,7 @@ try
             }
 
             Context 'Ensure is absent and collection item and property do not exist' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
@@ -232,9 +240,9 @@ try
         #endregion Function Test-TargetResource
 
         #region Function Set-TargetResource
-        Describe "$($script:DSCResourceName)\Set-TargetResource" {
+        Describe "$($script:dscResourceName)\Set-TargetResource" {
             Context 'Ensure is present and collection item and property do not exist - String ItemPropertyValue' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName
                 Mock -CommandName Add-WebConfigurationProperty
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
@@ -250,7 +258,7 @@ try
             }
 
             Context 'Ensure is present and collection item and property do not exist - Integer ItemPropertyValue' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName
                 Mock -CommandName Add-WebConfigurationProperty
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'Int64' }
                 Mock -CommandName Convert-PropertyValue
@@ -266,7 +274,7 @@ try
             }
 
             Context 'Ensure is present and collection item and property exist' {
-                Mock -CommandName Get-ItemValues -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName -MockWith {
                     return @{
                         Property1 = 'Property1Value'
                         allowed = 'false'
@@ -302,7 +310,7 @@ try
 
         #region Non-Exported Function Unit Tests
 
-        Describe "$($script:DSCResourceName)\Get-ItemValues" {
+        Describe "$($script:dscResourceName)\Get-ItemValues" {
             $parameters = @{
                 WebsitePath    = 'MACHINE/WEBROOT/APPHOST'
                 Filter         = 'system.webServer/advancedLogging/server'
@@ -364,7 +372,7 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Get-CollectionItemPropertyType" {
+        Describe "$($script:dscResourceName)\Get-CollectionItemPropertyType" {
             $propertyType = 'UInt32'
             $parameters = @{
                 WebsitePath  = 'IIS:\'
@@ -383,6 +391,12 @@ try
                 }
             }
 
+            <#
+                This function in the code contains a output type that is not mocked.
+                Tricking the mock to use this empty function-block instead.
+            #>
+            function Get-AddElementSchema {}
+
             Mock -CommandName Get-AddElementSchema -MockWith {
                 @{
                     Name    = $parameters.PropertyName
@@ -397,7 +411,7 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Convert-PropertyValue" {
+        Describe "$($script:dscResourceName)\Convert-PropertyValue" {
             $cases = @(
                 @{DataType = 'Int32'},
                 @{DataType = 'Int64'},
@@ -429,7 +443,6 @@ finally
         Write-Information 'Removing MockWebAdministrationWindowsFeature functions...'
         $mocks | Remove-Item
     }
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+
+    Invoke-TestCleanup
 }

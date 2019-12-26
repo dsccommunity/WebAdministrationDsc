@@ -1,29 +1,36 @@
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_WebApplicationHandler'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_WebApplicationHandler'
 
-#region Header
-#Unit Test Template Version: 1.0.0
-
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion
+Invoke-TestSetup
 
-# Begin Tests
 try
 {
-    InModuleScope $DSCResourceName {
+    InModuleScope $script:dscResourceName {
 
         $customWebHandlerParameters = @{
             Path                = 'MACHINE/WEBROOT/APPHOST'
@@ -388,7 +395,5 @@ try
 
 finally
 {
-    #region Footer
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Invoke-TestCleanup
 }

@@ -1,35 +1,32 @@
 
-$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xIISMimeTypeMapping'
+$script:dscModuleName   = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xIISMimeTypeMapping'
 
-#region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
-{
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
-}
-
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Integration
-#endregion
-
-[string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
-
-# Using try/finally to always cleanup even if something awful happens.
 try
 {
-    #region Integration Tests
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+}
 
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
+
+[string]$tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+
+try
+{
     $null = Backup-WebConfiguration -Name $tempName
 
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $ConfigFile
 
-    Describe "$($script:DSCResourceName)_Integration Default tests" {
+    Describe "$($script:dscResourceName)_Integration Default tests" {
 
         #region Test Setup
         $tempVirtualDirectoryName = 'Dir01'
@@ -67,7 +64,7 @@ try
         Context "When Adding a MimeType" {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_AddMimeType" -OutputPath $TestDrive -ConfigurationData $configData
+                    & "$($script:dscResourceName)_AddMimeType" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
             }
@@ -91,7 +88,7 @@ try
 
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_RemoveMimeType" -OutputPath $TestDrive -ConfigurationData $configData
+                    & "$($script:dscResourceName)_RemoveMimeType" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
             }
@@ -114,7 +111,7 @@ try
         Context "When Adding a MimeType in a Nested Path" {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                    & "$($script:dscResourceName)_AddMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
             }
@@ -138,7 +135,7 @@ try
         Context "When Removing a MimeType from a Nested Path" {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_RemoveMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
+                    & "$($script:dscResourceName)_RemoveMimeTypeNestedPath" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
             }
@@ -162,7 +159,7 @@ try
         Context "When Adding a MimeType at the Server Level" {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_AddMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
+                    & "$($script:dscResourceName)_AddMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
             }
@@ -186,7 +183,7 @@ try
         Context "When Removing MimeType at the Server Level" {
             It 'Should compile and apply the MOF without throwing' {
                 {
-                    & "$($script:DSCResourceName)_RemoveMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
+                    & "$($script:dscResourceName)_RemoveMimeTypeAtServer" -OutputPath $TestDrive -ConfigurationData $configData
                     Start-DscConfiguration @startDscConfigurationParameters
                 } | Should Not Throw
             }
@@ -207,14 +204,11 @@ try
             }
         }
     }
-    #endregion
 }
 finally
 {
-    #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
 
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

@@ -1,34 +1,32 @@
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xIISFeatureDelegation'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xIISFeatureDelegation'
 
-#region HEADER
-# Integration Test Template Version: 1.2.1
-[String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Integration
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
-#endregion
-
-[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
+[string] $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
 {
     #region Integration Tests
-    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    Describe "$($script:DSCResourceName)_Integration" {
+    Describe "$($script:dscResourceName)_Integration" {
         $startDscConfigurationParameters = @{
             Path         = $TestDrive
             ComputerName = 'localhost'
@@ -40,7 +38,7 @@ try
 
         Context 'Allow Feature Delegation'{
             $currentOverrideMode = (Get-WebConfiguration -Filter '/system.web/customErrors' -Pspath iis:\ -Metadata).Metadata.effectiveOverrideMode
-            $configurationName = "$($script:DSCResourceName)_AllowDelegation"
+            $configurationName = "$($script:dscResourceName)_AllowDelegation"
             #For this test we want the target section to start at effectiveOverrideMode 'Deny'
             If ( $currentOverrideMode -ne 'Deny')
             {
@@ -82,7 +80,7 @@ try
 
         Context 'Deny Feature Delegation'{
             $currentOverrideMode = (Get-WebConfiguration -Filter 'system.webServer/defaultDocument' -Pspath 'MACHINE/WEBROOT/APPHOST' -Metadata).Metadata.effectiveOverrideMode
-            $configurationName = "$($script:DSCResourceName)_DenyDelegation"
+            $configurationName = "$($script:dscResourceName)_DenyDelegation"
             #For this test we want the target section to start at effectiveOverrideMode 'Allow'
             If ( $currentOverrideMode -ne 'Allow')
             {
@@ -134,10 +132,8 @@ try
 }
 finally
 {
-    #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
 
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

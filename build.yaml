@@ -33,7 +33,6 @@ BuildWorkflow:
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
-    - hqrmtest
 
   publish:
     - Publish_release_to_GitHub
@@ -48,10 +47,9 @@ Pester:
   OutputFormat: NUnitXML
   ExcludeFromCodeCoverage:
   Script:
+    - tests/QA
+    - tests/Unit
   ExcludeTag:
-    - helpQuality
-    - FunctionalQuality
-    - TestQuality
   Tag:
   CodeCoverageThreshold: 85
 

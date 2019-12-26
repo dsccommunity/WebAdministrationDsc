@@ -1,30 +1,36 @@
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xIisLogging'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xIisLogging'
 
-# Unit Test Template Version: 1.1.0
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
+Invoke-TestSetup
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion HEADER
-
-# Begin Testing
 try
 {
-    #region Pester Tests
-
-    InModuleScope $script:DSCResourceName {
+    InModuleScope $script:dscResourceName {
 
     $MockLogCustomFields = @{
             LogFieldName = 'ClientEncoding'
@@ -69,7 +75,7 @@ try
 
         $MockLogFlagsAfterSplit = [System.String[]] @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
 
-        Describe "$script:DSCResourceName\Get-TargetResource" {
+        Describe "$script:dscResourceName\Get-TargetResource" {
 
             Context 'Correct hashtable is returned' {
 
@@ -144,7 +150,7 @@ try
 
         }
 
-        Describe "$script:DSCResourceName\Test-TargetResource" {
+        Describe "$script:dscResourceName\Test-TargetResource" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -472,7 +478,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Set-TargetResource" {
+        Describe "$script:dscResourceName\Set-TargetResource" {
 
             Mock -CommandName Assert-Module -MockWith {}
 
@@ -770,7 +776,7 @@ try
 
         }
 
-    Describe "$script:DSCResourceName\ConvertTo-CimLogCustomFields"{
+    Describe "$script:dscResourceName\ConvertTo-CimLogCustomFields"{
             $MockLogCustomFields = @{
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
@@ -794,7 +800,7 @@ try
             }
         }
 
-    Describe "$script:DSCResourceName\Test-LogCustomField" {
+    Describe "$script:dscResourceName\Test-LogCustomField" {
             $MockCimLogCustomFields = @(
                 New-CimInstance -ClassName MSFT_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
@@ -843,7 +849,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Compare-LogFlags" {
+        Describe "$script:dscResourceName\Compare-LogFlags" {
 
             Context 'Returns false when LogFlags are incorrect' {
 
@@ -891,7 +897,7 @@ try
             }
 
          }
-    Describe "$script:DSCResourceName\Set-LogCustomField" {
+    Describe "$script:dscResourceName\Set-LogCustomField" {
 
             $MockCimLogCustomFields = @(
                 New-CimInstance -ClassName MSFT_xLogCustomField `
@@ -930,11 +936,9 @@ try
             }
         }
     }
-
-    #endregion
 }
 
 finally
 {
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
+    Invoke-TestCleanup
 }

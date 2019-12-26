@@ -1,35 +1,40 @@
 
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xSslSettings'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xSslSettings'
 
-#region HEADER
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
- if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-      (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
-
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion
-
-# Begin Testing
+Invoke-TestSetup
 
 try
 {
-    #region Pester Tests
+    InModuleScope $script:dscResourceName {
+        $script:dscResourceName = 'MSFT_xSslSettings'
 
-    InModuleScope $DSCResourceName {
-        $script:DSCResourceName = 'MSFT_xSslSettings'
-
-        Describe "$script:DSCResourceName\Test-TargetResource" {
+        Describe "$script:dscResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {
                 Mock Get-TargetResource -Verifiable {return @{
                     Name = 'Test'
@@ -79,7 +84,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Get-TargetResource" {
+        Describe "$script:dscResourceName\Get-TargetResource" {
             Context 'Command finds SSL Settings' {
                 Mock Assert-Module -Verifiable {}
                 Mock Get-WebConfigurationProperty -Verifiable { return 'Ssl' }
@@ -125,7 +130,7 @@ try
             }
         }
 
-        Describe "$script:DSCResourceName\Set-TargetResource" {
+        Describe "$script:dscResourceName\Set-TargetResource" {
             Context 'SSL Bindings set to none' {
                 Mock Assert-Module -Verifiable { }
                 Mock Set-WebConfigurationProperty -Verifiable {}
@@ -178,7 +183,5 @@ try
 }
 finally
 {
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Invoke-TestCleanup
 }

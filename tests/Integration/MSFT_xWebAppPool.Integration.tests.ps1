@@ -1,25 +1,22 @@
 #requires -Version 4.0
 
-$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebAppPool'
+$script:dscModuleName   = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebAppPool'
 
-#region HEADER
-
-# Integration Test Template Version: 1.1.0
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Integration 
-
-#endregion
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
 # Test Setup
 if ((Get-Service -Name 'W3SVC').Status -ne 'Running')
@@ -27,22 +24,20 @@ if ((Get-Service -Name 'W3SVC').Status -ne 'Running')
     Start-Service -Name 'W3SVC'
 }
 
-$tempBackupName = "$($script:DSCResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-
-# Using try/finally to always cleanup even if something awful happens.
+$tempBackupName = "$($script:dscResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
 
 try
 {
     # Create configuration backup
-    
+
     Backup-WebConfiguration -Name $tempBackupName | Out-Null
 
     #region Integration Tests
 
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $ConfigFile
 
-    Describe "$($script:DSCResourceName)_Integration" {
+    Describe "$($script:dscResourceName)_Integration" {
 
         #region Default Tests
 
@@ -50,7 +45,7 @@ try
             {
                 Invoke-Expression -Command (
                     '{0}_Config -OutputPath $TestDrive -ConfigurationData $ConfigData -ErrorAction Stop' -f
-                    $script:DSCResourceName
+                    $script:dscResourceName
                 )
 
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Force -Wait -Verbose
@@ -103,10 +98,8 @@ try
 }
 finally
 {
-    #region FOOTER
     Restore-WebConfiguration -Name $tempBackupName
     Remove-WebConfigurationBackup -Name $tempBackupName
 
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

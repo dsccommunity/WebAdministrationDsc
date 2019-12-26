@@ -1,31 +1,31 @@
-$script:DSCModuleName      = 'xWebAdministration'
-$script:DSCResourceName    = 'MSFT_WebApplicationHandler'
+$script:dscModuleName      = 'xWebAdministration'
+$script:dscResourceName    = 'MSFT_WebApplicationHandler'
 
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Integration
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
-[string]$tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string]$tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
-# Using try/finally to always cleanup even if something awful happens.
 try
 {
     $null = Backup-WebConfiguration -Name $tempName
 
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $ConfigFile
 
-    Describe "$($script:DSCResourceName)_AllParameters" {
+    Describe "$($script:dscResourceName)_AllParameters" {
 
         #region Test Setup
 
@@ -42,7 +42,7 @@ try
                         ConfigurationData = $ConfigurationData
                     }
 
-                    & "$($script:DSCResourceName)_Addhandler" @configurationParameters
+                    & "$($script:dscResourceName)_Addhandler" @configurationParameters
 
                     Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
                 } | Should -Not -Throw
@@ -85,7 +85,7 @@ try
                         ConfigurationData = $ConfigurationData
                     }
 
-                    & "$($script:DSCResourceName)_Removehandler" @configurationParameters
+                    & "$($script:dscResourceName)_Removehandler" @configurationParameters
 
                     Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
                 } | Should -Not -Throw
@@ -123,7 +123,7 @@ try
     }
 
 
-    Describe "$($script:DSCResourceName)_ExcludedOptionalParameters" {
+    Describe "$($script:dscResourceName)_ExcludedOptionalParameters" {
 
         #region Test Setup
 
@@ -139,7 +139,7 @@ try
                         ConfigurationData = $ConfigurationDataExcludedOptionalParameters
                     }
 
-                    & "$($script:DSCResourceName)_AddHandlerExcludedOptionalParameters" @configurationParameters
+                    & "$($script:dscResourceName)_AddHandlerExcludedOptionalParameters" @configurationParameters
 
                     Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
                 } | Should -Not -Throw
@@ -177,7 +177,7 @@ try
                         ConfigurationData = $ConfigurationDataExcludedOptionalParameters
                     }
 
-                    & "$($script:DSCResourceName)_RemoveHandlerExcludedOptionalParameters" @configurationParameters
+                    & "$($script:dscResourceName)_RemoveHandlerExcludedOptionalParameters" @configurationParameters
 
                     Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
                 } | Should -Not -Throw
@@ -209,15 +209,10 @@ try
         }
     }
 }
-
 finally
 {
-    #region FOOTER
-
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
 
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-
-    #endregion
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

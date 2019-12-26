@@ -1,38 +1,36 @@
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xIISLogging'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xIISLogging'
 
-#region HEADER
-
-# Integration Test Template Version: 1.1.0
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Integration
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
-#endregion
-
-[String] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[String] $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
 
-try {
-    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+try
+{
+    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configFile
 
     $null = Backup-WebConfiguration -Name $tempName
 
-    Describe "$($script:DSCResourceName)_Rollover" {
+    Describe "$($script:dscResourceName)_Rollover" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_Rollover -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -44,7 +42,7 @@ try {
 
         It 'Changing Logging Rollover Settings ' -test {
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_Rollover -OutputPath `$TestDrive"
+            Invoke-Expression -Command "$($script:dscResourceName)_Rollover -OutputPath `$TestDrive"
             Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
 
             $currentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
@@ -64,11 +62,11 @@ try {
        }
     }
 
-    Describe "$($script:DSCResourceName)_Truncate" {
+    Describe "$($script:dscResourceName)_Truncate" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_Truncate -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -79,7 +77,7 @@ try {
         #endregion
         It 'Changing Loggging Truncate Settings ' -test {
 
-            Invoke-Expression -Command "$($script:DSCResourceName)_Truncate -OutputPath `$TestDrive"
+            Invoke-Expression -Command "$($script:dscResourceName)_Truncate -OutputPath `$TestDrive"
             Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
 
             $currentLogSettings = Get-WebConfiguration -filter '/system.applicationHost/sites/siteDefaults/Logfile'
@@ -101,10 +99,8 @@ try {
 }
 finally
 {
-    #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
 
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

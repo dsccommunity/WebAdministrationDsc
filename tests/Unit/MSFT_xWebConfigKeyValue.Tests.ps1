@@ -1,36 +1,44 @@
 
-$script:DSCModuleName = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebConfigKeyValue'
+$script:dscModuleName = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebConfigKeyValue'
 
-#region HEADER
-# Unit Test Template Version: 1.1.0
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
-if ( (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $moduleRoot -ChildPath '\DSCResource.Tests\'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-Import-Module (Join-Path -Path $moduleRoot -ChildPath 'Tests\MockWebAdministrationWindowsFeature.psm1')
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+}
 
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-#endregion HEADER
+Invoke-TestSetup
 
-# Begin Testing
 try
 {
-    InModuleScope $script:DSCResourceName {
-        $script:DSCModuleName = 'xWebAdministration'
-        $script:DSCResourceName = 'MSFT_xWebConfigKeyValue'
+    InModuleScope $script:dscResourceName {
+        $script:dscModuleName = 'xWebAdministration'
+        $script:dscResourceName = 'MSFT_xWebConfigKeyValue'
 
         #region Function Get-TargetResource
-        Describe "$($script:DSCResourceName)\Get-TargetResource" {
+        Describe "$($script:dscResourceName)\Get-TargetResource" {
             Context 'Value is absent' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
@@ -54,7 +62,7 @@ try
             }
 
             Context 'Value is present but not an attribute' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $IsAttribute -eq $false } `
                     -MockWith { return 'Value' }
 
@@ -78,11 +86,11 @@ try
             }
 
             Context 'Value is present but is an attribute' {
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName -MockWith {
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $isAttribute -eq $true } `
                     -MockWith { return 'Value' }
 
@@ -108,7 +116,7 @@ try
         #endregion Function Get-TargetResource
 
         #region Function Test-TargetResource
-        Describe "$($script:DSCResourceName)\Test-TargetResource" {
+        Describe "$($script:dscResourceName)\Test-TargetResource" {
             Context 'Ensure is present and is Attribute is False but value is null' {
                 $parameters = @{
                     WebsitePath   = 'C:\SomePath\web.config'
@@ -119,7 +127,7 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $isAttribute -eq $false } `
                     -MockWith { return $null }
 
@@ -140,7 +148,7 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $isAttribute -eq $false } `
                     -MockWith { return [System.String]::Empty }
 
@@ -161,7 +169,7 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $isAttribute -eq $false } `
                     -MockWith { return 'WrongValue' }
 
@@ -182,7 +190,7 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $isAttribute -eq $false } `
                     -MockWith { return 'Value' }
 
@@ -203,7 +211,7 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $isAttribute -eq $false } `
                     -MockWith { return 'Value' }
 
@@ -224,7 +232,7 @@ try
                     IsAttribute   = $false
                 }
 
-                Mock -CommandName Get-ItemValue -ModuleName $script:DSCResourceName `
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName `
                     -ParameterFilter { $isAttribute -eq $false } `
                     -MockWith { return $null }
 
@@ -239,7 +247,7 @@ try
 
 
         #region Function Set-TargetResource
-        Describe "$($script:DSCResourceName)\Set-TargetResource" {
+        Describe "$($script:dscResourceName)\Set-TargetResource" {
             Context 'Ensure is Present and IsAttribute is False and value is not present' {
                 $parameters = @{
                     WebsitePath   = 'C:\SomePath\web.config'
@@ -356,7 +364,7 @@ try
         #endregion Exported Function Unit Tests
 
         #region Non-Exported Function Unit Tests
-        Describe "$($script:DSCResourceName)\Add-Item" {
+        Describe "$($script:dscResourceName)\Add-Item" {
             Context 'IsAttribute is false' {
                 Mock -CommandName Add-WebConfigurationProperty -MockWith {}
 
@@ -394,7 +402,7 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Edit-Item" {
+        Describe "$($script:dscResourceName)\Edit-Item" {
             Context 'IsAttribute is false' {
                 Mock -CommandName Set-WebConfigurationProperty -MockWith { return $filter }
 
@@ -442,7 +450,7 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Remove-Item" {
+        Describe "$($script:dscResourceName)\Remove-Item" {
             Context 'IsAttribute is false' {
                 Mock  -CommandName Clear-WebConfiguration -MockWith { return $filter }
 
@@ -494,7 +502,5 @@ try
 }
 finally
 {
-    #region FOOTER
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Invoke-TestCleanup
 }

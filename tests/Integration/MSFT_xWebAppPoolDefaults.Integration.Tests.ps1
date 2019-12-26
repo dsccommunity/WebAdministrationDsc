@@ -1,27 +1,24 @@
 
-$script:DSCModuleName      = 'xWebAdministration'
-$script:DSCResourceName    = 'MSFT_xWebAppPoolDefaults'
+$script:dscModuleName      = 'xWebAdministration'
+$script:dscResourceName    = 'MSFT_xWebAppPoolDefaults'
 
-#region HEADER
-
-# Integration Test Template Version: 1.1.0
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Integration
-#endregion
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
-[string] $tempName = "$($script:DSCResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+[string] $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
-# Using try/finally to always cleanup even if something awful happens.
 try
 {
     #region Integration Tests
@@ -31,7 +28,7 @@ try
     [string]$constAPDFilter = 'system.applicationHost/applicationPools/applicationPoolDefaults'
     [string]$constSiteFilter = 'system.applicationHost/sites/'
 
-    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $ConfigFile
 
     $null = Backup-WebConfiguration -Name $tempName
@@ -41,11 +38,11 @@ try
         return (Get-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.applicationHost/sites/$path" -name $name).value
     }
 
-    Describe "$($script:DSCResourceName)_Integration" {
+    Describe "$($script:dscResourceName)_Integration" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_Config -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_Config -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
         }
@@ -72,7 +69,7 @@ try
                     $env:PesterManagedRuntimeVersion =  'v4.0'
                 }
 
-                Invoke-Expression -Command "$($script:DSCResourceName)_ManagedRuntimeVersion -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_ManagedRuntimeVersion -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             }  | should not throw
 
@@ -101,7 +98,7 @@ try
 
             # Compile the MOF File
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_AppPoolIdentityType -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_AppPoolIdentityType -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
@@ -125,7 +122,7 @@ try
 
             # Compile the MOF File
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_LogFormat -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_LogFormat -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
@@ -142,7 +139,7 @@ try
             $env:PesterDefaultPool =  'DefaultAppPool'
             # Compile the MOF File
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_DefaultPool -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_DefaultPool -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
 
@@ -155,10 +152,8 @@ try
 }
 finally
 {
-    #region FOOTER
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName
 
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-    #endregion
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }

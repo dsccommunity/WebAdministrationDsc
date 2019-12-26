@@ -1,40 +1,37 @@
 
-$script:DSCModuleName      = 'xWebAdministration'
-$script:DSCResourceName    = 'MSFT_xWebConfigKeyValue'
+$script:dscModuleName   = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebConfigKeyValue'
 
-#region HEADER
-# Integration Test Template Version: 1.1.1
-[String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+try
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+    Import-Module -Name DscResource.Test -Force
+}
+catch [System.IO.FileNotFoundException]
+{
+    throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Integration
+$script:testEnvironment = Initialize-TestEnvironment `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
+    -ResourceType 'Mof' `
+    -TestType 'Integration'
 
-#endregion
-
-# Using try/finally to always cleanup.
 try
 {
     #region Integration Tests
-    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configFile
 
     # Constants for Tests
     $env:xWebConfigKeyValuePsPath = 'IIS:\Sites\Default Web Site'
     $env:xWebConfigKeyValueIntegrationKey = 'xWebAdministration Integration Tests Key'
 
-    Describe "$($script:DSCResourceName)_Integration" {
+    Describe "$($script:dscResourceName)_Integration" {
         #region DEFAULT TESTS
         It 'Should compile and apply the MOF without throwing' {
             {
-                & "$($script:DSCResourceName)_Config" -OutputPath $TestDrive
+                & "$($script:dscResourceName)_Config" -OutputPath $TestDrive
                 Start-DscConfiguration -Path $TestDrive `
                     -ComputerName localhost -Wait -Verbose -Force
             } | Should not throw
@@ -55,7 +52,7 @@ try
 
                 $env:xWebConfigKeyValueIntegrationValueUpdated = $originalValue + "-updated"
 
-                Invoke-Expression -Command "$($script:DSCResourceName)_AppSetting_Update -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_AppSetting_Update -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should Not throw
 
@@ -69,7 +66,7 @@ try
 
         It 'Should remove AppSetting "xWebAdministration Integration Tests Key"' {
             {
-                Invoke-Expression -Command "$($script:DSCResourceName)_AppSetting_Absent -OutputPath `$TestDrive"
+                Invoke-Expression -Command "$($script:dscResourceName)_AppSetting_Absent -OutputPath `$TestDrive"
                 Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
             } | Should Not throw
 
@@ -85,10 +82,6 @@ try
 }
 finally
 {
-    #region FOOTER
-
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-
-    #endregion
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }
 

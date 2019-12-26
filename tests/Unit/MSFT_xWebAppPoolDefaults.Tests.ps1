@@ -1,43 +1,43 @@
 #region HEADER
 
-$script:DSCModuleName   = 'xWebAdministration'
-$script:DSCResourceName = 'MSFT_xWebAppPoolDefaults'
+$script:dscModuleName   = 'xWebAdministration'
+$script:dscResourceName = 'MSFT_xWebAppPoolDefaults'
 
-# Unit Test Template Version: 1.2.1
-$script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+function Invoke-TestSetup
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git', `
-        (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    try
+    {
+        Import-Module -Name DscResource.Test -Force
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -Tasks build" first.'
+    }
+
+    $script:testEnvironment = Initialize-TestEnvironment `
+        -DSCModuleName $script:dscModuleName `
+        -DSCResourceName $script:dscResourceName `
+        -ResourceType 'Mof' `
+        -TestType 'Unit'
+
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
 }
 
-Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path `
-    -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
-
-
-$TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
-    -TestType Unit
-
-#endregion HEADER
-
-function Invoke-TestSetup {
+function Invoke-TestCleanup
+{
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }
 
-function Invoke-TestCleanup {
-    Restore-TestEnvironment -TestEnvironment $TestEnvironment
-}
+Invoke-TestSetup
 
-# Begin Testing
 try
 {
-    Invoke-TestSetup
+    InModuleScope $script:dscResourceName {
 
-    InModuleScope $script:DSCResourceName {
-
-        Describe "$($script:DSCResourceName)\Get-TargetResource" {
+        Describe "xWebAppPoolDefaults\Get-TargetResource" {
+            BeforeAll {
+                Mock -CommandName Assert-Module
+            }
 
             Context 'Get application pool defaults' {
                 $mockAppPoolDefaults = @{
@@ -50,6 +50,15 @@ try
                 Mock Get-WebConfigurationProperty -MockWith {
                     $path = $Filter.Replace('system.applicationHost/applicationPools/applicationPoolDefaults', '')
 
+                    if ([System.String]::IsNullOrEmpty($path)) {
+                        return $mockAppPoolDefaults[$Name]
+                    } else {
+                        $path = $path.Replace('/', '')
+                        return $mockAppPoolDefaults[$path][$Name]
+                    }
+                }
+
+                Mock -CommandName Get-WebConfigurationPropertyValue -MockWith {
                     if ([System.String]::IsNullOrEmpty($path)) {
                         return $mockAppPoolDefaults[$Name]
                     } else {
@@ -72,7 +81,22 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Test-TargetResource" {
+        Describe "xWebAppPoolDefaults\Test-TargetResource" {
+            BeforeAll {
+                Mock -CommandName Assert-Module
+
+                Mock -CommandName Get-Value -ParameterFilter {
+                    $Name -eq 'managedRuntimeVersion'
+                } -MockWith {
+                    return 'v4.0'
+                }
+
+                Mock -CommandName Get-Value -ParameterFilter {
+                    $Name -eq 'identityType'
+                } -MockWith {
+                    return 'NetworkService'
+                }
+            }
 
             $mockAppPoolDefaults = @{
                 managedRuntimeVersion = 'v4.0'
@@ -82,6 +106,17 @@ try
             }
 
             Mock Get-WebConfigurationProperty -MockWith {
+                $path = $Filter.Replace('system.applicationHost/applicationPools/applicationPoolDefaults', '')
+
+                if ([System.String]::IsNullOrEmpty($path)) {
+                    return $mockAppPoolDefaults[$Name]
+                } else {
+                    $path = $path.Replace('/', '')
+                    return $mockAppPoolDefaults[$path][$Name]
+                }
+            }
+
+            Mock -CommandName Get-WebConfigurationPropertyValue -MockWith {
                 $path = $Filter.Replace('system.applicationHost/applicationPools/applicationPoolDefaults', '')
 
                 if ([System.String]::IsNullOrEmpty($path)) {
@@ -132,7 +167,10 @@ try
             }
         }
 
-        Describe "$($script:DSCResourceName)\Set-TargetResource" {
+        Describe "xWebAppPoolDefaults\Set-TargetResource" {
+            BeforeAll {
+                Mock -CommandName Assert-Module
+            }
 
             $mockAppPoolDefaults = @{
                 managedRuntimeVersion = 'v4.0'
@@ -144,6 +182,15 @@ try
             Mock Get-WebConfigurationProperty -MockWith {
                 $path = $Filter.Replace('system.applicationHost/applicationPools/applicationPoolDefaults', '')
 
+                if ([System.String]::IsNullOrEmpty($path)) {
+                    return $mockAppPoolDefaults[$Name]
+                } else {
+                    $path = $path.Replace('/', '')
+                    return $mockAppPoolDefaults[$path][$Name]
+                }
+            }
+
+            Mock -CommandName Get-WebConfigurationPropertyValue -MockWith {
                 if ([System.String]::IsNullOrEmpty($path)) {
                     return $mockAppPoolDefaults[$Name]
                 } else {
