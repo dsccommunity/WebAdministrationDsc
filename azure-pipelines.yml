@@ -99,7 +99,7 @@ stages:
 
       - job: Test_Integration
         pool:
-          vmImage: 'win1803'
+          vmImage: 'vs2017-win2016'
         timeoutInMinutes: 0
         steps:
           - task: DownloadBuildArtifacts@0
