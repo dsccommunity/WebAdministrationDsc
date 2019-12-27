@@ -241,6 +241,8 @@ finally
                 throw $_
             }
 
+            Write-Verbose -Message ('Failed to restore web configuration. Retrying. Error message was "{0}".' -f $_) -Verbose
+
             $retryCount += 1
 
             Start-Sleep -Seconds 5
