@@ -167,6 +167,7 @@ try
         # Remove the website we created for testing purposes.
         if (Get-Website -Name $websiteName)
         {
+            Write-Verbose -Message ('Removing website that was used for testing' -f $retryCount) -Verbose
             Remove-Website -Name $websiteName
             Remove-Item -Path $websitePhysicalPath -Force -Recurse
         }
@@ -177,6 +178,8 @@ finally
 {
     # Addresses Issue #385: xWebConfigPropertyCollection: Timing issue in integration tests
     Start-Sleep -Seconds 4
+
+    Write-Verbose -Message 'Restoring web configuration' -Verbose
 
     Restore-WebConfiguration -Name $tempName
     Remove-WebConfigurationBackup -Name $tempName

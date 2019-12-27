@@ -211,7 +211,46 @@ try
 }
 finally
 {
-    Restore-WebConfiguration -Name $tempName
+    <#
+        This try-catch block is a workaround for the error:
+
+        IOException: The process cannot access the file
+        'C:\windows\system32\inetsrv\mbschema.xml' because
+        it is being used by another process.
+    #>
+    $retryCount = 1
+    $backupRestored = $false
+
+    do
+    {
+        try
+        {
+            Write-Verbose -Message ('Restoring web configuration - attempt {0}' -f $retryCount) -Verbose
+
+            Restore-WebConfiguration -Name $tempName
+
+            Write-Verbose -Message ('Successfully restored web configuration' -f $retryCount) -Verbose
+
+            $backupRestored = $true
+        }
+        catch [System.IO.IOException]
+        {
+            # On the fifth try, throw an error.
+            if ($retryCount -eq 5)
+            {
+                throw $_
+            }
+
+            $retryCount += 1
+
+            Start-Sleep -Seconds 5
+        }
+        catch
+        {
+            throw $_
+        }
+    } while (-not $backupRestored)
+
     Remove-WebConfigurationBackup -Name $tempName
 
     Restore-TestEnvironment -TestEnvironment $script:testEnvironment
