@@ -17,11 +17,17 @@ $script:testEnvironment = Initialize-TestEnvironment `
     -ResourceType 'Mof' `
     -TestType 'Integration'
 
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1') -Force
+
+[string] $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
+
 try
 {
     #region Integration Tests
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configFile
+
+    $null = Backup-WebConfiguration -Name $tempName
 
     # Constants for Tests
     $env:xWebConfigKeyValuePsPath = 'IIS:\Sites\Default Web Site'
@@ -82,6 +88,10 @@ try
 }
 finally
 {
+    Restore-WebConfigurationWrapper -Name $tempName
+
+    Remove-WebConfigurationBackup -Name $tempName
+
     Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }
 

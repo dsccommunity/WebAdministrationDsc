@@ -54,11 +54,17 @@ function Install-NewSelfSignedCertificateExScript
         The name of the backup to restore.
 
     .NOTES
-        This wrapper is a workaround for the error (and other timing issues):
+        - This wrapper is a workaround for the error:
 
         IOException: The process cannot access the file
         'C:\windows\system32\inetsrv\mbschema.xml' because
         it is being used by another process.
+
+        - Addresses Issue #385: xWebConfigPropertyCollection: Timing issue in integration tests
+
+        IOException: The process cannot access the file
+        'C:\windows\system32\inetsrv\config\applicationHost.config'
+        because it is being used by another process.
 #>
 function Restore-WebConfigurationWrapper {
     param
@@ -77,7 +83,7 @@ function Restore-WebConfigurationWrapper {
         {
             Write-Verbose -Message ('Restoring web configuration - attempt {0}' -f $retryCount) -Verbose
 
-            Restore-WebConfiguration -Name $tempName
+            Restore-WebConfiguration -Name $Name
 
             Write-Verbose -Message ('Successfully restored web configuration' -f $retryCount) -Verbose
 

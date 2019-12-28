@@ -24,6 +24,8 @@ if ((Get-Service -Name 'W3SVC').Status -ne 'Running')
     Start-Service -Name 'W3SVC'
 }
 
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1') -Force
+
 $tempBackupName = "$($script:dscResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
 
 try
@@ -98,7 +100,8 @@ try
 }
 finally
 {
-    Restore-WebConfiguration -Name $tempBackupName
+    Restore-WebConfigurationWrapper -Name $tempName
+
     Remove-WebConfigurationBackup -Name $tempBackupName
 
     Restore-TestEnvironment -TestEnvironment $script:testEnvironment

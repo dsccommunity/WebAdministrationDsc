@@ -16,6 +16,8 @@ $script:testEnvironment = Initialize-TestEnvironment `
     -ResourceType 'Mof' `
     -TestType 'Integration'
 
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1') -Force
+
 [String] $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss')
 
 try
@@ -284,8 +286,10 @@ try
 }
 finally
 {
-    Restore-WebConfiguration -Name $tempName
+    Restore-WebConfigurationWrapper -Name $tempName
+
     Remove-WebConfigurationBackup -Name $tempName
+
     Remove-Item -PSPath $selfSignedCert.PSPath
 
     $webConfigPath = Join-Path -Path $dscConfig.AllNodes.PhysicalPath -ChildPath 'web.config'
