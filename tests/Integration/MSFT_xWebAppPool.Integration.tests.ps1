@@ -26,13 +26,13 @@ if ((Get-Service -Name 'W3SVC').Status -ne 'Running')
 
 Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1') -Force
 
-$tempBackupName = "$($script:dscResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+$tempName = "$($script:dscResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
 
 try
 {
     # Create configuration backup
 
-    Backup-WebConfiguration -Name $tempBackupName | Out-Null
+    Backup-WebConfiguration -Name $tempName | Out-Null
 
     #region Integration Tests
 
@@ -102,7 +102,7 @@ finally
 {
     Restore-WebConfigurationWrapper -Name $tempName
 
-    Remove-WebConfigurationBackup -Name $tempBackupName
+    Remove-WebConfigurationBackup -Name $tempName
 
     Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }
