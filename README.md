@@ -1,8 +1,8 @@
 # xWebAdministration
 
-[![Build Status](https://dev.azure.com/dsccommunity/xWebAdministration/_apis/build/status/dsccommunity.xWebAdministration?branchName=master)](https://dev.azure.com/dsccommunity/xWebAdministration/_build/latest?definitionId={definitionId}&branchName=master)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xWebAdministration/{definitionId}/master)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/xWebAdministration/{definitionId}/master)](https://dsccommunity.visualstudio.com/xWebAdministration/_test/analytics?definitionId={definitionId}&contextType=build)
+[![Build Status](https://dev.azure.com/dsccommunity/xWebAdministration/_apis/build/status/dsccommunity.xWebAdministration?branchName=master)](https://dev.azure.com/dsccommunity/xWebAdministration/_build/latest?definitionId=7&branchName=master)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xWebAdministration/7/master)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/xWebAdministration/7/master)](https://dsccommunity.visualstudio.com/xWebAdministration/_test/analytics?definitionId=7&contextType=build)
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/xWebAdministration?label=xWebAdministration%20Preview)](https://www.powershellgallery.com/packages/xWebAdministration/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/xWebAdministration?label=xWebAdministration)](https://www.powershellgallery.com/packages/xWebAdministration/)
 
