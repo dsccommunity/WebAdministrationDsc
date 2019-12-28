@@ -1,105 +1,22 @@
 <#
     .SYNOPSIS
-        Returns an invalid argument exception object
+        Some tests require a self-signed certificate to be created. However, the
+        New-SelfSignedCertificate cmdlet built into Windows Server 2012 R2 is too
+        limited to work for this process.
 
-    .PARAMETER Message
-        The message explaining why this error is being thrown
+        Therefore an alternate method of creating self-signed certificates to meet the
+        reqirements. A script on Microsoft Script Center can be used for this but must
+        be downloaded:
+        https://gallery.technet.microsoft.com/scriptcenter/Self-signed-certificate-5920a7c6
 
-    .PARAMETER ArgumentName
-        The name of the invalid argument that is causing this error to be thrown
-#>
-function Get-InvalidArgumentRecord
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Message,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $ArgumentName
-    )
-
-    $argumentException = New-Object -TypeName 'ArgumentException' -ArgumentList @( $Message,
-        $ArgumentName )
-    $newObjectParams = @{
-        TypeName = 'System.Management.Automation.ErrorRecord'
-        ArgumentList = @( $argumentException, $ArgumentName, 'InvalidArgument', $null )
-    }
-    return New-Object @newObjectParams
-}
-
-<#
-    .SYNOPSIS
-        Returns an invalid operation exception object
-
-    .PARAMETER Message
-        The message explaining why this error is being thrown
-
-    .PARAMETER ErrorRecord
-        The error record containing the exception that is causing this terminating error
-#>
-function Get-InvalidOperationRecord
-{
-    [CmdletBinding()]
-    param
-    (
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $Message,
-
-        [ValidateNotNull()]
-        [System.Management.Automation.ErrorRecord]
-        $ErrorRecord
-    )
-
-    if ($null -eq $Message)
-    {
-        $invalidOperationException = New-Object -TypeName 'InvalidOperationException'
-    }
-    elseif ($null -eq $ErrorRecord)
-    {
-        $invalidOperationException =
-        New-Object -TypeName 'InvalidOperationException' -ArgumentList @( $Message )
-    }
-    else
-    {
-        $invalidOperationException =
-        New-Object -TypeName 'InvalidOperationException' -ArgumentList @( $Message,
-            $ErrorRecord.Exception )
-    }
-
-    $newObjectParams = @{
-        TypeName = 'System.Management.Automation.ErrorRecord'
-        ArgumentList = @( $invalidOperationException.ToString(), 'MachineStateIncorrect',
-            'InvalidOperation', $null )
-    }
-    return New-Object @newObjectParams
-}
-
-<#
-    .SYNOPSIS
-    Some tests require a self-signed certificate to be created. However, the
-    New-SelfSignedCertificate cmdlet built into Windows Server 2012 R2 is too
-    limited to work for this process.
-
-    Therefore an alternate method of creating self-signed certificates to meet the
-    reqirements. A script on Microsoft Script Center can be used for this but must
-    be downloaded:
-    https://gallery.technet.microsoft.com/scriptcenter/Self-signed-certificate-5920a7c6
-
-    This cmdlet will install the script if it is not available and dot source it.
+        This cmdlet will install the script if it is not available and dot source it.
 
     .PARAMETER OutputPath
-    The path to download the script to. If not provided will default to the current
-    users temp folder.
+        The path to download the script to. If not provided will default to the current
+        users temp folder.
 
     .OUTPUTS
-    The path to the script that was downloaded.
+        The path to the script that was downloaded.
 #>
 function Install-NewSelfSignedCertificateExScript
 {
@@ -129,7 +46,65 @@ function Install-NewSelfSignedCertificateExScript
     return $newSelfSignedCertScriptPath
 } # end function Install-NewSelfSignedCertificateExScript
 
-Export-ModuleMember -Function `
-    Install-NewSelfSignedCertificateExScript, `
-    Get-InvalidArgumentRecord, `
-    Get-InvalidOperationRecord
+<#
+    .SYNOPSIS
+        Wrapper for Restore-WebConfiguration to be able to retry on errors.
+
+    .PARAMETER Name
+        The name of the backup to restore.
+
+    .NOTES
+        This wrapper is a workaround for the error (and other timing issues):
+
+        IOException: The process cannot access the file
+        'C:\windows\system32\inetsrv\mbschema.xml' because
+        it is being used by another process.
+#>
+function Restore-WebConfigurationWrapper {
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Name
+    )
+
+    $retryCount = 1
+    $backupRestored = $false
+
+    do
+    {
+        try
+        {
+            Write-Verbose -Message ('Restoring web configuration - attempt {0}' -f $retryCount) -Verbose
+
+            Restore-WebConfiguration -Name $tempName
+
+            Write-Verbose -Message ('Successfully restored web configuration' -f $retryCount) -Verbose
+
+            $backupRestored = $true
+        }
+        catch [System.IO.IOException]
+        {
+            # On the fifth try, throw an error.
+            if ($retryCount -eq 5)
+            {
+                throw $_
+            }
+
+            Write-Verbose -Message ('Failed to restore web configuration. Retrying in 5 seconds. For reference the error message was "{0}".' -f $_) -Verbose
+
+            $retryCount += 1
+
+            Start-Sleep -Seconds 5
+        }
+        catch
+        {
+            throw $_
+        }
+    } while (-not $backupRestored)
+}
+
+Export-ModuleMember -Function @(
+    'Install-NewSelfSignedCertificateExScript'
+    'Restore-WebConfigurationWrapper'
+)

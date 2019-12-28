@@ -36,3 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - xWebSite
   - In some cases a verbose message was not outputted with any text, now
     all verbose messages are correctly shown.
+
+### Removed
+
+- CommonTestHelper
+  - Removed unused functions `Get-InvalidArgumentRecord` and
+    `Get-InvalidOperationRecord`.

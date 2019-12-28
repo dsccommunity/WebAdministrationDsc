@@ -16,6 +16,8 @@ $script:testEnvironment = Initialize-TestEnvironment `
     -ResourceType 'Mof' `
     -TestType 'Integration'
 
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1') -Force
+
 [string]$tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss")
 
 try
@@ -211,47 +213,7 @@ try
 }
 finally
 {
-    <#
-        This try-catch block is a workaround for the error:
-
-        IOException: The process cannot access the file
-        'C:\windows\system32\inetsrv\mbschema.xml' because
-        it is being used by another process.
-    #>
-    $retryCount = 1
-    $backupRestored = $false
-
-    do
-    {
-        try
-        {
-            Write-Verbose -Message ('Restoring web configuration - attempt {0}' -f $retryCount) -Verbose
-
-            Restore-WebConfiguration -Name $tempName
-
-            Write-Verbose -Message ('Successfully restored web configuration' -f $retryCount) -Verbose
-
-            $backupRestored = $true
-        }
-        catch [System.IO.IOException]
-        {
-            # On the fifth try, throw an error.
-            if ($retryCount -eq 5)
-            {
-                throw $_
-            }
-
-            Write-Verbose -Message ('Failed to restore web configuration. Retrying. Error message was "{0}".' -f $_) -Verbose
-
-            $retryCount += 1
-
-            Start-Sleep -Seconds 5
-        }
-        catch
-        {
-            throw $_
-        }
-    } while (-not $backupRestored)
+    Restore-WebConfigurationWrapper -Name $tempName
 
     Remove-WebConfigurationBackup -Name $tempName
 
