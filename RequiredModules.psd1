@@ -1,5 +1,4 @@
 @{
-    # Set up a mini virtual environment...
     PSDependOptions      = @{
         AddToPath  = $True
         Target     = 'output\RequiredModules'

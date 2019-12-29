@@ -33,14 +33,18 @@ function Install-NewSelfSignedCertificateExScript
     $newSelfSignedCertZip = Split-Path -Path $newSelfSignedCertURL -Leaf
     $newSelfSignedCertZipPath = Join-Path -Path $OutputPath -ChildPath $newSelfSignedCertZip
     $newSelfSignedCertScriptPath = Join-Path -Path $OutputPath -ChildPath 'New-SelfSignedCertificateEx.ps1'
+
     if (-not (Test-Path -Path $newSelfSignedCertScriptPath))
     {
         if (Test-Path -Path $newSelfSignedCertZip)
         {
             Remove-Item -Path $newSelfSignedCertZipPath -Force
         }
+
         Invoke-WebRequest -Uri $newSelfSignedCertURL -OutFile $newSelfSignedCertZipPath
+
         Add-Type -AssemblyName System.IO.Compression.FileSystem
+
         [System.IO.Compression.ZipFile]::ExtractToDirectory($newSelfSignedCertZipPath, $OutputPath)
     } # if
     return $newSelfSignedCertScriptPath
@@ -66,7 +70,8 @@ function Install-NewSelfSignedCertificateExScript
         'C:\windows\system32\inetsrv\config\applicationHost.config'
         because it is being used by another process.
 #>
-function Restore-WebConfigurationWrapper {
+function Restore-WebConfigurationWrapper
+{
     param
     (
         [Parameter(Mandatory = $true)]

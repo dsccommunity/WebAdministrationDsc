@@ -2,10 +2,10 @@ TOPIC
     about_xWebAdministration
 
 SHORT DESCRIPTION
-    DSC resources for web servers and components around those.
+    DSC resources for configuring web servers and related components.
 
 LONG DESCRIPTION
-    This module contains DSC resources for deployment and configuration of web servers and components around those.
+    This module contains DSC resources for deploying and configuring web servers and related components.
 
 EXAMPLES
     PS C:\> Get-DscResource -Module about_xWebAdministration

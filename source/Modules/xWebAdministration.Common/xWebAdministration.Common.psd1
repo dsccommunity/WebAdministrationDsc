@@ -12,7 +12,7 @@
     Author            = 'DSC Community'
 
     # Company or vendor of this module
-    CompanyName       = 'Dsc Community'
+    CompanyName       = 'DSC Community'
 
     # Copyright statement for this module
     Copyright         = 'Copyright the DSC Community contributors. All rights reserved.'
