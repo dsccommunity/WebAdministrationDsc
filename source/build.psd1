@@ -1,0 +1,4 @@
+@{
+    Path = 'xWebAdministration.psd1'
+}
+
