@@ -6,8 +6,6 @@
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/xWebAdministration?label=xWebAdministration%20Preview)](https://www.powershellgallery.com/packages/xWebAdministration/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/xWebAdministration?label=xWebAdministration)](https://www.powershellgallery.com/packages/xWebAdministration/)
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-
 ## Code of Conduct
 
 This project has adopted this [Code of Conduct](CODE_OF_CONDUCT.md).
