@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - xWebAdministration
   - Added continuous delivery with a new CI pipeline
     ([issue #547](https://github.com/PowerShell/xWebAdministration/issues/547)).
+  - Added CONTRIBUTION.md.
 
 ### Changed
 
