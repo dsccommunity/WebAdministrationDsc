@@ -1,6 +1,6 @@
 @{
     CustomRulePath      = '.\output\RequiredModules\DscResource.AnalyzerRules'
-    includeDefaultRules = $true
+    IncludeDefaultRules = $true
     IncludeRules   = @(
         # DSC Resource Kit style guideline rules.
         'PSAvoidDefaultValueForMandatoryParameter',
