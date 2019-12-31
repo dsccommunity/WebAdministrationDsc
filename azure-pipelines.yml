@@ -62,6 +62,7 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'HQRM'
 
       - job: Test_Unit
         pool:
@@ -90,6 +91,7 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Unit (Windows Server Core)'
           - task: PublishCodeCoverageResults@1
             condition: succeededOrFailed()
             inputs:
@@ -128,6 +130,7 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Integration (Windows Server 2016)'
 
   - stage: Deploy
     dependsOn: Test
