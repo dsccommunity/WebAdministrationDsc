@@ -12,6 +12,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 - xWebAdministration
   - Set `testRunTitle` for PublishTestResults task so that a helpful name is
     displayed in Azure DevOps for each test run.
+  - Update Visual Studio Code workspace settings for the repository.
 
 ## [3.1.0] - 2019-12-30
 
