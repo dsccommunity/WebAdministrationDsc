@@ -7,31 +7,32 @@ trigger:
     - "v*"
     exclude:
     - "*-*"
-#variables:
 
 stages:
   - stage: Build
     jobs:
-      - job: BuildModuleJob
+      - job: Package_Module
+        displayName: 'Package Module'
         pool:
           vmImage: 'ubuntu 16.04'
         steps:
           - task: GitVersion@5
-            name: gitversion
+            name: gitVersion
+            displayName: 'Evaluate Next Version'
             inputs:
               runtime: 'core'
               configFilePath: 'GitVersion.yml'
-
           - task: PowerShell@2
-            name: Build
+            name: package
+            displayName: 'Build & Package Module'
             inputs:
               filePath: './build.ps1'
               arguments: '-ResolveDependency -tasks pack'
               pwsh: true
             env:
-              ModuleVersion: $(GitVersion.Informationalversion)
-
+              ModuleVersion: $(gitVersion.InformationalVersion)
           - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifact'
             inputs:
               PathtoPublish: 'output/'
               ArtifactName: 'output'
@@ -41,23 +42,27 @@ stages:
     dependsOn: Build
     jobs:
       - job: Test_HQRM
+        displayName: 'HQRM'
         pool:
           vmImage: 'win1803'
         timeoutInMinutes: 0
         steps:
           - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifact'
             inputs:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'output'
               downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
-            name: Test
+            name: test
+            displayName: 'Run HQRM Test'
             inputs:
               filePath: './build.ps1'
               arguments: '-Tasks hqrmtest'
               pwsh: false
           - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
@@ -65,6 +70,7 @@ stages:
               testRunTitle: 'HQRM'
 
       - job: Test_Unit
+        displayName: 'Unit'
         pool:
           vmImage: 'win1803'
         timeoutInMinutes: 0
@@ -73,45 +79,53 @@ stages:
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
               echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
               echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
-            name: DscBuildVariable
+            name: dscBuildVariable
+            displayName: 'Set Environment Variables'
           - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifact'
             inputs:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'output'
               downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
-            name: Test
+            name: test
+            displayName: 'Run Unit Test'
             inputs:
               filePath: './build.ps1'
               arguments: "-Tasks test -PesterScript 'tests/Unit'"
               pwsh: false
           - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
               testRunTitle: 'Unit (Windows Server Core)'
           - task: PublishCodeCoverageResults@1
+            displayName: 'Publish Code Coverage'
             condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
-              pathToSources: '$(Build.SourcesDirectory)/output/$(DscBuildVariable.RepositoryName)'
+              pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: Test_Integration
+        displayName: 'Integration'
         pool:
           vmImage: 'vs2017-win2016'
         timeoutInMinutes: 0
         steps:
           - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifact'
             inputs:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'output'
               downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
-            name: ConfigureWinRM
+            name: configureWinRM
+            displayName: 'Configure WinRM'
             inputs:
               targetType: 'inline'
               script: 'winrm quickconfig -quiet'
@@ -120,21 +134,22 @@ stages:
               Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
             name: InstallWebServerFeature
           - task: PowerShell@2
-            name: Test
+            name: test
+            displayName: 'Run Integration Test'
             inputs:
               filePath: './build.ps1'
               arguments: "-Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0"
               pwsh: false
           - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
-              testRunTitle: 'Integration (Windows Server 2016)'
+              testRunTitle: 'Integration (Windows Server Core)'
 
   - stage: Deploy
     dependsOn: Test
-    # Only execute deploy stage if we're on master and previous stage succeeded
     condition: |
       and(
         succeeded(),
@@ -144,18 +159,21 @@ stages:
         )
       )
     jobs:
-      - job: Deploy_Artefact
+      - job: Deploy_Module
+        displayName: 'Deploy Module'
         pool:
           vmImage: 'ubuntu 16.04'
         steps:
           - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifact'
             inputs:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'output'
               downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
-            name: publish_prerelease
+            name: publishRelease
+            displayName: 'Publish Release'
             inputs:
               filePath: './build.ps1'
               arguments: '-tasks publish'
@@ -164,7 +182,8 @@ stages:
               GitHubToken: $(GitHubToken)
               GalleryApiToken: $(GalleryApiToken)
           - task: PowerShell@2
-            name: send_changelog_PR
+            name: sendChangelogPR
+            displayName: 'Send Changelog PR'
             inputs:
               filePath: './build.ps1'
               arguments: '-tasks Create_ChangeLog_GitHub_PR'
