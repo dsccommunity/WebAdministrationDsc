@@ -7,6 +7,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+## [3.1.1] - 2020-01-10
+
 ### Changed
 
 - xWebAdministration
