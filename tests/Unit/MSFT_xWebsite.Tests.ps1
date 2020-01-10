@@ -2509,6 +2509,39 @@ try
                 }
             }
 
+            Context 'Protocol is HTTPS and CertificateSubject is specified. Multiple matching certificates' {
+                $MockBindingInfo = @(
+                    New-CimInstance -ClassName MSFT_xWebBindingInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        Protocol              = 'https'
+                        CertificateSubject    = 'TestCertificate'
+                    } -ClientOnly
+                )
+
+                Mock Find-Certificate -MockWith {
+                    return @(
+                        [PSCustomObject]@{
+                            Thumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                        },
+                        [PSCustomObject]@{
+                            Thumbprint = '28B88504F609F685B9A49C8F0EC49EDA1337CAFE'
+                        }
+                    )
+                }
+
+                It 'should not throw an error' {
+                   { ConvertTo-WebBinding -InputObject $MockBindingInfo } | Should Not Throw
+                }
+                It 'should return the correct thumbprint' {
+                    $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
+                    $Result.certificateHash | Should Be 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                }
+                It 'Should call Find-Certificate mock' {
+                    Assert-MockCalled -CommandName Find-Certificate -Times 1
+                }
+            }
+
             Context 'Protocol is HTTPS and invalid CertificateSubject is specified' {
                 $MockBindingInfo = @(
                     New-CimInstance -ClassName MSFT_xWebBindingInformation `
