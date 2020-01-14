@@ -156,8 +156,39 @@ try
             $result.logFile.customFields.Collection[1].LogFieldName | Should Be $dscConfig.AllNodes.LogFieldName2
             $result.logFile.customFields.Collection[1].SourceName   | Should Be $dscConfig.AllNodes.SourceName2
             $result.logFile.customFields.Collection[1].SourceType   | Should Be $dscConfig.AllNodes.SourceType2
+
+            #Test LogFlags is correct
+            $result.logFile.LogExtFileFlags | Should Be 'Date,Time,ClientIP,UserName,ServerIP'
+            $result.logFile.LogFormat       | Should Be $dscConfig.AllNodes.LogFormat
         }
 
+    }
+
+    Describe "$($script:dscResourceName)_Logging_Configured" {
+        #region DEFAULT TESTS
+        It 'Should compile without throwing' {
+            {
+                Invoke-Expression -Command "$($script:dscResourceName)_Logging_Configured -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+            } | Should not throw
+        }
+
+        It 'Should be able to call Get-DscConfiguration without throwing' {
+            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+        }
+        #endregion
+
+        It 'Should update the enabled LogFlags' -test {
+
+            Invoke-Expression -Command "$($script:dscResourceName)_Logging_Configured -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+
+            # Build results to test
+            $result = Get-Website -Name $dscConfig.AllNodes.Website
+
+            # Test Website has updated LogFlags
+            $result.logFile.LogExtFileFlags | Should Be 'Date,Time,ClientIP,ServerIP,UserAgent'
+            $result.logFile.LogFormat       | Should Be $dscConfig.AllNodes.LogFormat
+        }
     }
 
     Describe "$($script:dscResourceName)_Present_Stopped" {
@@ -176,7 +207,7 @@ try
 
         It 'Should Create a Stopped Website with correct settings' -test {
 
-            Invoke-Expression -Command "$($script:dscResourceName)_Present_Stopped -ConfigurationData `$dscConfg  -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+            Invoke-Expression -Command "$($script:dscResourceName)_Present_Stopped -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -257,7 +288,7 @@ try
 
         It 'Should remove the Website' -test {
 
-            Invoke-Expression -Command "$($script:dscResourceName)_Absent -ConfigurationData `$dscConfg  -OutputPath `$TestDrive"
+            Invoke-Expression -Command "$($script:dscResourceName)_Absent -ConfigurationData `$dscConfig  -OutputPath `$TestDrive"
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
