@@ -585,11 +585,10 @@ function Set-TargetResource
             Write-Verbose -Message ($script:localizedData.VerboseSetTargetUpdateLogFlags `
                                     -f $Name)
 
-            # Set-ItemProperty has no effect with the LogFile.LogExtFileFlags property
-            $site = Get-Item "IIS:\Sites\$Name"
-            $site.LogFile.LogFormat = 'W3C'
-            $site.LogFile.LogExtFileFlags = $LogFlags -join ','
-            $site | Set-Item
+            Set-ItemProperty "IIS:\Sites\$Name" `
+                -Name logFile.logFormat -value 'W3C'
+            Set-ItemProperty "IIS:\Sites\$Name" `
+                -Name logFile.logExtFileFlags -value ($LogFlags -join ',')
         }
 
         # Update LogPath if required

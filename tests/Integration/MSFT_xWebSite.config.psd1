@@ -29,13 +29,16 @@
             HTTPSHostname               = 'https.website'
             CertificateStoreName        = 'MY'
             SslFlags                    = '1'
-            LogFieldName1                = 'CustomField1'
-            SourceName1                  = 'Accept-Encoding'
-            SourceType1                  = 'RequestHeader'
-            LogFieldName2                = 'CustomField2'
-            SourceName2                  = 'Warning'
-            SourceType2                  = 'ResponseHeader'
-            LogTargetW3C                 = 'ETW'
+            LogFieldName1               = 'CustomField1'
+            SourceName1                 = 'Accept-Encoding'
+            SourceType1                 = 'RequestHeader'
+            LogFieldName2               = 'CustomField2'
+            SourceName2                 = 'Warning'
+            SourceType2                 = 'ResponseHeader'
+            LogTargetW3C                = 'ETW'
+            LogFormat                   = 'W3C'
+            Logflags1                   = @('Date','Time','ClientIP','UserName','ServerIP')
+            Logflags2                   = @('Date','Time','ClientIP','ServerIP','UserAgent')
         }
     )
 }

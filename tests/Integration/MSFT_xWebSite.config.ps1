@@ -72,6 +72,8 @@ configuration MSFT_xWebSite_Present_Started
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
             State = 'Started'
             ServerAutoStart = $true
+            LogFlags = $Node.LogFlags1
+            LogFormat = $Node.LogFormat
             LogTargetW3C = 'ETW'
             LogCustomFields = @(
                 MSFT_xLogCustomFieldInformation
@@ -288,6 +290,8 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
             ServiceAutoStartEnabled = $Node.ServiceAutoStartEnabled
             ServiceAutoStartProvider = $Node.ServiceAutoStartProvider
             State = 'Started'
+            LogFlags = $Node.LogFlags1
+            LogFormat = $Node.LogFormat
             LogCustomFields = @(
                 MSFT_xLogCustomFieldInformation
                 {
@@ -302,6 +306,28 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
                     SourceType   = $Node.SourceType2
                 }
             )
+        }
+    }
+}
+
+configuration MSFT_xWebSite_Logging_Configured
+{
+    param(
+
+        [Parameter(Mandatory = $true)]
+        [String] $CertificateThumbprint
+
+    )
+
+    Import-DscResource -ModuleName xWebAdministration
+
+    Node $AllNodes.NodeName
+    {
+        xWebSite Website
+        {
+            Name      = $Node.Website
+            LogFlags  = $Node.LogFlags2
+            LogFormat = $Node.LogFormat
         }
     }
 }

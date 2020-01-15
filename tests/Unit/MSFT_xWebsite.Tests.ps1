@@ -1124,9 +1124,9 @@ try
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                     Assert-MockCalled -CommandName Set-Authentication -Exactly 4
-                    Assert-MockCalled -CommandName Get-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-Item -Exactly 3
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
+                    Assert-MockCalled -CommandName Get-Item -Exactly 2
+                    Assert-MockCalled -CommandName Set-Item -Exactly 2
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 13
                     Assert-MockCalled -CommandName Start-Website -Exactly 1
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                     Assert-MockCalled -CommandName Test-LogCustomField -Exactly 1
@@ -1370,7 +1370,7 @@ try
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 11
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 13
                     Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                     Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                     Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
@@ -1452,9 +1452,9 @@ try
                      Assert-MockCalled -CommandName Stop-Website -Exactly 1
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Get-Item -Exactly 1
-                     Assert-MockCalled -CommandName Set-Item -Exactly 1
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
+                     Assert-MockCalled -CommandName Get-Item -Exactly 0
+                     Assert-MockCalled -CommandName Set-Item -Exactly 0
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 10
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
                      Assert-MockCalled -CommandName Confirm-UniqueBinding -Exactly 1
@@ -1535,9 +1535,9 @@ try
                 It 'Should call all the mocks' {
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Get-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 6
+                     Assert-MockCalled -CommandName Get-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 8
                      Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 0
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1
@@ -1617,9 +1617,9 @@ try
                 It 'Should call all the mocks' {
                      Assert-MockCalled -CommandName Test-WebsiteBinding -Exactly 1
                      Assert-MockCalled -CommandName Update-WebsiteBinding -Exactly 1
-                     Assert-MockCalled -CommandName Get-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-Item -Exactly 2
-                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 7
+                     Assert-MockCalled -CommandName Get-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-Item -Exactly 1
+                     Assert-MockCalled -CommandName Set-ItemProperty -Exactly 9
                      Assert-MockCalled -CommandName Set-ItemProperty -ParameterFilter { $Name -eq 'LogFile.directory' } -Exactly 1
                      Assert-MockCalled -CommandName Add-WebConfiguration -Exactly 1
                      Assert-MockCalled -CommandName Update-DefaultPage -Exactly 1

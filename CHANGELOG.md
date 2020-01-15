@@ -26,6 +26,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 - xWebsite
   - Fixed HTTPS binding issue causing failure when CertificateSubject matches
     multiple certificates.
+  - Fix an issue where changes to LogFlags would fail to apply.
+
 
 ## [3.1.0] - 2019-12-30
 
