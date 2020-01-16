@@ -228,6 +228,7 @@ stages:
         displayName: 'Integration Server Core 1803'
         pool:
           vmImage: 'win1803'
+        container: mcr.microsoft.com/windows/servercore:1803
         timeoutInMinutes: 0
         steps:
           - task: DownloadBuildArtifacts@0
