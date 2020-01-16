@@ -7,6 +7,12 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Added
+
+- xWebAdminstration
+  - Integration tests are running on more Microsoft-hosted agents to
+    test all possible operating systems.
+
 ## [3.1.1] - 2020-01-10
 
 ### Changed
