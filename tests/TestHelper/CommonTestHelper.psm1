@@ -94,7 +94,7 @@ function Restore-WebConfigurationWrapper
 
             $backupRestored = $true
         }
-        catch [System.IO.IOException]
+        catch [System.IO.IOException], [System.ComponentModel.Win32Exception]
         {
             # On the fifth try, throw an error.
             if ($retryCount -eq 5)
