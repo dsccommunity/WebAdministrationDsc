@@ -13,6 +13,16 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Integration tests are running on more Microsoft-hosted agents to
     test all possible operating systems.
 
+### Changed
+
+- xWebAdminstration
+  - Azure Pipelines will no longer trigger on changes to just the CHANGELOG.md
+    (when merging to master).
+  - The deploy step is no longer run if the Azure DevOps organization URL
+    does not contain 'dsccommunity'.
+  - Changed the VS Code project settings to trim trailing whitespace for
+    markdown files too.
+
 ## [3.1.1] - 2020-01-10
 
 ### Changed
