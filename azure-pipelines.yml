@@ -246,6 +246,7 @@ stages:
               pwsh: false
           - powershell: |
               Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Source 'C:\Windows\Winsxs'
+              Dism /online /Enable-Feature /FeatureName:Web-Server /All
             name: InstallWebServerFeature
           - task: PowerShell@2
             name: test
