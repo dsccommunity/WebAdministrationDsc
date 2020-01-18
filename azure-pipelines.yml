@@ -246,7 +246,7 @@ stages:
               script: 'winrm quickconfig -quiet'
               pwsh: false
           - powershell: |
-              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Source 'C:\Windows\Winsxs'
             name: InstallWebServerFeature
           - task: PowerShell@2
             name: test
