@@ -134,7 +134,7 @@ stages:
               script: 'winrm quickconfig -quiet'
               pwsh: false
           - powershell: |
-              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
             name: InstallWebServerFeature
           - task: PowerShell@2
             name: test
@@ -172,7 +172,7 @@ stages:
               script: 'winrm quickconfig -quiet'
               pwsh: false
           - powershell: |
-              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
             name: InstallWebServerFeature
           - task: PowerShell@2
             name: test
@@ -210,7 +210,7 @@ stages:
               script: 'winrm quickconfig -quiet'
               pwsh: false
           - powershell: |
-              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
             name: InstallWebServerFeature
           - task: PowerShell@2
             name: test
