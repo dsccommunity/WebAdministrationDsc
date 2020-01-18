@@ -22,6 +22,8 @@ $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss
 
 try
 {
+    Start-Sleep -Seconds 10
+
     $null = Backup-WebConfiguration -Name $tempName
 
     # Now that xWebAdministration should be discoverable load the configuration data

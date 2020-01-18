@@ -30,6 +30,8 @@ $tempName = "$($script:dscResourceName)_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
 
 try
 {
+    Start-Sleep -Seconds 10
+
     # Create configuration backup
 
     Backup-WebConfiguration -Name $tempName | Out-Null
