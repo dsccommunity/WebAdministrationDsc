@@ -23,8 +23,6 @@ $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss
 
 try
 {
-    Start-Sleep -Seconds 10
-
     # some constants
     [string]$constPsPath = 'MACHINE/WEBROOT/APPHOST'
     [string]$constAPDFilter = 'system.applicationHost/applicationPools/applicationPoolDefaults'
