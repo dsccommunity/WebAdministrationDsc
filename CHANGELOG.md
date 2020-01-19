@@ -11,7 +11,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 - xWebAdminstration
   - Integration tests are running on more Microsoft-hosted agents to
-    test all possible operating systems.
+    test all possible operating systems ([issue #550](https://github.com/PowerShell/xWebAdministration/issues/550)).
 
 ### Changed
 
