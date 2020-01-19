@@ -38,7 +38,7 @@ function Invoke-TestCleanup
         $mocks | Remove-Item
     }
 
-    Restore-TestEnvironment -TestEnvironment $script:testEnvironment -Verbose
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
 }
 
 Invoke-TestSetup
