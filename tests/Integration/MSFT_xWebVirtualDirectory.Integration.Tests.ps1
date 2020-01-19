@@ -95,9 +95,9 @@ try
 }
 finally
 {
-    Restore-WebConfigurationWrapper -Name $tempName
+    Restore-WebConfigurationWrapper -Name $tempName -Verbose
 
-    Remove-WebConfigurationBackup -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName -Verbose
 
     if ((Test-Path -Path $DSCConfig.AllNodes.PhysicalPath)) {
         Remove-Item -Path $DSCConfig.AllNodes.PhysicalPath
@@ -107,5 +107,5 @@ finally
         Remove-Item -Path $DSCConfig.AllNodes.WebApplicationPhysicalPath
     }
 
-    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment -Verbose
 }

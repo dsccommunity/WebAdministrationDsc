@@ -72,6 +72,7 @@ function Install-NewSelfSignedCertificateExScript
 #>
 function Restore-WebConfigurationWrapper
 {
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -86,11 +87,11 @@ function Restore-WebConfigurationWrapper
     {
         try
         {
-            Write-Verbose -Message ('Restoring web configuration - attempt {0}' -f $retryCount) -Verbose
+            Write-Verbose -Message ('Restoring web configuration - attempt {0}' -f $retryCount)
 
             Restore-WebConfiguration -Name $Name
 
-            Write-Verbose -Message ('Successfully restored web configuration' -f $retryCount) -Verbose
+            Write-Verbose -Message ('Successfully restored web configuration' -f $retryCount)
 
             $backupRestored = $true
         }
@@ -102,7 +103,7 @@ function Restore-WebConfigurationWrapper
                 throw $_
             }
 
-            Write-Verbose -Message ('Failed to restore web configuration. Retrying in 5 seconds. For reference the error message was "{0}".' -f $_) -Verbose
+            Write-Verbose -Message ('Failed to restore web configuration. Retrying in 5 seconds. For reference the error message was "{0}".' -f $_)
 
             $retryCount += 1
 
@@ -113,6 +114,9 @@ function Restore-WebConfigurationWrapper
             throw $_
         }
     } while (-not $backupRestored)
+
+    # Wait a bit for the restore to free resources.
+    Start-Sleep -Seconds 10
 }
 
 Export-ModuleMember -Function @(

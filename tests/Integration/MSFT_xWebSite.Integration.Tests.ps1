@@ -319,9 +319,9 @@ try
 }
 finally
 {
-    Restore-WebConfigurationWrapper -Name $tempName
+    Restore-WebConfigurationWrapper -Name $tempName -Verbose
 
-    Remove-WebConfigurationBackup -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName -Verbose
 
     Remove-Item -PSPath $selfSignedCert.PSPath
 
@@ -331,5 +331,5 @@ finally
         Remove-Item -Path $webConfigPath
     }
 
-    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment -Verbose
 }

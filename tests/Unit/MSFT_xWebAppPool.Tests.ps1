@@ -29,7 +29,7 @@ function Invoke-TestSetup
 
 function Invoke-TestCleanup
 {
-    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment -Verbose
 }
 
 Invoke-TestSetup
