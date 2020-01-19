@@ -23,6 +23,11 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Changed the VS Code project settings to trim trailing whitespace for
     markdown files too.
 
+### Fixed
+
+- WebApplicationHandler
+  - Integration test should no longer fail intermittent ([issue #558](https://github.com/PowerShell/xWebAdministration/issues/558)).
+
 ## [3.1.1] - 2020-01-10
 
 ### Changed
@@ -32,7 +37,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     displayed in Azure DevOps for each test file artifact.
   - Update Visual Studio Code workspace settings for the repository.
   - Set a display name on all the jobs and tasks in the CI pipeline.
-  
+
 ### Fixed
 
 - xWebAdministration
@@ -43,8 +48,6 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Fixed HTTPS binding issue causing failure when CertificateSubject matches
     multiple certificates.
   - Fix an issue where changes to LogFlags would fail to apply.
-- WebApplicationHandler
-  - Integration test should no longer fail intermittent ([issue #558](https://github.com/PowerShell/xWebAdministration/issues/558)).
 
 ## [3.1.0] - 2019-12-30
 
