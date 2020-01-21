@@ -2,6 +2,9 @@ trigger:
   branches:
     include:
     - master
+  paths:
+    exclude:
+    - CHANGELOG.md
   tags:
     include:
     - "v*"
@@ -110,8 +113,46 @@ stages:
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
               pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
-      - job: Test_Integration
-        displayName: 'Integration'
+      - job: Test_Integration_2012R2
+        displayName: 'Integration 2012R2'
+        pool:
+          vmImage: 'vs2015-win2012r2'
+        timeoutInMinutes: 0
+        steps:
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifact'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
+          - task: PowerShell@2
+            name: configureWinRM
+            displayName: 'Configure WinRM'
+            inputs:
+              targetType: 'inline'
+              script: 'winrm quickconfig -quiet'
+              pwsh: false
+          - powershell: |
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
+            name: InstallWebServerFeature
+          - task: PowerShell@2
+            name: test
+            displayName: 'Run Integration Test'
+            inputs:
+              filePath: './build.ps1'
+              arguments: "-Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0"
+              pwsh: false
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Integration (Windows Server Core)'
+
+      - job: Test_Integration_2016
+        displayName: 'Integration 2016'
         pool:
           vmImage: 'vs2017-win2016'
         timeoutInMinutes: 0
@@ -131,7 +172,86 @@ stages:
               script: 'winrm quickconfig -quiet'
               pwsh: false
           - powershell: |
-              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server'
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
+            name: InstallWebServerFeature
+          - task: PowerShell@2
+            name: test
+            displayName: 'Run Integration Test'
+            inputs:
+              filePath: './build.ps1'
+              arguments: "-Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0"
+              pwsh: false
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Integration (Windows Server Core)'
+
+      - job: Test_Integration_2019
+        displayName: 'Integration 2019'
+        pool:
+          vmImage: 'windows-2019'
+        timeoutInMinutes: 0
+        steps:
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifact'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
+          - task: PowerShell@2
+            name: configureWinRM
+            displayName: 'Configure WinRM'
+            inputs:
+              targetType: 'inline'
+              script: 'winrm quickconfig -quiet'
+              pwsh: false
+          - powershell: |
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
+            name: InstallWebServerFeature
+          - task: PowerShell@2
+            name: test
+            displayName: 'Run Integration Test'
+            inputs:
+              filePath: './build.ps1'
+              arguments: "-Tasks test -PesterScript 'tests/Integration' -CodeCoverageThreshold 0"
+              pwsh: false
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Integration (Windows Server Core)'
+
+      - job: Test_Integration_ServerCore_ltsc2019
+        displayName: 'Integration Server Core LTSC 2019'
+        pool:
+          vmImage: 'windows-2019'
+        container: mcr.microsoft.com/windows/servercore:ltsc2019
+        timeoutInMinutes: 0
+        steps:
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifact'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
+          - task: PowerShell@2
+            name: configureWinRM
+            displayName: 'Configure WinRM'
+            inputs:
+              targetType: 'inline'
+              script: 'winrm quickconfig -quiet'
+              pwsh: false
+          - powershell: |
+              Set-Service -Name wuauserv -StartupType Manual -Verbose
+              Start-Service -name wuauserv -Verbose
+              Install-WindowsFeature -IncludeAllSubFeature -Name 'Web-Server' -Verbose
             name: InstallWebServerFeature
           - task: PowerShell@2
             name: test
@@ -156,7 +276,8 @@ stages:
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/master'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        )
+        ),
+        contains(variables['System.TeamFoundationCollectionUri'], 'dsccommunity')
       )
     jobs:
       - job: Deploy_Module

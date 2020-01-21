@@ -23,8 +23,6 @@ $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString("yyyyMMdd_HHmmss
 
 try
 {
-    #region Integration Tests
-
     # some constants
     [string]$constPsPath = 'MACHINE/WEBROOT/APPHOST'
     [string]$constAPDFilter = 'system.applicationHost/applicationPools/applicationPoolDefaults'
@@ -41,7 +39,6 @@ try
     }
 
     Describe "$($script:dscResourceName)_Integration" {
-        #region DEFAULT TESTS
         It 'Should compile without throwing' {
             {
                 Invoke-Expression -Command "$($script:dscResourceName)_Config -OutputPath `$TestDrive"
@@ -52,7 +49,6 @@ try
         It 'Should be able to call Get-DscConfiguration without throwing' {
             { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
         }
-        #endregion
 
         It 'Changing ManagedRuntimeVersion' {
             {
@@ -150,13 +146,12 @@ try
         }
 
     }
-    #endregion
 }
 finally
 {
-    Restore-WebConfigurationWrapper -Name $tempName
+    Restore-WebConfigurationWrapper -Name $tempName -Verbose
 
-    Remove-WebConfigurationBackup -Name $tempName
+    Remove-WebConfigurationBackup -Name $tempName -Verbose
 
-    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+    Restore-TestEnvironment -TestEnvironment $script:testEnvironment -Verbose
 }
