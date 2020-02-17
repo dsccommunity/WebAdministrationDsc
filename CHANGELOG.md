@@ -24,6 +24,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     does not contain 'dsccommunity'.
   - Changed the VS Code project settings to trim trailing whitespace for
     markdown files too.
+  - Ensure that Test-TargetResourse in xWebSite tests all properties before
+    returning true or false, and that it uses a consistent style. ([issue #221](https://github.com/PowerShell/xWebAdministration/issues/550))
 
 ### Fixed
 
