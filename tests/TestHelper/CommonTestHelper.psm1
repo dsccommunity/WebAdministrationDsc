@@ -41,6 +41,7 @@ function Install-NewSelfSignedCertificateExScript
             Remove-Item -Path $newSelfSignedCertZipPath -Force
         }
 
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest -Uri $newSelfSignedCertURL -OutFile $newSelfSignedCertZipPath
 
         Add-Type -AssemblyName System.IO.Compression.FileSystem
