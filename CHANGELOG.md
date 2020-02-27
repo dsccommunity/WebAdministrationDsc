@@ -13,6 +13,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Integration tests are running on more Microsoft-hosted agents to
     test all possible operating systems ([issue #550](https://github.com/PowerShell/xWebAdministration/issues/550)).
   - Fix a few lingering bugs in CICD ([issue #567](https://github.com/PowerShell/xWebAdministration/issues/567))
+  - Remove an image from testing that MS will be deprecating soon ([issue #565](https://github.com/PowerShell/xWebAdministration/issues/567))
 
 ### Changed
 
