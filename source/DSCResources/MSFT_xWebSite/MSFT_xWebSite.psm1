@@ -818,7 +818,7 @@ function Test-TargetResource
         }
 
         # Check Physical Path property
-        if ([String]::IsNullOrEmpty($PhysicalPath) -eq $false -and `
+        if ($PSBoundParameters.ContainsKey('PhysicalPath') -and `
             $website.PhysicalPath -ne $PhysicalPath)
         {
             $inDesiredState = $false
@@ -827,7 +827,8 @@ function Test-TargetResource
         }
 
         # Check State
-        if ($PSBoundParameters.ContainsKey('State') -and $website.State -ne $State)
+        if ($PSBoundParameters.ContainsKey('State') -and `
+            $website.State -ne $State)
         {
             $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseState `
@@ -956,9 +957,9 @@ function Test-TargetResource
             # Check Log Format
             if ($LogFormat -ne $website.logfile.LogFormat)
             {
+                $inDesiredState = $false
                 Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogFormat `
                                         -f $Name)
-                return $false
             }
         }
 
@@ -966,17 +967,17 @@ function Test-TargetResource
         if ($PSBoundParameters.ContainsKey('LogFlags') -and `
             (-not (Compare-LogFlags -Name $Name -LogFlags $LogFlags)))
         {
+            $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogFlags)
-            return $false
         }
 
         # Check LogPath
         if ($PSBoundParameters.ContainsKey('LogPath') -and `
             ($LogPath -ne $website.logfile.directory))
         {
+            $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogPath `
                                     -f $Name)
-            return $false
         }
 
         # Check LogPeriod
@@ -988,19 +989,18 @@ function Test-TargetResource
                 Write-Verbose -Message ($script:localizedData.WarningLogPeriod `
                                         -f $Name)
             }
-
+            $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogPeriod `
                                     -f $Name)
-            return $false
         }
 
         # Check LogTruncateSize
         if ($PSBoundParameters.ContainsKey('LogTruncateSize') -and `
             ($LogTruncateSize -ne $website.logfile.LogTruncateSize))
         {
+            $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogTruncateSize `
                                     -f $Name)
-            return $false
         }
 
         # Check LoglocalTimeRollover
@@ -1008,27 +1008,27 @@ function Test-TargetResource
             ($LoglocalTimeRollover -ne `
             ([System.Convert]::ToBoolean($website.logfile.LocalTimeRollover))))
         {
+            $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLoglocalTimeRollover `
                                     -f $Name)
-            return $false
         }
 
         # Check LogTargetW3C
         if ($PSBoundParameters.ContainsKey('LogTargetW3C') -and `
             ($LogTargetW3C -ne $website.logfile.LogTargetW3C))
         {
+            $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalseLogTargetW3C `
                                     -f $Name)
-            return $false
         }
 
         # Check LogCustomFields if needed
         if ($PSBoundParameters.ContainsKey('LogCustomFields') -and `
             (-not (Test-LogCustomField -Site $Name -LogCustomField $LogCustomFields)))
         {
+            $inDesiredState = $false
             Write-Verbose -Message ($script:localizedData.VerboseTestTargetUpdateLogCustomFields `
                                     -f $Name)
-            return $false
         }
     }
 
