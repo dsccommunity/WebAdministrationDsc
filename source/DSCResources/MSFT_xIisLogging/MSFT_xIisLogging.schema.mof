@@ -17,4 +17,5 @@ class MSFT_xLogCustomField
     [Required, Description("Name for the custom field")] String LogFieldName;
     [Required, Description("Name for the source type")] String SourceName;
     [Required, Description("Specify the source type"), ValueMap{"RequestHeader","ResponseHeader","ServerVariable"},Values{"RequestHeader","ResponseHeader","ServerVariable"}] String SourceType;
+    [Write, Description("Indicates if the custom log field should be present or absent. Defaults to Present."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
 };
