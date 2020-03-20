@@ -55,4 +55,5 @@ class MSFT_xLogCustomFieldInformation
     [Write, Description("Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.")] String LogFieldName;
     [Write, Description("The acceptable values for this property are: RequestHeader, ResponseHeader or ServerVariable (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters)."),ValueMap{"RequestHeader","ResponseHeader","ServerVariable"},Values{"RequestHeader","ResponseHeader","ServerVariable"}] String SourceType;
     [Write, Description("Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.")] String SourceName;
+    [Write, Description("Indicates if the custom log field should be present or absent. Defaults to Present."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
 };

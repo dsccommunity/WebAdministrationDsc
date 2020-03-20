@@ -30,6 +30,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Update misleading localization strings
 - xIisLogging
   - Add Ensure to LogCustomFields. ([issue #571](https://github.com/dsccommunity/xWebAdministration/issues/571))
+- xWebsite
+  - Add Ensure to LogCustomFieldInformation.
 
 ### Fixed
 
