@@ -32,27 +32,27 @@ try
 {
     InModuleScope $script:dscResourceName {
 
-    $MockLogCustomFields = @{
+        $MockLogCustomFields = @{
             LogFieldName = 'ClientEncoding'
             SourceName   = 'Accept-Encoding'
             SourceType   = 'RequestHeader'
         }
 
-    $MockCimLogCustomFields = @(
-        New-CimInstance -ClassName MSFT_xLogCustomField `
-            -Namespace root/microsoft/Windows/DesiredStateConfiguration `
-            -Property @{
-                LogFieldName = 'ClientEncoding'
-                SourceName   = 'Accept-Encoding'
-                SourceType   = 'RequestHeader'
-            } `
-            -ClientOnly
-    )
+        $MockCimLogCustomFields = @(
+            New-CimInstance -ClassName MSFT_xLogCustomField `
+                -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                -Property @{
+                    LogFieldName = 'ClientEncoding'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                } `
+                -ClientOnly
+        )
 
-    $MockLogParameters =
+        $MockLogParameters =
         @{
             LogPath              = 'C:\MockLogLocation'
-            LogFlags             = 'Date','Time','ClientIP','UserName','ServerIP'
+            LogFlags             = 'Date', 'Time', 'ClientIP', 'UserName', 'ServerIP'
             LogPeriod            = 'Hourly'
             LogTruncateSize      = '2097152'
             LoglocalTimeRollover = $true
@@ -62,18 +62,18 @@ try
         }
 
         $MockLogOutput =
-            @{
-                directory         = '%SystemDrive%\inetpub\logs\LogFiles'
-                logExtFileFlags   = 'Date,Time,ClientIP,UserName,ServerIP,Method,UriStem,UriQuery,HttpStatus,Win32Status,TimeTaken,ServerPort,UserAgent,Referer,HttpSubStatus'
-                logFormat         = 'W3C'
-                LogTargetW3C      = 'File,ETW'
-                period            = 'Daily'
-                truncateSize      = '1048576'
-                localTimeRollover = 'False'
-                customFields      = @{Collection = @($MockLogCustomFields)}
-            }
+        @{
+            directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+            logExtFileFlags   = 'Date,Time,ClientIP,UserName,ServerIP,Method,UriStem,UriQuery,HttpStatus,Win32Status,TimeTaken,ServerPort,UserAgent,Referer,HttpSubStatus'
+            logFormat         = 'W3C'
+            LogTargetW3C      = 'File,ETW'
+            period            = 'Daily'
+            truncateSize      = '1048576'
+            localTimeRollover = 'False'
+            customFields      = @{Collection = @($MockLogCustomFields) }
+        }
 
-        $MockLogFlagsAfterSplit = [System.String[]] @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
+        $MockLogFlagsAfterSplit = [System.String[]] @('Date', 'Time', 'ClientIP', 'UserName', 'ServerIP', 'Method', 'UriStem', 'UriQuery', 'HttpStatus', 'Win32Status', 'TimeTaken', 'ServerPort', 'UserAgent', 'Referer', 'HttpSubStatus')
 
         Describe "$script:dscResourceName\Get-TargetResource" {
 
@@ -82,7 +82,7 @@ try
                 Mock -CommandName Get-WebConfiguration `
                     -MockWith { return $MockLogOutput }
 
-                Mock -CommandName Assert-Module -MockWith {}
+                Mock -CommandName Assert-Module -MockWith { }
 
                 Mock -CommandName ConvertTo-CimLogCustomFields `
                     -MockWith { return $MockLogCustomFields }
@@ -143,8 +143,8 @@ try
 
                 It 'Should return LogCustomFields' {
                     $result.LogCustomFields.LogFieldName | Should Be $MockLogCustomFields.LogFieldName
-                    $result.LogCustomFields.SourceName   | Should Be $MockLogCustomFields.SourceName
-                    $result.LogCustomFields.SourceType   | Should Be $MockLogCustomFields.SourceType
+                    $result.LogCustomFields.SourceName | Should Be $MockLogCustomFields.SourceName
+                    $result.LogCustomFields.SourceType | Should Be $MockLogCustomFields.SourceType
                 }
             }
 
@@ -152,9 +152,9 @@ try
 
         Describe "$script:dscResourceName\Test-TargetResource" {
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module -MockWith { }
 
-            Context 'All settings are correct'{
+            Context 'All settings are correct' {
 
                 $MockLogOutput =
                 @{
@@ -209,14 +209,14 @@ try
             Context 'Check LogPath should return false' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = '%SystemDrive%\inetpub\logs\LogFiles'
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                    }
+                @{
+                    directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -237,14 +237,14 @@ try
             Context 'Check LogFlags should return false' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = 'Date', 'Time', 'ClientIP', 'UserName', 'ServerIP', 'Method', 'UriStem', 'UriQuery', 'HttpStatus', 'Win32Status', 'TimeTaken', 'ServerPort', 'UserAgent', 'Referer', 'HttpSubStatus'
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -265,14 +265,14 @@ try
             Context 'Check LogPeriod should return false' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = 'Daily'
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = 'Daily'
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -293,14 +293,14 @@ try
             Context 'Check LogTruncateSize should return false' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = '1048576'
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -329,14 +329,14 @@ try
                 }
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = '636870912'
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = '636870912'
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -357,14 +357,14 @@ try
             Context 'Check LoglocalTimeRollover should return false' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = 'False'
-                        logFormat         = $MockLogParameters.LogFormat
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = 'False'
+                    logFormat         = $MockLogParameters.LogFormat
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -385,14 +385,14 @@ try
             Context 'Check LogFormat should return false' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = 'IIS'
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = 'IIS'
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -413,15 +413,15 @@ try
             Context 'Check LogTargetW3C should return false' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                        LogTargetW3C      = 'File'
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                    LogTargetW3C      = 'File'
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -439,7 +439,7 @@ try
 
             }
 
-         Context 'Check LogCustomFields is equal' {
+            Context 'Check LogCustomFields is equal' {
                 #region Mocks for Test-TargetResource
                 Mock -CommandName Test-Path -MockWith { return $true }
                 Mock -CommandName Get-TargetResource -MockWith { return $MockLogParameters }
@@ -455,7 +455,7 @@ try
                 }
             }
 
-         Context 'Check LogCustomFields is different' {
+            Context 'Check LogCustomFields is different' {
                 $MockDifferentLogCustomFields = @{
                     LogFieldName = 'DifferentField'
                     SourceName   = 'Accept-Encoding'
@@ -480,20 +480,20 @@ try
 
         Describe "$script:dscResourceName\Set-TargetResource" {
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module -MockWith { }
 
             Context 'All Settings are incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = '%SystemDrive%\inetpub\logs\LogFiles'
-                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
-                        logFormat         = 'IIS'
-                        logTargetW3C      = 'File'
-                        period            = 'Daily'
-                        truncateSize      = '1048576'
-                        localTimeRollover = 'False'
-                    }
+                @{
+                    directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                    logExtFileFlags   = 'Date', 'Time', 'ClientIP', 'UserName', 'ServerIP', 'Method', 'UriStem', 'UriQuery', 'HttpStatus', 'Win32Status', 'TimeTaken', 'ServerPort', 'UserAgent', 'Referer', 'HttpSubStatus'
+                    logFormat         = 'IIS'
+                    logTargetW3C      = 'File'
+                    period            = 'Daily'
+                    truncateSize      = '1048576'
+                    localTimeRollover = 'False'
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -508,7 +508,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 10
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 10
                 }
 
             }
@@ -516,15 +516,15 @@ try
             Context 'LogPath is incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = '%SystemDrive%\inetpub\logs\LogFiles'
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                        logTargetW3C      = $MockLogParameters.LogTargetW3C
-                    }
+                @{
+                    directory         = '%SystemDrive%\inetpub\logs\LogFiles'
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -539,7 +539,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
 
             }
@@ -547,15 +547,15 @@ try
             Context 'LogFlags are incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = 'Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus'
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                        logTargetW3C      = $MockLogParameters.LogTargetW3C
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = 'Date', 'Time', 'ClientIP', 'UserName', 'ServerIP', 'Method', 'UriStem', 'UriQuery', 'HttpStatus', 'Win32Status', 'TimeTaken', 'ServerPort', 'UserAgent', 'Referer', 'HttpSubStatus'
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -570,7 +570,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
                 }
 
             }
@@ -578,15 +578,15 @@ try
             Context 'LogPeriod is incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = 'Daily'
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                        logTargetW3C      = $MockLogParameters.LogTargetW3C
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = 'Daily'
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -601,7 +601,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
 
             }
@@ -609,15 +609,15 @@ try
             Context 'LogTruncateSize is incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = '1048576'
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                        logTargetW3C      = $MockLogParameters.LogTargetW3C
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -632,7 +632,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
                 }
 
             }
@@ -649,15 +649,15 @@ try
                     logTargetW3C         = $MockLogParameters.LogTargetW3C
                 }
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = '1048576'
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.LogFormat
-                        logTargetW3C      = $MockLogParameters.LogTargetW3C
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = '1048576'
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.LogFormat
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -672,7 +672,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
 
                 It 'Should have the correct LogTruncateSize' {
@@ -684,15 +684,15 @@ try
             Context 'LoglocalTimeRollover is incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = 'False'
-                        logFormat         = $MockLogParameters.LogFormat
-                        logTargetW3C      = $MockLogParameters.LogTargetW3C
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = 'False'
+                    logFormat         = $MockLogParameters.LogFormat
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -707,7 +707,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
 
             }
@@ -715,15 +715,15 @@ try
             Context 'LogFormat is incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = 'IIS'
-                        logTargetW3C      = $MockLogParameters.LogTargetW3C
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = 'IIS'
+                    logTargetW3C      = $MockLogParameters.LogTargetW3C
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -738,7 +738,7 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
 
             }
@@ -746,15 +746,15 @@ try
             Context 'LogTargetW3C is incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                        logFormat         = $MockLogParameters.logFormat
-                        logTargetW3C      = 'File'
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                    logFormat         = $MockLogParameters.logFormat
+                    logTargetW3C      = 'File'
+                }
 
                 Mock -CommandName Test-Path -MockWith { return $true }
 
@@ -769,21 +769,21 @@ try
                 Set-TargetResource @MockLogParameters
 
                 It 'Should call all the mocks' {
-                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
                 }
 
             }
 
         }
 
-    Describe "$script:dscResourceName\ConvertTo-CimLogCustomFields"{
+        Describe "$script:dscResourceName\ConvertTo-CimLogCustomFields" {
             $MockLogCustomFields = @{
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
 
-             Context 'Expected behavior'{
+            Context 'Expected behavior' {
                 $Result = ConvertTo-CimLogCustomFields -InputObject $MockLogCustomFields
 
                 It 'Should return the LogFieldName' {
@@ -800,15 +800,39 @@ try
             }
         }
 
-    Describe "$script:dscResourceName\Test-LogCustomField" {
+        Describe "$script:dscResourceName\Test-LogCustomField" {
             $MockCimLogCustomFields = @(
                 New-CimInstance -ClassName MSFT_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
-                    LogFieldName = 'ClientEncoding'
-                    SourceName   = 'Accept-Encoding'
-                    SourceType   = 'RequestHeader'
-                } `
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                    } `
+                    -ClientOnly
+            )
+
+            $MockCimLogCustomFieldsEnsurePresentExplicitly = @(
+                New-CimInstance -ClassName MSFT_xLogCustomField `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Present'
+                    } `
+                    -ClientOnly
+            )
+
+            $MockCimLogCustomFieldsEnsureAbsent = @(
+                New-CimInstance -ClassName MSFT_xLogCustomField `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Absent'
+                    } `
                     -ClientOnly
             )
 
@@ -821,8 +845,17 @@ try
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return $MockDesiredLogCustomFields }
 
-                It 'Should return True' {
+                It 'Should return True with default Ensure (Present)' {
                     Test-LogCustomField -LogCustomField $MockCimLogCustomFields | Should Be $True
+                }
+
+                It 'Should return True with explicit Ensure Present' {
+                    Test-LogCustomField -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly | Should Be $True
+                }
+
+                It 'Should return True with Ensure Absent and Custom Field Absent' {
+                    Mock -CommandName Get-WebConfigurationProperty -MockWith { return $null }
+                    Test-LogCustomField -LogCustomField $MockCimLogCustomFieldsEnsureAbsent | Should Be $True
                 }
             }
 
@@ -835,15 +868,16 @@ try
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return $MockWrongLogCustomFields }
 
-                It 'Should return False' {
+                It 'Should return False with default Ensure (Present)' {
                     Test-LogCustomField -LogCustomField $MockCimLogCustomFields | Should Be $False
                 }
-            }
 
-            Context 'LogCustomField not present'{
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { return $false }
+                It 'Should return False with explicit Ensure Present' {
+                    Test-LogCustomField -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly | Should Be $False
+                }
 
-                It 'Should return False' {
+                It 'Should return False with Ensure Present and Custom Field Absent' {
+                    Mock -CommandName Get-WebConfigurationProperty -MockWith { return $null }
                     Test-LogCustomField -LogCustomField $MockCimLogCustomFields | Should Be $False
                 }
             }
@@ -854,14 +888,14 @@ try
             Context 'Returns false when LogFlags are incorrect' {
 
                 $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
-                        logFormat         = 'W3C'
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                    }
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = @('Date', 'Time', 'ClientIP', 'UserName', 'ServerIP', 'Method', 'UriStem', 'UriQuery', 'HttpStatus', 'Win32Status', 'TimeTaken', 'ServerPort', 'UserAgent', 'Referer', 'HttpSubStatus')
+                    logFormat         = 'W3C'
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                }
 
                 Mock -CommandName Get-WebConfigurationProperty `
                     -MockWith { return $MockLogOutput.logExtFileFlags }
@@ -876,15 +910,15 @@ try
 
             Context 'Returns true when LogFlags are correct' {
 
-               $MockLogOutput =
-                    @{
-                        directory         = $MockLogParameters.LogPath
-                        logExtFileFlags   = $MockLogParameters.LogFlags
-                        logFormat         = 'W3C'
-                        period            = $MockLogParameters.LogPeriod
-                        truncateSize      = $MockLogParameters.LogTruncateSize
-                        localTimeRollover = $MockLogParameters.LoglocalTimeRollover
-                    }
+                $MockLogOutput =
+                @{
+                    directory         = $MockLogParameters.LogPath
+                    logExtFileFlags   = $MockLogParameters.LogFlags
+                    logFormat         = 'W3C'
+                    period            = $MockLogParameters.LogPeriod
+                    truncateSize      = $MockLogParameters.LogTruncateSize
+                    localTimeRollover = $MockLogParameters.LoglocalTimeRollover
+                }
 
                 Mock -CommandName Get-WebConfigurationProperty `
                     -MockWith { return $MockLogOutput.logExtFileFlags }
@@ -896,8 +930,8 @@ try
                 }
             }
 
-         }
-    Describe "$script:dscResourceName\Set-LogCustomField" {
+        }
+        Describe "$script:dscResourceName\Set-LogCustomField" {
 
             $MockCimLogCustomFields = @(
                 New-CimInstance -ClassName MSFT_xLogCustomField `
@@ -910,15 +944,47 @@ try
                     -ClientOnly
             )
 
+            $MockCimLogCustomFieldsEnsurePresentExplicitly = @(
+                New-CimInstance -ClassName MSFT_xLogCustomField `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Present'
+                    } `
+                    -ClientOnly
+            )
+
+            $MockCimLogCustomFieldsEnsureAbsent = @(
+                New-CimInstance -ClassName MSFT_xLogCustomField `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Absent'
+                    } `
+                    -ClientOnly
+            )
+
             Context 'Create new LogCustomField' {
                 Mock -CommandName Set-WebConfigurationProperty
 
-                It 'Should not throw an error' {
+                It 'Should not throw an error with default Ensure (Present)' {
                     { Set-LogCustomField  -LogCustomField $MockCimLogCustomFields } | Should Not Throw
                 }
 
-                It 'Should call should call expected mocks' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                It 'Should not throw an error with explicit Ensure Present' {
+                    { Set-LogCustomField  -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly } | Should Not Throw
+                }
+
+                It 'Should not throw an error with Ensure Absent' {
+                    { Set-LogCustomField  -LogCustomField $MockCimLogCustomFieldsEnsureAbsent } | Should Not Throw
+                }
+
+                It 'Should call expected mocks' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
                 }
             }
 
@@ -926,12 +992,20 @@ try
             Context 'Modify existing LogCustomField' {
                 Mock -CommandName Set-WebConfigurationProperty
 
-                It 'Should not throw an error' {
-                    { Set-LogCustomField -LogCustomField $MockCimLogCustomFields } | Should Not Throw
+                It 'Should not throw an error with default Ensure (Present)' {
+                    { Set-LogCustomField  -LogCustomField $MockCimLogCustomFields } | Should Not Throw
                 }
 
-                It 'Should call should call expected mocks' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 1
+                It 'Should not throw an error with explicit Ensure Present' {
+                    { Set-LogCustomField  -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly } | Should Not Throw
+                }
+
+                It 'Should not throw an error with Ensure Absent' {
+                    { Set-LogCustomField  -LogCustomField $MockCimLogCustomFieldsEnsureAbsent } | Should Not Throw
+                }
+
+                It 'Should call expected mocks' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
                 }
             }
         }
