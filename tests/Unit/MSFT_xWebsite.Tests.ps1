@@ -3922,6 +3922,29 @@ try
                     } `
                     -ClientOnly
             )
+            $MockCimLogCustomFieldsEnsurePresentExplicitly = @(
+                New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Present'
+                    } `
+                    -ClientOnly
+            )
+
+            $MockCimLogCustomFieldsEnsureAbsent = @(
+                New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Absent'
+                    } `
+                    -ClientOnly
+            )
 
             Context 'LogCustomField in desired state'{
                 $MockDesiredLogCustomFields = @{
@@ -3932,8 +3955,17 @@ try
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return $MockDesiredLogCustomFields }
 
-               It 'should return True' {
+                It 'Should return True with default Ensure (Present)' {
                     Test-LogCustomField -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields | Should Be $True
+                }
+
+                It 'Should return True with explicit Ensure Present' {
+                    Test-LogCustomField -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly | Should Be $True
+                }
+
+                It 'Should return True with Ensure Absent and Custom Field Absent' {
+                    Mock -CommandName Get-WebConfigurationProperty -MockWith { return $null }
+                    Test-LogCustomField -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFieldsEnsureAbsent | Should Be $True
                 }
             }
 
@@ -3946,15 +3978,16 @@ try
 
                 Mock -CommandName Get-WebConfigurationProperty -MockWith { return $MockWrongLogCustomFields }
 
-                It 'should return False' {
+                It 'Should return False with default Ensure (Present)' {
                     Test-LogCustomField -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields | Should Be $False
                 }
-            }
 
-            Context 'LogCustomField not present'{
-                Mock -CommandName Get-WebConfigurationProperty -MockWith { return $false }
+                It 'Should return False with explicit Ensure Present' {
+                    Test-LogCustomField -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly | Should Be $False
+                }
 
-                It 'should return False' {
+                It 'Should return False with Ensure Present and Custom Field Absent' {
+                    Mock -CommandName Get-WebConfigurationProperty -MockWith { return $null }
                     Test-LogCustomField -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields | Should Be $False
                 }
             }
@@ -3975,27 +4008,71 @@ try
                     -ClientOnly
             )
 
+            $MockCimLogCustomFieldsEnsurePresentExplicitly = @(
+                New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Present'
+                    } `
+                    -ClientOnly
+            )
+
+            $MockCimLogCustomFieldsEnsureAbsent = @(
+                New-CimInstance -ClassName MSFT_xLogCustomFieldInformation `
+                    -Namespace root/microsoft/Windows/DesiredStateConfiguration `
+                    -Property @{
+                        LogFieldName = 'ClientEncoding'
+                        SourceName   = 'Accept-Encoding'
+                        SourceType   = 'RequestHeader'
+                        Ensure       = 'Absent'
+                    } `
+                    -ClientOnly
+            )
+
             Context 'Create new LogCustomField'{
                 Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Remove-WebConfigurationProperty
 
-                It 'should not throw an error' {
+                It 'Should not throw an error with default Ensure (Present)' {
                     { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields } | Should Not Throw
                 }
 
-                It 'should call should call expected mocks' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                It 'Should not throw an error with explicit Ensure Present' {
+                    { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly } | Should Not Throw
+                }
+
+                It 'Should not throw an error with Ensure Absent' {
+                    { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFieldsEnsureAbsent } | Should Not Throw
+                }
+
+                It 'Should call expected mocks' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 4
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 2
                 }
             }
 
             Context 'Modify existing LogCustomField'{
                 Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Remove-WebConfigurationProperty
 
-                It 'should not throw an error' {
+                It 'Should not throw an error with default Ensure (Present)' {
                     { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFields } | Should Not Throw
                 }
 
-                It 'should call should call expected mocks' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                It 'Should not throw an error with explicit Ensure Present' {
+                    { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFieldsEnsurePresentExplicitly } | Should Not Throw
+                }
+
+                It 'Should not throw an error with Ensure Absent' {
+                    { Set-LogCustomField  -Site $MockWebsiteName -LogCustomField $MockCimLogCustomFieldsEnsureAbsent } | Should Not Throw
+                }
+
+                It 'Should call expected mocks' {
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 4
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 2
                 }
             }
         }
