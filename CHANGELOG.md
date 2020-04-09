@@ -14,6 +14,16 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     present in the module DscResource.Common.
   - Removed the function `Get-CurrentUser` since no code were using it.
 
+### Changed
+
+- Website
+  - Add Ensure to LogCustomFieldInformation. ([issue #571](https://github.com/dsccommunity/WebAdministrationDsc/issues/571))
+
+### Fixed
+
+- IisLogging
+  - Can now remove all LogCustomFields using Ensure. ([issue #571](https://github.com/dsccommunity/WebAdministrationDsc/issues/571))
+
 ## [4.1.0] - 2023-01-03
 
 ### Fixed
@@ -32,10 +42,10 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 - CommonTestHelper  
   Added `Invoke-UnitTestCleanup` to get consistent cleanup of stubs.  
   Gives correct execution of integration tests when run in same PowerShell session as unit tests (no longer calling stubs).  
-  Gives correct `Restore-WebConfiguration` after integration tests when run in same PowerShell session as unit tests (no longer calling stub).  
+  Gives correct `Restore-WebConfiguration` after integration tests when run in same PowerShell session as unit tests (no longer calling stub).
 - MockWebAdministrationWindowsFeature  
   [Issue #351](https://github.com/dsccommunity/WebAdministrationDsc/issues/351)
-  Stubs now throw StubNotImplemented when they are called in order to show when a cmdlet is not mocked correctly.  
+  Stubs now throw StubNotImplemented when they are called in order to show when a cmdlet is not mocked correctly.
 
 ## [4.0.0] - 2022-09-17
 
@@ -174,9 +184,9 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 - xWebAdministration.Common
   - Added new helper function `Get-WebConfigurationPropertyValue` to
-    help return a value of a `WebConfigurationProperty`. *This helper*
-    *function is unable to be unit tested because it is using a type*
-    *that cannot be mocked.*
+    help return a value of a `WebConfigurationProperty`. _This helper_
+    _function is unable to be unit tested because it is using a type_
+    _that cannot be mocked._
 - xWebAppPoolDefaults
   - Changed to use the new helper function `Get-WebConfigurationPropertyValue`
     so that the resource can be properly unit tested.

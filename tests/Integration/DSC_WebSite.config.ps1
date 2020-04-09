@@ -331,3 +331,41 @@ configuration DSC_WebSite_Logging_Configured
         }
     }
 }
+
+configuration DSC_WebSite_Custom_Logging_Configured
+{
+    param(
+
+        [Parameter(Mandatory = $true)]
+        [String] $CertificateThumbprint
+
+    )
+
+    Import-DscResource -ModuleName WebAdministrationDsc
+
+    Node $AllNodes.NodeName
+    {
+        WebSite Website
+        {
+            Name      = $Node.Website
+            LogFlags  = $Node.LogFlags2
+            LogFormat = $Node.LogFormat
+            LogCustomFields = @(
+                DSC_LogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName1
+                    SourceName   = $Node.SourceName1
+                    SourceType   = $Node.SourceType1
+                    Ensure       = 'Absent'
+                }
+                DSC_LogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName2
+                    SourceName   = $Node.SourceName2
+                    SourceType   = $Node.SourceType2
+                    Ensure       = 'Absent'
+                }
+            )
+        }
+    }
+}
