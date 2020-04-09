@@ -498,8 +498,14 @@ function Set-LogCustomField
     <#
         Set-WebConfigurationProperty updates logfile.customFields.
     #>
-
-    Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/Sites/SiteDefaults/logFile/customFields" -Name "." -Value $setCustomFields
+    if ($setCustomFields.Count -gt 0)
+    {
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/Sites/SiteDefaults/logFile/customFields" -Name "." -Value $setCustomFields
+    }
+    else
+    {
+        Remove-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/Sites/SiteDefaults/logFile/customFields" -Name "."
+    }
 }
 
 <#
