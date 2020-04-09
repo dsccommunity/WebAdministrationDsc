@@ -10,13 +10,13 @@ Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath '
 $script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebSite'
 
 <#
-        .SYNOPSYS
-            The Get-TargetResource cmdlet is used to fetch the status of role or Website on
-            the target machine. It gives the Website info of the requested role/feature on the
-            target machine.
+    .SYNOPSIS
+    The Get-TargetResource cmdlet is used to fetch the status of role or Website on
+    the target machine. It gives the Website info of the requested role/feature on the
+    target machine.
 
-        .PARAMETER Name
-            Name of the website
+    .PARAMETER Name
+    Name of the website
 #>
 function Get-TargetResource
 {
@@ -103,15 +103,15 @@ function Get-TargetResource
 }
 
 <#
-        .SYNOPSYS
-        The Set-TargetResource cmdlet is used to create, delete or configure a website on the
-        target machine.
+    .SYNOPSIS
+    The Set-TargetResource cmdlet is used to create, delete or configure a website on the
+    target machine.
 
-        .PARAMETER SiteId
-            Optional. Specifies the IIS site Id for the web site.
+    .PARAMETER SiteId
+    Optional. Specifies the IIS site Id for the web site.
 
-        .PARAMETER PhysicalPath
-        Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
+    .PARAMETER PhysicalPath
+    Specifies the physical path of the web site. Don't set this if the site will be deployed by an external tool that updates the path.
 #>
 function Set-TargetResource
 {
@@ -672,13 +672,12 @@ function Set-TargetResource
 }
 
 <#
-        .SYNOPSIS
-        The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
-        expected in the instance document.
+    .SYNOPSIS
+    The Test-TargetResource cmdlet is used to validate if the role or feature is in a state as
+    expected in the instance document.
 
-        .PARAMETER SiteId
-            Optional. Specifies the IIS site Id for the web site.
-
+    .PARAMETER SiteId
+    Optional. Specifies the IIS site Id for the web site.
 #>
 function Test-TargetResource
 {
@@ -1047,15 +1046,15 @@ function Test-TargetResource
 #region Helper Functions
 
 <#
-        .SYNOPSIS
-        Helper function used to validate that the logflags status.
-        Returns False if the loglfags do not match and true if they do
+    .SYNOPSIS
+    Helper function used to validate that the logflags status.
+    Returns False if the loglfags do not match and true if they do
 
-        .PARAMETER LogFlags
-        Specifies flags to check
+    .PARAMETER LogFlags
+    Specifies flags to check
 
-        .PARAMETER Name
-        Specifies website to check the flags on
+    .PARAMETER Name
+    Specifies website to check the flags on
 #>
 function Compare-LogFlags
 {
@@ -1088,21 +1087,21 @@ function Compare-LogFlags
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to validate that the website's binding information is unique to other
-        websites. Returns False if at least one of the bindings is already assigned to another
-        website.
+    .SYNOPSIS
+    Helper function used to validate that the website's binding information is unique to other
+    websites. Returns False if at least one of the bindings is already assigned to another
+    website.
 
-        .PARAMETER Name
-        Specifies the name of the website.
+    .PARAMETER Name
+    Specifies the name of the website.
 
-        .PARAMETER ExcludeStopped
-        Omits stopped websites.
+    .PARAMETER ExcludeStopped
+    Omits stopped websites.
 
-        .NOTES
-        This function tests standard ('http' and 'https') bindings only.
-        It is technically possible to assign identical non-standard bindings (such as 'net.tcp')
-        to different websites.
+    .NOTES
+    This function tests standard ('http' and 'https') bindings only.
+    It is technically possible to assign identical non-standard bindings (such as 'net.tcp')
+    to different websites.
 #>
 function Confirm-UniqueBinding
 {
@@ -1174,21 +1173,21 @@ function Confirm-UniqueBinding
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to validate that the AutoStartProviders is unique to other websites.
-        returns False if the AutoStartProviders exist.
+    .SYNOPSIS
+    Helper function used to validate that the AutoStartProviders is unique to other websites.
+    returns False if the AutoStartProviders exist.
 
-        .PARAMETER ServiceAutoStartProvider
-        Specifies the name of the AutoStartProviders.
+    .PARAMETER ServiceAutoStartProvider
+    Specifies the name of the AutoStartProviders.
 
-        .PARAMETER ApplicationType
-        Specifies the name of the Application Type for the AutoStartProvider.
+    .PARAMETER ApplicationType
+    Specifies the name of the Application Type for the AutoStartProvider.
 
-        .NOTES
-        This tests for the existance of a AutoStartProviders which is globally assigned.
-        As AutoStartProviders need to be uniquely named it will check for this and error out if
-        attempting to add a duplicatly named AutoStartProvider.
-        Name is passed in to bubble to any error messages during the test.
+    .NOTES
+    This tests for the existance of a AutoStartProviders which is globally assigned.
+    As AutoStartProviders need to be uniquely named it will check for this and error out if
+    attempting to add a duplicatly named AutoStartProvider.
+    Name is passed in to bubble to any error messages during the test.
 #>
 function Confirm-UniqueServiceAutoStartProviders
 {
@@ -1242,8 +1241,8 @@ function Confirm-UniqueServiceAutoStartProviders
 }
 
 <#
-        .SYNOPSIS
-        Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
+    .SYNOPSIS
+    Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
 #>
 function ConvertTo-CimBinding
 {
@@ -1320,12 +1319,12 @@ function ConvertTo-CimBinding
 }
 
 <#
-        .SYNOPSIS
-        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding>
-        element representation.
+    .SYNOPSIS
+    Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding>
+    element representation.
 
-        .LINK
-        https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
+    .LINK
+    https://www.iis.net/configreference/system.applicationhost/sites/site/bindings/binding
 #>
 function ConvertTo-WebBinding
 {
@@ -1531,18 +1530,18 @@ function ConvertTo-WebBinding
             else
             {
                 <#
-                        WebAdministration can throw the following exception if there are non-standard
-                        bindings (such as 'net.tcp'): 'The data is invalid.
-                        (Exception from HRESULT: 0x8007000D)'
+                    WebAdministration can throw the following exception if there are non-standard
+                    bindings (such as 'net.tcp'): 'The data is invalid.
+                    (Exception from HRESULT: 0x8007000D)'
 
-                        Steps to reproduce:
-                        1) Add 'net.tcp' binding
-                        2) Execute {Get-Website | `
-                                ForEach-Object {$_.bindings.Collection} | `
-                                Select-Object *}
+                    Steps to reproduce:
+                    1) Add 'net.tcp' binding
+                    2) Execute {Get-Website | `
+                            ForEach-Object {$_.bindings.Collection} | `
+                            Select-Object *}
 
-                        Workaround is to create a new custom object and use dot notation to
-                        access binding properties.
+                    Workaround is to create a new custom object and use dot notation to
+                    access binding properties.
                 #>
 
                 $outputObject.Add('bindingInformation',   [String]$binding.bindingInformation)
@@ -1561,8 +1560,8 @@ function ConvertTo-WebBinding
 }
 
 <#
-        .SYNOPSIS
-        Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+    .SYNOPSIS
+    Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
 #>
 function ConvertTo-CimLogCustomFields
 {
@@ -1599,8 +1598,8 @@ function ConvertTo-CimLogCustomFields
 }
 
 <#
-        .SYNOPSYS
-        Formats the input IP address string for use in the bindingInformation attribute.
+    .SYNOPSIS
+    Formats the input IP address string for use in the bindingInformation attribute.
 #>
 function Format-IPAddressString
 {
@@ -1651,11 +1650,11 @@ function Format-IPAddressString
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to validate that the authenticationProperties for an Application.
+    .SYNOPSIS
+    Helper function used to validate that the authenticationProperties for an Application.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+    .PARAMETER Site
+    Specifies the name of the Website.
 #>
 function Get-AuthenticationInfo
 {
@@ -1681,8 +1680,8 @@ function Get-AuthenticationInfo
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to build a default CimInstance for AuthenticationInformation
+    .SYNOPSIS
+    Helper function used to build a default CimInstance for AuthenticationInformation
 #>
 function Get-DefaultAuthenticationInfo
 {
@@ -1698,18 +1697,18 @@ function Get-DefaultAuthenticationInfo
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to set authenticationProperties for an Application
+    .SYNOPSIS
+    Helper function used to set authenticationProperties for an Application
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+    .PARAMETER Site
+    Specifies the name of the Website.
 
-        .PARAMETER Type
-        Specifies the type of Authentication.
-        Limited to the set: ('Anonymous','Basic','Digest','Windows')
+    .PARAMETER Type
+    Specifies the type of Authentication.
+    Limited to the set: ('Anonymous','Basic','Digest','Windows')
 
-        .PARAMETER Enabled
-        Whether the Authentication is enabled or not.
+    .PARAMETER Enabled
+    Whether the Authentication is enabled or not.
 #>
 function Set-Authentication
 {
@@ -1735,14 +1734,14 @@ function Set-Authentication
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to validate that the authenticationProperties for an Application.
+    .SYNOPSIS
+    Helper function used to validate that the authenticationProperties for an Application.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+    .PARAMETER Site
+    Specifies the name of the Website.
 
-        .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
+    .PARAMETER AuthenticationInfo
+    A CimInstance of what state the AuthenticationInfo should be.
 #>
 function Set-AuthenticationInfo
 {
@@ -1765,14 +1764,14 @@ function Set-AuthenticationInfo
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to set the LogCustomField for a website.
+    .SYNOPSIS
+    Helper function used to set the LogCustomField for a website.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+    .PARAMETER Site
+    Specifies the name of the Website.
 
-        .PARAMETER LogCustomField
-        A CimInstance collection of what the LogCustomField should be.
+    .PARAMETER LogCustomField
+    A CimInstance collection of what the LogCustomField should be.
 #>
 function Set-LogCustomField
 {
@@ -1792,31 +1791,41 @@ function Set-LogCustomField
     $setCustomFields = @()
     foreach ($customField in $LogCustomField)
     {
-        $setCustomFields += @{
-            logFieldName = $customField.LogFieldName
-            sourceName = $customField.SourceName
-            sourceType = $customField.SourceType
+        if ($customField.Ensure -ne 'Absent')
+        {
+            $setCustomFields += @{
+                logFieldName = $customField.LogFieldName
+                sourceName = $customField.SourceName
+                sourceType = $customField.SourceType
+            }
         }
     }
 
     # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
     for ($i = 1; $i -le 2; $i++)
     {
-        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
+        if ($setCustomFields.Count -gt 0)
+        {
+            Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
+        }
+        else
+        {
+            Remove-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "."
+        }
     }
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application.
-        Will return that value which will either [String]True or [String]False
+    .SYNOPSIS
+    Helper function used to test the authenticationProperties state for an Application.
+    Will return that value which will either [String]True or [String]False
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+    .PARAMETER Site
+    Specifies the name of the Website.
 
-        .PARAMETER Type
-        Specifies the type of Authentication.
-        Limited to the set: ('Anonymous','Basic','Digest','Windows').
+    .PARAMETER Type
+    Specifies the type of Authentication.
+    Limited to the set: ('Anonymous','Basic','Digest','Windows').
 #>
 function Test-AuthenticationEnabled
 {
@@ -1842,16 +1851,16 @@ function Test-AuthenticationEnabled
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to test the authenticationProperties state for an Application.
-        Will return that result for use in Test-TargetResource. Uses Test-AuthenticationEnabled
-        to determine this. First incorrect result will break this function out.
+    .SYNOPSIS
+    Helper function used to test the authenticationProperties state for an Application.
+    Will return that result for use in Test-TargetResource. Uses Test-AuthenticationEnabled
+    to determine this. First incorrect result will break this function out.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+    .PARAMETER Site
+    Specifies the name of the Website.
 
-        .PARAMETER AuthenticationInfo
-        A CimInstance of what state the AuthenticationInfo should be.
+    .PARAMETER AuthenticationInfo
+    A CimInstance of what state the AuthenticationInfo should be.
 #>
 function Test-AuthenticationInfo
 {
@@ -1884,9 +1893,9 @@ function Test-AuthenticationInfo
 }
 
 <#
-        .SYNOPSIS
-        Validates the desired binding information (i.e. no duplicate IP address, port, and
-        host name combinations).
+    .SYNOPSIS
+    Validates the desired binding information (i.e. no duplicate IP address, port, and
+    host name combinations).
 #>
 function Test-BindingInfo
 {
@@ -1956,9 +1965,9 @@ function Test-BindingInfo
 }
 
 <#
-        .SYNOPSIS
-        Validates that an input string represents a valid port number.
-        The port number must be a positive integer between 1 and 65535.
+    .SYNOPSIS
+    Validates that an input string represents a valid port number.
+    The port number must be a positive integer between 1 and 65535.
 #>
 function Test-PortNumber
 {
@@ -1986,9 +1995,9 @@ function Test-PortNumber
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to validate and compare website bindings of current to desired.
-        Returns True if bindings do not need to be updated.
+    .SYNOPSIS
+    Helper function used to validate and compare website bindings of current to desired.
+    Returns True if bindings do not need to be updated.
 #>
 function Test-WebsiteBinding
 {
@@ -2061,14 +2070,14 @@ function Test-WebsiteBinding
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to test the LogCustomField state for a website.
+    .SYNOPSIS
+    Helper function used to test the LogCustomField state for a website.
 
-        .PARAMETER Site
-        Specifies the name of the Website.
+    .PARAMETER Site
+    Specifies the name of the Website.
 
-        .PARAMETER LogCustomField
-        A CimInstance collection of what state the LogCustomField should be.
+    .PARAMETER LogCustomField
+    A CimInstance collection of what state the LogCustomField should be.
 #>
 function Test-LogCustomField
 {
@@ -2086,34 +2095,40 @@ function Test-LogCustomField
         $LogCustomField
     )
 
-    $inDesiredSate = $true
+    $inDesiredState = $true
 
     foreach ($customField in $LogCustomField)
     {
         $filterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields/add[@logFieldName='{1}']" -f $Site, $customField.LogFieldName
         $presentCustomField = Get-WebConfigurationProperty -Filter $filterString -Name "."
 
+        $shouldBePresent = $customField.Ensure -ne 'Absent'
+
         if ($presentCustomField)
         {
             $sourceNameMatch = $customField.SourceName -eq $presentCustomField.SourceName
             $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
-            if (-not ($sourceNameMatch -and $sourceTypeMatch))
+            $doesNotMatchEnsure = (-not ($sourceNameMatch -and $sourceTypeMatch)) -eq $shouldBePresent
+            if ($doesNotMatchEnsure)
             {
-                $inDesiredSate = $false
+                $inDesiredState = $false
             }
         }
         else
         {
-            $inDesiredSate = $false
+            if ($shouldBePresent)
+            {
+                $inDesiredState = $false
+            }
         }
     }
 
-    return $inDesiredSate
+    return $inDesiredState
 }
 
 <#
-        .SYNOPSIS
-        Helper function used to update default pages of website.
+    .SYNOPSIS
+    Helper function used to update default pages of website.
 #>
 function Update-DefaultPage
 {
@@ -2152,7 +2167,7 @@ function Update-DefaultPage
 
 <#
     .SYNOPSIS
-        Updates website bindings.
+    Updates website bindings.
 #>
 function Update-WebsiteBinding
 {

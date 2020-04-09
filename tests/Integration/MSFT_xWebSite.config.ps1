@@ -331,3 +331,41 @@ configuration MSFT_xWebSite_Logging_Configured
         }
     }
 }
+
+configuration MSFT_xWebSite_Custom_Logging_Configured
+{
+    param(
+
+        [Parameter(Mandatory = $true)]
+        [String] $CertificateThumbprint
+
+    )
+
+    Import-DscResource -ModuleName xWebAdministration
+
+    Node $AllNodes.NodeName
+    {
+        xWebSite Website
+        {
+            Name      = $Node.Website
+            LogFlags  = $Node.LogFlags2
+            LogFormat = $Node.LogFormat
+            LogCustomFields = @(
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName1
+                    SourceName   = $Node.SourceName1
+                    SourceType   = $Node.SourceType1
+                    Ensure       = 'Absent'
+                }
+                MSFT_xLogCustomFieldInformation
+                {
+                    LogFieldName = $Node.LogFieldName2
+                    SourceName   = $Node.SourceName2
+                    SourceType   = $Node.SourceType2
+                    Ensure       = 'Absent'
+                }
+            )
+        }
+    }
+}

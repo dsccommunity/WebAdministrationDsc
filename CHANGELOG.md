@@ -61,11 +61,15 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Update misleading localization strings
 - xIisLogging
   - Add Ensure to LogCustomFields. ([issue #571](https://github.com/dsccommunity/xWebAdministration/issues/571))
+- xWebsite
+  - Add Ensure to LogCustomFieldInformation. ([issue #571](https://github.com/dsccommunity/xWebAdministration/issues/571))
 
 ### Fixed
 
 - WebApplicationHandler
   - Integration test should no longer fail intermittent ([issue #558](https://github.com/PowerShell/xWebAdministration/issues/558)).
+- xIisLogging
+  - Can now remove all LogCustomFields using Ensure. ([issue #571](https://github.com/dsccommunity/xWebAdministration/issues/571))
 
 ## [3.1.1] - 2020-01-10
 

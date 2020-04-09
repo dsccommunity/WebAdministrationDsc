@@ -970,6 +970,7 @@ try
 
             Context 'Create new LogCustomField' {
                 Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Remove-WebConfigurationProperty
 
                 It 'Should not throw an error with default Ensure (Present)' {
                     { Set-LogCustomField  -LogCustomField $MockCimLogCustomFields } | Should Not Throw
@@ -984,13 +985,15 @@ try
                 }
 
                 It 'Should call expected mocks' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 1
                 }
             }
 
 
             Context 'Modify existing LogCustomField' {
                 Mock -CommandName Set-WebConfigurationProperty
+                Mock -CommandName Remove-WebConfigurationProperty
 
                 It 'Should not throw an error with default Ensure (Present)' {
                     { Set-LogCustomField  -LogCustomField $MockCimLogCustomFields } | Should Not Throw
@@ -1005,7 +1008,8 @@ try
                 }
 
                 It 'Should call expected mocks' {
-                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Exactly 2
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Exactly 1
                 }
             }
         }

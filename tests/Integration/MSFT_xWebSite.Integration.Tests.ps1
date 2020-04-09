@@ -191,6 +191,32 @@ try
         }
     }
 
+    Describe "$($script:dscResourceName)_Custom_Logging_Configured" {
+        #region DEFAULT TESTS
+        It 'Should compile without throwing' {
+            {
+                Invoke-Expression -Command "$($script:dscResourceName)_Custom_Logging_Configured -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+            } | Should not throw
+        }
+
+        It 'Should be able to call Get-DscConfiguration without throwing' {
+            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+        }
+        #endregion
+
+        It 'Should remove all custom log fields' -test {
+
+            Invoke-Expression -Command "$($script:dscResourceName)_Custom_Logging_Configured -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+
+            # Build results to test
+            $result = Get-Website -Name $dscConfig.AllNodes.Website
+
+            # Test Website has updated CustomLogFields
+            $result.logFile.LogCustomFields | Should -BeNullOrEmpty
+        }
+    }
+
     Describe "$($script:dscResourceName)_Present_Stopped" {
         #region DEFAULT TESTS
         It 'Should compile without throwing' {
