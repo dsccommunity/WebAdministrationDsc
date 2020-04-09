@@ -1,4 +1,4 @@
-configuration Sample_WebSite_NewWebsite
+configuration Sample_WebSite_WithCustomLogFields
 {
     param
     (
@@ -81,6 +81,33 @@ configuration Sample_WebSite_NewWebsite
             ServerAutoStart = $true
             PhysicalPath    = $DestinationPath
             DependsOn       = '[File]WebContent'
+            LogFlags        = @('Date','Time','ClientIP','ServerIP','UserAgent')
+            LogFormat       = 'W3C'
+            LogCustomFields = @(
+                # Absent
+                DSC_LogCustomFieldInformation
+                {
+                    LogFieldName = 'ClientEncoding'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                    Ensure       = 'Absent'
+                }
+                # Explicitly Present
+                DSC_LogCustomFieldInformation
+                {
+                    LogFieldName = 'X-Powered-By'
+                    SourceName   = 'ASP.NET'
+                    SourceType   = 'ResponseHeader'
+                    Ensure       = 'Present'
+                }
+                # Default Present
+                DSC_LogCustomFieldInformation
+                {
+                    LogFieldName = 'X-Forwarded-For'
+                    SourceName   = 'X_FORWARDED_FOR'
+                    SourceType   = 'RequestHeader'
+                }
+            )
         }
     }
 }

@@ -1793,17 +1793,27 @@ function Set-LogCustomField
     $setCustomFields = @()
     foreach ($customField in $LogCustomField)
     {
-        $setCustomFields += @{
-            logFieldName = $customField.LogFieldName
-            sourceName = $customField.SourceName
-            sourceType = $customField.SourceType
+        if ($customField.Ensure -ne 'Absent')
+        {
+            $setCustomFields += @{
+                logFieldName = $customField.LogFieldName
+                sourceName = $customField.SourceName
+                sourceType = $customField.SourceType
+            }
         }
     }
 
     # The second Set-WebConfigurationProperty is to handle an edge case where logfile.customFields is not updated correctly.  May be caused by a possible bug in the IIS provider
     for ($i = 1; $i -le 2; $i++)
     {
-        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
+        if ($setCustomFields.Count -gt 0)
+        {
+            Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "." -Value $setCustomFields
+        }
+        else
+        {
+            Remove-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/sites/site[@name='$Site']/logFile/customFields" -Name "."
+        }
     }
 }
 
@@ -2087,29 +2097,35 @@ function Test-LogCustomField
         $LogCustomField
     )
 
-    $inDesiredSate = $true
+    $inDesiredState = $true
 
     foreach ($customField in $LogCustomField)
     {
         $filterString = "/system.applicationHost/sites/site[@name='{0}']/logFile/customFields/add[@logFieldName='{1}']" -f $Site, $customField.LogFieldName
         $presentCustomField = Get-WebConfigurationProperty -Filter $filterString -Name "."
 
+        $shouldBePresent = $customField.Ensure -ne 'Absent'
+
         if ($presentCustomField)
         {
             $sourceNameMatch = $customField.SourceName -eq $presentCustomField.SourceName
             $sourceTypeMatch = $customField.SourceType -eq $presentCustomField.sourceType
-            if (-not ($sourceNameMatch -and $sourceTypeMatch))
+            $doesNotMatchEnsure = (-not ($sourceNameMatch -and $sourceTypeMatch)) -eq $shouldBePresent
+            if ($doesNotMatchEnsure)
             {
-                $inDesiredSate = $false
+                $inDesiredState = $false
             }
         }
         else
         {
-            $inDesiredSate = $false
+            if ($shouldBePresent)
+            {
+                $inDesiredState = $false
+            }
         }
     }
 
-    return $inDesiredSate
+    return $inDesiredState
 }
 
 <#
