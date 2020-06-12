@@ -1473,7 +1473,7 @@ function ConvertTo-WebBinding
                     if ($FindCertificateSplat)
                     {
                         $FindCertificateSplat.Add('Store',$CertificateStoreName)
-                        $Certificate = Find-Certificate @FindCertificateSplat | Select-Object -First 1
+                        $Certificate = Find-Certificate @FindCertificateSplat | Sort-Object -Property NotAfter -Descending | Select-Object -First 1
                         if ($Certificate)
                         {
                             $certificateHash = $Certificate.Thumbprint
