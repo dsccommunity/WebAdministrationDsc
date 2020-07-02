@@ -7,6 +7,10 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+- xWebSite
+  - Added logic to select certificate with private key. ([issue #578](https://github.com/dsccommunity/xWebAdministration/issues/578))
+  - Added logic to select certificate with most available time ([issue #578](https://github.com/dsccommunity/xWebAdministration/issues/578))
+
 ### Added
 
 - xWebAdminstration
