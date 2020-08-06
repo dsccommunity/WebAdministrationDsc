@@ -28,8 +28,14 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     does not contain 'dsccommunity'.
   - Changed the VS Code project settings to trim trailing whitespace for
     markdown files too.
-  - Ensure that Test-TargetResourse in xWebSite tests all properties before
-    returning true or false, and that it uses a consistent style. ([issue #221](https://github.com/PowerShell/xWebAdministration/issues/550))
+  - Update pipeline to use NuGetVersionV2 from `GitVersion`.
+  - Pinned PowerShell module Pester to v4.10.1 in the pipeline due to
+    tests is not yet compatible with Pester 5.
+  - Using latest version of the PowerShell module ModuleBuilder.
+    - Updated build.yaml to use the correct values.
+- xWebSite
+  - Ensure that Test-TargetResource in xWebSite tests all properties before
+    returning true or false, and that it uses a consistent style ([issue #221](https://github.com/PowerShell/xWebAdministration/issues/550)).
 - xIisMimeTypeMapping
   - Update misleading localization strings
 - xIisLogging

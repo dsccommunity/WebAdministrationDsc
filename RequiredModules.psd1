@@ -1,16 +1,16 @@
 @{
-    PSDependOptions      = @{
-        AddToPath  = $True
+    PSDependOptions             = @{
+        AddToPath  = $true
         Target     = 'output\RequiredModules'
         Parameters = @{
         }
     }
 
-    invokeBuild                 = 'latest'
+    InvokeBuild                 = 'latest'
     PSScriptAnalyzer            = 'latest'
-    pester                      = 'latest'
+    Pester                      = '4.10.1'
     Plaster                     = 'latest'
-    ModuleBuilder               = '1.0.0'
+    ModuleBuilder               = 'latest'
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
     MarkdownLinkCheck           = 'latest'
