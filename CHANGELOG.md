@@ -18,6 +18,10 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ### Changed
 
 - xWebAdminstration
+  - Module was wrongly bumped to `4.0.0` (there a no merged breaking changes)
+    so the versions `4.0.0-preview1` to `4.0.0-preview5` have been unlisted
+    from the Gallery and removed as GitHub releases. The latest release is
+    `3.2.0`.
   - Azure Pipelines will no longer trigger on changes to just the CHANGELOG.md
     (when merging to master).
   - The deploy step is no longer run if the Azure DevOps organization URL

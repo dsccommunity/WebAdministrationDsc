@@ -1,7 +1,7 @@
 mode: ContinuousDelivery
 next-version: 3.1.0
 major-version-bump-message: '\s?(breaking|major|breaking\schange)'
-minor-version-bump-message: '\s?(add|feature|minor)'
+minor-version-bump-message: '(adds?|features?|minor)\b'
 patch-version-bump-message: '\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
 assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
@@ -22,5 +22,10 @@ branches:
     source-branches: ['master']
 
 ignore:
-  sha: []
+  sha: [
+    e429fb7a2fa7b52d3b86174c3085e1a3d3179a02,
+    a8975e79bb9e42fb45c337896c7ae6c6c5b25509,
+    a555b63949f64d2e90b6210c816e5cd0fb969eb6,
+    66f4d972148ca61b71db4da020f074906d289851
+    ]
 merge-message-formats: {}
