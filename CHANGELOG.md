@@ -7,6 +7,12 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Fixed
+
+- xIisLogging
+  - Fixed the descriptions for SourceType and SourceName which were incorrectly
+    switched around in the `README.md`.
+
 ## [3.2.0] - 2020-08-06
 
 ### Added
