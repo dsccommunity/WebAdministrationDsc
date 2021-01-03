@@ -35,24 +35,7 @@
     # Aliases to export from this module
     AliasesToExport = @()
 
-    DscResourcesToExport = @(
-        'WebApplicationHandler'
-        'xIisFeatureDelegation'
-        'xIIsHandler'
-        'xIisLogging'
-        'xIisMimeTypeMapping'
-        'xIisModule'
-        'xSslSettings'
-        'xWebApplication'
-        'xWebAppPool'
-        'xWebAppPoolDefaults'
-        'xWebConfigKeyValue'
-        'xWebConfigProperty'
-        'xWebConfigPropertyCollection'
-        'xWebSite'
-        'xWebSiteDefaults'
-        'xWebVirtualDirectory'
-    )
+    DscResourcesToExport = @()
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData = @{
@@ -64,7 +47,7 @@
             Tags = @('DesiredStateConfiguration', 'DSC', 'DSCResourceKit', 'DSCResource')
 
             # A URL to the license for this module.
-            LicenseUri = 'https://github.com/dsccommunity/xWebAdministration/blob/master/LICENSE'
+            LicenseUri = 'https://github.com/dsccommunity/xWebAdministration/blob/main/LICENSE'
 
             # A URL to the main website for this project.
             ProjectUri = 'https://github.com/dsccommunity/xWebAdministration'

@@ -7,6 +7,14 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed `master` branch to `main` ([issue #591](https://github.com/PowerShell/xWebAdministration/issues/591)).
+- The pipeline will now update the module manifest property `DscResourcesToExport`
+  automatically.
+- Only run the CI/CD pipeline on branch _main_ when there are changes to files
+  inside the `source` folder.
+
 ### Fixed
 
 - xIisLogging
