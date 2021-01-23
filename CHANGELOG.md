@@ -9,14 +9,19 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ### Changed
 
-- Renamed `master` branch to `main` ([issue #591](https://github.com/PowerShell/xWebAdministration/issues/591)).
-- The pipeline will now update the module manifest property `DscResourcesToExport`
-  automatically.
-- Only run the CI/CD pipeline on branch _main_ when there are changes to files
-  inside the `source` folder.
+- xWebAdministration
+  - Renamed `master` branch to `main` ([issue #591](https://github.com/PowerShell/xWebAdministration/issues/591)).
+  - The pipeline will now update the module manifest property `DscResourcesToExport`
+    automatically.
+  - Only run the CI/CD pipeline on branch _main_ when there are changes to files
+    inside the `source` folder.
 
 ### Fixed
 
+- xWebAdministration
+  - The component `gitversion` that is used in the pipeline was wrongly configured
+    when the repository moved to the new default branch `main`. It no longer throws
+    an error when using newer versions of GitVersion.
 - xIisLogging
   - Fixed the descriptions for SourceType and SourceName which were incorrectly
     switched around in the `README.md`.
