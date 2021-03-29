@@ -160,7 +160,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+* **AuthenticationInfo**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
   * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
   * **Basic**: The acceptable values for this property are: `$true`, `$false`
   * **Digest**: The acceptable values for this property are: `$true`, `$false`
