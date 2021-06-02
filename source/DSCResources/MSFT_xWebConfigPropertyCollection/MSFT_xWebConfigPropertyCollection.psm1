@@ -239,7 +239,7 @@ function Set-TargetResource
             Write-Verbose `
                 -Message ($script:localizedData.VerboseSetTargetAddItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
 
-            $filter = "$($Filter)/$($CollectionName)"
+            $filter = ConvertTo-EscapedValue -Value "$($Filter)/$($CollectionName)"
             # Use Add- in this case to add the element (including the key/value) and also the specified property name/value.
             Add-WebConfigurationProperty `
                 -PSPath $WebsitePath `
@@ -256,7 +256,7 @@ function Set-TargetResource
             Write-Verbose `
                 -Message ($script:localizedData.VerboseSetTargetEditItem -f $CollectionName, $ItemName, $ItemKeyName, $ItemKeyValue, $ItemPropertyName )
 
-            $filter = "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
+            $filter = ConvertTo-EscapedValue -Value "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
             # Use Set- in this case to update the specified property of the element with the specified key/value.
             Set-WebConfigurationProperty `
                 -PSPath $WebsitePath `
@@ -271,7 +271,7 @@ function Set-TargetResource
         Write-Verbose `
             -Message ($script:localizedData.VerboseSetTargetRemoveItem -f $ItemPropertyName )
 
-        $filter = "$($Filter)/$($CollectionName)"
+        $filter = ConvertTo-EscapedValue -Value "$($Filter)/$($CollectionName)"
         Remove-WebConfigurationProperty `
             -PSPath $WebsitePath `
             -Filter $filter `
@@ -486,7 +486,7 @@ function Get-ItemValues
         $ItemKeyValue
     )
     # Construct the complete filter we'll use to locate the collection item with the specified key/value in the property collection, then retrieve it if we can.
-    $filter = "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
+    $filter = ConvertTo-EscapedValue -Value "$($Filter)/$($CollectionName)/$($ItemName)[@$($ItemKeyName)='$($ItemKeyValue)']"
 
     $item = Get-WebConfigurationProperty `
                 -PSPath $WebsitePath `
@@ -633,6 +633,21 @@ function Convert-PropertyValue
     }
 
     return $value
+}
+function ConvertTo-EscapedValue
+{
+    param(
+        $Value
+    )
+
+    if (($Value.GetType().Name -eq "String") -and ($Value -notmatch "{{|}}"))
+    {
+        $Value.Replace("{","{{").Replace("}","}}")
+    }
+    else
+    {
+        $Value
+    }
 }
 
 # endregion
