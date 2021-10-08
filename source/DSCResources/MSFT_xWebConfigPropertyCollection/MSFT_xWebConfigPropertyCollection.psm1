@@ -636,7 +636,9 @@ function Convert-PropertyValue
 }
 function ConvertTo-EscapedValue
 {
-    param(
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]
         $Value
     )
 
