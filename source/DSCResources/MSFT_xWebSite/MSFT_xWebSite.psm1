@@ -1437,71 +1437,71 @@ function ConvertTo-WebBinding
                 {
                     if ([Environment]::OSVersion.Version -lt '6.2' -or $binding.SslFlags -notin @('2', '3'))
                     {
-                    if ([String]::IsNullOrEmpty($binding.CertificateThumbprint))
-                    {
-                        if ($Binding.CertificateSubject)
+                        if ([String]::IsNullOrEmpty($binding.CertificateThumbprint))
                         {
-                            if ($binding.CertificateSubject.substring(0,3) -ne 'CN=')
+                            if ($Binding.CertificateSubject)
                             {
-                                $binding.CertificateSubject = "CN=$($Binding.CertificateSubject)"
+                                if ($binding.CertificateSubject.substring(0,3) -ne 'CN=')
+                                {
+                                    $binding.CertificateSubject = "CN=$($Binding.CertificateSubject)"
+                                }
+                                $FindCertificateSplat = @{
+                                    Subject = $Binding.CertificateSubject
+                                }
                             }
-                            $FindCertificateSplat = @{
-                                Subject = $Binding.CertificateSubject
+                            else
+                            {
+                                $errorMessage = $script:localizedData.ErrorWebBindingMissingCertificateThumbprint `
+                                                -f $binding.Protocol
+                                New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' `
+                                                    -ErrorMessage $errorMessage `
+                                                    -ErrorCategory 'InvalidArgument'
                             }
+                        }
+    
+                        if ([String]::IsNullOrEmpty($binding.CertificateStoreName))
+                        {
+                            $certificateStoreName = 'MY'
+                            Write-Verbose -Message `
+                                ($script:localizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
+                                -f $certificateStoreName)
                         }
                         else
                         {
-                            $errorMessage = $script:localizedData.ErrorWebBindingMissingCertificateThumbprint `
-                                            -f $binding.Protocol
-                            New-TerminatingError -ErrorId 'WebBindingMissingCertificateThumbprint' `
-                                                -ErrorMessage $errorMessage `
-                                                -ErrorCategory 'InvalidArgument'
+                            $certificateStoreName = $binding.CertificateStoreName
                         }
-                    }
-
-                    if ([String]::IsNullOrEmpty($binding.CertificateStoreName))
-                    {
-                        $certificateStoreName = 'MY'
-                        Write-Verbose -Message `
-                            ($script:localizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
-                            -f $certificateStoreName)
-                    }
-                    else
-                    {
-                        $certificateStoreName = $binding.CertificateStoreName
-                    }
-
-                    $certificateHash = $null
-                    if ($FindCertificateSplat)
-                    {
-                        $FindCertificateSplat.Add('Store',$CertificateStoreName)
-                        $Certificate = Find-Certificate @FindCertificateSplat | Select-Object -First 1
-                        if ($Certificate)
+    
+                        $certificateHash = $null
+                        if ($FindCertificateSplat)
                         {
-                            $certificateHash = $Certificate.Thumbprint
+                            $FindCertificateSplat.Add('Store',$CertificateStoreName)
+                            $Certificate = Find-Certificate @FindCertificateSplat | Select-Object -First 1
+                            if ($Certificate)
+                            {
+                                $certificateHash = $Certificate.Thumbprint
+                            }
+                            else
+                            {
+                                $errorMessage = $script:localizedData.ErrorWebBindingInvalidCertificateSubject `
+                                                -f $binding.CertificateSubject, $binding.CertificateStoreName
+                                New-TerminatingError -ErrorId 'WebBindingInvalidCertificateSubject' `
+                                                    -ErrorMessage $errorMessage `
+                                                    -ErrorCategory 'InvalidArgument'
+                            }
+                        }
+    
+                        # Remove the Left-to-Right Mark character
+                        if ($certificateHash)
+                        {
+                            $certificateHash = $certificateHash -replace '^\u200E'
                         }
                         else
                         {
-                            $errorMessage = $script:localizedData.ErrorWebBindingInvalidCertificateSubject `
-                                            -f $binding.CertificateSubject, $binding.CertificateStoreName
-                            New-TerminatingError -ErrorId 'WebBindingInvalidCertificateSubject' `
-                                                -ErrorMessage $errorMessage `
-                                                -ErrorCategory 'InvalidArgument'
+                            $certificateHash = $binding.CertificateThumbprint -replace '^\u200E'
                         }
-                    }
-
-                    # Remove the Left-to-Right Mark character
-                    if ($certificateHash)
-                    {
-                        $certificateHash = $certificateHash -replace '^\u200E'
-                    }
-                    else
-                    {
-                        $certificateHash = $binding.CertificateThumbprint -replace '^\u200E'
-                    }
-
-                    $outputObject.Add('certificateHash',      [String]$certificateHash)
-                    $outputObject.Add('certificateStoreName', [String]$certificateStoreName)
+    
+                        $outputObject.Add('certificateHash',      [String]$certificateHash)
+                        $outputObject.Add('certificateStoreName', [String]$certificateStoreName)
                     }
 
                     if ([Environment]::OSVersion.Version -ge '6.2')
