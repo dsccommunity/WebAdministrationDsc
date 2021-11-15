@@ -1435,6 +1435,8 @@ function ConvertTo-WebBinding
                 # SSL-related properties
                 if ($binding.Protocol -eq 'https')
                 {
+                    if ([Environment]::OSVersion.Version -lt '6.2' -or $binding.SslFlags -notin @('2', '3'))
+                    {
                     if ([String]::IsNullOrEmpty($binding.CertificateThumbprint))
                     {
                         if ($Binding.CertificateSubject)
@@ -1500,6 +1502,7 @@ function ConvertTo-WebBinding
 
                     $outputObject.Add('certificateHash',      [String]$certificateHash)
                     $outputObject.Add('certificateStoreName', [String]$certificateStoreName)
+                    }
 
                     if ([Environment]::OSVersion.Version -ge '6.2')
                     {
