@@ -1,8 +1,8 @@
-configuration DSC_xIisLogging_Rollover
+configuration DSC_IisLogging_Rollover
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIisLogging Logging
+    IisLogging Logging
     {
         LogPath = 'C:\IISLogFiles'
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
@@ -27,11 +27,11 @@ configuration DSC_xIisLogging_Rollover
     }
 }
 
-configuration DSC_xIisLogging_Truncate
+configuration DSC_IisLogging_Truncate
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIisLogging Logging
+    IisLogging Logging
     {
         LogPath = 'C:\IISLogFiles'
         Logflags = @('Date','Time','ClientIP','UserName','ServerIP')
@@ -56,11 +56,11 @@ configuration DSC_xIisLogging_Truncate
     }
 }
 
-configuration DSC_xIisLogging_LogFlags
+configuration DSC_IisLogging_LogFlags
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIisLogging Logging
+    IisLogging Logging
     {
         LogPath = 'C:\IISLogFiles'
         Logflags = @('Date','Time','ClientIP','ServerIP','UserAgent')

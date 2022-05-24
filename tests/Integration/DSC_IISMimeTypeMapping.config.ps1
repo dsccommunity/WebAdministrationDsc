@@ -1,8 +1,8 @@
-configuration DSC_xIISMimeTypeMapping_AddMimeType
+configuration DSC_IisMimeTypeMapping_AddMimeType
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIISMimeTypeMapping AddMimeType2
+    IisMimeTypeMapping AddMimeType2
     {
         ConfigurationPath = ''
         Extension = $ConfigurationData.NonNodeData.FileExtension
@@ -11,11 +11,11 @@ configuration DSC_xIISMimeTypeMapping_AddMimeType
     }
 }
 
-configuration DSC_xIISMimeTypeMapping_RemoveMimeType
+configuration DSC_IisMimeTypeMapping_RemoveMimeType
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIISMimeTypeMapping RemoveMimeType
+    IisMimeTypeMapping RemoveMimeType
     {
         ConfigurationPath = ''
         Extension = $ConfigurationData.NonNodeData.FileExtension
@@ -24,11 +24,11 @@ configuration DSC_xIISMimeTypeMapping_RemoveMimeType
     }
 }
 
-Configuration DSC_xIISMimeTypeMapping_AddMimeTypeNestedPath
+Configuration DSC_IisMimeTypeMapping_AddMimeTypeNestedPath
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIISMimeTypeMapping AddMimeTypeNestedPath
+    IisMimeTypeMapping AddMimeTypeNestedPath
     {
         ConfigurationPath = $ConfigurationData.NonNodeData.VirtualConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
@@ -37,11 +37,11 @@ Configuration DSC_xIISMimeTypeMapping_AddMimeTypeNestedPath
     }
 }
 
-Configuration DSC_xIISMimeTypeMapping_RemoveMimeTypeNestedPath
+Configuration DSC_IisMimeTypeMapping_RemoveMimeTypeNestedPath
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIISMimeTypeMapping RemoveMimeTypeNestedPath
+    IisMimeTypeMapping RemoveMimeTypeNestedPath
     {
         ConfigurationPath = $ConfigurationData.NonNodeData.VirtualConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
@@ -50,11 +50,11 @@ Configuration DSC_xIISMimeTypeMapping_RemoveMimeTypeNestedPath
     }
 }
 
-Configuration DSC_xIISMimeTypeMapping_AddMimeTypeAtServer
+Configuration DSC_IisMimeTypeMapping_AddMimeTypeAtServer
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIISMimeTypeMapping AddMimeTypeAtServer
+    IisMimeTypeMapping AddMimeTypeAtServer
     {
         ConfigurationPath = $ConfigurationData.NonNodeData.ServerConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
@@ -63,11 +63,11 @@ Configuration DSC_xIISMimeTypeMapping_AddMimeTypeAtServer
     }
 }
 
-Configuration DSC_xIISMimeTypeMapping_RemoveMimeTypeAtServer
+Configuration DSC_IisMimeTypeMapping_RemoveMimeTypeAtServer
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIISMimeTypeMapping AddMimeTypeAtServer
+    IisMimeTypeMapping AddMimeTypeAtServer
     {
         ConfigurationPath = $ConfigurationData.NonNodeData.ServerConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension

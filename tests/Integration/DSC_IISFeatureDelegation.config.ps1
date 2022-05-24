@@ -1,8 +1,8 @@
-configuration DSC_xIISFeatureDelegation_AllowDelegation
+configuration DSC_IisFeatureDelegation_AllowDelegation
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIisFeatureDelegation AllowDelegation
+    IisFeatureDelegation AllowDelegation
     {
         Path = 'MACHINE/WEBROOT/APPHOST'
         Filter = '/system.web/customErrors'
@@ -10,11 +10,11 @@ configuration DSC_xIISFeatureDelegation_AllowDelegation
     }
 }
 
-configuration DSC_xIISFeatureDelegation_DenyDelegation
+configuration DSC_IisFeatureDelegation_DenyDelegation
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xIisFeatureDelegation DenyDelegation
+    IisFeatureDelegation DenyDelegation
     {
         Path = 'MACHINE/WEBROOT/APPHOST'
         Filter = '/system.webServer/defaultDocument'
