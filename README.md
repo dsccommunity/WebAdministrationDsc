@@ -1,10 +1,10 @@
-# xWebAdministration
+# WebAdministrationDsc
 
-[![Build Status](https://dev.azure.com/dsccommunity/xWebAdministration/_apis/build/status/dsccommunity.xWebAdministration?branchName=main)](https://dev.azure.com/dsccommunity/xWebAdministration/_build/latest?definitionId=7&branchName=main)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xWebAdministration/7/main)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/xWebAdministration/7/main)](https://dsccommunity.visualstudio.com/xWebAdministration/_test/analytics?definitionId=7&contextType=build)
-[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/xWebAdministration?label=xWebAdministration%20Preview)](https://www.powershellgallery.com/packages/xWebAdministration/)
-[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/xWebAdministration?label=xWebAdministration)](https://www.powershellgallery.com/packages/xWebAdministration/)
+[![Build Status](https://dev.azure.com/dsccommunity/WebAdministrationDsc/_apis/build/status/dsccommunity.WebAdministrationDsc?branchName=main)](https://dev.azure.com/dsccommunity/WebAdministrationDsc/_build/latest?definitionId=7&branchName=main)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/WebAdministrationDsc/7/main)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/WebAdministrationDsc/7/main)](https://dsccommunity.visualstudio.com/WebAdministrationDsc/_test/analytics?definitionId=7&contextType=build)
+[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/WebAdministrationDsc?label=WebAdministrationDsc%20Preview)](https://www.powershellgallery.com/packages/WebAdministrationDsc/)
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/WebAdministrationDsc?label=WebAdministrationDsc)](https://www.powershellgallery.com/packages/WebAdministrationDsc/)
 
 ## Code of Conduct
 
@@ -34,14 +34,14 @@ To install from the PowerShell gallery using PowerShellGet (in PowerShell 5.0)
 run the following command:
 
 ```powershell
-Find-Module -Name xWebAdministration | Install-Module
+Find-Module -Name WebAdministrationDsc | Install-Module
 ```
 
 To confirm installation, run the below command and ensure you see the
 DSC resources available:
 
 ```powershell
-Get-DscResource -Module xWebAdministration
+Get-DscResource -Module WebAdministrationDsc
 ```
 
 ## Requirements
@@ -54,7 +54,7 @@ The minimum Windows Management Framework (PowerShell) version required is
 
 ## Examples
 
-You can review the [Examples](/source/Examples) directory in the xWebAdministration
+You can review the [Examples](/source/Examples) directory in the WebAdministrationDsc
 module for some general use scenarios for all of the resources that are in
 the module.
 
