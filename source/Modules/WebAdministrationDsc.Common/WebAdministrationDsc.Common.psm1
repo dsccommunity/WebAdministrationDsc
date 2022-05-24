@@ -436,4 +436,4 @@ function Get-WebConfigurationPropertyValue
     }
 }
 
-$script:localizedData = Get-LocalizedData -ResourceName 'xWebAdministration.Common' -ScriptRoot $PSScriptRoot
+$script:localizedData = Get-LocalizedData -ResourceName 'WebAdministration.Common' -ScriptRoot $PSScriptRoot

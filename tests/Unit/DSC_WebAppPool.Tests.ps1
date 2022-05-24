@@ -210,12 +210,12 @@ try
                 }
 
                 It 'Should return the Credential (userName) property' {
-                    # Get-DscConfiguration returns DSC_Credential with empty UserName
+                    # Get-DscConfiguration returns MSFT_Credential with empty UserName
                     $result.Credential.userName | Should Be $mockAppPool.processModel.userName
                 }
 
                 It 'Should return the Credential (password) property' {
-                    # Get-DscConfiguration returns DSC_Credential with empty Password
+                    # Get-DscConfiguration returns MSFT_Credential with empty Password
                     $result.Credential.Password | Should Be $mockAppPool.processModel.password
                 }
 

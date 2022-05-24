@@ -1244,7 +1244,7 @@ function Confirm-UniqueServiceAutoStartProviders
 
 <#
         .SYNOPSIS
-        Converts IIS <binding> elements to instances of the MSFT_xWebBindingInformation CIM class.
+        Converts IIS <binding> elements to instances of the DSC_WebBindingInformation CIM class.
 #>
 function ConvertTo-CimBinding
 {
@@ -1261,7 +1261,7 @@ function ConvertTo-CimBinding
 
     begin
     {
-        $cimClassName = 'MSFT_xWebBindingInformation'
+        $cimClassName = 'DSC_WebBindingInformation'
         $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
     }
 
@@ -1322,7 +1322,7 @@ function ConvertTo-CimBinding
 
 <#
         .SYNOPSIS
-        Converts instances of the MSFT_xWebBindingInformation CIM class to the IIS <binding>
+        Converts instances of the DSC_WebBindingInformation CIM class to the IIS <binding>
         element representation.
 
         .LINK
@@ -1563,7 +1563,7 @@ function ConvertTo-WebBinding
 
 <#
         .SYNOPSIS
-        Converts IIS custom log field collection to instances of the MSFT_xLogCustomFieldInformation CIM class.
+        Converts IIS custom log field collection to instances of the DSC_LogCustomFieldInformation CIM class.
 #>
 function ConvertTo-CimLogCustomFields
 {
@@ -1578,7 +1578,7 @@ function ConvertTo-CimLogCustomFields
         $InputObject
     )
 
-    $cimClassName = 'MSFT_xLogCustomFieldInformation'
+    $cimClassName = 'DSC_LogCustomFieldInformation'
     $cimNamespace = 'root/microsoft/Windows/DesiredStateConfiguration'
     $cimCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection`1[Microsoft.Management.Infrastructure.CimInstance]'
 
@@ -1676,7 +1676,7 @@ function Get-AuthenticationInfo
     }
 
     return New-CimInstance `
-            -ClassName MSFT_xWebAuthenticationInformation `
+            -ClassName DSC_WebAuthenticationInformation `
             -ClientOnly -Property $authenticationProperties `
             -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
 }
@@ -1687,7 +1687,7 @@ function Get-AuthenticationInfo
 #>
 function Get-DefaultAuthenticationInfo
 {
-    New-CimInstance -ClassName MSFT_xWebAuthenticationInformation `
+    New-CimInstance -ClassName DSC_WebAuthenticationInformation `
         -ClientOnly `
         -Property @{
             Anonymous = $false

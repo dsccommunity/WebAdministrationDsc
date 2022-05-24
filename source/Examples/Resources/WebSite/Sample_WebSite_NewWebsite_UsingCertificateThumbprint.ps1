@@ -76,14 +76,14 @@ Configuration Sample_WebSite_NewWebsite_UsingCertificateThumbprint
             State           = 'Started'
             PhysicalPath    = $DestinationPath
             BindingInfo     = @(
-                MSFT_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = 'HTTPS'
                     Port                  = 8443
                     CertificateThumbprint = '71AD93562316F21F74606F1096B85D66289ED60F'
                     CertificateStoreName  = 'WebHosting'
                 }
-                MSFT_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = 'HTTPS'
                     Port                  = 8444

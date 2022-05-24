@@ -1,4 +1,4 @@
-# Localized resources for MSFT_xIisFeatureDelegation
+# Localized resources for DSC_IisFeatureDelegation
 
 ConvertFrom-StringData @'
     GetOverrideMode = Getting override mode for '{0}'.

@@ -34,7 +34,7 @@ try
 {
     InModuleScope $script:dscResourceName {
 
-        Describe 'xWebAppPoolDefaults\Get-TargetResource' {
+        Describe 'WebAppPoolDefaults\Get-TargetResource' {
             BeforeAll {
                 Mock -CommandName Assert-Module
             }
@@ -81,7 +81,7 @@ try
             }
         }
 
-        Describe 'xWebAppPoolDefaults\Test-TargetResource' {
+        Describe 'WebAppPoolDefaults\Test-TargetResource' {
             BeforeAll {
                 Mock -CommandName Assert-Module
 
@@ -167,7 +167,7 @@ try
             }
         }
 
-        Describe 'xWebAppPoolDefaults\Set-TargetResource' {
+        Describe 'WebAppPoolDefaults\Set-TargetResource' {
             BeforeAll {
                 Mock -CommandName Assert-Module
             }

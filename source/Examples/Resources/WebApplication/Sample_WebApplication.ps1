@@ -27,7 +27,7 @@ configuration Sample_WebApplication
             WebAppPool               = 'DefaultAppPool'
             ApplicationType          = 'ApplicationType'
             AuthenticationInfo       = `
-                MSFT_WebApplicationAuthenticationInformation
+                DSC_WebApplicationAuthenticationInformation
             {
                 Anonymous = $true
                 Basic     = $false

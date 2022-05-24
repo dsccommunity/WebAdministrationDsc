@@ -74,7 +74,7 @@ Configuration Sample_WebSite_NewWebsite_UsingCertificateSubject
             State           = 'Started'
             PhysicalPath    = $DestinationPath
             BindingInfo     = @(
-                MSFT_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = 'HTTPS'
                     Port                  = 8444

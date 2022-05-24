@@ -74,7 +74,7 @@ Configuration Sample_WebApplication_NewWebApplication
             Website                 = 'Default Web Site'
             PreloadEnabled          = $true
             ServiceAutoStartEnabled = $true
-            AuthenticationInfo      = MSFT_WebApplicationAuthenticationInformation
+            AuthenticationInfo      = DSC_WebApplicationAuthenticationInformation
             {
                 Anonymous   = $false
                 Basic       = $false

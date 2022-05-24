@@ -72,7 +72,7 @@ configuration Sample_WebSite_WithSSLFlags
             State           = "Started"
             PhysicalPath    = $DestinationPath
             DependsOn       = "[File]WebContent"
-            BindingInfo     = MSFT_xWebBindingInformation
+            BindingInfo     = DSC_WebBindingInformation
             {
                 Protocol              = 'https'
                 Port                  = '443'
