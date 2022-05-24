@@ -1,6 +1,6 @@
 Configuration Example
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node 'localhost'
     {
