@@ -1,3 +1,9 @@
+$modulePath = Join-Path -Path (Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent) -ChildPath 'Modules'
+Import-Module -Name (Join-Path -Path $modulePath -ChildPath 'DscResource.Common')
+
+# Import Localization Strings
+$script:localizedData = Get-LocalizedData -DefaultUICulture 'en-US'
+
 <#
     .SYNOPSIS
         Starts a process with a timeout.
@@ -435,5 +441,3 @@ function Get-WebConfigurationPropertyValue
         return $WebConfigurationPropertyObject
     }
 }
-
-$script:localizedData = Get-LocalizedData -ResourceName 'WebAdministration.Common' -ScriptRoot $PSScriptRoot
