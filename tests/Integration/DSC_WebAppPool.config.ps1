@@ -75,13 +75,13 @@ $TestParameters = [Ordered]@{
     restartSchedule                = @('06:00:00', '08:00:00')
 }
 
-Configuration DSC_xWebAppPool_Config
+Configuration DSC_WebAppPool_Config
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
-        xWebAppPool TestAppPool
+        WebAppPool TestAppPool
         {
             Name                           = $TestParameters.Name
             Ensure                         = $TestParameters.Ensure

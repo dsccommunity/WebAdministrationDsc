@@ -1,10 +1,10 @@
-Configuration DSC_xWebConfigProperty_Add
+Configuration DSC_WebConfigProperty_Add
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {
-        xWebConfigProperty IntegrationTest
+        WebConfigProperty IntegrationTest
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.Filter
@@ -15,13 +15,13 @@ Configuration DSC_xWebConfigProperty_Add
     }
 }
 
-Configuration DSC_xWebConfigProperty_Update
+Configuration DSC_WebConfigProperty_Update
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {
-        xWebConfigProperty IntegrationTest
+        WebConfigProperty IntegrationTest
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.Filter
@@ -32,13 +32,13 @@ Configuration DSC_xWebConfigProperty_Update
     }
 }
 
-Configuration DSC_xWebConfigProperty_Integer
+Configuration DSC_WebConfigProperty_Integer
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {
-        xWebConfigProperty IntegrationTest
+        WebConfigProperty IntegrationTest
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.IntegerFilter
@@ -49,13 +49,13 @@ Configuration DSC_xWebConfigProperty_Integer
     }
 }
 
-Configuration DSC_xWebConfigProperty_Remove
+Configuration DSC_WebConfigProperty_Remove
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {
-        xWebConfigProperty IntegrationTest
+        WebConfigProperty IntegrationTest
         {
             WebsitePath  = $Node.WebsitePath
             Filter       = $Node.Filter

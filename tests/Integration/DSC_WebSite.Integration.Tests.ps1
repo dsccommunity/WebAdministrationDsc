@@ -1,5 +1,5 @@
 $script:dscModuleName   = 'WebAdministrationDsc'
-$script:dscResourceName = 'DSC_xWebSite'
+$script:dscResourceName = 'DSC_WebSite'
 
 try
 {
@@ -300,12 +300,12 @@ try
 
     }
 
-    Describe 'DSC_xWebBindingInformation' {
+    Describe 'DSC_WebBindingInformation' {
         # Directly interacting with Cim classes is not supported by PowerShell DSC
         # it is being done here explicitly for the purpose of testing. Please do not
         # do this in actual resource code
 
-        $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'DSC_xWebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
+        $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'DSC_WebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
 
         foreach ($storeName in $storeNames)
         {

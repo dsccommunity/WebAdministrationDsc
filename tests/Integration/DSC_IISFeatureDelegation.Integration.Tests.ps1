@@ -1,5 +1,5 @@
 $script:dscModuleName = 'WebAdministrationDsc'
-$script:dscResourceName = 'DSC_xIISFeatureDelegation'
+$script:dscResourceName = 'DSC_IisFeatureDelegation'
 
 try
 {
@@ -71,7 +71,7 @@ try
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName
                 } | Where-Object -FilterScript {
-                    $_.ResourceId -eq '[xIisFeatureDelegation]AllowDelegation'
+                    $_.ResourceId -eq '[IisFeatureDelegation]AllowDelegation'
                 }
 
                 $resourceCurrentState.Filter       | Should Be '/system.web/customErrors'
@@ -121,7 +121,7 @@ try
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName
                 } | Where-Object -FilterScript {
-                    $_.ResourceId -eq '[xIisFeatureDelegation]DenyDelegation'
+                    $_.ResourceId -eq '[IisFeatureDelegation]DenyDelegation'
                 }
 
                 $resourceCurrentState.Filter       | Should Be '/system.webServer/defaultDocument'

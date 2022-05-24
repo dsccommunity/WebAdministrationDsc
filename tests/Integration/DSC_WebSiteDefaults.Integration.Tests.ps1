@@ -1,6 +1,6 @@
 
 $script:dscModuleName = 'WebAdministrationDsc'
-$script:dscResourceName = 'DSC_xWebSiteDefaults'
+$script:dscResourceName = 'DSC_WebSiteDefaults'
 
 try
 {

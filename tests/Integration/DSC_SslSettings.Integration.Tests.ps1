@@ -1,5 +1,5 @@
 $script:dscModuleName   = 'WebAdministrationDsc'
-$script:dscResourceName = 'DSC_xSslSettings'
+$script:dscResourceName = 'DSC_SslSettings'
 
 try
 {

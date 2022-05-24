@@ -1,6 +1,6 @@
 #requires -Version 4
 
-configuration DSC_xWebSite_Present_Started
+configuration DSC_WebSite_Present_Started
 {
     param(
 
@@ -13,7 +13,7 @@ configuration DSC_xWebSite_Present_Started
 
     Node $AllNodes.NodeName
     {
-        xWebSite Website
+        WebSite Website
         {
             Name = $Node.Website
             SiteId = $Node.SiteId
@@ -21,7 +21,7 @@ configuration DSC_xWebSite_Present_Started
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                DSC_xWebAuthenticationInformation
+                DSC_WebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -29,21 +29,21 @@ configuration DSC_xWebSite_Present_Started
                     Windows   = $Node.AuthenticationInfoWindows
                 }
             BindingInfo = @(
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -53,7 +53,7 @@ configuration DSC_xWebSite_Present_Started
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort2
@@ -93,7 +93,7 @@ configuration DSC_xWebSite_Present_Started
     }
 }
 
-configuration DSC_xWebSite_Present_Stopped
+configuration DSC_WebSite_Present_Stopped
 {
     param(
 
@@ -106,14 +106,14 @@ configuration DSC_xWebSite_Present_Stopped
 
     Node $AllNodes.NodeName
     {
-        xWebSite Website
+        WebSite Website
         {
             Name = $Node.Website
             Ensure = 'Present'
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                DSC_xWebAuthenticationInformation
+                DSC_WebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -121,21 +121,21 @@ configuration DSC_xWebSite_Present_Stopped
                     Windows   = $Node.AuthenticationInfoWindows
                 }
             BindingInfo = @(
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -145,7 +145,7 @@ configuration DSC_xWebSite_Present_Stopped
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort2
@@ -182,13 +182,13 @@ configuration DSC_xWebSite_Present_Stopped
     }
 }
 
-configuration DSC_xWebSite_Absent
+configuration DSC_WebSite_Absent
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
-        xWebSite Website
+        WebSite Website
         {
             Name = $Node.Website
             Ensure = 'Absent'
@@ -196,7 +196,7 @@ configuration DSC_xWebSite_Absent
     }
 }
 
-configuration DSC_xWebSite_Webconfig_Get_Test_Set
+configuration DSC_WebSite_Webconfig_Get_Test_Set
 {
     param(
 
@@ -232,7 +232,7 @@ configuration DSC_xWebSite_Webconfig_Get_Test_Set
             </configuration>'
         }
 
-        xWebSite Website
+        WebSite Website
         {
             DependsOn = '[File]WebConfig'
             Name = $Node.Website
@@ -240,7 +240,7 @@ configuration DSC_xWebSite_Webconfig_Get_Test_Set
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                DSC_xWebAuthenticationInformation
+                DSC_WebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -248,21 +248,21 @@ configuration DSC_xWebSite_Webconfig_Get_Test_Set
                     Windows   = $Node.AuthenticationInfoWindows
                 }
             BindingInfo = @(
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -272,7 +272,7 @@ configuration DSC_xWebSite_Webconfig_Get_Test_Set
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
                 }
-                DSC_xWebBindingInformation
+                DSC_WebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort2
@@ -310,7 +310,7 @@ configuration DSC_xWebSite_Webconfig_Get_Test_Set
     }
 }
 
-configuration DSC_xWebSite_Logging_Configured
+configuration DSC_WebSite_Logging_Configured
 {
     param(
 
@@ -323,7 +323,7 @@ configuration DSC_xWebSite_Logging_Configured
 
     Node $AllNodes.NodeName
     {
-        xWebSite Website
+        WebSite Website
         {
             Name      = $Node.Website
             LogFlags  = $Node.LogFlags2

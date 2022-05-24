@@ -1,6 +1,6 @@
 
 $script:dscModuleName   = 'WebAdministrationDsc'
-$script:dscResourceName = 'DSC_xIISMimeTypeMapping'
+$script:dscResourceName = 'DSC_IisMimeTypeMapping'
 
 try
 {
@@ -33,15 +33,15 @@ try
         #region Test Setup
         $tempVirtualDirectoryName = 'Dir01'
         $tempVirtualDirectoryPhysicalPath = Join-Path $TestDrive "inetpub\wwwroot\$tempVirtualDirectoryName"
-        $tempVirtualDirectoryIisPath = "IIS:\Sites\WebsiteForxIisMimeTypeMapping\$tempVirtualDirectoryName"
+        $tempVirtualDirectoryIisPath = "IIS:\Sites\WebsiteForIisMimeTypeMapping\$tempVirtualDirectoryName"
 
-        New-Website -Name 'WebsiteForxIisMimeTypeMapping' `
+        New-Website -Name 'WebsiteForIisMimeTypeMapping' `
             -PhysicalPath (Join-Path $TestDrive 'inetpub\wwwroot\') `
             -Force `
             -ErrorAction Stop
 
         New-Item -Path $tempVirtualDirectoryPhysicalPath -ItemType Directory | Out-Null
-        New-WebVirtualDirectory -Site 'WebsiteForxIisMimeTypeMapping' -Name $tempVirtualDirectoryName -PhysicalPath $tempVirtualDirectoryPhysicalPath
+        New-WebVirtualDirectory -Site 'WebsiteForIisMimeTypeMapping' -Name $tempVirtualDirectoryName -PhysicalPath $tempVirtualDirectoryPhysicalPath
         #endregion
 
         $configData = @{

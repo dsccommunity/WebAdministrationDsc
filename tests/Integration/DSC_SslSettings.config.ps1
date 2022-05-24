@@ -1,6 +1,6 @@
 #requires -Version 4
 
-configuration DSC_xSslSettings_Present
+configuration DSC_SslSettings_Present
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
@@ -15,7 +15,7 @@ configuration DSC_xSslSettings_Present
     }
 }
 
-configuration DSC_xSslSettings_Absent
+configuration DSC_SslSettings_Absent
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 

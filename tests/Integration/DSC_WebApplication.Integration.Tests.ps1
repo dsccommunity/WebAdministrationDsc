@@ -1,5 +1,5 @@
 $script:dscModuleName   = 'WebAdministrationDsc'
-$script:dscResourceName = 'DSC_xWebApplication'
+$script:dscResourceName = 'DSC_WebApplication'
 
 try
 {

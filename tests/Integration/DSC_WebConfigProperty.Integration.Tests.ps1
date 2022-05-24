@@ -1,5 +1,5 @@
 $script:dscModuleName = 'WebAdministrationDsc'
-$script:dscResourceName = "DSC_xWebConfigProperty"
+$script:dscResourceName = "DSC_WebConfigProperty"
 
 try
 {

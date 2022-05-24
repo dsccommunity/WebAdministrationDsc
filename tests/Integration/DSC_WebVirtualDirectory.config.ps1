@@ -1,17 +1,17 @@
 #requires -Version 4
-configuration DSC_xWebVirtualDirectory_Initialize
+configuration DSC_WebVirtualDirectory_Initialize
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
-        xWebSite Website
+        WebSite Website
         {
             Ensure = 'Present'
             Name = $Node.Website
             PhysicalPath = $Node.WebsitePhysicalPath
             ApplicationPool = $Node.ApplicationPool
-            BindingInfo     = DSC_xWebBindingInformation
+            BindingInfo     = DSC_WebBindingInformation
             {
                 Protocol              = 'http'
                 Port                  = $Node.Port
@@ -27,13 +27,13 @@ configuration DSC_xWebVirtualDirectory_Initialize
             Type = 'Directory'
         }
 
-        xWebApplication WebApplication
+        WebApplication WebApplication
         {
             Name = $Node.WebApplication
             Website = $Node.Website
             WebAppPool = $Node.ApplicationPool
             PhysicalPath = $Node.WebApplicationPhysicalPath
-            DependsOn = '[File]WebApplicationDirectory','[xWebSite]Website'
+            DependsOn = '[File]WebApplicationDirectory','[WebSite]Website'
         }
 
         File WebVirtualDirectory
@@ -45,13 +45,13 @@ configuration DSC_xWebVirtualDirectory_Initialize
     }
 }
 
-configuration DSC_xWebVirtualDirectory_Present
+configuration DSC_WebVirtualDirectory_Present
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
-        xWebVirtualDirectory WebVirtualDirectory
+        WebVirtualDirectory WebVirtualDirectory
         {
             Ensure = 'Present'
             Website = $Node.Website
@@ -62,13 +62,13 @@ configuration DSC_xWebVirtualDirectory_Present
     }
 }
 
-configuration DSC_xWebVirtualDirectory_Absent
+configuration DSC_WebVirtualDirectory_Absent
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    Node $AllNodes.NodeName 
+    Node $AllNodes.NodeName
     {
-        xWebVirtualDirectory WebVirtualDirectory
+        WebVirtualDirectory WebVirtualDirectory
         {
             Ensure = 'Absent'
             Website = $Node.Website

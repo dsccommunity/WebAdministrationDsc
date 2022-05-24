@@ -12,11 +12,11 @@ else
     $env:PesterVirtualDirectoryDefaults = "true"
 }
 
-configuration DSC_xWebSiteDefaults_Config
+configuration DSC_WebSiteDefaults_Config
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xWebSiteDefaults virtualDirectoryDefaults
+    WebSiteDefaults virtualDirectoryDefaults
     {
         IsSingleInstance = 'Yes'
         AllowSubDirConfig = "$env:PesterVirtualDirectoryDefaults"

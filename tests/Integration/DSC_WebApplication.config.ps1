@@ -1,11 +1,11 @@
 #requires -Version 4
-configuration DSC_xWebApplication_Present
+configuration DSC_WebApplication_Present
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
-    {  
-        xWebApplication WebApplication
+    {
+        WebApplication WebApplication
         {
             Website = $Node.Website
             Ensure = 'Present'
@@ -14,7 +14,7 @@ configuration DSC_xWebApplication_Present
             WebAppPool = $Node.ApplicationPool
             ApplicationType = $Node.ApplicationType
             AuthenticationInfo = `
-                DSC_xWebApplicationAuthenticationInformation
+                DSC_WebApplicationAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -30,13 +30,13 @@ configuration DSC_xWebApplication_Present
     }
 }
 
-configuration DSC_xWebApplication_Absent
+configuration DSC_WebApplication_Absent
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    Node $AllNodes.NodeName 
-    {  
-        xWebApplication WebApplication
+    Node $AllNodes.NodeName
+    {
+        WebApplication WebApplication
         {
             Website = $Node.Website
             Ensure = 'Absent'

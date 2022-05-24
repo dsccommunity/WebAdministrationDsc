@@ -4,55 +4,55 @@
 
 [string] $originalValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter -name managedRuntimeVersion).Value
 
-configuration DSC_xWebAppPoolDefaults_Config
+configuration DSC_WebAppPoolDefaults_Config
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xWebAppPoolDefaults PoolDefaults
+    WebAppPoolDefaults PoolDefaults
     {
         IsSingleInstance = 'Yes'
         ManagedRuntimeVersion = $originalValue
     }
 }
 
-configuration DSC_xWebAppPoolDefaults_ManagedRuntimeVersion
+configuration DSC_WebAppPoolDefaults_ManagedRuntimeVersion
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xWebAppPoolDefaults PoolDefaults
+    WebAppPoolDefaults PoolDefaults
     {
         IsSingleInstance = 'Yes'
         ManagedRuntimeVersion = $env:PesterManagedRuntimeVersion
     }
 }
 
-configuration DSC_xWebAppPoolDefaults_AppPoolIdentityType
+configuration DSC_WebAppPoolDefaults_AppPoolIdentityType
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xWebAppPoolDefaults PoolDefaults
+    WebAppPoolDefaults PoolDefaults
     {
         IsSingleInstance = 'Yes'
         IdentityType = $env:PesterApplicationPoolIdentity
     }
 }
 
-configuration DSC_xWebAppPoolDefaults_LogFormat
+configuration DSC_WebAppPoolDefaults_LogFormat
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xWebSiteDefaults LogFormat
+    WebSiteDefaults LogFormat
     {
         IsSingleInstance = 'Yes'
         LogFormat = $env:PesterLogFormat
     }
 }
 
-configuration DSC_xWebAppPoolDefaults_DefaultPool
+configuration DSC_WebAppPoolDefaults_DefaultPool
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
-    xWebSiteDefaults DefaultPool
+    WebSiteDefaults DefaultPool
     {
         IsSingleInstance = 'Yes'
         DefaultApplicationPool = $env:PesterDefaultPool
