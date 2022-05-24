@@ -1,6 +1,6 @@
 
-[ClassVersion("1.0.0.0"), FriendlyName("xWebVirtualDirectory")]
-class MSFT_xWebVirtualDirectory : OMI_BaseResource
+[ClassVersion("1.0.0.0"), FriendlyName("WebVirtualDirectory")]
+class DSC_WebVirtualDirectory : OMI_BaseResource
 {
     [Key, Description("Name of website with which Web Application is associated")] string Website;
     [Key, Description("Web application name for the virtual directory")] string WebApplication;

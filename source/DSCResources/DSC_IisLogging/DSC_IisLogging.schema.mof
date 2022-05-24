@@ -1,5 +1,5 @@
-[ClassVersion("1.0.0"), FriendlyName("xIisLogging")]
-class MSFT_xIisLogging : OMI_BaseResource
+[ClassVersion("1.0.0"), FriendlyName("IisLogging")]
+class DSC_IisLogging : OMI_BaseResource
 {
     [Key, Description ("The directory to be used for logfiles")] String LogPath;
     [Write, Description ("The W3C logging fields"), ValueMap{"Date","Time","ClientIP","UserName","SiteName","ComputerName","ServerIP","Method","UriStem","UriQuery","HttpStatus","Win32Status","BytesSent","BytesRecv","TimeTaken","ServerPort","UserAgent","Cookie","Referer","ProtocolVersion","Host","HttpSubStatus"}, Values{"Date","Time","ClientIP","UserName","SiteName","ComputerName","ServerIP","Method","UriStem","UriQuery","HttpStatus","Win32Status","BytesSent","BytesRecv","TimeTaken","ServerPort","UserAgent","Cookie","Referer","ProtocolVersion","Host","HttpSubStatus"}] String LogFlags[];
@@ -8,11 +8,11 @@ class MSFT_xIisLogging : OMI_BaseResource
     [Write, Description ("Use the localtime for file naming and rollover")] Boolean LoglocalTimeRollover;
     [Write, Description ("Format of the Logfiles. Only W3C supports LogFlags"), ValueMap{"IIS","W3C","NCSA"}, Values{"IIS","W3C","NCSA"}] String LogFormat;
     [Write, Description ("Specifies whether IIS will use Event Tracing or file logging"), ValueMap{"File","ETW","File,ETW"}, Values{"File","ETW","File,ETW"}] String LogTargetW3C;
-    [Write, EmbeddedInstance("MSFT_xLogCustomField"), Description("Custom logging field information in the form of an array of embedded instances of MSFT_xLogCustomField CIM class")] String LogCustomFields[];
+    [Write, EmbeddedInstance("DSC_xLogCustomField"), Description("Custom logging field information in the form of an array of embedded instances of DSC_xLogCustomField CIM class")] String LogCustomFields[];
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xLogCustomField
+class DSC_LogCustomField
 {
     [Required, Description("Name for the custom field")] String LogFieldName;
     [Required, Description("Name for the source type")] String SourceName;

@@ -1,5 +1,5 @@
-[ClassVersion("1.0.0.0"), FriendlyName("xWebConfigProperty")]
-class MSFT_xWebConfigProperty : OMI_BaseResource
+[ClassVersion("1.0.0.0"), FriendlyName("WebConfigProperty")]
+class Dsc_WebConfigProperty : OMI_BaseResource
 {
     [Key, Description("Path to website location (IIS or WebAdministration format).")] String WebsitePath;
     [Key, Description("Filter used to locate property to update.")] String Filter;

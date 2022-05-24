@@ -1,6 +1,6 @@
 
-[ClassVersion("1.0.0"), FriendlyName("xIisModule")]
-class MSFT_xIisModule : OMI_BaseResource
+[ClassVersion("1.0.0"), FriendlyName("IisModule")]
+class DSC_IisModule : OMI_BaseResource
 {
     [Key, Description("The path to the module, usually a dll, to be added to IIS.")] String Path;
     [Required, Description("The logical name of the module to add to IIS.")] String Name;

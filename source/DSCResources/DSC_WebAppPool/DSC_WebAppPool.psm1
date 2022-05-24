@@ -1,13 +1,14 @@
-#requires -Version 4.0 -Modules CimCmdlets
+$modulePath = Join-Path -Path (Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent) -ChildPath 'Modules'
 
-$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
-$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
-$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'xWebAdministration.Common'
+# Import the WebAdministrationDsc Common Modules
+Import-Module -Name (Join-Path -Path $modulePath `
+        -ChildPath (Join-Path -Path 'WebAdministrationDsc.Common' `
+            -ChildPath 'WebAdministrationDsc.Common.psm1'))
 
-Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'xWebAdministration.Common.psm1')
+Import-Module -Name (Join-Path -Path $modulePath -ChildPath 'DscResource.Common')
 
 # Import Localization Strings
-$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_xWebAppPool'
+$script:localizedData = Get-LocalizedData -DefaultUICulture 'en-US'
 
 # Writable properties except Ensure and Credential.
 data PropertyData

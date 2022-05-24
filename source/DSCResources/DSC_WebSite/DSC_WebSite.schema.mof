@@ -1,5 +1,5 @@
-[ClassVersion("2.0.0"), FriendlyName("xWebSite")]
-class MSFT_xWebSite : OMI_BaseResource
+[ClassVersion("2.0.0"), FriendlyName("WebSite")]
+class DSC_WebSite : OMI_BaseResource
 {
     [Write, Description("Ensures that the website is Present or Absent. Defaults to Present."), ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
     [Key, Description("The desired name of the website.")] String Name;
@@ -7,11 +7,11 @@ class MSFT_xWebSite : OMI_BaseResource
     [Write, Description("The path to the files that compose the website.")] String PhysicalPath;
     [Write, Description("The state of the website."),ValueMap{"Started","Stopped"},Values{"Started", "Stopped"}] String State;
     [Write, Description("The name of the website’s application pool.")] String ApplicationPool;
-    [Write, EmbeddedInstance("MSFT_xWebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the MSFT_xWebBindingInformation CIM class.")] String BindingInfo[];
+    [Write, EmbeddedInstance("DSC_WebBindingInformation"), Description("Website's binding information in the form of an array of embedded instances of the DSC_WebBindingInformation CIM class.")] String BindingInfo[];
     [Write, Description("One or more names of files that will be set as Default Documents for this website.")] String DefaultPage[];
     [Write, Description("The protocols that are enabled for the website.")] String EnabledProtocols;
     [Write, Description ("When set to $true this will enable Autostart on a Website")] Boolean ServerAutoStart;
-    [write, EmbeddedInstance("MSFT_xWebAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic, Digest, Windows)")] String AuthenticationInfo;
+    [write, EmbeddedInstance("DSC_WebAuthenticationInformation"), Description("Hashtable containing authentication information (Anonymous, Basic, Digest, Windows)")] String AuthenticationInfo;
     [Write, Description ("When set to $true this will allow WebSite to automatically start without a request")] Boolean PreloadEnabled;
     [Write, Description ("When set to `$true` this will enable application Autostart (application initalization without an initial request) on a Website")] Boolean ServiceAutoStartEnabled;
     [Write, Description ("Adds a AutostartProvider")] String ServiceAutoStartProvider;
@@ -23,11 +23,11 @@ class MSFT_xWebSite : OMI_BaseResource
     [Write, Description ("Use the localtime for file naming and rollover")] Boolean LoglocalTimeRollover;
     [Write, Description ("Format of the Logfiles. Only W3C supports LogFlags"), ValueMap{"IIS","W3C","NCSA"}, Values{"IIS","W3C","NCSA"}] String LogFormat;
     [Write, Description ("Specifies whether IIS will use Event Tracing or file logging"), ValueMap{"File","ETW","File,ETW"}, Values{"File","ETW","File,ETW"}] String LogTargetW3C;
-    [Write, EmbeddedInstance("MSFT_xLogCustomFieldInformation"), Description("Custom logging field information in the form of an array of embedded instances of MSFT_xLogCustomFieldInformation CIM class")] String LogCustomFields[];
+    [Write, EmbeddedInstance("DSC_xLogCustomFieldInformation"), Description("Custom logging field information in the form of an array of embedded instances of DSC_xLogCustomFieldInformation CIM class")] String LogCustomFields[];
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xWebBindingInformation
+class DSC_WebBindingInformation
 {
     [Required,Description("The protocol of the binding. This property is required. The acceptable values for this property are: http, https, msmq.formatname, net.msmq, net.pipe, net.tcp."),ValueMap{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"},Values{"http","https","msmq.formatname","net.msmq","net.pipe","net.tcp"}] String Protocol;
     [Write, Description("The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for http and https bindings if at least one of the following properties is specified: IPAddress, Port, HostName.")] String BindingInformation;
@@ -41,7 +41,7 @@ class MSFT_xWebBindingInformation
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xWebAuthenticationInformation
+class DSC_WebAuthenticationInformation
 {
     [Write, Description("The acceptable values for this property are: $true, $false")] Boolean Anonymous;
     [Write, Description("The acceptable values for this property are: $true, $false")] Boolean Basic;
@@ -50,7 +50,7 @@ class MSFT_xWebAuthenticationInformation
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_xLogCustomFieldInformation
+class DSC_LogCustomFieldInformation
 {
     [Write, Description("Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.")] String LogFieldName;
     [Write, Description("The acceptable values for this property are: RequestHeader, ResponseHeader or ServerVariable (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters)."),ValueMap{"RequestHeader","ResponseHeader","ServerVariable"},Values{"RequestHeader","ResponseHeader","ServerVariable"}] String SourceType;
