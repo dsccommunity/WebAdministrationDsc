@@ -8,31 +8,49 @@ configuration Sample_EndToEndWebAdministrationDsc
     (
         # Target nodes to apply the configuration
         [Parameter()]
-        [String[]] $NodeName = 'localhost',
+        [String[]]
+        $NodeName='localhost',
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $WebAppPoolName,
+        [String]
+        $WebAppPoolName,
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $WebSiteName,
+        [String]
+        $WebSiteName,
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $PhysicalPathWebSite,
+        [String]
+        $PhysicalPathWebSite,
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $WebApplicationName,
+        [String]
+        $WebApplicationName,
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $PhysicalPathWebApplication,
+        [String]
+        $PhysicalPathWebApplication,
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $WebVirtualDirectoryName,
+        [String]
+        $WebVirtualDirectoryName,
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $PhysicalPathVirtualDir,
+        [String]
+        $PhysicalPathVirtualDir,
+
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [String] $Port
+        [String]
+        $Port
+
     )
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName WebAdministrationDsc
@@ -76,7 +94,7 @@ configuration Sample_EndToEndWebAdministrationDsc
         {
             Name         = $WebSiteName
             Ensure       = "Present"
-            BindingInfo  = MSFT_xWebBindingInformation
+            BindingInfo  = DSC_WebBindingInformation
             {
                 Protocol = "http"
                 Port     = $Port
