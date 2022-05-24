@@ -1,7 +1,7 @@
 #requires -Version 4.0
 
-$script:dscModuleName   = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebAppPool'
+$script:dscModuleName   = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_xWebAppPool'
 
 try
 {

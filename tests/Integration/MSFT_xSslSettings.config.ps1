@@ -1,8 +1,8 @@
 #requires -Version 4
 
-configuration MSFT_xSslSettings_Present
+configuration DSC_xSslSettings_Present
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
@@ -15,9 +15,9 @@ configuration MSFT_xSslSettings_Present
     }
 }
 
-configuration MSFT_xSslSettings_Absent
+configuration DSC_xSslSettings_Absent
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {

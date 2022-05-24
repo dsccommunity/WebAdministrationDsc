@@ -1,5 +1,5 @@
-$script:dscModuleName      = 'xWebAdministration'
-$script:dscResourceName    = 'MSFT_WebApplicationHandler'
+$script:dscModuleName      = 'WebAdministrationDsc'
+$script:dscResourceName    = 'DSC_WebApplicationHandler'
 
 try
 {
@@ -35,7 +35,7 @@ try
 
         #endregion
 
-        Context 'When using MSFT_WebApplicationHandler_AddHandler' {
+        Context 'When using DSC_WebApplicationHandler_AddHandler' {
 
             It 'Should compile and apply the MOF without throwing' {
                 {
@@ -79,7 +79,7 @@ try
             }
         }
 
-        Context 'When using MSFT_WebApplicationHandler_RemoveHandler' {
+        Context 'When using DSC_WebApplicationHandler_RemoveHandler' {
             It 'Should compile and apply the MOF without throwing' {
                 {
                     $configurationParameters = @{
@@ -133,7 +133,7 @@ try
 
         #endregion
 
-        Context 'When using MSFT_WebApplicationHandler_AddHandlerExcludedOptionalParameters' {
+        Context 'When using DSC_WebApplicationHandler_AddHandlerExcludedOptionalParameters' {
             It 'Should compile and apply the MOF without throwing when some optional parameters are excluded' {
                 {
                     $configurationParameters = @{
@@ -171,7 +171,7 @@ try
             }
         }
 
-        Context 'When using MSFT_WebApplicationHandler_RemoveHandlerExcludedOptionalParameters' {
+        Context 'When using DSC_WebApplicationHandler_RemoveHandlerExcludedOptionalParameters' {
             It 'Should compile and apply the MOF without throwing' {
                 {
                     $configurationParameters = @{

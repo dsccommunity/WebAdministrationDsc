@@ -1,5 +1,5 @@
-$script:dscModuleName   = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebApplication'
+$script:dscModuleName   = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_xWebApplication'
 
 try
 {
@@ -24,7 +24,7 @@ try
 {
     $null = Backup-WebConfiguration -Name $tempName
 
-    # Now that xWebAdministration should be discoverable load the configuration data
+    # Now that WebAdministrationDsc should be discoverable load the configuration data
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $ConfigFile
 

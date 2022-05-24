@@ -1,5 +1,5 @@
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xIISFeatureDelegation'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_xIISFeatureDelegation'
 
 try
 {

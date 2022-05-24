@@ -1,6 +1,6 @@
 
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xIisMimeTypeMapping'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_IisMimeTypeMapping'
 
 function Invoke-TestSetup
 {
@@ -55,7 +55,7 @@ try
         }
 
         #region testing Get-TargetResource
-        Describe 'MSFT_xIisMimeTypeMapping\Get-TargetResource' {
+        Describe 'DSC_IisMimeTypeMapping\Get-TargetResource' {
             Mock -CommandName Assert-Module
 
             Context 'When MimeType is Absent' {
@@ -87,7 +87,7 @@ try
         #endregion
 
         #region testing Set-TargetResource
-        Describe 'MSFT_xIisMimeTypeMapping\Set-TargetResource' {
+        Describe 'DSC_IisMimeTypeMapping\Set-TargetResource' {
             Mock -CommandName Assert-Module
 
             Context 'When Adding a MimeType' {
@@ -115,7 +115,7 @@ try
         #endregion
 
         #region testing Test-TargetResource
-        Describe 'MSFT_xIisMimeTypeMapping\Test-TargetResource' {
+        Describe 'DSC_IisMimeTypeMapping\Test-TargetResource' {
             Mock -CommandName Assert-Module
 
             Context 'When Mapping could not be found with Ensure = to Present' {
@@ -154,7 +154,7 @@ try
         #endregion
 
         #region Get-Mapping
-        Describe 'MSFT_xIisMimeTypeMapping\Get-Mapping' {
+        Describe 'DSC_IisMimeTypeMapping\Get-Mapping' {
 
             Context 'When Running Get-Mapping with Extension and Type' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockMapping }

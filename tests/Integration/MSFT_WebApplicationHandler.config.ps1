@@ -21,9 +21,9 @@ $ConfigurationData = @{
     )
 }
 
-Configuration MSFT_WebApplicationHandler_AddHandler
+Configuration DSC_WebApplicationHandler_AddHandler
 {
-    Import-DSCResource -ModuleName xWebAdministration
+    Import-DSCResource -ModuleName WebAdministrationDsc
 
     Node 'localhost'
     {
@@ -47,10 +47,10 @@ Configuration MSFT_WebApplicationHandler_AddHandler
     }
 }
 
-Configuration MSFT_WebApplicationHandler_RemoveHandler
+Configuration DSC_WebApplicationHandler_RemoveHandler
 {
     Import-DSCResource -ModuleName PSDesiredStateConfiguration
-    Import-DSCResource -ModuleName xWebAdministration
+    Import-DSCResource -ModuleName WebAdministrationDsc
 
     Node 'localhost'
     {
@@ -92,9 +92,9 @@ $ConfigurationDataExcludedOptionalParameters = @{
     )
 }
 
-Configuration MSFT_WebApplicationHandler_AddHandlerExcludedOptionalParameters
+Configuration DSC_WebApplicationHandler_AddHandlerExcludedOptionalParameters
 {
-    Import-DSCResource -ModuleName xWebAdministration
+    Import-DSCResource -ModuleName WebAdministrationDsc
 
     Node 'localhost'
     {
@@ -113,9 +113,9 @@ Configuration MSFT_WebApplicationHandler_AddHandlerExcludedOptionalParameters
     }
 }
 
-Configuration MSFT_WebApplicationHandler_RemoveHandlerExcludedOptionalParameters
+Configuration DSC_WebApplicationHandler_RemoveHandlerExcludedOptionalParameters
 {
-    Import-DSCResource -ModuleName xWebAdministration
+    Import-DSCResource -ModuleName WebAdministrationDsc
 
     Node 'localhost'
     {

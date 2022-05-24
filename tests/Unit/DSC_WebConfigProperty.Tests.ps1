@@ -1,6 +1,6 @@
 
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebConfigProperty'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_WebConfigProperty'
 
 function Invoke-TestSetup
 {
@@ -46,8 +46,8 @@ Invoke-TestSetup
 try
 {
     InModuleScope $script:dscResourceName {
-        $script:dscModuleName = 'xWebAdministration'
-        $script:dscResourceName = 'MSFT_xWebConfigProperty'
+        $script:dscModuleName = 'WebAdministrationDsc'
+        $script:dscResourceName = 'DSC_WebConfigProperty'
 
         $script:presentParameters = @{
             WebsitePath  = 'MACHINE/WEBROOT/APPHOST'

@@ -1,5 +1,5 @@
-$script:dscModuleName   = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebSite'
+$script:dscModuleName   = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_xWebSite'
 
 try
 {
@@ -22,7 +22,7 @@ $tempName = "$($script:dscResourceName)_" + (Get-Date).ToString('yyyyMMdd_HHmmss
 
 try
 {
-    # Now that xWebAdministration should be discoverable, load the configuration data
+    # Now that WebAdministrationDsc should be discoverable, load the configuration data
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configFile
 
@@ -300,12 +300,12 @@ try
 
     }
 
-    Describe 'MSFT_xWebBindingInformation' {
+    Describe 'DSC_xWebBindingInformation' {
         # Directly interacting with Cim classes is not supported by PowerShell DSC
         # it is being done here explicitly for the purpose of testing. Please do not
         # do this in actual resource code
 
-        $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'MSFT_xWebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
+        $storeNames = (Get-CimClass -Namespace 'root/microsoft/Windows/DesiredStateConfiguration' -ClassName 'DSC_xWebBindingInformation').CimClassProperties['CertificateStoreName'].Qualifiers['Values'].Value
 
         foreach ($storeName in $storeNames)
         {

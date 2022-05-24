@@ -75,9 +75,9 @@ $TestParameters = [Ordered]@{
     restartSchedule                = @('06:00:00', '08:00:00')
 }
 
-Configuration MSFT_xWebAppPool_Config
+Configuration DSC_xWebAppPool_Config
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {

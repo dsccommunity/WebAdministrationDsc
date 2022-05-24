@@ -1,6 +1,6 @@
-Configuration MSFT_xWebConfigProperty_Add
+Configuration DSC_xWebConfigProperty_Add
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {
@@ -15,9 +15,9 @@ Configuration MSFT_xWebConfigProperty_Add
     }
 }
 
-Configuration MSFT_xWebConfigProperty_Update
+Configuration DSC_xWebConfigProperty_Update
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {
@@ -32,9 +32,9 @@ Configuration MSFT_xWebConfigProperty_Update
     }
 }
 
-Configuration MSFT_xWebConfigProperty_Integer
+Configuration DSC_xWebConfigProperty_Integer
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {
@@ -49,9 +49,9 @@ Configuration MSFT_xWebConfigProperty_Integer
     }
 }
 
-Configuration MSFT_xWebConfigProperty_Remove
+Configuration DSC_xWebConfigProperty_Remove
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     node localhost
     {

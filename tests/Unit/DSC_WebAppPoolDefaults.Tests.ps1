@@ -1,7 +1,7 @@
 #region HEADER
 
-$script:dscModuleName   = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebAppPoolDefaults'
+$script:dscModuleName   = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_WebAppPoolDefaults'
 
 function Invoke-TestSetup
 {

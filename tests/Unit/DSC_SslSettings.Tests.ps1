@@ -1,6 +1,6 @@
 
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xSslSettings'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_SslSettings'
 
 function Invoke-TestSetup
 {
@@ -32,7 +32,7 @@ Invoke-TestSetup
 try
 {
     InModuleScope $script:dscResourceName {
-        $script:dscResourceName = 'MSFT_xSslSettings'
+        $script:dscResourceName = 'DSC_SslSettings'
 
         Describe "$script:dscResourceName\Test-TargetResource" {
             Context 'Ensure is Present and SSLSettings is Present' {

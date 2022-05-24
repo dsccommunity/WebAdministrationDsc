@@ -1,7 +1,7 @@
 #requires -Version 4
-configuration MSFT_xWebApplication_Present
+configuration DSC_xWebApplication_Present
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {  
@@ -14,7 +14,7 @@ configuration MSFT_xWebApplication_Present
             WebAppPool = $Node.ApplicationPool
             ApplicationType = $Node.ApplicationType
             AuthenticationInfo = `
-                MSFT_xWebApplicationAuthenticationInformation
+                DSC_xWebApplicationAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -30,9 +30,9 @@ configuration MSFT_xWebApplication_Present
     }
 }
 
-configuration MSFT_xWebApplication_Absent
+configuration DSC_xWebApplication_Absent
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName 
     {  

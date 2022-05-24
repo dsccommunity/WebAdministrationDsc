@@ -1,6 +1,6 @@
 
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xIISFeatureDelegation'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_IisFeatureDelegation'
 
 function Invoke-TestSetup
 {
@@ -59,7 +59,7 @@ try
         }
 
         #region Function Get-TargetResource
-        Describe 'MSFT_xIISFeatureDelegation\Get-TargetResource' {
+        Describe 'DSC_IisFeatureDelegation\Get-TargetResource' {
             BeforeAll {
                 Mock -CommandName Assert-Module
             }
@@ -88,7 +88,7 @@ try
         #endregion
 
         #region Function Test-TargetResource
-        Describe 'MSFT_xIISFeatureDelegation\Test-TargetResource' {
+        Describe 'DSC_IisFeatureDelegation\Test-TargetResource' {
             BeforeAll {
                 Mock -CommandName Assert-Module
             }
@@ -124,7 +124,7 @@ try
         #endregion
 
         #region Function Set-TargetResource
-        Describe 'MSFT_xIISFeatureDelegation\Set-TargetResource' {
+        Describe 'DSC_IisFeatureDelegation\Set-TargetResource' {
             Context 'When resource not in desired state' {
 
                 Mock -CommandName Set-WebConfiguration -ParameterFilter { $Filter -eq $allowTargetResourceParameters.Filter -and $PsPath -eq $allowTargetResourceParameters.Path }
@@ -139,7 +139,7 @@ try
         #endregion
 
         #region Helper functions
-        Describe 'MSFT_xIISFeatureDelegation\Get-OverrideMode' {
+        Describe 'DSC_IisFeatureDelegation\Get-OverrideMode' {
             $mockWebConfigOutput = @{
                 Metadata = @{
                     effectiveOverrideMode = $null

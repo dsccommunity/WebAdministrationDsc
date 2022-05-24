@@ -1,5 +1,5 @@
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xIISLogging'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_xIISLogging'
 
 try
 {

@@ -1,7 +1,7 @@
 
 #region HEADER
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebConfigPropertyCollection'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_WebConfigPropertyCollection'
 
 function Invoke-TestSetup
 {
@@ -33,8 +33,8 @@ Invoke-TestSetup
 try
 {
     InModuleScope $script:dscResourceName {
-        $script:dscModuleName = 'xWebAdministration'
-        $script:dscResourceName = 'MSFT_xWebConfigPropertyCollection'
+        $script:dscModuleName = 'WebAdministrationDsc'
+        $script:dscResourceName = 'DSC_WebConfigPropertyCollection'
 
         $script:presentParameters = @{
             WebsitePath       = 'MACHINE/WEBROOT/APPHOST'

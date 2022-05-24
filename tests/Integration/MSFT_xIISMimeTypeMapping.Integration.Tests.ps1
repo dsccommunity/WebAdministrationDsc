@@ -1,6 +1,6 @@
 
-$script:dscModuleName   = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xIISMimeTypeMapping'
+$script:dscModuleName   = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_xIISMimeTypeMapping'
 
 try
 {

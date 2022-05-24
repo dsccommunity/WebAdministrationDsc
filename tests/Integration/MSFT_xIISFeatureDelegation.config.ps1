@@ -1,6 +1,6 @@
-configuration MSFT_xIISFeatureDelegation_AllowDelegation
+configuration DSC_xIISFeatureDelegation_AllowDelegation
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIisFeatureDelegation AllowDelegation
     {
@@ -10,9 +10,9 @@ configuration MSFT_xIISFeatureDelegation_AllowDelegation
     }
 }
 
-configuration MSFT_xIISFeatureDelegation_DenyDelegation
+configuration DSC_xIISFeatureDelegation_DenyDelegation
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIisFeatureDelegation DenyDelegation
     {

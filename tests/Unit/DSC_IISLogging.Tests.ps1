@@ -1,5 +1,5 @@
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xIisLogging'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_xIisLogging'
 
 function Invoke-TestSetup
 {
@@ -39,7 +39,7 @@ try
         }
 
         $MockCimLogCustomFields = @(
-            New-CimInstance -ClassName MSFT_xLogCustomField `
+            New-CimInstance -ClassName DSC_xLogCustomField `
                 -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                 -Property @{
                     LogFieldName = 'ClientEncoding'
@@ -802,7 +802,7 @@ try
 
         Describe "$script:dscResourceName\Test-LogCustomField" {
             $MockCimLogCustomFields = @(
-                New-CimInstance -ClassName MSFT_xLogCustomField `
+                New-CimInstance -ClassName DSC_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         LogFieldName = 'ClientEncoding'
@@ -813,7 +813,7 @@ try
             )
 
             $MockCimLogCustomFieldsEnsurePresentExplicitly = @(
-                New-CimInstance -ClassName MSFT_xLogCustomField `
+                New-CimInstance -ClassName DSC_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         LogFieldName = 'ClientEncoding'
@@ -825,7 +825,7 @@ try
             )
 
             $MockCimLogCustomFieldsEnsureAbsent = @(
-                New-CimInstance -ClassName MSFT_xLogCustomField `
+                New-CimInstance -ClassName DSC_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         LogFieldName = 'ClientEncoding'
@@ -934,7 +934,7 @@ try
         Describe "$script:dscResourceName\Set-LogCustomField" {
 
             $MockCimLogCustomFields = @(
-                New-CimInstance -ClassName MSFT_xLogCustomField `
+                New-CimInstance -ClassName DSC_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         LogFieldName = 'ClientEncoding'
@@ -945,7 +945,7 @@ try
             )
 
             $MockCimLogCustomFieldsEnsurePresentExplicitly = @(
-                New-CimInstance -ClassName MSFT_xLogCustomField `
+                New-CimInstance -ClassName DSC_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         LogFieldName = 'ClientEncoding'
@@ -957,7 +957,7 @@ try
             )
 
             $MockCimLogCustomFieldsEnsureAbsent = @(
-                New-CimInstance -ClassName MSFT_xLogCustomField `
+                New-CimInstance -ClassName DSC_xLogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
                     -Property @{
                         LogFieldName = 'ClientEncoding'

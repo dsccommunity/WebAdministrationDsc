@@ -1,7 +1,7 @@
 #requires -Version 4
-configuration MSFT_xWebVirtualDirectory_Initialize
+configuration DSC_xWebVirtualDirectory_Initialize
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
@@ -11,7 +11,7 @@ configuration MSFT_xWebVirtualDirectory_Initialize
             Name = $Node.Website
             PhysicalPath = $Node.WebsitePhysicalPath
             ApplicationPool = $Node.ApplicationPool
-            BindingInfo     = MSFT_xWebBindingInformation
+            BindingInfo     = DSC_xWebBindingInformation
             {
                 Protocol              = 'http'
                 Port                  = $Node.Port
@@ -45,9 +45,9 @@ configuration MSFT_xWebVirtualDirectory_Initialize
     }
 }
 
-configuration MSFT_xWebVirtualDirectory_Present
+configuration DSC_xWebVirtualDirectory_Present
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
@@ -62,9 +62,9 @@ configuration MSFT_xWebVirtualDirectory_Present
     }
 }
 
-configuration MSFT_xWebVirtualDirectory_Absent
+configuration DSC_xWebVirtualDirectory_Absent
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName 
     {

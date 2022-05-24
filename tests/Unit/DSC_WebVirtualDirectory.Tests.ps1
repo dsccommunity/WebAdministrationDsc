@@ -1,6 +1,6 @@
 
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebVirtualDirectory'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_WebVirtualDirectory'
 
 function Invoke-TestSetup
 {

@@ -4,8 +4,8 @@
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 param ()
 
-$script:dscModuleName   = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebAppPool'
+$script:dscModuleName   = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_WebAppPool'
 
 function Invoke-TestSetup
 {
@@ -210,12 +210,12 @@ try
                 }
 
                 It 'Should return the Credential (userName) property' {
-                    # Get-DscConfiguration returns MSFT_Credential with empty UserName
+                    # Get-DscConfiguration returns DSC_Credential with empty UserName
                     $result.Credential.userName | Should Be $mockAppPool.processModel.userName
                 }
 
                 It 'Should return the Credential (password) property' {
-                    # Get-DscConfiguration returns MSFT_Credential with empty Password
+                    # Get-DscConfiguration returns DSC_Credential with empty Password
                     $result.Credential.Password | Should Be $mockAppPool.processModel.password
                 }
 
@@ -3285,7 +3285,7 @@ try
 
         }
 
-        Describe "MSFT_xWebAppPool\Get-Property" {
+        Describe "DSC_WebAppPool\Get-Property" {
 
             It 'Should return the value of $appPool.property1' {
                 $appPool = @{ property1 = 'result' }

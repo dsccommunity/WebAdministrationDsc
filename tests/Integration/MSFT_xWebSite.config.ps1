@@ -1,6 +1,6 @@
 #requires -Version 4
 
-configuration MSFT_xWebSite_Present_Started
+configuration DSC_xWebSite_Present_Started
 {
     param(
 
@@ -9,7 +9,7 @@ configuration MSFT_xWebSite_Present_Started
 
     )
 
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
@@ -21,7 +21,7 @@ configuration MSFT_xWebSite_Present_Started
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                MSFT_xWebAuthenticationInformation
+                DSC_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -29,21 +29,21 @@ configuration MSFT_xWebSite_Present_Started
                     Windows   = $Node.AuthenticationInfoWindows
                 }
             BindingInfo = @(
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -53,7 +53,7 @@ configuration MSFT_xWebSite_Present_Started
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort2
@@ -76,13 +76,13 @@ configuration MSFT_xWebSite_Present_Started
             LogFormat = $Node.LogFormat
             LogTargetW3C = 'ETW'
             LogCustomFields = @(
-                MSFT_xLogCustomFieldInformation
+                DSC_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName1
                     SourceName   = $Node.SourceName1
                     SourceType   = $Node.SourceType1
                 }
-                MSFT_xLogCustomFieldInformation
+                DSC_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName2
                     SourceName   = $Node.SourceName2
@@ -93,7 +93,7 @@ configuration MSFT_xWebSite_Present_Started
     }
 }
 
-configuration MSFT_xWebSite_Present_Stopped
+configuration DSC_xWebSite_Present_Stopped
 {
     param(
 
@@ -102,7 +102,7 @@ configuration MSFT_xWebSite_Present_Stopped
 
     )
 
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
@@ -113,7 +113,7 @@ configuration MSFT_xWebSite_Present_Stopped
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                MSFT_xWebAuthenticationInformation
+                DSC_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -121,21 +121,21 @@ configuration MSFT_xWebSite_Present_Stopped
                     Windows   = $Node.AuthenticationInfoWindows
                 }
             BindingInfo = @(
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -145,7 +145,7 @@ configuration MSFT_xWebSite_Present_Stopped
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort2
@@ -165,13 +165,13 @@ configuration MSFT_xWebSite_Present_Stopped
             State = 'Stopped'
             ServerAutoStart = $false
             LogCustomFields = @(
-                MSFT_xLogCustomFieldInformation
+                DSC_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName1
                     SourceName   = $Node.SourceName1
                     SourceType   = $Node.SourceType1
                 }
-                MSFT_xLogCustomFieldInformation
+                DSC_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName2
                     SourceName   = $Node.SourceName2
@@ -182,9 +182,9 @@ configuration MSFT_xWebSite_Present_Stopped
     }
 }
 
-configuration MSFT_xWebSite_Absent
+configuration DSC_xWebSite_Absent
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
@@ -196,7 +196,7 @@ configuration MSFT_xWebSite_Absent
     }
 }
 
-configuration MSFT_xWebSite_Webconfig_Get_Test_Set
+configuration DSC_xWebSite_Webconfig_Get_Test_Set
 {
     param(
 
@@ -206,7 +206,7 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
     )
 
     Import-DscResource -ModuleName PSDesiredStateConfiguration
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {
@@ -240,7 +240,7 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
             ApplicationType = $Node.ApplicationType
             ApplicationPool = $Node.ApplicationPool
             AuthenticationInfo = `
-                MSFT_xWebAuthenticationInformation
+                DSC_xWebAuthenticationInformation
                 {
                     Anonymous = $Node.AuthenticationInfoAnonymous
                     Basic     = $Node.AuthenticationInfoBasic
@@ -248,21 +248,21 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
                     Windows   = $Node.AuthenticationInfoWindows
                 }
             BindingInfo = @(
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP1Hostname
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPProtocol
                     Port                  = $Node.HTTPPort
                     IPAddress             = '*'
                     Hostname              = $Node.HTTP2Hostname
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort
@@ -272,7 +272,7 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
                     CertificateStoreName  = $Node.CertificateStoreName
                     SslFlags              = $Node.SslFlags
                 }
-                MSFT_xWebBindingInformation
+                DSC_xWebBindingInformation
                 {
                     Protocol              = $Node.HTTPSProtocol
                     Port                  = $Node.HTTPSPort2
@@ -293,13 +293,13 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
             LogFlags = $Node.LogFlags1
             LogFormat = $Node.LogFormat
             LogCustomFields = @(
-                MSFT_xLogCustomFieldInformation
+                DSC_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName1
                     SourceName   = $Node.SourceName1
                     SourceType   = $Node.SourceType1
                 }
-                MSFT_xLogCustomFieldInformation
+                DSC_xLogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName2
                     SourceName   = $Node.SourceName2
@@ -310,7 +310,7 @@ configuration MSFT_xWebSite_Webconfig_Get_Test_Set
     }
 }
 
-configuration MSFT_xWebSite_Logging_Configured
+configuration DSC_xWebSite_Logging_Configured
 {
     param(
 
@@ -319,7 +319,7 @@ configuration MSFT_xWebSite_Logging_Configured
 
     )
 
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     Node $AllNodes.NodeName
     {

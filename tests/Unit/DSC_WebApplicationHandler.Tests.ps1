@@ -1,5 +1,5 @@
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_WebApplicationHandler'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_WebApplicationHandler'
 
 function Invoke-TestSetup
 {
@@ -107,7 +107,7 @@ try
         $customWebHandlerAbsentParameters = $customWebHandlerParameters.clone()
         $customWebHandlerAbsentParameters.Ensure = 'Absent'
 
-        Describe 'MSFT_WebApplicationHandler/Get-TargetResource' {
+        Describe 'DSC_WebApplicationHandler/Get-TargetResource' {
 
             Context 'When Web handler is Absent' {
 
@@ -159,7 +159,7 @@ try
             }
         }
 
-        Describe 'MSFT_WebApplicationHandler/Set-TargetResource' {
+        Describe 'DSC_WebApplicationHandler/Set-TargetResource' {
 
             Mock Set-WebConfigurationProperty
             Mock Remove-WebHandler
@@ -239,7 +239,7 @@ try
             }
         }
 
-        Describe 'MSFT_WebApplicationHandler/Test-TargetResource' {
+        Describe 'DSC_WebApplicationHandler/Test-TargetResource' {
 
             Context 'When Web Handler is Present' {
 

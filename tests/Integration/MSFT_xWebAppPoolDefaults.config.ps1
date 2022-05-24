@@ -4,9 +4,9 @@
 
 [string] $originalValue = (Get-WebConfigurationProperty -pspath $constPsPath -filter $constAPDFilter -name managedRuntimeVersion).Value
 
-configuration MSFT_xWebAppPoolDefaults_Config
+configuration DSC_xWebAppPoolDefaults_Config
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xWebAppPoolDefaults PoolDefaults
     {
@@ -15,9 +15,9 @@ configuration MSFT_xWebAppPoolDefaults_Config
     }
 }
 
-configuration MSFT_xWebAppPoolDefaults_ManagedRuntimeVersion
+configuration DSC_xWebAppPoolDefaults_ManagedRuntimeVersion
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xWebAppPoolDefaults PoolDefaults
     {
@@ -26,9 +26,9 @@ configuration MSFT_xWebAppPoolDefaults_ManagedRuntimeVersion
     }
 }
 
-configuration MSFT_xWebAppPoolDefaults_AppPoolIdentityType
+configuration DSC_xWebAppPoolDefaults_AppPoolIdentityType
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xWebAppPoolDefaults PoolDefaults
     {
@@ -37,9 +37,9 @@ configuration MSFT_xWebAppPoolDefaults_AppPoolIdentityType
     }
 }
 
-configuration MSFT_xWebAppPoolDefaults_LogFormat
+configuration DSC_xWebAppPoolDefaults_LogFormat
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xWebSiteDefaults LogFormat
     {
@@ -48,9 +48,9 @@ configuration MSFT_xWebAppPoolDefaults_LogFormat
     }
 }
 
-configuration MSFT_xWebAppPoolDefaults_DefaultPool
+configuration DSC_xWebAppPoolDefaults_DefaultPool
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xWebSiteDefaults DefaultPool
     {

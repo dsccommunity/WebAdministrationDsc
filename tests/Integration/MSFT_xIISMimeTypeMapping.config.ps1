@@ -1,6 +1,6 @@
-configuration MSFT_xIISMimeTypeMapping_AddMimeType
+configuration DSC_xIISMimeTypeMapping_AddMimeType
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIISMimeTypeMapping AddMimeType2
     {
@@ -11,9 +11,9 @@ configuration MSFT_xIISMimeTypeMapping_AddMimeType
     }
 }
 
-configuration MSFT_xIISMimeTypeMapping_RemoveMimeType
+configuration DSC_xIISMimeTypeMapping_RemoveMimeType
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIISMimeTypeMapping RemoveMimeType
     {
@@ -24,9 +24,9 @@ configuration MSFT_xIISMimeTypeMapping_RemoveMimeType
     }
 }
 
-Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeNestedPath
+Configuration DSC_xIISMimeTypeMapping_AddMimeTypeNestedPath
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIISMimeTypeMapping AddMimeTypeNestedPath
     {
@@ -37,9 +37,9 @@ Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeNestedPath
     }
 }
 
-Configuration MSFT_xIISMimeTypeMapping_RemoveMimeTypeNestedPath
+Configuration DSC_xIISMimeTypeMapping_RemoveMimeTypeNestedPath
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIISMimeTypeMapping RemoveMimeTypeNestedPath
     {
@@ -50,9 +50,9 @@ Configuration MSFT_xIISMimeTypeMapping_RemoveMimeTypeNestedPath
     }
 }
 
-Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeAtServer
+Configuration DSC_xIISMimeTypeMapping_AddMimeTypeAtServer
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIISMimeTypeMapping AddMimeTypeAtServer
     {
@@ -63,9 +63,9 @@ Configuration MSFT_xIISMimeTypeMapping_AddMimeTypeAtServer
     }
 }
 
-Configuration MSFT_xIISMimeTypeMapping_RemoveMimeTypeAtServer
+Configuration DSC_xIISMimeTypeMapping_RemoveMimeTypeAtServer
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIISMimeTypeMapping AddMimeTypeAtServer
     {

@@ -1,5 +1,5 @@
-$script:dscModuleName = 'xWebAdministration'
-$script:dscResourceName = 'MSFT_xWebApplication'
+$script:dscModuleName = 'WebAdministrationDsc'
+$script:dscResourceName = 'DSC_WebApplication'
 
 function Invoke-TestSetup
 {
@@ -31,9 +31,9 @@ Invoke-TestSetup
 try
 {
     InModuleScope $script:dscResourceName {
-        $script:dscResourceName = 'MSFT_xWebApplication'
+        $script:dscResourceName = 'DSC_WebApplication'
 
-        $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+        $MockAuthenticationInfo = New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
                             -ClientOnly `
                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
 
@@ -189,7 +189,7 @@ try
 
             Context 'Web Application does not exist' {
 
-                $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                $MockAuthenticationInfo = New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
                     -ClientOnly `
                     -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$false}
 
@@ -362,7 +362,7 @@ try
                 Mock Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-                $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                $MockAuthenticationInfo = New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
                                             -ClientOnly `
                                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
 
@@ -753,7 +753,7 @@ try
                 Mock -CommandName Set-WebConfiguration
                 Mock -CommandName Set-Authentication
 
-                $MockAuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                $MockAuthenticationInfo = New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
                                             -ClientOnly `
                                             -Property @{Anonymous=$true;Basic=$false;Digest=$false;Windows=$true}
 
@@ -1324,7 +1324,7 @@ try
 
                 Mock -CommandName Set-WebConfigurationProperty
 
-                $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                $AuthenticationInfo = New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
                                                   -ClientOnly `
                                                   -Property @{Anonymous='true';Basic='false';Digest='false';Windows='false'}
 
@@ -1417,7 +1417,7 @@ try
                     }
                 )
 
-            $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+            $AuthenticationInfo = New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
                                     -ClientOnly `
                                     -Property @{Anonymous='false';Basic='true';Digest='false';Windows='false'}
 
@@ -1458,7 +1458,7 @@ try
                     }
                 )
 
-                $AuthenticationInfo = New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+                $AuthenticationInfo = New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
                                     -ClientOnly `
                                     -Property @{Anonymous='true';Basic='true';Digest='true';Windows='true'}
 

@@ -1,6 +1,6 @@
-configuration MSFT_xIisLogging_Rollover
+configuration DSC_xIisLogging_Rollover
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIisLogging Logging
     {
@@ -11,13 +11,13 @@ configuration MSFT_xIisLogging_Rollover
         LogFormat = 'W3C'
         LogTargetW3C = 'File,ETW'
         LogCustomFields  = @(
-            MSFT_xLogCustomField
+            DSC_xLogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            MSFT_xLogCustomField
+            DSC_xLogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'
@@ -27,9 +27,9 @@ configuration MSFT_xIisLogging_Rollover
     }
 }
 
-configuration MSFT_xIisLogging_Truncate
+configuration DSC_xIisLogging_Truncate
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIisLogging Logging
     {
@@ -40,13 +40,13 @@ configuration MSFT_xIisLogging_Truncate
         LogFormat = 'W3C'
         LogTargetW3C = 'File,ETW'
         LogCustomFields    = @(
-            MSFT_xLogCustomField
+            DSC_xLogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            MSFT_xLogCustomField
+            DSC_xLogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'
@@ -56,9 +56,9 @@ configuration MSFT_xIisLogging_Truncate
     }
 }
 
-configuration MSFT_xIisLogging_LogFlags
+configuration DSC_xIisLogging_LogFlags
 {
-    Import-DscResource -ModuleName xWebAdministration
+    Import-DscResource -ModuleName WebAdministrationDsc
 
     xIisLogging Logging
     {
@@ -69,13 +69,13 @@ configuration MSFT_xIisLogging_LogFlags
         LogFormat = 'W3C'
         LogTargetW3C = 'File,ETW'
         LogCustomFields    = @(
-            MSFT_xLogCustomField
+            DSC_xLogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            MSFT_xLogCustomField
+            DSC_xLogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'
