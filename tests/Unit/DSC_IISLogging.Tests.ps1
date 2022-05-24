@@ -1,5 +1,5 @@
 $script:dscModuleName = 'WebAdministrationDsc'
-$script:dscResourceName = 'DSC_xIisLogging'
+$script:dscResourceName = 'DSC_IisLogging'
 
 function Invoke-TestSetup
 {
