@@ -263,7 +263,7 @@ InModuleScope $script:subModuleName {
     }
 
     Describe 'WebAdministrationDsc.Common\New-CimCredentialInstance' {
-        Context 'When creating a new DSC_Credential CIM instance credential object' {
+        Context 'When creating a new MSFT_Credential CIM instance credential object' {
             BeforeAll {
                 $mockAdministratorUser = 'admin@contoso.com'
                 $mockAdministratorPassword = 'P@ssw0rd-12P@ssw0rd-12'
@@ -276,7 +276,7 @@ InModuleScope $script:subModuleName {
             It 'Should return the correct values' {
                 $newCimCredentialInstanceResult = New-CimCredentialInstance -Credential $mockAdministratorCredential
                 $newCimCredentialInstanceResult | Should -BeOfType 'Microsoft.Management.Infrastructure.CimInstance'
-                $newCimCredentialInstanceResult.CimClass.CimClassName | Should -Be 'DSC_Credential'
+                $newCimCredentialInstanceResult.CimClass.CimClassName | Should -Be 'MSFT_Credential'
                 $newCimCredentialInstanceResult.UserName | Should -Be $mockAdministratorUser
                 $newCimCredentialInstanceResult.Password | Should -BeNullOrEmpty
             }

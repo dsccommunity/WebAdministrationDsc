@@ -93,10 +93,6 @@ try
 
         #region Function Test-TargetResource
         Describe 'DSC_IisFeatureDelegation\Test-TargetResource' {
-            BeforeAll {
-                Mock -CommandName Assert-Module -ModuleName WebAdministration
-            }
-
             Mock -CommandName Assert-Module -MockWith {}
 
             Context 'When OverrideMode is set to Allow' {
@@ -133,8 +129,9 @@ try
         Describe 'DSC_IisFeatureDelegation\Set-TargetResource' {
             Context 'When resource not in desired state' {
 
-                Mock -CommandName Set-WebConfiguration -ParameterFilter
-                    { $Filter -eq $allowTargetResourceParameters.Filter -and $PsPath -eq $allowTargetResourceParameters.Path }
+                Mock -CommandName Set-WebConfiguration -ParameterFilter `
+                    { $Filter -eq $allowTargetResourceParameters.Filter -and `
+                        $PsPath -eq $allowTargetResourceParameters.Path }
 
                 Mock -CommandName Assert-Module -MockWith {}
 
