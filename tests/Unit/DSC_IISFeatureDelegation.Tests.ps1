@@ -133,13 +133,10 @@ try
                     { $Filter -eq $allowTargetResourceParameters.Filter -and `
                         $PsPath -eq $allowTargetResourceParameters.Path }
 
-                Mock -CommandName Assert-Module -MockWith {}
-
                 Set-TargetResource @allowTargetResourceParameters
 
                 It 'Should call all the mocks' {
                     Assert-MockCalled Set-WebConfiguration -Exactly -Times 1
-                    Assert-MockCalled Assert-Module -Exactly -Times 1
                 }
             }
         }
