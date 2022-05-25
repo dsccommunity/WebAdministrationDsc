@@ -11,13 +11,13 @@ configuration DSC_IisLogging_Rollover
         LogFormat = 'W3C'
         LogTargetW3C = 'File,ETW'
         LogCustomFields  = @(
-            DSC_xLogCustomField
+            DSC_LogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            DSC_xLogCustomField
+            DSC_LogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'
@@ -40,13 +40,13 @@ configuration DSC_IisLogging_Truncate
         LogFormat = 'W3C'
         LogTargetW3C = 'File,ETW'
         LogCustomFields    = @(
-            DSC_xLogCustomField
+            DSC_LogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            DSC_xLogCustomField
+            DSC_LogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'
@@ -69,13 +69,13 @@ configuration DSC_IisLogging_LogFlags
         LogFormat = 'W3C'
         LogTargetW3C = 'File,ETW'
         LogCustomFields    = @(
-            DSC_xLogCustomField
+            DSC_LogCustomField
             {
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
                 SourceType   = 'RequestHeader'
             }
-            DSC_xLogCustomField
+            DSC_LogCustomField
             {
                 LogFieldName = 'X-Powered-By'
                 SourceName   = 'ASP.NET'

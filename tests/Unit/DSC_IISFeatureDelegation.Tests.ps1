@@ -63,11 +63,12 @@ try
         #region Function Get-TargetResource
         Describe 'DSC_IisFeatureDelegation\Get-TargetResource' {
             BeforeAll {
-                Mock -CommandName Assert-Module -ModuleName WebAdministration
+                Mock -CommandName Assert-Module -MockWith {}
             }
 
             Context 'When OverrideMode is set to Allow' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
+                Mock -CommandName Assert-Module -MockWith {}
                 $result = Get-TargetResource @allowTargetResourceParameters
 
                 It 'Should return the correct properties' {
@@ -78,6 +79,7 @@ try
             }
             Context 'When OverrideMode is set to Deny' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
+                Mock -CommandName Assert-Module -MockWith {}
                 $result = Get-TargetResource @denytargetResourceParameters
 
                 It 'Should return the correct properties' {
@@ -94,6 +96,8 @@ try
             BeforeAll {
                 Mock -CommandName Assert-Module -ModuleName WebAdministration
             }
+
+            Mock -CommandName Assert-Module -MockWith {}
 
             Context 'When OverrideMode is set to Allow' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
@@ -129,12 +133,16 @@ try
         Describe 'DSC_IisFeatureDelegation\Set-TargetResource' {
             Context 'When resource not in desired state' {
 
-                Mock -CommandName Set-WebConfiguration -ParameterFilter { $Filter -eq $allowTargetResourceParameters.Filter -and $PsPath -eq $allowTargetResourceParameters.Path }
+                Mock -CommandName Set-WebConfiguration -ParameterFilter
+                    { $Filter -eq $allowTargetResourceParameters.Filter -and $PsPath -eq $allowTargetResourceParameters.Path }
+
+                Mock -CommandName Assert-Module -MockWith {}
 
                 Set-TargetResource @allowTargetResourceParameters
 
                 It 'Should call all the mocks' {
                     Assert-MockCalled Set-WebConfiguration -Exactly -Times 1
+                    Assert-MockCalled Assert-Module -Exactly -Times 1
                 }
             }
         }
