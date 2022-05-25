@@ -3,6 +3,7 @@
         AddToPath  = $true
         Target     = 'output\RequiredModules'
         Parameters = @{
+            Repository = ''
         }
     }
 
@@ -13,9 +14,11 @@
     ModuleBuilder               = 'latest'
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
+    'Sampler.GitHubTasks'       = 'latest'
     MarkdownLinkCheck           = 'latest'
     'DscResource.Test'          = 'latest'
     'DscResource.AnalyzerRules' = 'latest'
+    'DscResource.DocGenerator'  = 'latest'
     xDscResourceDesigner        = 'latest'
     PSPKI                       = 'latest'
 }
