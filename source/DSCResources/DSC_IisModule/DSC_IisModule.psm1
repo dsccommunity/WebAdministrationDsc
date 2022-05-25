@@ -41,7 +41,7 @@ function Get-TargetResource
         [String] $SiteName
     )
 
-        Assert-Module
+        Assert-Module -ModuleName WebAdministrationDsc.Common
 
         $currentVerbs = @()
         $Ensure = 'Absent'

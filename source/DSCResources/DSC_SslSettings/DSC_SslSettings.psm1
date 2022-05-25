@@ -29,7 +29,7 @@ function Get-TargetResource
         [String[]] $Bindings
     )
 
-    Assert-Module
+    Assert-Module -ModuleName WebAdministrationDsc.Common
 
     $ensure = 'Absent'
 
@@ -91,7 +91,7 @@ function Set-TargetResource
         [String] $Ensure = 'Present'
     )
 
-    Assert-Module
+    Assert-Module -ModuleName WebAdministrationDsc.Common
 
     if ($Ensure -eq 'Absent' -or $Bindings.toLower().Contains('none'))
     {

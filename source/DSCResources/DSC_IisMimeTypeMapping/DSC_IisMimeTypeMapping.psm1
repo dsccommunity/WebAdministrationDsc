@@ -55,7 +55,7 @@ function Get-TargetResource
     )
 
     # Check if WebAdministration module is present for IIS cmdlets
-    Assert-Module
+    Assert-Module -ModuleName WebAdministrationDsc.Common
 
     if (!$ConfigurationPath)
     {
@@ -126,7 +126,7 @@ function Set-TargetResource
         $Ensure
     )
 
-    Assert-Module
+    Assert-Module -ModuleName WebAdministrationDsc.Common
 
     if (!$ConfigurationPath)
     {
@@ -200,7 +200,7 @@ function Test-TargetResource
         $Ensure
     )
 
-    Assert-Module
+    Assert-Module -ModuleName WebAdministrationDsc.Common
 
     if (!$ConfigurationPath)
     {

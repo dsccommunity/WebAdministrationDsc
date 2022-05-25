@@ -31,7 +31,7 @@ function Get-TargetResource
         $Name
     )
 
-    Assert-Module
+
 
     $website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
@@ -225,7 +225,7 @@ function Set-TargetResource
         $LogCustomFields
     )
 
-    Assert-Module
+
 
     $website = Get-Website | Where-Object -FilterScript {$_.Name -eq $Name}
 
@@ -792,7 +792,7 @@ function Test-TargetResource
         $LogCustomFields
     )
 
-    Assert-Module
+
 
     $inDesiredState = $true
 
