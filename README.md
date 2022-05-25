@@ -122,7 +122,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
 * **LogTargetW3C**: Log Target of the W3C Logfiles. The acceptable values for this property are: `File`,`ETW`,`File,ETW`
-* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomField** CIM class that implements the following properties:
+* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **DSC_LogCustomField** CIM class that implements the following properties:
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
   * **SourceType**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
   * **SourceName**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
@@ -160,7 +160,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **DSC_WebApplicationAuthenticationInformation** CIM class. **DSC_WebApplicationAuthenticationInformation** take the following properties:
   * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
   * **Basic**: The acceptable values for this property are: `$true`, `$false`
   * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -307,7 +307,7 @@ Ensures the value of an identified property collection item's property in the we
 * **SiteId** : Optional. The desired IIS site Id for the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
-* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class that implements the following properties:
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **DSC_WebBindingInformation** CIM class that implements the following properties:
   * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
   * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
   * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
@@ -330,8 +330,8 @@ Ensures the value of an identified property collection item's property in the we
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable application Autostart (application initalization without an initial request) on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **MSFT_xWebAuthenticationInformation** CIM class.
-**MSFT_xWebAuthenticationInformation** takes the following properties:
+* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **DSC_WebAuthenticationInformation** CIM class.
+**DSC_WebAuthenticationInformation** takes the following properties:
   * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
   * **Basic**: The acceptable values for this property are: `$true`, `$false`
   * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -343,7 +343,7 @@ Ensures the value of an identified property collection item's property in the we
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
-* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomFieldInformation** CIM class that implements the following properties:
+* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **DSC_LogCustomFieldInformation** CIM class that implements the following properties:
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
   * **SourceType**: The acceptable values for this property are: `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
   * **SourceName**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.

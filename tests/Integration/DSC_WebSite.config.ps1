@@ -76,13 +76,13 @@ configuration DSC_WebSite_Present_Started
             LogFormat = $Node.LogFormat
             LogTargetW3C = 'ETW'
             LogCustomFields = @(
-                DSC_xLogCustomFieldInformation
+                DSC_LogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName1
                     SourceName   = $Node.SourceName1
                     SourceType   = $Node.SourceType1
                 }
-                DSC_xLogCustomFieldInformation
+                DSC_LogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName2
                     SourceName   = $Node.SourceName2
@@ -165,13 +165,13 @@ configuration DSC_WebSite_Present_Stopped
             State = 'Stopped'
             ServerAutoStart = $false
             LogCustomFields = @(
-                DSC_xLogCustomFieldInformation
+                DSC_LogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName1
                     SourceName   = $Node.SourceName1
                     SourceType   = $Node.SourceType1
                 }
-                DSC_xLogCustomFieldInformation
+                DSC_LogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName2
                     SourceName   = $Node.SourceName2
@@ -293,13 +293,13 @@ configuration DSC_WebSite_Webconfig_Get_Test_Set
             LogFlags = $Node.LogFlags1
             LogFormat = $Node.LogFormat
             LogCustomFields = @(
-                DSC_xLogCustomFieldInformation
+                DSC_LogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName1
                     SourceName   = $Node.SourceName1
                     SourceType   = $Node.SourceType1
                 }
-                DSC_xLogCustomFieldInformation
+                DSC_LogCustomFieldInformation
                 {
                     LogFieldName = $Node.LogFieldName2
                     SourceName   = $Node.SourceName2
