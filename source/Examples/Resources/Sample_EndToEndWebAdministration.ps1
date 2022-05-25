@@ -2,7 +2,7 @@
     .DESCRIPTION
         This example shows how to use the WebAdministrationDsc in an end to end scenario.
 #>
-configuration Sample_EndToEndWebAdministrationDsc
+configuration Sample_EndToEndWebAdministration
 {
     param
     (
