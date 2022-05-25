@@ -63,7 +63,7 @@ try
         #region Function Get-TargetResource
         Describe 'DSC_IisFeatureDelegation\Get-TargetResource' {
             BeforeAll {
-                Mock -CommandName Assert-Module
+                Mock -CommandName Assert-Module -ModuleName WebAdministrationDsc.Common
             }
 
             Context 'When OverrideMode is set to Allow' {
@@ -92,7 +92,7 @@ try
         #region Function Test-TargetResource
         Describe 'DSC_IisFeatureDelegation\Test-TargetResource' {
             BeforeAll {
-                Mock -CommandName Assert-Module
+                Mock -CommandName Assert-Module -ModuleName WebAdministrationDsc.Common
             }
 
             Context 'When OverrideMode is set to Allow' {
