@@ -1,5 +1,5 @@
 [ClassVersion("1.0.0.0"), FriendlyName("WebApplicationHandler")]
-class DSC__WebApplicationHandler : OMI_BaseResource
+class DSC_WebApplicationHandler : OMI_BaseResource
 {
     [Key, Description("Specifies the name of the new request handler.")] String Name;
     [Write, Description("Indicates if the application handler exists. Set this property to `Absent` to ensure that the application handler does not exist. Default value is 'Present'."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
