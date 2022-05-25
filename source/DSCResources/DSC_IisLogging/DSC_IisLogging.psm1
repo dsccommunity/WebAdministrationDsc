@@ -23,7 +23,7 @@ function Get-TargetResource
         [String] $LogPath
     )
 
-    Assert-Module -ModuleName WebAdministrationDsc.Common
+    Assert-Module -ModuleName WebAdministration
 
     $currentLogSettings = Get-WebConfiguration `
         -filter '/system.applicationHost/sites/siteDefaults/Logfile'
@@ -122,7 +122,7 @@ function Set-TargetResource
         $LogCustomFields
     )
 
-    Assert-Module -ModuleName WebAdministrationDsc.Common
+    Assert-Module -ModuleName WebAdministration
 
     $currentLogState = Get-TargetResource -LogPath $LogPath
 
@@ -290,7 +290,7 @@ function Test-TargetResource
         $LogCustomFields
     )
 
-    Assert-Module -ModuleName WebAdministrationDsc.Common
+    Assert-Module -ModuleName WebAdministration
 
     $currentLogState = Get-TargetResource -LogPath $LogPath
 

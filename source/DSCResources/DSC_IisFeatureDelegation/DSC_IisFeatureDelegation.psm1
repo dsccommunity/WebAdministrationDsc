@@ -179,7 +179,7 @@ function Get-OverrideMode
         $Path
     )
 
-    Assert-Module -ModuleName WebAdministrationDsc.Common
+    Assert-Module -ModuleName WebAdministration
 
     Write-Verbose -Message ( $script:localizedData.GetOverrideMode -f $Filter )
 
