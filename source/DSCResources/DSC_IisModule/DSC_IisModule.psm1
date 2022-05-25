@@ -126,9 +126,9 @@ function Set-TargetResource
         [String] $SiteName
     )
 
-    $getParameters = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
+    $getParameters  = Get-PSBoundParameters -FunctionParameters $PSBoundParameters
     $resourceStatus = Get-TargetResource @GetParameters
-    $resourceTests = Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus
+    $resourceTests  = Test-TargetResourceImpl @PSBoundParameters -ResourceStatus $resourceStatus
     if ($resourceTests.Result)
     {
         return
