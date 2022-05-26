@@ -59,11 +59,27 @@ try
 
     Describe "$($script:dscResourceName)_Webconfig_Get_Test_Set" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Webconfig_Get_Test_Set -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+                & "$($script:DSCResourceName)_Present" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig `
+                    -CertificateThumbprint $selfSignedCert.Thumbprint
+            } | Should -Not -Throw
+        }
+
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
+            } | Should -Not -Throw
         }
 
         It 'Should be able to call Get-DscConfiguration without throwing' {
@@ -78,11 +94,27 @@ try
 
     Describe "$($script:dscResourceName)_Present_Started" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Present_Started -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+                & "$($script:DSCResourceName)_Present" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig `
+                    -CertificateThumbprint $selfSignedCert.Thumbprint
+            } | Should -Not -Throw
+        }
+
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
+            } | Should -Not -Throw
         }
 
         It 'Should be able to call Get-DscConfiguration without throwing' {
