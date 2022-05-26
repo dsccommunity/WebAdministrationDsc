@@ -120,7 +120,20 @@ function Restore-WebConfigurationWrapper
     Start-Sleep -Seconds 10
 }
 
-Export-ModuleMember -Function @(
-    'Install-NewSelfSignedCertificateExScript'
-    'Restore-WebConfigurationWrapper'
-)
+function Reset-DscLcm
+{
+    [CmdletBinding()]
+    param ()
+
+    Write-Verbose -Message 'Resetting DSC LCM.'
+
+    Stop-DscConfiguration -Force -ErrorAction SilentlyContinue
+    Remove-DscConfigurationDocument -Stage Current -Force
+    Remove-DscConfigurationDocument -Stage Pending -Force
+    Remove-DscConfigurationDocument -Stage Previous -Force
+}
+
+Export-ModuleMember -Function `
+    Install-NewSelfSignedCertificateExScript `
+    Restore-WebConfigurationWrapper `
+    Reset-DscLcm
