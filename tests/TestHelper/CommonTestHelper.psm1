@@ -134,6 +134,6 @@ function Reset-DscLcm
 }
 
 Export-ModuleMember -Function `
-    Install-NewSelfSignedCertificateExScript `
-    Restore-WebConfigurationWrapper `
+    Install-NewSelfSignedCertificateExScript, `
+    Restore-WebConfigurationWrapper, `
     Reset-DscLcm
