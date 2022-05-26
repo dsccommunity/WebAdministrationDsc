@@ -40,24 +40,32 @@ try
     . $ConfigFile
 
     Describe "$($script:dscResourceName)_Integration" {
-
         #region Default Tests
-
-        It 'Should be able to compile and apply without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command (
-                    '{0}_Config -OutputPath $TestDrive -ConfigurationData $ConfigData -ErrorAction Stop' -f
-                    $script:dscResourceName
-                )
+                & "$($script:DSCResourceName)_Integration" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig `
+                    -CertificateThumbprint $selfSignedCert.Thumbprint
+            } | Should -Not -Throw
+        }
 
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Force -Wait -Verbose
-            } | Should Not Throw
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
+            } | Should -Not -Throw
         }
 
         It 'Should be able to call Get-DscConfiguration without throwing' {
-            {
-                Get-DscConfiguration -Verbose -ErrorAction Stop
-            } | Should Not Throw
+            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
         }
 
         #endregion
