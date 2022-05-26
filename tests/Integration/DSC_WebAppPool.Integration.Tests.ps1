@@ -40,11 +40,25 @@ try
     . $ConfigFile
 
     Describe "$($script:dscResourceName)_Integration" {
+
+        $ConfigData = @{
+            AllNodes = @(
+                @{
+                    NodeName = '*'
+                    PSDscAllowPlainTextPassword = $true
+                }
+                @{
+                    NodeName = 'localhost'
+                }
+            )
+        }
+
         #region Default Tests
         It 'Should compile the MOF without throwing' {
             {
                 & "$($script:DSCResourceName)_Integration" `
-                    -OutputPath $TestDrive
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $ConfigData
             } | Should -Not -Throw
         }
 
