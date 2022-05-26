@@ -130,6 +130,16 @@ try
                 -CertificateThumbprint $selfSignedCert.Thumbprint`
                 -Verbose
 
+            Reset-DscLcm
+
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
+
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
 
