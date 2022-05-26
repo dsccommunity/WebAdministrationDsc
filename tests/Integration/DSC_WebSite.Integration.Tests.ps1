@@ -61,7 +61,7 @@ try
         #region DEFAULT TESTS
         It 'Should compile the MOF without throwing' {
             {
-                & "$($script:DSCResourceName)_Present" `
+                & "$($script:DSCResourceName)_Webconfig_Get_Test_Set" `
                     -OutputPath $TestDrive `
                     -ConfigurationData $dscConfig `
                     -CertificateThumbprint $selfSignedCert.Thumbprint
@@ -96,7 +96,7 @@ try
         #region DEFAULT TESTS
         It 'Should compile the MOF without throwing' {
             {
-                & "$($script:DSCResourceName)_Present" `
+                & "$($script:DSCResourceName)_Present_Started" `
                     -OutputPath $TestDrive `
                     -ConfigurationData $dscConfig `
                     -CertificateThumbprint $selfSignedCert.Thumbprint
@@ -242,7 +242,10 @@ try
 
         It 'Should update the enabled LogFlags' -test {
 
-            Invoke-Expression -Command "$($script:dscResourceName)_Logging_Configured -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+            & "$($script:DSCResourceName)_Logging_Configured" `
+                -OutputPath $TestDrive `
+                -ConfigurationData $dscConfig `
+                -CertificateThumbprint $selfSignedCert.Thumbprint
 
             Reset-DscLcm
 
