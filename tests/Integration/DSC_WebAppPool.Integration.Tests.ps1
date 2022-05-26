@@ -45,8 +45,7 @@ try
             {
                 & "$($script:DSCResourceName)_Integration" `
                     -OutputPath $TestDrive `
-                    -ConfigurationData $dscConfig `
-                    -CertificateThumbprint $selfSignedCert.Thumbprint
+                    -ConfigurationData $dscConfig
             } | Should -Not -Throw
         }
 
