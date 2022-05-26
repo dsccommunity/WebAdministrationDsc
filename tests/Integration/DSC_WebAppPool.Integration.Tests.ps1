@@ -44,8 +44,7 @@ try
         It 'Should compile the MOF without throwing' {
             {
                 & "$($script:DSCResourceName)_Integration" `
-                    -OutputPath $TestDrive `
-                    -ConfigurationData $dscConfig
+                    -OutputPath $TestDrive
             } | Should -Not -Throw
         }
 
