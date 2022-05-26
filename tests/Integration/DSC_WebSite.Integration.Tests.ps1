@@ -212,11 +212,27 @@ try
 
     Describe "$($script:dscResourceName)_Logging_Configured" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Logging_Configured -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+                & "$($script:DSCResourceName)_Logging_Configured" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig `
+                    -CertificateThumbprint $selfSignedCert.Thumbprint
+            } | Should -Not -Throw
+        }
+
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
+            } | Should -Not -Throw
         }
 
         It 'Should be able to call Get-DscConfiguration without throwing' {
@@ -227,6 +243,16 @@ try
         It 'Should update the enabled LogFlags' -test {
 
             Invoke-Expression -Command "$($script:dscResourceName)_Logging_Configured -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+
+            Reset-DscLcm
+
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -239,11 +265,27 @@ try
 
     Describe "$($script:dscResourceName)_Present_Stopped" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Present_Stopped -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+                & "$($script:DSCResourceName)_Present_Stopped" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig `
+                    -CertificateThumbprint $selfSignedCert.Thumbprint
+            } | Should -Not -Throw
+        }
+
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
+            } | Should -Not -Throw
         }
 
         It 'Should be able to call Get-DscConfiguration without throwing' {
@@ -253,7 +295,20 @@ try
 
         It 'Should Create a Stopped Website with correct settings' -test {
 
-            Invoke-Expression -Command "$($script:dscResourceName)_Present_Stopped -ConfigurationData `$dscConfig -OutputPath `$TestDrive -CertificateThumbprint `$selfSignedCert.Thumbprint"
+            & "$($script:DSCResourceName)_Present_Stopped" `
+                -OutputPath $TestDrive `
+                -ConfigurationData $dscConfig `
+                -CertificateThumbprint $selfSignedCert.Thumbprint
+
+            Reset-DscLcm
+
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -320,11 +375,26 @@ try
 
     Describe "$($script:dscResourceName)_Absent" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Absent -ConfigurationData `$dscConfig -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+                & "$($script:DSCResourceName)_Absent" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig
+            } | Should -Not -Throw
+        }
+
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
+            } | Should -Not -Throw
         }
 
         It 'Should be able to call Get-DscConfiguration without throwing' {
@@ -334,7 +404,19 @@ try
 
         It 'Should remove the Website' -test {
 
-            Invoke-Expression -Command "$($script:dscResourceName)_Absent -ConfigurationData `$dscConfig  -OutputPath `$TestDrive"
+            & "$($script:DSCResourceName)_Absent" `
+                -OutputPath $TestDrive `
+                -ConfigurationData $dscConfig
+
+            Reset-DscLcm
+
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
 
             # Build results to test
             $result = Get-Website -Name $dscConfig.AllNodes.Website
@@ -343,7 +425,6 @@ try
             $result | Should BeNullOrEmpty
 
             }
-
     }
 
     Describe 'DSC_WebBindingInformation' {
