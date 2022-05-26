@@ -28,7 +28,7 @@ try
     $ConfigFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $ConfigFile
 
-    $DSCConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:dscResourceName).config.psd1"
+    $dscConfig = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName "$($script:dscResourceName).config.psd1"
 
     Describe "$($script:dscResourceName)_Initialize" {
         Invoke-Expression -Command "$($script:dscResourceName)_Initialize -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
@@ -42,7 +42,6 @@ try
                 & "$($script:DSCResourceName)_Present" `
                     -OutputPath $TestDrive `
                     -ConfigurationData $dscConfig `
-                    -CertificateThumbprint $selfSignedCert.Thumbprint
             } | Should -Not -Throw
         }
 
