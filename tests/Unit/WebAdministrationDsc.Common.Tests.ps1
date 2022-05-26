@@ -285,8 +285,9 @@ InModuleScope $script:subModuleName {
 
     Describe 'WebAdministrationDsc.Common\Find-Certificate' {
 
+        # technet no longer exists, function added directly to commontesthelper.psm1
         # Download and dot source the New-SelfSignedCertificateEx script
-        . (Install-NewSelfSignedCertificateExScript)
+        #. (Install-NewSelfSignedCertificateExScript)
 
         # Generate the Valid certificate for testing but remove it from the store straight away
         $certDNSNames = @('www.fabrikam.com', 'www.contoso.com')
