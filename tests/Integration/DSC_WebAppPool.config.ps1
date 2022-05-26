@@ -75,7 +75,7 @@ $TestParameters = [Ordered]@{
     restartSchedule                = @('06:00:00', '08:00:00')
 }
 
-Configuration DSC_WebAppPool_Config
+Configuration DSC_WebAppPool_Integration
 {
     Import-DscResource -ModuleName WebAdministrationDsc
 
