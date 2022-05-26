@@ -37,10 +37,26 @@ try
 
     Describe "$($script:dscResourceName)_Present" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+                & "$($script:DSCResourceName)_Present" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig `
+                    -CertificateThumbprint $selfSignedCert.Thumbprint
+            } | Should -Not -Throw
+        }
+
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
             } | Should -Not -Throw
         }
 
@@ -50,7 +66,19 @@ try
         #endregion
 
         It 'Should create a WebVirtualDirectory with correct settings' -Test {
-            Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$DSCConfig  -OutputPath `$TestDrive"
+            & "$($script:DSCResourceName)_Present" `
+            -OutputPath $TestDrive `
+            -ConfigurationData $dscConfig
+
+        Reset-DscLcm
+
+        Start-DscConfiguration `
+            -Path $TestDrive `
+            -ComputerName localhost `
+            -Wait `
+            -Verbose `
+            -Force `
+            -ErrorAction Stop
 
             # Build results to test
             $result = Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
@@ -65,10 +93,25 @@ try
 
     Describe "$($script:dscResourceName)_Absent" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Absent -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
+                & "$($script:DSCResourceName)_Absent" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig
+            } | Should -Not -Throw
+        }
+
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
             } | Should -Not -Throw
         }
 
@@ -78,7 +121,19 @@ try
         #endregion
 
         It 'Should remove the WebVirtualDirectory' -Test {
-            Invoke-Expression -Command "$($script:dscResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
+            & "$($script:DSCResourceName)_Absent" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $dscConfig
+
+            Reset-DscLcm
+
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
 
             # Build results to test
             $result = Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
