@@ -17,7 +17,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     inside the `source` folder.
   - Update the pipeline files to the latest from Sampler.
 - CommonTestHelper
-  - Removed the helper function `Install-NewSelfSignedCertificateExScript´
+  - Removed the helper function `Install-NewSelfSignedCertificateExScript`
     as the script it used is no longer available. Switched to using the
     module _PSPKI_ instead.
 
