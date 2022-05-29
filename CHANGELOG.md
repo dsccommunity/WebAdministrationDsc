@@ -1,4 +1,4 @@
-# Change log for xWebAdministration
+# Changelog for xWebAdministration
 
 The format is based on and uses the types of changes according to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -15,6 +15,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     automatically.
   - Only run the CI/CD pipeline on branch _main_ when there are changes to files
     inside the `source` folder.
+  - Update the pipeline files to the latest from Sampler. 
 
 ### Fixed
 

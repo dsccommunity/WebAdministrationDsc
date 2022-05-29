@@ -1,7 +1,11 @@
 # xWebAdministration
 
+This module contains DSC resources for the management and
+configuration of Microsoft Internet Information Services (IIS).
+
 [![Build Status](https://dev.azure.com/dsccommunity/xWebAdministration/_apis/build/status/dsccommunity.xWebAdministration?branchName=main)](https://dev.azure.com/dsccommunity/xWebAdministration/_build/latest?definitionId=7&branchName=main)
 ![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xWebAdministration/7/main)
+[![codecov](https://codecov.io/gh/dsccommunity/xWebAdministration/branch/main/graph/badge.svg)](https://codecov.io/gh/dsccommunity/xWebAdministration)
 [![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/xWebAdministration/7/main)](https://dsccommunity.visualstudio.com/xWebAdministration/_test/analytics?definitionId=7&contextType=build)
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/xWebAdministration?label=xWebAdministration%20Preview)](https://www.powershellgallery.com/packages/xWebAdministration/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/xWebAdministration?label=xWebAdministration)](https://www.powershellgallery.com/packages/xWebAdministration/)
@@ -20,6 +24,23 @@ full release to [PowerShell Gallery](https://www.powershellgallery.com/).
 ## Contributing
 
 Please check out common DSC Community [contributing guidelines](https://dsccommunity.org/guidelines/contributing).
+
+## Change log
+
+A full list of changes in each version can be found in the [change log](CHANGELOG.md).
+
+## Documentation
+
+The documentation can be found in the [xWebAdministration Wiki](https://github.com/dsccommunity/xWebAdministration/wiki).
+The DSC resources schema files is used to automatically update the
+documentation on each PR merge.
+
+### Examples
+
+You can review the [Examples](/source/Examples) directory in the xWebAdministration module
+for some general use scenarios for all of the resources that are in the module.
+
+The resource examples are also available in the [xWebAdministration Wiki](https://github.com/dsccommunity/xWebAdministration/wiki).
 
 ## Installation
 
