@@ -18,6 +18,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Update the pipeline files to the latest from Sampler.
   - Switched build worker from Windows Server 2016 to Windows Server 2022,
     so that both Windows Server 2019 and Windows Server 2022 is now used.
+  - Add resources README.md for wiki documentation.
 - CommonTestHelper
   - Removed the helper function `Install-NewSelfSignedCertificateExScript`
     as the script it used is no longer available. Switched to using the
