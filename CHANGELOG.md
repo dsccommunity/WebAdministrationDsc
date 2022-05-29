@@ -15,7 +15,11 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     automatically.
   - Only run the CI/CD pipeline on branch _main_ when there are changes to files
     inside the `source` folder.
-  - Update the pipeline files to the latest from Sampler. 
+  - Update the pipeline files to the latest from Sampler.
+- CommonTestHelper
+  - Removed the helper function `Install-NewSelfSignedCertificateExScript´
+    as the script it used is no longer available. Switched to using the
+    module _PSPKI_ instead.
 
 ### Fixed
 

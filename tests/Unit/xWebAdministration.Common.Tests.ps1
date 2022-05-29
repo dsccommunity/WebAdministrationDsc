@@ -755,7 +755,8 @@ InModuleScope $script:subModuleName {
 
     Describe 'xWebAdministration.Common\Find-Certificate' {
         # Generate the Valid certificate for testing but remove it from the store straight away
-        $certDNSNames = @('dns:www.fabrikam.com', 'dns:www.contoso.com')
+        $certDNSNames = @('www.fabrikam.com', 'www.contoso.com')
+        $certificateCreationDNSNames = @('dns:www.fabrikam.com', 'dns:www.contoso.com')
         $certDNSNamesReverse = @('www.contoso.com', 'www.fabrikam.com')
         $certDNSNamesNoMatch = $certDNSNames + @('www.nothere.com')
         $certKeyUsage = @('DigitalSignature','DataEncipherment')
@@ -774,7 +775,7 @@ InModuleScope $script:subModuleName {
             -KeyUsage $certKeyUsage `
             -KeySpec 'Exchange' `
             -EnhancedKeyUsage $certEKU `
-            -SubjectAlternativeName $certDNSNames `
+            -SubjectAlternativeName $certificateCreationDNSNames `
             -FriendlyName $certFriendlyName `
             -StoreLocation 'CurrentUser' `
             -Exportable
@@ -789,7 +790,7 @@ InModuleScope $script:subModuleName {
             -KeyUsage $certKeyUsage `
             -KeySpec 'Exchange' `
             -EnhancedKeyUsage $certEKU `
-            -SubjectAlternativeName $certDNSNames `
+            -SubjectAlternativeName $certificateCreationDNSNames `
             -FriendlyName $certFriendlyName `
             -StoreLocation 'CurrentUser' `
             -Exportable
@@ -804,7 +805,7 @@ InModuleScope $script:subModuleName {
             -KeyUsage $certKeyUsage `
             -KeySpec 'Exchange' `
             -EnhancedKeyUsage $certEKU `
-            -SubjectAlternativeName $certDNSNames `
+            -SubjectAlternativeName $certificateCreationDNSNames `
             -FriendlyName $certFriendlyName `
             -NotBefore ((Get-Date) - (New-TimeSpan -Days 2)) `
             -NotAfter ((Get-Date) - (New-TimeSpan -Days 1)) `
