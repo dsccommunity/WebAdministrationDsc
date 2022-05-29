@@ -16,6 +16,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Only run the CI/CD pipeline on branch _main_ when there are changes to files
     inside the `source` folder.
   - Update the pipeline files to the latest from Sampler.
+  - Switched build worker from Windows Server 2016 to Windows Server 2022,
+    so that both Windows Server 2019 and Windows Server 2022 is now used.
 - CommonTestHelper
   - Removed the helper function `Install-NewSelfSignedCertificateExScript`
     as the script it used is no longer available. Switched to using the

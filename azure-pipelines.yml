@@ -59,7 +59,7 @@ stages:
       - job: Test_HQRM
         displayName: 'HQRM'
         pool:
-          vmImage: 'vs2017-win2016'
+          vmImage: 'windows-latest'
         timeoutInMinutes: 0
         steps:
           - task: DownloadPipelineArtifact@2
@@ -86,7 +86,7 @@ stages:
       - job: Test_Unit
         displayName: 'Unit'
         pool:
-          vmImage: 'vs2017-win2016'
+          vmImage: 'windows-latest'
         timeoutInMinutes: 0
         steps:
           - task: DownloadPipelineArtifact@2
@@ -116,10 +116,10 @@ stages:
               artifactName: $(testArtifactName)
               parallel: true
 
-      - job: Test_Integration_2016
-        displayName: 'Integration 2016'
+      - job: Test_Integration_2019
+        displayName: 'Integration 2019'
         pool:
-          vmImage: 'vs2017-win2016'
+          vmImage: 'windows-2019'
         timeoutInMinutes: 0
         steps:
           - task: DownloadPipelineArtifact@2
@@ -153,10 +153,10 @@ stages:
               testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
               testRunTitle: 'Integration'
 
-      - job: Test_Integration_2019
-        displayName: 'Integration 2019'
+      - job: Test_Integration_2022
+        displayName: 'Integration 2022'
         pool:
-          vmImage: 'windows-2019'
+          vmImage: 'windows-2022'
         timeoutInMinutes: 0
         steps:
           - task: DownloadPipelineArtifact@2
