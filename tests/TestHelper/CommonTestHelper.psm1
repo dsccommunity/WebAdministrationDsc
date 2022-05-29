@@ -1,58 +1,5 @@
 <#
     .SYNOPSIS
-        Some tests require a self-signed certificate to be created. However, the
-        New-SelfSignedCertificate cmdlet built into Windows Server 2012 R2 is too
-        limited to work for this process.
-
-        Therefore an alternate method of creating self-signed certificates to meet the
-        reqirements. A script on Microsoft Script Center can be used for this but must
-        be downloaded:
-        https://gallery.technet.microsoft.com/scriptcenter/Self-signed-certificate-5920a7c6
-
-        This cmdlet will install the script if it is not available and dot source it.
-
-    .PARAMETER OutputPath
-        The path to download the script to. If not provided will default to the current
-        users temp folder.
-
-    .OUTPUTS
-        The path to the script that was downloaded.
-#>
-function Install-NewSelfSignedCertificateExScript
-{
-    [CmdletBinding()]
-    [OutputType([String])]
-    param
-    (
-        [Parameter()]
-        [String]
-        $OutputPath = $env:Temp
-    )
-
-    $newSelfSignedCertURL = 'https://gallery.technet.microsoft.com/scriptcenter/Self-signed-certificate-5920a7c6/file/101251/2/New-SelfSignedCertificateEx.zip'
-    $newSelfSignedCertZip = Split-Path -Path $newSelfSignedCertURL -Leaf
-    $newSelfSignedCertZipPath = Join-Path -Path $OutputPath -ChildPath $newSelfSignedCertZip
-    $newSelfSignedCertScriptPath = Join-Path -Path $OutputPath -ChildPath 'New-SelfSignedCertificateEx.ps1'
-
-    if (-not (Test-Path -Path $newSelfSignedCertScriptPath))
-    {
-        if (Test-Path -Path $newSelfSignedCertZip)
-        {
-            Remove-Item -Path $newSelfSignedCertZipPath -Force
-        }
-
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Invoke-WebRequest -Uri $newSelfSignedCertURL -OutFile $newSelfSignedCertZipPath
-
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($newSelfSignedCertZipPath, $OutputPath)
-    } # if
-    return $newSelfSignedCertScriptPath
-} # end function Install-NewSelfSignedCertificateExScript
-
-<#
-    .SYNOPSIS
         Wrapper for Restore-WebConfiguration to be able to retry on errors.
 
     .PARAMETER Name
@@ -121,6 +68,5 @@ function Restore-WebConfigurationWrapper
 }
 
 Export-ModuleMember -Function @(
-    'Install-NewSelfSignedCertificateExScript'
     'Restore-WebConfigurationWrapper'
 )
