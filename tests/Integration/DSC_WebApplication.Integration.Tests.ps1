@@ -69,40 +69,30 @@ try
 
     Describe "$($script:dscResourceName)_Present" {
         #region DEFAULT TESTS
-        It 'Should compile without throwing' {
+        It 'Should compile the MOF without throwing' {
             {
-                Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$configData -OutputPath `$TestDrive"
-                Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-            } | Should not throw
+                & "$($script:DSCResourceName)_Present" `
+                    -OutputPath $TestDrive `
+                    -ConfigurationData $configData
+            } | Should -Not -Throw
         }
 
-        It 'should be able to call Get-DscConfiguration without throwing' {
-            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not throw
+        It 'Should apply the MOF without throwing' {
+            {
+                Reset-DscLcm
+
+                Start-DscConfiguration `
+                    -Path $TestDrive `
+                    -ComputerName localhost `
+                    -Wait `
+                    -Verbose `
+                    -Force `
+                    -ErrorAction Stop
+            } | Should -Not -Throw
         }
-        # It 'Should compile the MOF without throwing' {
-        #     {
-        #         & "$($script:DSCResourceName)_Present" `
-        #             -OutputPath $TestDrive `
-        #             -ConfigurationData $configData
-        #     } | Should -Not -Throw
-        # }
-
-        # It 'Should apply the MOF without throwing' {
-        #     {
-        #         Reset-DscLcm
-
-        #         Start-DscConfiguration `
-        #             -Path $TestDrive `
-        #             -ComputerName localhost `
-        #             -Wait `
-        #             -Verbose `
-        #             -Force `
-        #             -ErrorAction Stop
-        #     } | Should -Not -Throw
-        # }
 
         <#
-            This is throwing, issue created
+            This is throwing, issue created: https://github.com/dsccommunity/xWebAdministration/issues/606
         #>
         # It 'Should be able to call Get-DscConfiguration without throwing' {
         #     { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
