@@ -23,6 +23,9 @@ $script:subModuleName = (Split-Path -Path $PSCommandPath -Leaf) -replace '\.Test
 $script:subModuleFile = Join-Path -Path $script:subModulesFolder -ChildPath "$($script:subModuleName)"
 
 Import-Module $script:subModuleFile -Force -ErrorAction Stop
+
+Import-Module -Name PSPKI
+
 #endregion HEADER
 
 InModuleScope $script:subModuleName {
@@ -291,6 +294,7 @@ InModuleScope $script:subModuleName {
 
         # Generate the Valid certificate for testing but remove it from the store straight away
         $certDNSNames = @('www.fabrikam.com', 'www.contoso.com')
+        $certificateCreationDNSNames = @('dns:www.fabrikam.com', 'dns:www.contoso.com')
         $certDNSNamesReverse = @('www.contoso.com', 'www.fabrikam.com')
         $certDNSNamesNoMatch = $certDNSNames + @('www.nothere.com')
         $certKeyUsage = @('DigitalSignature','DataEncipherment')
@@ -308,8 +312,8 @@ InModuleScope $script:subModuleName {
             -Subject $certSubject `
             -KeyUsage $certKeyUsage `
             -KeySpec 'Exchange' `
-            -EKU $certEKU `
-            -SubjectAlternativeName $certDNSNames `
+            -EnhancedKeyUsage $certEKU `
+            -SubjectAlternativeName $certificateCreationDNSNames `
             -FriendlyName $certFriendlyName `
             -StoreLocation 'CurrentUser' `
             -Exportable
@@ -323,8 +327,8 @@ InModuleScope $script:subModuleName {
             -Subject $certSubjectLong `
             -KeyUsage $certKeyUsage `
             -KeySpec 'Exchange' `
-            -EKU $certEKU `
-            -SubjectAlternativeName $certDNSNames `
+            -EnhancedKeyUsage $certEKU `
+            -SubjectAlternativeName $certificateCreationDNSNames `
             -FriendlyName $certFriendlyName `
             -StoreLocation 'CurrentUser' `
             -Exportable
@@ -338,8 +342,8 @@ InModuleScope $script:subModuleName {
             -Subject $certSubject `
             -KeyUsage $certKeyUsage `
             -KeySpec 'Exchange' `
-            -EKU $certEKU `
-            -SubjectAlternativeName $certDNSNames `
+            -EnhancedKeyUsage $certEKU `
+            -SubjectAlternativeName $certificateCreationDNSNames `
             -FriendlyName $certFriendlyName `
             -NotBefore ((Get-Date) - (New-TimeSpan -Days 2)) `
             -NotAfter ((Get-Date) - (New-TimeSpan -Days 1)) `

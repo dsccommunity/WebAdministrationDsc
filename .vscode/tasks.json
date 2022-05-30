@@ -41,9 +41,13 @@
             "label": "build",
             "type": "shell",
             "command": "&${cwd}/build.ps1",
+<<<<<<< HEAD
             "args": [
                 "-AutoRestore"
             ],
+=======
+            "args": [],
+>>>>>>> origin/main
             "presentation": {
                 "echo": true,
                 "reveal": "always",
