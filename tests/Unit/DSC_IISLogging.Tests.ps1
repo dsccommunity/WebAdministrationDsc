@@ -180,7 +180,6 @@ try
                 Mock -CommandName Test-LogCustomField `
                     -MockWith { return $MockLogCustomFields }
 
-
                 $result = Test-TargetResource @MockLogParameters
 
                 It 'Should return true' {
