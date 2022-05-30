@@ -475,7 +475,5 @@ function New-SelfSignedCertificateEx {
 }
 
 Export-ModuleMember -Function `
-    Install-NewSelfSignedCertificateExScript, `
     Restore-WebConfigurationWrapper, `
-    Reset-DscLcm, `
-    New-SelfSignedCertificateEx
+    Reset-DscLcm
