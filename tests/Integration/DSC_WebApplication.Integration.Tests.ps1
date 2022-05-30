@@ -55,14 +55,14 @@ try
 
     # Create a new website for the WebApplication
 
-    New-Website -Name $DSCConfig.AllNodes.Website `
+    New-Website -Name $configData.AllNodes.Website `
         -Id 100 `
-        -PhysicalPath $DSCConfig.AllNodes.PhysicalPath `
-        -ApplicationPool $DSCConfig.AllNodes.AppPool `
-        -SslFlags $DSCConfig.AllNodes.SslFlags `
-        -Port $DSCConfig.AllNodes.HTTPSPort `
+        -PhysicalPath $configData.AllNodes.PhysicalPath `
+        -ApplicationPool $configData.AllNodes.AppPool `
+        -SslFlags $configData.AllNodes.SslFlags `
+        -Port $configData.AllNodes.HTTPSPort `
         -IPAddress '*' `
-        -HostHeader $DSCConfig.AllNodes.HTTPSHostname `
+        -HostHeader $configData.AllNodes.HTTPSHostname `
         -Ssl `
         -Force `
         -ErrorAction Stop
@@ -93,7 +93,7 @@ try
 
         # It 'Should compile without throwing' {
         #     {
-        #         Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
+        #         Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$configData -OutputPath `$TestDrive"
         #         Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
         #     } | Should not throw
         # }
@@ -108,34 +108,34 @@ try
             Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$DSCConfg -OutputPath `$TestDrive"
 
             # Build results to test
-            $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
+            $Result = Get-WebApplication -Site $configData.AllNodes.Website -Name $configData.AllNodes.WebApplication
             $ServiceAutoStartProviders = (Get-WebConfiguration -filter /system.applicationHost/serviceAutoStartProviders).Collection
 
             # Test WebApplication basic settings are correct
-            $Result.Path            | Should Match $DSCConfig.AllNodes.WebApplication
-            $Result.PhysicalPath    | Should Be $DSCConfig.AllNodes.PhysicalPath
-            $Result.ApplicationPool | Should Be $DSCConfig.AllNodes.ApplicationPool
+            $Result.Path            | Should Match $configData.AllNodes.WebApplication
+            $Result.PhysicalPath    | Should Be $configData.AllNodes.PhysicalPath
+            $Result.ApplicationPool | Should Be $configData.AllNodes.ApplicationPool
 
             # Test Website AuthenticationInfo are correct
-            Get-AuthenticationInfo -Type 'Anonymous' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.AuthenticationInfoAnonymous
-            Get-AuthenticationInfo -Type 'Basic' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication     | Should Be $DSCConfig.AllNodes.AuthenticationInfoBasic
-            Get-AuthenticationInfo -Type 'Digest' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication    | Should Be $DSCConfig.AllNodes.AuthenticationInfoDigest
-            Get-AuthenticationInfo -Type 'Windows' -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication   | Should Be $DSCConfig.AllNodes.AuthenticationInfoWindows
+            Get-AuthenticationInfo -Type 'Anonymous' -Website $configData.AllNodes.Website -WebApplication $configData.AllNodes.WebApplication | Should Be $configData.AllNodes.AuthenticationInfoAnonymous
+            Get-AuthenticationInfo -Type 'Basic' -Website $configData.AllNodes.Website -WebApplication $configData.AllNodes.WebApplication     | Should Be $configData.AllNodes.AuthenticationInfoBasic
+            Get-AuthenticationInfo -Type 'Digest' -Website $configData.AllNodes.Website -WebApplication $configData.AllNodes.WebApplication    | Should Be $configData.AllNodes.AuthenticationInfoDigest
+            Get-AuthenticationInfo -Type 'Windows' -Website $configData.AllNodes.Website -WebApplication $configData.AllNodes.WebApplication   | Should Be $configData.AllNodes.AuthenticationInfoWindows
 
             # Test WebApplication settings
-            $Result.PreloadEnabled           | Should Be $DSCConfig.AllNodes.PreloadEnabled
-            $Result.ServiceAutoStartProvider | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
-            $Result.ServiceAutoStartEnabled  | Should Be $DSCConfig.AllNodes.ServiceAutoStartEnabled
+            $Result.PreloadEnabled           | Should Be $configData.AllNodes.PreloadEnabled
+            $Result.ServiceAutoStartProvider | Should Be $configData.AllNodes.ServiceAutoStartProvider
+            $Result.ServiceAutoStartEnabled  | Should Be $configData.AllNodes.ServiceAutoStartEnabled
 
             # Test the serviceAutoStartProviders are present in IIS config
-            $ServiceAutoStartProviders.Name | Should Be $DSCConfig.AllNodes.ServiceAutoStartProvider
-            $ServiceAutoStartProviders.Type | Should Be $DSCConfig.AllNodes.ApplicationType
+            $ServiceAutoStartProviders.Name | Should Be $configData.AllNodes.ServiceAutoStartProvider
+            $ServiceAutoStartProviders.Type | Should Be $configData.AllNodes.ApplicationType
 
             # Test WebApplication SslFlags
-            Get-SslFlags -Website $DSCConfig.AllNodes.Website -WebApplication $DSCConfig.AllNodes.WebApplication | Should Be $DSCConfig.AllNodes.WebApplicationSslFlags
+            Get-SslFlags -Website $configData.AllNodes.Website -WebApplication $configData.AllNodes.WebApplication | Should Be $configData.AllNodes.WebApplicationSslFlags
 
             # Test EnabledProtocols
-            $Result.EnabledProtocols | Should Be ($DSCConfig.AllNodes.EnabledProtocols -join ',')
+            $Result.EnabledProtocols | Should Be ($configData.AllNodes.EnabledProtocols -join ',')
 
             }
 
@@ -167,7 +167,7 @@ try
 
         # It 'Should compile without throwing' {
         #     {
-        #         Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$DSCConfig -OutputPath `$TestDrive"
+        #         Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$configData -OutputPath `$TestDrive"
         #         Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
         #     } | Should not throw
         # }
@@ -181,7 +181,7 @@ try
             Invoke-Expression -Command "$($script:dscResourceName)_Absent -ConfigurationData `$DSCConfg  -OutputPath `$TestDrive"
 
             # Build results to test
-            $Result = Get-WebApplication -Site $DSCConfig.AllNodes.Website -Name $DSCConfig.AllNodes.WebApplication
+            $Result = Get-WebApplication -Site $configData.AllNodes.Website -Name $configData.AllNodes.WebApplication
 
             # Test WebApplication is removed
             $Result | Should BeNullOrEmpty
