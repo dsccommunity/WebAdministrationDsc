@@ -1,8 +1,11 @@
 # WebAdministrationDsc
 
+This module contains DSC resources for the management and configuration of Microsoft Internet Information Services (IIS).
+
 [![Build Status](https://dev.azure.com/dsccommunity/WebAdministrationDsc/_apis/build/status/dsccommunity.WebAdministrationDsc?branchName=main)](https://dev.azure.com/dsccommunity/WebAdministrationDsc/_build/latest?definitionId=7&branchName=main)
 ![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/WebAdministrationDsc/7/main)
 [![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/WebAdministrationDsc/7/main)](https://dsccommunity.visualstudio.com/WebAdministrationDsc/_test/analytics?definitionId=7&contextType=build)
+[![codecov](https://codecov.io/gh/dsccommunity/xWebAdministration/branch/main/graph/badge.svg)](https://codecov.io/gh/dsccommunity/xWebAdministration)
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/WebAdministrationDsc?label=WebAdministrationDsc%20Preview)](https://www.powershellgallery.com/packages/WebAdministrationDsc/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/WebAdministrationDsc?label=WebAdministrationDsc)](https://www.powershellgallery.com/packages/WebAdministrationDsc/)
 
