@@ -1,6 +1,6 @@
 # Description
 
-The `xWebConfigProperty` DSC resource is used to ensure the value of an
+The `WebConfigProperty` DSC resource is used to ensure the value of an
 identified property in the web.config file.
 
 ## Requirements
@@ -9,4 +9,4 @@ identified property in the web.config file.
 
 ## Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/xWebAdministration/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+xWebConfigProperty).
+All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/WebAdministration/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+WebConfigProperty).

@@ -1,9 +1,9 @@
 # Description
 
-The `xWebConfigPropertyCollection` DSC resource is used to ensure the value of an
+The `WebConfigPropertyCollection` DSC resource is used to ensure the value of an
 identified property collection item's property in the web.config file.
 
->Builds upon the deprecated **xWebConfigKeyValue** resource to support all web.config
+>Builds upon the deprecated **WebConfigKeyValue** resource to support all web.config
 >elements that contain collections of child items.
 
 ## Requirements
@@ -12,4 +12,4 @@ identified property collection item's property in the web.config file.
 
 ## Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/xWebAdministration/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+xWebConfigPropertyCollection).
+All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/WebAdministration/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+WebConfigPropertyCollection).

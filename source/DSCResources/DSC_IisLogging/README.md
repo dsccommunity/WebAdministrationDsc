@@ -1,6 +1,6 @@
 # Description
 
-The `xIISLogging` DSC resource is used to set the logfile settings for **all**
+The `IisLogging` DSC resource is used to set the logfile settings for **all**
 websites; for individual websites use the Log options under **xWebSite**.
 
 ## Requirements
@@ -9,4 +9,4 @@ websites; for individual websites use the Log options under **xWebSite**.
 
 ## Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/xWebAdministration/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+xIISLogging).
+All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/xWebAdministration/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+IisLogging).
