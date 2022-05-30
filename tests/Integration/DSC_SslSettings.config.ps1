@@ -6,7 +6,7 @@ configuration DSC_SslSettings_Present
 
     Node $AllNodes.NodeName
     {
-        xSslSettings Website
+        SslSettings Website
         {
             Ensure = 'Present'
             Name = $Node.Website
@@ -21,7 +21,7 @@ configuration DSC_SslSettings_Absent
 
     Node $AllNodes.NodeName
     {
-        xSslSettings Website
+        SslSettings Website
         {
             Ensure = 'Absent'
             Name = $Node.Website
