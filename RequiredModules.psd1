@@ -21,4 +21,5 @@
     xDscResourceDesigner        = 'latest'
     'DscResource.DocGenerator'  = 'latest'
     PSPKI                       = 'latest'
+    'DscResource.Common'        = 'latest'
 }
