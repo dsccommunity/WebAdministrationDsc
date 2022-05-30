@@ -126,7 +126,7 @@ try
 
             $MockLogFlagsAfterSplit = [System.String[]] @('Date','Time','ClientIP','UserName','ServerIP','Method','UriStem','UriQuery','HttpStatus','Win32Status','TimeTaken','ServerPort','UserAgent','Referer','HttpSubStatus')
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -441,7 +441,7 @@ try
                 Count                = 1
             }
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Website does not exist' {
                 Mock -CommandName Get-Website
@@ -1071,7 +1071,7 @@ try
             $MockWebsiteGetItem.Path = 'WebAdministration::\\SERVERNAME\Sites\MockName'
             $MockWebsiteGetItem = [PSCustomObject]$MockWebsiteGetItem
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'All properties need to be updated and website must be started' {
                 Mock -CommandName Add-WebConfiguration
@@ -1761,7 +1761,7 @@ try
 
             Mock -CommandName Get-Website -MockWith { return @{Name = $MockParameters.Name} }
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             It 'Should call Remove-Website' {
                 Mock -CommandName Remove-Website

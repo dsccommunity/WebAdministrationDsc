@@ -76,7 +76,7 @@ try
 
         $MockLogFlagsAfterSplit = [System.String[]] @('Date', 'Time', 'ClientIP', 'UserName', 'ServerIP', 'Method', 'UriStem', 'UriQuery', 'HttpStatus', 'Win32Status', 'TimeTaken', 'ServerPort', 'UserAgent', 'Referer', 'HttpSubStatus')
 
-        Describe "$script:dscResourceName\Get-TargetResource" {
+        Describe 'DSC_IisLogging\Get-TargetResource' {
 
             Context 'Correct hashtable is returned' {
 
@@ -151,7 +151,7 @@ try
 
         }
 
-        Describe "$script:dscResourceName\Test-TargetResource" {
+        Describe 'DSC_IisLogging\Test-TargetResource' {
 
             Mock -CommandName Assert-Module -MockWith { }
 
@@ -478,7 +478,7 @@ try
             }
         }
 
-        Describe "$script:dscResourceName\Set-TargetResource" {
+        Describe 'DSC_IisLogging\Set-TargetResource' {
 
             Mock -CommandName Assert-Module -MockWith { }
 
@@ -776,7 +776,7 @@ try
 
         }
 
-        Describe "$script:dscResourceName\ConvertTo-CimLogCustomFields" {
+        Describe 'DSC_IisLogging\ConvertTo-CimLogCustomFields' {
             $MockLogCustomFields = @{
                 LogFieldName = 'ClientEncoding'
                 SourceName   = 'Accept-Encoding'
@@ -800,7 +800,7 @@ try
             }
         }
 
-        Describe "$script:dscResourceName\Test-LogCustomField" {
+        Describe 'DSC_IisLogging\Test-LogCustomField' {
             $MockCimLogCustomFields = @(
                 New-CimInstance -ClassName DSC_LogCustomField `
                     -Namespace root/microsoft/Windows/DesiredStateConfiguration `
@@ -883,7 +883,7 @@ try
             }
         }
 
-        Describe "$script:dscResourceName\Compare-LogFlags" {
+        Describe 'DSC_IisLogging\Compare-LogFlags' {
 
             Context 'Returns false when LogFlags are incorrect' {
 
@@ -931,7 +931,7 @@ try
             }
 
         }
-        Describe "$script:dscResourceName\Set-LogCustomField" {
+        Describe 'DSC_IisLogging\Set-LogCustomField' {
 
             $MockCimLogCustomFields = @(
                 New-CimInstance -ClassName DSC_LogCustomField `

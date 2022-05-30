@@ -38,7 +38,7 @@ function Get-TargetResource
         $PhysicalPath
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
                                                 -Name $Name `
@@ -98,7 +98,7 @@ function Set-TargetResource
         $PhysicalPath
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     if ($Ensure -eq 'Present')
     {
@@ -175,7 +175,7 @@ function Test-TargetResource
         $PhysicalPath
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
                                                 -Name $Name `

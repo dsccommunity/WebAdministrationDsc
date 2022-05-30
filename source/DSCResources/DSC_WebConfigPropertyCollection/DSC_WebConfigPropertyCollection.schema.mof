@@ -1,5 +1,5 @@
 [ClassVersion("1.0.0.0"), FriendlyName("WebConfigPropertyCollection")]
-class Dsc_WebConfigPropertyCollection : OMI_BaseResource
+class DSC_WebConfigPropertyCollection : OMI_BaseResource
 {
     [Key, Description("Path to website location (IIS or WebAdministration format).")] String WebsitePath;
     [Key, Description("Filter used to locate property collection to update.")] String Filter;

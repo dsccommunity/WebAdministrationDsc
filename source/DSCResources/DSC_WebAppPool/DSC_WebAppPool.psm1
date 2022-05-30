@@ -241,7 +241,7 @@ function Get-TargetResource
         [String] $Name
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     # XPath -Filter is case-sensitive. Use Where-Object to get the target application pool by name.
     $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
@@ -518,7 +518,7 @@ function Set-TargetResource
         return
     }
 
-
+    Assert-Module -ModuleName WebAdministration
 
     $appPool = Get-WebConfiguration -Filter '/system.applicationHost/applicationPools/add' |
         Where-Object -FilterScript {$_.name -eq $Name}
@@ -932,7 +932,7 @@ function Test-TargetResource
         [String[]] $restartSchedule
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     $inDesiredState = $true
 

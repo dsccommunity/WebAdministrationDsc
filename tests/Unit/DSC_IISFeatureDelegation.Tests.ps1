@@ -30,7 +30,6 @@ function Invoke-TestCleanup
 
 Invoke-TestSetup
 
-
 try
 {
     #region Pester Tests
@@ -63,12 +62,12 @@ try
         #region Function Get-TargetResource
         Describe 'DSC_IisFeatureDelegation\Get-TargetResource' {
             BeforeAll {
-                Mock -CommandName Assert-Module -MockWith {}
+                Mock -CommandName Assert-Module
             }
 
             Context 'When OverrideMode is set to Allow' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
-                Mock -CommandName Assert-Module -MockWith {}
+                Mock -CommandName Assert-Module
                 $result = Get-TargetResource @allowTargetResourceParameters
 
                 It 'Should return the correct properties' {
@@ -79,7 +78,7 @@ try
             }
             Context 'When OverrideMode is set to Deny' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockDenyOverrideMode }
-                Mock -CommandName Assert-Module -MockWith {}
+                Mock -CommandName Assert-Module
                 $result = Get-TargetResource @denytargetResourceParameters
 
                 It 'Should return the correct properties' {
@@ -93,7 +92,7 @@ try
 
         #region Function Test-TargetResource
         Describe 'DSC_IisFeatureDelegation\Test-TargetResource' {
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'When OverrideMode is set to Allow' {
                 Mock -CommandName Get-WebConfiguration -MockWith { return $mockAllowOverrideMode }
@@ -153,7 +152,7 @@ try
             $getOverrideModeParameters = $allowTargetResourceParameters.clone()
             $getOverrideModeParameters.Remove('OverrideMode')
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'When OverrideMode is invalid' {
                 It 'Should throw an error on null' {

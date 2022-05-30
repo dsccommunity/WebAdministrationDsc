@@ -98,7 +98,7 @@ try
             Mock Test-AuthenticationEnabled { return $true } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Absent should return correctly' {
 
@@ -156,7 +156,7 @@ try
                 return $GetAuthenticationInfo
             }
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Web Application does not exist' {
                 Mock -CommandName Get-WebApplication -MockWith {
@@ -186,7 +186,7 @@ try
 
         Describe "how $script:dscResourceName\Test-TargetResource responds to Ensure = 'Present'" {
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Web Application does not exist' {
 
@@ -518,7 +518,7 @@ try
                 return $MockAuthenticationInfo
             }
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Web Application exists' {
                 Mock -CommandName Remove-WebApplication
@@ -534,7 +534,7 @@ try
 
         Describe "how $script:dscResourceName\Set-TargetResource responds to Ensure = 'Present'" {
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Web Application does not exist' {
 

@@ -33,7 +33,7 @@ function Get-TargetResource
         [String] $PhysicalPath
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
     $cimAuthentication = Get-AuthenticationInfo -Site $Website -Name $Name
@@ -121,7 +121,7 @@ function Set-TargetResource
         [String[]] $EnabledProtocols
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     if ($Ensure -eq 'Present')
     {
@@ -323,7 +323,7 @@ function Test-TargetResource
         [String[]] $EnabledProtocols
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     $webApplication = Get-WebApplication -Site $Website -Name $Name
 

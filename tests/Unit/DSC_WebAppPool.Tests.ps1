@@ -1716,7 +1716,7 @@ try
 
         Describe "how '$($script:dscResourceName)\Set-TargetResource' responds to Ensure = 'Absent'" {
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Application pool exists and is started' {
 
@@ -1796,7 +1796,7 @@ try
 
         Describe "how '$($script:dscResourceName)\Set-TargetResource' responds to Ensure = 'Present'" {
 
-            Mock -CommandName Assert-Module -MockWith {}
+            Mock -CommandName Assert-Module
 
             Context 'Application pool does not exist' {
 

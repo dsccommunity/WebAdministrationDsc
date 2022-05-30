@@ -26,7 +26,7 @@ function Get-TargetResource
         $IsSingleInstance
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
@@ -63,7 +63,7 @@ function Set-TargetResource
         $IdentityType
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     Set-Value -Path '' -Name 'managedRuntimeVersion' -NewValue $ManagedRuntimeVersion
     Set-Value -Path 'processModel' -Name 'identityType' -NewValue $IdentityType
@@ -98,7 +98,7 @@ function Test-TargetResource
         $IdentityType
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     if (-not((Confirm-Value -Path '' `
                             -Name 'managedRuntimeVersion' `

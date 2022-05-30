@@ -27,7 +27,7 @@ function Get-TargetResource
         $IsSingleInstance
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     Write-Verbose -Message $script:localizedData.VerboseGetTargetResource
 
@@ -80,7 +80,7 @@ function Set-TargetResource
         [String] $AllowSubDirConfig
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     Set-Value -Path 'siteDefaults/logFile' -Name 'logFormat' -NewValue $LogFormat
     Set-Value -Path 'siteDefaults/logFile' -Name 'directory' -NewValue $LogDirectory
@@ -124,7 +124,7 @@ function Test-TargetResource
         [String] $AllowSubDirConfig
     )
 
-
+    Assert-Module -ModuleName WebAdministration
 
     # check for the various given settings:
 
