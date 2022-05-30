@@ -91,15 +91,11 @@ try
             } | Should -Not -Throw
         }
 
-        # It 'Should compile without throwing' {
-        #     {
-        #         Invoke-Expression -Command "$($script:dscResourceName)_Present -ConfigurationData `$configData -OutputPath `$TestDrive"
-        #         Start-DscConfiguration -Path $TestDrive -ComputerName localhost -Wait -Verbose -Force
-        #     } | Should not throw
-        # }
-
         It 'Should be able to call Get-DscConfiguration without throwing' {
-            { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            {
+                Start-Sleep -Seconds 5
+                Get-DscConfiguration -Verbose -ErrorAction Stop
+            } | Should -Not -Throw
         }
         #endregion
 
