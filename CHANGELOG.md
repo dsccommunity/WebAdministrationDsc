@@ -8,6 +8,10 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ## [Unreleased]
 
 ### Changed
+  - Website
+    - Fixed Test-TargetResource in xWebsite when LogTruncateSize parameter is passed; addresses. Fixes [Issue #380](https://github.com/PowerShell/xWebAdministration/issues/380)
+
+### Changed
 
 - xWebAdministration
   - BREAKING CHANGE
