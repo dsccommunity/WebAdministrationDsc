@@ -7,6 +7,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+## [3.3.0] - 2022-06-03
+
 ### Deprecated
 
 - **The module _xWebAdministration_ will be renamed to _WebAdministrationDsc_
