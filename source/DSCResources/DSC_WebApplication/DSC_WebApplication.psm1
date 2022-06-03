@@ -147,7 +147,7 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($script:localizedData.VerboseSetTargetPhysicalPath -f $Name)
                 #Note: read this before touching the next line of code:
-                #      https://github.com/PowerShell/xWebAdministration/issues/222
+                #      https://github.com/PowerShell/WebAdministrationDsc/issues/222
                 Set-WebConfigurationProperty `
                     -Filter "$($webApplication.ItemXPath)/virtualDirectory[@path='/']" `
                     -Name physicalPath `
@@ -160,7 +160,7 @@ function Set-TargetResource
             {
                 Write-Verbose -Message ($script:localizedData.VerboseSetTargetWebAppPool -f $Name)
                 #Note: read this before touching the next line of code:
-                #      https://github.com/PowerShell/xWebAdministration/issues/222
+                #      https://github.com/PowerShell/WebAdministrationDsc/issues/222
                 Set-WebConfigurationProperty `
                     -Filter $webApplication.ItemXPath `
                     -Name applicationPool `

@@ -92,7 +92,7 @@ try
         }
 
         <#
-            This is throwing, issue created: https://github.com/dsccommunity/xWebAdministration/issues/606
+            This is throwing, issue created: https://github.com/dsccommunity/WebAdministrationDsc/issues/606
         #>
         # It 'Should be able to call Get-DscConfiguration without throwing' {
         #     { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
@@ -162,7 +162,7 @@ try
         }
 
         <#
-            This is throwing, issue created: https://github.com/dsccommunity/xWebAdministration/issues/606
+            This is throwing, issue created: https://github.com/dsccommunity/WebAdministrationDsc/issues/606
         #>
         # It 'Should be able to call Get-DscConfiguration without throwing' {
         #     { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw

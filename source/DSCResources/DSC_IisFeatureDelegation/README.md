@@ -9,4 +9,4 @@ section locking (overrideMode) to control what configuration can be set in web.c
 
 ## Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/xWebAdministration/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+IisFeatureDelegation).
+All issues are not listed here, see [here for all open issues](https://github.com/dsccommunity/WebAdministrationDsc/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+IisFeatureDelegation).

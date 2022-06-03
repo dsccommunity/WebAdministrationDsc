@@ -74,14 +74,13 @@ body:
   - type: textarea
     id: moduleVersion
     attributes:
-      label: xWebAdministration version
+      label: WebAdministrationDsc version
       description: |
-        Please provide the version of the xWebAdministration module that was used. _Will be automatically formatted as plain text._
+        Please provide the version of the WebAdministrationDsc module that was used. _Will be automatically formatted as plain text._
 
-        To help with this information, please run this command: `Get-Module -Name 'xWebAdministration' -ListAvailable | ft Name,Version,Path`
+        To help with this information, please run this command: `Get-Module -Name 'WebAdministrationDsc' -ListAvailable | ft Name,Version,Path`
       placeholder: |
         Add module information here
       render: text
     validations:
       required: true
-

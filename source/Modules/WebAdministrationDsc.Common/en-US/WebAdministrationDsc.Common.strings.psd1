@@ -1,4 +1,4 @@
-# Localized resources for helper module xWebAdministration.Common.
+# Localized resources for helper module WebAdministrationDsc.Common.
 
 ConvertFrom-StringData @'
     ArrayDoesNotMatch                   = One or more values in an array does not match the desired state. Details of the changes are below. (WACOMMON0004)
