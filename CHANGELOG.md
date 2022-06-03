@@ -11,9 +11,9 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 - **The module _xWebAdministration_ will be renamed to _WebAdministrationDsc_
   ([issue #213](https://github.com/dsccommunity/xWebAdministration/issues/213)).
-  The version `v3.3.1` will be the the last release of _xWebAdministration_.
+  The version `v3.3.0` will be the the last release of _xWebAdministration_.
   Version `v4.0.0` will be released as _WebAdministrationDsc_, it will be
-  released shortly after the `v3.3.1` release to be able to start transition
+  released shortly after the `v3.3.0` release to be able to start transition
   to the new module. The prefix 'x' will be removed from all resources in
   _WebAdministrationDsc_.**
 
