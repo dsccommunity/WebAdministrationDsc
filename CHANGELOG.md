@@ -7,6 +7,17 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Changed
+
+- xWebAdministration
+  - BREAKING CHANGE
+    - Renamed _xWebAdministration_ to _WebAdministrationDSC_ - fixes [Issue #69](https://github.com/PowerShell/xWebAdministration/issues/213).
+    - Changed all MSFT_xResourceName to DSC_ResourceName.
+    - Updated DSCResources, Examples, Modules and Tests for new naming.
+    - Updated README.md from _xWebAdministration_ to _WebAdministrationDSC_
+    - Removed deprecated resource `xIISHandler`
+    - Removed deprecated resource `xWebConfigKeyValue`
+
 ## [3.3.0] - 2022-06-03
 
 ### Deprecated
@@ -22,13 +33,6 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ### Changed
 
 - xWebAdministration
-  - BREAKING CHANGE
-    - Renamed _xWebAdministration_ to _WebAdministrationDSC_ - fixes [Issue #69](https://github.com/PowerShell/xWebAdministration/issues/213).
-    - Changed all MSFT_xResourceName to DSC_ResourceName.
-    - Updated DSCResources, Examples, Modules and Tests for new naming.
-    - Updated README.md from _xWebAdministration_ to _WebAdministrationDSC_
-    - Removed deprecated resource `xIISHandler`
-    - Removed deprecated resource `xWebConfigKeyValue`
   - Renamed `master` branch to `main` ([issue #591](https://github.com/PowerShell/xWebAdministration/issues/591)).
   - The pipeline will now update the module manifest property `DscResourcesToExport`
     automatically.
