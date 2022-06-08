@@ -8,6 +8,10 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ## [Unreleased]
 
 ### Changed
+  - Website
+    - Fixed Test-TargetResource in Website when LogTruncateSize parameter is passed. Fixes [Issue #380](https://github.com/dsccommunity/WebAdministrationDsc/issues/380)
+
+### Changed
 
 - xWebAdministration
   - BREAKING CHANGE
