@@ -22,6 +22,11 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     - Removed deprecated resource `xIISHandler`
     - Removed deprecated resource `xWebConfigKeyValue`
 
+### Fixed
+
+- WebApplication
+  - Fixed typo in README.md.
+
 ## [3.3.0] - 2022-06-03
 
 ### Deprecated
