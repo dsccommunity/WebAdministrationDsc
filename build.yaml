@@ -11,6 +11,17 @@ Encoding: UTF8
 VersionedOutputDirectory: true
 
 ####################################################
+#   ModuleBuilder Dependent Modules Configuration  #
+####################################################
+
+NestedModule:
+  DscResource.Common:
+    CopyOnly: true
+    Path: ./output/RequiredModules/DscResource.Common
+    AddToManifest: false
+    Exclude: PSGetModuleInfo.xml
+
+####################################################
 #       Sampler Pipeline Configuration             #
 ####################################################
 BuildWorkflow:
@@ -51,6 +62,7 @@ BuildWorkflow:
 Pester:
   OutputFormat: NUnitXML
   ExcludeFromCodeCoverage:
+    - Modules/DscResource.Common
   Script:
     - tests/Unit
   Tag:
@@ -65,6 +77,7 @@ DscTest:
   ExcludeSourceFile:
     - output
   ExcludeModuleFile:
+    - Modules/DscResource.Common
   MainGitBranch: main
 ModuleBuildTasks:
   Sampler:

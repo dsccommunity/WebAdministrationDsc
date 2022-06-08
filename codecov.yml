@@ -1,6 +1,6 @@
 codecov:
   require_ci_to_pass: no
-  # master should be the baseline for reporting
+  # main should be the baseline for reporting
   branch: main
 
 comment:
@@ -32,4 +32,3 @@ fixes:
 # example a deprecated function where tests has been removed.
 #ignore:
 #  - 'source/Public/Get-Deprecated.ps1'
-

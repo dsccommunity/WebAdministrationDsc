@@ -1,14 +1,13 @@
-# xWebAdministration
+# WebAdministrationDsc
 
-This module contains DSC resources for the management and
-configuration of Microsoft Internet Information Services (IIS).
+This module contains DSC resources for the management and configuration of Microsoft Internet Information Services (IIS).
 
-[![Build Status](https://dev.azure.com/dsccommunity/xWebAdministration/_apis/build/status/dsccommunity.xWebAdministration?branchName=main)](https://dev.azure.com/dsccommunity/xWebAdministration/_build/latest?definitionId=7&branchName=main)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/xWebAdministration/7/main)
-[![codecov](https://codecov.io/gh/dsccommunity/xWebAdministration/branch/main/graph/badge.svg)](https://codecov.io/gh/dsccommunity/xWebAdministration)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/xWebAdministration/7/main)](https://dsccommunity.visualstudio.com/xWebAdministration/_test/analytics?definitionId=7&contextType=build)
-[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/xWebAdministration?label=xWebAdministration%20Preview)](https://www.powershellgallery.com/packages/xWebAdministration/)
-[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/xWebAdministration?label=xWebAdministration)](https://www.powershellgallery.com/packages/xWebAdministration/)
+[![Build Status](https://dev.azure.com/dsccommunity/WebAdministrationDsc/_apis/build/status/dsccommunity.WebAdministrationDsc?branchName=main)](https://dev.azure.com/dsccommunity/WebAdministrationDsc/_build/latest?definitionId=7&branchName=main)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/WebAdministrationDsc/7/main)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/WebAdministrationDsc/7/main)](https://dsccommunity.visualstudio.com/WebAdministrationDsc/_test/analytics?definitionId=7&contextType=build)
+[![codecov](https://codecov.io/gh/dsccommunity/WebAdministrationDsc/branch/main/graph/badge.svg)](https://codecov.io/gh/dsccommunity/WebAdministrationDsc)
+[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/WebAdministrationDsc?label=WebAdministrationDsc%20Preview)](https://www.powershellgallery.com/packages/WebAdministrationDsc/)
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/WebAdministrationDsc?label=WebAdministrationDsc)](https://www.powershellgallery.com/packages/WebAdministrationDsc/)
 
 ## Code of Conduct
 
@@ -31,16 +30,16 @@ A full list of changes in each version can be found in the [change log](CHANGELO
 
 ## Documentation
 
-The documentation can be found in the [xWebAdministration Wiki](https://github.com/dsccommunity/xWebAdministration/wiki).
+The documentation can be found in the [WebAdministration Wiki](https://github.com/dsccommunity/WebAdministration/wiki).
 The DSC resources schema files is used to automatically update the
 documentation on each PR merge.
 
 ### Examples
 
-You can review the [Examples](/source/Examples) directory in the xWebAdministration module
+You can review the [Examples](/source/Examples) directory in the WebAdministration module
 for some general use scenarios for all of the resources that are in the module.
 
-The resource examples are also available in the [xWebAdministration Wiki](https://github.com/dsccommunity/xWebAdministration/wiki).
+The resource examples are also available in the [WebAdministration Wiki](https://github.com/dsccommunity/WebAdministration/wiki).
 
 ## Installation
 
@@ -55,14 +54,14 @@ To install from the PowerShell gallery using PowerShellGet (in PowerShell 5.0)
 run the following command:
 
 ```powershell
-Find-Module -Name xWebAdministration | Install-Module
+Find-Module -Name WebAdministrationDsc | Install-Module
 ```
 
 To confirm installation, run the below command and ensure you see the
 DSC resources available:
 
 ```powershell
-Get-DscResource -Module xWebAdministration
+Get-DscResource -Module WebAdministrationDsc
 ```
 
 ## Requirements
@@ -75,28 +74,26 @@ The minimum Windows Management Framework (PowerShell) version required is
 
 ## Examples
 
-You can review the [Examples](/source/Examples) directory in the xWebAdministration
+You can review the [Examples](/source/Examples) directory in the WebAdministrationDsc
 module for some general use scenarios for all of the resources that are in
 the module.
 
 ## Resources
 
 * [WebApplicationHandler](#webapplicationhandler)
-* [xIisFeatureDelegation](#xiisfeaturedelegation)
-* [xIISLogging](#xiislogging)
-* [xIisHandler (DEPRECATED)](#xiishandler-deprecated)
-* [xIisMimeTypeMapping](#xiismimetypemapping)
-* [xIISModule](#xiismodule)
-* [xSslSettings](#xsslsettings)
-* [xWebApplication](#xwebapplication)
-* [xWebAppPool](#xwebapppool)
-* [xWebAppPoolDefaults](#xwebapppooldefaults)
-* [xWebConfigKeyValue (DEPRECATED)](#xwebconfigkeyvalue-deprecated)
-* [xWebConfigProperty](#xwebconfigproperty)
-* [xWebConfigPropertyCollection](#xwebconfigpropertycollection)
-* [xWebSite](#xwebsite)
-* [xWebSiteDefaults](#xwebsitedefaults)
-* [xWebVirtualDirectory](#xwebvirtualdirectory)
+* [IisFeatureDelegation](#iisfeaturedelegation)
+* [IISLogging](#iislogging)
+* [IisMimeTypeMapping](#iismimetypemapping)
+* [IisModule](#IisModule)
+* [SslSettings](#sslsettings)
+* [WebApplication](#webapplication)
+* [WebAppPool](#webapppool)
+* [WebAppPoolDefaults](#webapppooldefaults)
+* [WebConfigProperty](#webconfigproperty)
+* [WebConfigPropertyCollection](#webconfigpropertycollection)
+* [WebSite](#website)
+* [WebSiteDefaults](#websitedefaults)
+* [WebVirtualDirectory](#webvirtualdirectory)
 
 ### WebApplicationHandler
 
@@ -117,7 +114,7 @@ the module.
 handler processes the full path, contoso/marketing/imageGallery. If the value is false, the handler processes only the last section of the path, /imageGallery.
 * **[UInt64] ResponseBufferLimit** _(Write)_: Specifies the maximum size, in bytes, of the response buffer for a request handler runs.
 
-### xIisFeatureDelegation
+### IisFeatureDelegation
 
 This resource manages the IIS configuration section locking (overrideMode) to control what configuration can be set in web.config.
 
@@ -125,16 +122,9 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **OverrideMode**: Mode of that section { **Allow** | **Deny** }
 * **Path**: Specifies the configuration path. This can be either an IIS configuration path in the format computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site. *WARNING: both path types can be used to manage the same feature delegation, however, there is no way to control if two resources in the configuration set the same feature delegation*.
 
-### xIisHandler (DEPRECATED)
+### IISLogging
 
-> Please use WebApplicationHandler resource instead. xIISHandler will be removed in future release
-
-* **Name**: The name of the handler, for example **PageHandlerFactory-Integrated-4.0**
-* **Ensure**: Ensures that the handler is **Present** or **Absent**. Defaults to **Present**.
-
-### xIISLogging
-
-**Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **xWebSite**
+**Note** This will set the logfile settings for **all** websites; for individual websites use the Log options under **WebSite**
 
 * **LogPath**: The directory to be used for logfiles.
 * **LogFlags**: The W3C logging fields: The values that are allowed for this property are: `Date`,`Time`,`ClientIP`,`UserName`,`SiteName`,`ComputerName`,`ServerIP`,`Method`,`UriStem`,`UriQuery`,`HttpStatus`,`Win32Status`,`BytesSent`,`BytesRecv`,`TimeTaken`,`ServerPort`,`UserAgent`,`Cookie`,`Referer`,`ProtocolVersion`,`Host`,`HttpSubStatus`
@@ -143,18 +133,18 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
 * **LogTargetW3C**: Log Target of the W3C Logfiles. The acceptable values for this property are: `File`,`ETW`,`File,ETW`
-* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomField** CIM class that implements the following properties:
+* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **DSC_LogCustomField** CIM class that implements the following properties:
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
   * **SourceType**: You can select `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
   * **SourceName**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
 
-### xIisMimeTypeMapping
+### IisMimeTypeMapping
 
 * **Extension**: The file extension to map such as **.html** or **.xml**
 * **MimeType**: The MIME type to map that extension to such as **text/html**
 * **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
 
-### xIISModule
+### IisModule
 
 * **Path**: The path to the module to be registered.
 * **Name**: The logical name to register the module as in IIS.
@@ -164,13 +154,13 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **ModuleType**: The type of the module. Currently, only FastCgiModule is supported.
 * **Ensure**: Ensures that the module is **Present** or **Absent**.
 
-### xSslSettings
+### SslSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
 * **Ensure**: Ensures if the bindings are **Present** or **Absent**.
 
-### xWebApplication
+### WebApplication
 
 * **Website**: Name of website with which the web application is associated.
 * **Name**: The desired name of the web application.
@@ -181,7 +171,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **MSFT_xWebApplicationAuthenticationInformation** CIM class. **MSFT_xWebApplicationAuthenticationInformation** take the following properties:
+* **AuthenticationInformation**: Web Application's authentication information in the form of an array of embedded instances of the **DSC_WebApplicationAuthenticationInformation** CIM class. **DSC_WebApplicationAuthenticationInformation** take the following properties:
   * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
   * **Basic**: The acceptable values for this property are: `$true`, `$false`
   * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -189,7 +179,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **SslFlags**: SslFlags for the application: The acceptable values for this property are: `''`, `Ssl`, `SslNegotiateCert`, `SslRequireCert`, `Ssl128`
 * **EnabledProtocols**: EnabledProtocols for the application. The acceptable values for this property are: `http`, `https`, `net.tcp`, `net.msmq`, `net.pipe`
 
-### xWebAppPool
+### WebAppPool
 
 * **Name** : Indicates the application pool name. The value must contain between `1` and `64` characters.
 * **Ensure** : Indicates if the application pool exists. Set this property to `Absent` to ensure that the application pool does not exist.
@@ -280,25 +270,13 @@ This resource manages the IIS configuration section locking (overrideMode) to co
     TimeSpan values must be between `00:00:00` and `23:59:59` seconds inclusive, with a granularity of 60 seconds.
     Setting the value of this property to `""` disables the schedule.
 
-### xWebAppPoolDefaults
+### WebAppPoolDefaults
 
 * **IsSingleInstance**: Specifies the resource is a single instance, the value must be **Yes**
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
 * **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
 
-### xWebConfigKeyValue (DEPRECATED)
-
->NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
->It may be removed in a future release.
-
-* **WebsitePath**: Path to website location (IIS or WebAdministration format).
-* **ConfigSection**: Section to update (only AppSettings supported as of now).
-* **Key**: Key for AppSettings.
-* **Value**: Value for AppSettings.
-* **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
-* **IsAttribute**: If the given key value pair is for attribute, default is element.
-
-### xWebConfigProperty
+### WebConfigProperty
 
 Ensures the value of an identified property in the web.config file.
 
@@ -308,9 +286,9 @@ Ensures the value of an identified property in the web.config file.
 * **Value**: Value of the property to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
-### xWebConfigPropertyCollection
+### WebConfigPropertyCollection
 
-Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
+Ensures the value of an identified property collection item's property in the web.config file. Supports all web.config elements that contain collections of child items.
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **Filter**: Filter used to locate property collection to update.
@@ -322,13 +300,13 @@ Ensures the value of an identified property collection item's property in the we
 * **ItemPropertyValue**: Value of the property of the property collection item to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
-### xWebSite
+### WebSite
 
 * **Name** : The desired name of the website.
 * **SiteId** : Optional. The desired IIS site Id for the website.
 * **PhysicalPath**: The path to the files that compose the website.
 * **State**: The state of the website: { Started | Stopped }
-* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **MSFT_xWebBindingInformation** CIM class that implements the following properties:
+* **BindingInfo**: Website's binding information in the form of an array of embedded instances of the **DSC_WebBindingInformation** CIM class that implements the following properties:
   * **Protocol**: The protocol of the binding. This property is required. The acceptable values for this property are: `http`, `https`, `msmq.formatname`, `net.msmq`, `net.pipe`, `net.tcp`.
   * **BindingInformation**: The binding information in the form a colon-delimited string that includes the IP address, port, and host name of the binding. This property is ignored for `http` and `https` bindings if at least one of the following properties is specified: **IPAddress**, **Port**, **HostName**.
   * **IPAddress**: The IP address of the binding. This property is only applicable for `http` and `https` bindings. The default value is `*`.
@@ -351,8 +329,8 @@ Ensures the value of an identified property collection item's property in the we
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable application Autostart (application initalization without an initial request) on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
 * **ApplicationType**: Adds a AutostartProvider ApplicationType
-* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **MSFT_xWebAuthenticationInformation** CIM class.
-**MSFT_xWebAuthenticationInformation** takes the following properties:
+* **AuthenticationInfo**: Website's authentication information in the form of an embedded instance of the **DSC_WebAuthenticationInformation** CIM class.
+**DSC_WebAuthenticationInformation** takes the following properties:
   * **Anonymous**: The acceptable values for this property are: `$true`, `$false`
   * **Basic**: The acceptable values for this property are: `$true`, `$false`
   * **Digest**: The acceptable values for this property are: `$true`, `$false`
@@ -364,12 +342,12 @@ Ensures the value of an identified property collection item's property in the we
 * **LogTruncateSize**: How large the file should be before it is truncated. If this is set then LogPeriod will be ignored if passed in and set to MaxSize. The value must be a valid integer between `1048576 (1MB)` and `4294967295 (4GB)`.
 * **LoglocalTimeRollover**: Use the localtime for file naming and rollover. The acceptable values for this property are: `$true`, `$false`
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`
-* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **MSFT_xLogCustomFieldInformation** CIM class that implements the following properties:
+* **LogCustomFields**: Custom logging field information the form of an array of embedded instances of the **DSC_LogCustomFieldInformation** CIM class that implements the following properties:
   * **LogFieldName**: Field name to identify the custom field within the log file. Please note that the field name cannot contain spaces.
   * **SourceType**: The acceptable values for this property are: `RequestHeader`, `ResponseHeader`, or `ServerVariable` (note that enhanced logging cannot log a server variable with a name that contains lower-case characters - to include a server variable in the event log just make sure that its name consists of all upper-case characters).
   * **SourceName**: Name of the HTTP header or server variable (depending on the Source Type you selected) that contains a value that you want to log.
 
-### xWebSiteDefaults
+### WebSiteDefaults
 
 * **Key**: Required Key value, always **Machine**
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
@@ -378,7 +356,7 @@ Ensures the value of an identified property collection item's property in the we
 * **DefaultApplicationPool**: Name of the default application pool used by websites.
 * **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
-### xWebVirtualDirectory
+### WebVirtualDirectory
 
 * **Website**: Name of website with which virtual directory is associated
 * **WebApplication**:  The name of the containing web application or an empty string for the containing website
@@ -386,19 +364,7 @@ Ensures the value of an identified property collection item's property in the we
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
 
-### xWebConfigKeyValue (DEPRECATED)
-
->NOTE: The **xWebConfigKeyValue** resource is deprecated and has been replaced by the **xWebConfigProperty** and **xWebConfigPropertyCollection** resources.
->It may be removed in a future release.
-
-* **WebsitePath**: Path to website location (IIS or WebAdministration format).
-* **ConfigSection**: Section to update (only AppSettings supported as of now).
-* **Key**: Key for AppSettings.
-* **Value**: Value for AppSettings.
-* **Ensure**: Ensures if the appSetting is **Present** or **Absent**.
-* **IsAttribute**: If the given key value pair is for attribute, default is element.
-
-### xWebConfigProperty
+### WebConfigProperty
 
 Ensures the value of an identified property in the web.config file.
 
@@ -408,9 +374,9 @@ Ensures the value of an identified property in the web.config file.
 * **Value**: Value of the property to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
-### xWebConfigPropertyCollection
+### WebConfigPropertyCollection
 
-Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **xWebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
+Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **WebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **Filter**: Filter used to locate property collection to update.
@@ -422,13 +388,13 @@ Ensures the value of an identified property collection item's property in the we
 * **ItemPropertyValue**: Value of the property of the property collection item to update.
 * **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
 
-### xSslSettings
+### SslSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
 * **Ensure**: Ensures if the bindings are **Present** or **Absent**.
 
-### xIisFeatureDelegation
+### IisFeatureDelegation
 
 This resource manages the IIS configuration section locking (overrideMode) to control what configuration can be set in web.config.
 
@@ -436,19 +402,19 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **OverrideMode**: Mode of that section { **Allow** | **Deny** }
 * **Path**: Specifies the configuration path. This can be either an IIS configuration path in the format computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site. *WARNING: both path types can be used to manage the same feature delegation, however, there is no way to control if two resources in the configuration set the same feature delegation*.
 
-### xIisMimeTypeMapping
+### IisMimeTypeMapping
 
 * **Extension**: The file extension to map such as **.html** or **.xml**
 * **MimeType**: The MIME type to map that extension to such as **text/html**
 * **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
 
-### xWebAppPoolDefaults
+### WebAppPoolDefaults
 
 * **IsSingleInstance**: Specifies the resource is a single instance, the value must be **Yes**
 * **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
 * **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
 
-### xWebSiteDefaults
+### WebSiteDefaults
 
 * **Key**: Required Key value, always **Machine**
 * **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
@@ -567,7 +533,7 @@ configuration xPhp
         }
 
         # Make sure the php cgi module is registered with IIS
-        xIisModule phpHandler
+        IisModule phpHandler
         {
             Name = "phpFastCgi"
             Path = "$($DestinationPath)\php-cgi.exe"

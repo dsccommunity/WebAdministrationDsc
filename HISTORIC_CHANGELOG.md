@@ -13,91 +13,91 @@ change log short.
     - Adding note that entry in CHANGELOG.md is mandatory for all PRs.
   - Resolved custom Script Analyzer rules that was added to the test
     framework.
-  - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/PowerShell/xWebAdministration/issues/446)).
+  - Moved change log from README.md to a separate CHANGELOG.md ([issue #446](https://github.com/dsccommunity/WebAdministrationDsc/issues/446)).
   - Remove example 'Creating the default website using configuration
-    data' from README.md ([issue #488](https://github.com/PowerShell/xWebAdministration/issues/488)).
-  - Removed examples README.md as it was obsolete ([issue #482](https://github.com/PowerShell/xWebAdministration/issues/482)).
+    data' from README.md ([issue #488](https://github.com/dsccommunity/WebAdministrationDsc/issues/488)).
+  - Removed examples README.md as it was obsolete ([issue #482](https://github.com/dsccommunity/WebAdministrationDsc/issues/482)).
   - Updated `Ensure` property description for `xIisHandler` resource to
     match schema.mof
   - Moved examples from Readme.md to respective `/Examples/Resources/`
-    folders ([issue #486](https://github.com/PowerShell/xWebAdministration/issues/486)).
+    folders ([issue #486](https://github.com/dsccommunity/WebAdministrationDsc/issues/486)).
   - Created new folder structure for examples so that examples will be
-    placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/PowerShell/xWebAdministration/issues/483)).
-  - Added a table of contents for the resource list ([issue #450](https://github.com/PowerShell/xWebAdministration/issues/450)).
-  - Alphabetized the resource list in the README.md ([issue #449](https://github.com/PowerShell/xWebAdministration/issues/449)).
-  - Optimized exporting in the module manifest for best performance ([issue #448](https://github.com/PowerShell/xWebAdministration/issues/448)).
+    placed in `/Examples/Resources/$resourceName` ([issue #483](https://github.com/dsccommunity/WebAdministrationDsc/issues/483)).
+  - Added a table of contents for the resource list ([issue #450](https://github.com/dsccommunity/WebAdministrationDsc/issues/450)).
+  - Alphabetized the resource list in the README.md ([issue #449](https://github.com/dsccommunity/WebAdministrationDsc/issues/449)).
+  - Optimized exporting in the module manifest for best performance ([issue #448](https://github.com/dsccommunity/WebAdministrationDsc/issues/448)).
   - Updated hashtables in the repo to adhere to the style guidelines
     described at https://github.com/PowerShell/DscResources/blob/master/StyleGuidelines.md#correct-format-for-hashtables-or-objects
-    ([issue #524](https://github.com/PowerShell/xWebAdministration/issues/524))
+    ([issue #524](https://github.com/dsccommunity/WebAdministrationDsc/issues/524))
   - Moved example Sample_EndToEndxWebAdministration from readme.md to a
-    separate .ps1 in `/examples/` ([issue #491](https://github.com/PowerShell/xWebAdministration/issues/491))
+    separate .ps1 in `/examples/` ([issue #491](https://github.com/dsccommunity/WebAdministrationDsc/issues/491))
   - Removed example 'Create and configure an application pool' from
-    README.md ([issue #489](https://github.com/PowerShell/xWebAdministration/issues/489)).
+    README.md ([issue #489](https://github.com/dsccommunity/WebAdministrationDsc/issues/489)).
 - Changes to xIisHandler
-  - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/PowerShell/xWebAdministration/issues/453)).
-  - Moved MSFT_xIisHandler localization strings to strings.psd1 ([issue #463](https://github.com/PowerShell/xWebAdministration/issues/463)).
+  - Updated schema.mof to include descriptions for each property ([issue #453](https://github.com/dsccommunity/WebAdministrationDsc/issues/453)).
+  - Moved MSFT_xIisHandler localization strings to strings.psd1 ([issue #463](https://github.com/dsccommunity/WebAdministrationDsc/issues/463)).
 - Changes to xWebSite
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
-    a single comma-separated string of flags' ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
-  - Moved localization strings to strings.psd1 file ([issue #475](https://github.com/PowerShell/xWebAdministration/issues/475))
-  - Updated schema.mof so that each property has an appropriate description ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
+    a single comma-separated string of flags' ([issue #332](https://github.com/dsccommunity/WebAdministrationDsc/issues/332)).
+  - Moved localization strings to strings.psd1 file ([issue #475](https://github.com/dsccommunity/WebAdministrationDsc/issues/475))
+  - Updated schema.mof so that each property has an appropriate description ([issue #456](https://github.com/dsccommunity/WebAdministrationDsc/issues/456)).
   - Updated schema.mof and README so that `SourceType` and `SourceName`
     properties for `MSFT_xLogCustomFieldInformation` are associated with
-    the appropriate descriptions and valuemaps/values ([issue #456](https://github.com/PowerShell/xWebAdministration/issues/456)).
-  - Move examples from README.md to resource examples folder ([issue #487](https://github.com/PowerShell/xWebAdministration/issues/487)).
-  - Fix case of resource name from `xWebsite` to `xWebSite` ([issue #535](https://github.com/PowerShell/xWebAdministration/issues/535)).
+    the appropriate descriptions and valuemaps/values ([issue #456](https://github.com/dsccommunity/WebAdministrationDsc/issues/456)).
+  - Move examples from README.md to resource examples folder ([issue #487](https://github.com/dsccommunity/WebAdministrationDsc/issues/487)).
+  - Fix case of resource name from `xWebsite` to `xWebSite` ([issue #535](https://github.com/dsccommunity/WebAdministrationDsc/issues/535)).
 - Changes to xIISLogging
   - Fix `Get-TargetResource` so that `LogFlags` are returned as expected
     array of strings (one for each flag) rather than an array containing
-    a single comma-separated string of flags ([issue #332](https://github.com/PowerShell/xWebAdministration/issues/332)).
-  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #464](https://github.com/PowerShell/xWebAdministration/issues/464)).
+    a single comma-separated string of flags ([issue #332](https://github.com/dsccommunity/WebAdministrationDsc/issues/332)).
+  - Moved MSFT_xIisLogging localization strings to strings.psd1 ([issue #464](https://github.com/dsccommunity/WebAdministrationDsc/issues/464)).
 - Changes to xSslSettings
   - Updated casing of `xSslSettings` in all file names, folder names,
-    schema, and documentation ([issue #461](https://github.com/PowerShell/xWebAdministration/issues/461)).
+    schema, and documentation ([issue #461](https://github.com/dsccommunity/WebAdministrationDsc/issues/461)).
   - Updated casing of `xSslSettings` in all file names, folder names,
-    schema, and documentation ([issue #536](https://github.com/PowerShell/xWebAdministration/issues/536)).
-  - Moved MSFT_xSslSettings localization strings to strings.psd1 ([issue #467](https://github.com/PowerShell/xWebAdministration/issues/467)).
+    schema, and documentation ([issue #536](https://github.com/dsccommunity/WebAdministrationDsc/issues/536)).
+  - Moved MSFT_xSslSettings localization strings to strings.psd1 ([issue #467](https://github.com/dsccommunity/WebAdministrationDsc/issues/467)).
 - Changes to xWebConfigKeyValue
-  - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/PowerShell/xWebAdministration/issues/455)).
-  - Move localization strings to strings.psd1 file ([issue #472](https://github.com/PowerShell/xWebAdministration/issues/472)).
+  - Updated schema.mof to include a description for the Ensure property ([issue #455](https://github.com/dsccommunity/WebAdministrationDsc/issues/455)).
+  - Move localization strings to strings.psd1 file ([issue #472](https://github.com/dsccommunity/WebAdministrationDsc/issues/472)).
 - Changes to xWebAppPoolDefaults
-  - Move localization strings to strings.psd1 file ([issue #470](https://github.com/PowerShell/xWebAdministration/issues/470)).
+  - Move localization strings to strings.psd1 file ([issue #470](https://github.com/dsccommunity/WebAdministrationDsc/issues/470)).
   - BREAKING CHANGE: Changed `ApplyTo` key parameter to `IsSingleInstance`
-    to bring the resource into compliance with published best practices ([issue #462](https://github.com/PowerShell/xWebAdministration/issues/462)).
+    to bring the resource into compliance with published best practices ([issue #462](https://github.com/dsccommunity/WebAdministrationDsc/issues/462)).
 - Changes to xWebApplication
-  - Move localization strings to strings.psd1 file ([issue #468](https://github.com/PowerShell/xWebAdministration/issues/468))
-  - Add description on class MSFT_xWebApplicationAuthenticationInformation ([issue #454](https://github.com/PowerShell/xWebAdministration/issues/454)).
+  - Move localization strings to strings.psd1 file ([issue #468](https://github.com/dsccommunity/WebAdministrationDsc/issues/468))
+  - Add description on class MSFT_xWebApplicationAuthenticationInformation ([issue #454](https://github.com/dsccommunity/WebAdministrationDsc/issues/454)).
 - Changes to xIisModule entry
-  - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/PowerShell/xWebAdministration/issues/466)).
+  - Moved xIisModule localization strings to strings.psd1 ([issue #466](https://github.com/dsccommunity/WebAdministrationDsc/issues/466)).
 - Changes to xIisMimeTypeMapping
-  - Moved MSFT_xIisMimeTypeMapping localization strings to strings.psd1 ([issue #465](https://github.com/PowerShell/xWebAdministration/issues/465)).
+  - Moved MSFT_xIisMimeTypeMapping localization strings to strings.psd1 ([issue #465](https://github.com/dsccommunity/WebAdministrationDsc/issues/465)).
 - Changes to xWebVirtualDirectory
-  - Moved MSFT_xWebVirtualDirectory localization strings to strings.psd1 ([issue #477](https://github.com/PowerShell/xWebAdministration/issues/477)).
+  - Moved MSFT_xWebVirtualDirectory localization strings to strings.psd1 ([issue #477](https://github.com/dsccommunity/WebAdministrationDsc/issues/477)).
 - Changes to xWebSiteDefaults
-  - Move localization strings to strings.psd1 file ([issue #475](https://github.com/PowerShell/xWebAdministration/issues/475)).
+  - Move localization strings to strings.psd1 file ([issue #475](https://github.com/dsccommunity/WebAdministrationDsc/issues/475)).
   - BREAKING CHANGE: Changed `ApplyTo` key parameter to `IsSingleInstance`
-    to bring the resource into compliance with published best practices ([issue #457](https://github.com/PowerShell/xWebAdministration/issues/457)).
-  - Fix case of resource name from `xWebsiteDefaults` to `xWebSiteDefaults` ([issue #535](https://github.com/PowerShell/xWebAdministration/issues/535)).
+    to bring the resource into compliance with published best practices ([issue #457](https://github.com/dsccommunity/WebAdministrationDsc/issues/457)).
+  - Fix case of resource name from `xWebsiteDefaults` to `xWebSiteDefaults` ([issue #535](https://github.com/dsccommunity/WebAdministrationDsc/issues/535)).
 - Changes to xWebConfigProperty
-  - Move localization strings to strings.psd1 file ([issue #473](https://github.com/PowerShell/xWebAdministration/issues/473)).
+  - Move localization strings to strings.psd1 file ([issue #473](https://github.com/dsccommunity/WebAdministrationDsc/issues/473)).
 - Changes to xWebConfigPropertyCollection
-  - Move localization strings to strings.psd1 file ([issue #474](https://github.com/PowerShell/xWebAdministration/issues/474)).
+  - Move localization strings to strings.psd1 file ([issue #474](https://github.com/dsccommunity/WebAdministrationDsc/issues/474)).
 - Changes to xIisFeatureDelegation
-  - Moved MSFT_xIisFeatureDelegation localization strings to strings.psd1 ([issue #459](https://github.com/PowerShell/xWebAdministration/issues/459)).
+  - Moved MSFT_xIisFeatureDelegation localization strings to strings.psd1 ([issue #459](https://github.com/dsccommunity/WebAdministrationDsc/issues/459)).
 - Changes to xWebAppPool
-  - Moved MSFT_xWebAppPool localization strings to strings.psd1 ([issue #469](https://github.com/PowerShell/xWebAdministration/issues/469)).
+  - Moved MSFT_xWebAppPool localization strings to strings.psd1 ([issue #469](https://github.com/dsccommunity/WebAdministrationDsc/issues/469)).
 
 ## [2.8.0.0] - 2019-09-18
 
-- Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
+- Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/dsccommunity/WebAdministrationDsc/issues/332)
   - Added unit regression test
 - Changes to xWebsite
   - Added ServerAutoStart (controls website autostart) and changed documentation for ServiceAutoStartEnabled (controls application auto-initialization). Fixes #325.
-  - Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/PowerShell/xWebAdministration/issues/332)
+  - Fix multiple HTTPS bindings on one xWebsite receiving the first binding's certificate [#332](https://github.com/dsccommunity/WebAdministrationDsc/issues/332)
     - Added unit regression test
 - Changes to xWebAppPool
-  - Fix false `Test-TargetResource` failure for `logEventOnRecycle` if items in the Configuration property are specified in a different order than IIS natively stores them [#434](https://github.com/PowerShell/xWebAdministration/issues/434)
+  - Fix false `Test-TargetResource` failure for `logEventOnRecycle` if items in the Configuration property are specified in a different order than IIS natively stores them [#434](https://github.com/dsccommunity/WebAdministrationDsc/issues/434)
 - Changes to xIisModule
   - Fixed the parameters specification for the internal Get-IISHandler and Remove-IISHandler function
 
@@ -118,7 +118,7 @@ change log short.
 
 ## [2.6.0.0] - 2019-05-15
 
-- Changed order of classes in schema.mof files to workaround [#423](https://github.com/PowerShell/xWebAdministration/issues/423)
+- Changed order of classes in schema.mof files to workaround [#423](https://github.com/dsccommunity/WebAdministrationDsc/issues/423)
 - Fix subject comparison multiple entries for helper function `Find-Certificate` that could not find the test
   helper function `Install-NewSelfSignedCertificateExScript`.
 - Updated unit test for helper function `Find-Certificate` to check for multiple
@@ -155,7 +155,7 @@ change log short.
 ## [2.1.0.0] - 2018-07-25
 
 - Added new resources **xWebConfigProperty** and **xWebConfigPropertyCollection** extending functionality provided by **xWebConfigKeyValue**, addresses #249.
-- Fixed Get-DscConfiguration throw in xWebSite; addresses [#372](https://github.com/PowerShell/xWebAdministration/issues/372). [Reggie Gibson (@regedit32)](https://github.com/regedit32)
+- Fixed Get-DscConfiguration throw in xWebSite; addresses [#372](https://github.com/dsccommunity/WebAdministrationDsc/issues/372). [Reggie Gibson (@regedit32)](https://github.com/regedit32)
 - Added **WebApplicationHandler** resource for creating and modifying IIS Web Handlers. Fixes #337
 - Added **WebApplicationHandler** integration tests
 - Added **WebApplicationHandler** unit tests
@@ -168,7 +168,7 @@ change log short.
 - Updated **xWebSite** to include ability to manage custom logging fields.
   [Reggie Gibson (@regedit32)](https://github.com/regedit32)
 - Updated **xIISLogging** to include ability to manage custom logging fields
-  ([issue #267](https://github.com/PowerShell/xWebAdministration/issues/267)).
+  ([issue #267](https://github.com/dsccommunity/WebAdministrationDsc/issues/267)).
   [@ldillonel](https://github.com/ldillonel)
 - BREAKING CHANGE: Updated **xIisFeatureDelegation** to be able to manage any
   configuration section.
