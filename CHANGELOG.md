@@ -8,12 +8,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ## [Unreleased]
 
 ### Changed
-  - Website
-    - Fixed Test-TargetResource in Website when LogTruncateSize parameter is passed. Fixes [Issue #380](https://github.com/dsccommunity/WebAdministrationDsc/issues/380)
 
-### Changed
-
-- xWebAdministration
+- WebAdministrationDsc
   - BREAKING CHANGE
     - Renamed _xWebAdministration_ to _WebAdministrationDSC_ - fixes [Issue #69](https://github.com/dsccommunity/WebAdministrationDsc/issues/213).
     - Changed all MSFT_xResourceName to DSC_ResourceName.
@@ -21,9 +17,14 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
     - Updated README.md from _xWebAdministration_ to _WebAdministrationDSC_
     - Removed deprecated resource `xIISHandler`
     - Removed deprecated resource `xWebConfigKeyValue`
+- Website
+  - Fixed Test-TargetResource in Website when LogTruncateSize parameter is
+    passed. Fixes [Issue #380](https://github.com/dsccommunity/WebAdministrationDsc/issues/380)
 
 ### Fixed
 
+- WebAdministrationDsc
+  - Fixed URLs in README.md
 - WebApplication
   - Fixed typo in README.md.
 
