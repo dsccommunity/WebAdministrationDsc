@@ -7,6 +7,9 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+- WebAdministrationDsc
+  - Ensure cim class names match for `WebApplicationAuthenticationInformation`
+
 ## [4.0.0] - 2022-09-17
 
 ### Changed
