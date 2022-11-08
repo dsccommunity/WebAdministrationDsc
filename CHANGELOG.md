@@ -7,6 +7,14 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Fixed
+
+- WebVirtualDirectory
+  [Issue #366](https://github.com/dsccommunity/WebAdministrationDsc/issues/366)
+  In WebVirtualDirectory WebApplication '' and '/' can now be used interchangeably.
+  - Fixed Add WebVirtualDirectory when WebApplication = '/'.
+  - Fixed Remove WebVirtualDirectory when WebApplication = ''.
+
 ## [4.0.0] - 2022-09-17
 
 ### Changed
