@@ -9,6 +9,12 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ### Fixed
 
+- WebApplication
+  - Ensure CIM class names match for `WebApplicationAuthenticationInformation`.
+    Prior to this change there as a mismatch between the class name for
+    WebApplicationAuthenticationInformation in the schema and implementation.
+    The schema referenced the class as DSC_WebApplicationAuthenticationInformation
+    whereas the implementation referenced the class as MSFT_xWebApplicationAuthenticationInformation.
 - WebVirtualDirectory
   [Issue #366](https://github.com/dsccommunity/WebAdministrationDsc/issues/366)
   In WebVirtualDirectory WebApplication '' and '/' can now be used interchangeably.
