@@ -102,6 +102,19 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
+        <#
+            Issue #366
+            WebApplication = '/' will cause New-WebVirtualDirectory to write
+            double slash ('//$Name') to config file.
+            This in turn causes Get-WebVirtualDirectory to not find the Virtual Directory.
+            WebApplication = '' works.
+            Note the opposite problem with Remove-WebVirtualDirectory.
+        #>
+        if ($WebApplication -eq '/')
+        {
+            $WebApplication = ''
+        }
+
         $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
                                                     -Name $Name `
                                                     -Application $WebApplication
@@ -134,6 +147,18 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Absent')
     {
+        <#
+            Issue #366
+            WebApplication = '' will cause Remove-WebVirtualDirectory to throw
+            "PowerShell Desired State Configuration does not support execution of commands in an interactive mode ...".
+            WebApplication = '/' works.
+            Note the opposite problem with New-WebVirtualDirectory.
+        #>
+        if ($WebApplication -eq '')
+        {
+            $WebApplication = '/'
+        }
+
         Write-Verbose -Message ($script:localizedData.VerboseSetTargetRemoveVirtualDirectory -f $Name)
         Remove-WebVirtualDirectory -Site $Website `
                                    -Application $WebApplication `

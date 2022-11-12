@@ -88,6 +88,48 @@ try
             $result.path            | Should Be "/$($DSCConfig.AllNodes.WebVirtualDirectory)"
             $result.physicalPath    | Should Be $DSCConfig.AllNodes.PhysicalPath
         }
+
+        It 'Should create a WebVirtualDirectory with WebApplication = ''/''' -Test {
+
+            configuration DSC_WebVirtualDirectory_WebApplicationSlash
+            {
+                Import-DscResource -ModuleName WebAdministrationDsc
+
+                Node $AllNodes.NodeName
+                {
+                    WebVirtualDirectory WebVirtualDirectory
+                    {
+                        Ensure = 'Present'
+                        Website = $Node.Website
+                        WebApplication = '/'
+                        Name = $Node.WebVirtualDirectory
+                        PhysicalPath = $Node.PhysicalPath
+                    }
+                }
+            }
+
+            & "DSC_WebVirtualDirectory_WebApplicationSlash" `
+            -OutputPath $TestDrive `
+            -ConfigurationData $dscConfig
+
+            Reset-DscLcm
+
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
+
+            # Build results to test
+            $result = Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
+                -Application '/' `
+                -Name $DSCConfig.AllNodes.WebVirtualDirectory
+
+            # Test virtual directory settings are correct
+            $result                 | Should Not BeNullOrEmpty
+        }
     }
 
     Describe "$($script:dscResourceName)_Absent" {
@@ -138,6 +180,99 @@ try
             $result = Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
                 -Application $DSCConfig.AllNodes.WebApplication `
                 -Name $DSCConfig.AllNodes.WebVirtualDirectory
+
+            # Test virtual directory is removed
+            $result | Should BeNullOrEmpty
+        }
+
+        It 'Should remove a WebVirtualDirectory with WebApplication = ''''' -Test {
+            # Avoid collision with other tests
+            $virtualDirectoryName = "$($Node.WebVirtualDirectory)2"
+
+            # Declare local configurations
+            configuration DSC_WebVirtualDirectory_WebApplicationBlank_add
+            {
+                Import-DscResource -ModuleName WebAdministrationDsc
+
+                Node $AllNodes.NodeName
+                {
+                    WebVirtualDirectory WebVirtualDirectory
+                    {
+                        Ensure = 'Present'
+                        Website = $Node.Website
+                        WebApplication = ''
+                        Name = $virtualDirectoryName
+                        PhysicalPath = $Node.PhysicalPath
+                    }
+                }
+            }
+
+            configuration DSC_WebVirtualDirectory_WebApplicationBlank_remove
+            {
+                Import-DscResource -ModuleName WebAdministrationDsc
+
+                Node $AllNodes.NodeName
+                {
+                    WebVirtualDirectory WebVirtualDirectory
+                    {
+                        Ensure = 'Absent'
+                        Website = $Node.Website
+                        WebApplication = ''
+                        Name = $virtualDirectoryName
+                        PhysicalPath = $Node.PhysicalPath
+                    }
+                }
+            }
+
+            # local helper
+            function Get-WebApplicationBlankVirtualDirectory()
+            {
+                return Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
+                    -Application '' `
+                    -Name $virtualDirectoryName
+            }
+
+            # Execute setup
+            & "DSC_WebVirtualDirectory_WebApplicationBlank_add" `
+            -OutputPath $TestDrive `
+            -ConfigurationData $dscConfig
+
+            Reset-DscLcm
+
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
+
+            # Verify intermediate result
+            $resultIntermediate = Get-WebApplicationBlankVirtualDirectory
+
+            # Virtual directory have been created
+            $resultIntermediate     | Should Not BeNullOrEmpty
+
+            # Execute Test operation
+            & "DSC_WebVirtualDirectory_WebApplicationBlank_remove" `
+            -OutputPath $TestDrive `
+            -ConfigurationData $dscConfig
+
+            <#
+                Issue #366
+                Before change this statement throws exception
+                "PowerShell Desired State Configuration does not support execution of commands in an interactive mode ..."
+            #>
+            Start-DscConfiguration `
+                -Path $TestDrive `
+                -ComputerName localhost `
+                -Wait `
+                -Verbose `
+                -Force `
+                -ErrorAction Stop
+
+            # Build results to test
+            $result = Get-WebApplicationBlankVirtualDirectory
 
             # Test virtual directory is removed
             $result | Should BeNullOrEmpty

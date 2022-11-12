@@ -186,6 +186,30 @@ try
                 }
             }
 
+            Context 'Ensure = Present and WebApplication = ''/''' {
+                # Issue #366
+                It 'Should change WebApplication to ''''' {
+                    $mockSite = @{
+                        Name = 'SomeName'
+                        Website = 'Website'
+                        WebApplication = '/'
+                        PhysicalPath = 'PhysicalPath'
+                    }
+
+                    Mock -CommandName New-WebVirtualDirectory -MockWith { return $null }
+
+                    Set-TargetResource -Website $mockSite.Website `
+                        -WebApplication $mockSite.WebApplication `
+                        -Name $mockSite.Name `
+                        -PhysicalPath $mockSite.PhysicalPath `
+                        -Ensure 'Present'
+
+                    Assert-MockCalled -CommandName New-WebVirtualDirectory -Exactly 1 -ParameterFilter {
+                        return "$Application" -eq ''
+                    }
+                }
+            }
+
             Context 'Ensure = Present and virtual directory exists' {
                 It 'Should call Set-ItemProperty' {
                     $mockSite = @{
@@ -228,6 +252,31 @@ try
                         -Ensure 'Absent'
 
                     Assert-MockCalled -CommandName Remove-WebVirtualDirectory -Exactly 1
+                }
+            }
+
+            Context 'Ensure = Absent and WebApplication = ''''' {
+                # Issue #366
+                It 'Should change WebApplication to ''/''' {
+                    $mockSite = @{
+                        Name = 'SomeName'
+                        Website = 'Website'
+                        WebApplication = ''
+                        PhysicalPath = 'PhysicalPath'
+                        Count = 1
+                    }
+
+                    Mock -CommandName Remove-WebVirtualDirectory -MockWith { return $null }
+
+                    Set-TargetResource -Website $mockSite.Website `
+                        -WebApplication $mockSite.WebApplication `
+                        -Name $mockSite.Name `
+                        -PhysicalPath $mockSite.PhysicalPath `
+                        -Ensure 'Absent'
+
+                    Assert-MockCalled -CommandName Remove-WebVirtualDirectory -Exactly 1 -ParameterFilter {
+                        return "$Application" -eq '/'
+                    }
                 }
             }
         }
