@@ -7,6 +7,15 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Fixed
+
+- WebApplication
+  - Ensure CIM class names match for `WebApplicationAuthenticationInformation`.
+    Prior to this change there as a mismatch between the class name for
+    WebApplicationAuthenticationInformation in the schema and implementation.
+    The schema referenced the class as DSC_WebApplicationAuthenticationInformation
+    whereas the implementation referenced the class as MSFT_xWebApplicationAuthenticationInformation.
+
 ## [4.0.0] - 2022-09-17
 
 ### Changed

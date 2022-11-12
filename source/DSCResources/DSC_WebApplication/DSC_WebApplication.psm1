@@ -575,7 +575,7 @@ function Get-AuthenticationInfo
     }
 
     return New-CimInstance `
-            -ClassName MSFT_xWebApplicationAuthenticationInformation `
+            -ClassName DSC_WebApplicationAuthenticationInformation `
             -ClientOnly -Property $authenticationProperties `
             -NameSpace 'root\microsoft\windows\desiredstateconfiguration'
 
@@ -587,7 +587,7 @@ function Get-AuthenticationInfo
 #>
 function Get-DefaultAuthenticationInfo
 {
-    New-CimInstance -ClassName MSFT_xWebApplicationAuthenticationInformation `
+    New-CimInstance -ClassName DSC_WebApplicationAuthenticationInformation `
         -ClientOnly `
         -Property @{
             Anonymous = $false
