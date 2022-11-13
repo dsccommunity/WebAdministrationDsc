@@ -32,7 +32,7 @@ try
 {
     # Create configuration backup
 
-    Backup-WebConfiguration -Name $tempName | Out-Null
+    $null = Backup-WebConfiguration -Name $tempName
 
     #region Integration Tests
 
