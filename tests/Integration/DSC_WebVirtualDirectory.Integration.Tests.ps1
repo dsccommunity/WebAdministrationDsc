@@ -187,7 +187,7 @@ try
 
         It 'Should remove a WebVirtualDirectory with WebApplication = ''''' -Test {
             # Avoid collision with other tests
-            $virtualDirectoryName = "$($Node.WebVirtualDirectory)2"
+            $virtualDirectoryName = "$($DSCConfig.AllNodes.WebVirtualDirectory)2"
 
             # Declare local configurations
             configuration DSC_WebVirtualDirectory_WebApplicationBlank_add
@@ -225,7 +225,7 @@ try
             }
 
             # local helper
-            function Get-WebApplicationBlankVirtualDirectory()
+            function Get-WebVirtualDirectoryBlankApplication()
             {
                 return Get-WebVirtualDirectory -Site $DSCConfig.AllNodes.Website `
                     -Application '' `
@@ -248,7 +248,7 @@ try
                 -ErrorAction Stop
 
             # Verify intermediate result
-            $resultIntermediate = Get-WebApplicationBlankVirtualDirectory
+            $resultIntermediate = Get-WebVirtualDirectoryBlankApplication
 
             # Virtual directory have been created
             $resultIntermediate     | Should Not BeNullOrEmpty
@@ -272,7 +272,7 @@ try
                 -ErrorAction Stop
 
             # Build results to test
-            $result = Get-WebApplicationBlankVirtualDirectory
+            $result = Get-WebVirtualDirectoryBlankApplication
 
             # Test virtual directory is removed
             $result | Should BeNullOrEmpty
