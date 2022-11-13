@@ -25,21 +25,7 @@ function Invoke-TestSetup
 
 function Invoke-TestCleanup
 {
-    if (Get-Module -Name 'MockWebAdministrationWindowsFeature')
-    {
-        Write-Information 'Removing MockWebAdministrationWindowsFeature module...'
-        Remove-Module -Name 'MockWebAdministrationWindowsFeature'
-    }
-
-    $mocks = (Get-ChildItem Function:) | Where-Object { $_.Source -eq 'MockWebAdministrationWindowsFeature' }
-
-    if ($mocks)
-    {
-        Write-Information 'Removing MockWebAdministrationWindowsFeature functions...'
-        $mocks | Remove-Item
-    }
-
-    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+    Invoke-UnitTestCleanup -TestEnvironment $script:testEnvironment
 }
 
 Invoke-TestSetup

@@ -80,6 +80,47 @@ function Reset-DscLcm
     Remove-DscConfigurationDocument -Stage Previous -Force
 }
 
+<#
+    .SYNOPSIS
+        Cleanup after unit tests.
+
+    .PARAMETER TestEnvironment
+        The TestEnvironment returned by Initialize-TestEnvironment.
+
+    .NOTES
+        - Remove-Module MockWebAdministrationWindowsFeature
+        - Remove mocks based on MockWebAdministrationWindowsFeature
+        - Restore-TestEnvironment
+#>
+function Invoke-UnitTestCleanup
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [Hashtable]
+        $TestEnvironment
+    )
+
+    if (Get-Module -Name 'MockWebAdministrationWindowsFeature')
+    {
+        Write-Information 'Removing MockWebAdministrationWindowsFeature module...'
+        Remove-Module -Name 'MockWebAdministrationWindowsFeature'
+    }
+
+    $mocks = (Get-ChildItem Function:) | Where-Object { $_.Source -eq 'MockWebAdministrationWindowsFeature' }
+
+    if ($mocks)
+    {
+        Write-Information 'Removing MockWebAdministrationWindowsFeature functions...'
+        $mocks | Remove-Item
+    }
+
+    Restore-TestEnvironment -TestEnvironment $TestEnvironment
+}
+
 Export-ModuleMember -Function `
     Restore-WebConfigurationWrapper, `
-    Reset-DscLcm
+    Reset-DscLcm, `
+    Invoke-UnitTestCleanup
