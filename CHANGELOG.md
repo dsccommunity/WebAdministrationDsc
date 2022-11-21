@@ -20,6 +20,10 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   In WebVirtualDirectory WebApplication '' and '/' can now be used interchangeably.
   - Fixed Add WebVirtualDirectory when WebApplication = '/'.
   - Fixed Remove WebVirtualDirectory when WebApplication = ''.
+- CommonTestHelper  
+  Added `Invoke-UnitTestCleanup` to get consistent cleanup of stubs.  
+  Gives correct execution of integration tests when run in same PowerShell session as unit tests (no longer calling stubs).  
+  Gives correct `Restore-WebConfiguration` after integration tests when run in same PowerShell session as unit tests (no longer calling stub).  
 
 ## [4.0.0] - 2022-09-17
 

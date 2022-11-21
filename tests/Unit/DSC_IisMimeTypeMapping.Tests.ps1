@@ -25,9 +25,7 @@ function Invoke-TestSetup
 
 function Invoke-TestCleanup
 {
-    Remove-Module -Name MockWebAdministrationWindowsFeature
-
-    Restore-TestEnvironment -TestEnvironment $script:testEnvironment
+    Invoke-UnitTestCleanup -TestEnvironment $script:testEnvironment
 }
 
 Invoke-TestSetup
