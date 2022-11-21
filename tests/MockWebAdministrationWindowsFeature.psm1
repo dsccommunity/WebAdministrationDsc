@@ -43,7 +43,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -72,7 +72,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -119,7 +119,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -131,7 +131,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -141,7 +141,7 @@ function Clear-WebCentralCertProvider {
 param(
     [switch]
     ${PrivateKeyPassword})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -166,7 +166,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -178,7 +178,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -190,7 +190,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -208,7 +208,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -216,7 +216,7 @@ param(
 function Disable-WebCentralCertProvider {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=269643')]
 param()
-
+throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -236,7 +236,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -248,7 +248,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -271,7 +271,7 @@ param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]
     ${PrivateKeyPassword})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -306,7 +306,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -342,7 +342,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${StatusCodes})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -364,7 +364,7 @@ param(
     [ValidateNotNull()]
     [uint32]
     ${ProcessId})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -381,7 +381,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -393,7 +393,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -421,7 +421,7 @@ param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]
     ${HostHeader})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -440,7 +440,7 @@ param(
 
     [switch]
     ${Enabled})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -451,7 +451,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -479,7 +479,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -491,7 +491,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -509,7 +509,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -528,7 +528,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -557,7 +557,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -568,7 +568,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -588,7 +588,7 @@ param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]
     ${Precondition})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -607,7 +607,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -647,7 +647,9 @@ dynamicparam
         throw
     }
 }
-
+process {
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+}
 
  }
 
@@ -666,7 +668,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -687,7 +689,7 @@ param(
     [Alias('proc','procid','pid','wp')]
     [uint32]
     ${Process})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -698,7 +700,7 @@ param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -710,7 +712,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -734,7 +736,7 @@ param(
 
     [switch]
     ${Content})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -756,7 +758,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -784,7 +786,7 @@ param(
 
     [switch]
     ${Force})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -799,7 +801,7 @@ param(
 
     [switch]
     ${Force})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -834,7 +836,7 @@ param(
 
     [switch]
     ${Force})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -869,7 +871,7 @@ param(
 
     [switch]
     ${Force})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -893,7 +895,7 @@ param(
 
     [switch]
     ${Force})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -951,7 +953,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -983,7 +985,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1029,7 +1031,7 @@ param(
 
     [switch]
     ${Force})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1057,7 +1059,7 @@ param(
 
     [switch]
     ${Force})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1074,7 +1076,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1086,7 +1088,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1124,7 +1126,7 @@ param(
     [Parameter(ParameterSetName='InputBindingProperties', ValueFromPipelineByPropertyName=$true)]
     [string]
     ${HostHeader})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1136,7 +1138,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1154,7 +1156,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1176,7 +1178,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1217,7 +1219,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1229,7 +1231,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1249,7 +1251,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1269,7 +1271,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1281,7 +1283,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1303,7 +1305,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1325,7 +1327,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1337,7 +1339,7 @@ param(
     [ValidateNotNull()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1377,7 +1379,9 @@ dynamicparam
         throw
     }
 }
-
+process {
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+}
 
  }
 
@@ -1389,7 +1393,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]
     ${Name})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1400,7 +1404,7 @@ param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${Filter})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1437,7 +1441,7 @@ param(
     [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$true)]
     [string]
     ${Value})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1460,7 +1464,7 @@ param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]
     ${PrivateKeyPassword})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1471,7 +1475,7 @@ param(
     [Parameter(Mandatory=$true, Position=0)]
     [string]
     ${UserName})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1508,7 +1512,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1558,7 +1562,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1578,7 +1582,7 @@ param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]
     ${Image})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1633,7 +1637,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1661,7 +1665,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1676,7 +1680,7 @@ param(
 
     [switch]
     ${Passthru})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1684,7 +1688,7 @@ param(
 function Start-WebCommitDelay {
  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=268816')]
 param()
-
+throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1727,7 +1731,9 @@ dynamicparam
         throw
     }
 }
-
+process {
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+}
 
  }
 
@@ -1742,7 +1748,7 @@ param(
 
     [switch]
     ${Passthru})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1757,7 +1763,7 @@ param(
 
     [switch]
     ${Passthru})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1772,7 +1778,7 @@ param(
     [Parameter(Position=1, ValueFromPipelineByPropertyName=$true)]
     [string[]]
     ${PSPath})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
@@ -1815,7 +1821,9 @@ dynamicparam
         throw
     }
 }
-
+process {
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+}
 
  }
 
@@ -1830,9 +1838,52 @@ param(
 
     [switch]
     ${Passthru})
-
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
 
  }
 
 
+function Set-ItemProperty {
+ [CmdletBinding()]
+param (
+    [Parameter()]
+    $Path,
 
+    [Parameter()]
+    $Name,
+
+    [Parameter()]
+    $Value,
+
+    [Parameter()]
+    $Filter,
+
+    [Parameter()]
+    $Include,
+
+    [Parameter()]
+    $Exclude,
+
+    [Parameter()]
+    [pscredential]$Credential,
+
+    [Parameter()]
+    [switch]
+    $WhatIf,
+
+    [Parameter()]
+    $Type,
+
+    [Parameter()]
+    [switch]
+    $PassThru,
+
+    [Parameter()]
+    [switch]
+    $Force,
+
+    [Parameter()]
+    [switch]
+    $Confirm)
+    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+}

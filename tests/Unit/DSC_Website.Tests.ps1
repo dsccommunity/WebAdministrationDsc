@@ -629,6 +629,8 @@ try
             Context 'Check AutoStartProvider is different' {
                 Mock -CommandName Get-Website -MockWith { return $MockWebsite }
 
+                Mock -CommandName Get-WebConfiguration -MockWith { $null }
+
                 $result = Test-TargetResource -Ensure $MockParameters.Ensure `
                             -Name $MockParameters.Name `
                             -PhysicalPath $MockParameters.PhysicalPath `
@@ -1168,6 +1170,14 @@ try
 
                 Mock -CommandName Update-WebsiteBinding
 
+                Mock -CommandName Get-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Add-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
+
                 $MockParametersNew = $MockParameters.Clone()
                 $MockParametersNew.Remove('SiteId')
 
@@ -1204,6 +1214,14 @@ try
 
                 Mock -CommandName Update-WebsiteBinding
 
+                Mock -CommandName Get-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Add-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
+
                 It 'Should create and start the web site' {
                     Set-TargetResource @MockParameters
                     Assert-MockCalled -CommandName New-Website -ParameterFilter { $Id -eq 1234 } -Exactly 1
@@ -1236,6 +1254,14 @@ try
                 Mock -CommandName Set-ItemProperty
 
                 Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Get-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Add-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
 
                 $MockParameters = $MockParameters.Clone()
                 $MockParameters.PhysicalPath = ''
@@ -1272,6 +1298,14 @@ try
                 Mock -CommandName Set-ItemProperty
 
                 Mock -CommandName Update-WebsiteBinding
+
+                Mock -CommandName Get-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Add-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
 
                 $MockParameters = $MockParameters.Clone()
                 $MockParameters.PhysicalPath = $null
@@ -1370,6 +1404,12 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
+                Mock -CommandName Get-WebConfiguration -MockWith { $null }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
+
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
@@ -1447,6 +1487,10 @@ try
 
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
 
                 Set-TargetResource @MockParameters
 
@@ -1533,6 +1577,10 @@ try
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
 
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
+
                 Set-TargetResource @MockParameters
 
                 It 'Should call all the mocks' {
@@ -1614,6 +1662,10 @@ try
 
                 Mock -CommandName Test-AuthenticationEnabled { return $false } `
                     -ParameterFilter { ($Type -eq 'Windows') }
+
+                Mock -CommandName Get-WebConfigurationProperty -MockWith { $null }
+
+                Mock -CommandName Set-WebConfigurationProperty -MockWith { $null }
 
                 Set-TargetResource @MockParameters
 

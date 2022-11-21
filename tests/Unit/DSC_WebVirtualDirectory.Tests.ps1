@@ -176,6 +176,8 @@ try
 
                     Mock -CommandName New-WebVirtualDirectory -MockWith { return $null }
 
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $null }
+
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
                         -Name $mockSite.Name `
@@ -197,6 +199,8 @@ try
                     }
 
                     Mock -CommandName New-WebVirtualDirectory -MockWith { return $null }
+
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $null }
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
