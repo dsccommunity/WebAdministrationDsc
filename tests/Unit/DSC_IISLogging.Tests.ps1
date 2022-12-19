@@ -854,7 +854,7 @@ try
                 }
 
                 It 'Should return True with Ensure Absent and Custom Field Absent' {
-                    Mock -CommandName Get-WebConfigurationProperty -MockWith { return $null }
+                    Mock -CommandName Get-WebConfigurationProperty
                     Test-LogCustomField -LogCustomField $MockCimLogCustomFieldsEnsureAbsent | Should Be $True
                 }
             }
