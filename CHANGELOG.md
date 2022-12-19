@@ -27,7 +27,6 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 - MockWebAdministrationWindowsFeature  
   [Issue #351](https://github.com/dsccommunity/WebAdministrationDsc/issues/351)
   Stubs now throw StubNotImplemented when they are called in order to show when a cmdlet is not mocked correctly.  
-  Added missing stub `Set-ItemProperty`.  
 
 ## [4.0.0] - 2022-09-17
 
