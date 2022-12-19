@@ -58,7 +58,7 @@ try
             Mock -CommandName Assert-Module
 
             Context 'When MimeType is Absent' {
-                Mock -CommandName Get-Mapping -MockWith { return $null }
+                Mock -CommandName Get-Mapping
 
                 It 'Should return the correct hashtable' {
                     $result = Get-TargetResource @defaultParameters -Ensure 'Absent'
@@ -118,7 +118,7 @@ try
             Mock -CommandName Assert-Module
 
             Context 'When Mapping could not be found with Ensure = to Present' {
-                 Mock -CommandName Get-Mapping -MockWith { return $null }
+                 Mock -CommandName Get-Mapping
 
                  $result = Test-TargetResource @defaultParameters -Ensure 'Present'
                  It 'Should return false' {
@@ -142,7 +142,7 @@ try
                  }
             }
             Context 'When Mapping not found and type is absent' {
-                 Mock -CommandName Get-Mapping -MockWith { return $null }
+                 Mock -CommandName Get-Mapping
 
                  $result = Test-TargetResource @defaultParameters -Ensure 'Absent'
                  It 'Should return true' {
