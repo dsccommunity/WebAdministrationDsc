@@ -24,6 +24,9 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   Added `Invoke-UnitTestCleanup` to get consistent cleanup of stubs.  
   Gives correct execution of integration tests when run in same PowerShell session as unit tests (no longer calling stubs).  
   Gives correct `Restore-WebConfiguration` after integration tests when run in same PowerShell session as unit tests (no longer calling stub).  
+- MockWebAdministrationWindowsFeature  
+  [Issue #351](https://github.com/dsccommunity/WebAdministrationDsc/issues/351)
+  Stubs now throw StubNotImplemented when they are called in order to show when a cmdlet is not mocked correctly.  
 
 ## [4.0.0] - 2022-09-17
 

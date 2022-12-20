@@ -116,7 +116,7 @@ try
                         Ensure = 'Absent'
                     }
 
-                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $null }
+                    Mock -CommandName Get-WebVirtualDirectory
 
                     $result = Get-TargetResource -Website $returnSite.Website `
                         -WebApplication $returnSite.WebApplication `
@@ -174,7 +174,9 @@ try
                         PhysicalPath = 'PhysicalPath'
                     }
 
-                    Mock -CommandName New-WebVirtualDirectory -MockWith { return $null }
+                    Mock -CommandName New-WebVirtualDirectory
+
+                    Mock -CommandName Get-WebVirtualDirectory
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
@@ -196,7 +198,9 @@ try
                         PhysicalPath = 'PhysicalPath'
                     }
 
-                    Mock -CommandName New-WebVirtualDirectory -MockWith { return $null }
+                    Mock -CommandName New-WebVirtualDirectory
+
+                    Mock -CommandName Get-WebVirtualDirectory
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
@@ -221,7 +225,7 @@ try
                     }
 
                     Mock -CommandName Get-WebVirtualDirectory -MockWith { return $mockSite }
-                    Mock -CommandName Set-ItemProperty -MockWith { return $null }
+                    Mock -CommandName Set-ItemProperty
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
@@ -243,7 +247,7 @@ try
                         Count = 1
                     }
 
-                    Mock -CommandName Remove-WebVirtualDirectory -MockWith { return $null }
+                    Mock -CommandName Remove-WebVirtualDirectory
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
@@ -266,7 +270,7 @@ try
                         Count = 1
                     }
 
-                    Mock -CommandName Remove-WebVirtualDirectory -MockWith { return $null }
+                    Mock -CommandName Remove-WebVirtualDirectory
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
