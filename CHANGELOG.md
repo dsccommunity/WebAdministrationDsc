@@ -7,6 +7,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+## [4.1.0] - 2023-01-03
+
 ### Fixed
 
 - WebApplication
