@@ -25,8 +25,6 @@
         'Start-ProcessWithTimeout'
         'Test-DscPropertyState'
         'New-CimCredentialInstance'
-        'Get-CurrentUser'
-        'Find-Certificate'
         'New-TerminatingError'
         'Get-WebConfigurationPropertyValue'
     )
