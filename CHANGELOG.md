@@ -7,6 +7,13 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Removed
+
+- WebAdministrationDsc
+  - Removed the common function `Find-Certificate` in favor of the command
+    present in the module DscResource.Common.
+  - Removed the function `Get-CurrentUser` since no code were using it.
+
 ## [4.1.0] - 2023-01-03
 
 ### Fixed
