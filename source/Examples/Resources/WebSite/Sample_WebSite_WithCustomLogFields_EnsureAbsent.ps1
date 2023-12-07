@@ -1,4 +1,4 @@
-configuration Sample_WebSite_NewWebsite
+configuration Sample_WebSite_WithCustomLogFields_EnsureAbsent
 {
     param
     (
@@ -81,6 +81,17 @@ configuration Sample_WebSite_NewWebsite
             ServerAutoStart = $true
             PhysicalPath    = $DestinationPath
             DependsOn       = '[File]WebContent'
+            LogFlags        = @('Date','Time','ClientIP','ServerIP','UserAgent')
+            LogFormat       = 'W3C'
+            LogCustomFields = @(
+                DSC_LogCustomFieldInformation
+                {
+                    LogFieldName = 'ClientEncoding'
+                    SourceName   = 'Accept-Encoding'
+                    SourceType   = 'RequestHeader'
+                    Ensure       = 'Absent'
+                }
+            )
         }
     }
 }
