@@ -1,0 +1,11 @@
+[ClassVersion("1.0.0"), FriendlyName("xWebfarm")] 
+class MSFT_xWebfarm : OMI_BaseResource
+{
+    [Required, write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
+    [Key] string Name;  
+    [write] boolean Enabled;
+    [write] string Algorithm;
+    [write] string QueryString;
+    [write] string ServerVariable;
+    [write] string ConfigPath;
+};
