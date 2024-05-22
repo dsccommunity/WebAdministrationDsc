@@ -18,11 +18,14 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 - Website
   - Add Ensure to LogCustomFieldInformation. ([issue #571](https://github.com/dsccommunity/WebAdministrationDsc/issues/571))
+  - Added code to ensure certificate selected has longest time until expiration when multiple matching certificates are found ([issue #578](https://github.com/dsccommunity/WebAdministrationDsc/issues/578))
 
 ### Fixed
 
 - IisLogging
   - Can now remove all LogCustomFields using Ensure. ([issue #571](https://github.com/dsccommunity/WebAdministrationDsc/issues/571))
+-  WebSite
+   - Added code to ensure certificate has private key. ([issue #578](https://github.com/dsccommunity/WebAdministrationDsc/issues/578))
 
 ## [4.1.0] - 2023-01-03
 
@@ -39,11 +42,11 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   In WebVirtualDirectory WebApplication '' and '/' can now be used interchangeably.
   - Fixed Add WebVirtualDirectory when WebApplication = '/'.
   - Fixed Remove WebVirtualDirectory when WebApplication = ''.
-- CommonTestHelper  
-  Added `Invoke-UnitTestCleanup` to get consistent cleanup of stubs.  
-  Gives correct execution of integration tests when run in same PowerShell session as unit tests (no longer calling stubs).  
+- CommonTestHelper
+  Added `Invoke-UnitTestCleanup` to get consistent cleanup of stubs.
+  Gives correct execution of integration tests when run in same PowerShell session as unit tests (no longer calling stubs).
   Gives correct `Restore-WebConfiguration` after integration tests when run in same PowerShell session as unit tests (no longer calling stub).
-- MockWebAdministrationWindowsFeature  
+- MockWebAdministrationWindowsFeature
   [Issue #351](https://github.com/dsccommunity/WebAdministrationDsc/issues/351)
   Stubs now throw StubNotImplemented when they are called in order to show when a cmdlet is not mocked correctly.
 
