@@ -2521,6 +2521,8 @@ try
                 Mock Find-Certificate -MockWith {
                     return [PSCustomObject]@{
                         Thumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                        HasPrivateKey = $true
+                        NotAfter = (Get-Date).AddDays(50)
                     }
                 }
 
@@ -2549,6 +2551,8 @@ try
                 Mock Find-Certificate -MockWith {
                     return [PSCustomObject]@{
                         Thumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                        HasPrivateKey = $true
+                        NotAfter = (Get-Date).AddDays(50)
                     }
                 }
 
@@ -2577,10 +2581,19 @@ try
                 Mock Find-Certificate -MockWith {
                     return @(
                         [PSCustomObject]@{
+                            Thumbprint = 'AFD927459B4ACD3CAFBAD7DFD9317B740A7D8122'
+                            HasPrivateKey = $true
+                            NotAfter = (Get-Date).AddDays(15)
+                        }
+                        [PSCustomObject]@{
                             Thumbprint = 'C65CE51E20C523DEDCE979B9922A0294602D9D5C'
+                            HasPrivateKey = $true
+                            NotAfter = (Get-Date).AddDays(50)
                         },
                         [PSCustomObject]@{
                             Thumbprint = '28B88504F609F685B9A49C8F0EC49EDA1337CAFE'
+                            HasPrivateKey = $true
+                            NotAfter = (Get-Date).AddDays(25)
                         }
                     )
                 }
