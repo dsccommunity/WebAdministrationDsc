@@ -6,5 +6,6 @@ class DSC_WebVirtualDirectory : OMI_BaseResource
     [Key, Description("Web application name for the virtual directory")] string WebApplication;
     [Key, Description("Name of virtual directory")] string Name;
     [Required, Description("Physical path for the virtual directory")] string PhysicalPath;
+    [Write, Description("Credential to use for accessing the virtual directory"), EmbeddedInstance("MSFT_Credential")] String Credential;
     [Write, Description("Whether virtual directory should be present or absent"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] string Ensure;
 };

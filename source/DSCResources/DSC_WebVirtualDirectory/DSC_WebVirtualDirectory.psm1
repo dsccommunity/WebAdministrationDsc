@@ -35,7 +35,11 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $PhysicalPath
+        $PhysicalPath,
+
+        [Parameter()]
+        [pscredential]
+        $Credential
     )
 
     Assert-Module -ModuleName WebAdministration
@@ -46,11 +50,30 @@ function Get-TargetResource
 
     $PhysicalPath = ''
     $Ensure = 'Absent'
+    $Credential = $null
 
     if ($virtualDirectory.Count -eq 1)
     {
         $PhysicalPath = $virtualDirectory.PhysicalPath
         $Ensure = 'Present'
+
+        if ($WebApplication.Length -gt 0)
+        {
+            $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
+        }
+        else
+        {
+            $ItemPath = "IIS:Sites\$Website\$Name"
+        }
+
+        $userName = (Get-ItemProperty $ItemPath -Name userName).Value
+        if ($userName -ne '')
+        {
+            #$password = (Get-ItemProperty $ItemPath -Name password).Value
+            $password = New-Object System.Security.SecureString # Blank Password
+            $secStringPassword = $password | ConvertTo-SecureString $userPassword -AsPlainText -Force
+            $Credential = New-Object System.Management.Automation.PSCredential ($userName, $secStringPassword)
+        }
     }
 
     Write-Verbose -Message ($script:localizedData.VerboseGetTargetResource)
@@ -60,6 +83,7 @@ function Get-TargetResource
         Website        = $Website
         WebApplication = $WebApplication
         PhysicalPath   = $PhysicalPath
+        Credential     = $Credential
         Ensure         = $Ensure
     }
 
@@ -95,7 +119,11 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $PhysicalPath
+        $PhysicalPath,
+
+        [Parameter()]
+        [pscredential]
+        $Credential
     )
 
     Assert-Module -ModuleName WebAdministration
@@ -115,33 +143,54 @@ function Set-TargetResource
             $WebApplication = ''
         }
 
+        if ($WebApplication.Length -gt 0)
+        {
+            $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
+        }
+        else
+        {
+            $ItemPath = "IIS:Sites\$Website\$Name"
+        }
+
         $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
                                                     -Name $Name `
                                                     -Application $WebApplication
         if ($virtualDirectory.count -eq 0)
         {
             Write-Verbose -Message ($script:localizedData.VerboseSetTargetCreateVirtualDirectory -f $Name)
-            New-WebVirtualDirectory -Site $Website `
-                                    -Application $WebApplication `
-                                    -Name $Name `
-                                    -PhysicalPath $PhysicalPath
+            if ([bool]([System.Uri]$PhysicalPath).IsUnc)
+            {
+                # If physical path is provided using Unc syntax run New-WebVirtualDirectory with -Force flag
+                New-WebVirtualDirectory -Site $Website `
+                                        -Application $WebApplication `
+                                        -Name $Name `
+                                        -PhysicalPath $PhysicalPath `
+                                        -ErrorAction Stop `
+                                        -Force
+            }
+            else
+            {
+                # Run New-WebVirtualDirectory without -Force flag to verify that the path exists
+                New-WebVirtualDirectory -Site $Website `
+                                        -Application $WebApplication `
+                                        -Name $Name `
+                                        -PhysicalPath $PhysicalPath `
+                                        -ErrorAction Stop
+            }
         }
         else
         {
             Write-Verbose -Message ($script:localizedData.VerboseSetTargetPhysicalPath -f $Name)
 
-            if ($WebApplication.Length -gt 0)
-            {
-                $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
-            }
-            else
-            {
-                $ItemPath = "IIS:Sites\$Website\$Name"
-            }
-
             Set-ItemProperty -Path $ItemPath `
                              -Name physicalPath `
                              -Value $PhysicalPath
+        }
+
+        if($Credential)
+        {
+            Set-ItemProperty $ItemPath -Name userName -Value $Credential.UserName
+            Set-ItemProperty $ItemPath -Name password -Value $Credential.GetNetworkCredential().Password
         }
     }
 
@@ -197,7 +246,11 @@ function Test-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $PhysicalPath
+        $PhysicalPath,
+
+        [Parameter()]
+        [pscredential]
+        $Credential
     )
 
     Assert-Module -ModuleName WebAdministration
@@ -210,8 +263,34 @@ function Test-TargetResource
     {
         if ($virtualDirectory.PhysicalPath -eq $PhysicalPath)
         {
-            Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrue)
-            return $true
+            if(-not $Credential)
+            {
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrue)
+                return $true
+            }
+
+            if ($WebApplication.Length -gt 0)
+            {
+                $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
+            }
+            else
+            {
+                $ItemPath = "IIS:Sites\$Website\$Name"
+            }
+
+            $userName = (Get-ItemProperty $ItemPath -Name userName).Value
+            $password = (Get-ItemProperty $ItemPath -Name password).Value
+
+            if(($Credential.UserName -eq $userName -and $Credential.GetNetworkCredential().Password -eq $password))
+            {
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrue)
+                return $true
+            }
+            else
+            {
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
+                return $false
+            }
         }
         else
         {
