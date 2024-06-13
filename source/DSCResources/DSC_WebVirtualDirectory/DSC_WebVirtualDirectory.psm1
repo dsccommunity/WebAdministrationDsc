@@ -187,7 +187,7 @@ function Set-TargetResource
                              -Value $PhysicalPath
         }
 
-        if($Credential)
+        if ($Credential)
         {
             Set-ItemProperty $ItemPath -Name userName -Value $Credential.UserName
             Set-ItemProperty $ItemPath -Name password -Value $Credential.GetNetworkCredential().Password
@@ -263,7 +263,7 @@ function Test-TargetResource
     {
         if ($virtualDirectory.PhysicalPath -eq $PhysicalPath)
         {
-            if(-not $Credential)
+            if (-not $Credential)
             {
                 Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrue)
                 return $true
@@ -281,7 +281,7 @@ function Test-TargetResource
             $userName = (Get-ItemProperty $ItemPath -Name userName).Value
             $password = (Get-ItemProperty $ItemPath -Name password).Value
 
-            if(($Credential.UserName -eq $userName -and $Credential.GetNetworkCredential().Password -eq $password))
+            if (($Credential.UserName -eq $userName -and $Credential.GetNetworkCredential().Password -eq $password))
             {
                 Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrue)
                 return $true
