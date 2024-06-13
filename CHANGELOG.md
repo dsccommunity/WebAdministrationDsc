@@ -7,6 +7,18 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Changed
+
+-WebVirtualDirectory
+  - Add Credential paramater
+
+### Fixed
+
+- WebVirtualDirectory
+  - Fixed error when using UNC PhysicalPath. ([issue #94](https://github.com/dsccommunity/WebAdministrationDsc/issues/94))
+
+## [Unreleased]
+
 ### Removed
 
 - WebAdministrationDsc
