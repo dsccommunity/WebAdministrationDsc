@@ -288,7 +288,7 @@ Ensures the value of an identified property in the web.config file.
 
 ### WebConfigPropertyCollection
 
-Ensures the value of an identified property collection item's property in the web.config file. Supports all web.config elements that contain collections of child items.
+Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **WebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
 
 * **WebsitePath**: Path to website location (IIS or WebAdministration format).
 * **Filter**: Filter used to locate property collection to update.
@@ -363,65 +363,6 @@ Ensures the value of an identified property collection item's property in the we
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
 * **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
-
-### WebConfigProperty
-
-Ensures the value of an identified property in the web.config file.
-
-* **WebsitePath**: Path to website location (IIS or WebAdministration format).
-* **Filter**: Filter used to locate property to update.
-* **PropertyName**: Name of the property to update.
-* **Value**: Value of the property to update.
-* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
-
-### WebConfigPropertyCollection
-
-Ensures the value of an identified property collection item's property in the web.config file. Builds upon the **WebConfigKeyValue** resource to support all web.config elements that contain collections of child items.
-
-* **WebsitePath**: Path to website location (IIS or WebAdministration format).
-* **Filter**: Filter used to locate property collection to update.
-* **CollectionName**: Name of the property collection to update.
-* **ItemName**: Name of the property collection item to update.
-* **ItemKeyName**: Name of the key of the property collection item to update.
-* **ItemKeyValue**: Value of the key of the property collection item to update.
-* **ItemPropertyName**: Name of the property of the property collection item to update.
-* **ItemPropertyValue**: Value of the property of the property collection item to update.
-* **Ensure**: Indicates if the property and value should be present or absent. Defaults to 'Present'. { *Present* | Absent }
-
-### SslSettings
-
-* **Name**: The Name of website in which to modify the SSL Settings
-* **Bindings**: The SSL bindings to implement.
-* **Ensure**: Ensures if the bindings are **Present** or **Absent**.
-
-### IisFeatureDelegation
-
-This resource manages the IIS configuration section locking (overrideMode) to control what configuration can be set in web.config.
-
-* **Filter**: Specifies the IIS configuration section to lock or unlock in this format: **/system.webserver/security/authentication/anonymousAuthentication**
-* **OverrideMode**: Mode of that section { **Allow** | **Deny** }
-* **Path**: Specifies the configuration path. This can be either an IIS configuration path in the format computer machine/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site. *WARNING: both path types can be used to manage the same feature delegation, however, there is no way to control if two resources in the configuration set the same feature delegation*.
-
-### IisMimeTypeMapping
-
-* **Extension**: The file extension to map such as **.html** or **.xml**
-* **MimeType**: The MIME type to map that extension to such as **text/html**
-* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
-
-### WebAppPoolDefaults
-
-* **IsSingleInstance**: Specifies the resource is a single instance, the value must be **Yes**
-* **ManagedRuntimeVersion**: CLR Version {v2.0|v4.0|} empty string for unmanaged.
-* **ApplicationPoolIdentity**: {ApplicationPoolIdentity | LocalService | LocalSystem | NetworkService}
-
-### WebSiteDefaults
-
-* **Key**: Required Key value, always **Machine**
-* **LogFormat**: Format of the Logfiles. **Note**Only W3C supports LogFlags. The acceptable values for this property are: `IIS`,`W3C`,`NCSA`,`Custom`.
-* **LogDirectory**: Directory for IIS logs.
-* **TraceLogDirectory**: Directory for FREB (Failed Request Tracing) logs.
-* **DefaultApplicationPool**: Name of the default application pool used by websites.
-* **AllowSubDirConfig**: Should IIS look for config files in subdirectories, either **true** or **false**
 
 ## Examples
 
