@@ -26,6 +26,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Can now remove all LogCustomFields using Ensure. ([issue #571](https://github.com/dsccommunity/WebAdministrationDsc/issues/571))
 -  WebSite
    - Added code to ensure certificate has private key. ([issue #578](https://github.com/dsccommunity/WebAdministrationDsc/issues/578))
+- Removed duplicated resource descriptions in README.md
 
 ## [4.1.0] - 2023-01-03
 
