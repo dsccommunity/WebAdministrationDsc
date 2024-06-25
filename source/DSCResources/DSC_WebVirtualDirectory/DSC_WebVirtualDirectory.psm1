@@ -71,7 +71,7 @@ function Get-TargetResource
         {
             #$password = (Get-ItemProperty $ItemPath -Name password).Value
             $password = New-Object System.Security.SecureString # Blank Password
-            $secStringPassword = $password | ConvertTo-SecureString $userPassword -AsPlainText -Force
+            $secStringPassword = $password | ConvertTo-SecureString -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ($userName, $secStringPassword)
         }
     }
