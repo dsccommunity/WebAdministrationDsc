@@ -388,6 +388,35 @@ try
                 }
             }
 
+            Context 'Ensure = Present and virtual directory exists with Credential provided and no WebApplication' {
+                It 'Should call Set-ItemProperty' {
+                    $mockSite = @{
+                        Name = 'SomeName'
+                        Website = 'Website'
+                        WebApplication = ''
+                        PhysicalPath = '\\UncPhysicalPath'
+                        Count = 1
+                    }
+
+                    $mockUsername = "SomeUsername"
+                    $mockPassword = "SomePassword"
+                    $passwordSecureString = $mockPassword | ConvertTo-SecureString -AsPlainText -Force
+                    $mockCred = New-Object System.Management.Automation.PSCredential($mockUsername, $passwordSecureString)
+
+                    Mock -CommandName Get-WebVirtualDirectory -MockWith { return $mockSite }
+                    Mock -CommandName Set-ItemProperty
+
+                    Set-TargetResource -Website $mockSite.Website `
+                        -WebApplication $mockSite.WebApplication `
+                        -Name $mockSite.Name `
+                        -PhysicalPath $mockSite.PhysicalPath `
+                        -Credential $mockCred `
+                        -Ensure 'Present'
+
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
+                }
+            }
+
             Context 'Ensure = Absent' {
                 It 'Should call Remove-WebVirtualDirectory' {
                     $mockSite = @{
