@@ -63,7 +63,7 @@ try
                 }
             }
 
-            Context 'Directory is Present and PhysicalPath and Credential is Correct' {
+            Context 'Directory is Present and PhysicalPath and Credential is Correct with no WebApplication' {
                 It 'Should return true' {
                     $mockUsername = "SomeUsername"
                     $mockPassword = "SomePassword"
@@ -82,7 +82,7 @@ try
                     Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
 
                     $result = Test-TargetResource -Website $MockSite.Website `
-                        -WebApplication $MockSite.WebApplication `
+                        -WebApplication '' `
                         -Name $MockSite.Name `
                         -PhysicalPath $MockSite.PhysicalPath `
                         -Credential $mockCred `
@@ -204,11 +204,11 @@ try
                 $result.Ensure | Should Be $returnSite.Ensure
             }
 
-            Context 'Ensure = Present and Physical Path and Credential Exists' {
+            Context 'Ensure = Present and Physical Path and Credential Exists with no WebApplication' {
                 $returnSite = @{
                     Name = 'SomeName'
                     Website = 'Website'
-                    WebApplication = 'Application'
+                    WebApplication = ''
                     PhysicalPath = 'PhysicalPath'
                     Ensure = 'Present'
                 }
@@ -277,13 +277,13 @@ try
                 }
             }
 
-            Context 'Ensure = Present and virtual directory does not exist and Credential provided' {
+            Context 'Ensure = Present and virtual directory does not exist and Credential provided  with no WebApplication and UncPhysicalPath' {
                 It 'Should call New-WebVirtualDirectory' {
                     $mockSite = @{
                         Name = 'SomeName'
                         Website = 'Website'
-                        WebApplication = 'Application'
-                        PhysicalPath = 'PhysicalPath'
+                        WebApplication = ''
+                        PhysicalPath = '\\UncPhysicalPath'
                     }
                     $mockUsername = "SomeUsername"
                     $mockPassword = "SomePassword"
@@ -388,7 +388,7 @@ try
                 }
             }
 
-            Context 'Ensure = Present and virtual directory exists with Credential provided and no WebApplication' {
+            Context 'Ensure = Present and virtual directory exists with Credential provided and no WebApplication and UncPhysicalPath' {
                 It 'Should call Set-ItemProperty' {
                     $mockSite = @{
                         Name = 'SomeName'
