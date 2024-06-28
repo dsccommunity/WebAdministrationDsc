@@ -38,7 +38,7 @@ function Get-TargetResource
         $PhysicalPath,
 
         [Parameter()]
-        [pscredential]
+        [System.Management.Automation.PSCredential]
         $Credential
     )
 
@@ -57,19 +57,18 @@ function Get-TargetResource
         $PhysicalPath = $virtualDirectory.PhysicalPath
         $Ensure = 'Present'
 
-        if ($WebApplication.Length -gt 0)
+        if ([System.String]::IsNullOrEmpty($WebApplication))
         {
-            $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
+            $itemPath = "IIS:Sites\$Website\$Name"
         }
         else
         {
-            $ItemPath = "IIS:Sites\$Website\$Name"
+            $itemPath = "IIS:Sites\$Website\$WebApplication\$Name"
         }
 
-        $userName = (Get-ItemProperty $ItemPath -Name userName).Value
-        if ($userName -ne '')
+        $userName = (Get-ItemProperty $itemPath -Name UserName).Value
+        if (-not [System.String]::IsNullOrEmpty($userName))
         {
-            #$password = (Get-ItemProperty $ItemPath -Name password).Value
             $password = New-Object System.Security.SecureString # Blank Password
             $secStringPassword = $password | ConvertTo-SecureString -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ($userName, $secStringPassword)
@@ -122,7 +121,7 @@ function Set-TargetResource
         $PhysicalPath,
 
         [Parameter()]
-        [pscredential]
+        [System.Management.Automation.PSCredential]
         $Credential
     )
 
@@ -143,13 +142,13 @@ function Set-TargetResource
             $WebApplication = ''
         }
 
-        if ($WebApplication.Length -gt 0)
+        if ([System.String]::IsNullOrEmpty($WebApplication))
         {
-            $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
+            $itemPath = "IIS:Sites\$Website\$Name"
         }
         else
         {
-            $ItemPath = "IIS:Sites\$Website\$Name"
+            $itemPath = "IIS:Sites\$Website\$WebApplication\$Name"
         }
 
         $virtualDirectory = Get-WebVirtualDirectory -Site $Website `
@@ -182,15 +181,17 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($script:localizedData.VerboseSetTargetPhysicalPath -f $Name)
 
-            Set-ItemProperty -Path $ItemPath `
+            Set-ItemProperty -Path $itemPath `
                              -Name physicalPath `
                              -Value $PhysicalPath
         }
 
         if ($Credential)
         {
-            Set-ItemProperty $ItemPath -Name userName -Value $Credential.UserName
-            Set-ItemProperty $ItemPath -Name password -Value $Credential.GetNetworkCredential().Password
+            Write-Verbose -Message ($script:localizedData.VerboseSetTargetCredential -f $Name)
+
+            Set-ItemProperty $itemPath -Name UserName -Value $Credential.UserName
+            Set-ItemProperty $itemPath -Name Password -Value $Credential.GetNetworkCredential().Password
         }
     }
 
@@ -249,7 +250,7 @@ function Test-TargetResource
         $PhysicalPath,
 
         [Parameter()]
-        [pscredential]
+        [System.Management.Automation.PSCredential]
         $Credential
     )
 
@@ -269,17 +270,17 @@ function Test-TargetResource
                 return $true
             }
 
-            if ($WebApplication.Length -gt 0)
+            if ([System.String]::IsNullOrEmpty($WebApplication))
             {
-                $ItemPath = "IIS:Sites\$Website\$WebApplication\$Name"
+                $itemPath = "IIS:Sites\$Website\$Name"
             }
             else
             {
-                $ItemPath = "IIS:Sites\$Website\$Name"
+                $itemPath = "IIS:Sites\$Website\$WebApplication\$Name"
             }
 
-            $userName = (Get-ItemProperty $ItemPath -Name userName).Value
-            $password = (Get-ItemProperty $ItemPath -Name password).Value
+            $userName = (Get-ItemProperty $itemPath -Name UserName).Value
+            $password = (Get-ItemProperty $itemPath -Name Password).Value
 
             if (($Credential.UserName -eq $userName -and $Credential.GetNetworkCredential().Password -eq $password))
             {
@@ -288,13 +289,13 @@ function Test-TargetResource
             }
             else
             {
-                Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetCredentialFalse -f $PhysicalPath, $Name)
                 return $false
             }
         }
         else
         {
-            Write-Verbose -Message ($script:localizedData.VerboseTestTargetFalse -f $PhysicalPath, $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetPhysicalPathFalse -f $Credential.UserName, $Name)
             return $false
         }
     }
