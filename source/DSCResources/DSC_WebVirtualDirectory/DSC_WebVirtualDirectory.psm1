@@ -157,7 +157,7 @@ function Set-TargetResource
         if ($virtualDirectory.count -eq 0)
         {
             Write-Verbose -Message ($script:localizedData.VerboseSetTargetCreateVirtualDirectory -f $Name)
-            if ([bool]([System.Uri]$PhysicalPath).IsUnc)
+            if (([System.Uri] $PhysicalPath).IsUnc)
             {
                 # If physical path is provided using Unc syntax run New-WebVirtualDirectory with -Force flag
                 New-WebVirtualDirectory -Site $Website `
