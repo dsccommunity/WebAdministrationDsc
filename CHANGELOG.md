@@ -19,6 +19,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 - Website
   - Add Ensure to LogCustomFieldInformation. ([issue #571](https://github.com/dsccommunity/WebAdministrationDsc/issues/571))
   - Added code to ensure certificate selected has longest time until expiration when multiple matching certificates are found ([issue #578](https://github.com/dsccommunity/WebAdministrationDsc/issues/578))
+- WebVirtualDirectory
+  - Added Credential paramater
 
 ### Fixed
 
@@ -27,6 +29,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 -  WebSite
    - Added code to ensure certificate has private key. ([issue #578](https://github.com/dsccommunity/WebAdministrationDsc/issues/578))
 - Removed duplicated resource descriptions in README.md
+- WebVirtualDirectory
+  - Fixed error when using UNC PhysicalPath. ([issue #94](https://github.com/dsccommunity/WebAdministrationDsc/issues/94))
 
 ## [4.1.0] - 2023-01-03
 
