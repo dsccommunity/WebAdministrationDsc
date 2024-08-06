@@ -140,6 +140,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 
 ### IisMimeTypeMapping
 
+* **ConfigurationPath**: This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 * **Extension**: The file extension to map such as **.html** or **.xml**
 * **MimeType**: The MIME type to map that extension to such as **text/html**
 * **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
