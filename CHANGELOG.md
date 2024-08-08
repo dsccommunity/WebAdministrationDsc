@@ -32,6 +32,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 - Added documentation for ConfigurationPath attribute of IisMimeTypeMapping in README.md
 - WebVirtualDirectory
   - Fixed error when using UNC PhysicalPath. ([issue #94](https://github.com/dsccommunity/WebAdministrationDsc/issues/94))
+- Update build process to pin GitVersion to 5.* to resolve errors
+  (https://github.com/gaelcolas/Sampler/issues/477).
 
 ## [4.1.0] - 2023-01-03
 
