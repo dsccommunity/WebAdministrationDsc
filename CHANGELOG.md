@@ -7,6 +7,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+## [4.2.0] - 2024-08-26
+
 ### Removed
 
 - WebAdministrationDsc
