@@ -24,6 +24,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ### Fixed
 
+- WebAdministrationDsc
+  - Fix so pipeline use GitVersion v5.
 - IisLogging
   - Can now remove all LogCustomFields using Ensure. ([issue #571](https://github.com/dsccommunity/WebAdministrationDsc/issues/571))
 -  WebSite
