@@ -245,6 +245,7 @@ try
             Context 'Ensure is present and collection item and property do not exist - String ItemPropertyValue' {
                 Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName
                 Mock -CommandName Add-WebConfigurationProperty
+                Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
 
@@ -262,6 +263,7 @@ try
             Context 'Ensure is present and collection item and property do not exist - Integer ItemPropertyValue' {
                 Mock -CommandName Get-ItemValues -ModuleName $script:dscResourceName
                 Mock -CommandName Add-WebConfigurationProperty
+                Mock -CommandName Set-WebConfigurationProperty
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'Int64' }
                 Mock -CommandName Convert-PropertyValue
 
@@ -283,6 +285,7 @@ try
                         allowed = 'false'
                     }
                 }
+                Mock -CommandName Add-WebConfigurationProperty
                 Mock -CommandName Set-WebConfigurationProperty -MockWith {}
                 Mock -CommandName Get-CollectionItemPropertyType -MockWith { return 'String' }
                 Mock -CommandName Convert-PropertyValue
