@@ -120,7 +120,7 @@ function Set-TargetResource
         [String]
         $MimeType,
 
-        [Parameter]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
         $Ensure = 'Present'
@@ -194,7 +194,7 @@ function Test-TargetResource
         [String]
         $MimeType,
 
-        [Parameter]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
         $Ensure = 'Present'
