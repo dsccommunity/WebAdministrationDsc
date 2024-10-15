@@ -247,6 +247,7 @@ function Set-TargetResource
                 -PSPath $WebsitePath `
                 -Filter $filter `
                 -Name '.' `
+                -Type $ItemName `
                 -Value @{
                     $ItemKeyName = $ItemKeyValue
                     $ItemPropertyName = $setItemPropertyValue

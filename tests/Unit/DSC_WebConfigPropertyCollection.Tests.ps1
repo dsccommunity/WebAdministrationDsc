@@ -253,6 +253,7 @@ try
 
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 0 -Exactly
                     Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
                     Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
                 }
@@ -269,6 +270,7 @@ try
 
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
                     Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 0 -Exactly
                     Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
                     Assert-MockCalled -CommandName Convert-PropertyValue -Times 1 -Exactly
                 }
@@ -289,6 +291,7 @@ try
                     Set-TargetResource @script:presentParameters
 
                     Assert-MockCalled -CommandName Get-ItemValues -Times 1 -Exactly
+                    Assert-MockCalled -CommandName Add-WebConfigurationProperty -Times 0 -Exactly
                     Assert-MockCalled -CommandName Set-WebConfigurationProperty -Times 1 -Exactly
                     Assert-MockCalled -CommandName Get-CollectionItemPropertyType -Times 1 -Exactly
                     Assert-MockCalled -CommandName Convert-PropertyValue -Times 0 -Exactly
