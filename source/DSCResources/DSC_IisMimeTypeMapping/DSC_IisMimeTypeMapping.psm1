@@ -48,7 +48,7 @@ function Get-TargetResource
         [String]
         $MimeType,
 
-        [Parameter]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
         $Ensure = 'Present'
