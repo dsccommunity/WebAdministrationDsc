@@ -7,6 +7,15 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Removed
+
+### Changed
+
+### Fixed
+
+- WebAdministrationDsc
+  - Fixed CertificateStoreName value defined in the schema to match the system defined name. ([issue #642](https://github.com/dsccommunity/WebAdministrationDsc/issues/542))
+
 ## [4.2.0] - 2024-08-26
 
 ### Removed
