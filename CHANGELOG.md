@@ -7,10 +7,6 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
-### Removed
-
-### Changed
-
 ### Fixed
 
 - WebAdministrationDsc
