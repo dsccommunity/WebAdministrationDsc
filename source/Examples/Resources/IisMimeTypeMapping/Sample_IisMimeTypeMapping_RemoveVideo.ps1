@@ -61,7 +61,7 @@ configuration Sample_IisMimeTypeMapping_RemoveVideo
             DependsOn         = '[WindowsFeature]IIS'
         }
 
-        IisMimeTypeMapping Mpg
+        IisMimeTypeMapping Mpe
         {
             # Ensure defaults to 'Present'
             Extension         = '.mpe'
