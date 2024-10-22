@@ -51,11 +51,20 @@ configuration Sample_IisMimeTypeMapping_RemoveVideo
             DependsOn         = '[WindowsFeature]IIS'
         }
 
-        # we only allow the mpg Video extension on our server
+        # we only allow the mpg and mpe Video extensions on our server
         IisMimeTypeMapping Mpg
         {
             Ensure            = 'Present'
             Extension         = '.mpg'
+            MimeType          = 'video/mpeg'
+            ConfigurationPath = "IIS:\sites\$WebSiteName"
+            DependsOn         = '[WindowsFeature]IIS'
+        }
+
+        IisMimeTypeMapping Mpg
+        {
+            # Ensure defaults to 'Present'
+            Extension         = '.mpe'
             MimeType          = 'video/mpeg'
             ConfigurationPath = "IIS:\sites\$WebSiteName"
             DependsOn         = '[WindowsFeature]IIS'

@@ -7,7 +7,6 @@ configuration DSC_IisMimeTypeMapping_AddMimeType
         ConfigurationPath = ''
         Extension = $ConfigurationData.NonNodeData.FileExtension
         MimeType  = $ConfigurationData.NonNodeData.MimeType
-        Ensure    = 'Present'
     }
 }
 
@@ -33,7 +32,6 @@ Configuration DSC_IisMimeTypeMapping_AddMimeTypeNestedPath
         ConfigurationPath = $ConfigurationData.NonNodeData.VirtualConfigurationPath
         Extension         = $ConfigurationData.NonNodeData.FileExtension
         MimeType          = $ConfigurationData.NonNodeData.MimeType
-        Ensure            = 'Present'
     }
 }
 
