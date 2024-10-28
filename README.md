@@ -315,7 +315,7 @@ Ensures the value of an identified property collection item's property in the we
   * **HostName**: The host name of the binding. This property is only applicable for `http` and `https` bindings.
   * **CertificateThumbprint**: The thumbprint of the certificate. This property is only applicable for `https` bindings.
   * **CertificateSubject**: The subject of the certificate if the thumbprint isn't known. This property is only applicable for `https` bindings.
-  * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `MY`, `WebHosting`. The default value is `MY`.
+  * **CertificateStoreName**: The name of the certificate store where the certificate is located. This property is only applicable for `https` bindings. The acceptable values for this property are: `My`, `WebHosting`. The default value is `My`.
   * **SslFlags**: The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for `https` bindings. The acceptable values for this property are:
     * **0**: The default value. The secure connection be made using an IP/Port combination. Only one certificate can be bound to a combination of IP address and the port.
     * **1**: The secure connection be made using the port number and the host name obtained by using Server Name Indication (SNI). It allows multiple secure websites with different certificates to use the same IP address.

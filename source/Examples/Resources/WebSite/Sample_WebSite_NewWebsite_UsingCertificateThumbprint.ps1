@@ -88,7 +88,7 @@ Configuration Sample_WebSite_NewWebsite_UsingCertificateThumbprint
                     Protocol              = 'HTTPS'
                     Port                  = 8444
                     CertificateThumbprint = 'DEDDD963B28095837F558FE14DA1FDEFB7FA9DA7'
-                    CertificateStoreName  = 'MY'
+                    CertificateStoreName  = 'My'
                 }
             )
             DependsOn       = '[File]WebContent'

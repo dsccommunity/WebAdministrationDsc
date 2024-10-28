@@ -1460,7 +1460,7 @@ function ConvertTo-WebBinding
 
                     if ([String]::IsNullOrEmpty($binding.CertificateStoreName))
                     {
-                        $certificateStoreName = 'MY'
+                        $certificateStoreName = 'My'
                         Write-Verbose -Message `
                             ($script:localizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
                             -f $certificateStoreName)

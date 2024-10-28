@@ -27,7 +27,7 @@
             HTTPSPort                   = '443'
             HTTPSPort2                  = '8444'
             HTTPSHostname               = 'https.website'
-            CertificateStoreName        = 'MY'
+            CertificateStoreName        = 'My'
             SslFlags                    = '1'
             LogFieldName1               = 'CustomField1'
             SourceName1                 = 'Accept-Encoding'

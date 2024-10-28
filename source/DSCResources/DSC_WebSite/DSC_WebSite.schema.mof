@@ -36,7 +36,7 @@ class DSC_WebBindingInformation
     [Write, Description("The host name of the binding. This property is only applicable for http and https bindings.")] String HostName;
     [Write, Description("The thumbprint of the certificate. This property is only applicable for https bindings.")] String CertificateThumbprint;
     [Write, Description("The subject of the certificate if the thumbprint isn't known. This property is only applicable for https bindings.")] String CertificateSubject;
-    [Write,Description("The name of the certificate store where the certificate is located. This property is only applicable for https bindings. The acceptable values for this property are: MY, WebHosting. The default value is MY."),ValueMap{"MY", "WebHosting"},Values{"MY", "WebHosting"}] String CertificateStoreName;
+    [Write,Description("The name of the certificate store where the certificate is located. This property is only applicable for https bindings. The acceptable values for this property are: My, WebHosting. The default value is My."),ValueMap{"My", "WebHosting"},Values{"My", "WebHosting"}] String CertificateStoreName;
     [Write,Description("The type of binding used for Secure Sockets Layer (SSL) certificates. This property is supported in IIS 8.0 or later, and is only applicable for https bindings."),ValueMap{"0","1","2","3"},Values{"0","1","2","3"}] String SslFlags;
 };
 

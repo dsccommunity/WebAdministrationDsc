@@ -19,7 +19,7 @@
             HTTPSProtocol               = 'https'
             HTTPSPort                   = '443'
             HTTPSHostname               = 'https.website'
-            CertificateStoreName        = 'MY'
+            CertificateStoreName        = 'My'
             SslFlags                    = '1'
             WebApplicationSslFlags      = @('Ssl')
             EnabledProtocols            = @('http', 'net.tcp')
