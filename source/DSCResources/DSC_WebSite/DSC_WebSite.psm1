@@ -1310,7 +1310,7 @@ function ConvertTo-CimBinding
             }
 
             $cimProperties.Add('CertificateThumbprint', [String]$binding.certificateHash)
-            $cimProperties.Add('CertificateStoreName',  [String]$binding.certificateStoreName)
+            $cimProperties.Add('CertificateStoreName',  [String]($binding.certificateStoreName) -replace ('MY','My'))
 
             New-CimInstance -ClassName $cimClassName `
                             -Namespace $cimNamespace `
@@ -1467,7 +1467,7 @@ function ConvertTo-WebBinding
                     }
                     else
                     {
-                        $certificateStoreName = $binding.CertificateStoreName
+                        $certificateStoreName = $binding.CertificateStoreName -replace ('MY','My')
                     }
 
                     $certificateHash = $null

@@ -2276,7 +2276,7 @@ try
                 }
 
                 It 'should return the CertificateStoreName' {
-                    $Result.CertificateStoreName | Should Be 'My'
+                    $Result.CertificateStoreName | Should BeExactly 'My'
                 }
 
                 It 'should return the SslFlags' {
@@ -2316,7 +2316,7 @@ try
                 }
 
                 It 'should return the CertificateStoreName' {
-                    $Result.CertificateStoreName | Should Be 'My'
+                    $Result.CertificateStoreName | Should BeExactly 'My'
                 }
 
                 It 'should return the SslFlags' {
@@ -2651,7 +2651,7 @@ try
 
                 It 'should set CertificateStoreName to the default value' {
                     $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
-                    $Result.certificateStoreName | Should Be 'My'
+                    $Result.certificateStoreName | Should BeExactly 'My'
                 }
             }
 
