@@ -7,10 +7,22 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Added
+
+- WebConfigPropertyCollection
+  - Allowed different property collection key types to be added beyond the default.
+
+### Changed
+
+- IisModule
+  - Set default for Ensure property to Present.
+- IisMimeTypeMapping
+  - Set default for Ensure property to Present.
+
 ### Fixed
 
 - WebAdministrationDsc
-  - Fixed CertificateStoreName default value from `MY` to `My`. ([issue #642](https://github.com/dsccommunity/WebAdministrationDsc/issues/542))
+  - Fixed CertificateStoreName default value from `MY` to `My` ([issue #642](https://github.com/dsccommunity/WebAdministrationDsc/issues/542))
 
 ## [4.2.0] - 2024-08-26
 

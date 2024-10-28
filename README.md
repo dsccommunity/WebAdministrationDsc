@@ -143,7 +143,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **ConfigurationPath**: This can be either an IIS configuration path in the format computername/webroot/apphost, or the IIS module path in this format IIS:\sites\Default Web Site.
 * **Extension**: The file extension to map such as **.html** or **.xml**
 * **MimeType**: The MIME type to map that extension to such as **text/html**
-* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**.
+* **Ensure**: Ensures that the MIME type mapping is **Present** or **Absent**. Defaults to **Present**.
 
 ### IisModule
 
@@ -153,13 +153,13 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **Verb**: An array of allowed verbs, such as get and post.
 * **SiteName**: The name of the Site to register the module for. If empty, the resource will register the module with all of IIS.
 * **ModuleType**: The type of the module. Currently, only FastCgiModule is supported.
-* **Ensure**: Ensures that the module is **Present** or **Absent**.
+* **Ensure**: Ensures that the module is **Present** or **Absent**. Defaults to **Present**.
 
 ### SslSettings
 
 * **Name**: The Name of website in which to modify the SSL Settings
 * **Bindings**: The SSL bindings to implement.
-* **Ensure**: Ensures if the bindings are **Present** or **Absent**.
+* **Ensure**: Ensures if the bindings are **Present** or **Absent**. Defaults to **Present**.
 
 ### WebApplication
 
@@ -167,7 +167,7 @@ This resource manages the IIS configuration section locking (overrideMode) to co
 * **Name**: The desired name of the web application.
 * **WebAppPool**:  Web application’s application pool.
 * **PhysicalPath**: The path to the files that compose the web application.
-* **Ensure**: Ensures that the web application is **Present** or **Absent**.
+* **Ensure**: Ensures that the web application is **Present** or **Absent**. Defaults to **Present**.
 * **PreloadEnabled**: When set to `$true` this will allow WebSite to automatically start without a request
 * **ServiceAutoStartEnabled**: When set to `$true` this will enable Autostart on a Website
 * **ServiceAutoStartProvider**: Adds a AutostartProvider
@@ -363,7 +363,7 @@ Ensures the value of an identified property collection item's property in the we
 * **WebApplication**:  The name of the containing web application or an empty string for the containing website
 * **PhysicalPath**: The path to the files that compose the virtual directory
 * **Name**: The name of the virtual directory
-* **Ensure**: Ensures if the virtual directory is **Present** or **Absent**.
+* **Ensure**: Ensures if the virtual directory is **Present** or **Absent**. Defaults to **Present**.
 
 ## Examples
 

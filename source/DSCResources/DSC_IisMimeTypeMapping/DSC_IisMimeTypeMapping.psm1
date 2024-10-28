@@ -48,10 +48,10 @@ function Get-TargetResource
         [String]
         $MimeType,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
-        $Ensure
+        $Ensure = 'Present'
     )
 
     # Check if WebAdministration module is present for IIS cmdlets
@@ -120,10 +120,10 @@ function Set-TargetResource
         [String]
         $MimeType,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
-        $Ensure
+        $Ensure = 'Present'
     )
 
     Assert-Module -ModuleName WebAdministration
@@ -194,10 +194,10 @@ function Test-TargetResource
         [String]
         $MimeType,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [String]
-        $Ensure
+        $Ensure = 'Present'
     )
 
     Assert-Module -ModuleName WebAdministration

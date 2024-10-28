@@ -104,7 +104,7 @@ function Set-TargetResource
     (
         [Parameter()]
         [ValidateSet('Present','Absent')]
-        [String] $Ensure,
+        [String] $Ensure  = 'Present',
 
         [Parameter(Mandatory = $true)]
         [String] $Path,
@@ -183,7 +183,7 @@ function Test-TargetResource
     (
         [Parameter()]
         [ValidateSet('Present','Absent')]
-        [String] $Ensure,
+        [String] $Ensure  = 'Present',
 
         [Parameter(Mandatory = $true)]
         [String] $Path,
@@ -337,7 +337,7 @@ function Test-TargetResourceImpl
 
         [Parameter()]
         [ValidateSet('Present','Absent')]
-        [String] $Ensure,
+        [String] $Ensure = 'Present',
 
         [Parameter(Mandatory = $true)]
         [HashTable] $resourceStatus
