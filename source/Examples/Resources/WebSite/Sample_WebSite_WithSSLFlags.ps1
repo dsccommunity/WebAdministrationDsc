@@ -76,7 +76,7 @@ configuration Sample_WebSite_WithSSLFlags
             {
                 Protocol              = 'https'
                 Port                  = '443'
-                CertificateStoreName  = 'MY'
+                CertificateStoreName  = 'My'
                 CertificateThumbprint = 'BB84DE3EC423DDDE90C08AB3C5A828692089493C'
                 HostName              = $WebSiteName
                 IPAddress             = '*'

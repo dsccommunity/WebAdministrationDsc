@@ -2249,7 +2249,7 @@ try
                     bindingInformation   = '127.0.0.1:443:MockHostName'
                     protocol             = 'https'
                     certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                    certificateStoreName = 'MY'
+                    certificateStoreName = 'My'
                     sslFlags             = '1'
                 }
 
@@ -2276,7 +2276,7 @@ try
                 }
 
                 It 'should return the CertificateStoreName' {
-                    $Result.CertificateStoreName | Should Be 'MY'
+                    $Result.CertificateStoreName | Should BeExactly 'My'
                 }
 
                 It 'should return the SslFlags' {
@@ -2289,7 +2289,7 @@ try
                     bindingInformation   = '[0:0:0:0:0:0:0:1]:443:MockHostName'
                     protocol             = 'https'
                     certificateHash      = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                    certificateStoreName = 'MY'
+                    certificateStoreName = 'My'
                     sslFlags             = '1'
                 }
 
@@ -2316,7 +2316,7 @@ try
                 }
 
                 It 'should return the CertificateStoreName' {
-                    $Result.CertificateStoreName | Should Be 'MY'
+                    $Result.CertificateStoreName | Should BeExactly 'My'
                 }
 
                 It 'should return the SslFlags' {
@@ -2470,7 +2470,7 @@ try
                     -Property @{
                         Protocol              = 'https'
                         CertificateThumbprint = $MockThumbprintWithLrmChar
-                        CertificateStoreName  = 'MY'
+                        CertificateStoreName  = 'My'
                     } -ClientOnly
                 )
 
@@ -2617,7 +2617,7 @@ try
                     -Property @{
                         Protocol              = 'https'
                         CertificateSubject    = 'TestCertificate'
-                        CertificateStoreName  = 'MY'
+                        CertificateStoreName  = 'My'
                     } -ClientOnly
                 )
 
@@ -2651,7 +2651,7 @@ try
 
                 It 'should set CertificateStoreName to the default value' {
                     $Result = ConvertTo-WebBinding -InputObject $MockBindingInfo
-                    $Result.certificateStoreName | Should Be 'MY'
+                    $Result.certificateStoreName | Should BeExactly 'My'
                 }
             }
 
@@ -3427,7 +3427,7 @@ try
                             Port                  = 443
                             HostName              = ''
                             CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                            CertificateStoreName  = 'MY'
+                            CertificateStoreName  = 'My'
                             SslFlags              = 0
                         }
                 )
@@ -3437,7 +3437,7 @@ try
                         bindingInformation   = '*:443:'
                         protocol             = 'https'
                         certificateHash      = 'B30F3184A831320382C61EFB0551766321FA88A5'
-                        certificateStoreName = 'MY'
+                        certificateStoreName = 'My'
                         sslFlags             = '0'
                     }
                 )
@@ -3468,7 +3468,7 @@ try
                             Port                  = 443
                             HostName              = ''
                             CertificateThumbprint = '1D3324C6E2F7ABC794C9CB6CA426B8D0F81045CD'
-                            CertificateStoreName  = 'MY'
+                            CertificateStoreName  = 'My'
                             SslFlags              = 0
                         }
                 )
@@ -3507,7 +3507,7 @@ try
                             Port                  = 443
                             HostName              = ''
                             CertificateThumbprint = ''
-                            CertificateStoreName  = 'MY'
+                            CertificateStoreName  = 'My'
                             SslFlags              = 0
                         }
                 )
@@ -3814,7 +3814,7 @@ try
                         Port                  = 443
                         HostName              = ''
                         CertificateThumbprint = '5846A1B276328B1A32A30150858F6383C1F30E1F'
-                        CertificateStoreName  = 'MY'
+                        CertificateStoreName  = 'My'
                         SslFlags              = 0
                     }
             )

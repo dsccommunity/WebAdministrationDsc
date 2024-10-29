@@ -1310,7 +1310,7 @@ function ConvertTo-CimBinding
             }
 
             $cimProperties.Add('CertificateThumbprint', [String]$binding.certificateHash)
-            $cimProperties.Add('CertificateStoreName',  [String]$binding.certificateStoreName)
+            $cimProperties.Add('CertificateStoreName',  [String]($binding.certificateStoreName) -creplace ('^MY$','My'))
 
             New-CimInstance -ClassName $cimClassName `
                             -Namespace $cimNamespace `
@@ -1460,14 +1460,14 @@ function ConvertTo-WebBinding
 
                     if ([String]::IsNullOrEmpty($binding.CertificateStoreName))
                     {
-                        $certificateStoreName = 'MY'
+                        $certificateStoreName = 'My'
                         Write-Verbose -Message `
                             ($script:localizedData.VerboseConvertToWebBindingDefaultCertificateStoreName `
                             -f $certificateStoreName)
                     }
                     else
                     {
-                        $certificateStoreName = $binding.CertificateStoreName
+                        $certificateStoreName = $binding.CertificateStoreName -creplace ('^MY$','My')
                     }
 
                     $certificateHash = $null

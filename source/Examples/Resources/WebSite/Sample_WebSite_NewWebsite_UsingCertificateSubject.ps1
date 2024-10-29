@@ -79,7 +79,7 @@ Configuration Sample_WebSite_NewWebsite_UsingCertificateSubject
                     Protocol              = 'HTTPS'
                     Port                  = 8444
                     CertificateSubject    = 'CN=CertificateSubject'
-                    CertificateStoreName  = 'MY'
+                    CertificateStoreName  = 'My'
                 }
             )
             DependsOn       = '[File]WebContent'

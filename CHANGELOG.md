@@ -19,6 +19,11 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 - IisMimeTypeMapping
   - Set default for Ensure property to Present.
 
+### Fixed
+
+- WebAdministrationDsc
+  - Fixed CertificateStoreName default value from `MY` to `My` ([issue #642](https://github.com/dsccommunity/WebAdministrationDsc/issues/542))
+
 ## [4.2.0] - 2024-08-26
 
 ### Removed
