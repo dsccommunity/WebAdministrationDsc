@@ -30,7 +30,6 @@ Configuration Sample_WebConfigPropertyCollection_SingleItemRemove
             ItemKeyName       = '*'
             ItemKeyValue      = 'appsettings.json'
             ItemPropertyName  = 'segment'
-            ItemPropertyValue = 'appsettings.json'
             Ensure            = 'Absent'
         }
     }

@@ -30,7 +30,6 @@ Configuration Sample_WebConfigPropertyCollection_Remove
             ItemKeyName       = 'verb'
             ItemKeyValue      = 'TRACE'
             ItemPropertyName  = 'allowed'
-            ItemPropertyValue = 'false'
             Ensure            = 'Absent'
         }
     }
