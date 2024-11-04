@@ -330,7 +330,7 @@ try
                     Set-TargetResource @script:absentSingleItemParameters
 
                     Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Times 1 -Exactly -ParameterFilter {
-                        $ItemKeyName -eq $script:absentSingleItemParameters.ItemPropertyName
+                        $AtElement[$script:absentSingleItemParameters.ItemPropertyName] -eq $script:absentSingleItemParameters.ItemKeyValue
                     }
                 }
             }

@@ -10,9 +10,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ### Added
 
 - WebConfigPropertyCollection
-  - Allowed different property collection key types to be added beyond the default - fixes ([issue #379](https://github.com/dsccommunity/WebAdministrationDsc/issues/379)), ([issue #631](https://github.com/dsccommunity/WebAdministrationDsc/issues/631))
+  - Allowed different property collection key types to be added beyond the default - fixes ([issue #379](https://github.com/dsccommunity/WebAdministrationDsc/issues/379)), ([issue #631](https://github.com/dsccommunity/WebAdministrationDsc/issues/631)).
   - Allowed control over single item property collection key types, including examples.
-  
 
 ### Changed
 
@@ -25,6 +24,10 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 - WebAdministrationDsc
   - Fixed CertificateStoreName default value from `MY` to `My` ([issue #642](https://github.com/dsccommunity/WebAdministrationDsc/issues/642))
+
+### Removed
+
+- Removed outdated resources documentation from README.md.
 
 ## [4.2.0] - 2024-08-26
 
