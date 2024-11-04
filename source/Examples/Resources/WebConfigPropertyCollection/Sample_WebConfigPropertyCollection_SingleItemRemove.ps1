@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     This example shows how to use the WebConfigPropertyCollection DSC resource for removing a single item configuration element.
-    It will remove the "add" element from the system.webServer/security/requestFiltering/verbs collection (if present) for blocking appsettings.json.
+    It will remove the "add" element from the system.webServer/security/requestFiltering/hiddenSegments collection (if present) for blocking appsettings.json.
 #>
 Configuration Sample_WebConfigPropertyCollection_SingleItemRemove
 {

@@ -60,6 +60,18 @@ try
             Ensure            = 'Absent'
         }
 
+        $script:absentSingleItemParameters = @{
+            WebsitePath       = 'MACHINE/WEBROOT/APPHOST'
+            Filter            = 'system.webServer/security/requestFiltering'
+            CollectionName    = 'hiddenSegments'
+            ItemName          = 'add'
+            ItemKeyName       = '*'
+            ItemKeyValue      = 'appsettings.json'
+            ItemPropertyName  = 'segment'
+            ItemPropertyValue = 'appsettings.json'
+            Ensure            = 'Absent'
+        }
+
         #region Function Get-TargetResource
         Describe "$($script:dscResourceName)\Get-TargetResource" {
             $parameters = @{
@@ -308,6 +320,18 @@ try
                     Set-TargetResource @script:absentParameters
 
                     Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Times 1 -Exactly
+                }
+            }
+
+            Context 'Ensure is absent and single collection item element' {
+                Mock -CommandName Remove-WebConfigurationProperty -MockWith {}
+
+                It 'Should call the right Mocks' {
+                    Set-TargetResource @script:absentSingleItemParameters
+
+                    Assert-MockCalled -CommandName Remove-WebConfigurationProperty -Times 1 -Exactly -ParameterFilter {
+                        $ItemKeyName -eq $script:absentSingleItemParameters.ItemPropertyName
+                    }
                 }
             }
         }

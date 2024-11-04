@@ -101,7 +101,7 @@ try
 
         $filterValue = "$($filter)/$($collectionName)/$($itemName)[@$($itemKeyName)='$($itemKeyValue)']/@$itemPropertyName"
         $integerFilterValue = "$($integerFilter)/$($integerCollectionName)/$($itemName)[@$($integerItemKeyName)='$($integerItemKeyValue)']/@$integerItemPropertyName"
-        $singleItemFilterValue = "$($singleItemFilter)/$($singleItemCollectionName)/$($itemName)[@$($singleItemItemKeyName)='$($singleItemItemKeyValue)']/@$singleItemPropertyName"
+        $singleItemFilterValue = "$($singleItemFilter)/$($singleItemCollectionName)/$($itemName)[@$($singleItemKeyName)='$($singleItemKeyValue)']/@$singleItemPropertyName"
 
         Context 'When Adding Collection item' {
             It 'Should compile and apply the MOF without throwing' {
