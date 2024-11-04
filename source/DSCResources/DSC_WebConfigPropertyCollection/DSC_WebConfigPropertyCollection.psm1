@@ -274,6 +274,12 @@ function Set-TargetResource
         Write-Verbose `
             -Message ($script:localizedData.VerboseSetTargetRemoveItem -f $ItemPropertyName )
 
+        # If we are removing a single collection item with the wildcard syntax for the key, set key name to match the property name
+        if ($ItemKeyName -eq '*')
+        {
+            $ItemKeyName = $ItemPropertyName
+        }
+
         $filter = "$($Filter)/$($CollectionName)"
         Remove-WebConfigurationProperty `
             -PSPath $WebsitePath `

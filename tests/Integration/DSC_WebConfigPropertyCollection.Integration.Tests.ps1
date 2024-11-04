@@ -59,6 +59,12 @@ try
                     IntegerItemKeyValue      = 'Content-Type'
                     IntegerItemPropertyName  = 'Sizelimit'
                     IntegerItemPropertyValue = [string](Get-Random -Minimum 11 -Maximum 100)
+                    SingleItemFilter         = 'system.webServer/security/requestFiltering'
+                    SingleItemCollectionName = 'hiddenSegments'
+                    SingleItemKeyName        = '*'
+                    SingleItemKeyValue       = 'appsettings.json'
+                    SingleItemPropertyName   = 'segment'
+                    SingleItemPropertyValue  = 'appsettings.json'
                 }
             )
         }
@@ -78,6 +84,12 @@ try
         $integerItemKeyValue      = $ConfigurationData.AllNodes.IntegerItemKeyValue
         $integerItemPropertyName  = $ConfigurationData.AllNodes.IntegerItemPropertyName
         $integerItemPropertyValue = $ConfigurationData.AllNodes.IntegerItemPropertyValue
+        $singleItemFilter         = $ConfigurationData.AllNodes.SingleItemFilter
+        $singleItemCollectionName = $ConfigurationData.AllNodes.SingleItemCollectionName
+        $singleItemKeyName        = $ConfigurationData.AllNodes.SingleItemKeyName
+        $singleItemKeyValue       = $ConfigurationData.AllNodes.SingleItemKeyValue
+        $singleItemPropertyName   = $ConfigurationData.AllNodes.SingleItemPropertyName
+        $singleItemPropertyValue  = $ConfigurationData.AllNodes.SingleItemPropertyValue
 
         $startDscConfigurationParameters = @{
             Path              = $TestDrive
@@ -89,6 +101,7 @@ try
 
         $filterValue = "$($filter)/$($collectionName)/$($itemName)[@$($itemKeyName)='$($itemKeyValue)']/@$itemPropertyName"
         $integerFilterValue = "$($integerFilter)/$($integerCollectionName)/$($itemName)[@$($integerItemKeyName)='$($integerItemKeyValue)']/@$integerItemPropertyName"
+        $singleItemFilterValue = "$($singleItemFilter)/$($singleItemCollectionName)/$($itemName)[@$($singleItemItemKeyName)='$($singleItemItemKeyValue)']/@$singleItemPropertyName"
 
         Context 'When Adding Collection item' {
             It 'Should compile and apply the MOF without throwing' {
@@ -180,6 +193,53 @@ try
                 $integerValue = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $integerFilterValue -Name "." -ErrorAction SilentlyContinue).Value
 
                 $integerValue | Should -Be $integerItemPropertyValue
+            }
+        }
+
+        Context 'When Adding Single Collection item' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_SingleItemAdd" -OutputPath $TestDrive -ConfigurationData $configurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+
+            It 'Should have the correct value of the configuration property collection item' {
+                # Get the new value.
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $singleItemFilterValue -Name "." -ErrorAction SilentlyContinue).Value
+
+                $value | Should -Be $singleItemPropertyValue
+            }
+        }
+
+        Context 'When Removing Single Collection item' {
+            It 'Should compile and apply the MOF without throwing' {
+                {
+                    & "$($script:dscResourceName)_SingleItemRemove" -OutputPath $TestDrive -ConfigurationData $configurationData
+                    Start-DscConfiguration @startDscConfigurationParameters
+                } | Should -Not -Throw
+            }
+
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should -Not -Throw
+            }
+
+            It 'Should return $true for Test-DscConfiguration' {
+                Test-DscConfiguration | Should Be $true
+            }
+
+            It 'Should remove configuration property' {
+                $value = (Get-WebConfigurationProperty -PSPath $websitePath -Filter $singleItemFilterValue -Name "." -ErrorAction SilentlyContinue).Value
+
+                $value | Should -BeNullOrEmpty
             }
         }
 
