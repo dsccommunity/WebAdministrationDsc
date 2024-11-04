@@ -10,8 +10,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ### Added
 
 - WebConfigPropertyCollection
-  - Allowed different property collection key types to be added beyond the default - fixes ([issue #379](https://github.com/dsccommunity/WebAdministrationDsc/issues/379)), ([issue #631](https://github.com/dsccommunity/WebAdministrationDsc/issues/631)).
-  - Allowed control over single item property collection key types, including examples.
+  - Allowed different property collection key types to be added beyond the default.
+  - Allowed control over single item property collection key types, including examples - fixes ([issue #379](https://github.com/dsccommunity/WebAdministrationDsc/issues/379)), ([issue #631](https://github.com/dsccommunity/WebAdministrationDsc/issues/631)).
 
 ### Changed
 
