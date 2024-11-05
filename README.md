@@ -41,43 +41,6 @@ for some general use scenarios for all of the resources that are in the module.
 
 The resource examples are also available in the [WebAdministration Wiki](https://github.com/dsccommunity/WebAdministrationDsc/wiki).
 
-## Installation
-
-### From GitHub source code
-
-To manually install the module, download the source code from GitHub and unzip
-the contents to the '$env:ProgramFiles\WindowsPowerShell\Modules' folder.
-
-### From PowerShell Gallery
-
-To install from the PowerShell gallery using PowerShellGet (in PowerShell 5.0)
-run the following command:
-
-```powershell
-Find-Module -Name WebAdministrationDsc | Install-Module
-```
-
-To confirm installation, run the below command and ensure you see the
-DSC resources available:
-
-```powershell
-Get-DscResource -Module WebAdministrationDsc
-```
-
-## Requirements
-
-The minimum Windows Management Framework (PowerShell) version required is
-4.0 or higher.
-
->Note: In the CI pipeline the resource are only tested on PowerShell 5.1,
->so PowerShell 4.0 support is best effort as this time.
-
-## Examples
-
-You can review the [Examples](/source/Examples) directory in the WebAdministrationDsc
-module for some general use scenarios for all of the resources that are in
-the module.
-
 ### Registering PHP
 
 When configuring an IIS Application that uses PHP, you first need to register the PHP CGI module with IIS.
@@ -218,3 +181,34 @@ xPhp -PackageFolder "C:\packages" `
     -ConfigurationPath "C:\MyPhp.ini" `
     -installMySqlExt $false
 ```
+
+## Installation
+
+### From GitHub source code
+
+To manually install the module, download the source code from GitHub and unzip
+the contents to the '$env:ProgramFiles\WindowsPowerShell\Modules' folder.
+
+### From PowerShell Gallery
+
+To install from the PowerShell gallery using PowerShellGet (in PowerShell 5.0)
+run the following command:
+
+```powershell
+Find-Module -Name WebAdministrationDsc | Install-Module
+```
+
+To confirm installation, run the below command and ensure you see the
+DSC resources available:
+
+```powershell
+Get-DscResource -Module WebAdministrationDsc
+```
+
+## Requirements
+
+The minimum Windows Management Framework (PowerShell) version required is
+4.0 or higher.
+
+>Note: In the CI pipeline the resource are only tested on PowerShell 5.1,
+>so PowerShell 4.0 support is best effort as this time.
