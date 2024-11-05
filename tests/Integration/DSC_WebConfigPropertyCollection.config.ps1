@@ -81,3 +81,44 @@ Configuration DSC_WebConfigPropertyCollection_Integer
         }
     }
 }
+
+Configuration DSC_WebConfigPropertyCollection_SingleItemAdd
+{
+    Import-DscResource -ModuleName WebAdministrationDsc
+
+    node localhost
+    {
+        WebConfigPropertyCollection IntegrationTest
+        {
+            WebsitePath       = $Node.WebsitePath
+            Filter            = $Node.SingleItemFilter
+            CollectionName    = $Node.SingleItemCollectionName
+            ItemName          = $Node.ItemName
+            ItemKeyName       = $Node.SingleItemKeyName
+            ItemKeyValue      = $Node.SingleItemKeyValue
+            ItemPropertyName  = $Node.SingleItemPropertyName
+            ItemPropertyValue = $Node.SingleItemPropertyValue
+            Ensure            = 'Present'
+        }
+    }
+}
+
+Configuration DSC_WebConfigPropertyCollection_SingleItemRemove
+{
+    Import-DscResource -ModuleName WebAdministrationDsc
+
+    node localhost
+    {
+        WebConfigPropertyCollection IntegrationTest
+        {
+            WebsitePath       = $Node.WebsitePath
+            Filter            = $Node.SingleItemFilter
+            CollectionName    = $Node.SingleItemCollectionName
+            ItemName          = $Node.ItemName
+            ItemKeyName       = $Node.SingleItemKeyName
+            ItemKeyValue      = $Node.SingleItemKeyValue
+            ItemPropertyName  = $Node.SingleItemPropertyName
+            Ensure            = 'Absent'
+        }
+    }
+}
