@@ -7,6 +7,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+## [4.2.1] - 2024-11-13
+
 ### Added
 
 - WebConfigPropertyCollection
