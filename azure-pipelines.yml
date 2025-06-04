@@ -1,15 +1,15 @@
 trigger:
   branches:
     include:
-    - main
+      - main
   paths:
     include:
-    - source/*
+      - source/*
   tags:
     include:
-    - "v*"
+      - 'v*'
     exclude:
-    - "*-*"
+      - '*-*'
 
 variables:
   buildFolderName: output
@@ -60,7 +60,7 @@ stages:
         displayName: 'HQRM'
         pool:
           vmImage: 'windows-latest'
-        timeoutInMinutes: 0
+        timeoutInMinutes: '0'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Build Artifact'
@@ -87,7 +87,7 @@ stages:
         displayName: 'Unit'
         pool:
           vmImage: 'windows-latest'
-        timeoutInMinutes: 0
+        timeoutInMinutes: '0'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Build Artifact'
@@ -114,50 +114,12 @@ stages:
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
               artifactName: $(testArtifactName)
-              parallel: true
-
-      - job: Test_Integration_2019
-        displayName: 'Integration 2019'
-        pool:
-          vmImage: 'windows-2019'
-        timeoutInMinutes: 0
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
-            inputs:
-              buildType: 'current'
-              artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
-          - task: PowerShell@2
-            name: configureWinRM
-            displayName: 'Configure WinRM'
-            inputs:
-              targetType: 'inline'
-              script: 'winrm quickconfig -quiet'
-              pwsh: false
-          - powershell: |
-              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
-            name: InstallWebServerFeature
-          - task: PowerShell@2
-            name: test
-            displayName: 'Run Integration Test'
-            inputs:
-              filePath: './build.ps1'
-              arguments: "-Tasks test -CodeCoverageThreshold 0 -PesterScript 'tests/Integration'"
-              pwsh: false
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'NUnit'
-              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              testRunTitle: 'Integration'
 
       - job: Test_Integration_2022
         displayName: 'Integration 2022'
         pool:
           vmImage: 'windows-2022'
-        timeoutInMinutes: 0
+        timeoutInMinutes: '0'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Build Artifact'
@@ -190,12 +152,49 @@ stages:
               testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
               testRunTitle: 'Integration'
 
-      - job: Test_Integration_ServerCore_ltsc2019
-        displayName: 'Integration Server Core LTSC 2019'
+      - job: Test_Integration_2025
+        displayName: 'Integration 2025'
         pool:
-          vmImage: 'windows-2019'
-        container: mcr.microsoft.com/windows/servercore:ltsc2019
-        timeoutInMinutes: 0
+          vmImage: 'windows-2025'
+        timeoutInMinutes: '0'
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifact'
+            inputs:
+              buildType: 'current'
+              artifactName: $(buildArtifactName)
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
+          - task: PowerShell@2
+            name: configureWinRM
+            displayName: 'Configure WinRM'
+            inputs:
+              targetType: 'inline'
+              script: 'winrm quickconfig -quiet'
+              pwsh: false
+          - powershell: |
+              Install-WindowsFeature -IncludeAllSubFeature -IncludeManagementTools -Name 'Web-Server' -Verbose
+            name: InstallWebServerFeature
+          - task: PowerShell@2
+            name: test
+            displayName: 'Run Integration Test'
+            inputs:
+              filePath: './build.ps1'
+              arguments: "-Tasks test -CodeCoverageThreshold 0 -PesterScript 'tests/Integration'"
+              pwsh: false
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
+              testRunTitle: 'Integration'
+
+      - job: Test_Integration_ServerCore_ltsc2022
+        displayName: 'Integration Server Core LTSC 2022'
+        pool:
+          vmImage: 'windows-2022'
+        container: mcr.microsoft.com/windows/servercore:ltsc2022
+        timeoutInMinutes: '0'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Build Artifact'
@@ -237,14 +236,63 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              testRunTitle: 'Integration'
+              testRunTitle: 'Integration LTSC 2022'
+
+      - job: Test_Integration_ServerCore_ltsc2025
+        displayName: 'Integration Server Core LTSC 2025'
+        pool:
+          vmImage: 'windows-2025'
+        container: mcr.microsoft.com/windows/servercore:ltsc2025
+        timeoutInMinutes: '0'
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifact'
+            inputs:
+              buildType: 'current'
+              artifactName: $(buildArtifactName)
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
+          - task: PowerShell@2
+            name: configureWinRM
+            displayName: 'Configure WinRM'
+            inputs:
+              targetType: 'inline'
+              script: 'winrm quickconfig -quiet'
+              pwsh: false
+          - powershell: |
+              Set-Service -Name wuauserv -StartupType Manual -Verbose
+              Start-Service -name wuauserv -Verbose
+              $features = @(
+                'Web-Common-Http','Web-Health','Web-Performance',
+                'Web-Security','Web-AppInit',
+                'Web-CGI','Web-ISAPI-Ext','Web-ISAPI-Filter',
+                'Web-Includes','Web-WebSockets', 'Web-Scripting-Tools', 'Web-Mgmt-Tools'
+              )
+              foreach($feature in $features) {
+                Write-Host $feature
+                Install-WindowsFeature -IncludeAllSubFeature -Name $feature -Verbose
+              }
+            name: InstallWebServerFeature
+          - task: PowerShell@2
+            name: test
+            displayName: 'Run Integration Test'
+            inputs:
+              filePath: './build.ps1'
+              arguments: "-Tasks test -CodeCoverageThreshold 0 -PesterScript 'tests/Integration'"
+              pwsh: false
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
+              testRunTitle: 'Integration LTSC 2025'
 
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
         dependsOn: Test_Unit
         pool:
           vmImage: 'ubuntu-latest'
-        timeoutInMinutes: 0
+        timeoutInMinutes: '0'
         steps:
           - pwsh: |
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
