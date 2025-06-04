@@ -7,6 +7,13 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 ## [Unreleased]
 
+### Changed
+
+- `WebAdministrationDsc`
+  - Update to latest Sampler files.
+  - Remove `windows-2019` images.
+  - Add `windows-2025` images.
+
 ## [4.2.1] - 2024-11-13
 
 ### Added
