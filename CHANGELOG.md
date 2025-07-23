@@ -13,6 +13,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
   - Update to latest Sampler files.
   - Remove `windows-2019` images. [#649](https://github.com/dsccommunity/WebAdministrationDsc/issues/649).
   - Add `windows-2025` images.
+  - Fix Getting/Setting Credentials in WebVirtualDirectory
 
 ## [4.2.1] - 2024-11-13
 
