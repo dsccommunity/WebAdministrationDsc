@@ -50,7 +50,7 @@ function Get-TargetResource
 
     $PhysicalPath = ''
     $Ensure = 'Absent'
-    $Credential = $null
+    $cimCredential = $null
 
     if ($virtualDirectory.Count -eq 1)
     {
@@ -63,9 +63,13 @@ function Get-TargetResource
 
         if ($currentCredential -and (-not [System.String]::IsNullOrEmpty($currentCredential.userName)))
         {
-            $password = New-Object System.Security.SecureString # Blank Password
-            $secStringPassword = $password | ConvertTo-SecureString -AsPlainText -Force
-            $Credential = New-Object System.Management.Automation.PSCredential ($currentCredential.userName, $secStringPassword)
+            $cimCredential = New-CimInstance -ClientOnly `
+                -ClassName MSFT_Credential `
+                -Namespace root/microsoft/windows/DesiredStateConfiguration `
+                -Property @{
+                    UserName = $currentCredential.userName
+                    Password = $currentCredential.password
+                }
         }
     }
 
@@ -76,7 +80,7 @@ function Get-TargetResource
         Website        = $Website
         WebApplication = $WebApplication
         PhysicalPath   = $PhysicalPath
-        Credential     = $Credential
+        Credential     = $cimCredential
         Ensure         = $Ensure
     }
 
