@@ -283,13 +283,13 @@ function Test-TargetResource
             }
             else
             {
-                Write-Verbose -Message ($script:localizedData.VerboseTestTargetCredentialFalse -f $PhysicalPath, $Name)
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetCredentialFalse -f $Credential.UserName, $Name)
                 return $false
             }
         }
         else
         {
-            Write-Verbose -Message ($script:localizedData.VerboseTestTargetPhysicalPathFalse -f $Credential.UserName, $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetPhysicalPathFalse -f $PhysicalPath, $Name)
             return $false
         }
     }
