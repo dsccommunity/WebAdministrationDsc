@@ -1,4 +1,10 @@
 #requires -Version 4
+
+$TestCredential = New-Object -TypeName PSCredential -ArgumentList (
+    'CONTOSO\JDoe',
+    ('5t6y7u8i' | ConvertTo-SecureString -AsPlainText -Force)
+)
+
 configuration DSC_WebVirtualDirectory_Initialize
 {
     Import-DscResource -ModuleName WebAdministrationDsc
@@ -58,6 +64,7 @@ configuration DSC_WebVirtualDirectory_Present
             WebApplication = $Node.WebApplication
             Name = $Node.WebVirtualDirectory
             PhysicalPath = $Node.PhysicalPath
+            Credential = $TestCredential
         }
     }
 }

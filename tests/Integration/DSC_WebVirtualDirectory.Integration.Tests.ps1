@@ -84,9 +84,17 @@ try
                 -Application $DSCConfig.AllNodes.WebApplication `
                 -Name $DSCConfig.AllNodes.WebVirtualDirectory
 
+            $virtualDirectoryXPath = "/system.applicationHost/sites/site[@name='$($DSCConfig.AllNodes.Website)']" +
+                "/application[@path='/$($DSCConfig.AllNodes.WebApplication)']" +
+                "/virtualdirectory[@path='/$($DSCConfig.AllNodes.WebVirtualDirectory)']"
+
+            $resultCredential = Get-WebConfiguration $virtualDirectoryXPath | Select-Object -Property userName, password
+
             # Test virtual directory settings are correct
-            $result.path            | Should Be "/$($DSCConfig.AllNodes.WebVirtualDirectory)"
-            $result.physicalPath    | Should Be $DSCConfig.AllNodes.PhysicalPath
+            $result.path               | Should Be "/$($DSCConfig.AllNodes.WebVirtualDirectory)"
+            $result.physicalPath       | Should Be $DSCConfig.AllNodes.PhysicalPath
+            $resultCredential.userName | Should Be $TestCredential.UserName
+            $resultCredential.password | Should Be $TestCredential.GetNetworkCredential().Password
         }
 
         It 'Should create a WebVirtualDirectory with WebApplication = ''/''' -Test {
