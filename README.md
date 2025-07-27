@@ -47,7 +47,7 @@ When configuring an IIS Application that uses PHP, you first need to register th
 The following **xPhp** configuration downloads and installs the prerequisites for PHP, downloads PHP, registers the PHP CGI module with IIS and sets the system environment variable that PHP needs to run.
 
 Note: This example is intended to be used as a composite resource, so it does not use Configuration Data.
-Please see the [Composite Configuration Blog](http://blogs.msdn.com/b/powershell/archive/2014/02/25/reusing-existing-configuration-scripts-in-powershell-desired-state-configuration.aspx) on how to use this configuration in another configuration.
+Please see the [Reusing Existing Configuration Scripts in PowerShell Desired State Configuration](https://devblogs.microsoft.com/powershell/reusing-existing-configuration-scripts-in-powershell-desired-state-configuration/) on how to use this configuration in another configuration.
 
 ```powershell
 # Composite configuration to install the IIS pre-requisites for PHP
