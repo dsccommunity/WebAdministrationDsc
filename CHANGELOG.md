@@ -33,6 +33,8 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 
 - WebAdministrationDsc
   - Fixed CertificateStoreName default value from `MY` to `My` ([issue #642](https://github.com/dsccommunity/WebAdministrationDsc/issues/642))
+- README.md
+  - Fixed broken link.
 
 ### Removed
 
