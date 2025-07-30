@@ -68,7 +68,7 @@ function Get-TargetResource
                 -Namespace root/microsoft/windows/DesiredStateConfiguration `
                 -Property @{
                     UserName = $currentCredential.userName
-                    Password = $currentCredential.password
+                    Password = [string]$null
                 }
         }
     }
