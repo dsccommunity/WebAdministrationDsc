@@ -59,7 +59,7 @@ function Get-TargetResource
 
         $itemXPath = "/system.applicationHost/sites/site[@name='$Website']/application[@path='/$WebApplication']/virtualdirectory[@path='/$Name']"
 
-        $currentCredential = Get-WebConfiguration $itemXPath | Select-Object -Property userName,password
+        $currentCredential = Get-WebConfiguration -Filter $itemXPath | Select-Object -Property userName,password
 
         if ($currentCredential -and (-not [System.String]::IsNullOrEmpty($currentCredential.userName)))
         {
@@ -190,7 +190,7 @@ function Set-TargetResource
 
             $itemXPath = "/system.applicationHost/sites/site[@name='$Website']/application[@path='/$WebApplication']/virtualdirectory[@path='/$Name']"
 
-            Set-WebConfiguration $itemXPath -Value @{
+            Set-WebConfiguration -Filter $itemXPath -Value @{
                 userName = $Credential.UserName
                 password = $Credential.GetNetworkCredential().Password
             }
@@ -274,7 +274,7 @@ function Test-TargetResource
 
             $itemXPath = "/system.applicationHost/sites/site[@name='$Website']/application[@path='/$WebApplication']/virtualdirectory[@path='/$Name']"
 
-            $currentCredential = Get-WebConfiguration $itemXPath | Select-Object -Property userName,password
+            $currentCredential = Get-WebConfiguration -Filter $itemXPath | Select-Object -Property userName,password
 
             if (($Credential.UserName -eq $currentCredential.userName -and $Credential.GetNetworkCredential().Password -eq $currentCredential.password))
             {

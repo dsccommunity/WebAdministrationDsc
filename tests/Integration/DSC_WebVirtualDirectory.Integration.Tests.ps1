@@ -88,13 +88,13 @@ try
                 "/application[@path='/$($DSCConfig.AllNodes.WebApplication)']" +
                 "/virtualdirectory[@path='/$($DSCConfig.AllNodes.WebVirtualDirectory)']"
 
-            $resultCredential = Get-WebConfiguration $virtualDirectoryXPath | Select-Object -Property userName, password
+            $resultCredential = Get-WebConfiguration -Filter $virtualDirectoryXPath | Select-Object -Property userName, password
 
             # Test virtual directory settings are correct
             $result.path               | Should Be "/$($DSCConfig.AllNodes.WebVirtualDirectory)"
             $result.physicalPath       | Should Be $DSCConfig.AllNodes.PhysicalPath
-            $resultCredential.userName | Should Be $TestCredential.UserName
-            $resultCredential.password | Should Be $TestCredential.GetNetworkCredential().Password
+            $resultCredential.userName | Should Be $DSCConfig.AllNodes.Credential.UserName
+            $resultCredential.password | Should Be $DSCConfig.AllNodes.Credential.Password
         }
 
         It 'Should create a WebVirtualDirectory with WebApplication = ''/''' -Test {

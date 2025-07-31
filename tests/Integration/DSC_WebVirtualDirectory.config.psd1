@@ -12,6 +12,10 @@
             WebApplicationPhysicalPath  = "C:\inetpub\webapp"
             WebVirtualDirectory         = 'VirtualDirectory'
             PhysicalPath                = 'C:\inetpub\virtualdirectory'
+            Credential                  = @{
+                UserName = 'CONTOSO\JDoe'
+                Password = '5t6y7u8i'
+            }
             HostName                    = 'http.website'
         }
     )
