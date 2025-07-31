@@ -50,28 +50,26 @@ function Get-TargetResource
 
     $PhysicalPath = ''
     $Ensure = 'Absent'
-    $Credential = $null
+    $cimCredential = $null
 
     if ($virtualDirectory.Count -eq 1)
     {
         $PhysicalPath = $virtualDirectory.PhysicalPath
         $Ensure = 'Present'
 
-        if ([System.String]::IsNullOrEmpty($WebApplication))
-        {
-            $itemPath = "IIS:Sites\$Website\$Name"
-        }
-        else
-        {
-            $itemPath = "IIS:Sites\$Website\$WebApplication\$Name"
-        }
+        $itemXPath = "/system.applicationHost/sites/site[@name='$Website']/application[@path='/$WebApplication']/virtualdirectory[@path='/$Name']"
 
-        $userName = (Get-ItemProperty $itemPath -Name UserName).Value
-        if (-not [System.String]::IsNullOrEmpty($userName))
+        $currentCredential = Get-WebConfiguration -Filter $itemXPath | Select-Object -Property userName,password
+
+        if ($currentCredential -and (-not [System.String]::IsNullOrEmpty($currentCredential.userName)))
         {
-            $password = New-Object System.Security.SecureString # Blank Password
-            $secStringPassword = $password | ConvertTo-SecureString -AsPlainText -Force
-            $Credential = New-Object System.Management.Automation.PSCredential ($userName, $secStringPassword)
+            $cimCredential = New-CimInstance -ClientOnly `
+                -ClassName MSFT_Credential `
+                -Namespace root/microsoft/windows/DesiredStateConfiguration `
+                -Property @{
+                    UserName = $currentCredential.userName
+                    Password = [string]$null
+                }
         }
     }
 
@@ -82,7 +80,7 @@ function Get-TargetResource
         Website        = $Website
         WebApplication = $WebApplication
         PhysicalPath   = $PhysicalPath
-        Credential     = $Credential
+        Credential     = $cimCredential
         Ensure         = $Ensure
     }
 
@@ -190,8 +188,12 @@ function Set-TargetResource
         {
             Write-Verbose -Message ($script:localizedData.VerboseSetTargetCredential -f $Name)
 
-            Set-ItemProperty $itemPath -Name UserName -Value $Credential.UserName
-            Set-ItemProperty $itemPath -Name Password -Value $Credential.GetNetworkCredential().Password
+            $itemXPath = "/system.applicationHost/sites/site[@name='$Website']/application[@path='/$WebApplication']/virtualdirectory[@path='/$Name']"
+
+            Set-WebConfiguration -Filter $itemXPath -Value @{
+                userName = $Credential.UserName
+                password = $Credential.GetNetworkCredential().Password
+            }
         }
     }
 
@@ -270,32 +272,24 @@ function Test-TargetResource
                 return $true
             }
 
-            if ([System.String]::IsNullOrEmpty($WebApplication))
-            {
-                $itemPath = "IIS:Sites\$Website\$Name"
-            }
-            else
-            {
-                $itemPath = "IIS:Sites\$Website\$WebApplication\$Name"
-            }
+            $itemXPath = "/system.applicationHost/sites/site[@name='$Website']/application[@path='/$WebApplication']/virtualdirectory[@path='/$Name']"
 
-            $userName = (Get-ItemProperty $itemPath -Name UserName).Value
-            $password = (Get-ItemProperty $itemPath -Name Password).Value
+            $currentCredential = Get-WebConfiguration -Filter $itemXPath | Select-Object -Property userName,password
 
-            if (($Credential.UserName -eq $userName -and $Credential.GetNetworkCredential().Password -eq $password))
+            if (($Credential.UserName -eq $currentCredential.userName -and $Credential.GetNetworkCredential().Password -eq $currentCredential.password))
             {
                 Write-Verbose -Message ($script:localizedData.VerboseTestTargetTrue)
                 return $true
             }
             else
             {
-                Write-Verbose -Message ($script:localizedData.VerboseTestTargetCredentialFalse -f $PhysicalPath, $Name)
+                Write-Verbose -Message ($script:localizedData.VerboseTestTargetCredentialFalse -f $Credential.UserName, $Name)
                 return $false
             }
         }
         else
         {
-            Write-Verbose -Message ($script:localizedData.VerboseTestTargetPhysicalPathFalse -f $Credential.UserName, $Name)
+            Write-Verbose -Message ($script:localizedData.VerboseTestTargetPhysicalPathFalse -f $PhysicalPath, $Name)
             return $false
         }
     }

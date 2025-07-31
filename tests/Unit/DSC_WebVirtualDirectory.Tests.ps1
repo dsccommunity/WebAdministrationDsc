@@ -67,18 +67,13 @@ try
                 It 'Should return true' {
                     $mockUsername = "SomeUsername"
                     $mockPassword = "SomePassword"
-                    $passwordSecureString = $mockPassword | ConvertTo-SecureString -AsPlainText -Force
-                    $mockCred = New-Object System.Management.Automation.PSCredential($mockUsername, $passwordSecureString)
 
-                    $returnUsername = @{
-                        'Value' = $mockUsername
+                    $returnCredentials = @{
+                        'userName' = $mockUsername
+                        'password' = $mockPassword
                     }
-                    $returnPassword = @{
-                        'Value' = $mockPassword
-                    }
-                    Mock -CommandName Get-ItemProperty -ParameterFilter { $Name -eq "userName" } -MockWith { return $returnUsername }
-                    Mock -CommandName Get-ItemProperty -ParameterFilter { $Name -eq "password" } -MockWith { return $returnPassword }
 
+                    Mock -CommandName Get-WebConfiguration -MockWith { return $returnCredentials }
                     Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
 
                     $result = Test-TargetResource -Website $MockSite.Website `
@@ -119,14 +114,12 @@ try
                     $passwordSecureString = $mockPassword | ConvertTo-SecureString -AsPlainText -Force
                     $mockCred = New-Object System.Management.Automation.PSCredential($mockUsername, $passwordSecureString)
 
-                    $returnUsername = @{
-                        'Value' = 'SomeIncorrectUsername'
+                    $returnCredentials = @{
+                        'userName' = 'SomeIncorrectUsername'
+                        'password' = 'SomeIncorrectPassword'
                     }
-                    $returnPassword = @{
-                        'Value' = 'SomeIncorrectPassword'
-                    }
-                    Mock -CommandName Get-ItemProperty -ParameterFilter { $Name -eq "userName" } -MockWith { return $returnUsername }
-                    Mock -CommandName Get-ItemProperty -ParameterFilter { $Name -eq "password" } -MockWith { return $returnPassword }
+
+                    Mock -CommandName Get-WebConfiguration -MockWith { return $returnCredentials }
 
                     Mock -CommandName Get-WebVirtualDirectory -MockWith { return $virtualDir }
 
@@ -185,12 +178,8 @@ try
                     'Count' = 1
                 }
 
-                $returnEmpty = @{
-                    'Value' = ''
-                }
-
                 Mock -CommandName Get-WebVirtualDirectory -MockWith { return $returnObj }
-                Mock -CommandName Get-ItemProperty -MockWith { return $returnEmpty }
+                Mock -CommandName Get-WebConfiguration -MockWith { return @{} }
 
                 $result = Get-TargetResource -Website $returnSite.Website `
                     -WebApplication $returnSite.WebApplication `
@@ -221,17 +210,13 @@ try
 
                 $mockUsername = "SomeUsername"
                 $mockPassword = "SomePassword"
-                $passwordSecureString = $mockPassword | ConvertTo-SecureString -AsPlainText -Force
-                $mockCred = New-Object System.Management.Automation.PSCredential($mockUsername, $passwordSecureString)
 
-                $returnUsername = @{
-                    'Value' = $mockUsername
+                $returnCredentials = [PSCustomObject]@{
+                    'userName' = $mockUsername
+                    'password' = $mockPassword
                 }
-                $returnPassword = @{
-                    'Value' = $mockPassword
-                }
-                Mock -CommandName Get-ItemProperty -ParameterFilter { $Name -eq "userName" } -MockWith { return $returnUsername }
-                Mock -CommandName Get-ItemProperty -ParameterFilter { $Name -eq "password" } -MockWith { return $returnPassword }
+
+                Mock -CommandName Get-WebConfiguration -MockWith { return $returnCredentials }
 
                 Mock -CommandName Get-WebVirtualDirectory -MockWith { return $returnObj }
 
@@ -291,7 +276,7 @@ try
                     $mockCred = New-Object System.Management.Automation.PSCredential($mockUsername, $passwordSecureString)
 
 
-                    Mock -CommandName Set-ItemProperty
+                    Mock -CommandName Set-WebConfiguration
 
                     Mock -CommandName New-WebVirtualDirectory
 
@@ -306,7 +291,7 @@ try
                         -Ensure 'Present'
 
                     Assert-MockCalled -CommandName New-WebVirtualDirectory -Exactly 1
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 2
+                    Assert-MockCalled -CommandName Set-WebConfiguration -Exactly 1
                 }
             }
 
@@ -376,6 +361,8 @@ try
 
                     Mock -CommandName Get-WebVirtualDirectory -MockWith { return $mockSite }
                     Mock -CommandName Set-ItemProperty
+                    Mock -CommandName Set-WebConfiguration
+
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
@@ -384,7 +371,8 @@ try
                         -Credential $mockCred `
                         -Ensure 'Present'
 
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfiguration -Exactly 1
                 }
             }
 
@@ -405,6 +393,7 @@ try
 
                     Mock -CommandName Get-WebVirtualDirectory -MockWith { return $mockSite }
                     Mock -CommandName Set-ItemProperty
+                    Mock -CommandName Set-WebConfiguration
 
                     Set-TargetResource -Website $mockSite.Website `
                         -WebApplication $mockSite.WebApplication `
@@ -413,7 +402,8 @@ try
                         -Credential $mockCred `
                         -Ensure 'Present'
 
-                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 3
+                    Assert-MockCalled -CommandName Set-ItemProperty -Exactly 1
+                    Assert-MockCalled -CommandName Set-WebConfiguration -Exactly 1
                 }
             }
 

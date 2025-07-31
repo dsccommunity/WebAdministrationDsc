@@ -58,6 +58,10 @@ configuration DSC_WebVirtualDirectory_Present
             WebApplication = $Node.WebApplication
             Name = $Node.WebVirtualDirectory
             PhysicalPath = $Node.PhysicalPath
+            Credential = New-Object -TypeName PSCredential -ArgumentList (
+                                $Node.Credential.UserName,
+                                ($Node.Credential.Password | ConvertTo-SecureString -AsPlainText -Force)
+                            )
         }
     }
 }
