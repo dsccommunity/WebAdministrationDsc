@@ -61,7 +61,7 @@ function Get-TargetResource
         Value = $existingValue
     }
 
-    if (-not($existingValue))
+    if ($null -eq $existingValue)
     {
         # Property was not found.
         Write-Verbose `
