@@ -5,4 +5,5 @@ ConvertFrom-StringData -StringData @'
     VerboseTargetPropertyFound        = Property "{0}" has been found.
     VerboseSetTargetEditItem          = Ensuring property "{0}" is set.
     VerboseSetTargetRemoveItem        = Property "{0}" exists, removing property.
+    VerboseWebsitePathNotFound        = Cannot find path '{0}' because it does not exist.
 '@

@@ -48,32 +48,53 @@ function Get-TargetResource
     Write-Verbose `
         -Message ($script:localizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
 
-    $existingValue = Get-ItemValue `
-                        -WebsitePath $WebsitePath `
-                        -Filter $Filter `
-                        -PropertyName $PropertyName
-
     $result = @{
-        WebsitePath = $WebsitePath
-        Filter = $Filter
+        WebsitePath  = $WebsitePath
+        Filter       = $Filter
         PropertyName = $PropertyName
-        Ensure = 'Present'
-        Value = $existingValue
+        Ensure       = 'Absent'
+        Value        = $null
     }
 
-    if (-not($existingValue))
+    $getItemValueParameters = @{
+        WebsitePath  = $WebsitePath
+        Filter       = $Filter
+        PropertyName = $PropertyName
+    }
+
+    try
+    {
+        $existingValue = Get-ItemValue @getItemValueParameters
+    }
+    catch [System.Management.Automation.ItemNotFoundException]
+    {
+        Write-Verbose `
+            -Message ($script:localizedData.VerboseWebsitePathNotFound -f $WebsitePath)
+
+        return $result
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        Write-Verbose `
+            -Message ($script:localizedData.VerboseWebsitePathNotFound -f $WebsitePath)
+
+        return $result
+    }
+
+    $result.Value = $existingValue
+
+    if ($null -eq $existingValue)
     {
         # Property was not found.
         Write-Verbose `
-            -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $PropertyName )
-
-        $result.Ensure = 'Absent'
+            -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $PropertyName)
     }
     else
     {
         # Property was found.
+        $result.Ensure = 'Present'
         Write-Verbose `
-            -Message ($script:localizedData.VerboseTargetPropertyFound -f $PropertyName )
+            -Message ($script:localizedData.VerboseTargetPropertyFound -f $PropertyName)
     }
 
     return $result
