@@ -10,6 +10,7 @@ For older change log history see the [historic changelog](HISTORIC_CHANGELOG.md)
 ### Changed
 
 - `WebAdministrationDsc`
+  - Return Absent when WebsitePath does not exist and treat empty string value as Present
   - Update to latest Sampler files.
   - Remove `windows-2019` images. [#649](https://github.com/dsccommunity/WebAdministrationDsc/issues/649).
   - Add `windows-2025` images.

@@ -48,32 +48,43 @@ function Get-TargetResource
     Write-Verbose `
         -Message ($script:localizedData.VerboseTargetCheckingTarget -f $PropertyName, $Filter, $WebsitePath )
 
-    $existingValue = Get-ItemValue `
-                        -WebsitePath $WebsitePath `
-                        -Filter $Filter `
-                        -PropertyName $PropertyName
-
     $result = @{
-        WebsitePath = $WebsitePath
-        Filter = $Filter
+        WebsitePath  = $WebsitePath
+        Filter       = $Filter
         PropertyName = $PropertyName
-        Ensure = 'Present'
-        Value = $existingValue
+        Ensure       = 'Present'
+        Value        = $null
     }
 
-    if (-not($existingValue))
+    if (-not (Test-Path -Path $WebsitePath))
+    {
+        Write-Verbose `
+            -Message ($script:localizedData.VerboseWebsitePathNotFound -f $WebsitePath )
+        $result.Ensure = 'Absent'
+        $result.Value = $null
+        return $result
+    }
+
+    $existingValue = Get-ItemValue `
+        -WebsitePath $WebsitePath `
+        -Filter $Filter `
+        -PropertyName $PropertyName
+
+    if ($null -eq $existingValue)
     {
         # Property was not found.
         Write-Verbose `
             -Message ($script:localizedData.VerboseTargetPropertyNotFound -f $PropertyName )
 
         $result.Ensure = 'Absent'
+        $result.Value = $existingValue
     }
     else
     {
         # Property was found.
         Write-Verbose `
             -Message ($script:localizedData.VerboseTargetPropertyFound -f $PropertyName )
+        $result.Value = $existingValue
     }
 
     return $result

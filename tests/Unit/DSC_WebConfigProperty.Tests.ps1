@@ -60,6 +60,10 @@ try
                     PropertyName = 'enabled'
                 }
 
+                Mock -CommandName Test-Path -ModuleName $script:dscResourceName -MockWith {
+                    return $true
+                }
+
                 Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return $null
                 }
@@ -84,6 +88,10 @@ try
                     PropertyName = 'enabled'
                 }
 
+                Mock -CommandName Test-Path -ModuleName $script:dscResourceName -MockWith {
+                    return $true
+                }
+
                 Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
                     return 'true'
                 }
@@ -98,6 +106,50 @@ try
 
                 It 'Should have called Get-ItemValue the correct amount of times' {
                     Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
+                }
+            }
+
+            Context 'Value is an empty string' {
+                Mock -CommandName Test-Path -ModuleName $script:dscResourceName -MockWith {
+                    return $true
+                }
+
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
+                    return [System.String]::Empty
+                }
+
+                $result = Get-TargetResource @parameters
+
+                It 'Should return Ensure as Present' {
+                    $result.Ensure | Should -Be 'Present'
+                }
+
+                It 'Should return an empty string value' {
+                    $result.Value | Should -Be ''
+                }
+
+                It 'Should have called Get-ItemValue the correct amount of times' {
+                    Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
+                }
+            }
+
+            Context 'WebsitePath does not exist' {
+                Mock -CommandName Test-Path -ModuleName $script:dscResourceName -MockWith {
+                    return $false
+                }
+
+                $result = Get-TargetResource @parameters
+
+                It 'Should return Ensure as Absent' {
+                    $result.Ensure | Should -Be 'Absent'
+                }
+
+                It 'Should return null value' {
+                    $result.Value | Should -BeNullOrEmpty
+                }
+
+                It 'Should not call Get-ItemValue' {
+                    Assert-MockCalled -CommandName Get-ItemValue -Times 0 -Exactly
                 }
             }
         }
