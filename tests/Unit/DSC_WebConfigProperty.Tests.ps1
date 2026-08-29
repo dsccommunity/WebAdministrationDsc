@@ -19,8 +19,8 @@ function Invoke-TestSetup
         -ResourceType 'Mof' `
         -TestType 'Unit'
 
-        Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
-        Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1')
+    Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\MockWebAdministrationWindowsFeature.psm1')
+    Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelper\CommonTestHelper.psm1')
 }
 
 function Invoke-TestCleanup
@@ -94,6 +94,58 @@ try
                     $result.Ensure       | Should -Be 'Present'
                     $result.PropertyName | Should -Be 'enabled'
                     $result.Value        | Should -Be 'true'
+                }
+
+                It 'Should have called Get-ItemValue the correct amount of times' {
+                    Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
+                }
+            }
+
+            Context 'When value is an empty string' {
+                $parameters = @{
+                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+                    Filter       = 'system.webServer/advancedLogging/server'
+                    PropertyName = 'enabled'
+                }
+
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
+                    return [System.String]::Empty
+                }
+
+                $result = Get-TargetResource @parameters
+
+                It 'Should return Ensure as Present' {
+                    $result.Ensure      | Should -Be 'Present'
+                }
+
+                It 'Should return an empty string value' {
+                    $result.Value       | Should -Be ''
+                }
+
+                It 'Should have called Get-ItemValue the correct amount of times' {
+                    Assert-MockCalled -CommandName Get-ItemValue -Times 1 -Exactly
+                }
+            }
+
+            Context 'When WebsitePath does not exist' {
+                $parameters = @{
+                    WebsitePath  = 'MACHINE/WEBROOT/APPHOST'
+                    Filter       = 'system.webServer/advancedLogging/server'
+                    PropertyName = 'enabled'
+                }
+
+                Mock -CommandName Get-ItemValue -ModuleName $script:dscResourceName -MockWith {
+                    throw 'Unrecognized configuration path'
+                }
+
+                $result = Get-TargetResource @parameters
+
+                It 'Should return Ensure as Absent' {
+                    $result.Ensure | Should -Be 'Absent'
+                }
+
+                It 'Should return null value' {
+                    $result.Value | Should -BeNullOrEmpty
                 }
 
                 It 'Should have called Get-ItemValue the correct amount of times' {
@@ -224,7 +276,7 @@ try
         #region Non-Exported Function Unit Tests
         Describe "$($script:dscResourceName)\Get-ItemPropertyType" {
             $propertyType = 'UInt32'
-            $parameters = @{
+            $parameters   = @{
                 WebsitePath  = 'IIS:\'
                 Filter       = 'system.webServer/security/dynamicIpSecurity/denyByConcurrentRequests'
                 PropertyName = 'maxConcurrentRequests'
@@ -260,7 +312,6 @@ try
 
                 $returnValue | Should -BeOfType [$dataType]
             }
-
         }
         #endregion Non-Exported Function Unit Tests
     }
